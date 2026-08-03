@@ -1,0 +1,418 @@
+---
+import Article from '../../layouts/Article.astro';
+import Claim from '../../components/Claim.astro';
+import Answer from '../../components/Answer.astro';
+---
+
+<Article
+  title="What the developer community did"
+  description="Bitcoin Optech's coverage, the libngu and COLDCARD pull requests opened after the entropy incident, an independent commit-history reconstruction checked against the pinned clones, and attributed process and licensing observations."
+  standfirst="Four public incident-response proposals are tracked. Their state moved through 1 August 2026: one stayed open, two were closed by their own authors, and the firmware companion became a draft waiting on a new upstream proposal. A separate commit-history analysis is checked claim by claim below."
+  depth="plain"
+  kicker="The response"
+>
+  <Answer>
+    <p>
+      Outside Coinkite's own repository, the community response was proposals
+      rather than shipped change. Three pull requests against the upstream
+      <code>libngu</code> library and one companion COLDCARD firmware pull
+      request were all still open and unreviewed or unmerged in the captures
+      checked on 1 August 2026, so none of them is present in a release. Bitcoin
+      Optech carried the advisory to its technical readership, and an
+      independent developer published a commit-history reconstruction whose
+      assertions are graded one by one below. Nothing here changes what an owner
+      should do; it records what the developer community proposed.
+    </p>
+  </Answer>
+
+  <h2>The upstream guard in the 1 August capture</h2>
+
+  <p>
+    <a href="/how-it-broke/#the-fix">The COLDCARD hotfix</a> replaces the linked
+    <code>rng_get()</code> implementation for the affected boards. It does not
+    change <code>libngu</code>'s original <code>#ifndef
+    MICROPY_HW_ENABLE_RNG</code> guard. An integrator can encounter the same
+    condition if it defines that macro as <code>(0)</code> and links a software
+    <code>rng_get()</code> fallback.
+  </p>
+
+  <p>
+    Three pull requests were opened against <code>switck/libngu</code>, two on
+    <strong>31 July 2026</strong> and one on <strong>1 August 2026</strong>.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Upstream libngu pull requests opened after disclosure
+          <Claim
+            basis="verified"
+            scope="The public contents of libngu pull requests #58, #59, #60 and #61, and the state each was in at every capture held: 03:25 to 17:41 UTC on 1 August 2026 for the first three, and 3 August 2026 for #61"
+            source="Captured switck/libngu pull-request pages and separate patch captures, 1 Aug 2026"
+            href="/record/sources/libngu-pr-60/"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">PR</th>
+            <th scope="col" class="wide">Proposal</th>
+            <th scope="col" class="wide">State across the captures held</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw"><a href="/record/sources/libngu-pr-58/">#58</a><small>btchip · <a href="/record/sources/libngu-pr-58-patch/">patch</a></small></td>
+            <td class="wide"><strong>Enforce a hardware TRNG.</strong> Make an unsupported board configuration fail at build time rather than use the software path.</td>
+            <td class="wide"><span class="status status--warn">Open</span> Still open in the last capture of the day, 08:11 UTC. No maintainer reply appears in any of them.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/libngu-pr-59/">#59</a><small>jgmontoya · <a href="/record/sources/libngu-pr-59-patch/">patch</a></small></td>
+            <td class="wide"><strong>Fail-closed entropy backends and HMAC_DRBG.</strong> The branch includes tests against official NIST CAVP vectors, deterministic health-rule tests and negative compile gates.</td>
+            <td class="wide"><span class="status status--info">Closed by its author</span> Open at 03:25 UTC, closed by 16:08. The maintainer replied "diff too big"; the author offered a three-PR split and then closed this one.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/libngu-pr-60/">#60</a><small>ballance · <a href="/record/sources/libngu-pr-60-patch/">patch</a></small></td>
+            <td class="wide"><strong>Absorb a full-width seed.</strong> Accept a bytes-like reseed value, mix every byte into all Yasmarang state words, and retain integer input for compatibility.</td>
+            <td class="wide"><span class="status status--info">Closed by its author</span> Open at 06:21 UTC, closed by 16:08. No review or maintainer reply appears in any capture; the work moved to a new proposal, libngu #61.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/libngu-pr-61/">#61</a><small>scgbckbone · <a href="/record/sources/libngu-pr-61-patch/">patch</a></small></td>
+            <td class="wide"><strong>Replace the generator outright.</strong> Substitutes a SHA-256 Hash-DRBG for Yasmarang and requires a reseed seed of at least 32 bytes, so the old four-byte integer call is rejected rather than quietly accepted.</td>
+            <td class="wide"><span class="status status--warn">Open</span> Opened after the other three; first held capture is 3 August 2026, where it is open with no maintainer reply.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>
+    For #59, the proposed split is: the DRBG and CAVP-vector tests, the entropy
+    health rule, and a smaller final <code>random.c</code> rework.
+  </p>
+
+  <p>
+    <a href="/record/sources/coldcard-firmware-pr-691/">COLDCARD firmware PR #691</a>
+    began as the companion to libngu #60. It proposes passing the complete SHA256d
+    digest from <code>mk4.rng_seeding()</code> into the widened reseed API rather
+    than unpacking only its first four bytes. Through the day its state moved: open
+    at 06:21 UTC, still open at 16:08, and a draft by the 17:41 capture, marked so
+    at 16:13. A maintainer asked that the libngu changes be opened as a separate
+    pull request against the libngu repository. The rewritten description now depends
+    on <a href="/record/sources/libngu-pr-61/">libngu #61</a> rather than #60, a proposal
+    that replaces the generator with a SHA-256 Hash-DRBG and requires a seed of at
+    least 32 bytes, so the old four-byte call is rejected outright.
+    <Claim
+      basis="verified"
+      scope="The public contents of COLDCARD firmware pull request #691, its stated dependency, and the state it was in at every capture held from 06:21 to 17:41 UTC on 1 August 2026. The libngu #61 proposal it now names is registered and captured separately"
+      source="Captured Coldcard/firmware pull-request page and separate patch capture, 1 Aug 2026"
+      href="/record/sources/coldcard-firmware-pr-691/"
+      compact
+    />
+    Its
+    <a href="/record/sources/coldcard-firmware-pr-691-patch/">patch is held separately</a>.
+  </p>
+
+  <h2>A process observation on the firmware repository</h2>
+
+  <p>
+    The review path of the firmware repository itself drew comment. On 2
+    August 2026, <a href="/record/sources/mutatrum-repo-process/">mutatrum observed</a>
+    that most changes in <code>coldcard/firmware</code> land directly on
+    master or are merged without review comments, and asked what the open
+    repository provides in that state.
+    <Claim
+      basis="reported"
+      scope="mutatrum's observation that most coldcard/firmware changes land on master directly or merge without review comments"
+      source="mutatrum, 2 Aug 2026, preserved as an X capture"
+      href="/record/sources/mutatrum-repo-process/"
+      compact
+    />
+    That is an attributed observation about
+    the visible history, not a measurement this archive has repeated: no
+    independent count of direct-to-master commits or reviewless merges has
+    been made here.
+  </p>
+
+  <h2 id="commit-history">Independent commit-history analysis</h2>
+
+  <p>
+    On 1 August 2026, bitcoin++ Insider Edition published
+    <a href="/record/sources/btcpp-dettmer-commit-history/">a guest analysis by Core Lightning developer Dustin Dettmer</a>,
+    announced the same day
+    <a href="/record/sources/btcpp-dettmer-analysis-announcement/">on X</a>.
+    It reconstructs the change from the firmware commit history and argues that
+    the board override was aimed at a symbol the seed path never uses, while
+    silencing the build condition that would have exposed the mistake. Its
+    commit-level assertions are checkable against the repository clones held
+    here, which is why they are graded individually below rather than adopted or
+    dismissed as a block.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Dettmer's commit-level assertions against the pinned clones, checked 3 August 2026
+          <Claim
+            basis="reported"
+            contested
+            scope="Dettmer's attribution of the defect's introduction to the 2021 commit, and his account of the developer's intent"
+            source="Dettmer's published analysis; the archive's own commit check dates the same configuration to July 2018 and is set out in the table"
+            href="/record/sources/btcpp-dettmer-commit-history/"
+            compact
+          />
+          <Claim
+            basis="unverified"
+            scope="The existence of a second contributing commit with a one-character message"
+            source="A search of reachable commit messages in the firmware clone found no such commit; a differently described commit could be missed"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="wide">Assertion</th>
+            <th scope="col" class="wide">What the pinned clones show</th>
+            <th scope="col" class="nw">Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="wide">A commit whose entire message is the word "runs" changed 1,534 lines.</td>
+            <td class="wide">Confirmed to the line. Commit <code>37e4af54</code>, 21 May 2021, message "runs", 1,534 insertions across 17 files, adding the <code>stm32/COLDCARD_MK4/</code> board directory including its <code>mpconfigboard.h</code>, <code>rng.c</code> and <code>rng.h</code>.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+          </tr>
+          <tr>
+            <td class="wide">That commit is where the low-entropy defect was introduced.</td>
+            <td class="wide"><strong>Not supported by the history held here.</strong> The comment "We have our own version of this code.", the <code>#define MICROPY_HW_ENABLE_RNG (0)</code> beneath it, the board's replacement <code>rng.c</code> defining <code>pyb_rng_get_obj</code>, and its <code>#error "this code replaces normal RNG module"</code> guard are all present for the Mk3 board in the first public firmware commit, <code>9f04ac1b</code>, 24 July 2018. The 2021 "runs" commit carried that existing pattern into the new Mk4 board directory rather than originating it.</td>
+            <td class="nw"><span class="status status--ok">Verified</span> <span class="status status--warn">Contested</span></td>
+          </tr>
+          <tr>
+            <td class="wide">A second contributing commit has a one-character message, "x", and changes about 1,000 lines.</td>
+            <td class="wide">No such commit was located. A search of every reachable commit message in the clone found no single-character message "x", and the Q board directory was added on 10 January 2023 under the message "pull basics from mk4".</td>
+            <td class="nw"><span class="status status--neutral">Unverified</span></td>
+          </tr>
+          <tr>
+            <td class="wide">The board's <code>rng.h</code> declares <code>pyb_rng_get_obj</code> and <code>pyb_rng_get_bytes_obj</code>, duplicating what the stock stm32 <code>rng.c</code> defines, so the two cannot be compiled together.</td>
+            <td class="wide">Confirmed verbatim. Pre-hotfix <code>stm32/COLDCARD/rng.h</code> declares exactly those two objects and nothing else, the board <code>rng.c</code> defines <code>pyb_rng_get_obj</code> at line 110, and MicroPython's <code>ports/stm32/rng.c</code> defines the same object under <code>#if MICROPY_HW_ENABLE_RNG</code>. The board file's own <code>#error</code> guard states the mutual exclusion outright.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+          </tr>
+          <tr>
+            <td class="wide">Setting the macro to zero removed the stock hardware code, and with it the real <code>rng_get()</code>, which then resolved to MicroPython's Yasmarang fallback.</td>
+            <td class="wide">Confirmed structurally. MicroPython's <code>ports/stm32/rng.c</code> guards both the hardware <code>rng_get()</code> and <code>pyb_rng_get_obj</code> behind the same <code>#if</code>, and its <code>#else</code> branch supplies an <code>rng_get()</code> whose body is a call to <code>pyb_rng_yasmarang()</code>. The pre-hotfix board file defined no <code>rng_get()</code> of its own. Dettmer cites line 112 for the fallback; it sits at lines 97 to 99 in the clone head held here, so the line number is version dependent while the mechanism is not.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+          </tr>
+          <tr>
+            <td class="wide">The override targets <code>pyb_rng_get_obj</code>, the Python-visible <code>pyb.rng()</code> callable, which is not what seed generation invokes. Version 4.0.0 calls <code>random.bytes(32)</code>, which reaches <code>rng_get()</code> instead.</td>
+            <td class="wide">Confirmed, including the quoted code. At tag <code>v4.0.0</code>, <code>shared/seed.py:354</code> reads <code>seed = random.bytes(32)</code>, and <code>shared/random.py</code> in the same tag binds <code>bytes = ngu.random.bytes</code>. The call therefore enters libngu and resolves through <code>CHIP_TRNG_32()</code> to <code>rng_get()</code>, never touching the overridden Python callable.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+          </tr>
+          <tr>
+            <td class="wide">The developer hit a duplicate-symbol error, silenced it by setting the macro to zero out of frustration, and shipped code he did not understand.</td>
+            <td class="wide">The structural half is corroborated above. The account of what the developer experienced, intended or understood is the author's inference and cannot be established from a commit history. Coinkite's own backgrounder gives a different account of the macro's intent, which the archive records rather than reconciles.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--blue">
+    <div class="ve-card__label lbl-blue">What the two datings together establish</div>
+    <p>
+      The board configuration Dettmer identifies and the library change others
+      identify are not competing explanations, and the history reconciles them.
+      The <code>(0)</code> define and the missing <code>rng_get()</code> sat in
+      the tree from July 2018 without consequence, because no seed-path caller
+      reached that symbol. Commit <code>b18723dd</code> of 1 March 2021, titled
+      "First pass w/ libNgU", moved seed generation onto a library whose
+      <code>CHIP_TRNG_32()</code> resolves to exactly that symbol. An inert
+      board configuration became a live defect when a second change routed the
+      seed through it. The 31 July hotfix closes it from the board side,
+      commit <code>45436299</code> adding <code>rng_get()</code> to the board
+      file and a build rule that compiles an empty object in place of the
+      fallback so it cannot be linked at all.
+      <Claim
+        basis="verified"
+        scope="Every commit hash, date, message, line count and source quotation in the adjudication table and the reconciliation above"
+        source="Coldcard/firmware and Coldcard/micropython clones held here, read at the cited commits and tags"
+        href="https://github.com/Coldcard/firmware/commit/37e4af5451c260c1e7d429fe8972c4cb5e68ee59"
+        compact
+      />
+    </p>
+  </div>
+
+  <h2>Where public discussion was found</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Public technical-discussion record checked on 1 August 2026
+          <Claim
+            basis="unverified"
+            scope="Whether upstream libngu maintainers were consulted privately before integration"
+            source="Absence of a public thread is based on a dated search and is weaker evidence than a captured publication"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr><th scope="col" class="nw">Venue</th><th scope="col" class="wide">Record as of 1 August 2026</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw"><strong>Bitcoin Optech</strong></td>
+            <td class="wide"><a href="https://bitcoinops.org/en/newsletters/2026/07/31/" rel="noopener nofollow">Newsletter #416</a> led with the incident and placed "Move funds secured by COLDCARD-generated keys" in its <em>Action items</em> section.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong>bitcoin-dev, Delving Bitcoin and MicroPython upstream</strong></td>
+            <td class="wide">No thread or issue was found in any of the three in a search on 1 August. MicroPython provides the software fallback; the ineffective guard was in <code>libngu</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Two details from Optech</h2>
+
+  <div class="ve-card ve-card--blue">
+    <div class="ve-card__label lbl-blue">Coordination and anonymous researchers</div>
+    <p>
+      <a href="https://bitcoinops.org/en/newsletters/2026/07/31/" rel="noopener nofollow">Optech describes Block's analysis</a>
+      as "performed with anonymous researchers and disclosed in coordination
+      with Coinkite". This is Optech's report of coordination and anonymous
+      participation. It does not identify who originally found the defect or
+      explain why the initial affected-model lists differed.
+    </p>
+  </div>
+
+  <div class="ve-card ve-card--amber">
+    <div class="ve-card__label lbl-amber">AI-assisted reproduction</div>
+    <p>
+      <a href="https://bitcoinops.org/en/newsletters/2026/07/31/" rel="noopener nofollow">Optech reports</a>
+      that several developers reproduced the attack with frontier-model
+      assistance and advised treating the vulnerability as actively exploitable.
+      That is reproduction after disclosure, not the unknown original discovery
+      method: <a href="/response/ai/">the AI page</a> carries the quotation and
+      works the distinction through.
+      <Claim
+        basis="reported"
+        scope="Bitcoin Optech's statements about coordination, anonymous participation and AI-assisted reproduction"
+        source="Bitcoin Optech Newsletter #416, published 31 Jul 2026, captured here"
+        href="/record/sources/optech-416/"
+        compact
+      />
+    </p>
+  </div>
+
+  <h2>Downstream public reactions</h2>
+
+  <p>
+    The disclosure also prompted decisions and reviews in other public
+    repositories. These records show what those projects did or proposed. They
+    do not establish that another product shared COLDCARD's defect.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Selected high-signal repository reactions checked on 1 August 2026
+          <Claim
+            basis="reported"
+            captured="1 Aug 2026"
+            scope="The stated rationale and technical findings in the selected Bitcoin.org, SatSigner and SeedSigner repository responses"
+            source="Captured primary pull-request pages; inclusion does not endorse the projects' technical conclusions"
+            href="/record/sources/bitcoinorg-pr-4905/"
+            compact
+          />
+          <Claim
+            basis="verified"
+            scope="The open, merged or closed-unmerged states and timestamps displayed for the three pull requests"
+            source="Captured GitHub pull-request metadata checked 1 Aug 2026"
+            href="/record/sources/seedsigner-pr-962/"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">Record</th>
+            <th scope="col" class="wide">Response</th>
+            <th scope="col" class="wide">Public state</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw"><a href="/record/sources/bitcoinorg-pr-4905/">Bitcoin.org #4905</a></td>
+            <td class="wide">Removed the COLDCARD and COLDCARD Q wallet listings under the site's criterion concerning evidence that users were harmed by a listed wallet issue.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> 1 Aug at 02:13 UTC.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/satsigner-pr-468/">SatSigner #468</a></td>
+            <td class="wide">Reports an incident-prompted entropy audit. The author says the default OS-backed path was sound and proposes fixes for separate optional dice and coin paths.</td>
+            <td class="wide"><span class="status status--warn">Open</span> No review appears in the captured state.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/seedsigner-pr-962/">SeedSigner #962</a></td>
+            <td class="wide">Proposed camera-entropy health checks, then withdrew them after the author concluded the thresholds did not measure sensor entropy and the synthetic tests were not valid evidence.</td>
+            <td class="wide"><span class="status status--info">Closed unmerged</span> No SeedSigner product change resulted from this proposal.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Licensing and forkability</h2>
+
+  <p>
+    The incident renewed a question about what the published source permits.
+    On 2 August 2026,
+    <a href="/record/sources/notgrubles-license-fork-question/">notgrubles asked</a>
+    whether Coinkite's licence would legally prevent forking the firmware to
+    provide longer-term support if the company went out of business.
+    <Claim
+      basis="reported"
+      scope="notgrubles' question about whether the firmware licence would prevent a long-term-support fork if the company folded"
+      source="notgrubles, 2 Aug 2026, preserved as an X capture"
+      href="/record/sources/notgrubles-license-fork-question/"
+      compact
+    />
+    The
+    question sits against an attributed history:
+    <a href="/record/sources/gegelsmr4-licensing-history/">a community account posted the same day</a>
+    links the firmware's Trezor-derived origins and a later relicensing under
+    the Commons Clause to the outside-review question.
+    <Claim
+      basis="reported"
+      scope="The community account linking the firmware's Trezor-derived origins and Commons Clause relicensing to the outside-review question"
+      source="gegelsmr4, 2 Aug 2026, preserved as an X capture"
+      href="/record/sources/gegelsmr4-licensing-history/"
+      compact
+    />
+    Neither post is a legal
+    analysis, and this archive has not itself construed the licence terms; the
+    question is recorded as open.
+  </p>
+
+  <h2>Follow-up items as checked on 3 August 2026</h2>
+
+  <ul class="node-list">
+    <li><strong><a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">Coinkite promised a technical postmortem.</a></strong> The captured statement does not give a publication date or detailed scope.</li>
+    <li><strong>No captured source announces an independent audit of the fixed firmware.</strong> This is an archive limitation, not proof that no private review exists.</li>
+    <li><strong>No incident-specific CVE record was identified.</strong> NVD keyword searches for COLDCARD and Coinkite returned only the earlier <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-14356" rel="noopener nofollow">CVE-2019-14356</a> OLED side-channel record. A differently worded or unpublished request could be missed.</li>
+    <li><strong>The two reproduction scripts described by Gregory Sanders (instagibbs) remain unavailable here.</strong> A dated search of his public GitHub repositories, code results and gist index found no matching publication, so the archive still cannot inspect the test conditions or method.
+      <Claim
+        basis="unverified"
+        scope="The absence of a located formal Coinkite review, incident-specific CVE, audit announcement and public instagibbs reproduction scripts"
+        source="Bounded searches of the official Coinkite blog, current firmware repository, NVD keyword results and public instagibbs GitHub surfaces, checked 3 Aug 2026"
+        compact
+      />
+    </li>
+    <li><strong>A fixed synthetic Mk3 regression vector was published in this archive on 1 August.</strong> It exercises one stated device-state path and cross-checks BIP39 and BIP32 reference vectors. It is not a real-device population measurement or attack benchmark.</li>
+  </ul>
+</Article>
+
+<style>
+  .data-table small { display: block; color: var(--ink-3); font-size: .7rem; margin-top: .2rem; font-family: var(--font-mono); }
+</style>

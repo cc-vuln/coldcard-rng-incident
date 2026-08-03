@@ -1,0 +1,48 @@
+From 9324b130f4e30b852e1162a7390fbe75b2f37957 Mon Sep 17 00:00:00 2001
+From: Ballance <ballance@gmail.com>
+Date: Fri, 31 Jul 2026 23:32:03 -0400
+Subject: [PATCH] fix: feed full SE digest to PRNG reseed (drop 32-bit
+ truncation)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+rng_seeding() hashed the secure-element entropy with SHA256d but then
+kept only n[0:4], handing ngu.random.reseed() a single 32-bit word. That
+throttled the secure-element contribution to 2**32 and, combined with
+reseed()'s old behaviour, left most of the generator state at fixed
+constants. Pass the whole 32-byte digest instead.
+Bumps external/libngu to a512174, which reworks random.reseed() to
+absorb a full-width seed into all generator state words.
+Ref: Block engineering disclosure, "Predictable RNG fallback and 32-bit
+reseed in COLDCARD firmware".
+    Thirty-two silent bytes,
+    all but four were cast aside —
+    now the seed stays whole.
+---
+ external/libngu | 2 +-
+ shared/mk4.py   | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+diff --git a/external/libngu b/external/libngu
+index 537519a8..a5121743 160000
+--- a/external/libngu
++++ b/external/libngu
+@@ -1 +1 @@
+-Subproject commit 537519a829259622ea6b0334fbafd6cae852852f
++Subproject commit a51217432308fd9ebc7c3d54b96a5af72b71b2e9
+diff --git a/shared/mk4.py b/shared/mk4.py
+index 3a3e229d..8a4b1572 100644
+--- a/shared/mk4.py
++++ b/shared/mk4.py
+@@ -38,13 +38,15 @@ def make_psram_fs():
+ def rng_seeding():
+     # seed our RNG with entropy from secure elements
+-    import callgate, ngu, ustruct
++    import callgate, ngu
+     a = callgate.read_rng(1)        # SE1
+     b = callgate.read_rng(2)        # SE2
++    # Feed the FULL 32-byte digest into the PRNG state. Truncating to 4 bytes
++    # (n[0:4]) throttled the secure-element contribution to 2**32 and left most
++    # of the generator's state words at fixed constants: see ngu.random.reseed().
+     n = ngu.hash.sha256d(a+b)
+-    n, = ustruct.unpack('I', n[0:4])
+     ngu.random.reseed(n)

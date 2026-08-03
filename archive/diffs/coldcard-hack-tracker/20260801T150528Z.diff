@@ -1,0 +1,34 @@
+--- coldcard-hack-tracker@20260801T143418Z
++++ coldcard-hack-tracker@20260801T150528Z
+@@ -95,12 +95,12 @@
+ EVENING WAVE · JULY 31
+ Source
+ 
+-Low-fee (~2 sat/vB) sweeps into a short-lived collector, then one vault. Distinct from the Kelbie vault.
++Block 960457. Low-fee (~2 sat/vB) sweeps into a short-lived collector, then one vault. Distinct from the Kelbie vault.
+ 
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Evening vault
+-Block 960457–960458; 0.50980268 BTC consolidated from victim sweeps
++0.50980268 BTC consolidated from victim sweeps
+ 	bc1q7rmsw0…lrrcgf	0.50980268 BTC
+ <live-fiat-value>
+ 	0.50980268 BTC	1	HELD
+@@ -117,7 +117,15 @@
+ Short checklist from Coinkite’s Aug 1 advisory and Block’s root-cause writeup. This tracker does not check your wallet — follow the official steps before moving funds.
+ 
+ LIKELY EXPOSED
+-Seed generated on Mk3 4.0.1–4.1.9 (~40-bit), or on Mk4 / Mk5 / Q before the Aug 1 fixed releases (~72-bit). Fixed: Mk3 ≥4.2.0, Mk4/Mk5 ≥5.6.0 (Edge ≥6.6.0X), Q ≥1.5.0Q (Edge ≥6.6.0QX).
++
++Your seed is likely exposed if it was generated on vulnerable firmware. Fixed releases and later are safe for new seeds.
++
++DEVICE	VULNERABLE	FIXED
++Mk3	4.0.1–4.1.9 (~40-bit)	4.2.0+
++Mk4 / Mk5	Before Aug 1 patch (~72-bit)	5.6.0+
++Q	Before Aug 1 patch (~72-bit)	1.5.0Q+
++Edge (Mk4 / Mk5)	Before Aug 1 patch	6.6.0X+
++Edge (Q)	Before Aug 1 patch	6.6.0QX+
+ FIRMWARE UPDATE IS NOT ENOUGH
+ Patching does not repair an existing seed. Generate a new seed on fixed firmware and migrate funds carefully.
+ BEYOND THE MAIN SEED

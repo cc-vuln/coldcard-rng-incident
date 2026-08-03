@@ -1,0 +1,323 @@
+---
+import Article from '../../../layouts/Article.astro';
+import {
+  changeLog, tsToHuman, sourceById, diffText, parseDiff, displayTitle,
+  reviewForRevision, revisions, withholdsCapturedText,
+} from '../../../lib/archive';
+
+const LABEL: Record<string, string> = {
+  first: 'baseline',
+  error: 'fetch error',
+};
+
+const REVIEW_LABEL: Record<string, string> = {
+  'source-content': 'source content',
+  'capture-noise': 'capture noise',
+  'capture-correction': 'capture correction',
+  'unreviewed': 'unreviewed',
+};
+
+function publicErrorSummary(error: unknown): string {
+  const detail = typeof error === 'string' ? error : '';
+  const http = detail.match(/\bHTTP(?: Error)?\s+(\d{3})\b/i);
+  if (http) return `Source check returned HTTP ${http[1]}.`;
+  if (/timed? out|timeout/i.test(detail)) return 'Source check timed out.';
+  return detail ? 'Source check did not complete. Detailed diagnostics are retained privately.' : '';
+}
+
+// Everything the template needs, precomputed. No conditionals or string escapes
+// in the markup: .astro expression parsing is fussier than plain JSX.
+const events = changeLog().map((e) => {
+  const src = sourceById(e.id);
+  const review = e.event === 'changed' ? reviewForRevision(e.id, e.ts) : null;
+  const withholdDiff = withholdsCapturedText(src);
+  const raw = e.event === 'changed' && !withholdDiff ? diffText(e.id, e.ts) : null;
+  const parsed = raw
+    ? parseDiff(raw).filter((l) => l.kind === 'add' || l.kind === 'del').slice(0, 14)
+    : [];
+  return {
+    human: tsToHuman(e.ts),
+    id: e.id,
+    title: src ? displayTitle(src) : e.id,
+    // An unregistered id has no page: the index is append-only, so events
+    // outlive registry entries. Show the id, do not link it.
+    href: src ? '/record/sources/' + e.id + '/' : null,
+    cls: 'ch ch--' + (review?.status ?? e.event),
+    label: review ? REVIEW_LABEL[review.status] : LABEL[e.event] || e.event,
+    summary: review?.summary ?? publicErrorSummary(e.error),
+    reviewStatus: review?.status ?? '',
+    isChanged: e.event === 'changed',
+    added: e.added || 0,
+    removed: e.removed || 0,
+    org: src ? [src.org, src.kind].filter(Boolean).join(' / ') : '',
+    lines: parsed.map((l) => ({
+      cls: 'dl dl--' + l.kind,
+      text: (l.kind === 'add' ? '+' : '-') + l.text + '\n',
+    })),
+    hasLines: parsed.length > 0,
+  };
+});
+
+const differences = revisions().map((revision) => {
+  const src = sourceById(revision.sourceId)!;
+  const withholdDiff = withholdsCapturedText(src);
+  const raw = withholdDiff ? null : diffText(revision.sourceId, revision.ts);
+  const parsed = raw
+    ? parseDiff(raw).filter((l) => l.kind === 'add' || l.kind === 'del').slice(0, 14)
+    : [];
+  return {
+    human: tsToHuman(revision.ts),
+    id: revision.sourceId,
+    title: displayTitle(src),
+    href: sourceById(revision.sourceId)
+      ? '/record/sources/' + revision.sourceId + '/'
+      : null,
+    cls: 'ch ch--' + revision.review.status,
+    label: REVIEW_LABEL[revision.review.status],
+    summary: revision.review.summary,
+    reviewStatus: revision.review.status,
+    isChanged: true,
+    // Provenance is published in the JSON feeds but was invisible here, which
+    // let a Wayback-recovered state read as one this project caught live.
+    inherited: revision.inherited,
+    baselineInherited: revision.baselineInherited,
+    added: revision.added,
+    removed: revision.removed,
+    org: [src.org, src.kind].filter(Boolean).join(' / '),
+    lines: parsed.map((l) => ({
+      cls: 'dl dl--' + l.kind,
+      text: (l.kind === 'add' ? '+' : '-') + l.text + '\n',
+    })),
+    hasLines: parsed.length > 0,
+  };
+});
+const sourceChanges = differences.filter((e) =>
+  e.reviewStatus === 'source-content' || e.reviewStatus === 'unreviewed'
+);
+const collectionDifferences = differences.filter((e) =>
+  e.reviewStatus === 'capture-noise' || e.reviewStatus === 'capture-correction'
+);
+const operationalEvents = events.filter((e) => !e.isChanged);
+const unreviewed = differences.filter((e) => e.reviewStatus === 'unreviewed').length;
+const isEmpty = sourceChanges.length === 0;
+const inheritedCount = differences.filter((e) => e.inherited || e.baselineInherited).length;
+---
+
+<Article
+  title="Source change record"
+  description="Reviewed source-content changes, preserved collection differences and operational capture events."
+  standfirst="Every difference the archive holds between two states of a tracked page, classified and dated."
+  depth="plain"
+  kicker="Evidence / changes"
+>
+    <p>
+      Newest first. A reviewed <em>source-content</em> difference means the
+      relevant text served by the publisher changed between two captures. It
+      does not verify the new claim. Dynamic page chrome, collection-method
+      corrections, baselines and fetch errors remain preserved below without
+      being presented as editorial revisions. Chain-monitor diff bodies remain
+      local because they can contain victim addresses.
+    </p>
+
+    <p>
+      Some states here were not collected by this project. Where a difference
+      involves a page state recovered from the Internet Archive, the entry
+      carries an <strong>Internet Archive</strong> mark: on the later state when
+      that state was inherited, and as a baseline note when the text being
+      revised was the inherited one. As of 1 August 2026, {inheritedCount} of the
+      {differences.length} recorded differences carry one of those marks. This
+      keeps a recovered state from reading as a change this project caught live.
+    </p>
+
+    <p>
+      This record is part of the <a href="/record/">evidence section</a>, which
+      lists every tracked source and what is held for it. To follow it without
+      revisiting the page, the same entries are published as a JSON feed at
+      <a href="/record/changes.json">/record/changes.json</a>, carrying the
+      bounded revision window and provenance flags per item.
+    </p>
+
+    <div class="ch__stats">
+      <div><strong>{sourceChanges.length - unreviewed}</strong><span>reviewed source changes</span></div>
+      <div><strong>{unreviewed}</strong><span>awaiting review</span></div>
+      <div><strong>{collectionDifferences.length}</strong><span>collection differences</span></div>
+      <div><strong>{operationalEvents.length}</strong><span>baselines and errors</span></div>
+    </div>
+
+    <p class="ch__empty" hidden={!isEmpty}>No source-content changes recorded yet.</p>
+
+    <ol class="ch__list">
+      {sourceChanges.map((e) => (
+        <li class={e.cls}>
+          <div class="ch__bar">
+            <span class="ch__ts">{e.human}</span>
+            {e.href
+              ? <a class="ch__id" href={e.href}>{e.title}</a>
+              : <span class="ch__id">{e.title}</span>}
+            <span class="pill">{e.label}</span>
+            <span class="pill pill--wayback" hidden={!e.inherited}>Internet Archive</span>
+            <span class="ch__delta" hidden={!e.isChanged}>
+              <span class="add">+{e.added}</span>
+              <span class="del">-{e.removed}</span>
+            </span>
+          </div>
+          <p class="ch__org">{e.id} · {e.org}</p>
+          <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
+          <p class="ch__summary">{e.summary}</p>
+          <pre class="ch__diff" hidden={!e.hasLines}><code>{e.lines.map((l) => (
+            <span class={l.cls}>{l.text}</span>
+          ))}</code></pre>
+        </li>
+      ))}
+    </ol>
+
+    <details class="ch__section" open={collectionDifferences.length > 0}>
+      <summary>Preserved collection differences <span>{collectionDifferences.length}</span></summary>
+      <p>
+        These diffs remain part of the record, but review found that they came
+        from dynamic page chrome or a collection-method correction rather than
+        a relevant edit by the publisher.
+      </p>
+      <p class="ch__empty" hidden={collectionDifferences.length > 0}>
+        No collection differences are recorded. Every detected difference so far
+        was reviewed as a change in the source content itself.
+      </p>
+      <ol class="ch__list ch__list--nested">
+        {collectionDifferences.map((e) => (
+          <li class={e.cls}>
+            <div class="ch__bar">
+              <span class="ch__ts">{e.human}</span>
+              {e.href
+              ? <a class="ch__id" href={e.href}>{e.title}</a>
+              : <span class="ch__id">{e.title}</span>}
+              <span class="pill">{e.label}</span>
+              <span class="pill pill--wayback" hidden={!e.inherited}>Internet Archive</span>
+              <span class="ch__delta">
+                <span class="add">+{e.added}</span>
+                <span class="del">-{e.removed}</span>
+              </span>
+            </div>
+            <p class="ch__org">{e.id} · {e.org}</p>
+            <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
+            <p class="ch__summary">{e.summary}</p>
+          </li>
+        ))}
+      </ol>
+    </details>
+
+    <details class="ch__section">
+      <summary>Collection baselines and fetch errors <span>{operationalEvents.length}</span></summary>
+      <p>
+        Baselines establish the first copy held. Fetch errors describe this
+        project's collection attempt, not a change at the source.
+      </p>
+      <p class="ch__empty" hidden={operationalEvents.length > 0}>
+        No baselines or fetch errors are recorded in the capture log yet.
+      </p>
+      <ol class="ch__ops">
+        {operationalEvents.map((e) => (
+          <li>
+            <span class="ch__ts">{e.human}</span>
+            {e.href
+              ? <a class="ch__id" href={e.href}>{e.title}</a>
+              : <span class="ch__id">{e.title}</span>}
+            <span class="pill">{e.label}</span>
+            <span class="ch__opnote">{e.summary}</span>
+          </li>
+        ))}
+      </ol>
+    </details>
+
+    <p class="ch__foot">
+      Back to <a href="/record/">the evidence index</a>, or read the same
+      differences as structured data in
+      <a href="/record/changes.json">the JSON change feed</a>.
+    </p>
+</Article>
+
+<style>
+  /* These blocks are wider than the reading measure by design: a change entry
+     carries a timestamp, a title, pills and a diff on one line. The Article
+     layout already grants that escape to tables and figures. */
+  .ch__stats, .ch__list, .ch__section {
+    width: 100cqi;
+    max-width: none;
+  }
+  .ch__stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: .8rem; margin-top: 1.6rem; }
+  .ch__stats div { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: .8rem 1rem; }
+  .ch__stats strong { display: block; font-family: var(--font-mono); font-size: 1.4rem; }
+  .ch__stats span { display: block; color: var(--ink-3); font-family: var(--font-mono); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; margin-top: .15rem; }
+  .ch__empty { color: var(--ink-3); margin-top: 2rem; }
+  .ch__empty[hidden] { display: none; }
+
+  .ch__list { list-style: none; padding: 0; margin-top: 2rem; display: grid; gap: .9rem; }
+  .ch {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-2);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: .95rem var(--inset-box);
+  }
+  .ch--source-content { border-left-color: var(--accent); }
+  .ch--unreviewed { border-left-color: var(--warn); }
+  .ch--capture-noise, .ch--capture-correction { border-left-color: var(--rule-2); }
+  .ch--first { border-left-color: var(--safe); }
+  .ch--error { border-left-color: var(--danger); }
+
+  .ch__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+  .ch__ts { font-family: var(--font-mono); font-size: .78rem; color: var(--ink-3); }
+  .ch__id { font-family: var(--font-mono); font-size: .86rem; font-weight: 600; text-decoration: none; }
+  .ch__id:hover { color: var(--accent); }
+  .ch__delta { font-family: var(--font-mono); font-size: .74rem; margin-left: auto; display: flex; gap: .45rem; }
+  .ch__delta[hidden] { display: none; }
+  .ch__delta .add { color: var(--add); }
+  .ch__delta .del { color: var(--del); }
+
+  .pill--wayback {
+    border-color: var(--rule-2);
+    color: var(--ink-3);
+  }
+  .pill--wayback[hidden] { display: none; }
+
+  .ch__org { font-size: .76rem; color: var(--ink-3); margin-top: .3rem; }
+  .ch__org:empty { display: none; }
+  .ch__prov {
+    font-family: var(--font-mono); font-size: .68rem;
+    letter-spacing: .04em; color: var(--ink-3); margin-top: .3rem;
+  }
+  .ch__prov[hidden] { display: none; }
+  .ch__foot { margin-top: 2.4rem; font-size: .86rem; color: var(--ink-3); }
+  .ch__summary { font-size: .88rem; line-height: 1.55; color: var(--ink-2); margin-top: .45rem; max-width: 76ch; }
+
+  .ch__diff {
+    background: var(--sunken);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: .7rem .9rem;
+    margin-top: .7rem;
+    overflow-x: auto;
+    font-size: .72rem;
+    line-height: 1.6;
+  }
+  /* The layout widens bare <pre> past the measure, which would push a diff out
+     of the card that contains it. Inside a change entry the card owns the
+     width. */
+  .ch .ch__diff { width: 100%; max-width: 100%; }
+  .ch__diff[hidden] { display: none; }
+  .dl { display: block; white-space: pre-wrap; word-break: break-word; }
+  .dl--add { background: var(--add-bg); color: var(--add); }
+  .dl--del { background: var(--del-bg); color: var(--del); }
+
+  .ch__section { margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+  .ch__section > summary { cursor: pointer; font-family: var(--font-display); font-size: 1.25rem; }
+  .ch__section > summary span { font-family: var(--font-mono); color: var(--ink-3); font-size: .78rem; margin-left: .4rem; }
+  .ch__section > p { color: var(--ink-3); font-size: .84rem; line-height: 1.6; max-width: 70ch; margin-top: .55rem; }
+  .ch__list--nested { margin-top: 1rem; }
+  .ch__ops { list-style: none; padding: 0; margin-top: 1rem; border-top: 1px solid var(--rule); }
+  .ch__ops li { display: grid; grid-template-columns: 20ch minmax(16ch,1fr) 11ch minmax(0,1.6fr); gap: .8rem; align-items: baseline; padding: .65rem .2rem; border-bottom: 1px solid var(--rule); }
+  .ch__opnote { color: var(--danger); font-size: .76rem; }
+  .ch__opnote:empty { display: none; }
+  @media (max-width: 720px) {
+    .ch__ops li { grid-template-columns: 1fr; gap: .25rem; }
+  }
+</style>

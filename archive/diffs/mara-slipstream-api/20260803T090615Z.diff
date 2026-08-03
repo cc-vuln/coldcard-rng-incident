@@ -1,0 +1,29 @@
+--- mara-slipstream-api@20260801T091518Z
++++ mara-slipstream-api@20260803T090615Z
+@@ -469,7 +469,7 @@
+     }
+   },
+   "info": {
+-    "description": "This is a beta version of API for submitting Bitcoin transactions via Slipstream.<br>\n        If you plan to execute a large volume of transactions and are interested in volume discounting packages, please contact [foundation@mara.com](mailto:foundation@mara.com).<br><br>Slipstreams minimum fee rate is the higher of either 2x the current mempool priority fee rate or 2 sats/vByte.<br><br>Full RBF (Replace-by-Fee) and CPFP (Child-Pays-for-Parent) supported.",
++    "description": "This is a beta version of API for submitting Bitcoin transactions via Slipstream.<br>\n        If you plan to execute a large volume of transactions and are interested in volume discounting packages, please contact [foundation@mara.com](mailto:foundation@mara.com).<br><br>Slipstreams minimum fee rate is the higher of either 1x the current mempool priority fee rate or 1 sats/vByte.<br><br>Full RBF (Replace-by-Fee) and CPFP (Child-Pays-for-Parent) supported.",
+     "license": {
+       "name": "Apache 2.0",
+       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+@@ -618,7 +618,7 @@
+           "content": {
+             "application/json": {
+               "example": {
+-                "client_code": "<Client code to identify the user>",
++                "client_code": "<Optional code to identify the user>",
+                 "tx_hex": "<raw_transaction_hex_string>"
+               },
+               "schema": {
+@@ -672,7 +672,7 @@
+           "content": {
+             "application/json": {
+               "example": {
+-                "client_code": "<Client code to identify the user>",
++                "client_code": "<Optional code to identify the user>",
+                 "tx_hexes": [
+                   "<hex1>",
+                   "<hex2>",

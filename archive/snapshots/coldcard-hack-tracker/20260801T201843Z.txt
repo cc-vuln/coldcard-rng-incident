@@ -1,0 +1,233 @@
+LIVE CHAIN MONITOR
+
+Coldcard Hack Tracker
+
+Seed-entropy sweeps since July 2026
+
+TOTAL STOLEN
+
+1,130.09411114 BTC
+
+$70,643,313 at spot
+
+4 waves · Jul 30 – Aug 1 UTC
+
+0
+300
+600
+900
+1,200
+Jul 30
+Jul 31
+Aug 1
+JUL 30
+Galaxy fingerprint · July 30
++1,082.65 BTC
+$67,677,534
+JUL 31
+Post-scan wave · July 31
++45.91 BTC
+$2,869,880
+JUL 31
+Evening wave · July 31
++1.20115791 BTC
+$75,086
+AUG 1
+Morning wave · Aug 1
++0.33295323 BTC
+$20,813
+Alerts
+Off
+Click to grant browser permission
+Updated <relative-time>
+Refresh
+
+STILL HELD
+
+100%
+
+of 1,130.00551671 BTC consolidated
+
+BALANCE ON WATCH
+
+1,130.00551671 BTC
+
+$70,637,775
+$62,511/BTC
+
+MOVED
+
+0.00 BTC
+
+Reported consolidation still on the holding addresses
+
+LAST MOVEMENT
+
+Unmoved
+
+No spends of the reported consolidation
+
+Watched holdings
+
+About 1,130.09411114 BTC drained across tracked clusters, of which 1,130.00551671 BTC reached these vaults (gap is mostly fees). Clusters may be different operators — attribution is fingerprint / community report.
+
+GALAXY FINGERPRINT · JULY 30
+Source
+
+Block/Galaxy on-chain fingerprint; four consolidation holdings.
+
+SCOPE
+1,082.65 BTC · 1,196 addresses
+WINDOW
+July 30, 2026
+01:10:20 – 01:51:26 UTC
+BLOCKS
+960,183–960,191
+FEE SIGNATURE
+30.0 sat/vB · no change
+30–75× median that week
+VICTIM PATHS
+1,183 BIP-84
+7 BIP-49 · 6 BIP-44
+LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+
+Holding 1
+	bc1qq85v2c…3fcu9r	562.02021083 BTC
+$35,132,445
+	562.02021083 BTC	11	HELD
+
+Holding 2
+	bc1qx76cae…htfhe3	398.47575357 BTC
+$24,909,118
+	398.47575357 BTC	2	HELD
+
+Holding 3
+	bc1q8jy96f…kwtp3q	89.6232789 BTC
+$5,602,441
+	89.6232789 BTC	1	HELD
+
+Holding 4
+Unmoved collector remainder
+	bc1qnk4zh9…8fecp0	32.4505632 BTC
+$2,028,517
+	32.4505632 BTC	160	HELD
+POST-SCAN WAVE · JULY 31
+Source
+
+Past Block scan end (block 960230). Seven of eight markers; RBF differs.
+
+LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+
+July 31 vault
+Consolidated from 1,216 sweeps; still unspent
+	bc1qtfrwa4…numu75	45.90251994 BTC
+$2,869,412
+	45.90251994 BTC	1	HELD
+EVENING WAVE · JULY 31
+Source
+
+Low-fee (~1–2 sat/vB) sweeps. Jul 31 vault (~0.51 BTC) still held. Aug 1: ~0.41 BTC passed through that vault to a hop address, then a delayed ~0.19 BTC victim consolidation joined the hop (now ~0.69 BTC). A separate Ocean (OCEAN.XYZ) miner-payout UTXO also touched the hop and was peeled off — possible same-operator lead, not counted as stolen. Distinct from the Kelbie vault.
+
+LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+
+Evening vault
+Jul 31 consolidation, still unspent. Aug 1 pass-through tracked separately below
+	bc1q7rmsw0…lrrcgf	0.50980268 BTC
+$31,868
+	0.50980268 BTC	1	HELD
+
+Aug 1 hop vault
+0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. An Ocean miner payout also landed here and was spent onward — not part of this report balance
+	bc1qayw8nr…7w2u0s	0.69135523 BTC
+$43,217
+	0.69135523 BTC	2	HELD
+MORNING WAVE · AUG 1
+Source
+
+Blocks 960518–960523. Direct victim sweeps (~15–50 sat/vB) into one vault; honey-pot / duress-wallet report (Mk4 claim later withdrawn — seed was Mk3-origin).
+
+LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+
+Aug 1 vault
+0.33203236 BTC from 16 victim sweeps; still unspent
+	bc1qzm5pau…v34mf3	0.33203236 BTC
+$20,756
+	0.33203236 BTC	16	HELD
+Movement feed
+
+Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Later surplus that passes through a vault while its reported balance remains is ignored.
+
+No outbound spends
+
+Reported consolidation balances have not left the holding addresses.
+
+Am I at risk?
+
+Short checklist from Coinkite’s Aug 1 advisory, Block’s root-cause writeup, and WizardSardine’s analysis. This tracker does not check your wallet — follow the official steps before moving funds.
+
+LIKELY EXPOSED
+
+Your seed is likely exposed if it was generated on vulnerable firmware. Fixed releases and later are safe for new seeds.
+
+DEVICE	VULNERABLE	FIXED
+Mk3	4.0.1–4.1.9, 5.0.1–5.0.3 (~40-bit)	4.2.0+
+Mk4 / Mk5	Before Aug 1 patch (~72-bit)	5.6.0+
+Q	Before Aug 1 patch (~72-bit)	1.5.0Q+
+Edge (Mk4 / Mk5)	Before Aug 1 patch	6.6.0X+
+Edge (Q)	Before Aug 1 patch	6.6.0QX+
+FIRMWARE UPDATE IS NOT ENOUGH
+Patching does not repair an existing seed. Generate a new seed on fixed firmware and migrate funds carefully.
+ORIGIN OF THE SEED
+Exposure follows where the seed was generated, not the device holding it today. Seeds imported elsewhere, or whose origin you cannot establish, should be treated as affected.
+BEYOND THE MAIN SEED
+Weak RNG also hit paper-wallet keys, clone / Key Teleport material, and some Secure Notes passwords — even when the BIP-39 seed itself came from dice (WizardSardine / Block).
+LOWER RISK
+At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not a safe bet — still migrate when practical.
+NOT THIS BUG
+TAPSIGNER, Opendime, and Satscard use different codebases and are not affected. Mk1 and pre-4.0.1 Mk2/Mk3 firmware used the real TRNG.
+SOURCES
+Galaxy Research
+
+Mapped the July 30 fingerprint set: 1,082.65 BTC across 1,196 addresses into four holdings.
+
+Kevin Kelbie
+
+July 31 post-scan wave (~45.9 BTC) after Block’s scan window; similar markers, different RBF behavior.
+
+Evan Schoenberg
+
+Evening July 31 low-fee (~2 sat/vB) sweeps into a separate vault; Aug 1 hop consolidation (incl. delayed ~0.19 BTC) raised the watched cluster to ~1.20 BTC.
+
+Ocean block 960511
+
+Coinbase of block 960511 (tag OCEAN.XYZ) paid 0.06045759 BTC to a miner address that later sent to the Aug 1 hop vault; that UTXO was peeled off and is not counted as stolen.
+
+Tomer Strolight
+
+Aug 1 morning wave: duress-wallet honey pot swept into a ~0.33 BTC vault; Mk4 attribution later corrected to Mk3-origin seed.
+
+Coinkite advisory
+
+Official guidance (updated Aug 1): who is exposed, fixed firmware versions, and migration steps.
+
+Block Engineering
+
+Root-cause writeup on the RNG fallback, 32-bit reseed, and blast radius beyond BIP-39 seeds.
+
+WizardSardine
+
+Aug 1 deep dive: who is affected (including Mk3 5.0.x), advanced features still broken with dice seeds, and migration guidance.
+
+Kevin Loaec
+
+Announcement thread for the WizardSardine writeup.
+
+CoinDesk
+
+Aug 1 reporting on Galaxy’s expanded totals and why further waves remain possible.
+
+Clay Garrett
+
+July 30 operator used a paid blockchain-data account during the sweeps; findings shared with authorities.
+
+Balances and transactions via mempool.space. Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.

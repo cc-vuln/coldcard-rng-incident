@@ -1,0 +1,78 @@
+--- hn-dettmer-writeup-thread@20260803T012754Z
++++ hn-dettmer-writeup-thread@20260803T121314Z
+@@ -1,6 +1,6 @@
+ Hacker Newsnew | past | comments | ask | show | jobs | submitlogin
+ When random.bytes() runs but doesn't work (btcpp.dev)
+-92 points by Funes- <relative-time> | hide | past | favorite | 55 comments
++93 points by Funes- <relative-time> | hide | past | favorite | 55 comments
+ help
+ londons_explore <relative-time> | next [–]
+ I am getting suspicious of "random number generator not actually returning random numbers" bugs....
+@@ -80,15 +80,6 @@
+ > Also running python on a microcontroller to do cryptography is fucking insane.
+ I feel like I should confess to snubbing this (and some other) hardware wallet projects for the fact it used micropython. I think it's hard to draw the line between systems programmer snobbery and good advice... and I feel a little like a cop guilty of stop-and-frisk on the basis of skin color.
+ Because in general the ideas necessary to produce reliable software aren't well understood or agreed on there is a risk of letting style preferences which are only correlated with good engineering but aren't causative of good engineering get mistaken-- and this can cause errors in both directions, both mistaking stuff as good because it uses the "right" tools, or mistaking something as bad because it doesn't.
+-reply
+-koolba <relative-time> | prev | next [–]
+-> A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
+-No! Blanket statements like this is how you end up with 40 pages of slop AI comments in PRs that nobody reads.
+-Comments should be terse and meaningful. They should document surprising behavior or choices. The less comments you have, the more meaningful each one becomes because your time and eyeballs are limited as well.
+-reply
+-coldbrewed <relative-time> | parent | next [–]
+-We shouldn't tolerate slop in any form, especially not in commit comments. What we should care about is communicating design decisions, intent, and especially we should explain concerns that can't be intuited from reading the code. A longer, more detailed comment that explains some significant detail can be especially valuable but it should earn the weight that it carries.
+-I think we're all in agreement that a one word "runs" commit and a 6 paragraph slop commit both fail to communicate effectively.
+ reply
+ nullc <relative-time> | prev | next [–]
+ This writeup isn't very good and misses/misunderstands the programming error that leads to the flaw.
+@@ -118,10 +109,6 @@
+ - testing of randomness needs careful design, e.g. RNG seeding can be a good way
+ Taking a step back, we as a community of excellence need to emphasise that this isn't a criticism about the person/author. There needs to be a clear analysis of what went wrong whilst being kind to the person/people involved.
+ reply
+-killerstorm <relative-time> | parent | prev | next [–]
+-Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+-So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+-reply
+ inigyou <relative-time> | parent | prev | next [–]
+ At no point did I ever think that setting "enable HW RNG" to 0 "provided a more aggressive handling of fault/error conditions". I always assumed it disabled the HW RNG.
+ reply
+@@ -152,14 +139,18 @@
+ nullc <relative-time> | root | parent | next [–]
+ Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
+ reply
++killerstorm <relative-time> | parent | prev | next [–]
++Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
++So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
++reply
++smithcoin <relative-time> | parent | prev | next [–]
++Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
++reply
++nullc <relative-time> | root | parent | next [–]
++Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
++reply
+ mlcrypto <relative-time> | parent | prev | next [–]
+ The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+-reply
+-smithcoin <relative-time> | parent | prev | next [–]
+-Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+-reply
+-nullc <relative-time> | root | parent | next [–]
+-Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+ reply
+ nullc <relative-time> | parent | prev | next [–]
+ Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+@@ -170,6 +161,15 @@
+ dist-epoch <relative-time> | parent | prev | next [–]
+ I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
+ Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
++reply
++koolba <relative-time> | prev | next [–]
++> A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
++No! Blanket statements like this is how you end up with 40 pages of slop AI comments in PRs that nobody reads.
++Comments should be terse and meaningful. They should document surprising behavior or choices. The less comments you have, the more meaningful each one becomes because your time and eyeballs are limited as well.
++reply
++coldbrewed <relative-time> | parent | next [–]
++We shouldn't tolerate slop in any form, especially not in commit comments. What we should care about is communicating design decisions, intent, and especially we should explain concerns that can't be intuited from reading the code. A longer, more detailed comment that explains some significant detail can be especially valuable but it should earn the weight that it carries.
++I think we're all in agreement that a one word "runs" commit and a 6 paragraph slop commit both fail to communicate effectively.
+ reply
+ nonfamous <relative-time> | prev | next [–]
+ From the Twitter advisory on the issue being referenced here [1]:

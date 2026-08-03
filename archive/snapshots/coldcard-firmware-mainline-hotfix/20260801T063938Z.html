@@ -1,0 +1,220 @@
+From ca72463709f4e3f8964952039d5caf955f566a87 Mon Sep 17 00:00:00 2001
+From: "Peter D. Gray" <peter@conalgo.com>
+Date: Thu, 30 Jul 2026 22:40:23 -0400
+Subject: [PATCH] fixes rng
+
+---
+ stm32/COLDCARD/mpconfigboard.mk     |  7 +++++++
+ stm32/COLDCARD/rng.c                |  6 +++++-
+ stm32/COLDCARD/rng.h                |  3 ++-
+ stm32/COLDCARD_MK4/mpconfigboard.h  |  1 +
+ stm32/COLDCARD_MK4/mpconfigboard.mk |  8 +++++++-
+ stm32/COLDCARD_MK4/rng.c            |  6 +++++-
+ stm32/COLDCARD_MK4/rng.h            |  3 ++-
+ stm32/COLDCARD_Q1/mpconfigboard.mk  |  6 ++++++
+ stm32/MK-Makefile                   |  2 +-
+ stm32/Q1-Makefile                   |  2 +-
+ stm32/shared.mk                     | 23 +++++++++++++++++++++++
+ 11 files changed, 60 insertions(+), 7 deletions(-)
+
+diff --git a/stm32/COLDCARD/mpconfigboard.mk b/stm32/COLDCARD/mpconfigboard.mk
+index fa3560f77..6d7e3cf5f 100644
+--- a/stm32/COLDCARD/mpconfigboard.mk
++++ b/stm32/COLDCARD/mpconfigboard.mk
+@@ -69,6 +69,13 @@ COPT += -g
+ # bugfix IIRC
+ build-COLDCARD/boards/COLDCARD/modckcc.o: COPT = -O0 -DNDEBUG
+ 
++# Do not compile MicroPython's fallback PRNG.  The board-specific rng.c
++# provides rng_get(), and this empty object satisfies the upstream object list.
++$(BUILD)/rng.o: CFLAGS += -Dpyb_rng_yasmarang=error-do-not-want-this
++$(BUILD)/rng.o:
++	$(ECHO) "SKIP stm32/rng.c"
++	$(Q)$(CC) $(CFLAGS) -x c -c /dev/null -o $@
++
+ files:
+ 	# SRC_C: $(SRC_C)
+ 	@echo
+diff --git a/stm32/COLDCARD/rng.c b/stm32/COLDCARD/rng.c
+index 374cd32c6..00e3d203a 100644
+--- a/stm32/COLDCARD/rng.c
++++ b/stm32/COLDCARD/rng.c
+@@ -79,6 +79,11 @@ static uint32_t rng_get_or_fault(void)
+     return last_value;
+ }
+ 
++uint32_t rng_get(void)
++{
++    return rng_get_or_fault();
++}
++
+ /// \function pyb_rng_get()
+ //
+ /// Return a 30-bit hardware generated random number: or fail!
+@@ -149,4 +154,3 @@ random_buffer(uint8_t *p, size_t count)
+         last = next;
+     }
+ }
+-
+diff --git a/stm32/COLDCARD/rng.h b/stm32/COLDCARD/rng.h
+index 28775b334..57704d865 100644
+--- a/stm32/COLDCARD/rng.h
++++ b/stm32/COLDCARD/rng.h
+@@ -3,6 +3,7 @@
+  */
+ #pragma once
+ 
++uint32_t rng_get(void);
++
+ MP_DECLARE_CONST_FUN_OBJ_0(pyb_rng_get_obj);
+ MP_DECLARE_CONST_FUN_OBJ_1(pyb_rng_get_bytes_obj);
+-
+diff --git a/stm32/COLDCARD_MK4/mpconfigboard.h b/stm32/COLDCARD_MK4/mpconfigboard.h
+index 4933d9cb5..b3ccb7c7c 100644
+--- a/stm32/COLDCARD_MK4/mpconfigboard.h
++++ b/stm32/COLDCARD_MK4/mpconfigboard.h
+@@ -75,6 +75,7 @@
+ 
+ 
+ // We have our own version of this code.
++// LATER: when zero, this selected some PRNG code we really didnt want.
+ #define MICROPY_HW_ENABLE_RNG       (0)
+ 
+ extern void ckcc_early_init(void);
+diff --git a/stm32/COLDCARD_MK4/mpconfigboard.mk b/stm32/COLDCARD_MK4/mpconfigboard.mk
+index 07d59743d..b00447e93 100644
+--- a/stm32/COLDCARD_MK4/mpconfigboard.mk
++++ b/stm32/COLDCARD_MK4/mpconfigboard.mk
+@@ -92,7 +92,13 @@ build-COLDCARD_MK4/flashbdev.o: CFLAGS += -Dled_state=led_state_OMIT
+ build-COLDCARD_MK4/spibdev.o: CFLAGS += -Dled_state=led_state_OMIT
+ build-COLDCARD_MK4/factoryreset.o: CFLAGS += -Dled_state=led_state_OMIT
+ build-COLDCARD_MK4/boardctrl.o: CFLAGS += -Dled_state=led_state_OMIT
+-	
++
++# Do not compile MicroPython's fallback PRNG.  The board-specific rng.c
++# provides rng_get(), and this empty object satisfies the upstream object list.
++$(BUILD)/rng.o: CFLAGS += -Dpyb_rng_yasmarang=error-do-not-want-this
++$(BUILD)/rng.o:
++	$(ECHO) "SKIP stm32/rng.c"
++	$(Q)$(CC) $(CFLAGS) -x c -c /dev/null -o $@
+ 
+ files:
+ 	# SRC_C: $(SRC_C)
+diff --git a/stm32/COLDCARD_MK4/rng.c b/stm32/COLDCARD_MK4/rng.c
+index 374cd32c6..00e3d203a 100644
+--- a/stm32/COLDCARD_MK4/rng.c
++++ b/stm32/COLDCARD_MK4/rng.c
+@@ -79,6 +79,11 @@ static uint32_t rng_get_or_fault(void)
+     return last_value;
+ }
+ 
++uint32_t rng_get(void)
++{
++    return rng_get_or_fault();
++}
++
+ /// \function pyb_rng_get()
+ //
+ /// Return a 30-bit hardware generated random number: or fail!
+@@ -149,4 +154,3 @@ random_buffer(uint8_t *p, size_t count)
+         last = next;
+     }
+ }
+-
+diff --git a/stm32/COLDCARD_MK4/rng.h b/stm32/COLDCARD_MK4/rng.h
+index 28775b334..57704d865 100644
+--- a/stm32/COLDCARD_MK4/rng.h
++++ b/stm32/COLDCARD_MK4/rng.h
+@@ -3,6 +3,7 @@
+  */
+ #pragma once
+ 
++uint32_t rng_get(void);
++
+ MP_DECLARE_CONST_FUN_OBJ_0(pyb_rng_get_obj);
+ MP_DECLARE_CONST_FUN_OBJ_1(pyb_rng_get_bytes_obj);
+-
+diff --git a/stm32/COLDCARD_Q1/mpconfigboard.mk b/stm32/COLDCARD_Q1/mpconfigboard.mk
+index a5b1a4775..54c26cec9 100644
+--- a/stm32/COLDCARD_Q1/mpconfigboard.mk
++++ b/stm32/COLDCARD_Q1/mpconfigboard.mk
+@@ -89,6 +89,12 @@ build-COLDCARD_Q1/spibdev.o: CFLAGS += -Dled_state=led_state_OMIT
+ build-COLDCARD_Q1/factoryreset.o: CFLAGS += -Dled_state=led_state_OMIT
+ build-COLDCARD_Q1/boardctrl.o: CFLAGS += -Dled_state=led_state_OMIT
+ 
++# Do not compile MicroPython's fallback PRNG.  The board-specific rng.c
++# provides rng_get(), and this empty object satisfies the upstream object list.
++$(BUILD)/rng.o: CFLAGS += -Dpyb_rng_yasmarang=error-do-not-want-this
++$(BUILD)/rng.o:
++	$(ECHO) "SKIP stm32/rng.c"
++	$(Q)$(CC) $(CFLAGS) -x c -c /dev/null -o $@
+ 
+ files:
+ 	# SRC_C: $(SRC_C)
+diff --git a/stm32/MK-Makefile b/stm32/MK-Makefile
+index 8fd079a28..029ce6e6c 100644
+--- a/stm32/MK-Makefile
++++ b/stm32/MK-Makefile
+@@ -19,7 +19,7 @@ LATEST_RELEASE = $(shell ls -t1 ../releases/*-mk-*.dfu ../releases/*-mk4-*.dfu |
+ 
+ # Our version for this release.
+ # - caution, the bootrom will not accept version < 3.0.0
+-VERSION_STRING = 5.5.1
++VERSION_STRING = 5.5.2
+ 
+ # keep near top, because defined default target (all)
+ include shared.mk
+diff --git a/stm32/Q1-Makefile b/stm32/Q1-Makefile
+index 2abb89bf5..99bd55214 100644
+--- a/stm32/Q1-Makefile
++++ b/stm32/Q1-Makefile
+@@ -16,7 +16,7 @@ BOOTLOADER_DIR = q1-bootloader
+ LATEST_RELEASE = $(shell ls -t1 ../releases/*-q1-*.dfu | head -1)
+ 
+ # Our version for this release.
+-VERSION_STRING = 1.4.1Q
++VERSION_STRING = 1.4.2Q
+ 
+ # Remove this closer to shipping.
+ #$(warning "Forcing debug build")
+diff --git a/stm32/shared.mk b/stm32/shared.mk
+index 013f18123..f516ff8c1 100644
+--- a/stm32/shared.mk
++++ b/stm32/shared.mk
+@@ -28,6 +28,8 @@ MAKE_ARGS = BOARD=$(BOARD) -j 4 EXCLUDE_NGU_TESTS=1 DEBUG_BUILD=$(DEBUG_BUILD)
+ 
+ all: $(BOARD)/file_time.c
+ 	cd $(PORT_TOP) && $(MAKE) $(MAKE_ARGS)
++	$(SUBMAKE) rng-code-check
++
+ 
+ clean:
+ 	cd $(PORT_TOP) && $(MAKE) $(MAKE_ARGS) clean
+@@ -53,6 +55,27 @@ firmware-signed.bin: $(BUILD_DIR)/firmware0.bin $(BUILD_DIR)/firmware1.bin
+ firmware-signed.dfu: firmware-signed.bin
+ 	$(PYTHON_MAKE_DFU) -b $(FIRMWARE_BASE):$< $@
+ 
++#
++# Verify correct RNG code was built in.
++#
++NM = arm-none-eabi-nm
++.PHONY: rng-code-check
++rng-code-check:
++	@upstream_symbols="$$($(NM) --defined-only $(BUILD_DIR)/rng.o)" || exit $$?; \
++	if test -n "$$upstream_symbols"; then \
++		echo "ERROR: micropython's stm32/rng.o must not define any symbols"; \
++		printf '%s\n' "$$upstream_symbols"; \
++		exit 1; \
++	fi; \
++	board_symbols="$$($(NM) --defined-only \
++		$(BUILD_DIR)/boards/$(BOARD)/rng.o)" || exit $$?; \
++	if ! printf '%s\n' "$$board_symbols" \
++		| grep -Eq '^[[:xdigit:]]+[[:space:]]+T[[:space:]]+rng_get$$'; then \
++		echo "ERROR: board rng.o does not define global rng_get"; \
++		printf '%s\n' "$$board_symbols"; \
++		exit 1; \
++	fi
++
+ # make the DFU file which is shared for upgrades
+ dfu: firmware-signed.dfu
+ 

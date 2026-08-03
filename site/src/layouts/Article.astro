@@ -1,0 +1,469 @@
+---
+import Base from './Base.astro';
+import EvidenceRegister from '../components/EvidenceRegister.astro';
+import '../styles/content.css';
+import { lastUpdated, humanDate } from '../lib/updated';
+
+interface Props {
+  title: string;
+  description?: string;
+  kicker?: string;
+  /** One line under the title: what this page answers */
+  standfirst?: string;
+  /** Shown in the header so a reader can judge depth before committing */
+  depth?: 'plain' | 'deep';
+  updated?: string;
+  /**
+   * Topic-specific next step, rendered above the generic footer. Without it
+   * every page ends on the same paragraph regardless of subject, which wastes
+   * the reader's momentum at exactly the moment they are deciding what to do.
+   */
+  next?: { href: string; label: string; note?: string };
+}
+
+const {
+  title, description, kicker, standfirst,
+  depth = 'plain', updated, next,
+} = Astro.props;
+
+// Taken from the last commit touching this page's own source file, so it cannot
+// drift out of date the way a hand-written string does. `updated` remains as an
+// override for the rare case where the meaningful change was not a code change.
+const iso = lastUpdated(Astro.url.pathname);
+const stamp = updated ?? (iso ? humanDate(iso) : null);
+
+// The pill is the whole signal. It used to be followed by a note restating it
+// in a full sentence four millimetres below.
+const DEPTH = {
+  plain: { label: 'Plain language' },
+  deep: { label: 'Technical' },
+};
+const d = DEPTH[depth];
+// The bottom-of-page navigation is identical on every article page: a
+// prominent Next card when the page names a follow-on step, then the same
+// three links everywhere. Links that would point at the page the reader is
+// already on are dropped (a hash link to a section of the current page is
+// kept: it jumps rather than reloads).
+const norm = (p: string) => p.replace(/\/$/, '');
+const stripHash = (h: string) => h.split('#')[0];
+const moreLinks = [
+  { href: '/record/', label: 'The evidence record' },
+  { href: '/about/', label: 'About this archive' },
+  { href: '/about/#editorial-standards', label: 'Method and corrections' },
+].filter((l) => norm(stripHash(l.href)) !== norm(Astro.url.pathname));
+---
+
+<Base title={title} description={description} kicker={kicker}>
+  <article class="wrap art">
+    <header class="art__head">
+      <div class="art__badges">
+        <span class="pill">{d.label}</span>
+        <span class="art__updated" hidden={!stamp}>
+          Updated {stamp}
+        </span>
+      </div>
+      <h1 class="art__title">{title}</h1>
+      <p class="art__stand">{standfirst}</p>
+    </header>
+
+    <div class="art__body prose">
+      <slot />
+    </div>
+
+    <nav class="artnav" aria-label="Where to go next">
+      {next && (
+        <a class="artnav__next" href={next.href}>
+          <span class="artnav__kicker">Next</span>
+          <span class="artnav__label">{next.label}</span>
+          {next.note && <span class="artnav__note">{next.note}</span>}
+        </a>
+      )}
+      <p class="artnav__links">
+        {moreLinks.map((l) => <a href={l.href}>{l.label}</a>)}
+      </p>
+    </nav>
+
+    <EvidenceRegister />
+  </article>
+
+  <script>
+    // Give every data table a useful name and explicit header relationships.
+    // Most tables come from ported HTML, so doing this once here keeps their
+    // source prose intact while improving the rendered document.
+    const pageHeading = document.querySelector('.art__title');
+    document.querySelectorAll('.art__body table').forEach((table, index) => {
+      if (!table.caption && !table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+        const precedingHeadings = Array.from(document.querySelectorAll('.art__body h2, .art__body h3'))
+          .filter((heading) => heading.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING);
+        const sectionHeading = precedingHeadings.at(-1);
+        const subject = sectionHeading?.textContent?.trim()
+          || pageHeading?.textContent?.trim()
+          || `Table ${index + 1}`;
+        const caption = document.createElement('caption');
+        caption.className = 'visually-hidden';
+        caption.textContent = `${subject}: data table`;
+        table.prepend(caption);
+      }
+
+      table.querySelectorAll('thead th').forEach((header) => {
+        if (!header.hasAttribute('scope')) header.setAttribute('scope', 'col');
+      });
+      table.querySelectorAll('tbody th').forEach((header) => {
+        if (!header.hasAttribute('scope')) header.setAttribute('scope', 'row');
+      });
+
+      // A headerless two-column table is a key/value list. Promote its first
+      // cell in each row to a row header so the relationship is announced.
+      if (!table.tHead) {
+        Array.from(table.tBodies).forEach((body) => {
+          Array.from(body.rows).forEach((row) => {
+            const first = row.cells[0];
+            if (!first || first.tagName === 'TH') return;
+            const header = document.createElement('th');
+            Array.from(first.attributes).forEach((attribute) => {
+              header.setAttribute(attribute.name, attribute.value);
+            });
+            header.scope = 'row';
+            while (first.firstChild) header.append(first.firstChild);
+            first.replaceWith(header);
+          });
+        });
+      }
+    });
+
+    // Client-side sorting for tables opted in with class="sortable". Click a
+    // header to cycle ascending, descending, original order. Cells may carry
+    // data-sort for an explicit key; otherwise a leading number is parsed,
+    // falling back to case-insensitive text.
+    document.querySelectorAll('table.sortable').forEach((table) => {
+      const tbody = table.tBodies[0];
+      if (!tbody || !table.tHead) return;
+      const rows = Array.from(tbody.rows);
+      rows.forEach((row, i) => { row.dataset.orig = String(i); });
+      const heads = Array.from(table.tHead.rows[0].cells);
+
+      const key = (row, col) => {
+        const cell = row.cells[col];
+        if (!cell) return { n: null, t: '' };
+        const raw = cell.dataset.sort ?? cell.textContent.trim();
+        const num = parseFloat(raw.replace(/,/g, ''));
+        if (!Number.isNaN(num) && /^[+\d]/.test(raw.trim())) return { n: num, t: '' };
+        return { n: null, t: raw.toLowerCase() };
+      };
+
+      heads.forEach((th, col) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sort-btn';
+        btn.innerHTML = th.innerHTML;
+        th.textContent = '';
+        th.appendChild(btn);
+        btn.addEventListener('click', () => {
+          const prev = th.getAttribute('aria-sort');
+          const next = prev === 'ascending' ? 'descending' : prev === 'descending' ? null : 'ascending';
+          heads.forEach((h) => h.removeAttribute('aria-sort'));
+          const sorted = rows.slice();
+          if (next) {
+            th.setAttribute('aria-sort', next);
+            const mul = next === 'ascending' ? 1 : -1;
+            sorted.sort((a, b) => {
+              const ka = key(a, col);
+              const kb = key(b, col);
+              let cmp;
+              if (ka.n !== null && kb.n !== null) cmp = ka.n - kb.n;
+              else if (ka.n !== null) cmp = -1;
+              else if (kb.n !== null) cmp = 1;
+              else cmp = ka.t < kb.t ? -1 : ka.t > kb.t ? 1 : 0;
+              return cmp * mul || (Number(a.dataset.orig) - Number(b.dataset.orig));
+            });
+          } else {
+            sorted.sort((a, b) => Number(a.dataset.orig) - Number(b.dataset.orig));
+          }
+          sorted.forEach((row) => tbody.appendChild(row));
+        });
+      });
+    });
+  </script>
+
+  <script>
+    // Mermaid is bundled by Astro and served from this site, so the diagrams
+    // work under the production Content Security Policy. Keep their original
+    // source in memory so a colour-scheme change can render a fresh SVG.
+    const diagramPageHeading = document.querySelector('.art__title');
+    const diagrams = Array.from(document.querySelectorAll<HTMLElement>('.mermaid'));
+    const sources = new Map(diagrams.map((diagram) => [diagram, diagram.textContent?.trim() || '']));
+    let mermaidModule: typeof import('mermaid') | null = null;
+    let renderSerial = 0;
+    let renderQueue: Promise<void> = Promise.resolve();
+
+    const labelDiagram = (diagram: HTMLElement, index: number) => {
+      const wrapper = diagram.closest<HTMLElement>('.mermaid-wrap');
+      if (!wrapper) return null;
+
+      let caption = wrapper.querySelector<HTMLElement>('.cap');
+      if (!caption && wrapper.nextElementSibling?.classList.contains('cap')) {
+        caption = wrapper.nextElementSibling as HTMLElement;
+      }
+
+      if (!caption) {
+        const localLabel = wrapper.parentElement?.querySelector<HTMLElement>(':scope > .lbl');
+        const precedingHeadings = Array.from(document.querySelectorAll<HTMLElement>('.art__body h2, .art__body h3'))
+          .filter((heading) => heading.compareDocumentPosition(wrapper) & Node.DOCUMENT_POSITION_FOLLOWING);
+        const context = localLabel?.textContent?.trim()
+          || precedingHeadings.at(-1)?.textContent?.trim()
+          || diagramPageHeading?.textContent?.trim()
+          || 'Incident diagram';
+        caption = document.createElement('span');
+        caption.className = 'visually-hidden';
+        caption.textContent = `Diagram: ${context}`;
+        wrapper.append(caption);
+      }
+
+      if (!caption.id) caption.id = `diagram-caption-${index + 1}`;
+      wrapper.setAttribute('role', 'figure');
+      wrapper.setAttribute('aria-labelledby', caption.id);
+      wrapper.tabIndex = 0;
+      return wrapper;
+    };
+
+    const wrappers = diagrams.map(labelDiagram);
+
+    const renderDiagrams = async (theme: 'light' | 'dark') => {
+      if (diagrams.length === 0) return;
+      mermaidModule ||= await import('mermaid');
+      const mermaid = mermaidModule.default;
+      const dark = theme === 'dark';
+      const ink = dark ? '#ece9e1' : '#16150f';
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        look: 'classic',
+        securityLevel: 'strict',
+        flowchart: {
+          curve: 'basis',
+          padding: 14,
+          nodeSpacing: 46,
+          rankSpacing: 56,
+          useMaxWidth: false,
+          htmlLabels: true,
+          wrappingWidth: 260,
+        },
+        themeVariables: {
+          primaryColor: dark ? '#22221d' : '#f2f0ec',
+          primaryBorderColor: dark ? '#7fabee' : '#2160b8',
+          primaryTextColor: ink,
+          secondaryColor: dark ? '#16301f' : '#e2f3e9',
+          secondaryBorderColor: dark ? '#63c79b' : '#196245',
+          secondaryTextColor: ink,
+          tertiaryColor: dark ? '#332612' : '#fbf0d9',
+          tertiaryBorderColor: dark ? '#e0b44e' : '#8a6206',
+          tertiaryTextColor: ink,
+          lineColor: dark ? '#928c81' : '#6f6b61',
+          fontFamily: "'Sora', system-ui, sans-serif",
+          fontSize: '15px',
+          clusterBkg: dark ? '#12120f' : '#f2f0ec',
+          clusterBorder: dark ? '#2b3444' : '#d6dae2',
+        },
+      });
+
+      for (const [index, diagram] of diagrams.entries()) {
+        const wrapper = wrappers[index];
+        const source = sources.get(diagram) || '';
+        if (!source || !wrapper) continue;
+        wrapper.setAttribute('aria-busy', 'true');
+        try {
+          const id = `cc-mermaid-${++renderSerial}`;
+          const result = await mermaid.render(id, source);
+          diagram.innerHTML = result.svg;
+          result.bindFunctions?.(diagram);
+          const svg = diagram.querySelector<SVGSVGElement>('svg');
+          if (svg) {
+            const viewBoxWidth = svg.viewBox.baseVal.width;
+            const readableWidth = Math.min(1200, Math.max(360, Math.ceil(viewBoxWidth * 0.8)));
+            svg.style.setProperty('--diagram-readable-width', `${readableWidth}px`);
+            svg.removeAttribute('aria-roledescription');
+            svg.removeAttribute('role');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.setAttribute('focusable', 'false');
+          }
+        } catch (error) {
+          diagram.textContent = source;
+          console.error('Could not render diagram', error);
+        } finally {
+          wrapper.removeAttribute('aria-busy');
+        }
+      }
+    };
+
+    const requestRender = (theme: 'light' | 'dark') => {
+      renderQueue = renderQueue.then(() => renderDiagrams(theme));
+    };
+
+    requestRender(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    window.addEventListener('cc-theme-change', () => {
+      requestRender(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    });
+  </script>
+</Base>
+
+<style>
+  /* .art carries .wrap, so its inline size is the page grid. Naming it a query
+     container lets wide children size against that grid with 100cqi instead of
+     the viewport. No max-width here: .wrap already constrains it, and the
+     max-width: 100% this replaces resolved to the parent width and did nothing. */
+  .art { container-type: inline-size; }
+  .art__head {
+    max-width: var(--measure);
+    padding-bottom: 1.6rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .art__badges { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+  .art__updated {
+    font-family: var(--font-mono); font-size: .66rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .art__title {
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.1;
+    margin-top: .8rem;
+  }
+  .art__stand {
+    font-size: 1.08rem; line-height: 1.62; color: var(--ink-2);
+    margin-top: .9rem; max-width: 60ch;
+  }
+  .art__body { margin-top: 2.2rem; }
+
+  /* Ported pages inject their markup into a wrapper div, so everything sits one
+     level deeper than `.prose > * + *` reaches and inherits no rhythm at all.
+     Restated here for that inner level. Without this, a heading sits flush
+     against the paragraph under it and the sectioning added to break up the
+     ported walls of text does not read as sectioning. */
+  .art__body > :global(.ported) > :global(* + *) { margin-top: 1.05em; }
+  .art__body > :global(.ported) > :global(h2) {
+    margin-top: 2.4em; font-size: 1.42rem;
+  }
+  .art__body > :global(.ported) > :global(h3) {
+    margin-top: 1.9em; font-size: 1.1rem;
+  }
+  .art__body > :global(.ported) > :global(h2 + *),
+  .art__body > :global(.ported) > :global(h3 + *) { margin-top: .65em; }
+
+  /* Wide elements break the reading measure deliberately.
+   *
+   * They could not before: .prose caps .art__body at 68ch, so a "max-width
+   * 1000px" on a child resolved to the measure and a four-column table was
+   * squeezed into 849px, overflowed, and rendered as tall rows with the last
+   * column cut off past the right edge. Widening past the parent needs the
+   * negative margin, and it is capped at the viewport so nothing can push the
+   * page into horizontal scroll. */
+  .art__body :global(.table-wrap),
+  .art__body :global(.table-scroll),
+  .art__body :global(.kpi-row),
+  .art__body :global(.comparison),
+  .art__body :global(.mermaid-wrap),
+  .art__body :global(.mermaid-figure),
+  .art__body :global(figure:not(.shot)),
+  .art__body :global(pre:not(.mermaid)) {
+    /* 100cqi is the inline size of .art, which carries .wrap, so the breakout
+       can never exceed the page grid. It replaces 100vw, which was measured
+       against the viewport: that ignored the scrollbar (making the breakout
+       ~15px wider than the wrap it sits in) and, worse, ignored nesting. A
+       table inside a padded container did not shrink to fit, it kept this width
+       and shifted right, eating the page's right gutter down to 2px at 390px. */
+    /* 100cqi is the inline size of .art, which carries .wrap, so wide content
+       lands on exactly the page grid: a full-width table and the masthead share
+       a right edge. No second cap is needed, because .wrap has already applied
+       one. Previously this measured 100vw, which ignored the scrollbar and,
+       worse, ignored nesting: a table inside a padded container kept this width
+       and shifted right, eating the page's right gutter down to 2px at 390px. */
+    width: 100cqi;
+    max-width: none;
+  }
+
+  /* A padded container owns the width of what is inside it. One list, so a new
+     container is a line here rather than another bespoke override; the previous
+     per-case patches (.comparison, .collapsible__body) missed .rung__body, which
+     is exactly where the bleeding tables were. */
+  /* :is(), not :where(). :where() contributes no specificity, so this lost to
+     the breakout rule above and silently did nothing. */
+  .art__body :global(:is(.rung__body, .collapsible__body, .comparison,
+                         .card, .ve-card, .callout, .ch, .kpi-card)
+                     :is(.table-wrap, .table-scroll, .kpi-row, .comparison,
+                         .mermaid-wrap, .mermaid-figure, figure,
+                         pre:not(.mermaid))) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* A box inside a padded container cancels that container's inset, so its text
+     lands on the container's own text edge instead of a step right of it.
+     Without this the insets compounded: a callout inside a disclosure sat ~40px
+     from the page column while the disclosure's own text sat at 17px, and each
+     nesting depth invented another edge. Descendant, not child: ported markup
+     wraps rung content in a pass-through .rung-html. margin-inline is a single
+     property, so an element matching through two ancestors still pulls back
+     once, which is what we want. */
+  .art__body :global(:is(.rung__body, .collapsible__body, .ch, .ve-card, .card)
+                     :is(.callout, .ve-card, .card)) {
+    margin-inline: calc(-1 * var(--inset-box));
+  }
+
+  .art__body :global(svg:not([aria-hidden='true'])) { max-width: 100%; height: auto; }
+
+  .art__body :global(table) { font-size: .84rem; }
+  .art__body :global(th) { white-space: nowrap; }
+  .art__body :global(td code) { white-space: nowrap; }
+
+  .art__body :global(blockquote) {
+    border-left: 3px solid var(--rule-2);
+    padding-left: var(--inset-box);
+    color: var(--ink-2);
+    font-size: .96rem;
+    line-height: 1.66;
+  }
+  .art__body :global(blockquote cite) {
+    display: block; margin-top: .55rem; font-style: normal;
+    font-family: var(--font-mono); font-size: .68rem;
+    letter-spacing: .05em; color: var(--ink-3);
+  }
+
+  /* Bottom-of-page navigation. One block on every article page, sitting
+     between the article body and the collapsed evidence register: the Next
+     card is the prominent primary action, the link row the constant
+     secondary one. */
+  .artnav {
+    margin-top: 3.5rem; padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+    max-width: var(--w-text);
+  }
+  .artnav__next {
+    display: block;
+    padding: 1.05rem 1.25rem;
+    border: 1px solid var(--rule-2);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .artnav__next:hover, .artnav__next:focus-visible {
+    border-color: var(--accent);
+    background: var(--surface-2);
+  }
+  .artnav__kicker {
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  }
+  .artnav__label {
+    display: block; margin-top: .35rem;
+    font-size: 1.06rem; font-weight: 600; line-height: 1.35; color: var(--ink);
+  }
+  .artnav__label::after { content: ' →'; color: var(--accent); }
+  .artnav__note {
+    display: block; margin-top: .35rem;
+    font-size: .85rem; line-height: 1.55; color: var(--ink-3);
+  }
+  .artnav__links {
+    display: flex; flex-wrap: wrap; gap: .35rem 1.4rem;
+    margin: 1rem 0 0;
+    font-size: .9rem;
+  }
+</style>

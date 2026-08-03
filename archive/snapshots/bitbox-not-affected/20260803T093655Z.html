@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>BitBox is not affected by the Coldcard RNG vulnerability</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/en/assets/built/screen.css?v=70bc454a44" />
+    <link rel="stylesheet" type="text/css" href="https://bitbox.swiss/css/cookie-monster.css" />
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/en/assets/favicons/favicon-16.png?v=70bc454a44" sizes="16x16">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/en/assets/favicons/favicon-32.png?v=70bc454a44" sizes="32x32">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/en/assets/favicons/favicon-96.png?v=70bc454a44" sizes="96x96">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/en/assets/favicons/favicon-128.png?v=70bc454a44" sizes="128x128">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/en/assets/favicons/favicon-196.png?v=70bc454a44" sizes="196x196">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/en/assets/favicons/favicon-light-16.png?v=70bc454a44" sizes="16x16">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/en/assets/favicons/favicon-light-32.png?v=70bc454a44" sizes="32x32">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/en/assets/favicons/favicon-light-96.png?v=70bc454a44" sizes="96x96">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/en/assets/favicons/favicon-light-128.png?v=70bc454a44" sizes="128x128">
+    <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/en/assets/favicons/favicon-light-196.png?v=70bc454a44" sizes="196x196">
+    <script>
+        window.removeUniqueParams = function(href) {
+            var url = (href instanceof URL) ? href : new URL(href, location);
+            url.searchParams.delete('u');
+            return url.href;
+        };
+    </script>
+
+    <script>
+(function(){
+  // so we can use gtag before the script is loaded
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function gtag(){dataLayer.push(arguments);};
+
+  var COOKIE_NAME = '_bb_id'
+  function getUserIdFromCookie() {
+    var cookieEntry = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith(COOKIE_NAME));
+    if (cookieEntry) {
+      var cookieData = JSON.parse(decodeURIComponent(cookieEntry.split('=')[1]));
+      return cookieData.userId;
+    }
+  }
+
+  // check if userId stored in localStorage or url
+  var pattern = /^[a-zA-Z0-9-]+$/;
+  var gauid = getUserIdFromCookie(); 
+
+  if (gauid && pattern.test(gauid)) {
+    // gauid exists and fulfills requirements
+    window.gauid = gauid;
+  } else {
+    // userId does not exist, create new, random userID
+    window.gauid = (window.crypto && crypto.getRandomValues(new Uint8Array(10)).join(''))
+      || Math.floor(Math.random() * 10000000000000000).toString();
+  }
+
+  function getTestGroupFromId(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      var char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash &= hash; // convert to 32bit integer
+    }
+    return hash & 1 ? 'b' : 'a';
+  }
+  var testGroup = getTestGroupFromId(window.gauid);
+  window.testGroup = testGroup;
+
+  window.addEventListener('error', function(error) {
+    gtag('event', error.message, {
+      event_category: 'Error',
+      event_label: error.filename + ':(' + error.lineno + ':' + error.colno + ')'
+    });
+  });
+
+  setTimeout(function() {
+    document.documentElement.classList.add('group-' + testGroup);
+  }, 0);
+})();
+</script>
+
+<script type="text/plain-a">
+;(function() {
+    document.body.addEventListener('click', track);
+    document.body.addEventListener('contextmenu', track);
+
+    function formattedGtagAction(link) {
+        const parentWithID = link.closest('[id]');
+        const id = parentWithID ? parentWithID.getAttribute('id') : null;
+        const content = link.textContent;
+        const img = link.querySelector('img');
+        const text = (content ? content.trim() : null)
+            || link.getAttribute('title')
+            || (img ? img.getAttribute('alt') : null)
+            || '';
+        return location.pathname + (id ? '#' + id : '') + '(' + text + ')';
+    }
+
+    function track(e) {
+        const link = e.target.closest('a');
+        if (link) {
+            if ((link.dataset.name && link.dataset.category)) {
+                gtag('event', link.dataset.name, {
+                    event_category: link.dataset.category,
+                    event_label: removeUniqueParams(link.getAttribute('href'))
+                });
+            }
+            const url = new URL(link.getAttribute('href'), location);
+            switch(url.hostname) {
+            case 'bitbox.shop':
+            case 'shop.bitbox.swiss':
+                gtag('event', formattedGtagAction(link), {
+                    event_category: 'Shop',
+                    event_label: 'Link'
+                });
+                break;
+            case 'shiftcrypto.support':
+                gtag('event', formattedGtagAction(link), {
+                    event_category: 'Support',
+                    event_label: 'Link'
+                });
+                break;
+            case 'bitbox.swiss': // ignore internal links
+                break;
+            default:
+                if (url.hostname !== location.hostname) {
+                    // track as outbound links
+                    gtag('event', formattedGtagAction(link), {
+                        event_category: 'Outbound',
+                        event_label: removeUniqueParams(url)
+                    });
+                }
+            }
+        }
+    }
+
+    var pattern = /^[0-9a-zA-Z-]{1,20}$/;
+    var ref = new URLSearchParams(location.search).get('ref');
+    if (ref && pattern.test(ref)) {
+        gtag('event', ref, {
+            event_category: 'Affiliate',
+            event_label: location.href
+        });
+    }
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // store UTM parameters for newsletter banner detection
+    var params = new URLSearchParams(location.search);
+    var utmId = params.get('utm_id');
+    var utmSource = params.get('utm_source');
+    var utmMedium = params.get('utm_medium');
+    var utmCampaign = params.get('utm_campaign');
+    var utmTerm = params.get('utm_term');
+    // max length of arbitrarly 72 chars per param seems enough, GA allows 2048 chars for total url length
+    var utmPattern = /^[0-9a-zA-Z-_.~]{1,72}$/; // only allow unreserved characters as param value
+    if (
+        (utmId || utmSource || utmMedium || utmCampaign || utmTerm) // at least 1 is truthy
+        && [utmId, utmSource, utmMedium, utmCampaign, utmTerm].every(function(value) {
+            return value === null || utmPattern.test(value) || console.warn('weird utm', value);
+        })
+    ) { // save if all are valid
+        localStorage.setItem('params', params.toString());
+      }
+});
+</script>    <script async src="https://bitbox.swiss/js/config.js"></script>
+    <style>
+    @font-face {
+        font-family: 'labLight';
+        src: url('/en/assets/fonts/LabGrotesque-Light.woff2?v=70bc454a44') format('woff2'),
+            url('/en/assets/fonts/LabGrotesque-Light.woff?v=70bc454a44') format('woff'),
+            url('/en/assets/fonts/LabGrotesque-Light.otf?v=70bc454a44') format('otf');
+            font-weight: normal;
+    }
+
+    @font-face {
+        font-family: 'labRegular';
+        src: url('/en/assets/fonts/LabGrotesque-Regular.woff2?v=70bc454a44') format('woff2'),
+            url('/en/assets/fonts/LabGrotesque-Regular.woff?v=70bc454a44') format('woff'),
+            url('/en/assets/fonts/LabGrotesque-Regular.otf?v=70bc454a44') format('otf');
+            font-weight: normal;
+    }
+
+    @font-face {
+        font-family: 'labMedium';
+        src: url('/en/assets/fonts/LabGrotesque-Medium.woff2?v=70bc454a44') format('woff2'),
+            url('/en/assets/fonts/LabGrotesque-Medium.woff?v=70bc454a44') format('woff'),
+            url('/en/assets/fonts/LabGrotesque-Medium.otf?v=70bc454a44') format('otf');
+            font-weight: normal;
+    }
+
+    @font-face {
+        font-family: 'labBold';
+        src: url('/en/assets/fonts/LabGrotesque-Bold.woff2?v=70bc454a44') format('woff2'),
+            url('/en/assets/fonts/LabGrotesque-Bold.woff?v=70bc454a44') format('woff'),
+            url('/en/assets/fonts/LabGrotesque-Bold.otf?v=70bc454a44') format('otf');
+            font-weight: normal;
+    }
+</style>
+    <script defer src="/en/assets/vendor/sodo-search/sodo-search.min.js?v=70bc454a44" data-key="2343a09ceb989abfa164c8b162" data-styles="/en/assets/vendor/sodo-search/main.css?v=70bc454a44" data-sodo-search="https://blog.bitbox.swiss/en" crossorigin="anonymous"></script>
+        <meta name="description" content="Addressing questions BitBox users might have in light of the recent Coldcard security advisory.">
+    <link rel="icon" href="https://blog.bitbox.swiss/en/content/images/size/w256h256/2025/03/favicon-196.png" type="image/png">
+    <link rel="canonical" href="https://blog.bitbox.swiss/en/bitbox-is-not-affected-by-the-coldcard-rng-vulnerability/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="BitBox Blog">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="BitBox is not affected by the Coldcard RNG vulnerability">
+    <meta property="og:description" content="Addressing questions BitBox users might have in light of the recent Coldcard security advisory.">
+    <meta property="og:url" content="https://blog.bitbox.swiss/en/bitbox-is-not-affected-by-the-coldcard-rng-vulnerability/">
+    <meta property="og:image" content="https://blog.bitbox.swiss/en/content/images/size/w1200/2026/07/bitbox-funds-are-safe3.png">
+    <meta property="article:published_time" content="2026-07-31T10:27:16.000Z">
+    <meta property="article:modified_time" content="2026-07-31T11:02:53.000Z">
+    <meta property="article:tag" content="Security">
+    
+    <meta property="article:publisher" content="https://www.facebook.com/BitBoxSwiss">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BitBox is not affected by the Coldcard RNG vulnerability">
+    <meta name="twitter:description" content="Addressing questions BitBox users might have in light of the recent Coldcard security advisory.">
+    <meta name="twitter:url" content="https://blog.bitbox.swiss/en/bitbox-is-not-affected-by-the-coldcard-rng-vulnerability/">
+    <meta name="twitter:image" content="https://blog.bitbox.swiss/en/content/images/size/w1200/2026/07/bitbox-funds-are-safe3.png">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="BitBox">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="Security">
+    <meta name="twitter:site" content="@BitBoxSwiss">
+    <meta name="twitter:creator" content="@BitBoxSwiss">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="600">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "BitBox Blog",
+        "url": "https://blog.bitbox.swiss/en/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://blog.bitbox.swiss/en/content/images/2025/03/bitbox-logo.min.svg",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "BitBox",
+        "image": {
+            "@type": "ImageObject",
+            "url": "https://blog.bitbox.swiss/en/content/images/2026/03/blogpic.png",
+            "width": 512,
+            "height": 512
+        },
+        "url": "https://blog.bitbox.swiss/en/author/bitbox/",
+        "sameAs": [
+            "https://bitbox.swiss",
+            "https://x.com/BitBoxSwiss",
+            "https://www.instagram.com/bitboxswiss",
+            "https://www.linkedin.com/company/bitbox-swiss"
+        ]
+    },
+    "headline": "BitBox is not affected by the Coldcard RNG vulnerability",
+    "url": "https://blog.bitbox.swiss/en/bitbox-is-not-affected-by-the-coldcard-rng-vulnerability/",
+    "datePublished": "2026-07-31T10:27:16.000Z",
+    "dateModified": "2026-07-31T11:02:53.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://blog.bitbox.swiss/en/content/images/size/w1200/2026/07/bitbox-funds-are-safe3.png",
+        "width": 1200,
+        "height": 600
+    },
+    "keywords": "Security",
+    "description": "Addressing questions BitBox users might have in light of the recent Coldcard security advisory.",
+    "mainEntityOfPage": "https://blog.bitbox.swiss/en/bitbox-is-not-affected-by-the-coldcard-rng-vulnerability/"
+}
+    </script>
+<style>:root {--ghost-accent-color: #5E94BF;}</style>
+    <meta name="generator" content="Ghost 6.42">
+    <link rel="alternate" type="application/rss+xml" title="BitBox Blog" href="https://blog.bitbox.swiss/en/rss/">
+    
+    
+    
+    <link href="https://blog.bitbox.swiss/en/webmentions/receive/" rel="webmention">
+    
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "BitBox Blog",
+    "url": "https://blog.bitbox.swiss/",
+    "description": "Bitcoin security, BitBox updates, and practical guides for simple and secure self-custody.",
+    "publisher": {
+        "@type": "Organization",
+        "name": "BitBox Blog",
+        "url": "https://blog.bitbox.swiss/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://blog.bitbox.swiss/en/content/images/2025/03/bitbox-logo.min.svg",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://blog.bitbox.swiss/en/content/images/2025/04/blog_ogp_en.png",
+        "width": 1200,
+        "height": 630
+    },
+    "mainEntityOfPage": "https://blog.bitbox.swiss/"
+}
+</script>
+
+<script>
+window.newsletterBanner = {
+  en: {
+    title: 'Like what you\'re reading?',
+    content: 'Get notified about new articles with our free BitBox newsletter!',
+    cta: 'Sign up now',
+    href: 'https://bitbox.swiss/newsletter/'
+  },
+  de: {
+    title: 'Gefällt dir, was du liest?',
+    content: 'Erhalte eine Benachrichtigung bei neuen Artikeln mit unserem kostenlosen BitBox-Newsletter!',
+    cta: 'Jetzt anmelden',
+    href: 'https://bitbox.swiss/de/newsletter/'
+  },
+  it: {
+    title: 'Ti piace quello che stai leggendo?',
+    content: 'Ricevi notifiche sui nuovi articoli con la nostra newsletter gratuita BitBox!',
+    cta: 'Iscriviti ora',
+    href: 'https://bitbox.swiss/it/newsletter/'
+  },
+  es: {
+    title: '¿Te gusta lo que estás leyendo?',
+    content: 'Recibe notificaciones sobre nuevos artículos con nuestro boletín gratuito BitBox.',
+    cta: 'Regístrate ahora',
+    href: 'https://bitbox.swiss/es/newsletter/'
+  },
+  misc: {
+    title: 'Like what you\'re reading?',
+    content: 'Get notified about new articles with our free BitBox newsletter!',
+    cta: 'Sign up now',
+    href: 'https://bitbox.swiss/newsletter/'
+  }
+};
+</script>
+
+
+    <!--translation-link:07312026-->
+
+</head>
+<body class="post-template tag-security">
+
+    <div class="site-wrapper">
+
+        
+
+<div class="outer site-nav-main">
+    <div class="inner" data-js-nav>
+        <nav class="site-nav">
+    <div class="site-nav-primary">
+        <a class="site-nav-logo" href="https://bitbox.swiss/">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="512" height="512" viewBox="0 0 512 512" xml:space="preserve">
+                <path style="fill:#191919" d="M105.8 347.4v-82.9l67-28.8V106.6l66.6-29.1v212zM406.2 348.1v-82.8l-67-28.9V107.3l-66.6-28.9v211.8zM256.2 318.5L123 376.7l133.1 57.8 133.6-58.1z"></path>
+            </svg>
+        </a>
+                <ul class="nav" role="menu">
+            <li class="nav-hardware-wallet" role="menuitem">
+                <a href="https://bitbox.swiss/bitbox02/">Hardware wallet</a>
+            </li>
+            <li class="nav-reviews" role="menuitem">
+                <a href="https://bitbox.swiss/bitbox02/reviews/">Reviews</a>
+            </li>
+            <li class="nav-security" role="menuitem">
+                <a href="https://bitbox.swiss/bitbox02/security-features/">Security</a>
+            </li>
+            <li class="nav-app" role="menuitem">
+                <a href="https://bitbox.swiss/app/">App</a>
+            </li>
+    </ul>
+
+    </div>
+    <div class="site-nav-secondary">
+
+                <ul class="nav" >
+            <li class="nav-blog" >
+                <a href="/en/">
+                    Blog
+                </a>
+            </li>
+            <li class="nav-support" >
+                <a href="https://support.bitbox.swiss/">
+                    Support
+                </a>
+            </li>
+            <li class="nav-shop" >
+                <a href="https://shop.bitbox.swiss/">
+                    Shop
+                </a>
+            </li>
+        <li class="nav-dropdown">
+  <input type="checkbox" id="language-toggle" tabindex="0">
+  <label for="language-toggle" class="nav-dropdown-toggle" aria-haspopup="true" aria-owns="language-menu">
+    <span>
+      Languages
+    </span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokewidth="2" strokelinecap="round" strokelinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+</svg>  </label>
+  <div class="nav-dropdown-content shadow">
+    <span class="sr-only">Languages</span>
+    <ul id="language-menu">
+      <li lang="en"><a class="active" href="/en/">English</a></li>
+      <li lang="de"><a  href="/de/">Deutsch</a></li>
+      <li lang="es"><a  href="/es/">Español</a></li>
+      <li lang="it"><a  href="/it/">Italiano</a></li>
+      <li lang="misc"><a  href="/misc/">Miscellaneous</a></li>
+    </ul>
+  </div>
+</li>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const languageToggle = document.getElementById("language-toggle");
+    const languageMenu = document.getElementById("language-menu");
+
+    languageToggle.addEventListener("change", function () {
+
+      if (languageToggle.checked) {
+        languageMenu.parentElement.classList.add("open");
+      } else {
+        languageMenu.parentElement.classList.remove("open");
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".nav-dropdown")) {
+        languageToggle.checked = false;
+      }
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const languageToggle = document.getElementById("language-toggle");
+    const languageMenu = document.getElementById("language-menu");
+    const languageLinks = languageMenu.querySelectorAll("a");
+
+    function setActiveLanguage() {
+      const currentPath = window.location.pathname;
+
+      languageLinks.forEach(link => {
+
+        link.classList.remove("active");
+
+        if (link.getAttribute("href") === currentPath) {
+          link.classList.add("active");
+        }
+      });
+    }
+
+
+    setActiveLanguage();
+
+
+    languageToggle.addEventListener("change", function () {
+      if (languageToggle.checked) {
+        languageMenu.parentElement.classList.add("open");
+      } else {
+        languageMenu.parentElement.classList.remove("open");
+      }
+    });
+
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".nav-dropdown")) {
+        languageToggle.checked = false;
+      }
+    });
+  });
+</script>    </ul>
+
+
+        <button type="button" class="burger" data-js-burger>
+            <span class="burger-lines"></span>
+        </button>
+    </div>
+    
+     <ul class="mobile-language-menu">
+        <li><span class="mobile-language-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"></path><path d=" M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="#888"></path></svg></span></li>
+        <li lang="en"><a class="active" href="/en/">English</a></li>
+        <li lang="de"><a href="/de/">Deutsch</a></li>
+        <li lang="es"><a href="/es/">Español</a></li>
+        <li lang="it"><a href="/it/">Italiano</a></li>        
+    </ul>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const mobileLanguageMenu = document.querySelector(".mobile-language-menu");
+            const mobileLanguageLinks = mobileLanguageMenu.querySelectorAll("a");
+
+
+            function setActiveLanguageMobile() {
+                const currentPath = window.location.pathname;
+
+                mobileLanguageLinks.forEach(link => link.classList.remove("active"));
+
+
+                mobileLanguageLinks.forEach(link => {
+                    if (link.getAttribute("href") === currentPath) {
+                        link.classList.add("active");
+                    }
+                });
+            }
+
+
+            setActiveLanguageMobile();
+        });
+
+    </script>
+
+</nav>
+    </div>
+</div>
+
+    
+    
+
+<main id="site-main" class="site-main outer">
+    <div class="inner">
+        <article class="post-full post tag-security featured ">
+            <header class="post-full-header">
+                    <div class="rss-feed">
+                        <a class="rss-button" href="https://blog.bitbox.swiss/en/rss/" title="RSS" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+</a>
+                    </div>
+                <section class="post-full-tags">
+                    <a href="/en/tag/security/">Security</a>
+                </section>
+                <h1 class="post-full-title">BitBox is not affected by the Coldcard RNG vulnerability</h1>
+                <p class="post-full-custom-excerpt">Addressing questions BitBox users might have in light of the recent Coldcard security advisory.</p>
+                <div class="post-full-byline">
+                    <section class="post-full-byline-content">
+                        <ul class="author-list">
+                            <li class="author-list-item">
+
+                                <a href="/en/author/bitbox/" class="author-avatar">
+                                    <img class="author-profile-image" src="/en/content/images/size/w100/2026/03/blogpic.png" alt="BitBox" />
+                                </a>
+
+                            </li>
+                        </ul>
+                        <section class="post-full-byline-meta">
+                            <h4 class="author-name"><a href="/en/author/bitbox/">BitBox</a></h4>
+                            <div class="byline-meta-content">
+                                <time class="byline-meta-date" datetime="2026-07-31">31 Jul 2026</time>
+                                <span class="byline-reading-time"><span class="bull">&bull;</span> 4 min read</span>
+                            </div>
+                        </section>
+                    </section>
+                </div>
+            </header>
+
+            <figure class="post-full-image">
+                <img
+                    srcset="/en/content/images/size/w300/2026/07/bitbox-funds-are-safe3.png 300w,
+                            /en/content/images/size/w500/2026/07/bitbox-funds-are-safe3.png 600w,
+                            /en/content/images/size/w1000/2026/07/bitbox-funds-are-safe3.png 1000w,
+                            /en/content/images/size/w2000/2026/07/bitbox-funds-are-safe3.png 2000w"
+                    sizes="(max-width: 800px) 400px,
+                        (max-width: 1170px) 1170px,
+                            2000px"
+                    src="/en/content/images/size/w2000/2026/07/bitbox-funds-are-safe3.png"
+                    alt="BitBox is not affected by the Coldcard RNG vulnerability"
+                />
+            </figure>
+
+            <section class="post-full-content">
+                <div class="post-content">
+                    <p>We can confirm that the BitBox02 and BitBox02 Nova are <strong>not affected</strong> by the recent Coldcard seed generation vulnerability. If your wallet was generated on a BitBox hardware wallet, there is no reason to worry.</p><p>Note there is one important exception: If you originally generated your recovery words on an affected Coldcard device and later restored them on a BitBox, the seed itself may still be vulnerable. We explain this distinction below.</p><h2 id="what-happened">What happened?</h2><p>On July 30, 2026, Coinkite warned users about wallet seeds generated on certain Coldcard devices and firmware versions. According to <a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/">their security advisory</a>, the issue affects:</p><ul><li>Coldcard Mk3 running firmware version 4.0.1 or later</li><li>Coldcard Mk4 and Mk5 before firmware version 5.6.0</li><li>Coldcard Q before firmware version 1.5.0Q</li></ul><p>For more details, see Coinkite’s <a href="https://blog.coinkite.com/entropy-technical-backgrounder/">technical explanation of the vulnerability</a>.</p><p>If you generated a wallet on any of the mentioned devices in the past, and you are still actively using it today, your funds may be at risk. We are mentioning this explicitly, as this can also apply to BitBox users who <strong>imported a wallet generated by the affected Coldcard devices</strong> <strong>on their BitBox</strong>.</p><p>In such a case, do not panic and try to remain calm. Your next step should be to create a new wallet on the BitBox and send your funds from the affected wallet to it. <a href="https://contact.bitbox.swiss">Our support team</a> can guide you through the concrete steps if you need help in doing so.</p><h2 id="why-quality-of-randomness-is-so-important">Why quality of randomness is so important</h2><p>Every Bitcoin wallet starts with a <strong>large random number</strong>.</p><p>The size of this number alone is not enough. It must also be unpredictable, also referred to as “truly random”. If a random number generator produces only a limited or predictable set of results, an attacker can search that much smaller set instead of the full range of possible wallets.</p><p>This is why wallet security depends not only on keeping recovery words private, but also on generating them with sufficient entropy in the first place. We explain this concept in more detail in our article about <a href="https://blog.bitbox.swiss/en/how-hard-is-it-to-guess-a-seed-phrase/">how hard it is to guess a seed phrase</a>.</p><h2 id="how-bitbox-generates-a-wallet-seed">How BitBox generates a wallet seed</h2><p>BitBox does not rely on a single random number generator. When a BitBox creates a new wallet, it combines five independent sources of entropy:</p><ol><li>A true random number generator on the secure chip</li><li>A true random number generator on the microcontroller</li><li>A random value installed on each BitBox during factory setup, unique to each BitBox</li><li>Randomness supplied by the host device running the BitBoxApp</li><li>A cryptographic hash derived from the user chosen device password</li></ol><p>The advantage of combining different entropy sources like this is <strong>redundancy</strong>. If you combine good randomness with bad randomness, the result is still good randomness. In other words, as long as at least one independent source remains unpredictable to an attacker, the result remains unpredictable as well. A weak or compromised source therefore cannot, by itself, compromise the wallet. This is part of our <strong>defense in depth</strong> approach.</p><p>We continuously audit our own firmware code, including research with frontier AI models, and can confirm that an initial review of the wallet generation logic in the BitBox firmware showed that the implementation functions as intended and described above.</p><p>This implementation in the <a href="https://github.com/BitBoxSwiss/bitbox02-firmware">open-source BitBox firmware</a> can be reviewed by independent security researchers, while reproducible builds allow you to verify that the published firmware matches the public source code. You can also find a broader overview on the <a href="https://bitbox.swiss/bitbox02/security-features/">BitBox security page</a>.</p><h2 id="why-bitbox-is-not-affected">Why BitBox is not affected</h2><p>The recent Coldcard security advisory does not describe a flaw in Bitcoin itself or in wallet standards. It concerns a bug in how the Coldcard firmware specifically generated and used the underlying random number during wallet creation, resulting in weak randomness.</p><p>BitBox uses different hardware, different firmware, and multiple sources of entropy as described above. Neither the BitBox02 nor BitBox02 Nova shares relevant code in this regard with the Coldcard firmware. Wallets generated on a BitBox are therefore not affected by this vulnerability.</p><h2 id="what-should-i-do-to-stay-safe">What should I do to stay safe?</h2><p>If your wallet seed was generated on a BitBox02 or BitBox02 Nova, no action is required. There is no need to change your wallet setup or move your funds.</p><p>As always, stay alert for phishing attempts that use security news to create urgency. <strong>BitBox will never ask for your recovery words.</strong> Never enter them anywhere, other than directly on a trusted hardware wallet.</p><p>Do not hesitate to <a href="https://contact.bitbox.swiss">contact our support team</a> in case you still have any questions.&nbsp;</p><p><em>The BitBox team</em></p><hr><h2 id="don%E2%80%99t-own-a-bitbox-yet">Don’t own a BitBox yet?</h2><p>Keeping your crypto secure doesn't have to be hard. The BitBox hardware wallets store the private keys for your cryptocurrencies offline. So you can manage your coins safely.</p><p>Both the BitBox02 Nova and the BitBox02 also come in a Bitcoin-only edition, featuring a radically focused firmware: less code means less attack surface, which further improves your security when only storing bitcoin.</p><p><a href="https://shop.bitbox.swiss/" rel="noreferrer">Buy the BitBox02 Nova</a>&nbsp;or&nbsp;<a href="https://shop.bitbox.swiss/" rel="noreferrer">grab a BitBox02</a>&nbsp;in our shop!</p><figure class="kg-card kg-image-card kg-width-wide"><img src="https://blog.bitbox.swiss/en/content/images/2025/06/nova-desk-arrangement-alpha.png" class="kg-image" alt="" loading="lazy" width="2000" height="1125" srcset="https://blog.bitbox.swiss/en/content/images/size/w600/2025/06/nova-desk-arrangement-alpha.png 600w, https://blog.bitbox.swiss/en/content/images/size/w1000/2025/06/nova-desk-arrangement-alpha.png 1000w, https://blog.bitbox.swiss/en/content/images/size/w1600/2025/06/nova-desk-arrangement-alpha.png 1600w, https://blog.bitbox.swiss/en/content/images/2025/06/nova-desk-arrangement-alpha.png 2347w" sizes="(min-width: 1200px) 1200px"></figure><hr><p><a href="https://bitbox.swiss/">Shift Crypto</a> is a privately-held company based in Zurich, Switzerland. Our team of Bitcoin contributors, crypto experts, and security engineers builds products that enable customers to enjoy a stress-free journey from novice to mastery level of cryptocurrency management. The BitBox02, our second generation hardware wallet, lets users store, protect, and transact Bitcoin and other cryptocurrencies with ease — along with its software companion, the BitBoxApp!</p>
+                </div>
+            </section>
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+                <article class="read-next-card">
+                    <header class="read-next-card-header">
+                        <h3><span>More in</span> <a href="/en/tag/security/">Security</a></h3>
+                    </header>
+                    <div class="read-next-card-content">
+                        <ul>
+                            <li>
+                                <h4><a href="/en/how-bitcoin-vaults-combine-convenience-with-security/">How Bitcoin vaults combine convenience with security</a></h4>
+                                <div class="read-next-card-meta">
+                                    <p><time datetime="2026-04-09">9 Apr 2026</time> –
+                                        9 min read</p>
+                                </div>
+                            </li>
+                            <li>
+                                <h4><a href="/en/why-being-careful-cannot-replace-a-hardware-wallet-zero-day-vulnerabilities-explained/">Why “being careful” cannot replace a hardware wallet: Zero-day vulnerabilities explained</a></h4>
+                                <div class="read-next-card-meta">
+                                    <p><time datetime="2026-03-12">12 Mar 2026</time> –
+                                        7 min read</p>
+                                </div>
+                            </li>
+                            <li>
+                                <h4><a href="/en/bitbox-01-2026-marmorera-update/">BitBox 01.2026 Marmorera update</a></h4>
+                                <div class="read-next-card-meta">
+                                    <p><time datetime="2026-01-26">26 Jan 2026</time> –
+                                        7 min read</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <footer class="read-next-card-footer">
+                        <a href="/en/tag/security/">See all 37 posts
+                            →</a>
+                    </footer>
+                </article>
+
+            <div class="read-next-cards">
+
+                    <article class="post-card post tag-product featured ">
+
+    <a class="post-card-image-link" href="https://blog.bitbox.swiss/en/swapping-coins-directly-in-the-bitboxapp/">
+        <img class="post-card-image"
+          srcset="https://blog.bitbox.swiss/en/content/images/size/w300/2026/07/swapkit_hero.png 300w,
+              https://blog.bitbox.swiss/en/content/images/size/w500/2026/07/swapkit_hero.png 500w"
+          sizes="(max-width: 1000px) 400px, 700px"
+          loading="lazy" src="https://blog.bitbox.swiss/en/content/images/size/w500/2026/07/swapkit_hero.png" alt="Swapping coins directly in the BitBoxApp" />
+<span class="sr-only">Swapping coins directly in the BitBoxApp</span>
+    </a>
+    <div class="post-card-content">
+        <header class="post-card-header">
+            <a class="post-card-primary-tag" href="/en/tag/product/">Products</a>
+            <a class="post-card-content-link" href="https://blog.bitbox.swiss/en/swapping-coins-directly-in-the-bitboxapp/">
+                <h2 class="post-card-title">Swapping coins directly in the BitBoxApp</h2>
+            </a>
+        </header>
+
+        <section class="post-card-excerpt">
+            <p>
+                Swap supported cryptocurrencies directly in the BitBoxApp without an exchange account, while keeping full control of your funds.
+                <a class="post-card-read-more" href="https://blog.bitbox.swiss/en/swapping-coins-directly-in-the-bitboxapp/">Read more</a>
+            </p>
+        </section>
+    </div>
+</article>            </div>
+        </div>
+    </div>
+</aside>
+
+        <footer class="footer rightup bottomFlat h-padding with-space">
+    <div class="content-width">
+        <div class="row end-xs">
+            <div class="col-xs-11 col-sm-10 text-right">
+                <img loading="lazy" class="footer-logo" src="/en/assets/images/reversed_swiss_made.svg?v=70bc454a44" alt="Swiss made open source" />
+                <p class="meta">Please do not hesitate to contact us at <a href="/cdn-cgi/l/email-protection#4c3f393c3c233e380c2e25382e2334623f3b253f3f"><span class="__cf_email__" data-cfemail="e794929797889593a7858e9385889fc994908e9494">[email&#160;protected]</span></a>
+                    <br>&copy; 2026 Shift Crypto AG, Switzerland. All rights reserved.
+                </p>
+            </div>
+        </div>
+        <div class="row center-xs text-left">
+            <div class="footer-subnav text-left col-xs-12 col-sm-9 col-md-12">
+                <a class="m-right" href="https://bitbox.swiss/en/about/">About</a>
+                <a class="m-right" href="https://blog.bitbox.swiss/">Blog</a>
+                <a class="m-right" href="https://shop.bitbox.swiss/">Shop</a>
+                <a href="https://bitbox.swiss/en/jobs/">Jobs</a>
+                <a class="m-left" target="_blank" rel="noopener noreferrer" href="https://bitbox.betteruptime.com/" translate="no">Status</a>
+                <a class="rss-button" href="https://blog.bitbox.swiss/en/rss/" title="RSS" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+</a>
+            </div>
+        </div>
+        <div class="row m-top-large center-xs text-left">
+            <div class="col-xs-12 col-sm-3 col-md-2">
+                <h4 class="footer-label meta">Partners</h4>
+                <ul>
+                    <li><a href="https://bitbox.swiss/en/buy/">Where to buy</a></li>
+                    <li><a href="https://bitbox.swiss/en/reviewers/">Reviewers</a></li>
+                    <li><a href="https://bitbox.swiss/en/dev/">Developer resources</a></li>
+                    <li><a href="https://bitbox.swiss/en/bug-bounty-program/">Bug bounty program</a></li>
+                    <li><a href="https://bitbox.swiss/en/affiliates/">Affiliate program</a></li>
+                    <li><a href="https://bitbox.swiss/en/bitbox02/compare-hardware-wallets/">Wallet comparison</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-2">
+                <h4 class="footer-label meta">Products</h4>
+                <ul>
+                    <li><a href="https://bitbox.swiss/en/bitbox02/">BitBox02</a></li>
+                    <li><a href="https://bitbox.swiss/en/bitbox02/nova/">BitBox02 Nova</a></li>
+                    <li><a href="https://bitbox.swiss/en/app/">BitBoxApp</a></li>
+                    <li><a href="https://bitbox.swiss/en/backupcard/">Backup card</a></li>
+                    <li><a href="https://bitbox.swiss/en/steelwallet/">Steelwallet</a></li>
+                    <li><a href="https://bitbox.swiss/en/tamper-evident-bags/">Tamper-evident bags</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-2">
+                <h4 class="footer-label meta">Policies</h4>
+                <ul>
+                    <li><a href="https://bitbox.swiss/en/policies/refund-policy/">Refund policy</a></li>
+                    <li><a href="https://bitbox.swiss/en/policies/privacy-policy/">Privacy policy</a></li>
+                    <li><a href="https://bitbox.swiss/en/policies/terms-of-service/">Terms of service</a></li>
+                    <li><a href="https://bitbox.swiss/en/policies/limited-warranty/">Warranty</a></li>
+                    <li><a href="https://bitbox.swiss/en/policies/shipping/">Shipping</a></li>
+                    <li><a href="https://bitbox.swiss/en/policies/">Policies</a></li>
+                    <li class="open-cookie-monster">
+                        <button onClick="bb_cm.openCookieMonster();" type="button">Cookie settings&nbsp;🍪</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-5 col-md-offset-1">
+                <div>
+                    <div class="p-left-none">
+                        <p class="footer-label meta m-top">Platforms</p>
+                        <div class="inline">
+                            <a data-name="Twitter" data-category="Social" href="https://twitter.com/BitBoxSwiss"
+                                target="_blank" rel="noopener noreferrer">
+                                <svg role="img" style="fill: white" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <title>Twitter icon</title>
+    <path
+        d="M23.954 4.569c-.885.389-1.83.654-2.825.775 1.014-.611 1.794-1.574 2.163-2.723-.951.555-2.005.959-3.127 1.184-.896-.959-2.173-1.559-3.591-1.559-2.717 0-4.92 2.203-4.92 4.917 0 .39.045.765.127 1.124C7.691 8.094 4.066 6.13 1.64 3.161c-.427.722-.666 1.561-.666 2.475 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.228-.616v.061c0 2.385 1.693 4.374 3.946 4.827-.413.111-.849.171-1.296.171-.314 0-.615-.03-.916-.086.631 1.953 2.445 3.377 4.604 3.417-1.68 1.319-3.809 2.105-6.102 2.105-.39 0-.779-.023-1.17-.067 2.189 1.394 4.768 2.209 7.557 2.209 9.054 0 13.999-7.496 13.999-13.986 0-.209 0-.42-.015-.63.961-.689 1.8-1.56 2.46-2.548l-.047-.02z" />
+</svg>                            </a>
+                            <a data-name="GitHub" data-category="Social" href="https://github.com/BitBoxSwiss"
+                                target="_blank" rel="noopener noreferrer">
+                                <svg role="img" style="fill: white" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <title>GitHub icon</title>
+    <path
+        d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+</svg>                            </a>
+                            <a data-name="YouTube" data-category="Social" href="https://www.youtube.com/@bitboxswiss"
+                                target="_blank" rel="noopener noreferrer">
+                                <svg role="img" style="fill: white" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <title>YouTube icon</title>
+    <path
+        d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z" />
+</svg>                            </a>
+                            <a data-name="Facebook" data-category="Social" href="https://www.facebook.com/BitBoxSwiss"
+                                target="_blank" rel="noopener noreferrer">
+                                <svg style="fill: white" width="24" height="24" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <title>Facebook icon</title>
+    <path
+        d="M23.9981 11.9991C23.9981 5.37216 18.626 0 11.9991 0C5.37216 0 0 5.37216 0 11.9991C0 17.9882 4.38789 22.9522 10.1242 23.8524V15.4676H7.07758V11.9991H10.1242V9.35553C10.1242 6.34826 11.9156 4.68714 14.6564 4.68714C15.9692 4.68714 17.3424 4.92149 17.3424 4.92149V7.87439H15.8294C14.3388 7.87439 13.8739 8.79933 13.8739 9.74824V11.9991H17.2018L16.6698 15.4676H13.8739V23.8524C19.6103 22.9522 23.9981 17.9882 23.9981 11.9991Z" />
+</svg>                            </a>
+                            <a data-name="LinkedIn" data-category="Social"
+                                href="https://www.linkedin.com/company/bitbox-swiss" target="_blank"
+                                rel="noopener noreferrer">
+                                <svg role="img" style="fill: white" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <title>LinkedIn icon</title>
+    <path
+        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+</svg>                            </a>
+                            <a data-name="Instagram" data-category="Social"
+                                href="https://www.instagram.com/bitboxswiss/" target="_blank"
+                                rel="noopener noreferrer">
+                                <svg role="img" style="fill: white" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <title>Instagram icon</title>
+    <path
+        d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
+</svg>                            </a>
+                            <a data-name="Telegram" data-category="Social" href="https://bitbox.swiss/telegram/">
+                                <svg role="img" style="fill: white" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <title>Telegram icon</title>
+    <path
+        d="M23.91 3.79L20.3 20.84c-.25 1.21-.98 1.5-2 .94l-5.5-4.07-2.66 2.57c-.3.3-.55.56-1.1.56-.72 0-.6-.27-.84-.95L6.3 13.7l-5.45-1.7c-1.18-.35-1.19-1.16.26-1.75l21.26-8.2c.97-.43 1.9.24 1.53 1.73z" />
+</svg>                            </a>
+                            <a data-name="Reddit" data-category="Social" href="https://www.reddit.com/r/BitBoxWallet/"
+                                target="_blank" rel="noopener noreferrer">
+                                <svg role="img" width="24" height="24" style="fill: white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path
+        d="M440.3 203.5c-15 0-28.2 6.2-37.9 15.9-35.7-24.7-83.8-40.6-137.1-42.3L293 52.3l88.2 19.8c0 21.6 17.6 39.2 39.2 39.2 22 0 39.7-18.1 39.7-39.7s-17.6-39.7-39.7-39.7c-15.4 0-28.7 9.3-35.3 22l-97.4-21.6c-4.9-1.3-9.7 2.2-11 7.1L246.3 177c-52.9 2.2-100.5 18.1-136.3 42.8-9.7-10.1-23.4-16.3-38.4-16.3-55.6 0-73.8 74.6-22.9 100.1-1.8 7.9-2.6 16.3-2.6 24.7 0 83.8 94.4 151.7 210.3 151.7 116.4 0 210.8-67.9 210.8-151.7 0-8.4-.9-17.2-3.1-25.1 49.9-25.6 31.5-99.7-23.8-99.7zM129.4 308.9c0-22 17.6-39.7 39.7-39.7 21.6 0 39.2 17.6 39.2 39.7 0 21.6-17.6 39.2-39.2 39.2-22 .1-39.7-17.6-39.7-39.2zm214.3 93.5c-36.4 36.4-139.1 36.4-175.5 0-4-3.5-4-9.7 0-13.7 3.5-3.5 9.7-3.5 13.2 0 27.8 28.5 120 29 149 0 3.5-3.5 9.7-3.5 13.2 0 4.1 4 4.1 10.2.1 13.7zm-.8-54.2c-21.6 0-39.2-17.6-39.2-39.2 0-22 17.6-39.7 39.2-39.7 22 0 39.7 17.6 39.7 39.7-.1 21.5-17.7 39.2-39.7 39.2z">
+    </path>
+</svg>                            </a>
+                        </div>
+                    </div>
+                </div>
+                <p class="footer-label meta m-top-large">Newsletter</p>
+                <ul>
+                    <li>
+                        <a href="https://bitbox.swiss/en/newsletter/" class="footer-inline-icon">
+                            <svg role="img" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    viewBox="0 0 24 24" width="24" height="24">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+    </path>
+    <path d="m22 6-10 7L2 6"></path>
+</svg>                            Subscribe
+                        </a>
+                    </li>
+                </ul>
+                <div class="m-top-large">
+                    <p class="meta m-top-none">Except where otherwise noted, content on this site is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/en/assets/built/bundle.js?v=70bc454a44"></script>
+
+    
+
+    <script async src="https://bitbox.swiss/js/cookie-monster.js"></script>
+
+    
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"20913cc1abdb4145a404e4459462b231"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a254573a49af3e1a',t:'MTc4NTc0OTgxNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

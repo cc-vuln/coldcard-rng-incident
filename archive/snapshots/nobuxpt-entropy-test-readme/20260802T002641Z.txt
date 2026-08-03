@@ -1,0 +1,93 @@
+# COLDCARD Weak-RNG Entropy Test
+Regression tests for the COLDCARD seed-generation entropy bug (July 2026
+advisory). Two tools:
+1. **`simulate.py`** — collision test that reproduces the "duplicate wallet
+   found in seconds" demo: the affected RNG chain produces duplicate seeds
+   within millions of generations, while a secure RNG produces none.
+2. **`check_firmware.py`** — static source scan that flags the `#ifndef`
+   guard regression in any firmware tree (e.g. the [Coldcard firmware repo]
+   (https://github.com/Coldcard/firmware)).
+This is **defensive, educational security tooling**: it demonstrates *why*
+the seed space was weak. It does not contact the Bitcoin network, derive
+wallet balances, or scan for funds.
+## Background
+Between March 2021 and the July 30 2026 advisory, COLDCARD wallet seeds were
+generated from the wrong random source. In short:
+- `generate_seed()` (`shared/seed.py`) calls `ngu.random.bytes(32)`.
+- libngu (`external/libngu/ngu/random.c`) reads a `rng_get()` symbol.
+- Its build guard is `#ifndef MICROPY_HW_ENABLE_RNG` — it tests whether the
+  macro is *defined*, not whether it is *enabled*.
+- The board config defines `MICROPY_HW_ENABLE_RNG (0)`, so the guard passes
+  and the build binds to **MicroPython's Yasmarang software PRNG** fallback
+  (`ports/stm32/rng.c`) instead of the STM32 hardware TRNG.
+- Yasmarang seeds once from `UID_low32 ^ SysTick->VAL`, `RTC->TR`,
+  `RTC->SSR` — none of which are cryptographic entropy.
+- libngu then XORs that stream with its *own* Yasmarang seeded from public
+  hardcoded constants, so it stays deterministic.
+Effective entropy: ~40 bits on Mk2/Mk3 (Block engineering estimate), ~72 bits
+on Mk4/Q/Mk5.
+## `simulate.py`
+Faithfully reimplements the full vulnerable RNG chain:
+```
+MicroPython yasmarang fallback  ─┐
+        (UID ^ SysTick, RTC)     │  XOR  ─> 32 bytes  ─> sha256d  = seed
+libngu yasmarang (public consts) ─┘
+```
+### Usage
+```bash
+# ~40-bit state space (Block's estimate) -> collisions by ~1.5M generations
+python3 simulate.py --mode 40bit --count 1500000
+# Worst case: attacker knows UID + RTC, only SysTick varies (~80,000 values)
+python3 simulate.py --mode worstcase --count 200000
+# Secure baseline (os.urandom + sha256d): zero collisions, ever
+python3 simulate.py --mode secure --count 500000
+# All three
+python3 simulate.py --mode both --count 1500000
+```
+### Sample results
+```
+[40bit model] 1,500,000 seeds in 166.62s
+  distinct seeds     : 1,499,723
+  duplicate seeds    : 277
+  state space        : ~2^40 (expected 1st collision @ 1,482,910)
+[worst case] 200,000 seeds in 22.55s
+  distinct seeds     : 73,360
+  duplicate seeds    : 126,640
+  state space        : ~2^16.3 (expected 1st collision @ 402)
+  FIRST COLLISION    : generation 283
+[secure] 500,000 seeds in 6.37s
+  distinct seeds     : 500,000
+  duplicate seeds    : 0
+```
+### An extra finding: `RTC->TR` silently drops out
+Because the fallback seeds `d = RTC->SSR` and computes `d * n` *before* `n`
+is ever used, when `RTC->SSR == 0` (the Mk3 cold-boot state, since the RTC
+oscillator is disabled) `RTC->TR` never influences the stream:
+```
+different RTC->TR, SSR=0   -> identical seed: True
+different RTC->TR, SSR=0x55 -> different seed: True
+```
+Worst case that collapses the effective space to **~2^32** (just the low 32
+bits of the chip UID XORed with SysTick) — even weaker than the 40-bit model
+used in the circulating demo. `simulate.py --mode 40bit` reproduces this: the
+observed collision rate (277 at 1.5M gens) matches a ~2^32 space, not 2^40.
+## `check_firmware.py`
+Scans a source tree for the regression and reports a verdict:
+```bash
+python3 check_firmware.py /path/to/firmware
+```
+Exit codes: `0` fixed, `1` vulnerable, `2` indeterminate.
+```text
+$ python3 check_firmware.py ./firmware
+  [config]  stm32/COLDCARD/mpconfigboard.h: #define MICROPY_HW_ENABLE_RNG       (0)
+  [BUG]     external/libngu/ngu/random.c: # ifndef MICROPY_HW_ENABLE_RNG
+RESULT: VULNERABLE
+```
+## References
+- Coinkite advisory: <https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/>
+- Coinkite technical backgrounder: <https://blog.coinkite.com/entropy-technical-backgrounder/>
+- Block engineering root-cause report
+- Coldcard firmware source: <https://github.com/Coldcard/firmware>
+- libngu (`switck/libngu`), MicroPython `ports/stm32/rng.c` (`f68e722005`)
+## License
+ISC

@@ -1,0 +1,45 @@
+url:      https://x.com/nunchuk_io/status/2084163891043688858
+author:   nunchuk_io
+handle:   @nunchuk_io
+posted:   2026-08-03T06:26:08.000Z (from the page's <time> element)
+captured: 20260803T081851Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+IMPORTANT UPDATE: Using Slipstream to safely migrate funds off multisig wallets containing Coldcard(s)
+
+Two levels of urgency, so you know where you stand:
+• Migrate now: if your affected Coldcard-generated keys alone could meet your wallet’s signing threshold (e.g. a 2-of-3 with two Coldcard-generated keys). These are the wallets an attacker could realistically sweep.
+• Migrate soon, no emergency: if you have only one Coldcard-generated key, below threshold. A single affected key can’t move funds on its own, but you should still migrate. If in doubt about how many of your keys were generated on a Coldcard, treat it as the higher-urgency case.
+
+For our paid subscribers (automatic, coming soon):
+The next Nunchuk mobile update will automatically route any transaction from an assisted multisig wallet containing at least one Coldcard through Slipstream, bypassing the public mempool. You won’t have to do anything but upgrade. We’ll announce when it’s live (currently awaiting Apple/Google review).
+
+For everyone else, the manual method:
+Use this if you’re:
+(a) a subscriber who doesn’t want to wait,
+(b) a free Nunchuk user with Coldcard in your multisig, or
+(c) not a Nunchuk user but have Coldcard in your multisig.
+
+Prerequisite: you’ll need a Slipstream code. If you don’t have one, DM us and we’ll try to get you one before you start.
+
+(Paid users on the upcoming auto-Slipstream version can skip this manual method entirely and just broadcast in-app.)
+
+If you’re a non-Nunchuk user, first import your multisig into Nunchuk: Add wallet → Recover existing wallet → Recover using BSMS file, wallet descriptor, or QR code.
+
+Manual Slipstream submission method:
+1.Paid users: ensure the Platform Key’s auto-broadcast is OFF (it is by default) so the transaction isn’t broadcast before you can submit it to Slipstream.
+2.Create the migration transaction. Set the fee rate to at least Slipstream’s minimum (check the current minimum at 
+http://
+slipstream.mara.com). Higher fee means faster confirmation.
+3.Sign with your keys so the transaction meets the multisig spending threshold. Do NOT broadcast it in Nunchuk.
+4.Get the raw hex: Transaction details → More menu → Copy raw transaction hex.
+5.Go to 
+http://
+slipstream.mara.com, submit the raw hex, and enter your Slipstream code. Note that the transaction might take longer than usual since Mara only has ~5-6% of total hash rate.
+
+Why this helps, and its limits: we haven’t heard of any reported attack on a multisig containing Coldcard so far, but better safe than sorry. Note that the Slipstream method relies on trusting the MARA pool operators. In exchange, it keeps your migration out of the public mempool, closing the RBF-sniping window explained in the quoted tweet. It doesn’t eliminate risk, but for wallets genuinely at risk it meaningfully reduces it. For everyone else, a normal migration is fine.
+
+Please share and retweet so this reaches as many affected people as possible.

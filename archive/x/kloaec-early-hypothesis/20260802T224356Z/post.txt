@@ -1,0 +1,29 @@
+url:      https://x.com/KLoaec/status/2082926304995762209
+author:   Kevin Loaec
+handle:   @KLoaec
+posted:   2026-07-30T20:28:24.000Z (from the page's <time> element)
+captured: 20260802T224356Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+My current hypothesis for the Coldcard theft.
+1- The issue:
+   - Low entropy RNG, either in a library or secure element/chip itself. Could be a limited batch or a specific firmware.
+   - Probably affecting the mnemonic, even if the theft is weird/confusing.
+   - Thief knows about the RNG bug, but not about Bitcoin.
+2- The attack
+   - Attacker asked an AI to craft a script to bruteforce and prepare a sweep.
+   - AI ONLY TRIED bip84 derivation paths
+   - AI ONLY TRIED A LIMITED NUMBER OF DEPTH
+This is why we only see Segwit being stolen, and sometimes partial wallets instead of full wallets.
+
+If i am correct: 
+- The funds of partially affected wallets ARE AT RISK or further drain
+- The funds of other type of addresses ARE AT RISK when the scan looks for them too.
+
+If I am wrong:
+- WHY only bip 84?
+- WHY partial sweeps?
+Could be some very rare bug happening in very specific cases, but looking at the chain it's hard to guess what it could be. Some weird derivation bug happening only in CC, at bip 84 paths?

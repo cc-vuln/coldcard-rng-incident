@@ -1,0 +1,61 @@
+--- coldcard-firmware-pr-691@20260801T160824Z
++++ coldcard-firmware-pr-691@20260801T174121Z
+@@ -138,12 +138,12 @@
+ Insights
+ fix: feed full SE digest to PRNG reseed (drop 32-bit truncation) - #691
+ #691
+-Open
++Draft
+ ballance wants to merge 1 commit into
+ Coldcard:masterColdcard/firmware:masterfrom
+ ballance:fix/se-reseed-32bit-truncationballance/firmware:fix/se-reseed-32bit-truncationCopy head branch name to clipboard
+ ConversationCommits1 (1)ChecksFiles changed
+-Open
++Draft
+ fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)#691
+ ballance wants to merge 1 commit into
+ Coldcard:masterColdcard/firmware:masterfrom
+@@ -152,6 +152,11 @@
+ ballance
+ commented
+ Aug 1, 2026
++•
++edited
++Loading
++Uh oh!
++There was an error while loading. Please reload this page.
+ Copy link
+ Copy Markdown
+ Summary
+@@ -162,14 +167,14 @@
+ This change passes the full 32-byte digest to reseed().
+ Change
+ shared/mk4.py: drop the 4-byte truncation; feed the whole SHA256d digest.
+-Bump external/libngu to the companion fix that makes reseed() absorb a
+-full-width seed into all generator state words.
++Re-pin external/libngu to the companion RNG fix.
+ Dependency / CI note
+-Requires switck/libngu#60 (the reseed() rework). Until that merges, the bumped
+-submodule commit exists only on the libngu fork, so firmware CI cannot fetch it
+-from upstream. Options for maintainers: merge switck/libngu#60 first and re-pin, or
+-I can temporarily point .gitmodules at the fork branch for CI — happy to do
+-whichever you prefer.
++Draft — depends on switck/libngu#61; will re-pin on merge. #61 replaces the
++generator with a SHA-256 Hash-DRBG and makes reseed() require a ≥32-byte seed
++(it now rejects the old 4-byte int call), so this mk4.py change is required for
++#61 to boot on-device. Until #61 merges, the pinned submodule commit lives only on
++the fork and firmware CI cannot fetch it from upstream; the pin will move to the
++merged #61 SHA.
+ Context
+ Public disclosure: Block engineering, "Predictable RNG fallback and 32-bit reseed in
+ COLDCARD firmware." This addresses the 32-bit-reseed half. (The predictable-fallback
+@@ -233,6 +238,9 @@
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
++ballance
++marked this pull request as draft
++August 1, 2026 16:13
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

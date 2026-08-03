@@ -1,0 +1,75 @@
+--- kelbie-rng-postmortem@20260801T160715Z
++++ kelbie-rng-postmortem@20260801T171200Z
+@@ -101,8 +101,8 @@
+   pooled with whom; episodes say what happened at the same time as what, which is what the headline
+   "X BTC in Y minutes" is a claim about. The threshold is not tuned: the longest quiet inside the
+   30 July burst is 22 minutes and the next sweeping is more than a day later, so anything between
+-  those gives the same answer. The headline figures and the block cascade read the first episode;
+-  everything else carries all of it.
++  those gives the same answer. The headline figures read the first episode; everything else carries
++  all of it.
+ The two graphs both had to grow something to show a wave that arrived a day late and never pooled,
+ rather than being scoped away:
+ - The **clock replay** runs on plain linear time: one second of the axis is one second of 30 and 31
+@@ -129,6 +129,45 @@
+   rather than repeating a timestamp; the handful pinned to a post use the `ANCHOR` constants in
+   `timeline.tsx`, written once and shared with the entry itself. A finding with no anchor is about
+   the present, and renders under the money flow instead.
++- **Which waves were built by the same program** — `fingerprints[]` splits what a transaction
++  reveals into two kinds of evidence and groups the waves on the first kind only. A **build** trait
++  is something the program does regardless of who runs it: the order it writes inputs in, where it
++  gets a size estimate from, what it puts in nLockTime, whether it grinds its signatures. A
++  **config** trait is a dial — fee rate, replace-by-fee, whether coins are pooled into a collector
++  or scattered one address per sweep. Waves form a **family** when no build trait *either could
++  show* disagrees, and split into **variants** inside it by their dials. Traits a wave cannot
++  exhibit — input ordering, when every sweep spends one input — come back null and are skipped, so
++  a small wave joins on the evidence it has rather than being split off for evidence it could never
++  have produced. Where that leaves it fitting more than one family, `alsoFits` says so and the page
++  prints it as an open question rather than a placement.
++  A family is a claim about software and nothing more. Two people can run one program; one person
++  can run two. Nothing here converts a shared build into a shared operator.
++- **The fee** — priced from a size table, and from nothing else. It is not a share of what was
++  taken: inside wave 960345 alone the fee runs from a ninety-thousandth of the value to nineteen
++  times it, a span of 1.7 million to one, and across the record 27 sweeps paid more to move the
++  coins than the coins were worth. Nor does it track size or position in the run. Where a wave uses more than one rate, the split is resolved rather than
++  reported as a range, because the three cases are different findings: wave 960345 pays 50 sat/vB on
++  all 1,214 of its single-address sweeps and 8 on both of its two multi-address sweeps, so there the
++  rate is bound to the code path; wave 960352 has one stray sweep; wave 960518 uses nine rates
++  across sixteen sweeps, whose strongest correlation with the value taken, the size signed or the
++  order it went out in is r = −0.38 — a number the derivation measures rather than a "tracks
++  nothing" this file asserts.
++- **Wave colour** — read from exactly those two numbers: hue is the family, shade is the variant.
++  Colour used to be the running order, which made the palette a second time axis the page already
++  had three of, and left the one thing colour could have said unsaid. Hue is an identity rather than
++  a distance — families take bands in the order they open, so refreshing the data cannot repaint a
++  wave that has not changed, and a new program appends rather than shuffling. How *close* two
++  families are is a question the trait table answers and a colour wheel cannot.
++- **Block's published fingerprint, re-applied** — Block scanned 888,661 transactions for seven
++  shared properties: version 2, locktime 0, final sequence on every input, one output and inputs
++  from one source address, a P2WPKH destination, one homogeneous supported input type and a
++  30 sat/vB pre-signing estimate. Those seven are re-run here against every wave. They match the
++  three waves they were derived from and miss half the record, because three of the seven — final
++  sequence, one source address, and the 30 sat/vB constant — are dials rather than build traits. An
++  operator who turns the fee down or enables RBF drops out of that scan while running the same
++  program, which is what happened the next morning. Their published caveat was that the matches
++  might not be related to the drain at all; this is the opposite problem, and it is the argument
++  that every total here is a floor.
+ - **The signing fingerprint** — `signing[]` in `chain.json` records, per wave, what the software
+   chose rather than what the chain forced: the locktimes, the input sequences, how many signatures
+   carry a 33-byte R, and the fee rate *solved for* rather than measured. The last one is the useful
+@@ -156,13 +195,14 @@
+ ```
+ scripts/fetch-chain.ts   pulls mempool.space → src/data/chain.json
+ scripts/lib/discover.ts  derives the attacker set from the evidence
++scripts/lib/fingerprint.ts  groups the waves by what built them
+ scripts/lib/attribution.ts  builds the attribution case from the result
+ src/data/evidence.ts     victim reports + published addresses — the only input
+ src/data/schema.ts       types for the frozen dataset
+ src/data/chain.json      generated; the only source of numbers on the page
+ src/data/timeline.tsx    curated events, verbatim quotes, sourcing notes
+ src/components/          Social (X + Reddit chrome), SweepReplay, MoneyFlow, Attribution,
+-                         VictimLedger, RootCause, Forensics, Timeline
++                         Fingerprint, VictimLedger, RootCause, Forensics, Timeline
+ ```
+ ## Sourcing notes
+ Tweet timestamps are decoded from the snowflake ID — `ts_ms = (id >> 22) + 1288834974657` — which is

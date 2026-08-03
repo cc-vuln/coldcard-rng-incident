@@ -1,0 +1,30 @@
+--- samsamskies-tracker-readme@20260802T002640Z
++++ samsamskies-tracker-readme@20260802T010028Z
+@@ -1,6 +1,6 @@
+ # Coldcard Hack Tracker
+ Live single-page dashboard for Bitcoin held after Coldcard seed-entropy sweeps since July 2026.
+-Monitors consolidation vaults across named clusters (Galaxy’s July 30 fingerprint set plus later reported waves) via the public [mempool.space](https://mempool.space) API (no API key). Shows still-held %, BTC/USD value, per-address status, and outbound spends when funds move. Clusters may be different operators.
++Monitors consolidation vaults across named clusters (Galaxy Waves 1–3 plus later community waves). **Core vaults** (Waves 1–2 and small community holdings) are polled live in the browser via the public [mempool.space](https://mempool.space) API. **Wave 3** balances come from `public/snapshot.json`, refreshed by a GitHub Actions cron about every 15 minutes — so visitors do not fan out dozens of explorer requests.
+ ## Develop
+ ```bash
+ npm install
+@@ -20,10 +20,16 @@
+ ## Data sources
+ | Data | Source |
+ |------|--------|
+-| Address balances & txs | `/api/address/{addr}` |
+-| BTC/USD | `/api/v1/prices` |
++| Core balances & txs (live) | mempool `/api/address/{addr}` |
++| Wave 3 balances | `/snapshot.json` (cron) |
++| BTC/USD | `/api/v1/prices` (+ snapshot) |
+ | Incident facts | Galaxy Research + community cluster reports (static) |
+-No API key is needed. The UI refreshes about every 60 seconds.
++No API key is needed. Core vaults refresh about every 60 seconds; the Wave 3 snapshot is re-read about every 5 minutes.
++### Balance snapshot
++```bash
++npm run snapshot
++```
++Writes `public/snapshot.json` (all watched holdings + movements for vaults that look spent). On `main`, [`.github/workflows/snapshot.yml`](.github/workflows/snapshot.yml) runs this on a schedule and commits the file so static hosts redeploy with fresh Wave 3 numbers.
+ ### Movement alerts
+ Use the **Alerts** toggle in the header for browser notifications when a new
+ outbound spend appears (holdings or followed hops). Preference is stored in

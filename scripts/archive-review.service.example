@@ -1,0 +1,24 @@
+# Classify newly captured diffs with the review agent (scripts/agent-review.sh).
+# Optional: the archive works without it; diffs stay `unreviewed` until a
+# human or agent classifies them in revision-reviews.toml.
+#   sudo cp archive-review.service.example /etc/systemd/system/archive-review.service
+#   sudo cp archive-review.timer.example /etc/systemd/system/archive-review.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now archive-review.timer
+#
+# Replace USER and REPO with the account and checkout path. Requires
+# REVIEW_AGENT_BIN in REPO/.env (see .env.example).
+[Unit]
+Description=archive agent review of newly captured diffs
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/scripts/agent-review.sh
+TimeoutStartSec=3600
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

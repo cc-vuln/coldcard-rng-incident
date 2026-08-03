@@ -1,0 +1,94 @@
+---
+import Article from '../layouts/Article.astro';
+
+const CONTACT = import.meta.env.PUBLIC_CONTACT || 'info@cc-vuln.org';
+const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
+
+const body = `<h2 id="who-publishes-this">Who publishes this</h2>
+
+<p>This is an open source project: a collection of what has been published about the incident, and a presentation of it that a non-specialist can follow. The collection, the capture tooling and this site are all public at <a href="${REPO}" rel="noopener">the source repository</a>, under licences that let anyone re-run the captures, check the record against the originals or reuse the material elsewhere. Being checkable is the point; nothing here asks to be taken on trust.</p>
+
+<p>It is published pseudonymously by an independent interested party. It is not affiliated with, funded by, or coordinated with Coinkite. It carries no advertising and asks for no money: there is no donation address, no sponsorship and nothing for sale. What it does ask for is corrections, sources it has missed, and code. Those go to <a href="mailto:${CONTACT}">${CONTACT}</a> or the repository.</p>
+
+<p>The pseudonymity is deliberate, and it is the reason the archive is built the way it is. Material claims carry <a href="#claim-statuses">evidence labels</a> naming how they are known, quotations are checked against captures held in this archive, and the source register and change record are published as machine-readable data at <a href="/record/sources.json">/record/sources.json</a> and <a href="/record/changes.json">/record/changes.json</a>. Public evidence is linked directly. Where privacy limits publication of capture bodies, the source page states that boundary and publishes the available integrity and capture metadata.</p>
+
+<p>The site was researched, written and built largely with AI tooling under human direction and review — a process the project records because AI-assisted discovery is itself part of <a href="/response/ai/">the incident record</a>. Code claims were checked against cited source and quotations against held captures; those checks do not replace independent review.</p>
+
+<h2 id="claim-statuses">How evidence labels work</h2>
+
+<p>Material claims and claim groups are labelled where the evidence distinction affects how they should be read. Each marker names the exact claim, table or figure it applies to. The label describes the evidence for those words, not whether a person or organisation is credible.</p>
+
+<p>There are four evidence bases. They are mutually exclusive: a claim is marked by the strongest description that accurately reflects how this archive knows it. Repetition does not turn a reported claim into a verified one, and verification of a quotation does not verify the proposition inside the quotation.</p>
+
+<dl class="status-legend">
+<div class="status-legend__item is-safe"><dt>Verified</dt><dd>Checked directly against the cited source code, repository file, transaction data or captured publication. This verifies the scoped claim, not every inference that could be drawn from it.</dd></div>
+<div class="status-legend__item is-info"><dt>Reported</dt><dd>A dated, attributed statement whose publication has been checked. Recording it documents what was said and does not adopt the underlying claim as fact.</dd></div>
+<div class="status-legend__item"><dt>Derived</dt><dd>Calculated or inferred from stated inputs. The method and assumptions are shown so the result can be challenged on its merits.</dd></div>
+<div class="status-legend__item is-neutral"><dt>Unverified</dt><dd>Could not be confirmed from the evidence available. This means unresolved, not false, and the missing evidence is stated where possible.</dd></div>
+</dl>
+
+<p><strong>Contested is a separate dispute state, not a fifth evidence basis.</strong> It appears alongside a basis when relevant sources disagree about the same claim. A statement can therefore be both reported and contested, or a directly checked artefact can be verified while its interpretation remains contested.</p>
+
+<dl class="status-legend status-legend--state">
+<div class="status-legend__item is-warn"><dt>Contested</dt><dd>Relevant sources disagree. The marker identifies the disputed claim and the archive presents the positions and their assumptions without selecting a winner.</dd></div>
+</dl>
+
+<h2 id="where-the-sources-are">Where the sources are</h2>
+
+<p>This page used to carry a hand-picked list of the dozen or so primary sources that existed in the first days of the incident. That list is now the smaller part of the collection and it could only ever go stale, so it has been retired in favour of the register itself: <a href="/record/">every registered source</a>, searchable and faceted, each with its own evidence page showing what capture is actually held and how the published text has changed since. <a href="/record/analysis/">The primary-analysis register</a> separates original technical work from reporting that restates it, and <a href="/record/sources.json">/record/sources.json</a> is the same data as machine-readable JSON.</p>
+
+<p>Links here point at the archive's own captures rather than at live pages wherever a capture exists. Live pages are edited during an incident, which is the failure this project was built to record.</p>
+
+<h2 id="displayed-captures">Why captured posts are shown as images</h2>
+
+<p>Some pages in <a href="/record/">the record</a> display screenshots of individual public social posts, captured by this project. They are shown as quotation and record: short statements that are themselves events in the incident, reproduced for a factual, archival purpose. Each is attributed to its author, dated, and linked to the original post, and each links to a source page carrying the capture time, the file hashes and the full artefact record. A screenshot of one post is not a substitute for the platform it came from. It exists so that what was said stays checkable if the original is edited or deleted, which is the failure this archive was built to record.</p>
+
+<p>Longer material is treated differently: articles, forum threads and other long-form work appear as excerpts and diffs only, never as full copies. An author who wants their post removed from display can ask using the correction address below, identifying the post. Removal requests are honoured: the image comes off the site, while the underlying capture remains part of the preserved record.</p>
+
+<h2 id="how-the-source-review-was-done">How the source review was done</h2>
+
+<p>The technical review used local clones of the COLDCARD firmware, libngu and COLDCARD MicroPython repositories, checked on 1 August 2026, together with the relevant historical commits, release files and the signed-release record. What that review established is stated where it belongs, with an evidence marker on each claim: <a href="/how-it-broke/">how the generator path broke</a> for the code reading, and <a href="/record/firmware/">the firmware record</a> for release histories and affected ranges. It used to be restated here as a bare list, which put unmarked copies of marked claims on a page that carries no markers.</p>
+
+<h2 id="known-limits">Known limits and open evidence gaps</h2>
+
+<p>Each of these is also marked in place, on the page where it bites, as an <strong>unverified</strong> or <strong>contested</strong> claim. They are gathered here because a collection should be able to say in one place what it does not establish.</p>
+
+
+<div class="ve-card ve-card--recessed">
+<div class="ve-card__label lbl-blue">Publication caveats</div>
+<ul class="node-list" style="margin-bottom:0">
+<li><strong>Candidate-space figures are models.</strong> Block, Coinkite, LLFOURN and Talip use different attacker-knowledge assumptions. The site presents their scenarios separately and does not select one as the measured strength of every device.</li>
+<li><strong>The real distribution of device identifiers and timing states has not been measured here.</strong> Source layout and example values do not establish the population distribution needed for a universal attack-cost estimate.</li>
+<li><strong>Firmware source and released binaries are different evidence.</strong> The source fix and vendor-published release records have been checked. The vendor's downloads page listed 4.2.0 as current for Mk2 and Mk3 on 1 August. The signed firmware images have not been independently reproduced or disassembled by this project.</li>
+<li><strong>The FAQ wording captured on 1 August 2026 is not a pre-disclosure capture.</strong> It was captured after the disclosure and cannot by itself establish what users were told before the incident.</li>
+<li><strong>Chain totals depend on attribution.</strong> Transaction arithmetic can be checked on chain, while common control and incident causation remain reported analyses. Address and output counts are not victim counts.</li>
+<li><strong>The wider attribution remains conditional.</strong> Block's preliminary thread and a public privacy-safe artefact now support the 695-plus-500 counts and arithmetic, but no complete primary transaction list is published here and common control is not established by the arithmetic.</li>
+<li><strong>Short social posts do not imply undisclosed methods.</strong> Where a capture states only a conclusion, the archive does not infer the test device, firmware, inputs, runtime or code.</li>
+<li><strong>The blockchain-services provider remains unnamed at its request.</strong> Block reports that it found no evidence the provider knowingly participated in or facilitated the theft.</li>
+</ul>
+</div>
+
+<h2 id="editorial-standards">Editorial standards and corrections</h2>
+
+<div class="ve-card">
+<div class="ve-card__label lbl-accent">Independence and corrections</div>
+<p>Corrections, additional primary sources, reproducible checks and requests for reply are welcome. Please identify the page and claim, explain the proposed correction or response, and include a source that another reader can check where possible.</p>
+<p>Email <a href="mailto:${CONTACT}">${CONTACT}</a> for corrections, legal notices, tips and questions. The project's X account is <a href="https://x.com/cc_vuln" rel="noopener nofollow">@cc_vuln</a>. Substantiated corrections are marked visibly while prior captures remain preserved as part of the historical record. Reviewed source-content changes and preserved collection differences are listed in the <a href="/record/changes/">source change record</a>.</p>
+<p>Copyright in third-party material remains with its owners. Excerpts are attributed and linked to their originals so readers can check the context.</p>
+</div>`;
+
+const renderedBody = body.replaceAll(
+  '<a class="ext" href=',
+  '<a class="ext" rel="noopener nofollow" href=',
+);
+---
+
+<Article
+  title="How this was put together"
+  description="How claims are classified, how sources are checked, and how to request a correction or reply."
+  standfirst="How claims are classified, how sources are checked, and how to request a correction or reply."
+  depth="plain"
+  kicker="About"
+>
+  <div class="ported" set:html={renderedBody} />
+</Article>

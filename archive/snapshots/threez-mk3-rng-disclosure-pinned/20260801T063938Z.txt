@@ -1,0 +1,186 @@
+# COLDCARD Mk3 RNG Vulnerability — Analysis & Proof of Concept
+> **Independent analysis of a publicly disclosed, already-fixed vulnerability.**
+> The defect was announced by Coinkite in their
+> [Mk3 seed generation advisory](https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/)
+> and fixed in firmware 4.2.0. This repository contains a binary-verified
+> reverse engineering of the bug, plus a bounded PoC with no
+> wallet-recovery or fund-targeting capability.
+| | |
+|---|---|
+| **Affected** | COLDCARD Mk3, firmware 4.0.1 – 4.1.9 (inclusive) |
+| **Fixed** | 4.2.0, commit `4543629941a83a3e2788ac06a12b208338cb8314` (`v4-legacy`) |
+| **Class** | Weak RNG / insufficient entropy in wallet seed generation |
+| **Analyzed builds** | 4.1.9 (vulnerable, reproducibly rebuilt) and 4.2.0 (fixed control) |
+## TL;DR
+On the Mk3, the code that generates new wallet seeds called a "random bytes"
+function that — due to a linker-level mistake — resolved to MicroPython's
+**deterministic software PRNG** (Yasmarang) instead of the STM32 hardware RNG.
+The PRNG was seeded once from the device unique-ID word, the SysTick phase,
+and raw RTC registers. Every Mk3 wallet seed generated on affected firmware is
+therefore the output of a deterministic function of a small, partially-knowable
+state — not 256 bits of hardware entropy. Hashing the output with SHA-256 did
+not add entropy, and the firmware's sanity checks (repeated-word check,
+byte-diversity check) cannot distinguish a PRNG from a real RNG.
+## 1. How seed generation was supposed to work
+When you pick **New Wallet** on a COLDCARD, the firmware (MicroPython) runs
+`shared/seed.py`:
+```python
+seed = random.bytes(32)          # 32 bytes of "randomness"
+assert len(set(seed)) > 4        # sanity check: >4 distinct byte values
+seed = ngu.hash.sha256s(seed)    # compress to the final 32-byte seed
+```
+That seed becomes a 24-word BIP39 phrase, from which all wallet keys derive.
+`random.bytes` was an alias for `ngu.random.bytes` (libngu), which fills its
+buffer by repeatedly calling a global C function: **`rng_get()`**.
+Everything hinges on one question: *which `rng_get()` ends up in the binary?*
+## 2. Two RNGs, one symbol — the linker decides
+The Mk3 hardware (STM32L475) has a true hardware RNG. The board code in
+`stm32/COLDCARD/rng.c` reads it — but as a **`static` function**,
+`rng_get_or_fault()`. Static means: invisible to the linker outside that file.
+Meanwhile, the Mk3 build deliberately set `MICROPY_HW_ENABLE_RNG = 0`. That
+flag tells MicroPython "this board has no hardware RNG", so MicroPython's own
+`ports/stm32/rng.c` helpfully compiled in a **global `rng_get()` fallback** —
+a software PRNG so MicroPython's `random` module still works on RNG-less
+boards.
+The result, at link time:
+```
+libngu:   calls global rng_get()  ──────────────┐
+                                                ▼
+board rng.c:  static rng_get_or_fault()   (not exported — can't be linked)
+micropython rng.c:  global rng_get()  ◄───  linker picks THIS one
+                    (deterministic Yasmarang PRNG)
+```
+Nobody called the wrong function on purpose. The board had the right code;
+the build system silently wired the caller to the wrong implementation.
+This is why the bug survived code review: **each file looks correct in
+isolation.** The failure only exists at the linkage boundary.
+## 3. The fallback PRNG and its "entropy"
+MicroPython's fallback is a Yasmarang PRNG, seeded exactly once, on first use:
+```c
+pad = *(uint32_t *)MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick->VAL;  // UID word ^ 1ms-phase
+n   = RTC->TR;        // raw RTC time register
+d   = RTC->SSR;       // raw RTC subsecond register
+```
+Breaking down the seed material:
+- **UID word** (`0x1fff7590`, first 32 bits of the 96-bit STM32 unique ID):
+  a device identifier, not secret entropy. The COLDCARD USB serial number is
+  *derived from* UID bytes, so it leaks partial information about them (see
+  §5).
+- **SysTick->VAL**: the phase within one millisecond (counter range
+  0–79,999 at the Mk3's 80 MHz / 1 kHz config). Timing jitter, not a
+  24-bit secret.
+- **RTC->TR / RTC->SSR**: on normal Mk3 builds the RTC is never initialized
+  (`MICROPY_HW_ENABLE_RTC = 0`), so these are raw retained/reset register
+  values — often zero, or stale state from an earlier boot.
+On top of that, libngu XORs the PRNG output with **a second Yasmarang stream
+whose initial state is compiled into the firmware** — i.e. a constant known to
+anyone with the binary. Deterministic whitening, zero entropy.
+And the state doesn't stand still: boot-time NVRAM shuffling (~3,103
+`rng_get()` calls on a wiped device) and membrane keypad row-shuffling (3 calls
+per key transition) advance the PRNG before wallet creation. So the seed
+depends on the initial state **plus the exact prior call count**.
+## 4. Why the safety checks didn't fire
+Two checks stood between this bug and users, and both are statistical, not
+cryptographic:
+1. `my_random_bytes()` only rejects **two consecutive equal 32-bit words**.
+2. `make_new_wallet()` only rejects seeds with **≤ 4 distinct byte values**.
+A deterministic PRNG produces beautifully random-*looking* output. Both checks
+pass every time. The PoC demonstrates this concretely: the recreated "seed"
+passes both firmware checks and yields a perfectly valid 24-word phrase.
+**Lesson:** you cannot validate entropy by looking at output. Entropy is a
+property of the *source*, and only a health test at the source (or a build/link
+check proving which source is wired in) can verify it.
+## 5. What an attacker can and cannot do
+The USB serial number encodes UID bytes as
+`serial = %02X%02X%02X%02X%02X%02X` of
+`(b11, b10+b2, b9, b8+b0, b7, b6)` (`shared/version.py:80`).
+From a serial alone, an attacker learns 4 UID bytes outright and two byte
+*sums* — but the RNG seed word is `b0..b3` (little-endian), where `b1`, `b3`
+never appear in the serial at all, and `b0`, `b2` are each only constrained by
+a sum with an unknown lot-character byte. Per candidate UID word, the state
+also depends on SysTick (~80k), SSR (256), TR (~400 BCD values), and the
+pre-wallet RNG call count (~4k). Total: **~1.9×10²² candidate states per
+serial** — not remotely enumerable without hardware priors.
+So: the entropy of affected seeds is bounded by the fallback's seed state, not
+by 256 bits, and physical/manufacturing knowledge of a specific device would
+shrink the space further. This analysis intentionally does **not** publish a
+bit count (matching the vendor advisory) and the PoC intentionally contains
+**no enumeration, wallet-recovery, or fund-targeting capability**.
+## 6. The fix (4.2.0)
+Commit `45436299` attacks the linkage boundary, exactly where the bug lives:
+1. Exports the board's `rng_get()` as a global wrapper around
+   `rng_get_or_fault()` — libngu now links to the **hardware** RNG.
+2. Replaces MicroPython's fallback `rng.o` with an empty object in Mk3 builds.
+3. Adds a **build-time check**: the link must contain no upstream RNG symbols,
+   and the board object must define global `rng_get` — so a regression fails
+   the build instead of silently shipping.
+In the fixed binary, `rng_get()` is literally one instruction:
+```asm
+0803fb64 <rng_get>:
+    b.w  0803faf8 <rng_get_or_fault>   ; tail-call the hardware RNG
+```
+Hardware RNG timeout remains fail-closed (`mp_raise_OSError(MP_EFAULT)`).
+**Lesson:** when two implementations can satisfy one symbol, make the wrong
+resolution impossible — delete the fallback and assert on the symbol table.
+## 7. How this was verified
+- The official **4.1.9** image was **reproducibly built** from tag
+  `2023-06-26T1241-v4.1.9`; Coinkite's ECDSA firmware signature verified and
+  the local build matched the published payload byte-for-byte outside the
+  signed header. Same for **4.2.0** (`v4-legacy` @ `43770339`).
+- Symbol tables of the two ELFs show the exact reversal:
+| | 4.1.9 (vulnerable) | 4.2.0 (fixed) |
+|---|---|---|
+| `my_random_bytes` calls → | `rng_get` @ `0x0803df94` — **Yasmarang fallback** | `rng_get` @ `0x0803fb64` — **branch to hardware RNG** |
+| real hardware `rng_get_or_fault` | present @ `0x0803fb84`, **unused by libngu** | used @ `0x0803faf8` |
+- The 4.1.9 fallback's disassembly shows the reads of SysTick (`0xE000E018`),
+  the UID region, and the RTC registers (`0x40002800`), followed by the
+  Yasmarang state transition — matching the Python model in the PoC bit-exactly.
+Full details, firmware hashes, timing analysis, and reproduction commands are
+in **[report.md](report.md)**.
+## 8. Running the PoC
+`poc_mk3_rng.py` models the vulnerable path with fixed **synthetic** register
+values: both Yasmarang machines, the XOR mixing, both weak firmware checks,
+and the final SHA-256 → BIP39 step.
+```sh
+python3 poc_mk3_rng.py
+```
+It emits a valid 24-word phrase, re-derives it from the same synthetic state,
+and asserts identity — proving the "random" seed is a pure function of the
+seed state, and that both firmware sanity checks pass on PRNG output.
+## 9. End-to-end pipeline
+`pipeline_mk3_rng.py` extends the model through the full device key chain:
+```
+UID word + SysTick + RTC regs
+  → Yasmarang fallback ⊕ compiled-in whitener
+  → 32 raw bytes → SHA-256
+  → BIP39 phrase → BIP39 seed (PBKDF2-HMAC-SHA512, 2048 rounds)
+  → BIP32 → m/84'/0'/0' zpub, m/44'/0'/0' xpub, master fingerprint
+```
+```sh
+pip install -r requirements.txt
+python3 pipeline_mk3_rng.py                # synthetic defaults (same phrase as PoC)
+python3 pipeline_mk3_rng.py --selfcheck    # cross-validate vs hand-rolled BIP32
+python3 pipeline_mk3_rng.py --space <12-hex-serial>   # closed-form candidate count
+```
+It also doubles as a plain **watch-only** address deriver for account xpubs you
+legitimately hold:
+```sh
+python3 pipeline_mk3_rng.py --xpub <zpub|xpub> --addr 10 [--check]
+```
+`--selfcheck` re-derives everything with an independent hand-rolled BIP32
+implementation (HMAC-SHA512 CKD + secp256k1 scalar math) and asserts
+byte-identical results against `bip_utils`, plus BIP39 round-trip, serial
+formula, and address-path agreement.
+## 10. Repo layout
+| File | Purpose |
+|---|---|
+| `poc_mk3_rng.py` | Bounded PoC of the vulnerable RNG path (no external deps beyond vendored `bip39.py`) |
+| `pipeline_mk3_rng.py` | Full chain: seed state → phrase → account xpubs / watch-only addresses |
+| `bip39.py` | BIP39 implementation vendored verbatim from libngu (what the firmware uses) |
+| `report.md` | Full technical report: binary confirmation, timing, seed-state math |
+Deliberately excluded: firmware images, disassembly dumps, and any
+enumeration/recovery tooling.
+## References
+- Coinkite advisory: <https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/>
+- Fix commit: `4543629941a83a3e2788ac06a12b208338cb8314` (`v4-legacy` branch, coldcard-firmware)
+- Vulnerable tag: `2023-06-26T1241-v4.1.9`

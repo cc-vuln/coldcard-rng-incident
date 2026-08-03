@@ -1,0 +1,230 @@
+# COLDCARD RNG — an ongoing postmortem
+
+<!-- facts -->
+A postmortem of the COLDCARD (Coinkite) random-number-generator flaw: five years of predictable
+wallet seeds, the 1,431.97 BTC swept from 5,415 addresses across nine waves since 30 July 2026, and the
+higher-entropy tiers still exposed. Reconstructed from primary sources — the Bitcoin blockchain,
+the vendor and Block advisories, and the original posts as they were made.
+<!-- /facts -->
+
+**This documents a live situation.** The 30 July waves took the cheapest-to-crack tier. The same
+defect leaves ~72-bit Mk4/Q/Mk5 seeds reachable with more compute, Block has reported a second earlier
+tranche of ~488 BTC it declined to attribute — traced here to two earlier waves that reconcile to the
+satoshi — and no firmware update can repair a seed that already exists. The sweeping also resumed on
+31 July, hours after the advisories: another 207.73 BTC from 1,918 addresses that afternoon, pooled
+nowhere, a fresh holding address and a fresh vault for every wallet drained. That wave is in the
+ledger only because one victim screenshotted an address that was not even his own — everything else
+about it was reached by noticing that 291 addresses were emptied in the same four blocks the same
+way. Every figure here is a floor, not a total — rebuild from the block store to refresh it.
+
+Everything on the page is either derived from chain data frozen into the repository or quoted verbatim
+with a source link. Nothing calls an API at runtime.
+
+## Running it
+
+```bash
+bun install
+bun dev          # http://localhost:3000
+```
+
+```bash
+bun run build      # static bundle to dist/
+bun start          # production server
+bun run typecheck
+```
+
+## Refreshing the data
+
+Chain analysis is Python and reads a local copy of the blockchain; the tweet, media and commit
+archivers stay TypeScript because they talk to web APIs, not to blocks.
+
+```bash
+python3 -m analysis.fetch_blocks     # blocks/<height>.json.gz — ~1-2GB, resumable, reorg-aware
+python3 -m analysis.index --rebuild  # address → transactions, as SQLite (~50s)
+python3 -m analysis.chain            # → src/data/chain.json
+bun run facts                        # resync the marked prose blocks (README, meta description)
+```
+
+Commit the result — deploys ship whatever chain.json is in git. There is no scheduled refresh:
+CI cannot hold the block store, so freshness is a local ritual and the page discloses its own
+"last pulled" time instead.
+
+```bash
+bun run media     # avatars + screenshots → src/data/media.json
+bun run commits   # GitHub commit metadata → src/data/commits.json
+bun run threads   # reconstructed X threads → src/data/threads.json
+```
+
+A full rebuild of `chain.json` is about ten seconds. It used to be twenty minutes against a public
+explorer, and it once served a **stale balance** from its own cache — the page went on saying coins
+had not moved after they had. Reading blocks from disk removes both problems: there is no cache to
+go stale, and a question that costs nothing can be asked of every transaction rather than only of
+the addresses already known.
+
+`blocks/` is gitignored. Re-index after every refill — `chain.py` reads the index, not the API.
+
+See **[analysis/README.md](analysis/README.md)** for the module map, the fingerprint primitives and
+how to hunt a new operator's pattern.
+
+## Adding new evidence
+
+`analysis/evidence.py` is the only hand-maintained *chain* input in the project (the curated
+narrative lives in `src/data/timeline.tsx`, and the exhibit sources in `src/data/*-sources.ts`).
+It holds evidence, not conclusions — there is no list of attacker addresses anywhere. The addresses, waves, labels and
+justifications are all derived by walking the chain:
+
+```
+victim report  →  the transaction they name  →  its destination is a collector
+collector      →  everything paying into it  →  those payers are more victims
+collector      →  where it spends onward     →  that destination is a vault
+```
+
+The strongest thing you can add is a **victim report** — someone saying publicly that coins left
+without their say-so, naming the transaction:
+
+```python
+VictimReport(
+    who="u/example",
+    txids=["2fe075cf…"],          # destinations are derived from these
+    source=Source(label="r/Bitcoin", url="https://…"),
+    note="What they published, and how it can be checked.",
+)
+```
+
+One report yields a collector, its vault, and every other victim that paid into it — the first in
+the file gives wave 960188's collector plus 500 victims. `txids` is a list because a wallet emptied
+one UTXO at a time is one event; splitting it across reports would lose that they belong together,
+which is what stops an operator who never pools from deriving as one wave per address.
+
+Where nobody has tied a named victim to an address, use `PUBLISHED_ADDRESSES` with the publisher's
+own confidence — `attacker-controlled` where the source names it as part of the theft,
+`pattern-match-unconfirmed` where they found it by fingerprint and said so. Block published waves
+960183 and 960185 as a fingerprint match while stating they "have not confirmed that these indeed
+are related to drain"; that caveat survives into the UI rather than being flattened.
+
+`SCAN_MATCHES` is this project's own reading, on nobody's authority — named `RC.n`, outside the
+numbered sequence, so withdrawing one renames nothing.
+
+Then re-run `analysis.chain`. Everything downstream rebuilds without touching a component.
+
+### What is derived, not written
+
+No number on the page is typed by hand, and no claim about the current state of the coins is a fixed
+sentence.
+
+- **Which addresses are the attacker's** — from the walk above, never from a list.
+- **Waves** — a connected component of the grouping graph: collectors pooling into the same vault
+  are one operation. Named for the block their first sweep landed in, so finding a wave *between*
+  two known ones renames neither. Pooling is not the only edge, and two others carry real weight.
+  One victim reporting several destinations joins them, because one drain is one event. And where
+  an operator pools nothing at all — a fresh address per wallet, a fresh vault per address — what
+  joins them is that they were **emptied together**: same few blocks, same distinctive fee
+  arithmetic. That rule only fires from an address already in the set on someone's word, and only
+  after the signature is run over control windows elsewhere in the chain and found to match
+  nothing; if it matches, the rule declines and records why. It is what makes wave 960395's 294
+  addresses one wave instead of 294.
+- **Episodes** — a run of waves with under an hour of quiet between them. Waves say who pooled with
+  whom; episodes say what happened at the same time as what, which is what "X BTC in Y minutes"
+  claims. Not tuned: the longest quiet inside the 30 July burst is 22 minutes and the next sweeping
+  is a day later, so anything between gives this grouping.
+- **Labels and justifications** — "Wave 960183 collector A" is generated from wave and role; the
+  sentence explaining why an address is in the set is emitted by the code that found it, so the two
+  cannot drift apart.
+- **Where a finding appears** — each carries an `anchor` and renders inside the timeline entry it is
+  about. Chain anchors resolve through block times, so a finding follows its block rather than
+  repeating a timestamp.
+
+**Which waves were built by the same program.** `fingerprints[]` splits what a transaction reveals
+into two kinds and groups on the first only. A **build** trait is what the program does regardless
+of who runs it — input order, where it gets a size estimate, what it writes in nLockTime, whether it
+grinds signatures. A **config** trait is a dial: fee rate, RBF, whether coins pool or scatter. Waves
+form a **family** when no build trait *either could show* disagrees, and split into **variants** by
+their dials. Traits a wave cannot exhibit come back null and are skipped, so a small wave joins on
+the evidence it has rather than being split off for evidence it could never have produced; where
+that leaves more than one family open, `alsoFits` says so. A family is a claim about software and
+nothing more — two people can run one program, one person can run two.
+
+**Wave colour** is read from exactly those two numbers: hue is the family, shade the variant. Hue is
+an identity rather than a distance, so refreshing cannot repaint a wave that has not changed.
+
+**The fee** is priced from a size table and nothing else — `42 vbytes + 68 | 91 | 148 per input by
+script type`, looked up before signing and never rechecked, which is why the estimate always runs
+over what got signed. It is not a share of value: inside wave 960345 the fee spans 1.7 million to
+one against the amount taken, and 27 sweeps across the record paid more to move the coins than the
+coins were worth. Where a wave uses several rates the split is resolved rather than averaged,
+because the cases differ — wave 960345 binds the rate to the code path (50 sat/vB on all 1,214
+single-address sweeps, 8 on both multi-address ones), wave 960352 has one stray, and wave 960518
+uses nine rates whose strongest correlation with value, size or order is r = −0.38.
+
+There are **two size tables**. The second adds ¼ vbyte per input — the witness stack-item count byte
+— and rounds down on a tie; it cannot show itself below three inputs. Not every hop uses either: the
+P2WSH vault hops of 31 July pay exactly 10 sat/vB of the *real* vsize, so a size-table scan misses
+them entirely, which is how one scan of that wave undercounted it by a quarter.
+
+**Block's published fingerprint, re-applied.** Block scanned 888,661 transactions for seven shared
+properties: version 2, locktime 0, final sequence on every input, one output and inputs from one
+source address, a P2WPKH destination, one homogeneous supported input type, a 30 sat/vB pre-signing
+estimate. Re-run here against every wave, they match the three they were derived from and miss half
+the record — because three of the seven are dials, not build traits. An operator who turns the fee
+down or enables RBF drops out of that scan while running the same program, which is what happened
+the next morning. Their caveat was that matches might not relate to the drain at all; this is the
+opposite problem, and it is the argument that every total here is a floor.
+
+**Input ordering is not measured.** BIP-69 needs each input's previous txid, and the bulk block
+format carries only an internal index that does not sort like one. Rather than infer an order from
+it, the trait reports itself unobservable. Family grouping is unaffected — the waves it would have
+separated are already separated by nLockTime and fee arithmetic.
+
+**Dormancy** is measured from the last time the operator *spent*; inbound dust from onlookers does
+not reset the clock. **`exfiltratedSats`** is zero today, and the moment a vault spends onward every
+"nothing has moved" phrase rewrites itself and the build warns loudly.
+
+Movement classification is automatic:
+
+| kind | meaning |
+|---|---|
+| `sweep` | external inputs paying a tracked address — stolen funds |
+| `consolidation` | inputs only from tracked addresses — the operator pooling their own outputs |
+| `graffiti` | value arriving *after* that wave consolidated — onlookers dusting a now-public address |
+
+Decided by **time, not amount**: wave 960183 swept outputs worth 1,200 satoshis, smaller than the
+dust strangers later sent for fun, so any size threshold misfiles real thefts.
+
+Totals reconcile against figures other people published, at the precision they published them; if
+they stop agreeing the build prints `DRIFT` rather than quietly disagreeing. One mapping worth
+knowing: Galaxy Research's "BTC taken" is the victim **debit** — value plus miner fee — where
+`sweptSats` here is what arrived, and their "coins predating the flaw: 0 of N" row is the **UTXO**
+count, not addresses.
+
+## Layout
+
+```
+analysis/                blockchain analysis — Python, reads blocks/ (see its README)
+  evidence.py            victim reports + published addresses — the only hand-written input
+  chain.py               assembles src/data/chain.json
+  patterns.py            predicates + scan + profile, for hunting a new fingerprint
+blocks/                  local block store, gitignored, rebuildable
+scripts/                 tweet / media / commit archivers — TypeScript, they talk to web APIs
+src/data/schema.ts       types for the frozen dataset
+src/data/chain.json      generated; the source of every chain figure on the page
+src/lib/facts.ts         phrases those figures for prose, the meta description and this README
+                         (`bun run facts` rewrites the marked blocks after a data refresh)
+src/data/timeline.tsx    curated events, verbatim quotes, sourcing notes
+src/components/          Social (X + Reddit chrome), SweepReplay, MoneyFlow, Attribution,
+                         Fingerprint, VictimLedger, RootCause, Forensics, Timeline
+```
+
+## Sourcing notes
+
+Tweet timestamps are decoded from the snowflake ID — `ts_ms = (id >> 22) + 1288834974657` — which is
+exact to the millisecond and survives deletion. Text was recovered through Twitter's own syndication
+endpoint and fxtwitter rather than scraping. Where a post could not be retrieved, the entry says so
+instead of paraphrasing press coverage into the record; nvk's deleted tweet is marked unrecoverable
+rather than reconstructed.
+
+## Scope
+
+Assembled from public record for postmortem purposes. Victim addresses were already public on the
+blockchain and, in one case, published by the victim. The defect is patched — Mk3 4.2.0, Mk4/Mk5 5.6.0,
+Q 1.5.0Q — and the only useful action left for an affected user is migrating off the seed, since
+updating firmware does not repair one already generated.

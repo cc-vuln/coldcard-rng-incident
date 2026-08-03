@@ -1,0 +1,15 @@
+--- coldcard-watch@20260802T005957Z
++++ coldcard-watch@20260802T210144Z
+@@ -31,9 +31,9 @@
+ Balances refresh every 60 seconds and stream over a websocket in between. If any tracked address spends, this page reads where the coins went and starts tracking those addresses too, following the trail one hop at a time. The headline figure only ever counts coins traced back to the theft, so a destination wallet holding other funds cannot inflate it.
+ Is your Coldcard affected?
+ Seeds generated on the firmware below were built with far less randomness than intended. Find your model and compare against the version you generated your seed on.
+-Coinkite\u2019s advisory covers the Mk3 and newer. The Mk2 entry comes from Block\u2019s engineering analysis, which found the same vulnerable path and no secure reseed on that model, and no patched firmware for it has been published. Coinkite dates the Mk3 exposure from 4.0.1 while Block traces it to 4.0.0; the wider range is shown here.
+-\n
++Two details here go further than Coinkite’s advisory, both checked against their own signed release manifest. Their advisory bounds the Mk3 at 4.1.9, but signed Mk3 builds 5.0.1 and 5.0.3 shipped in 2022, after the change that caused this, and Coinkite has not said whether those are affected; they are listed as at risk because that is the safer reading. Block traces the fault to a 4.0.0 tag, but no 4.0.0 firmware was ever distributed, so 4.0.1 is the first version anyone could have generated a seed on.
++Coinkite emailed affected customers directly, and said so publicly on 2 August so people could tell a real message from a fake one. Treat any email, DM or call about this that asks for a seed phrase as an attack. Nobody legitimate needs it, and an incident like this draws people who will ask.
+ Updating the firmware does not repair a seed that already exists. If your seed was generated on an affected version, the fix is to move your funds to a newly generated wallet.
+-Two things reduce the risk: adding 50 or more of your own dice rolls during seed generation, and a strong BIP-39 passphrase. Coinkite still recommends migrating. Their advisory is the authority on what to do, not this page.
++Two things reduce the risk. Coinkite say 50 to 98 of your own private dice rolls contributed at least 128 bits on their own, and 99 or more about 256 bits; below 50, or if you cannot remember, they say migrate. A strong BIP-39 passphrase reduces the immediate exposure but does not repair the seed, so passphrase users are told to migrate as well. On fixed firmware dice rolls are optional and the device seed is enough. Their advisory is the authority on what to do, not this page.
+ Balances stream from mempool.space and Blockstream Esplora. Incident detail from the Coinkite advisory and Block's engineering analysis.
+ Not affiliated with Coinkite. If you hold a Coldcard, follow the vendor advisory and move to a new seed rather than relying on anything here.

@@ -1,0 +1,192 @@
+url:      https://x.com/zherbert/status/2083399238445056082
+author:   Zach Herbert
+handle:   @zherbert
+posted:   2026-08-01T03:47:40.000Z (from the page's <time> element)
+captured: 20260802T225731Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Opendime Entropy Incorporation Test: PASSED
+I tested whether an older Opendime correctly incorporates user-provided data into private-key generation. It passed the test.
+
+AI report below:
+
+The exact test vector supplied during initialization was cryptographically linked to the final private key.
+
+## Test unit
+
+- Opendime hardware V3.0 r.A
+- Firmware 2.2.0
+- Firmware build dated July 21, 2017
+- Initially uninitialized
+- No Bitcoin address
+- No WIF private key
+- No accessible secret exponent
+
+The USB serial number, secure-element serial number, firmware version, and firmware checksum were recorded before initialization.
+
+## Analysis environment
+
+I used OpenAI GPT-5.6 SOL at Extra High reasoning with cybersecurity capabilities to assist with test design, automation, code review, and evidence analysis.
+
+All device state changes required my explicit authorization.
+
+The test environment included:
+
+- Unit-locked initialization scripts
+- Read-only USB probes
+- Static safety tests
+- Transport simulations
+- Independent Python verifier
+- Independent Node/OpenSSL verifier
+- Timestamped transcripts
+- SHA-256 evidence manifests
+
+The offline test suite completed 52 tests successfully.
+
+## Test-vector generation
+
+A fresh 32-byte seed was generated using the macOS cryptographically secure random-number generator.
+
+That seed was deterministically expanded into an exact 262,144-byte test vector using a domain-separated SHA-256 counter construction.
+
+Test-vector SHA-256:
+
+`7d434bd3016cd4a4f8e114ffd8fa29f4e8985d1823dceb33e24a73c2187ce892`
+
+Three independently generated copies were compared byte for byte. All three were identical.
+
+The test objective was not to evaluate the quality of Opendime’s internal random-number generator.
+
+The objective was to determine whether our exact input affected the final private key.
+
+## Initialization
+
+The final procedure followed the advanced raw-disk verification method documented by Opendime’s published `
+http://
+rngverify.py`.
+
+Before initialization:
+
+1. The complete test checkpoint was verified.
+2. The exact USB device identity was confirmed.
+3. The device was confirmed to have no address or private key.
+4. The physical disk identity and geometry were confirmed.
+5. The filesystem was unmounted.
+6. Raw write access was validated without writing any data.
+7. The entropy accumulator was reset to zero.
+8. The zero state was confirmed twice.
+
+The initialization program then issued exactly one host write containing the complete 262,144-byte test vector.
+
+No second write was issued.
+
+No retry was performed.
+
+The Opendime completed initialization, removed itself from the USB storage stack, and exposed a sealed Bitcoin address.
+
+A read-only probe confirmed that the device remained sealed. The Bitcoin address was available, but the private key and secret exponent were not.
+
+## Physical unsealing
+
+After preserving and hashing the sealed-state evidence, I physically unsealed the Opendime.
+
+The device then exposed:
+
+- Its secret exponent
+- Its WIF private key
+- Its original Bitcoin address
+- A device-generated 256-bit nonce
+- An embedded `
+http://
+rngverify.py` containing the derivation parameters
+
+The following files were hashed directly on the device before being copied:
+
+- `advanced/rngverify.py`
+- `advanced/variables.json`
+- `private-key.txt`
+- `address.txt`
+- `advanced/version.txt`
+- `advanced/checksum.txt`
+
+The copied files produced the same hashes as the files on the Opendime.
+
+The values read directly through the USB interface agreed with the values in the device files.
+
+Device-supplied Python code was not executed. The generated `
+http://
+rngverify.py` file was parsed as data only.
+
+## Cryptographic verification
+
+Opendime documents its secret-exponent derivation as:
+
+`SHA256(SHA256(user_data || USB_serial || device_nonce))`
+
+We independently calculated that formula using:
+
+- The exact recorded 262,144-byte test vector
+- The unit’s USB serial number
+- The 256-bit nonce revealed after unsealing
+
+The calculated result exactly matched the secret exponent exposed by the device.
+
+We then confirmed that the exponent matched the WIF private key.
+
+Finally, we independently derived the original sealed Bitcoin address from that private key.
+
+All values matched.
+
+## Independent implementations
+
+The verification was performed using two independent implementations.
+
+The first used:
+
+- Python standard-library SHA-256
+- Python standard-library RIPEMD-160
+- An independent Base58Check implementation
+- Independently implemented secp256k1 arithmetic
+
+**Result: PASS**
+
+The second used:
+
+- Node cryptographic hashing
+- OpenSSL secp256k1
+- A separate Base58Check implementation
+
+**Result: PASS**
+
+Both implementations independently reproduced:
+
+- The exact secret exponent
+- The exact WIF private key
+- The exact Bitcoin address created before unsealing
+
+## Conclusion
+
+For this Opendime V3.0 r.A running firmware 2.2.0:
+
+**The user-provided data was correctly incorporated into private-key generation.**
+
+This conclusion is based on direct reconstruction of the private key.
+
+It is not based solely on the device accepting data, reporting an entropy count, completing initialization, or generating an address.
+
+The exact recorded test vector, combined with the device’s serial number and internal nonce, reproduced the final private key and Bitcoin address.
+
+## Scope
+
+This result applies to one Opendime V3.0 r.A running firmware 2.2.0.
+
+It does not automatically establish the behavior of every Opendime hardware or firmware generation.
+
+The test confirms correct incorporation of user-provided data. It does not independently evaluate the randomness quality of the internally generated device nonce.
+
+The test private key is permanently exposed. Its corresponding Bitcoin address must never be funded.
+
+**Final result: user entropy incorporation confirmed.**

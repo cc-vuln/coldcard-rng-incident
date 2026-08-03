@@ -1,0 +1,42 @@
+--- libngu-pr-59@20260801T035019Z
++++ libngu-pr-59@20260801T160811Z
+@@ -141,12 +141,12 @@
+ Insights
+ random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG - #59
+ #59
+-Open
++Closed
+ jgmontoya wants to merge 5 commits into
+ switck:masterswitck/libngu:masterfrom
+ jgmontoya:rng-hardeningjgmontoya/libngu:rng-hardeningCopy head branch name to clipboard
+ ConversationCommits5 (5)ChecksFiles changed
+-Open
++Closed
+ random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG#59
+ jgmontoya wants to merge 5 commits into
+ switck:masterswitck/libngu:masterfrom
+@@ -312,6 +312,24 @@
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
++jgmontoya
++commented
++Aug 1, 2026
++Copy link
++Copy Markdown
++Author
++Per your feedback that the diff was too big, I've split this into a stack of three PRs that sum to exactly this branch (byte-identical tree):
++add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAVP vectors #62 — the HMAC_DRBG core + NIST CAVP test harness (pure addition, self-verifying, no behavior change to any build)
++add entropy health rule as a pure, deterministically tested module #63 — the entropy health rule + its deterministic tests (pure addition)
++random: fail-closed entropy backends; all output via HMAC_DRBG #64 — the random.c rework that composes them, with compile-gate regression tests and README (the part that fixes the advisory)
++Suggested review order is #62 → #63 → #64 ; each is small on its own, and #63/#64 will show only their own commits once their predecessors merge. Closing this one in favor of the stack — happy to reopen if you'd rather review it whole.
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++jgmontoya
++closed this
++Aug 1, 2026
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

@@ -1,0 +1,406 @@
+Skip to content
+COLDCARD Documentation
+COLDCARD FAQ
+Initializing search
+Documentation
+COLDCARD Home
+Buy Now!
+COLDCARD Documentation
+Documentation
+Documentation
+Guides
+Guides
+Getting Started
+Getting Started
+Quickstart! Start Here!
+Q Quickstart Guide
+Guide For Bitcoin Beginners
+PINs
+Master Seed
+Ready To Sign?
+Sending and Receiving Bitcoin for Beginners
+COLDCARD Ultra Quick Guide
+COLDCARD Middle Ground Guide
+COLDCARD Paranoid Guide
+General
+General
+Upgrade Firmware
+Settings Menu
+Address Explorer
+Verify Address Ownership
+QR Scanner
+Encrypted Backups
+NFC Tools
+Secure Notes & Passwords
+Multisig Features
+Airgap Multisig
+Seed Management
+Seed Management
+Generate Seed
+Generate Seed
+Generate Seed: Quick
+Generate Seed: Middle Ground
+Generate Seed: Paranoid
+BIP-39 Passphrase
+Temporary Seed
+Seed Vault
+Seed XOR
+Scan Seed
+Lock Down Seed
+Derive Seed BIP-85
+Seed Functions
+Advanced
+Advanced
+Advanced/Tools Menu
+Derivation Paths and Accounts
+Clone or Migrate a COLDCARD
+Migrate from Ledger or Trezor to COLDCARD
+Message Signing
+BIP-322 Signing
+BIP-85 Passwords
+Trick PINs
+Descriptor Export
+Descriptors & Multisig
+Verifying Dice Roll Math
+Paper Wallets
+WIF Store
+Export Deterministic Entropy (BIP-85)
+MicroSD 2FA
+Key Teleport
+Spending Policies
+Spending Policies
+Single Signer Spending Policy (SSSP)
+COLDCARD Co-Signing (CCC)
+HSM Mode and CKBunker
+HSM Mode and CKBunker
+User Management
+Spending Rules
+Local Confirmation Codes
+HSM Security Notes
+USB Protocol for HSM Mode
+CLI Commands for HSM
+Developer
+Developer
+BSMS (BIP-129)
+Community Guides
+How To Videos
+References
+References
+Specifications
+Hardware Features
+Menu Tree
+Compatible Software Wallets and Tools
+MicroSD Card Related
+Command Line Tools
+Downloads
+Recovery Cards Downloads
+Version History
+Trouble Shooting
+Technical Terms Glossary
+Advanced Topics
+Advanced Topics
+COLDCARD FAQ
+COLDCARD FAQ
+Table of contents
+How many seed words does it use?
+Can I have multiple wallets in each COLDCARD?
+What's new in the Mk5 COLDCARD?
+Is my trusted Mk4 obsolete now?
+Can I change my PIN?
+Which blockchains do you support?
+Why does it have a MicroSD slot?
+How do I connect to a computer?
+Do I need to use MicroSD cards?
+Where do I tap my phone for NFC?
+What is PSBT?
+How do I backup?
+Can COLDCARD import an encrypted BIP-39 seed phrase?
+Is there a factory reset?
+How do I know desktop software is showing a payment address that truly is a deposit into this COLDCARD?
+I found a previously-used COLDCARD online, should I buy it?
+This random MicroSD card doesn't work!
+Do you support Segwit (Segregated Witness) on the COLDCARD?
+Is the secure element's crypto used for Bitcoin processing?
+What kind of secure element is used?
+When does the PIN attempt counter reset?
+What happens when I can't remember my PIN?
+Where does the entropy (randomness) come from?
+Where do I learn all technical details?
+Comparing A Few Hardware Wallets
+COLDCARD Mk5 vs. Mk4
+COLDCARD Q Overview
+COLDCARD Home
+Buy Now!
+Table of contents
+How many seed words does it use?
+Can I have multiple wallets in each COLDCARD?
+What's new in the Mk5 COLDCARD?
+Is my trusted Mk4 obsolete now?
+Can I change my PIN?
+Which blockchains do you support?
+Why does it have a MicroSD slot?
+How do I connect to a computer?
+Do I need to use MicroSD cards?
+Where do I tap my phone for NFC?
+What is PSBT?
+How do I backup?
+Can COLDCARD import an encrypted BIP-39 seed phrase?
+Is there a factory reset?
+How do I know desktop software is showing a payment address that truly is a deposit into this COLDCARD?
+I found a previously-used COLDCARD online, should I buy it?
+This random MicroSD card doesn't work!
+Do you support Segwit (Segregated Witness) on the COLDCARD?
+Is the secure element's crypto used for Bitcoin processing?
+What kind of secure element is used?
+When does the PIN attempt counter reset?
+What happens when I can't remember my PIN?
+Where does the entropy (randomness) come from?
+Where do I learn all technical details?
+Home
+Docs
+COLDCARD FAQ
+COLDCARD FAQ
+How many seed words does it use?#
+COLDCARD® generates either 12- or 24-word BIP-39 seeds.
+It can also import 12, 18, and 24-word, BIP-39 seeds that other wallets may have created.
+Can I have multiple wallets in each COLDCARD?#
+There is a single "wallet", derived from the BIP-39 seed words. In
+addition, we have an optional "duress" wallet, which is derived
+from the wallet's seed words and is not independent. This means
+it gets backed-up automatically, and the original seed words also
+backup the duress wallet.
+By adding a BIP-39 passphrase you can unlock
+nearly unlimited additional wallets which derive from the original
+24 seed words. The passphrase you use defines the wallet and cannot
+be changed. BIP-39 passphrases are not backed up or otherwise tracked,
+which gives lots of freedom in terms of plausible deniability.
+What's new in the Mk5 COLDCARD?#
+We have a complete table of differences here but
+the highlights: huge industrial design upgrades, including a new
+larger screen protected by Gorilla Glass, better NFC (tap), USB-C
+connector at bottom.
+Is my trusted Mk4 obsolete now?#
+No! The new Mk5 runs exactly the same firmware as the Mk4 and we
+will support all future features on both devices and they will
+operate the same.
+Can I change my PIN?#
+Yes, the PIN is independent of the funds being held. It can be changed
+at any time as long as you have the original PIN.
+BIP-39 passphrases cannot be changed because the text of the passphrase
+is part of the private key.
+Which blockchains do you support?#
+Bitcoin and Bitcoin Testnet are supported. COLDCARD does not support altcoins.
+Why does it have a MicroSD slot?#
+The COLDCARD can backup the seed into an encrypted file.
+New transactions to be signed can be imported from the card.
+Public key data (XPUB, payment addresses) can be written onto the card.
+Firmware upgrades can be done by copying the new firmware file onto a card.
+A skeleton Electrum wallet can be created on the card which allows
+Electrum to "pair" with the COLDCARD without it ever connecting to a USB port.
+Multisig wallets can be joined using files transferred via cards.
+How do I connect to a computer?#
+Use the USB port at the top of the COLDCARD. You must provide a standard
+micro USB cable suitable for your computer.
+COLDCARD does not enable the USB port until a correct PIN code is
+entered so it will not appear on your computer until the PIN is entered.
+There is no need to use the USB port (except for power) during seed
+setup and when using the MicroSD card slot itself. We use the
+COLDCARD with USB battery packs routinely, although some battery
+packs do not correctly detect the COLDCARD because it uses very
+little power. They may power down because it appears that nothing
+is connected. Most simple battery packs and wall chargers are fine.
+With the Mk4, you may enable "USB Virtual Disk" mode so the COLDCARD
+will look like a USB drive to your computer or mobile phone. This
+simplifies operation because you can drag-n-drop PSBT files onto
+the COLDCARD.
+Do I need to use MicroSD cards?#
+You don't have to use MicroSD cards with COLDCARD. It works fine
+over a USB connection. You can also switch later if your security
+needs change. NFC (tap) can also be used on to send and receive
+files.
+Where do I tap my phone for NFC?#
+The NFC antenna is in a different spot on each COLDCARD, so hold your
+phone flat against the right area and move them slowly together until
+they connect:
+Q: the center of the screen — the antenna is behind the display.
+Mk5: the top-right corner of the device.
+Mk4: the keypad, centered on the 8 key.
+It is also very important to know where the NFC antenna is on your phone,
+as this varies a lot between models. For a visual guide, see
+COLDCARD device-specific NFC sensor locations.
+If your phone is not covered by the video, check with its manufacturer for
+the exact antenna location on your specific model.
+What is PSBT?#
+PSBT is an emerging standard for "Partially Signed Bitcoin Transactions"
+and is described by
+BIP-174.
+COLDCARD is the first "PSBT Native" hardware wallet. It uses PSBT
+internally, and should be able to sign most PSBT files generated
+by conforming software. For completed transactions, we can output
+either a PSBT (with the new signatures added) or a finalized Bitcoin
+transaction, ready to send.
+Bitcoin Core has added HWI
+which supports uploading unsigned PSBT files, and receiving signed
+PSBT files back from the COLDCARD. All the features of the COLDCARD,
+including message signing and showing of addresses are supported
+in HWI. This is a great way to use your COLDCARD from the CLI over
+USB connection.
+How do I backup?#
+Insert a MicroSD card, and go to Advanced > Backup > Backup System.
+You'll be shown a 12-word password to be recorded, and have to pass
+a short quiz to prove you did that.
+Then the file is saved as an AES-encrypted 7Z file
+on the MicroSD card.
+We suggest keeping the password and file in different locations.
+The backup file is useless without the 12-word passphrase. Each
+backup will have a different backup phrase, and it has no relationship
+with the wallet seed words.
+Backups can also be verified (checked for completeness) from the menu system.
+Read more in our docs about backups.
+Can COLDCARD import an encrypted BIP-39 seed phrase?#
+Yes, COLDCARD supports BIP-39 passphrases.
+This unlocks approximately 5.9 × 10197 more wallets based on your seed words.
+Is there a factory reset?#
+There is no way to do a factory reset on a COLDCARD due to the secure elements. However, you can come close to a factory reset if you know the current Main PIN. To accomplish this you would do the following:
+Manually reset any current settings.*
+Wipe the file system:* Advanced/Tools > Danger Zone > Wipe LFS
+Delete all Trick PINs: Settings > Login Settings > Trick PINs > Delete All
+Destroy the seed: Advanced/Tools > Danger Zone > Seed Functions > Destroy Seed
+Change the Main PIN to something easy: Settings > Login Settings > Change Main PIN
+* Manually changing the settings, and wiping the file system are only necessary on firmware older than Q: 1.2.1Q and Mk4: 5.3.1. Newer firmware does this automatically during the seed destruction step.
+How do I know desktop software is showing a payment address that truly is a deposit into this COLDCARD?#
+COLDCARD can display the payment address after it has independently
+calculated what it should be. Without this, it would be hard to
+make a "deposit" into the wallet of the COLDCARD without the
+possibility of someone misleading you.
+In Electrum, click on the "eye" icon shown near the payment address.
+Check the value shown on the COLDCARD screen, compared to the value
+Electrum is showing.
+This 'show address' feature is typically used online, with the
+COLDCARD connected on USB. To achieve a similar result offline,
+proceed as follows: choose Address Explorer from the main menu, and follow
+the instructions.
+You can view ten addresses on the screen at at a time (press 9 to
+see more), and also write out a CSV file with the first 250 addresses,
+onto the MicroSD card.
+I found a previously-used COLDCARD online, should I buy it?#
+You should never buy a "used" COLDCARD from eBay or another online
+store. A new COLDCARD from the factory would arrive sealed in a
+special tamper-evident bag. That's an important security feature
+since it's possible to change the firmware on the COLDCARD. It's
+impossible to trust what you're receiving from the second-hand vendor.
+All legitimate resellers should be providing the COLDCARD unused and
+still in it's original tamper-evident bag. As part of the first-use
+sequence, you will verify the bag number matches the factory bag number.
+This random MicroSD card doesn't work!#
+There are so many MicroSD cards out there, it's not possible for us
+to test with them all. We have tested with all the cards we can find
+locally, and a few ultra-cheap ones from AliExpress. Still there will be
+some that won't work. If it's formatted as FAT32 and equal or smaller
+than 32GB, it should work.
+Please try another brand of card and if that fails, try
+one of our high quality true SLC cards, available in our
+store.
+Do you support Segwit (Segregated Witness) on the COLDCARD?#
+Yes. We have comprehensive segwit support,
+and strongly recommend it, but do not require it.
+We will display Bech32 and P2SH (segwit wrapped) addresses appropriately.
+The limiting factor is usually the wallet software generating the
+PSBT files for Coldcard to sign, and the BIP-32 key derivation paths involved.
+For the Electrum wallet, we generate a PSBT file which will result
+in COLDCARD producing a segwit transaction every time (this does
+not relate to use of Bech32 or P2SH addresses, just the transaction's
+signatures).
+Segwit is preferred since the cryptographic signature will cover
+exactly the payment details that the user has previewed on the
+COLDCARD screen.
+In order to (safely) produce a non-segwit transaction, the COLDCARD
+must be provided enough data in the PSBT to completely verify the
+inputs and since a full copy of the transaction for all UTXO inputs
+is needed, the result is a much larger PSBT file. COLDCARD will
+refuse to sign a PSBT file where it does not have complete information
+on all inputs.
+Is the secure element's crypto used for Bitcoin processing?#
+Although the ATECC608 (and the 508 used on older versions), do
+implement standard SHA-256, HMAC(SHA-256) and AES, we use those
+implementations only to secure the secrets that the chip holds.
+The same is true of the secondary SE (Maxim DS28C36B) on the Mk4.
+Bitcoin signatures, and all other Bitcoin-specific operations are
+completed with the open-source software found
+in our open-source code.
+Ultimately the critical math is performed by the same
+libsecp256k1 code
+used in Bitcoin Core.
+What kind of secure element is used?#
+The ATECC608 is a fixed-function device for private key storage.
+It is not a general purpose CPU like some other secure elements. As a result, neither
+Coinkite nor the chip's manufacturer can change how it works without
+revising the hardware of the chip itself. It is in effect a flash ROM
+(read only memory) with about 10k bits of storage. All access and updates are
+predefined by the hardware and its design.
+The complete COLDCARD firmware can be seen here
+and we have a detailed white paper
+specifically about this secure element, and how we use it.
+With the new mark (Mk4) of the COLDCARD, a second secure element (Maxim DS28C36B)
+has been added so that if either vendor has a critical security flaw,
+it will not affect the overall security of your seed words.
+We combine the power of both secure elements as described in
+this white paper about Mk4 secure elements
+When does the PIN attempt counter reset?#
+The PIN attempt counter resets to zero as soon as you enter the
+correct PIN code. The COLDCARD will always brick after 13 failed
+PIN attempts regardless of any other settings.
+The number of failed PIN attempts can be reduced from 13 by
+navigating to: Settings > Login Settings > Trick PINs > Add If Wrong.
+For more details see the Trick PINs guide.
+What happens when I can't remember my PIN?#
+When you've failed 3 times or more, we warn you that you are in
+danger of bricking the device. The message encourages you to
+double-check the PIN entered, and even gives you a peek at what you
+entered, before submitting it as an login attempt.
+Please note the COLDCARD will brick itself after 13 failed
+login attempts. There is no way to reset or recover the device.
+Mk2 and earlier COLDCARDs will allow infinite attempts, but make
+it slower and slower each time, until at one point, you have to
+wait hours between each attempt.
+Where does the entropy (randomness) come from?#
+It's very important the entropy (randomness) used to pick your
+master seed phrase is good quality. The COLDCARD primarily uses the hardware
+TRNG (True Random Number Generator), inside the main chip. This is
+a dedicated hardware subsystem that measures analog noise produced
+by a special transistor.
+The TRNG from the MCU would be sufficient, but we also maintain a
+PRNG which is mixed (by XOR) into the TRNG output. That PRNG is
+seeded once at boot up from the TRNG in each of SE1 and SE2. We
+limit the of use the TRNG present in the secure elements because
+the protocol involved is complex and slow.
+The 256-bit number from the TRNG⊕PRNG is then "whitened" to remove
+bias, by running it through SHA256. This means if your attacker was
+somehow able to make the bits be 10% ones and 90% zeros (but still
+random otherwise) it would not help them, because after SHA256 the
+bit distribution will be 50/50 again.
+During seed picking process, you have the option of "adding dice
+rolls" to increase the entropy and/or mitigate any possible manipulation.
+You can add as many rolls as you wish, and the entropy (about 2.5
+bits per roll) will be added to the 256 bits of entropy already picked.
+You may completely bypass the above seed picking method, and use
+just dice rolls if desired. This process is documented in great depth
+here on our docs
+and includes a number of different ways to verify our SHA256 math for yourself.
+We even sell a package of 100 tiny dice
+so you can roll 256 bits of your own entropy in a single toss.
+If you do choose to roll your own dice, it is critical that you do
+it honestly and truly rely on how your dice fell. Do not press
+buttons arbitrarily or repeat the same roll a bunch of times.
+Humans are very bad at generating entropy!
+Where do I learn all technical details?#
+You can read our
+secure element
+white paper,
+dual vendor secure element page,
+our online docs. and ultimately
+the COLDCARD source code.
+Last update:
+August 1, 2026
+Back to top
+Copyright © Coinkite Inc. All rights reserved.

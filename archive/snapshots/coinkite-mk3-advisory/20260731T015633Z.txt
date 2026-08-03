@@ -1,0 +1,108 @@
+Blog
+Careers
+Contact
+RSS
+Email Newsletter
+Store
+×
+Home
+Blog
+Careers
+Contact
+RSS
+Email Newsletter
+Store
+← Back to posts
+Mk3 Security Advisory
+Published Jul 30, 2026
+Categories: ckcc
+Out of an abundance of caution, Coinkite is warning all users who
+generated a seed using a Mk3 on version 4.0.1 (March 2021) or any
+subsequent version that their funds may be at risk.
+Mk4, Q and Mk5 are not affected based on our early analysis of the issue.
+The issue is present through firmware version 5.0.3,
+the final release that supported Mk3.
+Investigation Ongoing
+This advisory reflects our early analysis. Our investigation is ongoing,
+and a formal technical review will be released as soon as possible.
+If You Used a Passphrase
+If the affected Mk3 seed was used with a BIP-39 passphrase, our early
+analysis indicates that your funds are at minimal risk from this issue.
+This means a BIP-39 passphrase, not the COLDCARD PIN. Continue to protect
+that passphrase and do not enter it into a website or an untrusted device.
+If the Mk3 Is Your Only Option
+If you cannot immediately move to an unaffected device, create a strong,
+unique BIP-39 passphrase on the Mk3 and move the funds from the original
+wallet to the new passphrase-protected wallet. Treat this as an interim
+measure until you can migrate to a new seed generated on an unaffected
+device.
+Proceed calmly and carefully:
+Read the COLDCARD BIP-39 passphrase
+instructions before starting.
+On the Mk3, select Passphrase and enter a long, random, unique
+passphrase. Do not use a quotation, familiar phrase, name, or reused
+password. Do not enter the passphrase on a computer, phone, or website.
+Back up the passphrase exactly and separately from the seed words. Losing
+it means losing access to the funds.
+Select APPLY and record the new wallet’s eight-digit fingerprint
+(XFP).
+Power the Mk3 off, turn it back on, re-enter the passphrase, and confirm
+that the same XFP appears before using the new wallet.
+Export the new passphrase wallet to your coordinator and verify its
+receive address on the Mk3 screen.
+Power-cycle the Mk3 and sign in without applying the passphrase to return
+to the original wallet. Send a small test transaction to the verified
+address. Re-enter the passphrase and confirm the test funds arrived
+before moving the remainder.
+Every passphrase, including one with a typo, creates a different valid
+wallet. Verify the XFP every time before sending funds.
+Advanced Alternative: Dice-Only Seed
+If you are confident in your ability to perform and verify a dice-only
+migration, you can also create a replacement seed on the Mk3 without using
+its random-number generator. On an empty Mk3 running 4.1.9, select Import
+Existing > Dice Rolls and enter at least 99 independent rolls of a fair
+six-sided die. This dedicated dice-only path hashes the roll sequence
+directly; it does not use the device’s generator. Do not use the normal
+New Wallet flow if your goal is to exclude the device generator.
+This is an advanced procedure. A one-device migration requires safely
+alternating between the old and new seeds. Before erasing either seed from
+the Mk3, verify its written backup and XFP. Verify a receive address for the
+dice-generated wallet, restore and verify the original wallet, and send a
+small test transaction before moving the remainder. Keep the original
+backup until the entire migration is confirmed.
+The dice-roll sequence is secret key material. Never photograph it, save it
+digitally, or enter it into a networked computer. Read the COLDCARD
+dice-roll method
+before attempting this option.
+Migrate Carefully
+When migrating to a new key, calm and care should be applied. Rushing a
+wallet migration can create a more immediate risk than the issue you are
+trying to address.
+Mk4, Mk5, and later COLDCARD models are not affected based on our early
+analysis and can be used to generate the new seed:
+Generate a new seed on the unaffected COLDCARD.
+Record and verify its backup before depositing funds.
+Verify a new receive address on the COLDCARD screen.
+Send a small test transaction and confirm that the new wallet works.
+Only then move the remaining funds.
+Keep the old backup until the migration is complete and confirmed.
+We are continuing to investigate. More details will follow.
+@COLDCARDwallet
+@SATSCARD
+@TAPSIGNER
+@theBLOCKCLOCK
+@arcasafes
+Video Tutorials
+@Coinkite
+Made with by Coinkite
+View store
+Products
+Opendime
+Speedplate
+Blockclock
+Support
+Responsible Disclosure
+Terms of Use
+White Paper
+Copyright © 2026 Coinkite Inc. All rights reserved.
+support@coinkite.com

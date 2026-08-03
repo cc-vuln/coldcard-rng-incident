@@ -1,0 +1,100 @@
+BTC–Block–Mempool–Diff–
+Live · mempool.space
+NewsArticlesBitcoin BriefPodcastRound Table
+Join the Round Table
+Read
+NewsArticlesBitcoin BriefPodcastEconomics
+TFTC
+AboutAdvertiseContactJoin the Round TableSign in
+Bitcoin Brief
+COLDCARD's RNG Failed. Move Your Coins.
+An urgent warning for anyone whose seed was generated on affected COLDCARD firmware. Updating the device will not repair the seed. Generate a new one and migrate carefully.
+Marty Bent
+·July 31, 2026·8 min read
+Share
+Bitcoin BriefEmergency Edition
+TFTC · Truth for the Commoner
+Bitcoin Brief
+Sup, freaks.
+We are sending a single-story emergency edition of the Bitcoin Brief because time matters.
+URGENT WARNING
+COLDCARD's RNG Failed. Move Your Coins.
+I have been a vocal COLDCARD advocate for years. I have trusted the product, recommended it to people I care about, and used it as an example of serious bitcoin self-custody. What came to light overnight is an absolute disaster.
+Coinkite has now confirmed that affected COLDCARD firmware used the wrong random-number generator while creating wallet seeds. Instead of drawing the intended randomness from the device's hardware, seed generation reached a deterministic MicroPython software fallback. Block's Bitcoin Engineering and Security team independently found the same failure in the source code.
+That means some wallets that looked like normal cold storage were protected by keys drawn from a search space far smaller than users had every reason to expect.
+The most acute danger is on Mk2 and Mk3 devices running version 4 firmware. Coinkite's advisory warns about Mk3 seeds generated on firmware 4.0.1 or later and currently estimates an effective search space of roughly 40 bits under its attack assumptions. Block traces the vulnerable path to version 4.0.0. Do not gamble on that one-version discrepancy. If a Mk2 or Mk3 running version 4 firmware generated your seed, treat the seed as compromised and migrate.
+The problem extends beyond the Mk3. Coinkite now says seeds generated on Mk4 and Mk5 before firmware 5.6.0, and on Q before 1.5.0Q, are also affected. Coinkite currently estimates roughly 72 bits of entropy for those later devices instead of the intended 128 bits. The later models are less exposed than the Mk3, but Coinkite still calls the weakness serious and tells users to generate a new seed after installing the fixed firmware.
+A firmware update cannot repair a seed that already exists. The weakness is baked into the private keys derived from that seed. Updating the device and continuing to use the same words leaves the problem in place.
+This disclosure arrived after a coordinated on-chain sweep moved 594.47722484 BTC into one collector address across 500 transactions and four consecutive blocks. We independently reproduced that chain event. Several reported victims said they used COLDCARD single-sig wallets, but the blockchain cannot identify the hardware that generated a key. It would be irresponsible to claim that every coin in the sweep came from this bug or that 500 transactions equal 500 victims. The firmware failure is confirmed. The exact share of the theft tied to it is still being investigated.
+That is why the priority now is action, not tribal warfare between hardware-wallet brands.
+Who should move now
+Assume the seed is at risk and prepare a migration if any of these describe you:
+A Mk2 or Mk3 running version 4 firmware generated your seed.
+A Mk4 or Mk5 generated your seed before firmware 5.6.0.
+A Q generated your seed before firmware 1.5.0Q.
+Affected firmware generated your seed, regardless of whether you also used dice rolls or a passphrase.
+You cannot remember the model, firmware, or entropy method used when the seed was created.
+The affected cohort is defined by the firmware that generated the secret, not the firmware installed today. Updating the device or restoring the same seed onto newer hardware does not strengthen the keys. You still have to create a new seed and move the coins.
+What dice and a passphrase change
+Coinkite says the dice input was hashed together with the device-generated seed. Fair, independent, private dice rolls can add real entropy, and a strong, unique BIP39 passphrase can add another independent barrier. But neither should be treated as permission to keep using a seed created by affected firmware.
+If you cannot say with complete confidence that you used at least 100 fair, independent, private dice rolls when the original seed was created, assume the keys remain vulnerable. Even if you did use at least 100 rolls or a genuinely strong passphrase, the safe response is still to replace the seed and move the coins. A device PIN is not a BIP39 passphrase.
+Updating the firmware is only the first step. It prevents the fixed device from repeating the same failure when it generates a replacement seed. It does not make the old seed or any keys derived from it secure.
+How to move without making a second mistake
+Move promptly, but move deliberately. A rushed migration can destroy coins faster than an attacker.
+Use unaffected hardware. If you are using a Mk4 or Mk5, install firmware 5.6.0 or later before generating anything. If you are using a Q, install 1.5.0Q or later. You can also use a separate signing device with a securely generated seed. Do not generate a replacement seed through the normal New Wallet flow on an affected Mk3.
+Generate a completely new seed and add your own entropy. Do not recycle the old words. Do not turn the old seed into the replacement by adding one word, changing one word, or moving it to a new device. Use at least 100 fair, independent, private dice rolls during replacement-seed creation. Record the new backup offline and verify it before depositing funds.
+Verify the new wallet. Power-cycle the signing device. Confirm the wallet fingerprint. Generate a receiving address and verify that exact address on the hardware screen, not only in Sparrow, Electrum, or another coordinator.
+Send a small test transaction. Confirm that the bitcoin arrives in the new wallet and that you can identify the correct wallet fingerprint and address. If your setup is complex, stop and get trusted help before moving the balance. Never give anyone your seed or passphrase.
+Move the remaining funds. Once the test has confirmed, move the rest to the new seed. Keep the old backup until the migration is complete and confirmed. Then permanently retire the affected seed.
+Ignore unsolicited support. Nobody from Coinkite, TFTC, Sparrow, or any legitimate wallet company needs your seed words. Do not type them into a website. Do not send them through a support ticket. Do not trust a recovery service that appears in your DMs.
+If an affected Mk3 is your only available device, Coinkite's official advisory describes two interim paths: moving into a wallet protected by a long, random, unique BIP39 passphrase, or using the advanced dice-only import path on an empty Mk3 running firmware 4.1.9 with at least 99 fair rolls. Both procedures require careful fingerprint, backup, receive-address, and test-transaction verification. Read the official instructions in full before attempting either one.
+This incident should permanently change how the industry thinks about self-custody. Open source did not stop the bug. Reproducible builds did not stop the bug. Secure elements did not stop the bug. An air gap did not stop the bug. Each property protects against a class of failure. None of them can rescue a private key created with inadequate entropy.
+I remain a believer in self-custody. The answer to a hardware-wallet failure is not to retreat to an exchange or hand permanent control to a custodian. The answer is to harden the process: bring your own entropy, use strong passphrases where appropriate, test recovery procedures, preserve the provenance of every seed, and use genuinely independent multi-vendor multisig for amounts large enough to justify it.
+Today requires a simple response. If affected COLDCARD firmware generated your seed, assume the seed is exposed. Updating the firmware is not enough. Generate a new seed, add your own dice entropy, verify it, test it, and move your coins.
+See you on Monday.
+Watch TFTC on YouTube
+Listen to TFTC podcasts
+Join the TFTC Roundtable
+News and analysis, not financial, investment, legal, or tax advice. Figures and quotes are verified against primary sources where possible. See our editorial and financial disclosures.
+Keep reading
+All of TFTC
+Bitcoin Brief
+The Fed Paused. The Bond Market Did Not.
+The Fed held rates steady. The front end relaxed, the long end revolted, stocks rolled over, and the monetary trap got tighter.
+Marty Bent
+·July 30, 2026
+Bitcoin Brief
+Bitcoin's Liquidity Winter Is Not Over Yet
+Michael Howell says the global-liquidity cycle peaked in 2025 and may remain a headwind for months. Bitcoin's monetary case can su…
+Marty Bent
+·July 29, 2026
+Podcast
+Dave Collum: The Private Credit Bomb Is Coming
+Dave Collum and Rudy Havenstein join me to lay out the private credit bomb, the AI bubble stacked on top of it, and why there are…
+Marty Bent
+·July 28, 2026
+The Bitcoin Brief
+Bitcoin, markets, energy, and the tech reshaping all three.
+A daily brief on the freedom tech building a parallel economy, written for the curious and the convicted alike. Signal, not noise. Truth for the Commoner.
+Leave this field empty
+Subscribe
+Free, daily. Unsubscribe anytime.
+Curated intelligence for builders.
+Get the Bitcoin Brief. The daily signal Bitcoiners read and beginners need. Truth for the Commoner.
+Leave this field empty
+Join
+Read
+News
+Articles
+Bitcoin Brief
+Podcast
+Bitcoin Basics
+ETF Flows
+TFTC
+About
+The Round Table
+Advertise
+Contact
+Follow
+© 2026 TFTC. Build freely.
+PrivacyTerms

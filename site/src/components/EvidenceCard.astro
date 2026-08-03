@@ -1,0 +1,139 @@
+---
+/**
+ * One item on the evidence wall: a registered source or X post, shown with
+ * what was actually captured rather than only its metadata.
+ *
+ * Capturing evidence and displaying only its hash asks the reader to trust
+ * the transcription. Where a screenshot is held it leads the card; where only
+ * text is held, a short excerpt does. Either way the card links through to
+ * the source page, where the full artefact list and hashes live.
+ */
+import { xMedia } from '../lib/xmedia';
+import { sourceById, withholdsCapturedMedia, xPostById } from '../lib/archive';
+
+interface Props {
+  href: string;
+  title: string;
+  /** vendor, research, x post, press: the type-code shown as a badge. */
+  kind: string;
+  group: string;
+  /** Registry id, used to find held media. */
+  id: string;
+  /** Author handle for X posts, org for pages. */
+  by?: string;
+  /** ISO or human date of publication. */
+  when?: string;
+  /** Short text excerpt shown when no screenshot is held. */
+  excerpt?: string;
+  /**
+   * Full note text for the client filter only, never rendered. The excerpt is
+   * truncated, so without this the record search would silently stop matching
+   * the tail of every note.
+   */
+  search?: string;
+  captures?: number;
+  changes?: number;
+  /** The most recent poll failed, so the held capture is no longer current. */
+  blocked?: boolean;
+  /** The origin no longer serves it at all: the held capture is the only copy. */
+  gone?: boolean;
+}
+
+const {
+  href, title, kind, group, id, by = '', when = '',
+  excerpt = '', search = '', captures = 0, changes = 0, blocked = false,
+  gone = false,
+} = Astro.props;
+
+// Staging (OWN_HOST_FROM, via the x-media manifest) is a provenance check;
+// withholding is the publication decision. Both must pass before a held
+// screenshot renders. No registered source sets the withhold flag today, so
+// this changes nothing visible, but a source page that must be held back
+// stays held back here too.
+const registered = xPostById(id) ?? sourceById(id);
+const media = withholdsCapturedMedia(registered) ? null : (xMedia(id)[0] ?? null);
+const changeLabel = changes > 0
+  ? `${changes} revision${changes === 1 ? '' : 's'}`
+  : 'no changes held';
+---
+
+<a class="ec" href={href} data-group={group} data-kind={kind} data-search={search || undefined}>
+  <div class="ec__shot" hidden={!media}>
+    <img src={media?.src} alt={`Captured screenshot: ${title}`} loading="lazy" />
+  </div>
+  <div class="ec__excerpt" hidden={Boolean(media) || !excerpt}>
+    <p>{excerpt}</p>
+  </div>
+
+  <div class="ec__body">
+    <h3 class="ec__title">{title}</h3>
+    <p class="ec__by" hidden={!by}>{by}</p>
+    <div class="ec__badges">
+      <span class:list={['ec__badge', `ec__badge--${group}`]}>{kind}</span>
+      <span class="ec__badge ec__badge--changed" hidden={changes === 0}>{changeLabel}</span>
+      <span class="ec__badge ec__badge--blocked" hidden={!blocked && !gone}>{gone ? 'gone from the web' : 'last capture failed'}</span>
+    </div>
+  </div>
+
+  <div class="ec__foot">
+    <span>{when}</span>
+    <span>{captures} capture{captures === 1 ? '' : 's'}</span>
+  </div>
+</a>
+
+<style>
+  .ec {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    text-decoration: none;
+    overflow: hidden;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .ec:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .ec__shot {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+    max-height: 190px;
+    overflow: hidden;
+  }
+  .ec__shot img { display: block; width: 100%; height: auto; }
+  .ec__excerpt {
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface-2);
+    padding: .8rem var(--inset-box);
+  }
+  .ec__excerpt p {
+    margin: 0;
+    font-size: .82rem; line-height: 1.55; color: var(--ink-2);
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ec__body { padding: .85rem var(--inset-box); flex: 1; }
+  .ec__title { font-size: 1rem; margin: 0; line-height: 1.35; }
+  .ec__by { font-size: .78rem; color: var(--ink-3); margin: .25rem 0 0; }
+  .ec__badges { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+  .ec__badge {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase;
+    padding: .18rem var(--inset-tag); border-radius: 999px;
+    background: var(--surface-2); color: var(--ink-3);
+  }
+  .ec__badge--vendor { background: var(--safe-soft); color: var(--safe); }
+  .ec__badge--research, .ec__badge--analysis { background: var(--accent-soft); color: var(--accent); }
+  .ec__badge--firsthand, .ec__badge--reporting { background: var(--info-soft); color: var(--info); }
+  .ec__badge--changed { background: var(--warn-soft); color: var(--warn); }
+  .ec__badge--blocked { background: var(--warn-soft); color: var(--warn); }
+  .ec__foot {
+    display: flex; justify-content: space-between; gap: .5rem;
+    border-top: 1px dashed var(--rule);
+    padding: .55rem var(--inset-box);
+    font-family: var(--font-mono); font-size: .6rem; color: var(--ink-3);
+    letter-spacing: .05em;
+  }
+</style>

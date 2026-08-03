@@ -1,0 +1,818 @@
+---
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import CaptureThumb from '../../components/CaptureThumb.astro';
+import Claim from '../../components/Claim.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import { fig } from '../../lib/figures';
+
+/*
+ * Dates and technical transitions checked against release histories, source
+ * commits, signed releases and captured primary statements.
+ *
+ * This page carries both the sparse 2021 to 2026 spine and the dense 30 July to
+ * 1 August reconstruction that used to be published separately at
+ * /record/disclosure/. Each page spent a paragraph explaining that it was the
+ * other one's sibling, and their 30 July to 1 August entries overlapped, in
+ * places verbatim. They are one page now: the spine stays plain, and the
+ * second-level reconstruction sits in rungs so it does not bury it.
+ */
+const spine = `<div class="tl">
+  <div class="tl-item">
+    <div class="tl-date">28 Jan 2021</div>
+    <div class="tl-body">The <code>#ifndef MICROPY_HW_ENABLE_RNG</code> guard exists in <code>libngu</code>. Its defined-zero defect is already present, but COLDCARD seed generation does not yet use this path.</div>
+  </div>
+  <div class="tl-item is-bad">
+    <div class="tl-date">1 Mar 2021</div>
+    <div class="tl-body">Commit <code>b18723dddb6d751c39978e4364b56b2414f68b47</code> migrates wallet generation from <code>ckcc.rng_bytes()</code> to <code>ngu.random.bytes()</code>. Combined with the existing defined-zero guard defect, the migration activates the affected path.</div>
+  </div>
+  <div class="tl-item is-bad">
+    <div class="tl-date">17 Mar 2021</div>
+    <div class="tl-body">Firmware v4.0.0 ships for Mk2 and Mk3, opening the first exposure window. Its normal seed-generation path XORs output from the MicroPython and libngu Yasmarang generators before hashing.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">11 and 14 Mar 2022</div>
+    <div class="tl-body">The <code>reseed()</code> API is added to <code>libngu</code>, and Mk4 v5.0.0 ships as the first production firmware calling <code>rng_seeding()</code> on the normal boot path. A secure-element-derived value overwrites one libngu state word, contributing at most 32 bits; other UID and timing terms remain in published models.</div>
+  </div>
+  <div class="tl-item is-bad">
+    <div class="tl-date">26 Jun 2023</div>
+    <div class="tl-body">Firmware v4.1.9 ships. For the next three years it remains the latest published Mk3 release, and it contains the affected path.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">8 Feb 2024</div>
+    <div class="tl-body">First public Q firmware, v0.0.3Q, with production v1.0.0Q on 10 March 2024. Every Q build in the published release history before v1.5.0Q contains the affected path.</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-date">10 Mar 2026</div>
+    <div class="tl-body">COLDCARD Mk5 launches on firmware v5.5.0 and uses the Mk4-class generation path. Its pre-hotfix releases are affected under the same published candidate-space models.</div>
+  </div>
+</div>`;
+---
+
+<Article
+  title="Timeline"
+  description="From the guard being written in 2021 to disclosure and model-specific hotfix releases in 2026, with the 30 July to 3 August public record reconstructed in detail."
+  standfirst="From the guard being written in 2021 to disclosure and model-specific hotfix releases in 2026. The rungs reconstruct what was public, and when."
+  depth="plain"
+  kicker="Evidence"
+>
+  <Answer>
+  <p>
+    On 30 July 2026, inside a window of about 41 minutes, funds were swept from
+    roughly 1,200 bitcoin addresses, and published analyses attribute the sweep
+    to COLDCARD seeds that could be guessed. Everything dated before 30 July is
+    the archaeology of how a build-time guard written in 2021 became a live
+    key-generation defect.
+    <Claim
+      basis="verified"
+      scope="The dated source transitions and vendor-published firmware and signed-release records in this timeline"
+      source="Release histories, source commits and signed-release records; published binary contents were not independently checked"
+      href="/record/firmware/"
+      compact
+    />
+    The rungs below reconstruct 30 July to 3 August, over
+    which two day-one publications disagreed about which models were affected and
+    the vendor's own advisory was revised four times, and then the weekend in
+    which the vendor described halting shipments and destroying stock, a board
+    departure was announced, and a claimed fourth sweep wave was circulated and
+    twice corrected.
+    <Claim
+      basis="reported"
+      contested
+      scope="The conflicting day-one affected-model statements from Coinkite and Block"
+      source="Captured day-one publications from Coinkite and Block"
+      href="#day-one-scope"
+      compact
+    />
+    <Claim
+      basis="verified"
+      scope="The wording of both 1 August vendor advisory and backgrounder updates, the changed site-wide banner, and the later substitution of Mk2 and Mk3 for Mk3 throughout the advisory and backgrounder"
+      source="Held captures of the Coinkite advisory, entropy backgrounder, downloads page and terms page taken at 14:02 and 18:44 UTC on 1 August 2026, with diffs against the preceding held states"
+      href="#published-updates"
+      compact
+    />
+    <Claim
+      basis="reported"
+      scope="The 2 and 3 August entries: the vendor's shipments and outreach statements, the OpenSats board change, the reported passphrase-wallet loss and the claimed fourth wave with its corrections"
+      source="Captured X posts from Coinkite, OpenSats, Galaxy Research and named community accounts, each cited on its own entry"
+      href="#august-2-3"
+      compact
+    />
+    The arithmetic behind the
+    swept totals is kept on <a href="/record/funds/">the funds-accounting page</a>.
+    <Claim
+      basis="derived"
+      scope="The reconciled BTC values, transaction windows and cross-source timing comparisons"
+      source="This site's integer-satoshi and block-timestamp accounting, published as a privacy-safe recheck artefact with its assumptions and limits"
+      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
+      compact
+    />
+  </p>
+  </Answer>
+
+  <div class="ported" set:html={spine} />
+
+  <Disclosure
+    id="sweeps-30-july"
+    title="30 July: the sweeps, before anything was published"
+    note="one 41-minute window, and the 500-transaction subset inside it"
+    open
+  >
+
+  <div class="tl">
+    <div class="tl-item is-bad">
+      <div class="tl-date">30 Jul 2026, 01:10:20 to 01:51:26 UTC</div>
+      <div class="tl-body">
+        Galaxy later reported a 41-minute window covering 1,196 counted addresses
+        and {fig("galaxyGrossBtc")}, beginning in block 960,183.
+        <Claim basis="reported" captured="1 Aug 2026" contested scope="Galaxy's 41-minute wider window, address count and BTC estimate" source="Galaxy Research primary X post, preserved in the archive" href="/record/sources/glxyresearch-flow-map/" />
+        Within it, the locally
+        reconciled 500-transaction set runs from 01:36:08 to 01:51:26 UTC across
+        blocks 960,188 to 960,191, spending 1,324 UTXOs from 500 source
+        addresses. Gross inputs total <strong>{fig("sweptGrossBtc")}</strong>, of
+        which <strong>{fig("sweptBtc")}</strong> reaches the first collector
+        after fees, and the confirming block timestamps span 15 minutes 18
+        seconds.
+        <Claim basis="derived" scope="The 15-minute 18-second interval for the locally reconciled 500-transaction subset" source="Block timestamps in the pinned first-three-wave dataset" href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json" />
+        Bitcoin Optech states 29 July without a timezone; a US-local
+        date is possible but not established in the newsletter. See
+        <a href="/record/funds/">funds accounting</a> for the difference between
+        the published wider attribution and the derived transaction subsets.
+        <CaptureThumb id="glxyresearch-flow-map" />
+      </div>
+    </div>
+  </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="day-one-scope"
+    title="30 July: the two day-one publications disagreed"
+    note="Coinkite scoped the issue to Mk3; Block published a wider range the same day"
+  >
+
+  <div class="tl">
+    <div class="tl-item is-key">
+      <div class="tl-date">30 Jul 2026, Coinkite</div>
+      <div class="tl-body">
+        <a href="/record/sources/coinkite-mk3-advisory/">Coinkite's Mk3 Security Advisory</a>
+        (<a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" rel="noopener nofollow">original</a>)
+        scoped the issue to Mk3 and said Mk4, Q and Mk5 were "not affected based
+        on our early analysis". That earlier state is recovered from the Internet
+        Archive; this project's own capture of the page began on 1 August.
+        <Claim basis="verified" contested scope="The affected-model statement in Coinkite's first advisory" source="Coinkite Mk3 Security Advisory; original state recovered through the Internet Archive" href="/record/sources/coinkite-mk3-advisory/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">30 Jul 2026, Block</div>
+      <div class="tl-body">
+        <a href="/record/sources/block-disclosure/">Block's engineering report</a>
+        (<a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">original</a>)
+        published a wider affected-firmware range and described active
+        exploitation. Block states that it published before the vendor's analysis
+        was complete because it believed exploitation was active. The two day-one
+        publications therefore gave different answers about Mk4-class devices.
+        <Claim basis="reported" contested scope="Block's published affected-firmware range and exploitation account" source="Block engineering report, published 30 Jul 2026; the firmware range is separately checked against source" href="/record/sources/block-disclosure/" />
+      </div>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--amber">
+    <div class="ve-card__label lbl-amber">Interpretation limit</div>
+    <p>
+      The record establishes the disagreement and the wording of each statement.
+      It does not establish why the analyses differed or what any individual
+      owner read before acting.
+    </p>
+  </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="july-31"
+    title="31 July: corrections, releases and wider accounting"
+    note="the earlier-wave scan, the hotfixes, the wider attribution and the attribution finding"
+  >
+
+  <div class="tl">
+    <div class="tl-item is-key">
+      <div class="tl-date">31 Jul 2026, 00:03:31 UTC</div>
+      <div class="tl-body">
+        <a href="/record/sources/clay-earlier-waves-thread/">Clay Garrett published Block's preliminary earlier-wave scan</a>,
+        reporting <strong>{fig("earlierTxs")} additional transactions</strong>
+        with the same stated fingerprint as the known wave: 204 sweeps in block
+        960,183 and 491 in block 960,185, netting
+        <strong>{fig("earlierBtc")}</strong> to three first collectors. The
+        thread describes a scan of 888,661 transactions. A later privacy-safe
+        recheck places those blocks inside Galaxy's 41-minute window and before
+        the 500-transaction subset. Block explicitly said it had not confirmed a
+        relationship between those transactions and the drain, so the
+        common-operator attribution remains unverified.
+        <Claim basis="reported" scope="Block's preliminary 695-transaction fingerprint match, counts and net first-collector amount, including its unconfirmed relationship to the drain" source="Clay Garrett and Block engineering, captured primary X thread, 31 Jul 2026" href="/record/sources/clay-earlier-waves-thread/" />
+        <CaptureThumb id="clay-earlier-waves-thread" />
+      </div>
+    </div>
+
+    <div class="tl-item is-good">
+      <div class="tl-date">31 Jul 2026, 03:44:44 UTC</div>
+      <div class="tl-body">
+        <a href="https://x.com/unchained/status/2083036112449163618" rel="noopener nofollow">Unchained recommended rotating any COLDCARD-generated key</a>
+        to one generated on a different device. It identified two affected keys
+        in a 2-of-3 vault as the most severe case and said one affected key is
+        normally below threshold, while still recommending replacement.
+        <Claim basis="reported" captured="1 Aug 2026" scope="Unchained's public client guidance" source="Unchained, preserved X capture" href="/record/sources/unchained-guidance/" />
+        <CaptureThumb id="unchained-guidance" />
+      </div>
+    </div>
+
+    <div class="tl-item is-good">
+      <div class="tl-date">31 Jul 2026, 05:17 to 05:19 UTC</div>
+      <div class="tl-body">
+        The signed-release record timestamps Q hotfix v1.5.0Q at 05:17 UTC and
+        Mk4/Mk5 hotfix v5.6.0 at 05:18 UTC. Source release commit
+        <code>3238f6fd9977eed786012d0034a04d888c3263bb</code> followed at
+        05:19:10 UTC with the note: "No new features but will generate entropy
+        correctly." The wording is about what the device will generate next; it
+        does not repair already generated seeds. This project verified the source
+        and release records, not the contents of the distributed binaries.
+        <Claim basis="verified" scope="The vendor-published Mk4/Mk5/Q release-record and source-commit timestamps, not binary contents" source="COLDCARD firmware repository and signed release metadata" href="/record/firmware/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">30 Jul 2026, publisher date; expanded-scope time unresolved</div>
+      <div class="tl-body">
+        Coinkite's <a href="/record/sources/coinkite-backgrounder/">entropy technical backgrounder</a>
+        (<a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">original</a>)
+        displays a 30 July publication date. In the state held on 1 August it
+        includes Mk4, Mk5 and Q and presents scenarios near 72 bits for those
+        models and 40 bits for Mk3. The first appearance of that expanded scope
+        has not been established, so its ordering relative to the 31 July
+        05:19 UTC firmware commit remains unresolved. The entry is placed
+        beside that commit rather than in date order, because there is no
+        established time to sort it by.
+        <Claim basis="reported" captured="1 Aug 2026" contested scope="Coinkite's expanded affected scope and published candidate-space models; not the first-publication time" source="Coinkite entropy technical backgrounder; source-level affected ranges are checked separately" href="/record/sources/coinkite-backgrounder/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-good">
+      <div class="tl-date">31 Jul 2026, 11:37 UTC</div>
+      <div class="tl-body">
+        An <a href="/record/sources/coldcard-expanded-scope/">official COLDCARD update</a>
+        publicly directs users of affected Mk3, Mk4, Mk5 and Q firmware toward
+        model-specific migration: Mk3 users on v4.0.1 or later without at least
+        50 private independent dice rolls should migrate, and affected Mk4, Mk5
+        and Q users should update before generating a new seed. Its Mk3 wording
+        starts at v4.0.1, while the source and release evidence includes v4.0.0.
+        <Claim basis="reported" captured="1 Aug 2026" contested scope="The vendor's expanded public scope and migration direction, including its v4.0.1 Mk3 boundary" source="Official COLDCARD X update; the v4.0.0 source-evidence disagreement is documented on the firmware page" href="/record/sources/coldcard-expanded-scope/" />
+        <CaptureThumb id="coldcard-expanded-scope" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">31 Jul 2026, 13:23:11 UTC</div>
+      <div class="tl-body">
+        <a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research published the wider {fig("galaxyGrossBtc")} estimate</a>
+        and attributed 1,196 counted addresses in blocks 960,183 to 960,191 to
+        the same operator. This site's local arithmetic reaches the rounded BTC
+        total if that attribution and its assembled transaction set are accepted.
+        The exact Galaxy address-counting method is not published. The local
+        arithmetic is exposed as a privacy-safe recheck artefact without source
+        addresses or transaction identifiers.
+        <Claim basis="reported" captured="1 Aug 2026" scope="Galaxy's wider-set attribution and estimate" source="Galaxy Research primary X post, preserved X capture" href="/record/sources/glxyresearch-flow-map/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-good">
+      <div class="tl-date">31 Jul 2026, 13:43:05 UTC</div>
+      <div class="tl-body">
+        The <a href="/record/sources/coldcard-mk3-hotfix-update/">official Mk3 update</a>
+        announces firmware <strong>4.2.0</strong> as available. The 07:30 UTC
+        advisory state had described a final Mk3 release as under evaluation
+        rather than committed, contingent on validating a sufficiently safe
+        upgrade path, and told users not to wait for it. The vendor downloads
+        page checked on 1 August lists 4.2.0 as current for "COLDCARD Mk3 and
+        Mk2". This archive has not installed the release on either model or
+        independently checked the binary.
+        <Claim basis="reported" scope="The vendor's availability announcement for Mk3 4.2.0 and downloads-page listing for Mk2 and Mk3" source="Captured official COLDCARD X update and vendor downloads page; source-level fix and binary limitations are documented separately" href="/record/firmware/" />
+        <CaptureThumb id="coldcard-mk3-hotfix-update" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">31 Jul 2026, 15:42:23 UTC</div>
+      <div class="tl-body">
+        <a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">NVK published an apology on behalf of Coinkite</a>,
+        accepted responsibility for the firmware bug, committed to a technical
+        postmortem covering why their own review missed it, and offered written
+        incident summaries and available transaction data to affected users for
+        police reports and insurance claims.
+        <Claim basis="reported" captured="1 Aug 2026" scope="NVK's apology and stated commitments" source="NVK, preserved X capture" href="/record/sources/nvk-apology/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-good">
+      <div class="tl-date">31 Jul 2026, 16:54:38 UTC</div>
+      <div class="tl-body">
+        The <a href="/record/sources/coldcard-edge-hotfix-update/">official Edge update</a>
+        announces 6.6.0X for Mk4/Mk5 and 6.6.0QX for Q. Mk3, Mk4, Mk5 and Q then
+        have named vendor fix releases. The binaries have not been independently
+        checked here.
+        <Claim basis="reported" scope="The official availability announcement for Edge 6.6.0X and 6.6.0QX" source="Captured official COLDCARD X update; binary limitations are documented separately" href="/record/firmware/" />
+        <CaptureThumb id="coldcard-edge-hotfix-update" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">31 Jul 2026, 17:42:45 UTC</div>
+      <div class="tl-body">
+        <a href="https://x.com/clay_garrett/status/2083247006139503065" rel="noopener nofollow">Block's Clay Garrett reported</a>
+        that the operator used <strong>a paid account at a well-known
+        blockchain-services provider</strong> to query the source addresses
+        during the sweeps, and that the provider's internal logs matched the
+        suspected workflow "with extraordinary specificity, including the number,
+        timing and sequence of requests". Shared with authorities. He said Block
+        had seen no evidence the provider knowingly participated in or
+        facilitated the suspected theft.
+        <Claim basis="reported" captured="1 Aug 2026" scope="Block's account of the service-provider queries and its non-participation qualification" source="Clay Garrett, complete three-post X thread preserved in the archive" href="/record/sources/clay-attribution/" />
+        <Claim
+          basis="reported"
+          scope="The later operator attribution and public accounts of how the bug may have been discovered"
+          source="Captured statements from Block, Coinkite and named researchers"
+          href="#july-31"
+          compact
+        />
+        <CaptureThumb id="clay-attribution" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">31 Jul 2026, 21:18:10 UTC</div>
+      <div class="tl-body">
+        <a href="https://x.com/KLoaec/status/2083301216050700780" rel="noopener nofollow">Kevin Loaec published configuration-specific guidance</a>
+        for multisig and miniscript, including the condition where affected
+        COLDCARD keys meet the spending threshold. The post described Taproot and
+        private transaction submission as potentially relevant in some cases,
+        not as universal guarantees.
+        <Claim basis="reported" captured="1 Aug 2026" scope="Loaec's dated multisig and miniscript guidance" source="Kevin Loaec, preserved X capture" href="/record/sources/kloaec-multisig/" />
+        <CaptureThumb id="kloaec-multisig" />
+      </div>
+    </div>
+  </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="august-1"
+    title="1 August: trackers, third-party reports and two advisory revisions"
+    note="the advisory's third and fourth dated updates, and Galaxy's third wave"
+  >
+
+  <div class="tl">
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, captured 05:28:59 UTC</div>
+      <div class="tl-body">
+        The community <a href="/record/sources/coldcard-watch/">coldcard-watch tracker</a>
+        expands its headline from the first 1,195-address episode to two episodes
+        totalling 2,321 addresses and 1,128.4717 BTC. This records the tracker's
+        changed attribution. The relationship of the later 45.9 BTC cluster to
+        the principal incident set remains unverified.
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, 11:21 UTC</div>
+      <div class="tl-body">
+        Coinkite <a href="/record/sources/coldcard-urgent-migration-appeal/">ask owners to treat migration as urgent</a>:
+        follow the advisory for the model, upgrade the device, generate a new
+        seed, move funds carefully, and pass the message to owners who are less
+        online. The post quotes the vendor's 31 July urgent update, which states
+        the Mk3 boundary as 4.0.1 and later and carves out seeds created with at
+        least 50 private, independent dice rolls.
+        <CaptureThumb id="coldcard-urgent-migration-appeal" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, 12:29 UTC</div>
+      <div class="tl-body">
+        Kevin Loaec of Wizardsardine <a href="/record/sources/kloaec-mk4-class-drain-report/">reports</a>
+        that Mk4, Mk5 and Q wallets are "now actively drained", quoting Tomer
+        Strolight's account of a duress wallet, deliberately left funded on a
+        COLDCARD Mk4 seed and swept overnight to
+        <code>bc1qzm5pauxyv7t7vqstzpumqcn066wfjsmev34mf3</code>. The same post
+        argues that breaking an Mk4 is harder than breaking a weak passphrase, so
+        Mk3 seeds behind a passphrase at or under roughly 32 bits are at
+        immediate risk. This is a reported third-party account of a single
+        wallet. The pinned funds dataset here covers the three 30 July waves and
+        holds no addresses, so it cannot corroborate the sweep. The named
+        destination does appear in held captures of a community tracker as a
+        1 August vault holding 0.33203236 BTC from 16 sweeps, and a later capture
+        of that tracker records its Mk4 attribution as withdrawn in favour of an
+        Mk3-origin seed. The device model behind a sweep is not visible on chain.
+        <Claim
+          basis="reported"
+          contested
+          scope="The 1 August account that Mk4, Mk5 and Q wallets were being actively drained, and the honeypot sweep quoted with it"
+          source="Kevin Loaec's captured post quoting Tomer Strolight; a community tracker's later held capture records the Mk4 attribution as withdrawn in favour of an Mk3-origin seed"
+          href="/record/sources/kloaec-mk4-class-drain-report/"
+          compact
+        />
+        <CaptureThumb id="kloaec-mk4-class-drain-report" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, 09:35 EDT (13:35 UTC); captured 14:02:34 UTC</div>
+      <div class="tl-body">
+        <a href="/record/sources/coinkite-mk3-advisory/">Coinkite's Mk3 Security Advisory</a>
+        carries a third dated update. It replaces the earlier blanket warning
+        that Mk3 4.0.1 to 4.1.9 users' funds "may be at risk" with a conditional
+        statement: funds are at risk "if the seed was created without at least 50
+        fair, independent, private dice rolls and the funded wallet is not
+        protected by a strong, unique BIP-39 passphrase". The passphrase section
+        moved in both directions in the same edit. It now says the reduced seed
+        entropy alone is not enough to reach funds in a passphrase wallet and
+        that "an attacker must also discover the passphrase", and it also says a
+        strong passphrase "does not repair the affected seed", that passphrase
+        users "should also migrate as soon as practical", and that an uncertain
+        passphrase means treating the funds as at risk and migrating
+        immediately. The
+        <a href="/record/sources/coinkite-backgrounder/">entropy backgrounder</a>
+        carries the same dated update, a paragraph setting out what counts as a
+        qualifying passphrase, and a new sentence that for funded wallets with
+        neither the dice entropy nor such a passphrase "the reduced search space
+        is a direct security risk, not a theoretical possibility". In the same
+        period the site-wide banner on the
+        <a href="/record/sources/coldcard-downloads/">downloads</a> and
+        <a href="/record/sources/coinkite-terms/">terms</a> pages changed from
+        "Seeds generated on firmware 4.0.1 or later may be at risk" to "Seeds
+        generated on firmware 4.0.1 (2021 or later) are at risk".
+        <Claim basis="verified" scope="The wording of the 1 August advisory and backgrounder update and of the changed site-wide banner" source="Held captures of the Coinkite Mk3 advisory, entropy backgrounder, downloads page and terms page, with diffs against the preceding held states" href="/record/sources/coinkite-mk3-advisory/" />
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">1 Aug 2026, 15:45 UTC</div>
+      <div class="tl-body">
+        Wizardsardine publish a <a href="/record/sources/wizardsardine-postmortem/">long-form post-mortem</a>,
+        announced by <a href="/record/sources/kloaec-wizardsardine-postmortem/">Kevin Loaec</a>.
+        It addresses Liana and multisig configurations first, then reconstructs
+        the flaw, and argues the incident is worse than commonly understood
+        because owners with dice-generated seeds still have device features that
+        depend on the same generator. Wizardsardine sells Liana, a competing
+        wallet product, and the authors describe the post as written quickly and
+        invite corrections.
+        <CaptureThumb id="kloaec-wizardsardine-postmortem" />
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">1 Aug 2026, 15:47 UTC</div>
+      <div class="tl-body">
+        Loaec separately <a href="/record/sources/kloaec-derived-feature-exposure/">states</a>
+        that owners who imported a seed or generated one with dice are also
+        exposed if they used certain COLDCARD features. The features are
+        enumerated in an attached graphic that did not render in the held
+        capture, so the list itself is not established from what is held here.
+        The claim extends the incident beyond seed generation into derived
+        material; <a href="/how-it-broke/blast-radius/">what else the generator touched</a>
+        tracks which features are established from source.
+        <CaptureThumb id="kloaec-derived-feature-exposure" />
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">1 Aug 2026, 16:09 UTC</div>
+      <div class="tl-body">
+        A separate matter involving the same party: Block's Clay Garrett
+        <a href="/record/sources/claygarrett-bitkey-initial-findings/">publishes initial findings</a>
+        on a reported vulnerability in Block's own Bitkey product, disclosed to
+        Block by 1440000bytes. This is not the COLDCARD RNG defect and does not
+        bear on it. Block states that exploitation would require exceptional
+        circumstances during a narrow window in inheritance setup, that an
+        attacker would not obtain enough cryptographic material to reach funds,
+        that it sees no risk of remote drains, and that a mobile-app patch would
+        be submitted the same day.
+        <CaptureThumb id="claygarrett-bitkey-initial-findings" />
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">1 Aug 2026, 16:35 UTC</div>
+      <div class="tl-body">
+        bitcoin++ Insider Edition <a href="/record/sources/btcpp-dettmer-analysis-announcement/">announce</a>
+        Dustin Dettmer's <a href="/record/sources/btcpp-dettmer-commit-history/">commit-history walkthrough</a>,
+        "When random.bytes() runs but doesn't work". It reads the firmware
+        history around the disabled hardware-RNG guard and the call chain that
+        left seed generation on the software generator.
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, 14:35 EDT (18:35 UTC); captured 18:44:33 UTC</div>
+      <div class="tl-body">
+        A fourth dated update brings the Mk2 inside the advisory's own text. Every
+        Mk3-only statement about the defect and about its fix is rewritten to
+        name both models. The affected range becomes "The issue is present on
+        Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive"; the at-risk
+        sentence becomes "a seed generated on Mk2 or Mk3 version 4.0.1 (March
+        2021) through 4.1.9"; the fixed-firmware list gives "Mk2/Mk3: version
+        4.2.0 or later"; and the release is described as "Fixed Mk2/Mk3 firmware
+        version 4.2.0", to be installed from the "official Mk2/Mk3 download
+        page". The one-device migration section, the optional dice-only section
+        and the closing migration steps are rewritten the same way, so the
+        procedures the advisory sets out now address an Mk2 owner directly. The
+        <a href="/record/sources/coinkite-backgrounder/">entropy backgrounder</a>
+        carries the same dated update and the same substitution, including that
+        the active PRNG on "Mk2 and Mk3" was seeded primarily from device and
+        timing state, and "Version 4.2.0 for Mk2 and Mk3" among the released
+        hotfixes. Until this revision the vendor downloads-page listing was the
+        only vendor evidence placing the Mk2 in either the affected range or the
+        hotfix. The published lower bound is unchanged at 4.0.1 for both models,
+        so the <a href="/record/firmware/">v4.0.0 boundary difference</a> stands.
+        <Claim basis="verified" scope="The fourth revision's substitution of Mk2 and Mk3 for Mk3 throughout the affected range, the fixed release and the migration sections of both the advisory and the backgrounder" source="Held captures of the Coinkite Mk3 advisory and entropy technical backgrounder taken at 18:44 UTC on 1 August 2026, with diffs against the states held at 14:02 UTC the same day" href="/record/sources/coinkite-mk3-advisory/" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">1 Aug 2026, 18:38 UTC</div>
+      <div class="tl-body">
+        Galaxy Research <a href="/record/sources/glxyresearch-third-wave-revision/">identify a third sweep wave</a>
+        of <strong>{fig("thirdWaveBtc")}</strong> and revise their estimated
+        observed size of the incident to
+        <strong>{fig("galaxyRevisedTotalBtc")}</strong> across
+        {fig("galaxyRevisedAddresses")}, superseding the roughly 1,083 BTC total
+        they published on 31 July. The same thread reports
+        <strong>{fig("attackerHoldingsBtc")}</strong> under attacker control with
+        all endpoint attacker addresses fully unspent on chain, and carries
+        Galaxy's <a href="/record/sources/glxyresearch-methodology-disclaimer/">own method limit</a>:
+        the work derives solely from block data and the unspent-output set, and
+        Galaxy has not tested whether the addresses it identifies as possible
+        victims were in fact generated with low entropy. Galaxy also
+        <a href="/record/sources/glxyresearch-firmware-block-boundary/">states</a>
+        that the vulnerable firmware shipped on 17 March 2021 around block
+        674,951 and that no coin identified in waves 1 to 3 was created before
+        that block; what that means for the published version ranges is on
+        <a href="/record/firmware/">the firmware page</a>. Galaxy's scope is wider
+        than the 30 July sets reconciled on
+        <a href="/record/funds/">the funds-accounting page</a>, which does not
+        adopt the revised total.
+        <Claim
+          basis="reported"
+          scope="Galaxy's 1 August third wave, revised total, attacker-holdings figure and stated method limit, and its statement about the firmware ship block"
+          source="Galaxy Research's captured 1 August thread; its scope is wider than the transaction sets reconciled here and the revised total is not adopted as this site's accounting"
+          href="/record/sources/glxyresearch-third-wave-revision/"
+          compact
+        />
+        <CaptureThumb id="glxyresearch-third-wave-revision" />
+      </div>
+    </div>
+  </div>
+
+  <p>
+    Four dated advisory revisions are recorded here: the widening of scope to
+    Mk4, Mk5 and Q, the announcement of fixed firmware, the replacement of a
+    blanket warning with two published conditions, and the addition of the Mk2.
+    None of them moves the published lower bound, which stays at 4.0.1 and so
+    leaves the <a href="/record/firmware/#vendor-lower-bound">difference with the
+    v4.0.0 source and release evidence</a> as it was.
+  </p>
+
+  </Disclosure>
+
+  <Disclosure
+    id="august-2-3"
+    title="2 to 3 August: vendor operations, a board departure and a claimed fourth wave"
+    note="the shipments statement, the Sunday update, the OpenSats departure and the twice-corrected wave-4 set"
+  >
+
+  <div class="tl">
+    <div class="tl-item is-key">
+      <div class="tl-date">2 Aug 2026, 17:24 UTC</div>
+      <div class="tl-body">
+        Galaxy Research <a href="/record/sources/glxyresearch-victim-outreach-update/">publish an investigation status update</a>:
+        the wave-1 pattern came from Block engineers, while waves 2 and 3 were
+        identified through victims coming forward. The update asks victims to
+        share affected addresses and transaction IDs with @intangiblecoins, with
+        no personal identifying information needed, says findings are being
+        shared with US authorities, SEAL, exchanges and cyber investigators, and
+        promises a substantive update.
+        <Claim basis="reported" scope="Galaxy's account of how each wave was identified, its victim-outreach request and its statement about sharing findings with investigators" source="Galaxy Research, captured X update, 2 Aug 2026" href="/record/sources/glxyresearch-victim-outreach-update/" />
+        <CaptureThumb id="glxyresearch-victim-outreach-update" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">2 Aug 2026, 18:04 UTC</div>
+      <div class="tl-body">
+        Coinkite <a href="/record/sources/coldcard-shipments-halted/">state that shipments were halted</a>
+        as soon as the vulnerability was confirmed, and that remaining units
+        carrying affected firmware were destroyed. Customers whose devices had
+        already shipped were emailed the advisory and migration steps. The same
+        post states that SATSCARD, OPENDIME and TAPSIGNER use different
+        codebases and are not affected.
+        <a href="/record/sources/tftc-shipments-halted/">TFTC repeated the same facts</a>
+        just under two and a half hours later; the vendor post is the primary
+        statement.
+        <Claim basis="reported" scope="The vendor's shipments-halted and inventory-destruction statement, its customer-email account and its not-affected statement for SATSCARD, OPENDIME and TAPSIGNER" source="Coinkite, captured official X post, 2 Aug 2026; TFTC's later secondary report is held separately" href="/record/sources/coldcard-shipments-halted/" />
+        <CaptureThumb id="coldcard-shipments-halted" />
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-date">2 Aug 2026, 19:51 UTC</div>
+      <div class="tl-body">
+        Replying to a question about the disclaimer added to its store, Coinkite
+        <a href="/record/sources/coldcard-disclaimer-clarification/">say the notice exists</a>
+        so previous buyers are aware of the incident. An earlier
+        <a href="/record/sources/pledditor-remaining-stock/">community claim</a>
+        that remaining stock stayed on sale with an added disclosure, rather than
+        sales being halted, is held separately.
+        <Claim basis="reported" scope="The vendor's stated purpose of the store disclaimer" source="Coinkite, captured official X reply, 2 Aug 2026" href="/record/sources/coldcard-disclaimer-clarification/" />
+        <CaptureThumb id="coldcard-disclaimer-clarification" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">2 Aug 2026, 20:44 UTC</div>
+      <div class="tl-body">
+        OpenSats <a href="/record/sources/opensats-nvk-board-departure/">announce that NVK is stepping down</a>
+        from its board, effective immediately, with the board continuing at
+        eight members until a replacement is made. The post gives no reason for
+        the departure; its timing places it inside the incident weekend, and the
+        post itself does not connect the two.
+        <Claim basis="reported" scope="The OpenSats board departure and its stated interim board size; the post states no reason" source="OpenSats, captured X statement, 2 Aug 2026" href="/record/sources/opensats-nvk-board-departure/" />
+        <CaptureThumb id="opensats-nvk-board-departure" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">2 Aug 2026, 21:13 UTC</div>
+      <div class="tl-body">
+        BTC Sessions <a href="/record/sources/btcsessions-passphrase-loss-report/">reports what he describes as the first confirmed loss</a>
+        from a Mk3 protected by a passphrase: a two-word passphrase, with the
+        wallet drained at around 2pm on 2 August in Australian eastern time
+        (AEST, UTC+10), which is about 04:00 UTC the same day. The post cites no transaction or address, so
+        nothing held here can corroborate or refute it. If accurate, it would
+        extend the observed drains to weak-passphrase wallets; what a passphrase
+        does and does not protect is set out on
+        <a href="/risk/">the risk pages</a>.
+        <Claim basis="reported" scope="BTC Sessions' account of a drained Mk3 two-word-passphrase wallet and its claimed timing; the post cites no transaction or address and the loss is not corroborated here" source="BTC Sessions, captured X post, 2 Aug 2026" href="/record/sources/btcsessions-passphrase-loss-report/" />
+        <CaptureThumb id="btcsessions-passphrase-loss-report" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">2 Aug 2026, 23:00 UTC</div>
+      <div class="tl-body">
+        Coinkite publish an <a href="/record/sources/coldcard-update-sunday/">"Update, Sunday" statement</a>
+        acknowledging that the damage done is permanent and that there are hard
+        questions about the company, describing direct customer outreach and
+        migration help since Friday, thanking community members who helped
+        unpaid through the weekend, and committing to continued work with the
+        wider self-custody community.
+        <Claim basis="reported" scope="The vendor's Sunday statement: its damage acknowledgement, outreach description, community thanks and forward commitment" source="Coinkite, captured official X post, 2 Aug 2026" href="/record/sources/coldcard-update-sunday/" />
+        <CaptureThumb id="coldcard-update-sunday" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">3 Aug 2026, 01:37 and 03:22 UTC</div>
+      <div class="tl-body">
+        A claimed fourth sweep wave, identified by pattern matching and
+        circulated by Galaxy's intangiblecoins, is corrected twice in public.
+        The <a href="/record/sources/intangiblecoins-wave4-address-correction/">first correction</a>
+        removes six of 216 destination addresses whose years of history before
+        block 960,183 made them unlikely attacker addresses, leaving 206 of the
+        remainder freshly created to receive the sweeps.
+        <Claim basis="reported" scope="The removal of six historical destination addresses from the circulated wave-4 list and the 206 freshly created remainder" source="intangiblecoins, captured correction post, 3 Aug 2026" href="/record/sources/intangiblecoins-wave4-address-correction/" />
+        The
+        <a href="/record/sources/intangiblecoins-wave4-multisig-correction/">second correction</a>,
+        credited to Nunchuk, removes multisig addresses included in error: the
+        post states wave 4 as circulated at 857 addresses and 486.11 BTC, an
+        89-address, 20.58 BTC multisig discount, and a surviving core of 709
+        addresses and 448.73 BTC, all as the author's own figures. It also
+        states that waves 1 to 3 contain no multisig addresses, and stresses
+        that wave 4 rests on pattern matching with no direct victim
+        confirmation yet.
+        <Claim basis="reported" scope="The multisig correction, the stated wave-4 figures as circulated and as corrected, and the author's statement that wave 4 has no direct victim confirmation" source="intangiblecoins, captured correction post credited to Nunchuk, 3 Aug 2026" href="/record/sources/intangiblecoins-wave4-multisig-correction/" />
+        The wave-4 set remains unconfirmed and is not adopted
+        by <a href="/record/funds/">the funds-accounting page</a>.
+        <CaptureThumb id="intangiblecoins-wave4-multisig-correction" />
+      </div>
+    </div>
+  </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="published-updates"
+    title="Published updates, side by side"
+    note="each subject's earlier and later published wording"
+  >
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>Changes in published incident scope
+          <Claim basis="verified" scope="The earlier and later published wordings compared in the table above" source="Held captures of the Coinkite Mk3 advisory at 01:56 and 07:30 UTC on 31 July 2026, both recovered from the Internet Archive, plus the captured backgrounder, the 13:43 UTC official Mk3 update, and this project's own captures of the advisory, downloads page and terms page on 1 August 2026, including the advisory states held at 14:02 and 18:44 UTC that bound the Mk2-coverage row" href="/record/sources/coinkite-mk3-advisory/" />
+        </caption>
+        <thead>
+          <tr><th scope="col" class="nw">Subject</th><th scope="col" class="wide">Earlier publication</th><th scope="col" class="wide">Later publication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw">Affected models</td>
+            <td class="wide">Coinkite's 30 July advisory said Mk4, Q and Mk5 were not affected based on early analysis.</td>
+            <td class="wide">The backgrounder's state held on 1 August included Mk4, Mk5 and Q in the affected scope. The page displays a 30 July publication date; the expanded scope's first appearance time is unresolved.</td>
+          </tr>
+          <tr>
+            <td class="nw">Mk2 coverage</td>
+            <td class="wide">Through the state captured at 14:02 UTC on 1 August, which is the first held after the 13:35 UTC update, the advisory named only one model: "The issue is present on Mk3 firmware versions 4.0.1 through 4.1.9 inclusive", with the fixed release given as "Mk3: version 4.2.0 or later".</td>
+            <td class="wide">The 14:35 EDT update of 1 August names both: "The issue is present on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive", with the fixed release given as "Mk2/Mk3: version 4.2.0 or later". The lower bound of 4.0.1 is unchanged.</td>
+          </tr>
+          <tr>
+            <td class="nw">Mk3 firmware</td>
+            <td class="wide">The 31 July advisory said Coinkite was exploring whether it could safely publish one final Mk3 release, contingent on validating a sufficiently safe upgrade path, and warned users not to wait for it.</td>
+            <td class="wide">Firmware 4.2.0 was published for Mk3 at 13:43 UTC on 31 July.</td>
+          </tr>
+          <tr>
+            <td class="nw">Who is at risk</td>
+            <td class="wide">Through the state held at 00:17 UTC on 1 August, the advisory said Coinkite was "warning all users who generated a seed using a Mk3 on version 4.0.1 (March 2021) thru 4.1.9 (inclusive) that their funds may be at risk".</td>
+            <td class="wide">The 09:35 EDT update of 1 August states that funds are at risk "if the seed was created without at least 50 fair, independent, private dice rolls and the funded wallet is not protected by a strong, unique BIP-39 passphrase". The blanket warning becomes two published conditions.</td>
+          </tr>
+          <tr>
+            <td class="nw">Passphrase guidance</td>
+            <td class="wide">The earlier text said a strong, unique BIP-39 passphrase "adds an independent barrier" and that "the risk depends on the strength of the passphrase", with short, common, patterned, quoted or reused passphrases not to be assumed low risk.</td>
+            <td class="wide">The same section now says the reduced seed entropy alone is not enough to reach funds in that wallet because "an attacker must also discover the passphrase", and separately that a strong passphrase "does not repair the affected seed", that passphrase users "should also migrate as soon as practical", and that an uncertain passphrase means treating the funds as at risk and migrating immediately.</td>
+          </tr>
+          <tr>
+            <td class="nw">Site-wide banner</td>
+            <td class="wide">The banner carried on the downloads and terms pages read "Seeds generated on firmware 4.0.1 or later may be at risk".</td>
+            <td class="wide">The same banner reads "Seeds generated on firmware 4.0.1 (2021 or later) are at risk".</td>
+          </tr>
+          <tr>
+            <td class="nw">Attributed transaction accounting</td>
+            <td class="wide">Early public figures described the 500-transaction, approximately 594.5 BTC set.</td>
+            <td class="wide">Galaxy later published a wider {fig("galaxyGrossBtc")} attribution including 695 additional transactions.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="unresolved"
+    title="Unresolved as of 3 August 2026"
+    note="eight questions the held record does not settle"
+  >
+
+  <ul class="node-list">
+    <li><strong>The reported Mk4-class sweep.</strong> Kevin Loaec of Wizardsardine <a href="/record/sources/kloaec-mk4-class-drain-report/">reported on 1 August</a> that Mk4, Mk5 and Q wallets were being actively drained, quoting a third-party account of a deliberately funded honeypot wallet swept overnight. Nothing held here settles which device model generated its seed.</li>
+    <li><strong>Backgrounder ordering.</strong> The page displays a 30 July publication date, but the first appearance of its expanded model scope relative to the 31 July 05:19 UTC hotfix commit remains unknown.</li>
+    <li><strong>The wider transaction attribution.</strong> Block's captured preliminary thread and the privacy-safe recheck support the 695-transaction counts and arithmetic, but no complete primary transaction list is published here and the arithmetic does not establish common control.</li>
+    <li><strong>Later clusters.</strong> In their states checked on 1 August, two community trackers included a separately reported 45.9 BTC cluster in wider headlines. Its relationship to the principal incident set remains an attributed lead rather than a verified extension of the total.</li>
+    <li><strong>Original discovery method.</strong> AI-assisted discovery remains an inference; AI-assisted post-disclosure reproduction is separately reported.</li>
+    <li><strong>Number of affected people and seeds.</strong> Addresses are not people, and no captured source supplies the total number of seeds generated on affected firmware.</li>
+    <li><strong>The claimed fourth wave.</strong> The pattern-matched wave-4 set circulated on 2 and 3 August was <a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrected twice by its own compiler</a>, who states there is no direct victim confirmation yet. Whether the surviving core belongs to the incident at all is not settled by anything held here.</li>
+    <li><strong>The reported passphrase-wallet loss.</strong> BTC Sessions' <a href="/record/sources/btcsessions-passphrase-loss-report/">2 August report</a> of a drained Mk3 with a two-word passphrase cites no transaction or address, so it can be neither corroborated nor refuted from the held record.</li>
+  </ul>
+
+  </Disclosure>
+
+  <Disclosure
+    id="how-to-check"
+    title="How to check this reconstruction"
+    note="what is held, and what is inherited"
+  >
+
+  <p>
+    Each source page shows what we hold: the excerpted text, the hashes and the
+    diffs between one check and the next. Social posts link to the original.
+    Anything recovered from the Internet Archive rather than captured here is
+    labelled as such, so an inherited copy is never presented as one this project
+    took at the time.
+  </p>
+
+  </Disclosure>
+
+  <p>
+    Predictable key generation has appeared before, in Debian OpenSSL, Android
+    SecureRandom, Randstorm, Milk Sad and Trust Wallet; the
+    <a href="/response/#precedent">precedent comparison</a> sets them beside their
+    differences stated, and the <a href="/response/ai/">AI evidence page</a>
+    separates Coinkite's inference about how the defect was found from the
+    separately reported post-disclosure reproductions. One limit belongs with
+    both: a successful reproducible-build comparison can show that a distributed
+    binary corresponds to specified source and build inputs, but not that the
+    source logic is correct.
+  </p>
+</Article>
+
+<style>
+  ul.node-list > li { margin-bottom: 1rem; }
+</style>

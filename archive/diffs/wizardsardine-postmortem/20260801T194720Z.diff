@@ -1,0 +1,47 @@
+--- wizardsardine-postmortem@20260801T171715Z
++++ wizardsardine-postmortem@20260801T194720Z
+@@ -225,7 +225,7 @@
+ What does this mean for these models? Coinkite’s post-mortem puts the effective search space at about 40 bits on the Mk3 and about 72 bits on the Mk4, Mk5 and Q, both figures explicitly preliminary. To put that in perspective, 40 bits is swept in a matter of hours on ordinary hardware, and 72 bits is out of reach of a hobbyist but not of a funded attacker, while the design target was 128.
+ Block’s engineering team reads the Mk4 case more harshly. Their analysis notes that the reseed does not accept the full digest, does not initialise a cryptographic DRBG, does not reseed MicroPython’s own fallback and does not reset the other Yasmarang state words. On their model, the secure-element contribution is capped at 2^32 possibilities, averaging roughly 2^31 trials.
+ The 72-bit figure assumes an attacker who knows neither the chip ID nor the boot timing. An attacker who can pin those down, which is far from absurd for a targeted victim, is left with the 32-bit reseed alone, and 2^32 is trivially enumerable. So the honest statement is that the Mk4, Mk5 and Q sit somewhere between “expensive” and “cheap” depending on what the attacker already knows about your device, and nowhere near 128 bits in either case.
+-Who exactly is affected
++Section 3: Who exactly is affected
+ Here is where things stand, by model and by version:
+ Model
+ Firmware
+@@ -263,7 +263,7 @@
+ The Mk1 is not affected, and cannot be. Its last compatible firmware is 3.0.6, from December 2019, and installing anything newer bricks the device. The regression only arrived 15 months later, in 4.0.0. A Mk1 is therefore stuck on a version that still read the hardware TRNG directly.
+ Version 4.0.0 was tagged on 17 March 2021 and already contains the regression, but it does not appear in the signed manifest, so it was never distributed. The first affected public release is therefore 4.0.1. The very first 5.0.0 tag from January 2022 did not yet contain the reseed, but it was never shipped either. The first Mk4 actually delivered, in March 2022, has always had it.
+ Do not read the Mk4, Mk5 and Q as three separate cases. They all share the same firmware for the core logic, seed generation included, so what is true of one is true of the others.
+-TAPSIGNER, OPENDIME and SATSCARD are not affected, because they run on entirely different codebases.
++For the TAPSIGNER, OPENDIME, and SATSCARD, Coinkite claims they are not affected, and it’s true that their architecture is completely different: they are not built on a MicroPython stack, whereas the bug specifically stems from a MicroPython compilation flag. However, since the code is proprietary, we cannot state with certainty that these devices are safe.
+ Critically, installing a firmware fix will NOT secure your existing mnemonic. It will make new mnemonic generated on the device after installing the fix, secure.
+ The special cases
+ The firmware version alone does not tell you where you stand. Five things change everything.
+@@ -276,7 +276,7 @@
+ As an average user, consider your passphrase not secure. Even if your funds aren’t stolen yet, low entropy passphrases will be broken quickly, at scale.
+ Finally, if your seed exists only as words on paper or steel, and you cannot say with certainty which device produced those words, you have to assume they could have come from an affected Coldcard. The same applies if you restored that backup onto some other wallet, of any brand. The device holding the seed today tells you nothing about where the number originally came from. This catches inherited seeds, wallets someone else set up for you, backups written years ago, and devices you have since sold or discarded, which you can no longer check.
+ There is no way to settle it after the fact. 24 words drawn from 256 bits of physical noise and 24 words drawn from a counter look exactly alike, and no test you can run on the phrase itself will tell them apart. So doubt is not a middle position here. A seed whose origin you cannot establish should be treated as affected, and migrated like the rest.
+-What to do now
++Section 4: What to do now
+ THIS SECTION DOES NOT APPLY TO LIANA USERS, and is more complex for other multisig users. Refer to the Section 1 above for information on how to deal with the situation as a Liana user.
+ Step 1: work out how urgent your case is
+ You need to act right now, not tomorrow, if your seed was generated on a Mk2 or a Mk3 running firmware later than 3.2.2 without at least 50 private dice rolls. The same goes for a multisig whose spending threshold can be met with those keys alone, and for a seed born on one of those devices and later moved elsewhere.
+@@ -302,7 +302,7 @@
+ If you have already been robbed
+ Coinkite has said they will work with affected users who want to file a police report, make an insurance claim or run their own investigation, and that they will provide a written incident summary specific to your loss along with whatever transaction data they can share. They have also said they are cooperating with on-chain investigators and with any law enforcement agency that opens a case.
+ Record everything on your side before it gets lost: the transaction IDs of the theft, the affected addresses, your device model and firmware version, and roughly when and how the seed was originally created.
+-Section 3: The knock-on consequences
++Section 5: The knock-on consequences
+ The flaw is not limited to the outright theft of your bitcoins.
+ What falls because the seed falls
+ Everything derived from your master seed inherits its compromise automatically.
+@@ -324,7 +324,7 @@
+ The point that deserves the most attention is a second-order effect, one that hits people who have never owned a Coldcard. In a coinjoin round or a payjoin, your anonymity depends on the number of participants who are indistinguishable from one another. If some of them become identifiable, your own anonymity set shrinks accordingly. And that shrinkage is retroactive: it applies to every mix performed since 2021, and there is nothing you can do about it today.
+ Coldcard does not natively support any coinjoin implementation, but many users send their funds from their Coldcard to coinjoin software and then bring them back, and in that case anonymity drops for everyone.
+ Two further effects are worth adding. Chain analysis firms gain a considerable set of addresses they can label once and for all. And your counterparties, the people who sent you funds or received funds from you, see part of their own transaction graph exposed by association.
+-Section 4: How to stop being exposed to this kind of flaw
++Section 6: How to stop being exposed to this kind of flaw
+ Once your funds are safe, the real question becomes: how do you avoid going through this again with another brand in the future? There are not that many options.
+ Add your own entropy
+ The first is to supply part of the randomness yourself, typically with dice rolls. That is exactly what saved some Mk3 users, and the mixing option the Coldcard offers remains, in principle, a good idea: if the device’s generator is broken, your entropy makes up for it, and if your dice are loaded or you make a mistake, the device’s generator makes up for that.

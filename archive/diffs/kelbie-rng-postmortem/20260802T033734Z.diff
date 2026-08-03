@@ -1,0 +1,53 @@
+--- kelbie-rng-postmortem@20260802T013259Z
++++ kelbie-rng-postmortem@20260802T033734Z
+@@ -1,9 +1,10 @@
+ # COLDCARD RNG — an ongoing postmortem
+-A postmortem of the COLDCARD (Coinkite) random-number-generator flaw: five years of predictable wallet
+-seeds, the 1,082 BTC swept across three waves on 30 July 2026, and the higher-entropy tiers still
+-exposed. Reconstructed
+-from primary sources — the Bitcoin blockchain, the vendor and Block advisories, and the original posts
+-as they were made.
++<!-- facts -->
++A postmortem of the COLDCARD (Coinkite) random-number-generator flaw: five years of predictable
++wallet seeds, the 1,367.07 BTC swept from 4,620 addresses across eight waves since 30 July 2026, and the
++higher-entropy tiers still exposed. Reconstructed from primary sources — the Bitcoin blockchain,
++the vendor and Block advisories, and the original posts as they were made.
++<!-- /facts -->
+ **This documents a live situation.** The 30 July waves took the cheapest-to-crack tier. The same
+ defect leaves ~72-bit Mk4/Q/Mk5 seeds reachable with more compute, Block has reported a second earlier
+ tranche of ~488 BTC it declined to attribute — traced here to two earlier waves that reconcile to the
+@@ -32,7 +33,11 @@
+ python3 -m analysis.fetch_blocks     # blocks/<height>.json.gz — ~1-2GB, resumable, reorg-aware
+ python3 -m analysis.index --rebuild  # address → transactions, as SQLite (~50s)
+ python3 -m analysis.chain            # → src/data/chain.json
++bun run facts                        # resync the marked prose blocks (README, meta description)
+ ```
++Commit the result — deploys ship whatever chain.json is in git. There is no scheduled refresh:
++CI cannot hold the block store, so freshness is a local ritual and the page discloses its own
++"last pulled" time instead.
+ ```bash
+ bun run media     # avatars + screenshots → src/data/media.json
+ bun run commits   # GitHub commit metadata → src/data/commits.json
+@@ -47,8 +52,9 @@
+ See **[analysis/README.md](analysis/README.md)** for the module map, the fingerprint primitives and
+ how to hunt a new operator's pattern.
+ ## Adding new evidence
+-`analysis/evidence.py` is the only hand-maintained data in the project. It holds evidence, not
+-conclusions — there is no list of attacker addresses anywhere. The addresses, waves, labels and
++`analysis/evidence.py` is the only hand-maintained *chain* input in the project (the curated
++narrative lives in `src/data/timeline.tsx`, and the exhibit sources in `src/data/*-sources.ts`).
++It holds evidence, not conclusions — there is no list of attacker addresses anywhere. The addresses, waves, labels and
+ justifications are all derived by walking the chain:
+ ```
+ victim report  →  the transaction they name  →  its destination is a collector
+@@ -161,7 +167,9 @@
+ blocks/                  local block store, gitignored, rebuildable
+ scripts/                 tweet / media / commit archivers — TypeScript, they talk to web APIs
+ src/data/schema.ts       types for the frozen dataset
+-src/data/chain.json      generated; the only source of numbers on the page
++src/data/chain.json      generated; the source of every chain figure on the page
++src/lib/facts.ts         phrases those figures for prose, the meta description and this README
++                         (`bun run facts` rewrites the marked blocks after a data refresh)
+ src/data/timeline.tsx    curated events, verbatim quotes, sourcing notes
+ src/components/          Social (X + Reddit chrome), SweepReplay, MoneyFlow, Attribution,
+                          Fingerprint, VictimLedger, RootCause, Forensics, Timeline

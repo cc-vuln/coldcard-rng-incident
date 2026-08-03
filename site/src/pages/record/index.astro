@@ -1,0 +1,382 @@
+---
+import Base from '../../layouts/Base.astro';
+import EvidenceCard from '../../components/EvidenceCard.astro';
+import RecordSearch from '../../components/RecordSearch.astro';
+import Contribute from '../../components/Contribute.astro';
+import {
+  sources, snapshots, stats, tsToHuman, tsToIso, isoToHuman, xPosts, groupOf,
+  lastPolled, revisions, displayTitle, kindLabel, xArtifacts, lastCaptureError,
+  summary, goneSources, withholdsCapturedMedia,
+} from '../../lib/archive';
+import { xMedia } from '../../lib/xmedia';
+
+// The strongest single argument for keeping captures: some of the originals no
+// longer exist. Shown at the top of the register rather than left as a status
+// row on one card nobody scrolls to.
+const vanished = goneSources();
+const s = stats();
+
+/*
+ * Summary freshness stamp. Every card below already carries its own "checked"
+ * time; this is the one-line rollup at the top. Like those times it is
+ * computed when the site is built, so the relative phrasing is anchored to an
+ * absolute timestamp and says so.
+ */
+const lastIso = s.lastCapture ? tsToIso(s.lastCapture) : null;
+const hoursAgo = lastIso
+  ? Math.max(0, Math.floor((Date.now() - Date.parse(lastIso)) / 3600000))
+  : null;
+const agoLabel = hoursAgo === null ? ''
+  : hoursAgo < 1 ? 'less than an hour ago'
+  : hoursAgo === 1 ? 'an hour ago'
+  : hoursAgo < 48 ? `${hoursAgo} hours ago`
+  : `${Math.floor(hoursAgo / 24)} days ago`;
+const freshness = s.lastCapture
+  ? `Last capture: ${agoLabel} (${tsToHuman(s.lastCapture)}, as of this build)`
+  : '';
+
+/*
+ * The capture wall strip: the most recently captured post screenshots, shown
+ * before the metadata register rather than after it. Gated the same way as
+ * every other renderer of staged media: the x-media manifest holds only
+ * OWN_HOST_FROM-staged captures, and a source that withholds captured media
+ * never appears. Unstaged and withheld posts render nothing here and keep
+ * their excerpt cards in the registered-posts section below.
+ */
+const WALL_MAX = 10;
+const wall = xPosts()
+  .filter((p) => !withholdsCapturedMedia(p))
+  .map((p) => ({ p, shot: xMedia(p.id)[0] ?? null }))
+  .filter((w) => w.shot !== null)
+  .map(({ p, shot }) => ({
+    href: `/record/sources/${p.id}/`,
+    title: displayTitle(p),
+    by: `@${p.author}`,
+    when: p.posted ? isoToHuman(p.posted) : 'posting time not established',
+    src: shot!.src,
+    // The staged file is named for its capture timestamp, so "most recent"
+    // means most recently captured, not most recently posted.
+    capturedTs: shot!.name.replace(/\.[^.]+$/, ''),
+  }))
+  .sort((a, b) => b.capturedTs.localeCompare(a.capturedTs))
+  .slice(0, WALL_MAX);
+
+/*
+ * Grouped by what a source is, not by how often it is polled.
+ *
+ * These used to be polling tiers under content headings, which put a victim's
+ * Reddit thread under "Vendor advisories" and Block's technical disclosure
+ * under "Reporting and analysis" next to a news aggregator. Polling metadata is
+ * not a taxonomy of what a source is.
+ */
+const GROUPS = [
+  ['vendor', 'Organisational statements and documentation',
+   'First-party advisories, documentation, terms and service records from organisations responsible for the product or service discussed.'],
+  ['legal', 'Legislation',
+   'Official government statute pages used for legal context. Inclusion identifies the text checked and does not determine how it applies to a particular claim.'],
+  ['public-record', 'Public vulnerability records',
+   'Government-maintained vulnerability records used to identify published technical details and affected-version ranges.'],
+  ['research', 'Primary technical research',
+   'Original analysis by people who read the code or the chain themselves, rather than reporting on somebody who did. Credited individually on the analysis page.'],
+  ['analysis', 'Secondary analysis',
+   'Technical interpretation and guidance built from primary disclosures or other researchers. Useful, but one step removed from the original finding.'],
+  ['repo', 'Repository files and pull requests',
+   'Release notes, source files and the upstream fixes proposed after disclosure. Mostly append-only sources preserved for source-level context.'],
+  ['reporting', 'Reporting',
+   'Coverage that relays and interprets the primary sources above. Useful, and one step removed from the finding.'],
+  ['monitor', 'Chain monitors',
+   'Community-run trackers that let anyone check an address against the known affected set. Live services rather than documents, so they have no publication date.'],
+  ['firsthand', 'First-hand accounts',
+   'People describing what happened to them. Not evidence of mechanism, and the only material here written by someone who lost money.'],
+];
+const grouped = GROUPS
+  .map(([key, title, blurb]) => ({
+    key, title, blurb,
+    items: sources().filter((x) => groupOf(x) === key).map((src) => {
+      const snaps = snapshots(src.id);
+      const checked = lastPolled(src.id);
+      const changed = revisions().find((r) =>
+        r.sourceId === src.id && r.review.status === 'source-content'
+      );
+      const revCount = revisions().filter((r) =>
+        r.sourceId === src.id && r.review.status === 'source-content'
+      ).length;
+      return {
+        ...src,
+        title: displayTitle(src),
+        role: kindLabel(src.kind),
+        group: groupOf(src),
+        snapCount: snaps.length,
+        revCount,
+        excerpt: summary((src.note ?? '').trim().split('\n').join(' ')),
+        search: (src.note ?? '').trim().split('\n').join(' '),
+        blocked: Boolean(lastCaptureError(src.id)),
+        gone: Boolean(src.gone),
+        captures: `${snaps.length} snapshot${snaps.length === 1 ? '' : 's'}`,
+        lastChecked: checked ? `checked ${tsToHuman(checked)}` : 'not yet checked',
+        lastChanged: changed ? `source change ${tsToHuman(changed.windowEnd)}` : 'no reviewed source change',
+      };
+    }),
+  }))
+  .filter((g) => g.items.length > 0);
+
+const posts = xPosts().map((post) => {
+  const artifacts = xArtifacts(post);
+  return {
+    ...post,
+    title: displayTitle(post),
+    group: 'x',
+    excerpt: summary(post.why),
+    search: post.why ?? '',
+    byLine: `@${post.author}${post.org ? ` \u00b7 ${post.org}` : ''}`,
+    postedLabel: post.posted ? isoToHuman(post.posted) : 'posting time not established',
+    captureLabel: artifacts.length
+      ? `${artifacts.length} capture artefact${artifacts.length === 1 ? '' : 's'} held`
+      : 'registered, capture not yet held',
+    captured: artifacts.length > 0,
+  };
+});
+const capturedPosts = posts.filter((p) => p.captured).length;
+
+const FACETS = [
+  { value: 'vendor', label: 'Vendor' },
+  { value: 'x', label: 'X posts' },
+  { value: 'research', label: 'Research' },
+  { value: 'analysis', label: 'Analysis' },
+  { value: 'reporting', label: 'Reporting' },
+  { value: 'repo', label: 'Repos' },
+  { value: 'monitor', label: 'Monitors' },
+  { value: 'firsthand', label: 'First-hand' },
+];
+---
+<Base title="Evidence" description="Tracked sources, held captures and reviewed source revisions." kicker="Evidence">
+  <div class="wrap">
+    <h1 class="rec__h1">Evidence</h1>
+    <p class="rec__lede">
+      What each party said, when relevant source content changed, and what the
+      archive classified as collection-only differences. {s.snapshots} snapshots
+      across {s.sources} registered web sources preserve {s.sourceChanges}
+      reviewed source-content changes.
+      Substantive claims elsewhere on the site link to these evidence records.
+      This section preserves what was said and how it changed. It does not
+      judge who is right: how the parties responded lives under
+      <a href="/response/">The aftermath</a>.
+    </p>
+
+    <div class="rec__stats">
+      <div><strong>{s.sources}</strong><span>sources tracked</span></div>
+      <div><strong>{s.snapshots}</strong><span>snapshots held</span></div>
+      <div><strong>{s.sourceChanges}</strong><span>source changes</span></div>
+      <div><strong>{capturedPosts}/{s.xPosts}</strong><span>posts captured</span></div>
+    </div>
+
+    <p class="rec__fresh" hidden={!freshness}>{freshness}</p>
+
+    <section class="wall" aria-labelledby="wall-h" hidden={wall.length === 0}>
+      <div class="wall__head">
+        <h2 id="wall-h">Latest captured posts</h2>
+        <div class="wall__nav">
+          <a href="#registered-posts">See all captured posts &darr;</a>
+          <a href="/record/feed/">Chronological feed &rarr;</a>
+        </div>
+      </div>
+      <div class="wall__strip">
+        {wall.map((w) => (
+          <a class="wall__card" href={w.href}>
+            <span class="wall__shot">
+              <img src={w.src} alt={`Captured screenshot: ${w.title}`} loading="lazy" />
+            </span>
+            <span class="wall__title">{w.title}</span>
+            <span class="wall__by">{w.by} &middot; {w.when}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <p class="rec__review">
+      The archive also preserves {s.collectionDifferences} collection
+      difference{s.collectionDifferences === 1 ? '' : 's'} caused by capture-method
+      corrections or dynamic page chrome. {s.unreviewed} detected
+      difference{s.unreviewed === 1 ? '' : 's'} currently {s.unreviewed === 1 ? 'awaits' : 'await'} review.
+    </p>
+
+    <div class="rec__links">
+      <a href="/record/changes/">Reviewed source changes &rarr;</a>
+      <a href="/record/funds/">Theft accounting: what moved and where it went &rarr;</a>
+      <a href="/record/timeline/">Incident timeline, and what was known when &rarr;</a>
+      <a href="/record/firmware/">Firmware timeline: which builds are affected &rarr;</a>
+      <a href="/record/analysis/">Primary-analysis register &rarr;</a>
+      <a href="/record/sources.json">Source register as JSON &rarr;</a>
+      <a href="/record/changes.json">Change feed as JSON &rarr;</a>
+    </div>
+
+    {vanished.length > 0 && (
+      <p class="vanished" aria-label="Sources gone from the web">
+        <span class="vanished__tag">Gone from the web</span>
+        {vanished.length === 1
+          ? 'One registered source no longer resolves; the capture held here is, as far as we can establish, the only remaining public copy: '
+          : `${vanished.length} registered sources no longer resolve; the captures held here are, as far as we can establish, the only remaining public copies: `}
+        {vanished.map((s) => (
+          <a href={`/record/sources/${s.id}/`}>{displayTitle(s)}</a>
+        ))}
+      </p>
+    )}
+
+    <div class="rec__viewswitch">
+      <span class="rec__viewcur">Register</span>
+      <a href="/record/feed/">Chronological feed &rarr;</a>
+    </div>
+
+    <RecordSearch
+      target=".ec"
+      section=".rec__tier"
+      placeholder="Search sources, authors, orgs"
+      facets={FACETS}
+    />
+
+    {grouped.map((g) => (
+      <section class="rec__tier">
+        <h2>{g.title}</h2>
+        <p class="rec__tiersub">{g.blurb}</p>
+        <div class="rec__grid">
+          {g.items.map((src) => (
+            <EvidenceCard
+              href={`/record/sources/${src.id}/`}
+              title={src.title}
+              kind={src.role}
+              group={src.group}
+              id={src.id}
+              by={src.org ?? ''}
+              when={src.lastChecked}
+              excerpt={src.excerpt}
+              search={src.search}
+              captures={src.snapCount}
+              changes={src.revCount}
+              blocked={src.blocked}
+              gone={src.gone}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="rec__tier" id="registered-posts">
+      <h2>Registered posts</h2>
+      <p class="rec__tiersub">
+        Social posts that shaped the research or response. Each has a local
+        evidence record showing whether a text or image capture is actually held.
+      </p>
+      <div class="rec__grid">
+        {posts.map((p) => (
+          <EvidenceCard
+            href={`/record/sources/${p.id}/`}
+            title={p.title}
+            kind="x post"
+            group="x"
+            id={p.id}
+            by={p.byLine}
+            when={p.postedLabel}
+            excerpt={p.excerpt}
+            search={p.search}
+            captures={p.captured ? 1 : 0}
+          />
+        ))}
+      </div>
+    </section>
+
+    <Contribute context="Every source here was registered because somebody pointed at it, and the register is still missing things." />
+  </div>
+</Base>
+<style>
+  .rec__h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(2rem,5vw,3rem); }
+  .rec__lede { color: var(--ink-2); max-width: 64ch; margin-top: .7rem; }
+  .rec__stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 1rem; margin-top: 2rem; }
+  .rec__stats div { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.1rem; }
+  .rec__stats strong { display: block; font-family: var(--font-mono); font-size: 1.7rem; font-weight: 600; }
+  .rec__stats span { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+  .rec__review { color: var(--ink-3); font-size: .82rem; max-width: 72ch; margin-top: .8rem; }
+  .rec__fresh {
+    font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); margin-top: .7rem;
+  }
+
+  /* The capture wall strip: one scrollable row of small screenshot cards, so
+     it stays compact whatever the count and needs no script. */
+  .wall { margin-top: 1.5rem; }
+  .wall__head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: .6rem 1.4rem; flex-wrap: wrap;
+  }
+  .wall__head h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; margin: 0; }
+  .wall__nav { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; }
+  .wall__nav a { font-size: .84rem; color: var(--accent); text-decoration: none; }
+  .wall__strip {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 168px;
+    gap: .7rem; margin-top: .8rem; padding-bottom: .4rem;
+    overflow-x: auto; scroll-snap-type: x proximity;
+  }
+  .wall__card {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden;
+    text-decoration: none; scroll-snap-align: start;
+    transition: border-color .15s;
+  }
+  .wall__card:hover { border-color: var(--accent); }
+  .wall__shot {
+    display: block; height: 108px; overflow: hidden;
+    background: var(--surface-2); border-bottom: 1px solid var(--rule);
+  }
+  .wall__shot img { display: block; width: 100%; height: auto; }
+  .wall__title {
+    font-size: .74rem; font-weight: 600; color: var(--ink); line-height: 1.35;
+    padding: .5rem .6rem .1rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wall__by {
+    font-family: var(--font-mono); font-size: .58rem; color: var(--ink-3);
+    letter-spacing: .05em; padding: .2rem .6rem .55rem; margin-top: auto;
+  }
+  /* Compressed 3 Aug 2026: this led the page as a full accent card, which
+     overweighted an edge state. The gone badge on the source card and the
+     note on the source page carry the detail; this line only keeps the
+     state discoverable at the top. */
+  .vanished {
+    margin-top: 1.2rem;
+    font-size: .88rem;
+    color: var(--ink-3);
+    line-height: 1.55;
+    max-width: 76ch;
+  }
+  .vanished__tag {
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--accent);
+    margin-right: .55rem;
+  }
+  .vanished a { color: var(--ink); }
+  .vanished a:hover { text-decoration: underline; }
+  .vanished a + a::before { content: ", "; color: var(--ink-3); }
+
+  .rec__links { margin-top: 1.4rem; display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; }
+  .rec__links a { font-size: .9rem; color: var(--accent); text-decoration: none; }
+  .rec__tier { margin-top: 3rem; }
+  .rec__tier h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; }
+  .rec__tiersub { color: var(--ink-3); font-size: .87rem; margin-top: .3rem; max-width: 66ch; }
+  @media (max-width: 720px) { .rec__list a, .rec__list--posts a { grid-template-columns: 1fr; gap: .2rem; } }
+
+  .rec__grid {
+    display: grid; gap: 1rem; margin-top: 1.1rem;
+    grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  }
+  .rec__viewswitch {
+    display: flex; gap: .8rem; align-items: baseline; flex-wrap: wrap;
+    margin-top: 1.4rem;
+    font-family: var(--font-mono); font-size: .66rem;
+    letter-spacing: .07em; text-transform: uppercase;
+  }
+  .rec__viewcur {
+    padding: .25rem .6rem; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); font-weight: 600;
+  }
+</style>

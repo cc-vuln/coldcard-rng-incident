@@ -1,0 +1,167 @@
+---
+/**
+ * Epistemic claim marker.
+ *
+ * The spine of this site's impartiality: every substantive block declares how
+ * we know it, so a reader can weigh a vendor statement differently from a
+ * code reading differently from an inference. We report and attribute; we do
+ * not adjudicate between parties.
+ *
+ * Evidence basis and dispute state are separate. A claim may be reported and
+ * contested at the same time, for example. `scope` states exactly what the
+ * marker grades so the reference never floats ambiguously below a large
+ * section.
+ *
+ * Presentation, changed 2 Aug 2026: these were full-width cards, and on pages
+ * carrying several of them they took a seventh of the page and stacked three
+ * deep before the reader reached any content. The information is unchanged;
+ * it now renders as a small reference at the end of the claim it grades, and
+ * the whole set is listed in an `EvidenceRegister` at the foot of the page.
+ * Hovering a reference clones its entry out of that register into a panel;
+ * the panel is not server-rendered, because doing so published every scope
+ * and source twice on the same page. Without JavaScript the reference is an
+ * ordinary link to that list, which is the behaviour that matters: the
+ * evidence must always be reachable.
+ *
+ * A page carrying markers must therefore also render an `EvidenceRegister`,
+ * or the references have nowhere to point.
+ */
+interface Props {
+  basis: 'verified' | 'reported' | 'derived' | 'unverified';
+  /** Plain-language statement of the exact claim, table or figure being graded. */
+  scope: string;
+  /** Relevant sources disagree about the underlying claim. */
+  contested?: boolean;
+  /** Who or what backs it: "Coinkite advisory", "libngu ngu/random.c:28" */
+  source: string;
+  /** Link to the evidence: snapshot page, repo, original post */
+  href?: string;
+  /** Capture timestamp, when anchored to an archived snapshot */
+  captured?: string;
+  /** Retained for compatibility; the reference has one size now. */
+  compact?: boolean;
+}
+
+const { basis, scope, contested = false, source, href, captured } = Astro.props;
+
+// What each basis means is defined once, on /about/#claim-statuses. It used to
+// be restated in every marker's panel, which shipped the same four sentences
+// up to twelve times on a single page.
+const CONFIG = {
+  verified:   { label: 'Verified',   short: 'V', role: 'safe' },
+  reported:   { label: 'Reported',   short: 'R', role: 'info' },
+  derived:    { label: 'Derived',    short: 'D', role: 'accent' },
+  unverified: { label: 'Unverified', short: 'U', role: 'neutral' },
+} as const;
+
+const c = CONFIG[basis];
+
+/*
+ * Numbering is per page and assigned in document order. Astro renders a page's
+ * components in order, so a module-scoped counter keyed by pathname gives the
+ * same sequence the reader sees, and the register below can be rendered from
+ * the same store without the page having to thread numbers through by hand.
+ */
+const path = Astro.url.pathname;
+const store = (globalThis as any).__claimStore ??= new Map<string, any[]>();
+const list = store.get(path) ?? [];
+if (!store.has(path)) store.set(path, list);
+const n = list.length + 1;
+const id = `ev-${n}`;
+list.push({ n, id, basis, label: c.label, short: c.short, role: c.role, scope, source, href, captured, contested });
+
+const aria = `Evidence ${c.label}${contested ? ', contested' : ''}, applies to: ${scope}. Source: ${source}`;
+const sourceRel = href?.startsWith('http') ? 'noopener nofollow' : undefined;
+---
+
+<span class="ev">
+  <a
+    class:list={['ev__ref', `ev__ref--${c.role}`, { 'ev__ref--contested': contested }]}
+    href={`#${id}`}
+    aria-label={aria}
+    data-ev={id}
+  >{c.short}{n}</a>
+  <span class="ev__panel" role="note" aria-hidden="true" data-ev-panel={id}></span>
+</span>
+
+<script>
+  /*
+   * The panel is filled on first hover or focus by cloning this reference's
+   * own entry out of the register at the foot of the page. It used to be
+   * server-rendered, which published every scope and source string twice on
+   * the same page: 10,583 duplicated words across the site. Nothing is lost
+   * by moving it here. Without JavaScript, or on touch, the reference is an
+   * ordinary link to that same entry, which is the behaviour that matters.
+   */
+  const fillPanel = (marker: Element) => {
+    const panel = marker.querySelector<HTMLElement>('.ev__panel');
+    if (!panel || panel.dataset.filled) return;
+    panel.dataset.filled = '1';
+    const entry = document.getElementById(panel.dataset.evPanel ?? '');
+    const body = entry?.querySelector('.evreg__body');
+    if (body) panel.replaceChildren(...Array.from(body.cloneNode(true).childNodes));
+  };
+
+  document.querySelectorAll('.ev').forEach((marker) => {
+    marker.addEventListener('mouseenter', () => fillPanel(marker));
+    marker.addEventListener('focusin', () => fillPanel(marker));
+  });
+</script>
+
+<style>
+  .ev { position: relative; display: inline; white-space: nowrap; }
+  .ev__ref {
+    --role: var(--info);
+    --role-soft: var(--info-soft);
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: .58rem; font-weight: 700; letter-spacing: .04em;
+    line-height: 1;
+    vertical-align: super;
+    padding: .18rem .3rem;
+    margin-left: .12rem;
+    border-radius: 3px;
+    background: var(--role-soft);
+    color: var(--role);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .ev__ref--safe    { --role: var(--safe);   --role-soft: var(--safe-soft); }
+  .ev__ref--info    { --role: var(--info);   --role-soft: var(--info-soft); }
+  .ev__ref--accent  { --role: var(--accent); --role-soft: var(--accent-soft); }
+  .ev__ref--neutral { --role: var(--ink-3);  --role-soft: var(--surface-2); }
+  .ev__ref--contested::after {
+    content: '!';
+    margin-left: .12rem;
+    color: var(--warn);
+  }
+  .ev__ref:hover, .ev__ref:focus-visible {
+    outline: 2px solid var(--role);
+    outline-offset: 1px;
+  }
+
+  .ev__panel {
+    position: absolute;
+    left: 0; top: 1.7em;
+    z-index: 20;
+    display: none;
+    width: min(22rem, 78vw);
+    white-space: normal;
+    background: var(--surface);
+    border: 1px solid var(--rule-2);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm, 0 6px 22px rgba(0,0,0,.14));
+    padding: .6rem .75rem;
+    font-size: .78rem; line-height: 1.5;
+    color: var(--ink-2);
+  }
+  /* Hover is a convenience; the link to the register is the real affordance,
+     so touch users lose nothing when the panel never opens. Empty until it is
+     filled from the register, and an empty panel must never render. */
+  .ev:hover .ev__panel:not(:empty),
+  .ev:focus-within .ev__panel:not(:empty) { display: block; }
+
+  @media (max-width: 640px) {
+    .ev__panel { left: auto; right: 0; }
+  }
+</style>

@@ -1,0 +1,110 @@
+SubscribeSign in
+OpEd
+When random.bytes() runs but doesn't work
+What a commit message tells us about the recent COLDCARD bug
+Dusty Daemon
+Aug 01, 2026
+8
+1
+1
+Share
+This is a guest post from noted Core-Lightning developer, ddustin, who dug into the Coldcard firmware commit history to uncover what happened and why the code failed.
+Intro
+I began investigating the Coldcard hack and was immediately shocked. I need to explain why.
+When we developers work on code, we organize or code changes into changesets we call “commits.” The purpose of doing so is to show a clear history of what code was changed including why and how.
+This is done precisely for instances like this where it appears Bitcoiner’s funds are being stolen en masse, so we can investigate and understand exactly how it could happen.
+Good developers write clear commit messages, written notes that go along with the code changes that explain what the specific change is accomplishing.
+To make a clear commit message, you typically want to the commit to represent a smaller change of code, so there’s less to comment on.
+A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
+Here is an example chosen randomly from some of my own work.
+The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235/15 = ~16.
+In the cold card, the commit that introduced the low entropy bug is here.
+The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003
+This is an atrociously bad comment to code change ratio.
+There are some rare instances where a low comment ratio is justifiable -- but changing the most important part of the code is not one of those cases!
+Code that touches functions critical to the security of the project need to have a higher ratio of comments to changes and more stringent review.
+The second commit contributing to the weak entropy issue on Coldcards is here.
+The commit message is 1 character: simply the character “x.” The commit changes ~1000 lines of code making the ratio 1/1000 = ~0.001
+The Issue
+In the commit titled “runs” (ratio: ~0.003), it appears they are importing and configuring C code to make custom micropython code work on the STM32, the board that all Coldcards run on.
+STM32 is the most common CPU for small devices like this, and configurations like what this commit introduces are common.
+In the ‘runs’ commit, the hardware RNG (Random Number Generation) was disabled with the following line of code.
+#define MICROPY_HW_ENABLE_RNG (0)
+This is what caused the bug. Setting this value to zero tells the default micropython rng code to not use the hardware RNG device and that it should use the Yasmarang RNG instead.
+The developer added an inline comment “explaining” this change
+// We have our own version of this code.
+The COLDCARD version of this code appears to be in reference to the functions added in rng.h and rng.c
+rng.h
+MP_DECLARE_CONST_FUN_OBJ_0(pyb_rng_get_obj);
+MP_DECLARE_CONST_FUN_OBJ_1(pyb_rng_get_bytes_obj);
+These appear to be an attempt to override the stm32 rng library’s `pyb_rng_getobj` function. This approach ran into trouble. The stm32 rng.c file already defines the pyb_rng_et_obj variable and sets the value to `pyb_mg_get`. You can’t have two definitions of the same variable and have it compile.
+rng.c
+MP_DEFINE_CONST_FUN_OBJ_0(pyb_rng_get_obj, pyb_rng_get);
+Expanding the macro and thinking of it logically is just this pseudocode:
+var pyb_rng_get_obj = pyb_rng_get
+Commit `37e4af5` adds a custom rng.c file, where he copy pasted the same macro definition
+MP_DEFINE_CONST_FUN_OBJ_0(pyb_rng_get_obj, pyb_rng_get);
+There is now no way for this code to compile. It appears that the developer is naively trying to override the `pyb_rng_get_obj` variable by creating a duplicate version of the variable. C does not work this way. This error would have given him a compiler error of “duplicate symbol pyb_rng_get_obj, because there are now two places where it is defined: the stm32 library, and in the newly added rng.c file.
+From here, I assume in a bout of frustration, he set `MICROPY_HW_ENABLE_RNG` to 0, which would have resolved the compiler error.
+Sometimes when developers are flailing, they’ll try random things to see if it helps. Setting `MICROPY_HW_ENABLE_RNG to 0 would have made the compiler error go away ***for the wrong reason***.
+This swept the compiler error of having two conflicting definitions under the rug.
+// We have our own version of this code.
+#define MICROPY_HW_ENABLE_RNG (0)
+Setting MICROPY_HW_ENABLE_RNG to zero completely removed the code that used the hardware random number generator, or lines 31 to 80 in the stm32 rng.c file. This had the side effect of removing the second definition of pyb_rng_get_obj, which “fixed” the compiler error.
+The compiler error was begging the programmer to reconsider his logic. Instead of that happening, the compiler error was just silenced. The compiler was giving the developer one last chance to reconsider what he was about to do, but the alarm was ignored and silenced.
+Now everything is lining up. It looks like the developer tried to override the variable, but ran into conflicting definitions. When confronted with a “duplicate symbol” error, tried changing random things to get the code to run.
+He discovered that changing `MICROPY_HW_ENABLE_RNG` to 0 made it compile. He probably had no idea why but came up with a theory. We don’t need that anymore because we have our own version of the code.
+His definitions of the pyb_rng_get were in place, and the code he was intending not to run had been turned off.
+Confusing Call Chains
+Coldcard’s firmware is written in C. The application layer, that tells the hardware what to do is written in Python. The Python code calls into the C code. The developer overwrote the pyb_rng_get functions.
+Unfortunately for many, the pyb_rng_get functions that his code overwrote weren’t what is actually called from the python code. The Python code in v4.0.0 of the Coldcard calls random.bytes() in their make_new_wallet() function.
+async def make_new_wallet():
+await ux_dramatic_pause(’Generating...’, 4)
+seed = random.bytes(32) # OOPS
+assert len(set(seed)) > 4
+seed = ngu.hash.sha256s(seed)
+await approve_word_list(seed)
+Setting `MICROPY_HW_ENABLE_RNG` to 0 turned off the stm32 library provided hardware code, but allowed the developer to set `pyb_rng_get_obj`. Problem is, pyb_rng_get_obj is the Python-visible pyb.rng() callable.
+That’s not what the developer is invoking here in the wallet function. Instead, they’re using `random.bytes(32)` which skips the pyb_rng_get callpath entirely and instead calls `rng_get`, which due to the `MICROPY_HW_ENABLE_RNG` being set to zero used the micropython stm32 rng.c definition at L112, which called the insecure Yasmarang, non hardware wallet entropy.
+uint32_t rng_get(void) {
+return pyb_rng_yasmarang();
+}
+Simply put: the firmware change overwrites functions that aren’t used when creating a new wallet while, as a side effect of including the python method overrides, turns off the hardware RNG usage in every case, instead using a very weak random number generator.
+The final bit of evidence is the commit message itself. It was simply the message “runs.”
+Developers, if you are ever in this scenario, please stop. Whatever you’re getting paid is not worth the devastation you might potentially cause for others.
+Do not ship code you do not understand.
+A curse on micropython
+At the core this appears to be a consequence of too many layers of complexity. There’s the micropython library, the bindings between the C code and the Python application, and the new functions that COLDCARD is adding. Was the developer that made this patch actually a python developer who was forced to write and handle C?
+Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.
+That is a lie.
+And this catastrophe is the result of believing that lie.
+You must understand the code you are shipping. Full stop. There are no excuses. Layers of misdirection make it harder to understand.
+If you make changes, make sure that you verify that they are doing what you intend them to do.
+The commit messages here tell the real story. Treating the most critical part of your code with the lack of diligence and understanding shown here is inexcusable.
+You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.
+When people’s lives are ruined, they won’t and shouldn’t give you sympathy. You need to appreciate the funds you are putting at risk. Your task as a bitcoin developer is of the highest importance. I have made mistakes myself in the past, but there are no excuses for a failure to understand what you are shipping when the code is this critical.
+I hope that we, as an industry, can learn from this and lean on each other to ship secure code, as a community of developers.
+Thanks for reading bitcoin++'s Insider Edition! Click below to share this post with your GC
+Share
+8
+1
+1
+Share
+A guest post by
+Dusty Daemon
+Bitcoin Lightning Developer
+Subscribe to Dusty
+Discussion about this post
+CommentsRestacks
+Frank Corva
+34m
+Great piece. Thank you, Rusty and Nifty.
+Reply
+Share
+TopLatestDiscussions
+No posts
+Ready for more?
+Subscribe
+© 2026 btcplusplus LLC · Privacy ∙ Terms ∙ Collection notice
+Start your SubstackGet the app
+Substack is the home for great culture

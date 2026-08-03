@@ -1,0 +1,98 @@
+--- coldcard-hack-tracker@20260801T150528Z
++++ coldcard-hack-tracker@20260801T153639Z
+@@ -2,7 +2,7 @@
+ 
+ Coldcard Hack Tracker
+ 
+-July 2026 seed-entropy sweeps · 1,129.06986038 BTC tracked across 3 clusters
++Seed-entropy sweeps since July 2026
+ 
+ Alerts
+ Off
+@@ -14,11 +14,11 @@
+ 
+ 100%
+ 
+-of 1,128.98210412 BTC consolidated
++of 1,129.31416148 BTC consolidated
+ 
+ BALANCE ON WATCH
+ 
+-1,128.98212912 BTC
++1,129.31416148 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+@@ -37,7 +37,7 @@
+ 
+ Watched holdings
+ 
+-About 1,129.06986038 BTC drained across tracked clusters, of which 1,128.98210412 BTC reached these vaults (gap is mostly fees). Clusters may be different operators — attribution is fingerprint / community report.
++About 1,129.40281361 BTC drained across tracked clusters, of which 1,129.31416148 BTC reached these vaults (gap is mostly fees). Clusters may be different operators — attribution is fingerprint / community report.
+ 
+ GALAXY FINGERPRINT · JULY 30
+ Source
+@@ -45,8 +45,7 @@
+ Block/Galaxy on-chain fingerprint; four consolidation holdings.
+ 
+ SCOPE
+-1,082.65 BTC / 1,196 addresses
+-Early reports ~594.48 BTC / ~500 wallets
++1,082.65 BTC · 1,196 addresses
+ WINDOW
+ July 30, 2026
+ 01:10:20 – 01:51:26 UTC
+@@ -63,12 +62,12 @@
+ Holding 1
+ 	bc1qq85v2c…3fcu9r	562.02021083 BTC
+ <live-fiat-value>
+-	562.02020083 BTC	11	HELD
++	562.02021083 BTC	11	HELD
+ 
+ Holding 2
+ 	bc1qx76cae…htfhe3	398.47575357 BTC
+ <live-fiat-value>
+-	398.47573857 BTC	2	HELD
++	398.47575357 BTC	2	HELD
+ 
+ Holding 3
+ 	bc1q8jy96f…kwtp3q	89.6232789 BTC
+@@ -104,6 +103,18 @@
+ 	bc1q7rmsw0…lrrcgf	0.50980268 BTC
+ <live-fiat-value>
+ 	0.50980268 BTC	1	HELD
++MORNING WAVE · AUG 1
++Source
++
++Blocks 960518–960523. Direct victim sweeps (~15–50 sat/vB) into one vault. Includes a reported Mk4 RNG / duress-wallet honey pot (device model not visible on-chain).
++
++LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
++
++Aug 1 vault
++0.33203236 BTC from 16 victim sweeps; still unspent
++	bc1qzm5pau…v34mf3	0.33203236 BTC
++<live-fiat-value>
++	0.33203236 BTC	16	HELD
+ Movement feed
+ 
+ Outbound spends from watched holdings, then followed destinations (up to hop 2). Empty means funds have not left consolidation.
+@@ -126,6 +137,8 @@
+ Q	Before Aug 1 patch (~72-bit)	1.5.0Q+
+ Edge (Mk4 / Mk5)	Before Aug 1 patch	6.6.0X+
+ Edge (Q)	Before Aug 1 patch	6.6.0QX+
++MK4 IS IN SCOPE NOW
++Early drains fit Mk3’s ~40-bit search space. Community reports now include Mk4 RNG seeds being swept — device model is not visible on-chain, so treat vulnerable Mk4 / Mk5 / Q seeds with the same urgency.
+ FIRMWARE UPDATE IS NOT ENOUGH
+ Patching does not repair an existing seed. Generate a new seed on fixed firmware and migrate funds carefully.
+ BEYOND THE MAIN SEED
+@@ -147,6 +160,10 @@
+ 
+ Evening July 31 low-fee (~2 sat/vB) sweeps consolidated into a separate ~0.51 BTC vault.
+ 
++Tomer Strolight
++
++Aug 1 morning wave: reported Mk4 RNG / duress-wallet honey pot swept into a ~0.33 BTC vault (blocks 960518–960523).
++
+ Coinkite advisory
+ 
+ Official guidance (updated Aug 1): who is exposed, fixed firmware versions, and migration steps.

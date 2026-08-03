@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "purpose": "Privacy-preserving aggregate of the first three attributed waves",
+  "source_repository": "Kelbie/coldcard-rng-postmortem",
+  "source_commit": "47d8f5543812c8244fa95ed90db957ddcc05200c",
+  "source_path": "src/data/chain.json",
+  "source_generated_at": "2026-08-01T05:18:49.607Z",
+  "source_sha256": "82d5f9428085c7dc069f6201abd679aae8180d2d45151d6ab0e951ccbd627bbc",
+  "selection": {
+    "waves": [1, 2, 3],
+    "first_block": 960183,
+    "last_block": 960191,
+    "first_sweep_unix": 1785373820,
+    "last_sweep_unix": 1785376286
+  },
+  "summary": {
+    "source_address_count": 1195,
+    "gross_sats": 108265318922,
+    "minimum_sats": 4500,
+    "maximum_sats": 5107343852,
+    "greater_than_1_btc": 201,
+    "exactly_1_btc": 30,
+    "at_least_1_btc": 231,
+    "at_least_10_btc": 17,
+    "below_0_01_btc": 68
+  },
+  "quantiles": {
+    "method": "R-7 linear interpolation on source-address valueSats sorted ascending",
+    "p10_sats": "3199969.6",
+    "p25_sats": "15000000",
+    "p50_sats": "27001931",
+    "p75_sats": "62463189.5",
+    "p90_sats": "177157250",
+    "p95_sats": "331385507.7",
+    "p99_sats": "1000319930.26"
+  },
+  "histogram": [
+    {"lower_sats": 0, "upper_sats_exclusive": 1000000, "count": 68},
+    {"lower_sats": 1000000, "upper_sats_exclusive": 10000000, "count": 89},
+    {"lower_sats": 10000000, "upper_sats_exclusive": 25000000, "count": 405},
+    {"lower_sats": 25000000, "upper_sats_exclusive": 50000000, "count": 242},
+    {"lower_sats": 50000000, "upper_sats_exclusive": 100000000, "count": 160},
+    {"lower_sats": 100000000, "upper_sats_exclusive": 200000000, "count": 125},
+    {"lower_sats": 200000000, "upper_sats_exclusive": 500000000, "count": 63},
+    {"lower_sats": 500000000, "upper_sats_exclusive": 1000000000, "count": 26},
+    {"lower_sats": 1000000000, "upper_sats_exclusive": null, "count": 17}
+  ],
+  "privacy": "No address, transaction identifier, script or public key is retained in this aggregate.",
+  "scope_limit": "The selected set reproduces 1,195 original source addresses and Galaxy's rounded gross total. It does not establish Galaxy's 1,196-address counting method or common control."
+}

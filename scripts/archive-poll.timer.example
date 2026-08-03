@@ -1,0 +1,11 @@
+# Fire archive-poll.service every 30 minutes. See archive-poll.service.example.
+[Unit]
+Description=archive capture every 30 minutes
+
+[Timer]
+OnBootSec=120
+OnUnitActiveSec=1800
+Unit=archive-poll.service
+
+[Install]
+WantedBy=timers.target

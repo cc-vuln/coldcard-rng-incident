@@ -1,0 +1,146 @@
+--- coldcard-hack-tracker@20260803T040307Z
++++ coldcard-hack-tracker@20260803T050312Z
+@@ -8,7 +8,7 @@
+ Blocked
+ TOTAL STOLEN
+ 
+-1,822.42107906 BTC
++1,876.83359078 BTC
+ 
+ <live-fiat-value>
+ 
+@@ -53,37 +53,37 @@
+ <live-fiat-value>
+ AUG 3
+ Likely Wave 4 · Aug 3
+-+388.92748828 BTC
+++443.34 BTC
+ <live-fiat-value>
+ 
+ STILL HELD
+ 
+-99.7%
++99.5%
+ 
+ of 1,436.62417755 BTC consolidated
+ 
+ BALANCE ON WATCH
+ 
+-1,432.62980451 BTC
++1,429.81009788 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+ 
+ MOVED
+ 
+-3.99437304 BTC
++6.81407967 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Block 960,797
+-
+-4.27762101 BTC from Hop 2 from Hop 1 from Wave 4 park
++Block 960,822
++
++0.50633044 BTC from Hop 1 from Wave 4 park
+ 
+ Watched holdings
+ 
+-About 1,822.42107906 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,436.62417755 BTC is in watched holdings (core vaults live-polled; 78 higher-value Wave 3 vaults ≥ 0.50 BTC from the cron snapshot). The remaining ~385.79690151 BTC is mostly smaller/unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
++About 1,876.83359078 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,436.62417755 BTC is in watched holdings (core vaults live-polled; 78 higher-value Wave 3 vaults ≥ 0.50 BTC from the cron snapshot). The remaining ~440.20941323 BTC is mostly smaller/unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+@@ -106,9 +106,9 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Holding 1
+-	bc1qq85v2c…3fcu9r	562.02025387 BTC
+-<live-fiat-value>
+-	562.02021083 BTC	16	HELD
++	bc1qq85v2c…3fcu9r	562.02026227 BTC
++<live-fiat-value>
++	562.02021083 BTC	18	HELD
+ 
+ Holding 2
+ 	bc1qx76cae…htfhe3	398.47576357 BTC
+@@ -634,11 +634,11 @@
+ LIKELY WAVE 4 · AUG 3
+ Source
+ 
+-Watched addresses are a sparse still-held sample.
++Pattern-match only (no victim report yet). Watched addresses are a sparse still-held sample.
+ 
+ SCOPE
+-388.92748828 BTC · 218 txs
+-462 victims → 216 dests
++443.34 BTC · 703 addrs
++after −89 multisig / −6 prior-history · 210 fresh dests
+ BLOCKS
+ 960,778–960,792
+ FEE
+@@ -646,10 +646,10 @@
+ RBF opt-in
+ PATTERN
+ 1:1 victim → fresh dest
+-no collector funnel
++likely only — no victim report yet
+ FULL LISTS
+ Confirmed addresses
+-Mempool / RBF list at report
++Mempool / RBF list — unfiltered originals
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Wave 4 park
+@@ -663,10 +663,12 @@
+ 	5.07348539 BTC	1	HELD
+ 
+ Wave 4 park
+-Thorn’s unique dual-sweep destination (2 victims → this park). One UTXO (~2.79 BTC) peeled block 960793 into Bullish.com · 3CTpBmp…; ~2.82 BTC still held.
+-	1N8knQCfjq…WVqfDo	2.81971503 BTC
+-<live-fiat-value>
+-	5.61303754 BTC	1	PARTIAL
++Thorn’s unique dual-sweep destination (2 victims → this park).
++~2.79→Bullish.com · 960793
++~2.82→Coinbase Prime · 960818 · same cluster as bc1qactq…
++	1N8knQCfjq…WVqfDo	0.00 BTC
++<live-fiat-value>
++	5.61303754 BTC	0	EMPTIED
+ 
+ Wave 4 park
+ 	342L6n3b61…TSjZtz	2.02374869 BTC
+@@ -700,6 +702,21 @@
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Later surplus that passes through a vault while its reported balance remains is ignored.
++
++HOP 1
++15d1287d…e9bdf0
++−0.50633044 BTC
++From Hop 1 from Wave 4 park bc1qa2xv…c3y9
++Block 960,822
++
++To bc1qq0j5…vfz9, bc1qhcpk…c3tl, 38maz2s8…erUH +13 more
++
++23a84f33…bc709c
++−2.81971503 BTC
++From Wave 4 park 1N8knQCf…qfDo
++Block 960,818
++
++To Coinbase Prime Custody bc1qdj58…60ms, bc1qa2xv…c3y9
+ 
+ HOP 2
+ 24ed08ad…a7f583
+@@ -851,7 +868,7 @@
+ 
+ Alex Thorn · Likely Wave 4
+ 
+-Aug 3: likely 4th organized wave — ~388.93 BTC confirmed (blocks 960778–960792), 462 victims → 216 fresh 1:1 destinations; full address lists on Pastebin (confirmed + mempool/RBF).
++Aug 3: likely 4th wave by pattern match (no victim report yet). Filtered core ~443.34 BTC / 703 addrs after removing 89 multisigs (−20.58 BTC, per Nunchuk) and 6 prior-history destinations (−5.39 BTC). Original pastebins still list the unfiltered set.
+ 
+ Marius Offchain
+ 

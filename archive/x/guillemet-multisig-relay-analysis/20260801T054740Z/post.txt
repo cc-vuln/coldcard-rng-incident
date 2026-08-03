@@ -1,0 +1,18 @@
+url:      https://x.com/P3b7_/status/2083301695606648977
+author:   Charles Guillemet
+@P3b7_ 
+posted:   2026-07-31T21:20:04.000Z (from the page's <time> element)
+captured: 20260801T054740Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+
+--- post text (verbatim) ---
+
+If you have a Bitcoin multisig that can be fully spent using compromised seeds (for example, a 2-of-3 multisig where two Coldcard seeds are vulnerable), you are in a critical situation.
+
+The good news is that if the multisig uses P2WSH or P2SH-P2WSH, the spending script is not revealed on-chain until the first spend. This provides some protection because an attacker with only the compromised keys may still not have the script required to construct a valid transaction.
+
+However, the script was never designed to be secret. From a cryptographic perspective, it is public information. In practice, copies may already exist in your wallet provider's database, backups, logs, or other systems. You should therefore migrate these funds to a new and secure setup as soon as possible.
+
+The catch is that your migration transaction will reveal the spending script in the mempool. If an attacker already has enough compromised keys and the script, they can create a conflicting transaction spending the same UTXO to themselves and try to get it confirmed instead.
+
+To reduce this risk, avoid broadcasting the migration transaction through the public mempool. Use a trusted private transaction relay that can submit the transaction directly to miners. MARA's Slipstream is one example.

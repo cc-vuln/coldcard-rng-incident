@@ -1,0 +1,163 @@
+--- satsigner-pr-468@20260803T131355Z
++++ satsigner-pr-468@20260803T144305Z
+@@ -144,32 +144,33 @@
+ Audit and Harden seed phrase entropy generation - #468
+ #468
+ Open
+-Psycarlo wants to merge 2 commits into
++Psycarlo wants to merge 7 commits into
+ mastersatsigner/satsigner:masterfrom
+ fix/entropysatsigner/satsigner:fix/entropyCopy head branch name to clipboard
+-ConversationCommits2 (2)ChecksFiles changed
++ConversationCommits7 (7)ChecksFiles changed
+ Open
+ Audit and Harden seed phrase entropy generation#468
+-Psycarlo wants to merge 2 commits into
++Psycarlo wants to merge 7 commits into
+ mastersatsigner/satsigner:masterfrom
+ fix/entropysatsigner/satsigner:fix/entropyCopy head branch name to clipboard
+ Conversation
+ Psycarlo
+ commented
+ Jul 31, 2026
++•
++edited by pedromvpg
++Loading
++Uh oh!
++There was an error while loading. Please reload this page.
+ Copy link
+ Copy Markdown
+ Collaborator
+ Fixes & closes #465
+ Summary
+-Audit of all randomness feeding BIP39 seed generation in apps/mobile, prompted by
+-the Coldcard Mk3 entropy disclosure. Nine findings, all fixed.
+-The default path was already sound. Native bdk_ffi → ThreadRng → OsRng →
+-getrandom(2), confirmed by disassembling the shipped .so. No Math.random in any
+-key path. Coldcard Mk3 was a hardware TRNG conditioning flaw with no analogue here.
+-The optional dice and coin paths were broken. One hard-blocked users; the other
+-silently under-delivered entropy.
+-Findings
++Audit of all randomness feeding BIP39 seed generation in apps/mobile, prompted by the Coldcard Mk3 entropy disclosure. Nine original findings fixed, plus follow-up hardening for weak manual input, seededRandom, and a large-N statistical audit suite.
++The default path was already sound. Native bdk_ffi → ThreadRng → OsRng → getrandom(2), confirmed by disassembling the shipped .so. No Math.random in any key path.
++The optional dice and coin paths were broken. One hard-blocked users; the other silently under-delivered entropy. They now use SHA-512 conditioning with optional device mixing (default on).
++Findings (original audit)
+ #
+ Severity
+ Finding
+@@ -200,33 +201,58 @@
+ 9
+ Low
+ No distribution tests. Existing coverage used '0'.repeat(128) — uniform inputs can't catch a distribution bug, which is why 1–3 shipped.
+-Figures derived analytically and cross-validated by Monte Carlo (200k–300k trials):
+-Changes
+-New utils/entropy.ts — SHA-512 conditioning, CSPRNG mixing, rejection-sampled
+-randomIndex, bias detection. Findings 2–5 shared one root cause (conditioning
+-implemented ad hoc inside React components) and are fixed together.
++Figures derived analytically and cross-validated by Monte Carlo (200k–300k trials).
++Changes (original)
++New utils/entropy.ts — SHA-512 conditioning, CSPRNG mixing, rejection-sampled randomIndex, bias detection. Findings 2–5 shared one root cause (conditioning implemented ad hoc inside React components) and are fixed together.
+ entropy/dice.tsx — terminates on roll count; buttons pass the printed face; undo; bias warning; mix toggle
+ entropy/coin.tsx — hashed conditioning; visually distinct 0/1 faces; undo; bias warning; mix toggle
+ utils/crypto.ts — randomNum divides by 2^32; randomIv uses randomBytes(16)
+ config/entropy.ts — drawing removed, dead case blocks deleted from both flows
+ locales/en.json — new keys; dice/coin descriptions corrected
+ __mocks__/react-native-quick-crypto.ts — createHash/randomBytes delegate to node:crypto
++Follow-up hardening
++Additional review findings addressed on top of the original audit:
++Severity
++Change
++High
++Weak / patterned input (not only first-order bias) is detected; unmixed continue requires an explicit confirmation. Copy no longer claims hashing "rescues" entropy when mix is off.
++High
++Preview uses the real bit width and is labeled so it is not mistaken for the final seed (especially when mix is on).
++Medium
++Helpers enforce minimum roll/flip counts (allowPartial only for live preview).
++Medium
++Recorded dice/coin log is shown for the paper-trail path; undo remains available after completion.
++Medium
++seededRandom uses the same [0, 1) contract as randomNum (divide by 2^32) to avoid Fisher–Yates holes in coin selection.
++Medium
++Mix folds crypto.getRandomValues (same CSPRNG surface as randomIndex / randomNum).
++Low
++Frozen hash KATs, mix byte-count coverage, pattern/weak helper tests.
++Low
++Multisig generate passes 'english' explicitly; generateMnemonic documents the English (BDK native) vs non-English (getRandomValues) split.
++Large-N entropy audit
++New opt-in suite under apps/mobile/tests/entropy-audit/:
++Sources: CSPRNG, dice, biased dice, coin, biased coin, mix, and a deliberately broken restricted-byte canary
++Checks: byte χ², bit balance, serial correlation, collisions (skipped for biased input generators)
++Commands: pnpm test:entropy · pnpm entropy:audit (ENTROPY_AUDIT_SAMPLES, default 5k for the audit script)
++Default path note: English new Mnemonic() still uses native BDK RNG (Jest mocks BDK, so CI does not exercise that .so path). Non-English and mix paths are covered by the JS CSPRNG samplers.
+ Design decisions
+-Hashing over arithmetic conditioning. Lossless base-6 → base-2 needs rejection
+-sampling, which discards user rolls. SHA-512 is uniform by construction and matches
+-Coldcard and Sparrow.
+-Dice buttons pass the printed face (1–6), not the index. Digit conversion happens
+-inside entropyFromDiceRolls, so the sequence the user writes down is the sequence
+-hashed. Keeps the feature auditable, which is its purpose.
+-Device mixing defaults on, but is a visible toggle. Mixing means the seed can't be
+-reproduced from the paper log. Some users pick dice for exactly that verifiability, so
+-the trade-off is surfaced rather than decided silently.
++Hashing over arithmetic conditioning. Lossless base-6 → base-2 needs rejection sampling, which discards user rolls. SHA-512 is uniform by construction and matches Coldcard and Sparrow. Hashing does not add entropy — unmixed seeds are only as strong as the user's input.
++Dice buttons pass the printed face (1–6), not the index. Digit conversion happens inside entropyFromDiceRolls, so the sequence the user writes down is the sequence hashed. Offline format: SHA-512("dice:" + rolls.join(","))[0 .. bits/8] (and "coin:" + concatenated flips).
++Device mixing defaults on, but is a visible toggle. Mixing means the seed can't be reproduced from the paper log. Some users pick dice for exactly that verifiability, so the trade-off is surfaced rather than decided silently. Weak unmixed input now requires confirmation.
+ Beyond audit scope
+-Locale roll counts were wrong. 18 words needs 75 rolls (said 74), 24 needs 100
+-(said 99) — ceil(256 / log2(6)) = 100. Strings now derive from the same arithmetic
+-as the code.
+-The quick-crypto mock returned a fake 32-byte digest. Conditioning tests are
+-meaningless against a stub hash, and 32 bytes can't cover 256-bit output.
++Locale roll counts were wrong. 18 words needs 75 rolls (said 74), 24 needs 100 (said 99) — ceil(256 / log2(6)) = 100. Strings now derive from the same arithmetic as the code.
++The quick-crypto mock returned a fake 32-byte digest. Conditioning tests are meaningless against a stub hash, and 32 bytes can't cover 256-bit output.
++Test plan
++Generate 12/24-word seed with entropy none (English and another wordlist)
++Dice: complete required rolls, confirm recorded log, continue with mix on
++Dice: turn mix off, enter patterned/biased input, confirm Alert, verify warning copy
++Coin: same as dice for mix on/off and weak input
++Undo after completion still works
++pnpm --filter @satsigner/mobile typecheck
++pnpm run check
++pnpm --filter @satsigner/mobile test:unit
++pnpm --filter @satsigner/mobile test:entropy
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+@@ -243,8 +269,37 @@
+ Aaudit and Harden seed phrase entropy generation
+ Audit and Harden seed phrase entropy generation
+ Jul 31, 2026
++pedromvpg
++added 6 commits
++August 3, 2026 13:44
+ Merge branch 'master' into fix/entropy
+ 4b7824f
++fix: harden entropy helpers against weak and short input
++…
++c931e1e
++Enforce minimum roll/flip counts, detect patterned sequences, document
++the hash construction, and add KATs plus mix-strength coverage.
++fix: keep seededRandom in [0, 1) like randomNum
++…
++b631b55
++Divide by 2^32 so a maximal uint32 draw cannot return 1.0 and create
++holes in Fisher-Yates shuffles used by coin selection.
++docs: clarify mnemonic RNG paths and multisig wordlist
++…
++5b92473
++Document the English BDK native vs getRandomValues split, and pass
++english explicitly on multisig generate.
++fix: warn and confirm on weak unmixed dice/coin input
++…
++f54013d
++Surface patterned or biased input, require confirmation when mix is off,
++show the recorded log, and label the preview so it is not mistaken for
++the final seed.
++test: add large-N entropy audit suite
++…
++9299478
++Opt-in Jest harness for chi-square, bit balance, serial correlation,
++and a restricted-byte canary across CSPRNG, dice, coin, and mix paths.
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

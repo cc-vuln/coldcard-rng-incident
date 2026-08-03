@@ -1,0 +1,298 @@
+---
+import Article from '../../layouts/Article.astro';
+import Claim from '../../components/Claim.astro';
+import Answer from '../../components/Answer.astro';
+import Disclosure from '../../components/Disclosure.astro';
+---
+
+<Article
+  title="Attack-cost estimates"
+  description="Published candidate-space estimates for affected COLDCARD seeds, the assumptions behind them, and illustrative search times."
+  standfirst="The published estimates describe different attacker-knowledge assumptions. None is a measured entropy value for an individual device."
+  depth="deep"
+  kicker="How it broke"
+>
+  <Answer>
+    <p>
+      Nobody has measured how much entropy an affected COLDCARD seed actually
+      had. What exists are published models of how many candidate seeds an
+      attacker would have to enumerate, and they run from a single candidate to
+      roughly <code>2^88</code> depending on what that attacker is assumed to
+      already know about the device. The narrow figures assume the chip's unique
+      ID, the call history and the relevant timing state are known or tightly
+      constrained; the broad ones are enumeration ceilings that treat correlated
+      timer fields as independent. Mk2 and Mk3 sit far below Mk4, Mk5 and Q,
+      because only the later devices mix a secure-element value into one of the
+      two generators. Every figure below is a scenario attached to its
+      assumptions, not a bound on any particular wallet.
+    </p>
+  </Answer>
+
+  <p>
+    <a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block</a>,
+    <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite</a>,
+    <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN</a>
+    and <a href="https://x.com/otaliptus/status/2083365327740543404" rel="noopener nofollow">otaliptus</a>
+    describe the search space using different assumptions about what an attacker
+    knows.
+  </p>
+
+  <div class="callout callout--amber">
+    <span class="callout__title">Block's own caveat on the scenarios below</span>
+    <blockquote class="q" style="margin:0">"This analysis is based on our current understanding of the situation. We have not done full empirical testing to confirm exploitability."<cite><a href="/record/sources/block-disclosure/">Block Engineering, disclosure summary</a></cite></blockquote>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>Published candidate-space estimates and assumptions<Claim
+          basis="reported"
+          contested
+          scope="The candidate-space estimates and attribution in the comparison table above"
+          source="Published models from Block, Coinkite, LLFOURN and otaliptus; the 58.3 to 62.3-bit row is arithmetic on LLFOURN's follow-up"
+          href="/record/analysis/"
+        /></caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">Source</th>
+            <th scope="col" class="nw">Mk2 / Mk3</th>
+            <th scope="col" class="nw">Mk4 / Mk5 / Q</th>
+            <th scope="col" class="wide">Assumptions represented</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw"><strong><a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block</a></strong></td>
+            <td class="nw"><code>2^0</code> with timers known;<br /><code>~2^16.3</code> with stable RTC;<br /><code>2^32</code> ceiling with the UID-XOR-SysTick word unknown;<br /><code>&lt;2^40.7</code> loose ceiling</td>
+            <td class="nw"><code>&le;2^32</code> with known fallback state;<br /><code>&lt;2^73.3</code> loose ceiling</td>
+            <td class="wide">For Mk4-class devices, these figures assume a successful reseed. Block's narrow cases assume the UID, call history and relevant timing state are known or constrained. The <code>2^32</code> Mk2/Mk3 figure is the ceiling Block gives when the effective 32-bit UID-XOR-SysTick value is entirely unknown; Block adds that unknown call history multiplies these counts further. Its broader figures deliberately treat correlated timer fields independently.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block, conditional no-reseed path</a></strong></td>
+            <td class="nw">not applicable</td>
+            <td class="nw"><code>2^0</code> with fallback state known;<br /><code>&lt;2^41.3</code> loose ceiling</td>
+            <td class="wide">A catchable early-initialisation error could leave libngu at its public initial state. Block says ordinary secure-element failures appear to halt instead, so this source path remains conditional pending hardware validation.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite</a></strong></td>
+            <td class="nw">Mk3: <code>~2^40</code><br />Mk2: not separately stated</td>
+            <td class="nw"><code>~2^72</code></td>
+            <td class="wide">Upper scenarios that retain uncertainty from the MCU identifier and timing inputs. These are estimates, not measurements across a device population.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN</a></strong></td>
+            <td class="nw">Mk3: <code>~2^40.3</code><br />Mk2: not separately stated</td>
+            <td class="nw"><code>~2^72.3</code></td>
+            <td class="wide">A stated Mk3 model of about <code>2^20</code> possible MCU identifiers, <code>80,000</code> timing states and 16 button-press variants, plus the 32-bit reseed term on Mk4-class devices. The source does not decompose the 16 variants further.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2083296357662765399" rel="noopener nofollow">LLFOURN follow-up</a></strong></td>
+            <td class="nw">not separately quantified</td>
+            <td class="nw"><code>~2^58.3</code> to <code>~2^62.3</code></td>
+            <td class="wide">LLFOURN later said the Mk4-class space was probably around 10 to 14 bits smaller than the original <code>2^72.3</code> estimate, and that it could be smaller still depending on the clock behaviour. The subtraction shown here is derived from that statement, and its lower end is not a floor the source claims.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2083312169316499663" rel="noopener nofollow">LLFOURN, known-UID scenario</a></strong></td>
+            <td class="nw">not stated</td>
+            <td class="nw"><code>2^32</code></td>
+            <td class="wide">In a later reply, LLFOURN said a pessimistic view in which the UID is known and button presses and clock behaviour are more predictable leaves 32 bits of work per Mk4 theft. This converges on Block's lower scenario through an explicit attacker-knowledge assumption.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="https://x.com/otaliptus/status/2083365327740543404" rel="noopener nofollow">otaliptus, tentative model</a></strong></td>
+            <td class="nw">not stated</td>
+            <td class="nw"><code>~2^52</code> to <code>~2^63</code> if RTC is problematic; <code>~2^77</code> to <code>~2^88</code> otherwise, or <code>~2^75</code> on the author's most pessimistic aside</td>
+            <td class="wide">Assumes a remote attacker does not know the UID, estimates 20 to 21 bits from the wafer-coordinate word, narrows practical SysTick positions, and treats the Mk4 RTC contribution as unresolved. The author explicitly labels the post brainstorming and lists details that may be wrong.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="cap">
+    Where a source states a Mk3 figure and says nothing separately about Mk2,
+    carrying that figure across to Mk2 would be a further derivation from their
+    shared code path.
+  </p>
+
+  <Disclosure
+    id="mcu-identifier"
+    title="The MCU identifier term"
+    note="one 32-bit word of the STM32L4 UID, and what its field layout does not establish"
+  >
+    <p>
+      The affected MicroPython fallback reads one 32-bit word from the STM32L4's
+      96-bit unique-identifier area. It combines that word with the SysTick
+      counter, and seeds two other state words from the real-time clock and its
+      subsecond register.
+    </p>
+
+    <p class="filepath">micropython/ports/stm32/rng.c and mpconfigboard_common.h</p>
+    <pre class="code"><span class="k">#define</span> MP_HAL_UNIQUE_ID_ADDRESS (<span class="hl">0x1fff7590</span>)
+
+pad = <span class="hl">*(uint32_t *)</span>MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick-&gt;VAL;
+n = RTC-&gt;TR;
+d = RTC-&gt;SSR;</pre>
+
+    <p>
+      ST documents the first UID word as wafer-coordinate data and the remaining
+      words as wafer and lot information. That field layout explains why an
+      analyst might model fewer than <code>2^32</code> possible first words, but it
+      does not by itself establish a COLDCARD-specific range. This project holds
+      no population sample of device UIDs, so
+      <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code>2^20</code> assumption</a>
+      remains unchecked here.<Claim
+        basis="unverified"
+        scope="The practical distribution of the 32-bit UID word across shipped COLDCARD devices"
+        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices has not been measured here"
+      />
+    </p>
+
+    <div class="mermaid-wrap">
+      <pre class="mermaid">
+flowchart LR
+  UID["STM32L4 96-bit UID"] --> W1["first 32-bit word\nread by fallback"]
+  UID --> W23["remaining 64 bits\nnot read by fallback"]
+  W1 --> MIX["XOR with SysTick"]
+  RTC["RTC time and subsecond"] --> STATE["other Yasmarang state"]
+  MIX --> STATE
+  STATE --> OUT["MicroPython fallback output"]
+      </pre>
+    </div>
+
+  </Disclosure>
+
+  <Disclosure
+    id="rtc-term"
+    title="The unresolved RTC term"
+    note="whether the real-time clock contributes useful variation on Mk4-class devices"
+  >
+    <p>
+      <a href="https://x.com/otaliptus/status/2083365327740543404" rel="noopener nofollow">otaliptus isolates a second uncertainty that the headline bit counts can hide</a>:
+      whether the real-time clock contributes useful variation on Mk4-class
+      devices. The post models roughly 24 additional bits if it does, and no such
+      contribution in the pessimistic case, then broadens both results to reflect
+      uncertainty in the other inputs. It does <strong>not</strong> report that Mk4
+      RTC behaviour is broken. The author says that question is unanswered, and
+      this archive has no runtime measurements that resolve it.<Claim
+        basis="reported"
+        scope="The tentative RTC and timing scenarios described immediately above"
+        source="otaliptus, tentative public analysis on 1 Aug 2026; explicitly presented as brainstorming"
+        href="https://x.com/otaliptus/status/2083365327740543404"
+      />
+    </p>
+  </Disclosure>
+
+  <h2>Illustrative half-space times</h2>
+
+  <p>
+    The following table applies <code>time = 2^(bits - 1) / rate</code>. Calling
+    half the space an average assumes that the target is uniformly positioned in
+    the enumerated order and that the attacker has no better prioritisation. The
+    device-state distributions have not been measured, so this is a sensitivity
+    model, not an empirical average or a forecast of attacker capability. A day
+    is 86,400 seconds and a year is 365.25 days in the displayed conversions.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>Half-space times under a uniform-position model<Claim
+          basis="derived"
+          scope="The illustrative half-space times in the table above, under the stated uniform-position assumption"
+          source="Time is 2^(bits - 1) divided by the displayed rate; the source models do not benchmark those rates"
+        /></caption>
+        <thead>
+          <tr>
+            <th scope="col" class="wide">Scenario</th>
+            <th scope="col" class="nw">Candidates</th>
+            <th scope="col" class="nw">4,000/s</th>
+            <th scope="col" class="nw">2 million/s</th>
+            <th scope="col" class="nw">16 million/s</th>
+            <th scope="col" class="nw">1 billion/s</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="wide">Mk2/Mk3, Block stable-RTC scenario</td><td class="nw"><code>2^16.3</code></td><td class="nw">10 seconds</td><td class="nw">0.02 seconds</td><td class="nw">0.003 seconds</td><td class="nw">0.00004 seconds</td></tr>
+          <tr><td class="wide">Mk3, approximately 40-bit scenario</td><td class="nw"><code>2^40</code></td><td class="nw">4.4 years</td><td class="nw">3.2 days</td><td class="nw">9.5 hours</td><td class="nw">9.2 minutes</td></tr>
+          <tr><td class="wide">Mk4-class, Block successful-reseed scenario with known fallback state</td><td class="nw"><code>2^32</code></td><td class="nw">6.2 days</td><td class="nw">17.9 minutes</td><td class="nw">2.2 minutes</td><td class="nw">2.1 seconds</td></tr>
+          <tr><td class="wide"><a href="https://x.com/LLFOURN/status/2083296357662765399" rel="noopener nofollow">LLFOURN follow-up range</a></td><td class="nw"><code>2^58.3</code> to <code>2^62.3</code></td><td class="nw">1.4 to 22.5 million years</td><td class="nw">2,800 to 45,000 years</td><td class="nw">351 to 5,600 years</td><td class="nw">5.6 to 90 years</td></tr>
+          <tr><td class="wide">Approximately 72-bit scenario</td><td class="nw"><code>2^72</code></td><td class="nw">18.7 billion years</td><td class="nw">37.4 million years</td><td class="nw">4.7 million years</td><td class="nw">74,800 years</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>
+    The <a href="/risk/estimator/">in-browser estimator</a> applies the same
+    formula to every source-labelled scenario and lets you add uniform dice or
+    passphrase assumptions without sending or storing the inputs.
+  </p>
+
+  <h2 id="collisions">Reported collision arithmetic</h2>
+
+  <p>
+    A targeted search for one wallet is not the only consequence of a small
+    candidate space. When many devices draw seeds from the same small set of
+    possibilities, two of them can independently produce the same wallet, with
+    neither owner ever attacked. Three posts held here put figures on that,
+    and each figure carries its author's own assumptions.
+  </p>
+
+  <ul class="node-list">
+    <li>
+      <a href="/record/sources/jstefanop-collision-program/">JStefanop1 reported a demonstration program</a>
+      under the 40-bit effective-state model: a duplicate wallet on average
+      every roughly 1.3 million seed generations, and a collision found in 4.7
+      seconds on an M1 Max at roughly 268,000 evaluated states per second.<Claim
+        basis="reported"
+        scope="The roughly 1.3-million-generation average duplicate rate and the 4.7-second, roughly 268,000-states-per-second collision run under the 40-bit model"
+        source="JStefanop1, captured X post of 1 Aug 2026, with an attached screenshot of the reported duplicate-seed run; not reproduced by this archive"
+        href="/record/sources/jstefanop-collision-program/"
+      />
+    </li>
+    <li>
+      <a href="/record/sources/skot9000-population-collisions/">skot9000 stated birthday arithmetic at 32 bits of effective entropy</a>:
+      about 77,000 generated seeds give a 50% chance that two of them are
+      identical, and 200,000 give about 99%.
+    </li>
+    <li>
+      <a href="/record/sources/mitchellaskew-collision-arithmetic/">mitchellaskew stated the same kind of arithmetic</a>
+      with a different threshold: about 93,000 seeds for a 50% chance of a
+      duplicate wallet, contrasted with the <code>2^256</code> space of a
+      properly generated 24-word seed.
+    </li>
+  </ul>
+
+  <p>
+    The two 50% thresholds differ. Each is reproduced here as its author
+    stated it; the difference reflects the authors' own modelling choices, and
+    this archive has not recomputed either figure or verified the reported
+    program run.<Claim
+      basis="reported"
+      contested
+      scope="The 77,000-seed and 93,000-seed 50% collision thresholds and the 200,000-seed 99% figure attributed above, which state different 50% thresholds"
+      source="skot9000 and mitchellaskew, separately captured X posts of 2 Aug 2026; each figure is shown as its author stated it and neither has been recomputed here"
+      href="/record/sources/skot9000-population-collisions/"
+    />
+  </p>
+
+  <Disclosure
+    id="candidate-check"
+    title="How a candidate is checked"
+    note="BIP39's PBKDF2 step, and why there is no rate limit on the comparison"
+  >
+    <p>
+      A candidate mnemonic can be passed through BIP39's 2,048-round
+      PBKDF2-HMAC-SHA512 step and the relevant wallet derivation path. A known
+      address, or an extended public key obtained separately, then provides an
+      offline comparison target. There is no device PIN or network rate limit in
+      that comparison. LLFOURN reported that attackers appeared to be acquiring
+      additional compute capacity for exactly this kind of search; that
+      activity is not verified here.<Claim
+        basis="reported"
+        scope="Reports that attackers were acquiring additional compute capacity"
+        source="LLFOURN reported that attackers were acquiring compute; this project has not independently verified that activity"
+        href="/record/sources/llfourn-followup/"
+      />
+    </p>
+  </Disclosure>
+</Article>

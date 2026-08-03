@@ -1,0 +1,26 @@
+url:      https://x.com/rot13maxi/status/2083870550347157787
+author:   Ryan Dale
+handle:   @rot13maxi
+posted:   2026-08-02T11:00:30.000Z (from the page's <time> element)
+captured: 20260803T020057Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+reply-to: bitcoin++ Insider Edition
+@btcinsider__
+·
+Aug 2 -- 'JUST IN: Dustin Dettmer (\n@dusty_daemon\n) digs into the COLDCARD firmware commit history to uncover what actually happened in the code to introduce one of the worst bugs for self-custody in recent bitcoin history'
+
+--- post text (verbatim) ---
+
+This was an important bit not in the article:
+‘’’
+#ifndef MICROPY_HW_ENABLE_RNG
+#error "get a HW TRNG plz"
+#endif
+‘’’
+
+That ifndef is a defined check not a truth check. Made people think the rng was enabled. This was a big factor. 
+
+commit msg length is not a metric anyone tracks. Multi-line commit messages are fairly recent. I would encourage readers to not get too wrapped up in “works” being too short being some smoking gun (seeing it in some comments). Its very common for example to have multiple commits in a single pr that has a bigger pr message or comes with a bigger message out of band. 
+
+The bigger misses here: an existence check instead of a truth check masked the fallback, a software fallback was available at all and with the same function signature meaning that the authors didnt know which symbol was being resolved, there should have been tests that the hardware was being lit up. lack of assertions or checks at runtime that the good rng was used or code to fail closed if it wasnt (iow the code should have failed to produce a value if the trng wasnt being used). And then yeah there should have been a much smaller and more targetted change to swap out the rng invocation since its security critical.

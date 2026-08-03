@@ -1,0 +1,11 @@
+# Fire archive-review.service every 2 hours. See archive-review.service.example.
+[Unit]
+Description=archive agent review every 2 hours
+
+[Timer]
+OnBootSec=900
+OnUnitActiveSec=7200
+Unit=archive-review.service
+
+[Install]
+WantedBy=timers.target

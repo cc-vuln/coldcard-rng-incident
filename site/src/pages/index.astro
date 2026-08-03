@@ -1,0 +1,508 @@
+---
+import Base from '../layouts/Base.astro';
+import SeedWarning from '../components/SeedWarning.astro';
+import Claim from '../components/Claim.astro';
+import EvidenceRegister from '../components/EvidenceRegister.astro';
+import { stats, goneSources, isoToHuman, tsToIso } from '../lib/archive';
+import { latestEvents } from '../lib/latest-events';
+import { fig } from '../lib/figures';
+
+const s = stats();
+
+// The record band carries the one-line call for material; the full
+// Contribute block lives on the record pages beside the collection itself.
+const CONTACT = import.meta.env.PUBLIC_CONTACT || 'info@cc-vuln.org';
+const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
+
+/*
+ * The record band (below): the archive shown rather than described. Display
+ * strings are precomputed here because conditionals returning markup break
+ * the template parser (see the pitfalls note in AGENTS.md).
+ */
+const EVENT_LABELS = {
+  'first-capture': 'entered the record',
+  'source-change': 'source content changed',
+  'post': 'X post',
+} as const;
+const latest = latestEvents(3).map((e) => ({
+  ...e,
+  when: isoToHuman(e.iso),
+  label: EVENT_LABELS[e.kind],
+}));
+
+// Freshness, computed at build time. The site rebuilds after captures, so
+// build-time is the honest resolution: the line dates the record, not the page.
+let freshness = '';
+if (s.lastCapture) {
+  const hours = (Date.now() - Date.parse(tsToIso(s.lastCapture))) / 3600000;
+  freshness = hours < 1.5
+    ? 'Last capture about an hour ago.'
+    : hours < 48
+      ? `Last capture about ${Math.round(hours)} hours ago.`
+      : `Last capture ${Math.round(hours / 24)} days ago.`;
+}
+
+const goneCount = goneSources().length;
+const goneLine = goneCount === 1
+  ? '1 source has since disappeared from the web; the copy held here is the only public one left.'
+  : `${goneCount} sources have since disappeared from the web; the copies held here are the only public ones left.`;
+
+/*
+ * INCIDENT_PHASE (design doc section 6): 'active' leads with triage, 'steady'
+ * leads with the record. Build-time, defaults to active; flipping it is an
+ * editorial act recorded in the changelog. Both heroes render and the
+ * inactive one is hidden, which keeps the template free of conditional
+ * markup (see the template pitfalls note in AGENTS.md).
+ */
+const phase = process.env.INCIDENT_PHASE === 'steady' ? 'steady' : 'active';
+const isSteady = phase === 'steady';
+const PATHS_COPY = {
+  active: {
+    h: 'The rest of the site',
+    sub: 'What to do next, how the failure worked, and how everyone responded.',
+  },
+  steady: {
+    h: 'Explore the record',
+    sub: 'The preserved sources lead. The triage journey remains one click away.',
+  },
+} as const;
+const pc = PATHS_COPY[phase];
+---
+
+<Base
+  title="COLDCARD entropy incident: are your coins affected?"
+  description="What the July 2026 COLDCARD predictable-RNG incident was, how to assess seed provenance, and the evidence behind the published claims."
+  bare
+>
+  <section class="hero" hidden={isSteady}>
+    <div class="wrap hero__inner">
+      <p class="mono-label hero__kicker">Incident record &middot; disclosed 30 July 2026</p>
+      <h1 class="hero__title">
+        The public record of the COLDCARD entropy incident.
+      </h1>
+      <p class="hero__lede">
+        A <strong>COLDCARD</strong> is a small device that keeps the keys to
+        your bitcoin off the internet. Setting one up creates
+        <strong>seed words</strong>: they can rebuild the wallet, anyone who
+        learns them can take the money, and they are supposed to be
+        impossible to guess. On affected firmware, released from March 2021
+        until the fixes on 31 July 2026, <a href="/how-it-broke/">they did
+        not come from the randomness the device was designed to use</a>.
+        <strong>Seed words made on that firmware can be worked out by
+        somebody with a computer and time.</strong> On the older models that
+        has been done; on the newer ones the researchers who have looked
+        disagree about how hard it would be.
+        <Claim
+          basis="reported"
+          contested
+          scope="The statement on this page that seed words made on affected firmware can be worked out, and that published estimates of the difficulty disagree for the Mk4-class devices"
+          source="Published candidate-space models from Block, LLFOURN, otaliptus and Coinkite. They broadly agree on the Mk2 and Mk3 spaces, which have also been reproduced on-device, and differ by orders of magnitude on Mk4, Mk5 and Q, where no drain has been confirmed"
+          href="/how-it-broke/entropy/"
+          compact
+        />
+        <Claim
+          basis="verified"
+          scope="The claim on this page that affected seed generation did not use the hardware randomness the device was designed to use, on firmware released from March 2021 until the 31 July 2026 fixes"
+          source="Firmware source, release histories and signed-release record; the hardware generator stayed in the firmware and other callers still reached it, so the bypass is stated for seed generation only, and released binaries were not independently reproduced"
+          href="/record/firmware/"
+          compact
+        />
+      </p>
+      <p class="hero__lede">
+        On 30 July 2026 somebody did exactly that:
+        <a href="/record/funds/">{fig('sweptBtcApprox').replace('about ', 'about ')}</a>
+        was emptied out of {fig('sweptAddresses')} in a matter of minutes,
+        and researchers have since attributed more than 1,000 BTC of wider
+        movements to the same operator.
+        <Claim
+          basis="derived"
+          scope="The about 594 BTC 30 July sweep total quoted on this page"
+          source="This site's 500-transaction chain reconciliation, matching TFTC's published collector receipt; the recheck artefact is published on the funds page"
+          href="/record/funds/"
+          compact
+        />
+        <Claim
+          basis="reported"
+          scope="The statement on this page that researchers have attributed more than 1,000 BTC of wider movements to the same operator, resting on Galaxy Research's revised three-wave total of 1,367.05 BTC across 4,585 addresses"
+          source="Galaxy's captured 1 August revision adding a third wave, alongside its separately captured statement that treating the waves as one operator rests on resemblance rather than proof; its scope is wider than this site's transaction-level reconciliation of the 30 July sets"
+          href="/record/sources/glxyresearch-same-operator-basis/"
+          compact
+        />
+      </p>
+      <p class="hero__lede">
+        Since then the vendor's advisories have been revised, scope statements
+        have changed, and the people studying the theft
+        <a href="/record/funds/">publish different totals</a>. That is why
+        this site exists: every source is captured on a schedule, every
+        earlier version is kept and
+        <a href="/record/changes/">every change is published</a>, and every
+        material claim is graded and linked to evidence a reader can
+        re-check, rather than reconciled into one answer.
+      </p>
+      <p class="hero__lede">
+        Whether you are affected depends on which model you have and which
+        firmware it was running <em>when your seed words were first
+        created</em>, not on what it runs today. <a href="/affected/">The
+        check below tells you</a> in about a minute, and it never asks for
+        your seed words.
+      </p>
+    </div>
+  </section>
+
+  <section class="hero" hidden={!isSteady}>
+    <div class="wrap hero__inner">
+      <p class="mono-label hero__kicker">Incident record &middot; disclosed 30 July 2026</p>
+      <h1 class="hero__title">
+        The preserved record of the COLDCARD entropy incident.
+      </h1>
+      <p class="hero__lede">
+        For more than five years, affected COLDCARD firmware created seeds
+        without its hardware random number generator. This site preserves
+        <a href="/record/">what each party said and how it changed</a>:
+        {s.snapshots} snapshots across {s.sources} sources, every material
+        claim graded and linked to evidence a reader can re-check.
+      </p>
+      <p class="hero__lede">
+        Still holding a wallet made on affected firmware?
+        <a href="/affected/">Am I affected?</a> remains the place to start.
+      </p>
+    </div>
+  </section>
+
+  <div class="wrap" hidden={isSteady}>
+    <a class="checkdoor" href="/affected/">
+      <span class="checkdoor__k">Start here</span>
+      <span class="checkdoor__h">Are your coins affected?</span>
+      <span class="checkdoor__p">
+        Six questions at most, answered in about a minute. Everything runs in
+        your browser, nothing is sent anywhere, and it never asks for your seed
+        words.
+      </span>
+      <span class="checkdoor__go">Check now &rarr;</span>
+    </a>
+  </div>
+  <div class="wrap">
+    <SeedWarning compact />
+  </div>
+
+  {/*
+    The record, shown rather than described, directly after the triage door:
+    the collation is the site's contribution, so it is demonstrated before
+    the section map rather than beneath it. The frightened owner still meets
+    the check first.
+  */}
+  <section class="wrap recordband">
+    <h2 class="recordband__h">Inside the record</h2>
+    <p class="recordband__lede">
+      An open source collection of what has been published about this
+      incident, kept by people who are not the vendor and preserved as it was
+      published. When a source changes what it says, the earlier version is
+      kept and <a href="/record/changes/">the difference is published</a>.
+      The figures held here are captures taken at stated moments, not live
+      numbers; two community trackers follow the movements continuously:
+      <a href="/record/sources/coldcard-watch/">COLDCARD Watch</a> and
+      <a href="/record/sources/coldcard-hack-tracker/">the recovery
+      tracker</a>.
+    </p>
+    <p class="recordband__fresh" hidden={!freshness}>
+      Sources are re-captured on a schedule. {freshness}
+    </p>
+
+    <div class="recordband__stats">
+      <a class="rb-stat" href="/record/">
+        <strong>{s.sources}</strong>
+        <span>web sources tracked</span>
+      </a>
+      <a class="rb-stat" href="/record/">
+        <strong>{s.snapshots}</strong>
+        <span>snapshots held</span>
+      </a>
+      <a class="rb-stat" href="/record/changes/">
+        <strong>{s.sourceChanges}</strong>
+        <span>reviewed source changes</span>
+      </a>
+      <a class="rb-stat" href="/record/">
+        <strong>{s.xPosts}</strong>
+        <span>X posts registered</span>
+      </a>
+    </div>
+
+    <p class="recordband__gone" hidden={goneCount === 0}>{goneLine}</p>
+
+    <h3 class="recordband__sub">Latest in the record</h3>
+    <ol class="recordband__latest">
+      {latest.map((e) => (
+        <li class="rb-ev">
+          <a class="rb-ev__link" href={e.href}>
+            <span class="rb-ev__shot" hidden={!e.thumb}>
+              <img src={e.thumb ?? undefined} alt={`Captured screenshot: ${e.title}`} loading="lazy" />
+            </span>
+            <span class="rb-ev__meta">{e.when} &middot; {e.label}</span>
+            <span class="rb-ev__title">{e.title}</span>
+            <span class="rb-ev__by" hidden={!e.by}>{e.by}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+    <p class="recordband__feedlink">
+      <a href="/record/feed/">Everything captured, newest first &rarr;</a>
+    </p>
+
+    <h3 class="recordband__sub">Start from a question</h3>
+    <ul class="recordband__journeys">
+      <li>
+        <a href="/record/changes/">What did Coinkite say, and when did it change?</a>
+      </li>
+      <li>
+        <a href="/record/analysis/">Who did the primary analysis?</a>
+      </li>
+      <li>
+        <a href="/record/feed/">What was captured, in order?</a>
+      </li>
+    </ul>
+
+    <p class="recordband__contrib">
+      The collection is incomplete by nature, and a pointer to something we
+      have missed is the most useful thing you can send:
+      <a href={`mailto:${CONTACT}`}>{CONTACT}</a> or
+      <a href={`${REPO}/issues`}>open an issue</a>. Published material only;
+      never anything containing recovery words or private keys.
+    </p>
+  </section>
+
+  <section class="wrap paths">
+    <h2 class="paths__h">{pc.h}</h2>
+    <p class="paths__sub">{pc.sub}</p>
+
+    <div class:list={['paths__grid', `paths__grid--${phase}`]}>
+      <a class="path path--affected" href="/affected/">
+        <h3>What to do about it</h3>
+        <p>
+          The check above gives you an answer; this is the rest of the
+          journey. Moving funds without making things worse, rotating a key
+          out of a multisig, and the scams that arrived alongside the
+          incident and are aimed at exactly the people reading this.
+        </p>
+        <span class="path__meta">Act &middot; and avoid the scams</span>
+      </a>
+
+      <a class="path path--happened" href="/how-it-broke/">
+        <h3>What happened?</h3>
+        <p>
+          The guard, the two generators, the truncated reseed, and how the fix
+          works. Code claims cite checks against the source repositories.
+        </p>
+        <span class="path__meta">Firmware detail</span>
+      </a>
+
+      <a class="path path--aftermath" href="/response/">
+        <h3>The aftermath</h3>
+        <p>
+          What Coinkite, Block, independent developers and researchers said and
+          shipped, the legal posture, and the evidence around claimed AI-assisted
+          discovery and post-disclosure reproduction.
+        </p>
+        <span class="path__meta">Vendor &middot; community &middot; legal</span>
+      </a>
+    </div>
+  </section>
+
+  {/*
+    The markers themselves sit beside the claims they grade, up in the hero.
+    This page uses Base rather than Article, so it must render the register
+    the references anchor to; the register carries its own heading.
+  */}
+  <section class="wrap whatthisis">
+    <EvidenceRegister />
+  </section>
+</Base>
+
+<style>
+  .hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2rem, 5vw, 3.2rem); }
+  .hero__kicker { margin-bottom: 1.1rem; }
+  .hero__title {
+    font-size: clamp(2.1rem, 5.6vw, 3.8rem);
+    line-height: 1.08;
+    /* Long enough to name the incident in full without wrapping into a
+       third line at desktop widths. */
+    max-width: 26ch;
+    margin-bottom: 1.4rem;
+  }
+  .hero__lede {
+    font-size: clamp(1rem, 1.5vw, 1.12rem);
+    line-height: 1.68;
+    max-width: 62ch;
+    color: var(--ink-2);
+  }
+  .hero__lede + .hero__lede { margin-top: 1rem; }
+
+
+  .paths { margin-top: 4.5rem; }
+  .paths__h { font-family: var(--font-display); font-weight: 400; font-size: 1.9rem; }
+  .paths__sub { color: var(--ink-3); margin-top: .45rem; font-size: .95rem; }
+  .paths__grid {
+    display: grid; gap: 1rem; margin-top: 1.7rem;
+    /* Three cards since the record's presence moved into the band above.
+       Active: the affected journey spans the row, two cards beneath it.
+       Steady: all three share one row. Track counts are set per phase so no
+       track is ever left empty. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .paths__grid--steady { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Below this, three tracks would fall under the 258px the cards want. */
+  @media (max-width: 880px) {
+    .paths__grid { grid-template-columns: 1fr; }
+  }
+  .path {
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem 1.45rem;
+    text-decoration: none;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .path:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .path h3 { font-size: 1.12rem; margin-top: .55rem; }
+  .path p { font-size: .89rem; color: var(--ink-2); margin-top: .5rem; line-height: 1.6; flex: 1; }
+  .path__meta {
+    font-family: var(--font-mono); font-size: .64rem; color: var(--ink-3);
+    letter-spacing: .07em; text-transform: uppercase; margin-top: .95rem;
+  }
+  /* Phase ordering (design doc section 6): same markup, CSS decides which
+     card leads. Active: the affected journey spans the first row. Steady:
+     the record band above already leads, so the three cards share a row
+     with the triage journey last, present without shouting. */
+  .paths__grid--active .path--affected {
+    grid-column: 1 / -1;
+    border-color: var(--accent);
+  }
+  .paths__grid--steady .path--happened { order: 1; }
+  .paths__grid--steady .path--aftermath { order: 2; }
+  .paths__grid--steady .path--affected { order: 3; }
+
+
+
+  .recordband { margin-top: 3.2rem; }
+  .recordband__h { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; }
+  .recordband__lede {
+    color: var(--ink-2); font-size: .95rem; line-height: 1.65;
+    margin-top: .7rem; max-width: var(--w-note);
+  }
+  .recordband__fresh {
+    color: var(--ink-3); font-size: .92rem; margin-top: .5rem; max-width: 62ch;
+  }
+  .recordband__contrib {
+    color: var(--ink-3); font-size: .9rem; line-height: 1.6;
+    margin-top: 1.6rem; max-width: var(--w-note);
+    border-top: 1px solid var(--rule); padding-top: 1rem;
+  }
+  .recordband__stats {
+    display: grid; gap: .8rem; margin-top: 1.3rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  @media (max-width: 720px) {
+    .recordband__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .rb-stat {
+    display: flex; flex-direction: column; gap: .2rem;
+    padding: .95rem 1rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: var(--radius-lg); text-decoration: none;
+    transition: border-color .15s;
+  }
+  .rb-stat:hover { border-color: var(--accent); }
+  .rb-stat strong {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: 1.7rem; color: var(--ink); line-height: 1.1;
+  }
+  .rb-stat span {
+    font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3);
+    letter-spacing: .07em; text-transform: uppercase;
+  }
+  .recordband__gone {
+    font-size: .92rem; color: var(--ink-2); margin-top: 1rem; max-width: 62ch;
+    border-left: 2px solid var(--rule); padding-left: .9rem;
+  }
+  .recordband__sub {
+    font-family: var(--font-mono); font-size: .68rem; font-weight: 600;
+    color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase;
+    margin-top: 1.8rem;
+  }
+  .recordband__latest {
+    list-style: none; margin: .8rem 0 0; padding: 0;
+    display: grid; gap: .8rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: 720px) {
+    .recordband__latest { grid-template-columns: 1fr; }
+  }
+  .rb-ev__link {
+    display: flex; flex-direction: column; height: 100%;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: var(--radius-lg); padding: .9rem 1rem;
+    text-decoration: none; transition: border-color .15s;
+  }
+  .rb-ev__link:hover { border-color: var(--accent); }
+  .rb-ev__shot {
+    display: block; margin: 0 0 .7rem;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    overflow: hidden; max-height: 150px; background: var(--surface-2);
+  }
+  /* display: block above would otherwise defeat the hidden attribute, and a
+     thumb-less entry rendered an empty broken-image frame. */
+  .rb-ev__shot[hidden] { display: none; }
+  .rb-ev__shot img { display: block; width: 100%; height: auto; }
+  .rb-ev__meta {
+    font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .rb-ev__title { font-weight: 600; font-size: .95rem; color: var(--ink); margin-top: .35rem; }
+  .rb-ev__by { font-size: .78rem; color: var(--ink-3); margin-top: .2rem; }
+  .recordband__feedlink { margin-top: .8rem; font-size: .9rem; }
+  .recordband__journeys {
+    list-style: none; margin: .8rem 0 0; padding: 0;
+    display: flex; flex-direction: column; gap: .45rem;
+  }
+  .recordband__journeys a { font-size: .98rem; }
+
+  /* Holds only the evidence register the hero's inline references anchor
+     to; the register renders its own heading. */
+  .whatthisis { margin-top: 2.6rem; }
+
+  /* The one thing on this page a frightened owner needs, sized so it cannot
+     be mistaken for another card in the row below. */
+  .checkdoor {
+    display: block;
+    margin-block: 2rem;
+    padding: 1.6rem 1.7rem;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .checkdoor:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .checkdoor__k {
+    display: block;
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  }
+  .checkdoor__h {
+    display: block;
+    font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.15; margin-top: .5rem; color: var(--ink);
+  }
+  .checkdoor__p {
+    display: block; max-width: 54ch; margin-top: .6rem;
+    color: var(--ink-2); font-size: .95rem; line-height: 1.6;
+  }
+  .checkdoor__go {
+    display: inline-block; margin-top: 1rem;
+    font-weight: 600; color: var(--accent);
+  }
+</style>

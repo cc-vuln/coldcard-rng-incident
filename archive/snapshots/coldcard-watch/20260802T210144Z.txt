@@ -1,0 +1,39 @@
+Coldcard Sweep Watch
+DashboardAddress listMethodology
+live
+Bitcoin Drained from Coldcards
+1,359.1829BTC
+$71,048,000at $62,949 per bitcoin
+Left of this line is the drain window on 30 and 31 July. Right of it is real time since. The two halves are drawn at different scales, so the drains stay visible against days of holding.
+0d 00h 00m 00suntouched for
+275blocks mined since
+960,466chain tip
+These are verified minimums, not totals. Every figure here comes from clusters that
+have been identified and checked transaction by transaction. Other attackers are working the same
+flaw with their own patterns, and undiscovered clusters are near certain. Treat this as a floor.
+How these addresses were identified
+Was your address drained?
+Paste a public bitcoin address to check it against the 4,312 addresses confirmed drained so far. The check runs entirely inside your browser against a hashed list. Nothing is sent anywhere and nothing is logged.
+Check
+The set covers three clusters: 1,195 addresses on 30 July (blocks 960183 to 960191), 1,126 on 31 July (blocks 960345 to 960369), and 13 more later that day (block 960455). The first window fell on the evening of Wednesday 29 July in US time zones, which is why some accounts date the theft to the 29th.
+Never type a seed phrase, private key, or passphrase into this page or any other. No legitimate tool asks for one.
+Most recent drain
+0.00993644BTC
+taken from bc1qelcnp9m9qh5r2su986d8kdkmdc9grlsujc8uuv
+31 July 2026, 08:36:17 UTCblock 960,369view transaction
+4,312
+addresses drained, verified
+view the full list
+The last address drained, on 31 July. 237 other addresses were drained in the same block. How many people that adds up to is not knowable from the chain, since one wallet can hold many addresses.
+Where the money is
+The six addresses the drains paid into. Nothing has left them.
+Coins have moved. The rows below now include the addresses they went to.
+Balances refresh every 60 seconds and stream over a websocket in between. If any tracked address spends, this page reads where the coins went and starts tracking those addresses too, following the trail one hop at a time. The headline figure only ever counts coins traced back to the theft, so a destination wallet holding other funds cannot inflate it.
+Is your Coldcard affected?
+Seeds generated on the firmware below were built with far less randomness than intended. Find your model and compare against the version you generated your seed on.
+Two details here go further than Coinkite’s advisory, both checked against their own signed release manifest. Their advisory bounds the Mk3 at 4.1.9, but signed Mk3 builds 5.0.1 and 5.0.3 shipped in 2022, after the change that caused this, and Coinkite has not said whether those are affected; they are listed as at risk because that is the safer reading. Block traces the fault to a 4.0.0 tag, but no 4.0.0 firmware was ever distributed, so 4.0.1 is the first version anyone could have generated a seed on.
+Coinkite emailed affected customers directly, and said so publicly on 2 August so people could tell a real message from a fake one. Treat any email, DM or call about this that asks for a seed phrase as an attack. Nobody legitimate needs it, and an incident like this draws people who will ask.
+Updating the firmware does not repair a seed that already exists. If your seed was generated on an affected version, the fix is to move your funds to a newly generated wallet.
+Two things reduce the risk. Coinkite say 50 to 98 of your own private dice rolls contributed at least 128 bits on their own, and 99 or more about 256 bits; below 50, or if you cannot remember, they say migrate. A strong BIP-39 passphrase reduces the immediate exposure but does not repair the seed, so passphrase users are told to migrate as well. On fixed firmware dice rolls are optional and the device seed is enough. Their advisory is the authority on what to do, not this page.
+Balances stream from mempool.space and Blockstream Esplora. Incident detail from the Coinkite advisory and Block's engineering analysis.
+Not affiliated with Coinkite. If you hold a Coldcard, follow the vendor advisory and move to a new seed rather than relying on anything here.

@@ -1,0 +1,24 @@
+# Recheck unverified claim markers with the sweep agent (scripts/claim-sweep.sh).
+# Optional: the site works without it; unverified claims then go stale until a
+# human rechecks them. Install the pair:
+#   sudo cp claim-sweep.service.example /etc/systemd/system/claim-sweep.service
+#   sudo cp claim-sweep.timer.example /etc/systemd/system/claim-sweep.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now claim-sweep.timer
+#
+# Replace USER and REPO with the account and checkout path. Requires
+# REVIEW_AGENT_BIN or CLAIM_SWEEP_AGENT_BIN in REPO/.env (see .env.example).
+[Unit]
+Description=claim-verification sweep of unverified markers
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/scripts/claim-sweep.sh
+TimeoutStartSec=3600
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

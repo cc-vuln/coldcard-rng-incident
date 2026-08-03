@@ -1,0 +1,164 @@
+---
+/**
+ * Client-side filter over whatever cards are on the page.
+ *
+ * No search dependency and no index to fall out of date: the cards are already
+ * in the DOM with their text, and this hides the ones that do not match. That
+ * keeps the page working with JavaScript off (everything visible, nothing
+ * filtered) and keeps the site free of a search library, consistent with the
+ * project's dependency posture.
+ *
+ * Cards opt in by carrying data-group; the matcher reads their text content,
+ * so titles, authors, excerpts and badges are all searchable.
+ *
+ * A facet is either a data-group equality (`value`) or, with `attr`, presence
+ * of a boolean data attribute on the card (e.g. `attr: 'data-has-shot'`).
+ */
+interface Props {
+  /** CSS selector for the searchable cards. */
+  target: string;
+  /** Selector for group wrappers hidden when they end up empty. */
+  section?: string;
+  placeholder?: string;
+  facets?: { value?: string; label: string; attr?: string }[];
+}
+const {
+  target,
+  section = '',
+  placeholder = 'Search the record',
+  facets = [],
+} = Astro.props;
+---
+
+<div class="rs" data-target={target} data-section={section}>
+  <div class="rs__row">
+    <input
+      class="rs__input"
+      type="search"
+      placeholder={placeholder}
+      aria-label={placeholder}
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <span class="rs__count" role="status" aria-live="polite"></span>
+  </div>
+  <div class="rs__facets" hidden={facets.length === 0}>
+    <button class="rs__facet is-on" data-facet="">All</button>
+    {facets.map((f) => (
+      <button class="rs__facet" data-facet={f.value ?? ''} data-facet-attr={f.attr}>{f.label}</button>
+    ))}
+  </div>
+</div>
+
+<script>
+  // Shared by every visibility owner on the page. An element is visible only
+  // when nothing has claimed a reason to hide it.
+  window.applyVisibility = window.applyVisibility || function (el) {
+    // `data-beyond` (not revealed yet) is ignored while a filter is active:
+    // a search must see the whole record, not just the part already browsed.
+    const filtering = document.documentElement.hasAttribute('data-filtering');
+    el.hidden = el.hasAttribute('data-nomatch')
+      || (!filtering && el.hasAttribute('data-beyond'));
+  };
+
+  document.querySelectorAll('.rs').forEach((rs) => {
+    const targetSel = rs.getAttribute('data-target') || '';
+    const sectionSel = rs.getAttribute('data-section') || '';
+    const input = rs.querySelector('.rs__input');
+    const count = rs.querySelector('.rs__count');
+    const facets = [...rs.querySelectorAll('.rs__facet')];
+    const cards = [...document.querySelectorAll(targetSel)];
+    const sections = sectionSel ? [...document.querySelectorAll(sectionSel)] : [];
+    // Text is read once: these cards are static, and re-reading textContent on
+    // every keystroke over a few hundred nodes is the one thing that would
+    // make this feel slow.
+    // The card excerpt is truncated, so the full note travels in data-search.
+    // Without it, searching the tail of a note would silently match nothing.
+    const haystacks = new Map(cards.map((c) => [
+      c,
+      ((c.textContent || '') + ' ' + (c.getAttribute('data-search') || '')).toLowerCase(),
+    ]));
+    let facet = '';
+    let facetAttr = '';
+
+    function apply() {
+      const q = (input.value || '').trim().toLowerCase();
+      const terms = q.split(/\s+/).filter(Boolean);
+      // Set before any element is evaluated: applyVisibility reads it.
+      if (terms.length || facet || facetAttr) document.documentElement.setAttribute('data-filtering', '');
+      else document.documentElement.removeAttribute('data-filtering');
+      let shown = 0;
+      for (const card of cards) {
+        const hay = haystacks.get(card) || '';
+        // Attribute facets match on presence; group facets on equality.
+        const okFacet = facetAttr
+          ? card.hasAttribute(facetAttr)
+          : !facet || card.getAttribute('data-group') === facet;
+        const okText = terms.every((t) => hay.includes(t));
+        const show = okFacet && okText;
+        // Ownership split: this component decides *matching*, and anything
+        // else on the page (the feed's progressive reveal) decides
+        // *revealing*. Both write their own flag; applyVisibility derives
+        // `hidden` from the pair, so neither overrides the other.
+        if (show) card.removeAttribute('data-nomatch');
+        else card.setAttribute('data-nomatch', '');
+        applyVisibility(card);
+        if (show) shown += 1;
+      }
+      for (const sec of sections) {
+        const any = [...sec.querySelectorAll(targetSel)].some((c) => !c.hidden);
+        sec.hidden = !any;
+      }
+      const filtering = terms.length > 0 || facet || facetAttr;
+      count.textContent = filtering
+        ? `${shown} of ${cards.length} shown`
+        : `${cards.length} items`;
+      // Other visibility owners (the feed's reveal control) may need to
+      // re-evaluate now that filtering has started or stopped.
+      document.dispatchEvent(new CustomEvent('rs:filter', { detail: { filtering } }));
+    }
+
+    input.addEventListener('input', apply);
+    facets.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        facet = btn.getAttribute('data-facet') || '';
+        facetAttr = btn.getAttribute('data-facet-attr') || '';
+        facets.forEach((b) => b.classList.toggle('is-on', b === btn));
+        apply();
+      });
+    });
+    apply();
+  });
+</script>
+
+<style>
+  .rs { margin: 1.2rem 0 1.6rem; }
+  .rs__row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+  .rs__input {
+    flex: 1; min-width: 15rem;
+    padding: .6rem .85rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit; font-size: .92rem;
+  }
+  .rs__input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .rs__count {
+    font-family: var(--font-mono); font-size: .66rem; color: var(--ink-3);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .rs__facets { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+  .rs__facet {
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: .3rem .6rem;
+    border: 1px solid var(--rule); border-radius: 999px;
+    background: var(--surface); color: var(--ink-3);
+    cursor: pointer;
+  }
+  .rs__facet:hover { color: var(--ink); border-color: var(--rule-2); }
+  .rs__facet.is-on {
+    background: var(--accent-soft); color: var(--accent); border-color: var(--accent);
+  }
+</style>

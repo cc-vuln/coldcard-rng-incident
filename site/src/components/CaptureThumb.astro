@@ -1,0 +1,67 @@
+---
+/**
+ * A corner of the captured artefact, dropped beside the citation that uses it.
+ *
+ * Two gates decide whether anything renders, the same pair every other media
+ * renderer applies (see docs/design/capture-display-policy.md):
+ *
+ *   1. staged: a capture for the registered x_post passed the OWN_HOST_FROM
+ *      provenance check and is present in the x-media manifest (lib/xmedia.ts);
+ *   2. not withheld: withholdsCapturedMedia() on the registered post is false,
+ *      the publication decision (lib/archive.ts).
+ *
+ * An id that is not a registered x_post, has no staged capture, or is withheld
+ * renders nothing at all, wrapper included, so a page carrying this component
+ * degrades to exactly its text-only layout when nothing is staged.
+ */
+import { xMedia } from '../lib/xmedia';
+import { xPostById, withholdsCapturedMedia, isoToHuman } from '../lib/archive';
+
+interface Props {
+  /** Registry id of the cited x_post. */
+  id: string;
+}
+
+const { id } = Astro.props;
+
+const post = xPostById(id);
+const shot = post && !withholdsCapturedMedia(post) ? (xMedia(id)[0] ?? null) : null;
+const postedLabel = post?.posted
+  ? isoToHuman(post.posted)
+  : 'posting time not established';
+const view = post && shot
+  ? {
+      href: `/record/sources/${id}/`,
+      src: shot.src,
+      alt: `Captured screenshot of the post by @${post.author}, posted ${postedLabel}`,
+    }
+  : null;
+---
+
+{view && (
+  <a class="ct" href={view.href}>
+    <img src={view.src} alt={view.alt} loading="lazy" />
+  </a>
+)}
+
+<style>
+  .ct {
+    display: block;
+    max-width: 15rem;
+    margin-top: .7rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .ct:hover { border-color: var(--accent); }
+  .ct img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 10rem;
+    object-fit: cover;
+    object-position: top;
+  }
+</style>

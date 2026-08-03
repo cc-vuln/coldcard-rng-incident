@@ -1,0 +1,25 @@
+# Run the capture browser permanently.
+#   sudo cp webbridge.service.example /etc/systemd/system/webbridge.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now webbridge
+#
+# Replace USER and REPO with the account and checkout path.
+[Unit]
+Description=Capture browser for the archive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=USER
+# Optional: supplies CAPTURE_BROWSER_TZ and friends; safe if absent.
+EnvironmentFile=-REPO/.env
+ExecStart=REPO/.capture-browser/venv/bin/python REPO/capture-browser/webbridge.py
+Restart=always
+RestartSec=5
+# Recycled daily: this idles between captures and a browser left running for
+# weeks accumulates memory that nothing else reclaims.
+RuntimeMaxSec=86400
+MemoryMax=1536M
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

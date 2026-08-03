@@ -1,0 +1,233 @@
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+Coldcard
+/
+firmware
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+189
+Star
+732
+Code
+Pull requests
+8
+Actions
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Pull requests
+Actions
+Security and quality
+Insights
+fix: feed full SE digest to PRNG reseed (drop 32-bit truncation) - #691
+#691
+Open
+ballance wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+ballance:fix/se-reseed-32bit-truncationballance/firmware:fix/se-reseed-32bit-truncationCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Open
+fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)#691
+ballance wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+ballance:fix/se-reseed-32bit-truncationballance/firmware:fix/se-reseed-32bit-truncationCopy head branch name to clipboard
+Conversation
+ballance
+commented
+Aug 1, 2026
+Copy link
+Copy Markdown
+Summary
+mk4.rng_seeding() hashes the secure-element entropy with SHA256d but then keeps
+only the first four bytes — n, = ustruct.unpack('I', n[0:4]) — before handing it
+to ngu.random.reseed(). That throttled the secure-element contribution to the
+software RNG to 2**32, discarding 28 of the 32 digest bytes.
+This change passes the full 32-byte digest to reseed().
+Change
+shared/mk4.py: drop the 4-byte truncation; feed the whole SHA256d digest.
+Bump external/libngu to the companion fix that makes reseed() absorb a
+full-width seed into all generator state words.
+Dependency / CI note
+Requires switck/libngu#60 (the reseed() rework). Until that merges, the bumped
+submodule commit exists only on the libngu fork, so firmware CI cannot fetch it
+from upstream. Options for maintainers: merge switck/libngu#60 first and re-pin, or
+I can temporarily point .gitmodules at the fork branch for CI — happy to do
+whichever you prefer.
+Context
+Public disclosure: Block engineering, "Predictable RNG fallback and 32-bit reseed in
+COLDCARD firmware." This addresses the 32-bit-reseed half. (The predictable-fallback
+half is already mitigated in this tree: stm32/COLDCARD*/rng.c binds rng_get() to
+the hardware TRNG with #if MICROPY_HW_ENABLE_RNG -> #error guarding, and the
+mpconfigboard.mk files poison pyb_rng_yasmarang.)
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
+…
+9324b13
+rng_seeding() hashed the secure-element entropy with SHA256d but then
+kept only n[0:4], handing ngu.random.reseed() a single 32-bit word. That
+throttled the secure-element contribution to 2**32 and, combined with
+reseed()'s old behaviour, left most of the generator state at fixed
+constants. Pass the whole 32-byte digest instead.
+Bumps external/libngu to a512174, which reworks random.reseed() to
+absorb a full-width seed into all generator state words.
+Ref: Block engineering disclosure, "Predictable RNG fallback and 32-bit
+reseed in COLDCARD firmware".
+Thirty-two silent bytes,
+all but four were cast aside —
+now the seed stays whole.
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+1 participant
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

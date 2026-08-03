@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Coldcard Security Advisory | COINKITE Blog</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Coldcard Security Advisory" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Funds from affected COLDCARD seeds are at risk if the seed lacks 50 independent, private dice rolls and the wallet lacks a strong, unique BIP-39 passphrase." />
+<meta property="og:description" content="Funds from affected COLDCARD seeds are at risk if the seed lacks 50 independent, private dice rolls and the wallet lacks a strong, unique BIP-39 passphrase." />
+<link rel="canonical" href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" />
+<meta property="og:url" content="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" />
+<meta property="og:site_name" content="COINKITE Blog" />
+<meta property="og:image" content="https://blog.coinkite.com/images/posts-img/security-advisory.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-07-30T00:00:00-12:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://blog.coinkite.com/images/posts-img/security-advisory.png" />
+<meta property="twitter:title" content="Coldcard Security Advisory" />
+<meta name="twitter:site" content="@" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-08-01T01:35:00-12:00","datePublished":"2026-07-30T00:00:00-12:00","description":"Funds from affected COLDCARD seeds are at risk if the seed lacks 50 independent, private dice rolls and the wallet lacks a strong, unique BIP-39 passphrase.","headline":"Coldcard Security Advisory","image":"https://blog.coinkite.com/images/posts-img/security-advisory.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/"},"url":"https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  
+<link rel="stylesheet" href="/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="COINKITE Blog" href="https://blog.coinkite.com/feed.xml">
+<link rel="icon" href="https://blog.coinkite.com/images/favicon.png">
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "COINKITE Blog",
+  "description": "World&#39;s First Bitcoin Credit Stick Wallet",
+  "url": "https://blog.coinkite.com/",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Coinkite Inc.",
+    "url": "https://coinkite.com"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Coldcard Security Advisory",
+  "description": "Funds from affected COLDCARD seeds are at risk if the seed lacks 50 independent, private dice rolls and the wallet lacks a strong, unique BIP-39 passphrase.",
+  "url": "https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/",
+  "datePublished": "2026-07-30T00:00:00-12:00",
+  "dateModified": "2026-08-01T01:35:00-12:00",
+  "image": "https://blog.coinkite.com/images/posts-img/security-advisory.png",
+  "author": {
+    "@type": "Organization",
+    "name": "Coinkite Inc.",
+    "url": "https://coinkite.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Coinkite Inc.",
+    "url": "https://coinkite.com"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://blog.coinkite.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Coldcard Security Advisory", "item": "https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" }
+  ]
+}
+</script>
+
+</head>
+
+
+  <body class="layout-post">
+    <header class="header">
+  <div class="container">
+    <div class="logo">
+      <a href="https://coinkite.com/">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="132px" height="24.831px" viewBox="0 0 132 24.831" enable-background="new 0 0 132 24.831" xml:space="preserve">
+<g>
+  <g>
+    <path fill="#F16422" d="M0,12.557C0,5.229,5.514,0.284,12.664,0.284c5.193,0,8.217,2.811,9.889,5.799l-4.339,2.135
+      c-0.996-1.921-3.131-3.45-5.549-3.45c-4.34,0-7.471,3.309-7.471,7.79c0,4.482,3.131,7.79,7.471,7.79
+      c2.419,0,4.553-1.529,5.549-3.45l4.339,2.1c-1.672,2.952-4.696,5.834-9.889,5.834C5.514,24.83,0,19.849,0,12.557z"></path>
+    <path fill="#F16422" d="M24.366,15.794c0-4.873,3.414-9,9.071-9c5.692,0,9.107,4.126,9.107,9c0,4.874-3.414,9.037-9.107,9.037
+      C27.781,24.83,24.366,20.668,24.366,15.794z M37.848,15.794c0-2.667-1.565-4.98-4.411-4.98c-2.811,0-4.375,2.312-4.375,4.98
+      c0,2.704,1.565,5.016,4.375,5.016C36.282,20.81,37.848,18.498,37.848,15.794z"></path>
+    <path fill="#F16422" d="M45.493,2.668C45.493,1.174,46.703,0,48.162,0c1.494,0,2.703,1.174,2.703,2.668
+      c0,1.494-1.209,2.703-2.703,2.703C46.703,5.371,45.493,4.162,45.493,2.668z M45.92,24.403V7.221h4.517v17.182H45.92z"></path>
+    <path fill="#F16422" d="M66.516,24.403V14.016c0-2.383-1.245-3.201-3.166-3.201c-1.778,0-3.131,0.996-3.913,1.992v11.597h-4.518
+      V7.221h4.518v2.205c1.104-1.281,3.237-2.633,6.013-2.633c3.805,0,5.619,2.134,5.619,5.479v12.13L66.516,24.403L66.516,24.403z"></path>
+    <path fill="#F16422" d="M86.648,24.403l-4.554-6.617l-2.063,2.206v4.412h-4.517V0.675h4.517v14.193l6.511-7.648h5.548l-6.795,7.79
+      l7.008,9.391L86.648,24.403L86.648,24.403z"></path>
+    <path fill="#F16422" d="M94.151,2.668c0-1.494,1.21-2.668,2.668-2.668c1.494,0,2.704,1.174,2.704,2.668
+      c0,1.494-1.209,2.703-2.704,2.703C95.361,5.371,94.151,4.162,94.151,2.668z M94.579,24.403V7.221h4.518v17.182H94.579z"></path>
+    <path fill="#F16422" d="M104.501,20.099v-8.928h-2.845v-3.95h2.845V2.524h4.519v4.697h3.485v3.95h-3.485v7.718
+      c0,1.103,0.57,1.921,1.565,1.921c0.676,0,1.317-0.249,1.566-0.533l0.96,3.45c-0.676,0.605-1.885,1.103-3.77,1.103
+      C106.173,24.83,104.501,23.194,104.501,20.099z"></path>
+    <path fill="#F16422" d="M114.497,15.794c0-4.98,3.699-9,8.893-9c5.158,0,8.61,3.842,8.61,9.427v1.068h-12.772
+      c0.321,2.098,2.028,3.842,4.945,3.842c1.459,0,3.451-0.605,4.553-1.672l2.028,2.988c-1.708,1.566-4.412,2.383-7.079,2.383
+      C118.445,24.83,114.497,21.308,114.497,15.794z M123.39,10.494c-2.811,0-4.02,1.957-4.197,3.664h8.466
+      C127.517,12.522,126.379,10.494,123.39,10.494z"></path>
+  </g>
+</g>
+</svg>
+      </a>
+    </div>
+    <div>
+      <a href="/" class="active">Blog</a>
+      <a href="https://coinkite.com/careers">Careers</a>
+      <a href="https://coinkite.com/?contact_open=1">Contact</a>
+      <a href="/feed.xml">RSS</a>
+      <a href="https://newsletter.coinkite.com/subscribe?utm_source=coinkite-blog&utm_medium=blog&utm_campaign=newsletter">Email Newsletter</a>
+      <a href="https://store.coinkite.com/store" class="btn btn-store"><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+Store</a>
+      <div class="mobile-menu-btn" onclick="openNav()">
+        <svg width="18px" height="11px" viewBox="0 0 18 11" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+          <g id="Actions--Navigation--menu--24">
+            <path d="M0 9L18 9L18 10.5L0 10.5L0 9ZM0 0L18 0L18 1.5L0 1.5L0 0ZM0 4.5L18 4.5L18 6L0 6L0 4.5Z" id="Fill" fill="#000000" fill-rule="evenodd" stroke="none" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="https://coinkite.com/">Home</a>
+    <a href="/">Blog</a>
+    <a href="https://coinkite.com/careers">Careers</a>
+    <a href="https://coinkite.com/?contact_open=1">Contact</a>
+    <a href="/feed.xml">RSS</a>
+    <a href="https://newsletter.coinkite.com/subscribe?utm_source=coinkite-blog&utm_medium=blog&utm_campaign=newsletter">Email Newsletter</a>
+    <a href="https://store.coinkite.com/store" class="btn btn-store">
+      <svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+ Store
+    </a>
+</div>
+
+<script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "100%";
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+    }
+</script>
+
+    
+    <section class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+          <a href="/" class="back">&#8592; Back to posts</a>
+          <h1 class="post-title" itemprop="name headline">Coldcard Security Advisory</h1>
+          <div class="post-meta">
+            <ul>
+              <li class="date">Published <time datetime="2026-07-30T00:00:00-12:00" itemprop="datePublished">Jul 30, 2026</time></li>
+              <li class="tags">Categories: ckcc</li>
+            </ul>
+          </div>
+          
+            <div class="main-img-wrapper">
+              <img src="https://blog.coinkite.com/images/posts-img/security-advisory.png" alt="Coldcard Security Advisory" />
+              
+            </div>
+          
+        </header>
+        <div class="post-content" itemprop="articleBody">
+          
+
+          <p><strong>Updated August 1, 2026 at 9:35 a.m. EDT:</strong> Funds controlled by seeds generated
+on affected firmware are at risk if the seed was created without at least 50
+independent, private dice rolls and the funded wallet is not protected by a
+strong, unique BIP-39 passphrase.</p>
+
+<p>Fixed firmware is now available for every affected model and release track:</p>
+
+<ul>
+  <li><strong>Mk3:</strong> <a href="https://coldcard.com/downloads/mk3">version 4.2.0 or later</a></li>
+  <li><strong>Mk4/Mk5 standard:</strong> <a href="https://coldcard.com/downloads/mk">version 5.6.0 or later</a></li>
+  <li><strong>Q standard:</strong> <a href="https://coldcard.com/downloads/q1">version 1.5.0Q or later</a></li>
+  <li><strong>Mk4/Mk5 Edge:</strong> <a href="https://coldcard.com/downloads/edge">version 6.6.0X or later</a></li>
+  <li><strong>Q Edge:</strong> <a href="https://coldcard.com/downloads/edge">version 6.6.0QX or later</a></li>
+</ul>
+
+<p>Standard and Edge are separate release tracks. If you use Edge, install the
+fixed Edge release for your model. Do not assume an older Edge 6.x release is
+fixed merely because its version number is higher than the standard release.</p>
+
+<p>Do not generate a new seed on any
+of these models until the update is installed.</p>
+
+<p><strong>Funds controlled by a seed generated on Mk3 version 4.0.1 (March 2021)
+through 4.1.9 inclusive are at risk if the seed was created without at least 50
+fair, independent, private dice rolls and the funded wallet is not protected by
+a strong, unique BIP-39 passphrase.</strong></p>
+
+<p><strong>Seeds generated on Mk4, Q and Mk5 before the fixed firmware releases are also
+affected, with about 72 bits of entropy rather than the expected 128 bits.</strong></p>
+
+<p>Updating the firmware does not change or repair an existing seed. If your seed
+was generated before the fixed firmware version for your model, follow the
+migration guidance below unless the independent dice-entropy exception applies
+to you. A strong passphrase reduces the immediate exposure, but it does not
+repair the affected seed; passphrase users should also migrate as soon as
+practical.</p>
+
+<p><strong>TAPSIGNER, OPENDIME and SATSCARD are not affected by this bug as they are different codebases</strong></p>
+
+<p>The issue is present on Mk3 firmware versions <a href="https://coldcard.com/downloads/mk3">4.0.1 through 4.1.9
+inclusive</a>. It also affects seeds generated
+on Mk4 and Mk5 before standard version 5.6.0 or Edge version 6.6.0X, and on Q
+before standard version 1.5.0Q or Edge version 6.6.0QX. The impact on Mk4, Mk5
+and Q is not as severe but is still serious.</p>
+
+<h2 id="if-you-added-dice-when-creating-the-seed">If You Added Dice When Creating the Seed</h2>
+
+<p>This issue affects the device-generated entropy. It does not remove independent
+entropy that you supplied with dice.</p>
+
+<p>On affected firmware, COLDCARD <a href="https://github.com/Coldcard/firmware/blob/621e808712464688584fdffad9eba132cc7c27cd/shared/seed.py#L276-L332">hashed the device-generated seed together with
+every dice roll</a>
+entered through <strong>Add Dice Rolls</strong>:</p>
+
+<ul>
+  <li><strong>50 to 98 independent, private rolls:</strong> the dice input alone contributed at
+least 128 bits of entropy.</li>
+  <li><strong>99 or more independent, private rolls:</strong> the dice input contributed
+approximately 256 bits of entropy.</li>
+  <li><strong>Fewer than 50 rolls, or you do not remember:</strong> follow the migration
+guidance in this advisory.</li>
+</ul>
+
+<p>If you entered at least 50 fair and independent rolls, and the rolls were not
+recorded or exposed, we do not consider the resulting seed at risk from this
+RNG issue alone.</p>
+
+<p>This applies to the final seed words shown after the dice were added. If you are
+uncertain which words you used, how many rolls you entered, or whether the
+rolls were private, migrate to a new seed.</p>
+
+<aside class="advisory-callout" role="note" aria-labelledby="mk3-firmware-status">
+  <h2 id="mk3-firmware-status">Investigation and Firmware Status</h2>
+  <p>Fixed Mk3 firmware version 4.2.0 has been released. Install it from the
+  official Mk3 download page before generating a replacement seed.</p>
+  <p>Version 4.2.0 corrects new seed generation. It cannot repair a seed that
+  was already generated by affected firmware.</p>
+  <p>This advisory reflects our early analysis. Our investigation is ongoing,
+  and a formal technical review will be released as soon as possible.</p>
+</aside>
+
+<h2 id="if-you-used-a-passphrase">If You Used a Passphrase</h2>
+
+<p>If the affected seed was used with a strong, unique BIP-39 passphrase, that
+passphrase adds an independent barrier. The reduced seed entropy alone is not
+enough to reach funds in that passphrase wallet; an attacker must also discover
+the passphrase.</p>
+
+<p>A short, common, patterned, quoted, or reused passphrase may be guessable. If
+that describes your passphrase, or you are uncertain about its strength, treat
+the funds as at risk and migrate immediately.</p>
+
+<p>This means a BIP-39 passphrase, not the COLDCARD PIN. Even with a strong
+passphrase, migrate to a newly generated seed as soon as practical. Continue to
+protect the passphrase and do not enter it into a website or an untrusted
+device.</p>
+
+<h2 id="if-the-mk3-is-your-only-device">If the Mk3 Is Your Only Device</h2>
+
+<p>Firmware 4.2.0 allows the Mk3 to generate a replacement seed correctly. You do
+not need a newer COLDCARD to complete the migration. Updating does not repair
+the affected seed already stored on the device.</p>
+
+<p>Using one Mk3 for both wallets requires carefully switching between the old and
+new seeds. If a second device with fixed firmware is available, use it instead.
+If the Mk3 is your only device:</p>
+
+<ol>
+  <li>Verify the written backup and wallet fingerprint of the affected seed.</li>
+  <li><a href="https://coldcard.com/downloads/mk3">Install firmware 4.2.0 or later</a> and
+confirm the version on the Mk3.</li>
+  <li>On an empty Mk3, generate a new seed. Record and verify its backup, wallet
+fingerprint, and a receive address.</li>
+  <li>Restore the affected seed and send a small test transaction to the verified
+address.</li>
+  <li>Restore the new seed and confirm that its fingerprint matches and the test
+funds arrived.</li>
+  <li>Restore the affected seed and move the remaining funds.</li>
+  <li>Restore the new seed and confirm the migration. Keep the old backup until
+the complete balance has arrived and is confirmed.</li>
+</ol>
+
+<p>The fixed firmware’s device-generated seed is sufficient. Dice rolls are
+optional and are not required to address this issue. A BIP-39 passphrase is a
+separate wallet-security choice; if used, back it up exactly and separately
+from the seed words.</p>
+
+<h3 id="optional-dice-only-seed-on-mk3">Optional Dice-Only Seed on Mk3</h3>
+
+<p>After updating to version 4.2.0, users who are confident in their ability to
+perform and verify a dice-only migration can create a replacement seed without
+using the device’s random-number generator. This is optional; the normal <code class="language-plaintext highlighter-rouge">New
+Wallet</code> flow is corrected in version 4.2.0.</p>
+
+<p>On an empty Mk3 running 4.2.0, select <code class="language-plaintext highlighter-rouge">Import Existing &gt; Dice Rolls</code> and enter
+at least 99 independent rolls of a fair six-sided die. This dedicated dice-only
+path hashes the roll sequence directly; it does not use the device’s generator.</p>
+
+<p>This is an advanced procedure. A one-device migration requires safely
+alternating between the old and new seeds. Before erasing either seed from
+the Mk3, verify its written backup and XFP. Verify a receive address for the
+dice-generated wallet, restore and verify the original wallet, and send a
+small test transaction before moving the remainder. Keep the original
+backup until the entire migration is confirmed.</p>
+
+<p>The dice-roll sequence is secret key material. Never photograph it, save it
+digitally, or enter it into a networked computer. Read the <a href="https://coldcard.com/docs/verifying-dice-roll-math/">COLDCARD
+dice-roll method</a>
+before attempting this option.</p>
+
+<h2 id="migrate-carefully">Migrate Carefully</h2>
+
+<p>When migrating to a new key, calm and care should be applied. Rushing a
+wallet migration can create a more immediate risk than the issue you are
+trying to address.</p>
+
+<p>Seeds generated on Mk3 versions 4.0.1 through 4.1.9; Mk4 and Mk5 before
+standard version 5.6.0 or Edge version 6.6.0X; or Q before standard version
+1.5.0Q or Edge version 6.6.0QX are affected unless the independent dice-entropy
+exception applies. Before generating a replacement seed, update Mk3 to version
+4.2.0 or later; Mk4 and Mk5 to standard version 5.6.0 or later, or Edge version
+6.6.0X or later; or Q to standard version 1.5.0Q or later, or Edge version
+6.6.0QX or later:</p>
+
+<ol>
+  <li>Confirm the fixed firmware version is installed.</li>
+  <li>Generate a new seed on the updated COLDCARD.</li>
+  <li>Record and verify its backup before depositing funds.</li>
+  <li>Verify a new receive address on the COLDCARD screen.</li>
+  <li>Send a small test transaction and confirm that the new wallet works.</li>
+  <li>Only then move the remaining funds.</li>
+  <li>Keep the old backup until the migration is complete and confirmed.</li>
+</ol>
+
+<p>We are continuing to investigate. More details will follow.</p>
+
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+    var font3 = document.createElement('link'); 
+    font3.type = 'text/css'; 
+    font3.rel = 'stylesheet';
+    font3.href = '/css/syntax-highlighting.css';
+    var q = document.getElementsByTagName('link')[0]; 
+    q.parentNode.insertBefore(font3, q);
+  })();
+</script>
+
+    
+<footer class="footer">
+  <div class="top">
+    <div class="container">
+      <div class="socials-container"><div class="socials-grid">
+  <a href="https://twitter.com/COLDCARDwallet" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @COLDCARDwallet</a
+  >
+  <a href="https://twitter.com/SATSCARD" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @SATSCARD</a
+  >
+  <a href="https://twitter.com/TAPSIGNER" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @TAPSIGNER</a
+  >
+  <a href="https://twitter.com/theBLOCKCLOCK" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @theBLOCKCLOCK</a
+  >
+  <a href="https://x.com/arcasafes" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @arcasafes</a
+  >
+  <a href="https://www.youtube.com/channel/UCqMPBcyg_wemgvC1jDI3EIw" class="btn btn-social"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+  <path d="M549.7 124.1c-6.3-23.7-24.8-42.3-48.3-48.6C458.8 64 288 64 288 64S117.2 64 74.6 75.5c-23.5 6.3-42 24.9-48.3 48.6-11.4 42.9-11.4 132.3-11.4 132.3s0 89.4 11.4 132.3c6.3 23.7 24.8 41.5 48.3 47.8C117.2 448 288 448 288 448s170.8 0 213.4-11.5c23.5-6.3 42-24.2 48.3-47.8 11.4-42.9 11.4-132.3 11.4-132.3s0-89.4-11.4-132.3zm-317.5 213.5V175.2l142.7 81.2-142.7 81.2z" />
+</svg> Video Tutorials</a
+  >
+</div>
+
+<div>
+  <a href="https://twitter.com/Coinkite" class="btn btn-social coinkite"
+    ><svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path d="M459.4 151.7c.3 4.5 .3 9.1 .3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53 51.7 63.7 129.3 105.3 216.4 109.8-1.6-7.8-2.6-15.9-2.6-24 0-57.8 46.8-104.9 104.9-104.9 30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3z" />
+</svg> @Coinkite</a
+  >
+</div>
+</div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="main-part">
+      <div>
+        <div class="dev-brand">
+          Made with <img src="/images/heart.png" alt="Made with heart by Coinkite" /> by Coinkite
+        </div>
+        <a class="btn btn-store black-btn" href="https://store.coinkite.com/store" target="_blank">
+          <svg class="fa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+&nbsp;View store
+        </a>
+      </div>
+      <div>
+        <div>
+          <h3 class="title">Products</h3>
+          <div>
+            <a href="https://opendime.com" target="_blank"><span class="medium-txt">Opendime</span></a>
+            <a href="https://bitcoinseedbackup.com/"><span class="medium-txt">Speedplate</span></a>
+            <a href="https://getblockclock.com"><span class="medium-txt">Blockclock</span></a>
+          </div>
+        </div>
+        <div>
+          <h3 class="title">Support</h3>
+          <div>
+            <a href="https://coinkite.com/responsible-disclosure"><span class="medium-txt">Responsible Disclosure</span></a>
+            <a href="https://coinkite.com/terms-of-use"><span class="medium-txt">Terms of Use</span></a>
+            <a href="https://coinkite.com/static/bitcoin.pdf"><span class="medium-txt">White Paper</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="copyright-part">
+      <span>Copyright © 2026 Coinkite Inc. All rights reserved.</span>
+      <div>
+        <a href="mailto:support@coinkite.com"><span class="medium-txt">support@coinkite.com</span></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    
+    <script async>
+    (function() {
+        var font = document.createElement('link'); 
+        font.type = 'text/css'; 
+        font.rel = 'stylesheet';
+        font.href = '//fonts.googleapis.com/css?family=Open+Sans:300,400,700';
+        var s = document.getElementsByTagName('link')[0]; 
+        s.parentNode.insertBefore(font, s);
+      })();
+    </script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js?v=5.1.3"></script>
+    
+    <!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-276JRVF7JV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-276JRVF7JV');
+</script>
+
+  <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a24561a02e6d8665',t:'MTc4NTU5Mjk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>

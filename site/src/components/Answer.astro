@@ -1,0 +1,37 @@
+---
+/**
+ * A page's answer block: the few sentences that resolve the question the
+ * standfirst poses, before the detail ladder begins. Part of the disclosure
+ * pattern in docs/design/site-information-architecture.md.
+ *
+ * Keep it to three to five sentences, plain words, rounded figures, every
+ * number attributed. Exact figures belong in the rungs below it, except on
+ * accounting pages where the arithmetic itself is the subject.
+ */
+---
+
+<div class="answer">
+  <span class="answer__label" aria-hidden="true">In short</span>
+  <div class="answer__body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* The shared accent-rule recipe: 3px rule + --inset-box, as .callout. No
+     right padding, because there is no background or right border for it to
+     inset from; it would only shorten the line for no visible reason. */
+  .answer {
+    border-left: 3px solid var(--accent);
+    padding: .2rem 0 .2rem var(--inset-box);
+    margin-block: 1.4rem;
+  }
+  .answer__label {
+    font-family: var(--font-mono);
+    font-size: .6rem; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .answer__body { font-size: 1.02rem; }
+  .answer__body :global(p:last-child) { margin-bottom: 0; }
+</style>

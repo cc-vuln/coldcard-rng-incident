@@ -1,0 +1,41 @@
+.venv/
+__pycache__/
+*.pyc
+archive/x/_capture-*.log
+.DS_Store
+site/node_modules/
+site/dist/
+site/.astro/
+.env
+.work/
+site/tools/private-tokens.json
+AGENTS.local.md
+site/public/x-media/
+site/src/data/x-media.json
+
+# Captured video: kept on the capture host, never committed. Too large for
+# hosting limits, and the sidecar hashes already establish what was held.
+archive/x/**/*.mp4
+archive/x/**/*.mov
+archive/x/**/*.webm
+
+# Browser profile and installed Chromium: a signed-in session must never
+# reach a commit.
+.capture-browser/
+
+# Withheld sources: none. A source can opt out of having its captured
+# bodies published by setting `withhold_text = true` in sources.toml,
+# which scripts/check_publishable.py then keeps out of any commit.
+# A repository is publication too, and a clone outlives a deletion.
+
+# One machine's local tool permissions, not project content.
+.claude/settings.local.json
+
+
+# Pre-overwrite safety tarballs from the backup-before-clobbering workflow.
+# Local safety net only, never project content.
+.backups/
+
+# Editor launch configuration: one machine's local tooling, matching the
+# settings.local.json exclusion above.
+.claude/launch.json

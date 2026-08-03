@@ -1,0 +1,57 @@
+--- coinkite-mk3-advisory@20260801T001731Z
++++ coinkite-mk3-advisory@20260801T140234Z
+@@ -16,8 +16,11 @@
+ Coldcard Security Advisory
+ Published Jul 30, 2026
+ Categories: ckcc
+-Updated July 31, 2026 at 12:39 p.m. EDT: Fixed firmware is now available
+-for every affected model and release track:
++Updated August 1, 2026 at 9:35 a.m. EDT: Funds controlled by seeds generated
++on affected firmware are at risk if the seed was created without at least 50
++independent, private dice rolls and the funded wallet is not protected by a
++strong, unique BIP-39 passphrase.
++Fixed firmware is now available for every affected model and release track:
+ Mk3: version 4.2.0 or later
+ Mk4/Mk5 standard: version 5.6.0 or later
+ Q standard: version 1.5.0Q or later
+@@ -28,15 +31,18 @@
+ fixed merely because its version number is higher than the standard release.
+ Do not generate a new seed on any
+ of these models until the update is installed.
+-Coinkite is warning all users who
+-generated a seed using a Mk3 on version 4.0.1 (March 2021) thru 4.1.9 (inclusive)
+-that their funds may be at risk.
++Funds controlled by a seed generated on Mk3 version 4.0.1 (March 2021)
++through 4.1.9 inclusive are at risk if the seed was created without at least 50
++fair, independent, private dice rolls and the funded wallet is not protected by
++a strong, unique BIP-39 passphrase.
+ Seeds generated on Mk4, Q and Mk5 before the fixed firmware releases are also
+ affected, with about 72 bits of entropy rather than the expected 128 bits.
+ Updating the firmware does not change or repair an existing seed. If your seed
+ was generated before the fixed firmware version for your model, follow the
+ migration guidance below unless the independent dice-entropy exception applies
+-to you.
++to you. A strong passphrase reduces the immediate exposure, but it does not
++repair the affected seed; passphrase users should also migrate as soon as
++practical.
+ TAPSIGNER, OPENDIME and SATSCARD are not affected by this bug as they are different codebases
+ The issue is present on Mk3 firmware versions 4.0.1 through 4.1.9
+ inclusive. It also affects seeds generated
+@@ -69,10 +75,13 @@
+ This advisory reflects our early analysis. Our investigation is ongoing,
+ and a formal technical review will be released as soon as possible.
+ If You Used a Passphrase
+-If the affected Mk3 seed was used with a strong, unique BIP-39 passphrase, that
+-passphrase adds an independent barrier. The risk depends on the strength of the
+-passphrase: a short, common, patterned, quoted, or reused passphrase may be
+-guessable and should not be assumed to provide minimal risk.
++If the affected seed was used with a strong, unique BIP-39 passphrase, that
++passphrase adds an independent barrier. The reduced seed entropy alone is not
++enough to reach funds in that passphrase wallet; an attacker must also discover
++the passphrase.
++A short, common, patterned, quoted, or reused passphrase may be guessable. If
++that describes your passphrase, or you are uncertain about its strength, treat
++the funds as at risk and migrate immediately.
+ This means a BIP-39 passphrase, not the COLDCARD PIN. Even with a strong
+ passphrase, migrate to a newly generated seed as soon as practical. Continue to
+ protect the passphrase and do not enter it into a website or an untrusted

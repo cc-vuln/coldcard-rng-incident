@@ -1,0 +1,81 @@
+---
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import Claim from '../../components/Claim.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import SeedWarning from '../../components/SeedWarning.astro';
+import AttackEstimator from '../../components/AttackEstimator.astro';
+---
+
+<Article
+  title="Attack-time estimator"
+  description="An entirely client-side sensitivity calculator for published COLDCARD device-search scenarios, passphrase constructions and dice input."
+  standfirst="Combine source-labelled device models with uniform passphrase or dice assumptions, then change the candidate rate to see how the result moves. Every number here is a sensitivity estimate built on assumptions you choose, not a measurement of what an attacker can do, and the notes under the result say what each one leaves out."
+  depth="plain"
+  kicker="Your risk"
+>
+  <Answer>
+    <p>
+      Block, Coinkite, LLFOURN and otaliptus published device-search scenarios
+      that differ by many orders of magnitude, because they assume different
+      things about UID, timer, RTC and attacker knowledge.
+      <Claim
+        basis="reported"
+        contested
+        scope="The published input models and LLFOURN's reported 10-to-14-bit revision selectable in the estimator"
+        source="Models from Block, Coinkite, LLFOURN and otaliptus, kept separate because their device scope, attacker knowledge and timing assumptions differ"
+        href="/how-it-broke/entropy/"
+        compact
+      />
+      This calculator keeps
+      them separate and lets you move the inputs, so what it produces is a
+      sensitivity range rather than a time-to-recovery for your wallet.
+      <Claim
+        basis="derived"
+        scope="The derived LLFOURN range endpoints, search-space boundaries and half-space and full-space times produced by the estimator"
+        source="The 58.3-to-62.3-bit endpoints subtract LLFOURN's 10-to-14-bit revision from the earlier model; independent search terms multiply; fair D6 rolls contribute log2(6) bits; mnemonic uncertainty is capped at 128 or 256 bits; passphrase and combined results are capped at the 512-bit BIP39 seed output; displayed time divides candidate checks by the selected rate"
+        href="#calculation-notes"
+        compact
+      />
+      A long
+      displayed time is not a reason to delay: the scenarios remain unverified
+      for any individual wallet, compute rates change, and neither a passphrase
+      nor a mixed-dice term repairs the original mnemonic.
+    </p>
+  </Answer>
+
+  <div class="callout callout--amber">
+    <span class="callout__title">Classify the firmware path first</span>
+    These scenarios apply only after the mnemonic has been classified as
+    generated through affected firmware. Pre-regression Mk2/Mk3 mnemonics and
+    mnemonics generated after the model-specific hotfix are outside this
+    calculator. Start with <a href="/risk/">Your risk</a> if that provenance is
+    not established.
+  </div>
+
+  <SeedWarning compact />
+
+  <AttackEstimator />
+
+  <Disclosure
+    id="calculation-notes"
+    title="How to read the result"
+    note="the conventions, caps and assumptions behind each number"
+  >
+    <ul class="node-list">
+      <li><strong>Half-space is a sensitivity convention.</strong> The estimator uses half the enumerated space, with a minimum of one check. This assumes a uniformly positioned target and no better search ordering; it is only a large-space approximation.</li>
+      <li><strong>The rate is not a hardware claim.</strong> A candidate check must reach the available address, public key or xpub target. Raw device-state enumeration and BIP39 PBKDF2 plus wallet derivation may run at very different rates.</li>
+      <li><strong>Combined mode is conditional.</strong> Device and passphrase bits add only when both independent factors must be searched together. If other wallet data lets the attacker identify the mnemonic separately, use passphrase-only mode for that case.</li>
+      <li><strong>Mixed dice is output-capped.</strong> Fair, independent and secret rolls can add a separate term to a device candidate space, but a 12-word mnemonic carries at most 128 bits of entropy and a 24-word mnemonic at most 256 bits.</li>
+      <li><strong>Pure dice replaces the device model.</strong> The result is bounded by the smaller of roll entropy and mnemonic output size. It assumes accurate entry and no disclosure of the roll sequence.</li>
+      <li><strong>BIP39 output has a 512-bit ceiling.</strong> Passphrase-only and combined results cannot exceed the number of distinct BIP39 seed outputs. A particular wallet-data target can impose a lower effective collision boundary.</li>
+      <li><strong>Multisig and human-chosen passphrases are not modelled.</strong> Multisig depends on threshold, script or descriptor exposure and whether individual co-signer targets can be tested separately; human-chosen passphrases depend on attacker-specific information. Neither reduces to a defensible bit slider, so use <a href="/risk/mitigations/#multisig">the multisig rung</a> and <a href="/risk/mitigations/#passphrase">the passphrase rung</a> instead.</li>
+    </ul>
+  </Disclosure>
+
+  <p>
+    Use the model to understand sensitivity, then follow
+    <a href="/risk/moving-funds/">moving funds from an affected seed</a> for
+    decisions about funds.
+  </p>
+</Article>

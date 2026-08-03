@@ -1,0 +1,800 @@
+{
+  "components": {
+    "schemas": {
+      "BlockInfo": {
+        "description": "Block info model",
+        "properties": {
+          "block_height": {
+            "description": "The current height of the latest block in the blockchain.",
+            "example": 834128,
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "fee_rate": {
+            "description": "The fee rate at which a typical slipstream transaction would currently be mined. In sats/vbyte.",
+            "example": 4,
+            "format": "double",
+            "type": "number"
+          },
+          "network": {
+            "description": "The name of the blockchain network.",
+            "example": "main",
+            "type": "string"
+          },
+          "submit_fee_rate": {
+            "description": "The minimum fee to submit into the `Slipstream` mempool. Admission into the mempool does not guarantee a transaction will ever be mined. Submitted slipstream transactions are mined on a best-effort basis.  Denominated in sat/vByte.",
+            "example": 2,
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "required": [
+          "block_height",
+          "fee_rate",
+          "submit_fee_rate",
+          "network"
+        ],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "description": "Rate info error model",
+        "properties": {
+          "is_success": {
+            "description": "Indicates whether the operation was successful.",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "A descriptive error message explaining the failure or issue.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "is_success",
+          "message"
+        ],
+        "type": "object"
+      },
+      "InfoResponse": {
+        "description": "Info model",
+        "properties": {
+          "block_height": {
+            "description": "The current height of the latest block in the blockchain.",
+            "example": 834128,
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "chain": {
+            "description": "The name of the blockchain network.",
+            "example": "main",
+            "type": "string"
+          },
+          "features": {
+            "description": "A list of features currently supported by the API.",
+            "example": [
+              "Private mempool submission",
+              "Direct mempool submission",
+              "Real-time block height updates",
+              "Dynamic fee rate calculation"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the API or service.",
+            "example": "Marathon Slipstream API",
+            "type": "string"
+          },
+          "slipstream_fee_rate_floor": {
+            "description": "The fee rate at which a typical slipstream transaction would currently be mined. In sats/vbyte.",
+            "example": 14.2,
+            "format": "double",
+            "type": "number"
+          },
+          "version": {
+            "description": "The current version of the API or service.",
+            "example": "0.41",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "chain",
+          "block_height",
+          "slipstream_fee_rate_floor",
+          "features"
+        ],
+        "type": "object"
+      },
+      "PackageSubmitRequest": {
+        "description": "Package submit request model",
+        "properties": {
+          "client_code": {
+            "description": "An optional client-specific code used to apply a reduced fee rate threshold.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skip_mempool_submission": {
+            "description": "The transaction will be submitted only to the database, not to the mempool. However, mempool validation checks will still be performed before storing the transaction.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "tx_hexes": {
+            "description": "List of transaction hexes: `[parent1, parent2, child]` that needs to be submitted to our private mempool.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "tx_hexes"
+        ],
+        "type": "object"
+      },
+      "PackageSubmitResponse": {
+        "description": "Package submit response model",
+        "properties": {
+          "error": {
+            "description": "This field is optional and contains a string describing the error that occurred during the submission process.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "description": "This field contains additional details or the output of the submission, and is optional."
+          },
+          "status": {
+            "description": "Typically a string indicating whether the submission was successful, such as \"success\" or \"error\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "Position": {
+        "properties": {
+          "block": {
+            "description": "Position of the block where the transaction currently in the mempool.",
+            "example": 0,
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "block"
+        ],
+        "type": "object"
+      },
+      "RateInfoSuccessResponse": {
+        "description": "Rate info success model",
+        "properties": {
+          "discounted_multiplier": {
+            "description": "The `discounted_multiplier` is calculated as the product of the premium portion of the `multiplier` and `multiplier_discount_percent` (if applicable).It represents the discounted `Slipstream` premium markup.\n\n`discounted_multiplier` = ((`multiplier` - 1) * (1 - (`multiplier_discount_percent` / 100.0)) + 1)\n\nNote: Even if discounted 100%, you will still have to pay market rate as the discount only applies to the slipstream premium markup.",
+            "example": 1.9,
+            "format": "double",
+            "type": "number"
+          },
+          "effective_rate": {
+            "description": "The rate at which a typical slipstream transaction would currently be mined.  This includes all premiums and discounts if `client_code` is supplied.\n\n`effective_rate` = `market_rate` * `discounted_multiplier`\n\nIn order to be mined, the non-premium portion of `Slipstream` transaction fees must outbid any other p2p relayed transactions.\n\nExample:  `market_rate` is currently 1 sat/vByte, `multiplier` is 2 and user has a discount of 10%\n\n1. `effective_rate` for slipstream transaction is 1.9 sat/vByte\n\n2. transaction is competing against standard P2P transactions at a rate of 1 sat/vByte for blockspace.\n\nNote: If your transaction is not paying enough fees to be mined, you may always use Replace by Fee (RBF) to pay more fees and increase the chances of it being mined.",
+            "example": 1.9,
+            "format": "double",
+            "type": "number"
+          },
+          "market_rate": {
+            "description": "The current projected Bitcoin fee rate to be mined in a block by the standard P2P Bitcoin network — not including `Slipstream` fee premium; denominated in sat/vByte.",
+            "example": 1,
+            "format": "double",
+            "type": "number"
+          },
+          "multiplier": {
+            "description": "The multiplier represents the `Slipstream` premium markup; applied to the market rate to determine the `slipstream_rate`.",
+            "example": 2,
+            "format": "double",
+            "type": "number"
+          },
+          "multiplier_discount_percent": {
+            "description": "If applicable, the discount applied to the portion of the multiplier greater than 1 (the premium portion).\n\nNote: Discounts are available for those processing large transaction volume. If you are a regular user of `Slipstream` or plan on processing a large volume of transactions, contact foundation@mara.com for more information about our discount codes.",
+            "example": 10,
+            "format": "int32",
+            "type": "integer"
+          },
+          "slipstream_rate": {
+            "description": "The fee rate at which a typical slipstream transaction would currently be mined; denominated in sat/vByte.\n\n`slipstream_rate` = `market_rate` * `multiplier`",
+            "example": 2,
+            "format": "double",
+            "type": "number"
+          },
+          "submit_fee_rate": {
+            "description": "The minimum fee to submit into the `Slipstream` mempool. Admission into the mempool does not guarantee a transaction will ever be mined. Submitted slipstream transactions are mined on a best-effort basis.  Denominated in sat/vByte. See `effective_rate`.\n\n`submit_fee_rate` = 1.0 * `discounted_multiplier`",
+            "example": 1.9,
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "required": [
+          "market_rate",
+          "multiplier",
+          "multiplier_discount_percent",
+          "discounted_multiplier",
+          "submit_fee_rate",
+          "slipstream_rate",
+          "effective_rate"
+        ],
+        "type": "object"
+      },
+      "Status": {
+        "properties": {
+          "block_hash": {
+            "description": "The hash of the block containing this transaction.",
+            "example": "000000000000000076a1c227e544ad11bd88a539212de03d8d498be8399149e9",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "block_height": {
+            "description": "The height of the block in which this transaction was confirmed.",
+            "example": 101469,
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "block_time": {
+            "description": "The timestamp of when the block was added to the blockchain, in Unix time format.",
+            "example": 1757484672,
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "confirmed": {
+            "description": "This indicates that the transaction has been confirmed or not on the blockchain.",
+            "example": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "confirmed"
+        ],
+        "type": "object"
+      },
+      "TestMempoolAcceptRequest": {
+        "description": "Test Mempool Accept request model",
+        "properties": {
+          "tx_hexes": {
+            "description": "List of transaction hexes: `[hex1, hex2, hex3]` that needs to be submitted to our private mempool.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "tx_hexes"
+        ],
+        "type": "object"
+      },
+      "TransactionInfo": {
+        "description": "Transaction info model",
+        "properties": {
+          "functional_rate": {
+            "description": "The rate at which a `Slipstream` transaction compete against standard P2P transactions for blockspace; denominated in sat/vByte.",
+            "example": 1.52,
+            "format": "double",
+            "type": "number"
+          },
+          "is_next_block": {
+            "description": "Is the transaction to mine in next block ?",
+            "example": true,
+            "type": "boolean"
+          },
+          "last_24h_odds": {
+            "description": "Odds of inclusion in percentage at which a Slipstream transaction compete against standard P2P transactions for blockspace for last 24 hours.",
+            "example": 2.65,
+            "type": "string"
+          },
+          "last_7d_odds": {
+            "description": "Odds of inclusion in percentage at which a `Slipstream` transaction compete against standard P2P transactions for blockspace for last 7 days.",
+            "example": 4.05,
+            "type": "string"
+          },
+          "market_rate": {
+            "description": "The current projected Bitcoin fee rate to be mined in a block by the standard P2P Bitcoin network — not including `Slipstream` fee premium; denominated in sat/vByte.",
+            "example": 1,
+            "format": "double",
+            "type": "number"
+          },
+          "message": {
+            "description": "Returns the status of the transaction.",
+            "example": "Transaction confirmed in block 101469",
+            "type": "string"
+          },
+          "package_txids": {
+            "description": "All transaction IDs in the package when `submission_type` is `package_submission`.",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "submission_type": {
+            "description": "`tx_submission` or `package_submission` when known.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/TxInfo"
+          }
+        },
+        "required": [
+          "message",
+          "market_rate",
+          "functional_rate",
+          "last_24h_odds",
+          "last_7d_odds",
+          "is_next_block",
+          "transaction"
+        ],
+        "type": "object"
+      },
+      "TxInfo": {
+        "description": "TX info response model",
+        "properties": {
+          "fee": {
+            "description": "The transaction fee paid for this transaction in sats.",
+            "example": 18900,
+            "format": "int64",
+            "type": "integer"
+          },
+          "firstSeen": {
+            "description": "The Unix timestamp when this transaction was first seen in the mempool.",
+            "example": 1757484672,
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "position": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "size": {
+            "description": "The total size of the transaction in bytes.",
+            "example": 239,
+            "format": "int64",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "txid": {
+            "description": "This is the transaction ID (a unique identifier for the transaction).",
+            "example": "9fa1c54aaccad96b6c36ff975045dfc3fbe1498e0ee03b5fdceaa684f9485b0b",
+            "type": "string"
+          },
+          "vsize": {
+            "description": "The virtual transaction size (differs from size for witness transactions)",
+            "example": 188,
+            "format": "int64",
+            "type": "integer"
+          },
+          "weight": {
+            "description": "The transaction's weight (between vsize*4-3 and vsize*4)",
+            "example": 752,
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "txid",
+          "size",
+          "weight",
+          "fee",
+          "vsize",
+          "status"
+        ],
+        "type": "object"
+      },
+      "TxSubmitRequest": {
+        "description": "Transaction submit request model",
+        "properties": {
+          "client_code": {
+            "description": "An optional client-specific code used to apply a reduced fee rate threshold.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skip_mempool_submission": {
+            "description": "The transaction will be submitted only to the database, not to the mempool. However, mempool validation checks will still be performed before storing the transaction.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "tx_hex": {
+            "description": "This is the transaction hex that needs to be submitted to our private mempool.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tx_hex"
+        ],
+        "type": "object"
+      },
+      "TxSubmitResponse": {
+        "description": "Transaction submit response model",
+        "properties": {
+          "message": {
+            "description": "This can include context on success or failure, such as transaction ID or error description.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Typically a string indicating whether the submission was successful, such as \"success\" or \"error\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "This is a beta version of API for submitting Bitcoin transactions via Slipstream.<br>\n        If you plan to execute a large volume of transactions and are interested in volume discounting packages, please contact [foundation@mara.com](mailto:foundation@mara.com).<br><br>Slipstreams minimum fee rate is the higher of either 1x the current mempool priority fee rate or 1 sats/vByte.<br><br>Full RBF (Replace-by-Fee) and CPFP (Child-Pays-for-Parent) supported.",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "title": "Slipstream Beta API",
+    "version": "0.1.0-beta"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/block-info": {
+      "get": {
+        "description": "Returns structured blockchain status info.",
+        "operationId": "get_block_info",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockInfo"
+                }
+              }
+            },
+            "description": "success"
+          }
+        },
+        "summary": "Get Block Info",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/mempool/tests": {
+      "post": {
+        "description": "Returns result of mempool acceptance tests indicating if raw transaction (serialized, hex-encoded) would be accepted by mempool.",
+        "operationId": "test_mempool_accept",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "tx_hexes": [
+                  "<hex1>",
+                  "<hex2>",
+                  "..."
+                ]
+              },
+              "schema": {
+                "$ref": "#/components/schemas/TestMempoolAcceptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {},
+                  "type": "array"
+                }
+              }
+            },
+            "description": "success"
+          }
+        },
+        "summary": "Checks if the transaction violates the consensus or policy rules",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/rates": {
+      "get": {
+        "description": "Returns the effective fee rate information for the requested client code, if provided.",
+        "operationId": "get_rate",
+        "parameters": [
+          {
+            "description": "Filter by client code",
+            "in": "query",
+            "name": "client_code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateInfoSuccessResponse"
+                }
+              }
+            },
+            "description": "success"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "is_success": false,
+                  "message": "Requested client code is invalid"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad request"
+          }
+        },
+        "summary": "Get effective fee rate info",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/system": {
+      "get": {
+        "description": "Returns general information about the Slipstream API, including version, chain name, block height, and fee rate floor.",
+        "operationId": "get_info",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            },
+            "description": "success"
+          }
+        },
+        "summary": "Get System Info",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/transactions": {
+      "post": {
+        "description": "Submits a single Bitcoin transaction hex for validation and mempool submission.",
+        "operationId": "submit_tx",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "client_code": "<Optional code to identify the user>",
+                "tx_hex": "<raw_transaction_hex_string>"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/TxSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "<txid>",
+                  "status": "success"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/TxSubmitResponse"
+                }
+              }
+            },
+            "description": "Transaction submitted successfully."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "<tx submission errors>",
+                  "status": "error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/TxSubmitResponse"
+                }
+              }
+            },
+            "description": "Bad request"
+          }
+        },
+        "summary": "Submits a Bitcoin transactions.",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/transactions/packages": {
+      "post": {
+        "description": "Submits a batch of Bitcoin transactions as a package. Each transaction is automatically checked for fee rate thresholds and sanctions compliance.\n\n✅ **Working Example:**\n\n*submitpackage [\"<parent1_hex>\",............, \"<parentN_hex>\", \"<child_hex>\"]*\n\n- The **child_hex** transaction spends outputs from all listed **parent** transactions.\n- The **parent1** through **parentN** transactions are independent of each other.\n- The **order of transactions** is important: parents must come before the child.\n\n- Each package must include **at least 2** and **no more than 25** transactions.\n\n⚠️ **Note:**\n\nWhen using the **submitpackage** RPC, provide the transaction hexes starting with the parents followed by the child transaction.",
+        "operationId": "submit_package",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "client_code": "<Optional code to identify the user>",
+                "tx_hexes": [
+                  "<hex1>",
+                  "<hex2>",
+                  "..."
+                ]
+              },
+              "schema": {
+                "$ref": "#/components/schemas/PackageSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": {
+                    "package_msg": "success",
+                    "replaced-transactions": [],
+                    "tx-results": {
+                      "0f7ce620992f82e7916859664b51b46138e14b2f96bb4908bc9aeebe26627228": {
+                        "fees": {
+                          "base": 3.89e-05,
+                          "effective-feerate": 0.00035363,
+                          "effective-includes": [
+                            "0f7ce620992f82e7916859664b51b46138e14b2f96bb4908bc9aeebe26627228"
+                          ]
+                        },
+                        "txid": "f0d29b7aa669faa92a36e1173f436c5843ea1dbf3427f982c93cef6a52aca0cf",
+                        "vsize": 110
+                      },
+                      "4cd895e64bb26a48c6cc630c8d0c2aee13a80b39e6b746daaf3deed013be70c7": {
+                        "fees": {
+                          "base": 0,
+                          "effective-feerate": 0,
+                          "effective-includes": [
+                            "4cd895e64bb26a48c6cc630c8d0c2aee13a80b39e6b746daaf3deed013be70c7"
+                          ]
+                        },
+                        "txid": "25b888236160c2e0d696a5dca6878f9142110c6926fae9029febf89cf33140dc",
+                        "vsize": 110
+                      }
+                    }
+                  },
+                  "status": "success"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PackageSubmitResponse"
+                }
+              }
+            },
+            "description": "Package submitted successfully."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "<package submission errors>",
+                  "status": "error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PackageSubmitResponse"
+                }
+              }
+            },
+            "description": "Bad request"
+          }
+        },
+        "summary": "Submits a batch of Bitcoin transactions.",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    },
+    "/api/transactions/status": {
+      "get": {
+        "description": "Returns the transaction's confirmation status, fee, and position in the mempool or block.",
+        "operationId": "status_check",
+        "parameters": [
+          {
+            "description": "Enter transaction ID",
+            "in": "query",
+            "name": "tx_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionInfo"
+                }
+              }
+            },
+            "description": "success"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "is_success": false,
+                  "message": "Requested transaction is invalid"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad request"
+          }
+        },
+        "summary": "Retrieves detailed information about a transaction using its transaction ID",
+        "tags": [
+          "slipstream"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,299 @@
+# ColdCard-38M-PoC
+---
+## summary
+Between March 2021 (firmware 4.0.0) and July 2026, BIP39 seed generation on
+Coldcard devices **did not use the hardware true random number generator
+(TRNG)**. Following a cryptographic migration to `libsecp256k1` (commit
+`b18723dd`, "First pass w/ libNgU", 2021-03-01), the seed-generation path
+ended up wired — through link-time symbol resolution — to a **software
+fallback PRNG shipped with MicroPython**, seeded only from device and timing
+state.
+Consequence: the effective space of generated seeds collapses to a single
+universal **2³² space on Mk2/Mk3** (see [model](#model): `pad = UID ^
+SysTick` is one 32-bit word, and the RTC is static — no per-device knowledge
+is needed at all) and **~2⁷³ on Mk4/Mk5/Q** (Coinkite's tuple-counting
+estimate is ~2⁴⁰/~2⁷²; the structural ceilings are lower). An attacker who
+knows a wallet's public address can replay the PRNG state space, regenerate
+candidate seeds, and identify the right one by simple address comparison —
+without ever touching the device. One single sweep of the space, checked
+against every funded address on-chain, recovers **all** vulnerable wallets
+at once.
+This repository contains a complete reconstruction of the attack, validated
+end to end: mnemonic recovery in **under two minutes** on CPU, with a
+signature proof.
+### Affected versions (source: Coinkite)
+| Firmware | Hardware | Status |
+|---|---|---|
+| 1.0.0 – 3.2.2 (→ Jan 14, 2021) | Mk1, Mk2, Mk3 | not affected |
+| 4.0.0 – 4.1.9 | Mk2, Mk3 | **affected — worst case** (~2⁴⁰) |
+| 5.0.0 – 5.5.1 | Mk4, Mk5 | affected (~2⁷²) |
+| 0.0.2Q – 1.4.1Q | Q | affected (~2⁷²) |
+| 6.x "X"/Edge | Mk4/Mk5/Q | affected (~2⁷²) |
+Fixes: 4.2.0 (Mk3), 5.6.0 (Mk4/Mk5), 1.5.0Q (Q), 6.6.0X / 6.6.0QX (Edge).
+**Updating does not repair an already-generated seed**: a new seed must be
+generated and funds migrated. Exception: seeds created with ≥ 50 independent
+dice rolls.
+---
+## Root cause
+The bug is not a single defect but a **chain of four flaws**, each harmless
+in appearance.
+<img width="1653" height="912" alt="diagram_rng_chain" src="https://github.com/user-attachments/assets/fcc4dee2-4f00-48b1-ad5e-e5b6906af14f" />
+## migration that changed the entropy source
+Before March 2021, `shared/seed.py` drew entropy via `ckcc.rng_bytes()`,
+Coinkite's board-specific TRNG (`stm32/COLDCARD/rng.c`, "more paranoid",
+with health checks). Commit `b18723dd` rewrote `make_new_wallet()`:
+```python
+# shared/seed.py @ b18723dd
+import ngu, uctypes, bip39, random          # before: import tcc ; from ckcc import rng_bytes
+async def make_new_wallet():
+    # Pick a new random seed.
+    await ux_dramatic_pause('Generating...', 4)
+    # always full 24-word (256 bit) entropy
+    seed = random.bytes(32)                 # before: rng_bytes(seed)
+    assert len(set(seed)) > 4       # TRNG failure
+    # hash to mitigate possible bias in TRNG
+    seed = ngu.hash.sha256s(seed)
+```
+with, in `shared/random.py`:
+```python
+bytes = ngu.random.bytes
+```
+The cryptographic choice (libsecp256k1) was sound. The integration was not:
+nobody verified **which `rng_get()` implementation** `ngu.random.bytes`
+actually reached.
+## macro defined to zero that disables the TRNG
+```c
+// stm32/COLDCARD/mpconfigboard.h:77
+#define MICROPY_HW_ENABLE_RNG       (0)
+```
+Peter D. Gray (Coinkite) explains it himself: he set the macro to zero
+thinking it disabled **all** of MicroPython's RNG code ("we didn't need
+either version"), since Coldcard had its own TRNG. But this macro does not
+control code inclusion — it selects **which** `rng_get()` implementation is
+compiled in `ports/stm32/rng.c`:
+```c
+// external/micropython @ 8d866365, ports/stm32/rng.c
+#if MICROPY_HW_ENABLE_RNG
+uint32_t rng_get(void) { /* ... real STM32 TRNG (RNG->DR) ... */ }
+#else // MICROPY_HW_ENABLE_RNG
+// For MCUs that don't have an RNG we still need to provide a rng_get()...
+STATIC uint32_t pyb_rng_yasmarang(void) { /* software PRNG */ }
+uint32_t rng_get(void) { return pyb_rng_yasmarang(); }
+#endif
+```
+Coinkite board-specific TRNG (`stm32/COLDCARD/rng.c`), guarded by
+`#if MICROPY_HW_ENABLE_RNG`, is also **excluded from the build**.
+## the guard that guards nothing: `#ifndef` vs value
+libngu did have a safety net:
+```c
+// external/libngu/ngu/random.c:28-30
+# ifndef MICROPY_HW_ENABLE_RNG
+# error "get a HW TRNG plz"
+# endif
+```
+`#ifndef` tests whether the macro **exists**, not its value. It *is*
+defined — to zero. So the `#error` never fires, the build passes, and the
+`rng_get()` symbol (declared `extern` in libngu) resolves at link time to
+MicroPython's **software PRNG**. Two implementations with the same
+signature, the wrong one silently selected.
+## fallback is seeded from device/timing state
+```c
+// ports/stm32/rng.c (fallback), first call:
+pad = *(uint32_t *)MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick->VAL;
+n   = RTC->TR;
+d   = RTC->SSR;
+```
+- `UID`: STM32 unique identifier — only its low 32 bits are used, **and they
+  do not need to be known**: `pad = UID_low32 ^ SysTick->VAL` is a *single*
+  32-bit word, so the whole expression has at most 2³² results regardless of
+  the UID (Block Engineering analysis);
+- `SysTick->VAL`: predictable periodic down-counter — at most ~80,000 values
+  on Mk2/Mk3, already absorbed into the 2³² pad space above;
+- `RTC->TR` / `RTC->SSR`: **static at 0 on a cold boot** — the board config
+  sets `MICROPY_HW_ENABLE_RTC (0)` (`stm32/COLDCARD/mpconfigboard.h:17`), so
+  the RTC is never initialized. Confirmed in source, no hardware needed.
+The only remaining unknowns are the 32-bit `pad` and the number of prior RNG
+consumptions (see skip model below). **~40 bits** is Coinkite's conservative
+tuple count; the structural ceiling is 2³² × (skip candidates).
+The libngu mixer adds **zero** entropy: its internal Yasmarang starts from a
+**constant** state (`pad=0x0a8ce26f, n=69, d=233`):
+```c
+// external/libngu/ngu/random.c - my_random_bytes()
+chip = CHIP_TRNG_32();        // = rng_get() -> MicroPython fallback
+chip ^= my_yasmarang();       // deterministic, fixed initial state
+memcpy(dest, &chip, MIN(4, count));
+```
+The final `sha256()` in `seed.py` ("hash to mitigate bias") is also
+deterministic: it does not create entropy, it transforms it.
+## why reviews missed it
+- Coinkite "paranoid" TRNG **was present in the binary** (for other
+  uses): reviews verified its existence and quality, not its reachability
+  from the seed-generation path.
+- Both `rng_get()` implementations share the **same signature**: nothing to
+  see when reading, nothing at link time.
+- The bug lived at the **boundary of two submodules** (libngu ↔
+  micropython): each side compiled and passed its tests.
+- The `#ifndef` guard gave an **illusion of protection** documented in the
+  code.
+- Coinkite: "we used one of the best available AI models to review our
+  code [...] it did not find this bug".
+Lesson: for critical entropy code, you must verify **end-to-end symbol
+resolution** and **call reachability**, not just the presence of the right
+code. The hotfix does exactly that: explicit exclusion of the fallback PRNG
+object + a build-time check that the global `rng_get()` comes from the
+board-specific object and that the fallback object exports no symbols.
+---
+## model
+**The attack needs nothing device-specific.** The search space is universal
+(shared by every affected device):
+1. `pad` — one 32-bit word (`UID_low32 ^ SysTick->VAL`); 2³² values cover
+   every device and every boot timing at once;
+2. `RTC->TR = RTC->SSR = 0` — static, RTC disabled in the build;
+3. the **skip** — prior RNG consumptions before `make_new_wallet`, derived
+   from the boot path (see below).
+### skip model (corrected)
+Two generators advance through every `ngu.random` call: the MicroPython
+fallback (chip) and the libngu mixer. Reading `external/libngu/ngu/random.c`
+precisely:
+- `my_random_bytes()` and `random_uint32()` advance **both 1:1**;
+- `_rand_below()` (used by `uniform`/shuffles) advances both on the first
+  attempt, but its rejection loop does `pt ^= my_yasmarang()` — **only the
+  mixer** advances on retries.
+So the correct model has **two independent skips**: `chip_skip` (exact,
+deterministic) and `mixer_skip` (chip_skip + shuffle retries).
+### skip values from the boot path (source-derived, no hardware)
+On the **first boot** of a device, `nvstore` finds all 32 setting slots
+blank and fills 3 of them with garbage (`shared/nvstore.py`):
+```
+shuffle(32 slots)            → 31 uniform calls (chip+mixer, plus retries)
+3 slots × 16 × random.bytes(256) = 3072 words (1:1)
+```
+A wallet created during the first session (the typical dormant-wallet
+pattern) therefore has:
+- `chip_skip = 3072 + 31 = 3103` exactly;
+- `mixer_skip ≈ 3103 + E[shuffle retries] ≈ 3161 ± 8` (geometric rejection
+  sampling; mean computed term-by-term from `_rand_below` mask widths).
+Wallets created in a later session have small skips (0–~30; the login
+keypad shuffle is off by default). No other boot-path consumer touches the
+RNG (verified: selftest, ux, display, menu, pincodes are clean).
+### pipeline (unchanged, confirmed on branch `v4`)
+```
+candidate (pad, chip_skip, mixer_skip)
+  → MicroPython fallback seeded by pad, n=0, d=0
+  → advance chip by chip_skip, mixer by mixer_skip
+  → 8 × (rng_get() ⊕ libngu yasmarang)    = random.bytes(32)
+  → sha256s (single SHA-256)              = BIP39 entropy (seed.py @v4)
+  → 24-word mnemonic → PBKDF2-HMAC-SHA512 (×2048) = BIP39 seed
+  → BIP32 m/84'/0'/0'/chain/index → bech32 address
+  → compare with every funded address at once
+```
+The v4 branch (Mk2/Mk3 firmware 4.0.x–4.1.9) was re-checked line by line:
+`random.bytes(32)` → `assert` → `sha256s` → 24 words, unchanged from the
+vulnerable commit. (`sha256d` and 12/18-word seeds only exist on later
+Mk4/Q code — irrelevant for the Mk2/Mk3 population.)
+Per-candidate cost is dominated by PBKDF2 (~0.9 ms CPU). The address match
+**identifies the seed unambiguously** and yields the private key.
+## what 2³² and 2⁷³ mean
+| Scenario | Space | Practical cost |
+|---|---|---|
+| Nominal BIP39 target | 2¹²⁸ – 2²⁵⁶ | physically out of reach |
+| Mk2/Mk3, universal (any device, no knowledge) | **2³² × skips** | hours on a small GPU fleet; ~1-2 days on 2 rented GPUs |
+| Mk2/Mk3, per-wallet with known UID | ~2¹⁶·³ (80,000 SysTick) | seconds on CPU |
+| Mk4/Mk5/Q (32-bit reseed × fallback) | ≤ 2⁷³ ceiling | very well-resourced actor; still below the 128-bit target |
+The universal 2³² space is the key to the real attack: one enumeration,
+checked against a bloom filter of every funded address on-chain, recovers
+**all** vulnerable wallets simultaneously. That is how ~500 wallets fell in
+one night with no per-device knowledge and no long campaign.
+---
+## fidelity
+Every line of `vuln_rng.py` maps to a verifiable source:
+- `MicroPythonFallbackRNG` ← `ports/stm32/rng.c` @ `8d866365`
+  (Coldcard/micropython), `#else MICROPY_HW_ENABLE_RNG` branch;
+- `LibNguYasmarang` / `ngu_random_bytes` ← `external/libngu/ngu/random.c` @
+  `2fbfefb1`, functions `my_yasmarang()` and `my_random_bytes()` (including
+  the `chip == last → EFAULT` check and the little-endian `memcpy` in
+  4-byte blocks);
+- **skip advance** ← same file: prior consumptions advance chip **and**
+  mixer 1:1 (`my_random_bytes`, `random_uint32`), with mixer-only
+  advancement on `_rand_below()` retries (`pt ^= my_yasmarang()`);
+- `vulnerable_seed_entropy` ← `shared/seed.py::make_new_wallet()` @
+  `b18723dd` (`random.bytes(32)`, `assert len(set(seed)) > 4`, `sha256s`),
+  re-confirmed identical on branch `v4` (firmware 4.0.x–4.1.9).
+Three implementations cross-validate each other bit-for-bit:
+`vuln_rng.py` (Python), `go_poc/` (Go), `gpu_poc/` (CUDA), via published
+test vectors covering every pipeline stage (raw32, entropy, mnemonic,
+seed64, privkey, hash160, address — including split chip/mixer skips).
+## the July 30, 2026 theft — real-world validation
+Between 01:10 and 01:56 UTC on July 30, 2026, an unknown attacker swept
+**594.48 BTC (~$38M) from 501 single-signature wallets**, then consolidated
+the funds. On-chain forensics reproduced here (`scan_sweep_raw.py`,
+`victims_full.txt`):
+- **consolidation address**: `bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0`
+  — received exactly 594.47723261 BTC in **501 funding transactions, one
+  per victim address**;
+- **fingerprint**: every sweep tx pays ~30 sat/vB, has exactly one output
+  (no change), spends only single-sig prevouts — precomputed keys spent by
+  an automated tool;
+- **victim profiles**: dormant wallets funded 2021–2026, e.g.
+  `bc1q8s0xt9rz04cumw6jesccqncnajrnvh36jmh6qg` (funded 2022-08-11, drained
+  2026-07-30 01:43 UTC);
+- **address types**: 491× P2WPKH (BIP84), 5× P2PKH (`1…`, BIP44), 5×
+  P2SH-P2WPKH (`3…`, BIP49) — the attacker derived **multiple script paths
+  per seed**, and multiple address indices per account (some wallets were
+  only partially drained, showing the index range was bounded).
+The victim list used by our scanners is extracted directly from the 501
+funding transactions of the consolidation address — the exact set of
+addresses that were actually hit.
+## PoC implementations
+| Path | Role |
+|---|---|
+| `vuln_rng.py` / `wallet_lib.py` | Python reference replica (RNG chain, BIP39/32) |
+| `make_victim.py` / `recover.py` | original owned-device demo (legacy skip model) |
+| `go_poc/` | Go port: multi-address batches, `-parallel`, **universal pad mode** |
+| `gpu_poc/` | CUDA scanner: PBKDF2+BIP32+secp256k1 kernels, multi-index (`--indices`, `--change`), **split chip/mixer skips** (`--chip-skip`), checkpoints, victim bloom matching |
+| `scan_sweep.py` / `scan_sweep_raw.py` | on-chain theft forensics (block download + fingerprint filtering) |
+| `victims_full.txt` | the 501 real victim addresses (+ controls) |
+### status of the live validation (GPU sweep vs real victims)
+- derivation pipeline: **bit-exact**, validated on-device (control states
+  recovered at every stage, ECDSA proof);
+- probes so far on the rented 2× RTX PRO 6000: skip 0–7, skip=3103
+  (lockstep model), then split chip=3103 / mixer∈[3135,3195) — **no real
+  victim recovered yet** at the time of writing; coverage remains a small
+  fraction of the 2³² pad space and the skip window may still not match
+  the victims' actual boot histories;
+- the CUDA kernel currently reaches ~0.14 Mcand/s/GPU (4% of theoretical
+  peak; ptxas shows a 2.7 KB stack frame and heavy spills — optimization
+  headroom ×3–5).
+### note on the legacy demo
+`make_victim.py` / `recover.py` and their artifacts (`target.json`,
+`victim_secret.json`) predate the skip-model correction: they use the old
+chip-only skip advance. Regenerating a victim with the corrected
+`vuln_rng.py` yields a different mnemonic for any skip > 0; skip = 0 is
+unchanged. The demo's conclusion (full recovery from the address alone)
+is unaffected — the model is now simply exact for any boot history.
+---
+## why this is severe
+- **No physical access needed**: a public address is enough.
+- **Retroactive**: any seed generated by an affected firmware years ago
+  remains crackable, even after a firmware update.
+- **Silent**: the device worked "normally"; the anti-failure test
+  (`assert len(set(seed)) > 4`) passes, the words are valid, everything
+  looks healthy.
+- **Profitable**: the 2³² universal attack costs less than ~$1,000 of cloud
+  GPU — far below the value of many wallets; this is an economic problem,
+  not a theoretical one.
+- **Open source ≠ audited**: the code had been public since 2021; the flaw
+  lived in the composition of two submodules, invisible to file-by-file
+  reviews.
+## References
+- [Coinkite — Entropy Technical Backgrounder](https://blog.coinkite.com/entropy-technical-backgrounder/)
+- LLFOURN — *Attack-cost model for affected COLDCARD generations* (linked by Coinkite)
+- [Block — *Predictable RNG Fallback and 32-Bit Reseed in COLDCARD Firmware*](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware)
+- Vulnerable commit: `b18723dddb6d751c39978e4364b56b2414f68b47`
+  (Coldcard/firmware, 2021-03-01, "First pass w/ libNgU")
+- Key code: `shared/seed.py`, `shared/random.py:11`,
+  `stm32/COLDCARD/mpconfigboard.h:17` (`MICROPY_HW_ENABLE_RTC`) and `:77`
+  (`MICROPY_HW_ENABLE_RNG`), `external/libngu/ngu/random.c:24-30`,
+  `ports/stm32/rng.c` (micropython @ `8d866365`), `shared/nvstore.py:205-215`
+  (first-boot RNG consumption)
+---

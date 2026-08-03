@@ -1,0 +1,35 @@
+--- coinkite-backgrounder@20260801T001731Z
++++ coinkite-backgrounder@20260801T140231Z
+@@ -16,10 +16,19 @@
+ Technical Deep Dive into the Entropy Issue
+ Published Jul 30, 2026
+ Categories: ckcc
+-Updated July 31, 2026 at 12:39 p.m. EDT: Fixed firmware is now available
+-for every affected model and release track, including Edge firmware versions
+-6.6.0X for Mk4/Mk5 and 6.6.0QX for Q.
++Updated August 1, 2026 at 9:35 a.m. EDT: Funds controlled by seeds generated
++on affected firmware are at risk if the seed was created without at least 50
++independent, private dice rolls and the funded wallet is not protected by a
++strong, unique BIP-39 passphrase.
++Fixed firmware is now available for every affected model and release track,
++including Edge firmware versions 6.6.0X for Mk4/Mk5 and 6.6.0QX for Q.
+ What You Should Do
++The passphrase must be strong, unique, secret, and separate from the seed
++backup. A short, common, patterned, quoted, reused, exposed, or uncertain
++passphrase does not qualify; treat those funds as at risk. Even when a strong
++passphrase reduces the immediate exposure, it does not repair an affected seed.
++Unless the independent dice-entropy exception applies, replace the seed and
++migrate as soon as practical.
+ If your seed was generated on a Mk3 running firmware 4.0.1 through 4.1.9
+ without at least 50 independent, private dice rolls:
+ Update the Mk3 to firmware version 4.2.0 or
+@@ -80,6 +89,9 @@
+ security issues, and it did not find this bug or anything serious.
+ Both attackers and defenders have the same AI tools, but today
+ it did not help us, and only helped the bad guys.
++For funded wallets with neither the independent dice entropy nor a strong,
++unique BIP-39 passphrase described above, the reduced search space is a direct
++security risk, not a theoretical possibility.
+ Technical Background
+ In 2021, we moved COLDCARD’s elliptic-curve operations to Bitcoin Core’s
+ libsecp256k1, using the same implementation trusted by Bitcoin Core instead

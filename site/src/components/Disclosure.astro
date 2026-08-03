@@ -1,0 +1,91 @@
+---
+/**
+ * One rung of a page's detail ladder.
+ *
+ * The disclosure pattern from docs/design/site-information-architecture.md:
+ * a page's standfirst and answer stay in plain words, and precision lives in
+ * expandable rungs like this one. Native <details>, server-rendered, so the
+ * content is present without JavaScript and for every scraper and reader
+ * mode; the script below only serves deep links.
+ *
+ * Deep-linking: the rung itself has a stable id, and a URL fragment pointing
+ * at the rung, or at any element inside it, opens it on load. Citations into
+ * the ladder therefore keep working even though the rung starts closed.
+ */
+interface Props {
+  /** Stable fragment id. Changing one breaks published citations. */
+  id: string;
+  /** The rung's heading. Rendered as the section's h2 inside the summary. */
+  title: string;
+  /** Optional one-line hint about what the closed rung holds. */
+  note?: string;
+  /** Render open on page load. At most the first rung of a ladder. */
+  open?: boolean;
+}
+const { id, title, note = '', open = false } = Astro.props;
+---
+
+<details class="rung" id={id} open={open}>
+  <summary class="rung__summary">
+    <h2 class="rung__title">{title}</h2>
+    <span class="rung__note" hidden={!note}>{note}</span>
+  </summary>
+  <div class="rung__body">
+    <slot />
+  </div>
+</details>
+
+<script>
+  // A fragment that targets a closed rung, or anything inside one, would
+  // silently scroll nowhere. Open every <details> enclosing the target, then
+  // scroll. Astro bundles this once per page regardless of rung count.
+  function openRungForHash() {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    let details = target.closest('details');
+    let opened = false;
+    while (details) {
+      if (!details.open) { details.open = true; opened = true; }
+      details = details.parentElement?.closest('details') ?? null;
+    }
+    if (opened) target.scrollIntoView();
+  }
+  openRungForHash();
+  window.addEventListener('hashchange', openRungForHash);
+</script>
+
+<style>
+  .rung {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    margin-block: 1rem;
+  }
+  .rung[open] { border-color: var(--rule-2); }
+  .rung__summary {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: .3rem .6rem;
+    padding: .8rem var(--inset-box);
+    cursor: pointer;
+    list-style-position: outside;
+  }
+  .rung__summary:hover { background: var(--surface-2); }
+  .rung__title {
+    display: inline;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .rung__note {
+    font-size: .8rem;
+    color: var(--ink-3);
+  }
+  .rung[open] > .rung__summary {
+    border-bottom: 1px solid var(--rule);
+  }
+  .rung__body {
+    padding: .25rem var(--inset-box) .9rem;
+  }
+  /* The rung's title is the section heading; the first heading inside the
+     body would double it, so headings inside rungs start at h3. */
+</style>

@@ -1,0 +1,77 @@
+--- coldcard-hack-tracker@20260801T191623Z
++++ coldcard-hack-tracker@20260801T194728Z
+@@ -6,9 +6,9 @@
+ 
+ TOTAL STOLEN
+ 
+-1,129.90257437 BTC
+-
+-$70,666,367 at spot
++1,130.09411114 BTC
++
++$70,542,735 at spot
+ 
+ 4 waves · Jul 30 – Aug 1 UTC
+ 
+@@ -30,7 +30,7 @@
+ <live-fiat-value>
+ JUL 31
+ Evening wave · July 31
+-+1.00962114 BTC
+++1.20115791 BTC
+ <live-fiat-value>
+ AUG 1
+ Morning wave · Aug 1
+@@ -46,7 +46,7 @@
+ 
+ 100%
+ 
+-of 1,129.81397994 BTC consolidated
++of 1,130.00551671 BTC consolidated
+ 
+ BALANCE ON WATCH
+ 
+@@ -69,7 +69,7 @@
+ 
+ Watched holdings
+ 
+-About 1,129.90257437 BTC drained across tracked clusters, of which 1,129.81397994 BTC reached these vaults (gap is mostly fees). Clusters may be different operators — attribution is fingerprint / community report.
++About 1,130.09411114 BTC drained across tracked clusters, of which 1,130.00551671 BTC reached these vaults (gap is mostly fees). Clusters may be different operators — attribution is fingerprint / community report.
+ 
+ GALAXY FINGERPRINT · JULY 30
+ Source
+@@ -126,7 +126,7 @@
+ EVENING WAVE · JULY 31
+ Source
+ 
+-Low-fee (~1–2 sat/vB) sweeps. Jul 31: short-lived collector → 0.51 BTC vault (still held). A parallel set of sweeps consolidated separately, then on Aug 1 pushed 0.41 BTC through the same vault in ~18 min and out to a new address. Distinct from the Kelbie vault.
++Low-fee (~1–2 sat/vB) sweeps. Jul 31 vault (~0.51 BTC) still held. Aug 1: ~0.41 BTC passed through that vault to a hop address, then a delayed ~0.19 BTC victim consolidation joined the hop (now ~0.69 BTC). A separate Ocean (OCEAN.XYZ) miner-payout UTXO also touched the hop and was peeled off — possible same-operator lead, not counted as stolen. Distinct from the Kelbie vault.
+ 
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+@@ -137,10 +137,10 @@
+ 	0.50980268 BTC	1	HELD
+ 
+ Aug 1 hop vault
+-Aug 1 pass-through (0.41 BTC via the evening vault plus 0.09 BTC joined en route); separate coins from the Jul 31 vault balance
++0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. An Ocean miner payout also landed here and was spent onward — not part of this report balance
+ 	bc1qayw8nr…7w2u0s	0.69135523 BTC
+ <live-fiat-value>
+-	0.49981846 BTC	2	HELD
++	0.69135523 BTC	2	HELD
+ MORNING WAVE · AUG 1
+ Source
+ 
+@@ -196,7 +196,11 @@
+ 
+ Evan Schoenberg
+ 
+-Evening July 31 low-fee (~2 sat/vB) sweeps into a separate vault; tracing the Aug 1 pass-through raised the cluster to ~1.01 BTC across two live addresses.
++Evening July 31 low-fee (~2 sat/vB) sweeps into a separate vault; Aug 1 hop consolidation (incl. delayed ~0.19 BTC) raised the watched cluster to ~1.20 BTC.
++
++Ocean block 960511
++
++Coinbase of block 960511 (tag OCEAN.XYZ) paid 0.06045759 BTC to a miner address that later sent to the Aug 1 hop vault; that UTXO was peeled off and is not counted as stolen.
+ 
+ Tomer Strolight
+ 

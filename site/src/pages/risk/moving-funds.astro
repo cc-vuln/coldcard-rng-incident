@@ -1,0 +1,448 @@
+---
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import Claim from '../../components/Claim.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import SeedWarning from '../../components/SeedWarning.astro';
+
+/**
+ * This page absorbed /risk/migrating/. The two pages shared the same seven
+ * ordered steps and spent several hundred words routing readers between each
+ * other; the threshold-wallet material that genuinely differs is now the rung
+ * at the foot, which a single-signature owner never has to open.
+ */
+
+const race = `flowchart TB
+  START["Signed migration transaction"] --> ROUTE{"Submission route"}
+  ROUTE -->|"public relay"| MEM["Transaction enters public mempools\nscript visible before confirmation"]
+  MEM --> WINDOW["Any viable key-recovery and\nconflicting-spend attempt can begin"]
+  WINDOW --> BLOCK["Confirmation closes the\nunconfirmed race window"]
+  ROUTE -->|"direct miner submission"| PRIV["Disclosure can be limited to service\nand participating miner systems"]
+  PRIV --> PBLOCK["Script becomes public when mined\nor if transaction is otherwise relayed"]
+  TAP["Available Taproot key-path spend"] -. "does not reveal script leaf" .-> PBLOCK`;
+---
+
+<Article
+  title="Moving funds from an affected seed"
+  description="The ordered migration procedure: generate a replacement seed on fixed firmware or another trusted device, verify the backup and fingerprint, verify a receive address, test, move the funds, confirm, then retire the old words."
+  standfirst="For a wallet built from affected words, the order of these steps is what keeps a migration from creating a second problem."
+  depth="plain"
+  kicker="Your risk"
+>
+  <Answer>
+    <p>
+      Generate a replacement seed on firmware or a device you trust, verify its
+      backup, fingerprint and a receive address before anything is sent, move a
+      test amount, then move the rest and wait for confirmations before treating the old
+      words as finished. Nothing in the procedure requires disclosing recovery
+      material to anybody. If the wallet is a threshold wallet whose script or
+      descriptor has never been published, the first spend reveals it, so read
+      the rung at the foot of this page before signing.
+    </p>
+  </Answer>
+
+  <h2>
+    The procedure, in order
+    <Claim
+      basis="derived"
+      scope="The ordering of the seven steps above and the reasons given for each one"
+      source="Derived from the affected generation path, the wallet properties documented on the risk pages, and the standard-derivation search this incident describes; no device-specific menu path or vendor procedure is asserted"
+      href="/risk/"
+      compact
+    />
+  </h2>
+
+  <ol class="steps">
+    <li>
+      <strong>Generate a replacement seed on a device you can trust.</strong>
+      Use fixed firmware, or a different, independently assessed signing device.
+      <Claim
+        basis="unverified"
+        scope="That the vendor-published hotfix binaries provide the intended entropy at runtime, which step one depends on"
+        source="This project verified the source-level fix and the release record but has not reproduced, rebuilt or disassembled the signed images"
+        href="/record/firmware/"
+        compact
+      />
+      The replacement words must be generated fresh: do not re-derive them from
+      the affected words, do not reuse any part of them, and do not treat a
+      passphrase added to the affected mnemonic as a new seed.
+      <a href="/record/firmware/#check-your-device">How to check your device's
+      firmware version</a> covers establishing what is actually running before
+      you generate anything.
+    </li>
+    <li>
+      <strong>Verify the new backup and the master fingerprint before anything
+      is sent.</strong> Record the new words, then check the record back against
+      the device rather than assuming the transcription is correct. Confirm that
+      the master fingerprint the device reports is the fingerprint your wallet
+      software shows for the account you are about to use. A backup that has not
+      been read back, and a wallet whose fingerprint has not been matched, are
+      not yet a destination.
+    </li>
+    <li>
+      <strong>Verify a receive address on the trusted device's own display.</strong>
+      Read the address from the new device and compare it against the address
+      the sending software shows. Compromised sending software can substitute a
+      destination address; checking the signer's own display tests for that
+      specific failure before funds are sent.
+    </li>
+    <li>
+      <strong>Send a small test amount first, and confirm it.</strong> Send an
+      amount you can afford to lose, wait for it to confirm, and check that it
+      appears in the new wallet under the fingerprint you verified. Choose the
+      confirmation and wallet-check threshold before starting. The old outputs
+      remain exposed during any delay between meeting that threshold and sending
+      the remainder.
+    </li>
+    <li>
+      <strong>Move the remainder.</strong> Send the remaining outputs to the
+      new wallet. Where you can, broadcast through a path that has not handled
+      the affected seed's private keys, for example your own node or a wallet
+      that holds only public data. Sign with replaceability enabled where your
+      software supports it, so an underestimated fee can be bumped rather than
+      leaving the transaction unconfirmed.
+    </li>
+    <li>
+      <strong>Wait for confirmations, then inventory before retiring
+      anything.</strong> Confirm that the move is buried, not merely relayed.
+      Before the old seed is treated as finished, work out what else was derived
+      from it: BIP85 children, seed XOR shares, device-generated paper wallets,
+      encrypted backups and any second wallet built on the same words all
+      inherit its generation history. <a href="/how-it-broke/blast-radius/">What
+      else is affected</a> lists the call sites and states what each one does and
+      does not settle.
+    </li>
+    <li>
+      <strong>Retire the old backup so it cannot be mistaken for live.</strong>
+      Once nothing of value derives from the old words, mark or destroy the
+      backup according to how you store it. A retired backup left indistinguishable
+      from a current one is how an affected wallet gets restored months later
+      and funds sent back to it. Never reuse the affected words for anything, including a
+      low-value or decoy wallet: the search runs over candidate seeds rather than
+      over particular wallets, so a small balance controlled by those words is found by the
+      same work.
+    </li>
+  </ol>
+
+  <div class="callout callout--amber">
+    <span class="callout__title">Reported ordering: move the funds before upgrading the affected device</span>
+    <p style="margin:0">
+      <a href="/record/sources/lopp-migrate-before-upgrade/">Jameson Lopp advised on 2 August</a>
+      moving funds off a weakly generated seed before upgrading the device's
+      firmware, citing reports of a non-zero chance that the upgrade bricks
+      the device.
+      <Claim
+        basis="reported"
+        scope="Lopp's guidance to migrate funds off a weakly generated seed before upgrading firmware, and his citation of reported bricking risk"
+        source="Jameson Lopp, captured X post, 2 Aug 2026"
+        href="/record/sources/lopp-migrate-before-upgrade/"
+        compact
+      />
+      <a href="/record/sources/bitcoinnews-bricking-warning/">Bitcoin News reported the same day</a>,
+      secondhand, that users were saying the new upgrade was bricking some
+      devices, with the same move-first advice.
+      <Claim
+        basis="reported"
+        scope="The secondhand report that the new firmware upgrade was bricking some devices"
+        source="Bitcoin News, captured X post, 2 Aug 2026; no first-hand account or device count is cited there, and none is held here as of 3 Aug 2026"
+        href="/record/sources/bitcoinnews-bricking-warning/"
+        compact
+      />
+      No first-hand bricking account
+      is captured in this archive as of 3 August 2026, and neither post cites
+      a device count. The reports bear on step one: they argue for generating
+      the replacement wallet and completing the move before the affected
+      device itself is updated, rather than updating it first.
+    </p>
+  </div>
+
+  <details class="collapsible">
+    <summary>Why steps one and five are worded that way</summary>
+    <div class="collapsible__body">
+      <p style="margin-bottom:11px">
+        Installing the hotfix does not repair words that already exist: it
+        changes what the device generates next. If you would rather not depend on
+        the device's generator at all, the pure-dice path starts from the roll
+        string and bypasses it, subject to the roll minimums on
+        <a href="/risk/mitigations/#dice">the dice rung</a>.
+      </p>
+      <p style="margin-bottom:0">
+        The broadcast advice in step five is about environments, not privacy in
+        general: if the affected words were ever typed into a recovery tool or a
+        general-purpose computer, that environment should not also be the one
+        that learns about the replacement wallet.
+      </p>
+    </div>
+  </details>
+
+  <SeedWarning compact />
+
+  <p class="cap">
+    A transaction-submission service needs a signed transaction, not the material
+    used to sign it. <a href="/safety/seed-words/">Seed-word safety</a> covers
+    what to do if recovery material has already been disclosed, and
+    <a href="/safety/scams/">scams and impersonation</a> lists the attempts this
+    archive has recorded.
+  </p>
+
+  <h2>Fees, and what waiting actually costs</h2>
+
+  <p>
+    A migration is an ordinary transaction and pays an ordinary fee. Waiting for
+    a lower-fee period may reduce that cost, but it leaves the affected output in
+    place. The first observed wave spent outputs from 500 source addresses inside
+    four consecutive blocks, 960,188 to 960,191, which does not establish a
+    deadline for another wallet.
+    <Claim
+      basis="derived"
+      scope="The 500-address, four-block characterisation of the first observed wave used above"
+      source="This site's reconciliation of the 500-transaction set from the pinned chain-derived dataset"
+      href="/record/funds/"
+      compact
+    />
+    If the fee is a large fraction of a balance,
+    moving it may cost more than the amount moved, so balance, current fee,
+    confidence in the exposure assessment and uncertainty in the published search
+    models are separate inputs to the choice.
+    <Claim
+      basis="unverified"
+      scope="Whether any particular wallet is being searched now, and how long an exposed single-signature output can be expected to survive"
+      source="No held evidence identifies targeting of a specific wallet, and the published candidate-space estimates differ by many orders of magnitude, so no deadline is implied here"
+      href="/how-it-broke/entropy/"
+      compact
+    />
+  </p>
+
+  <p>
+    Preparing and verifying the destination creates no on-chain transaction and
+    can be completed before the fee decision. Moving only some outputs reduces
+    exposure only for those outputs and can have fee and privacy consequences. An
+    unresolved firmware or provenance question is not the same as a negative
+    answer: <a href="/risk/">the risk overview</a> sets out which facts settle it
+    without touching recovery material.
+  </p>
+
+  <Disclosure
+    id="threshold-wallets"
+    title="Threshold wallets: the first spend can publish the script"
+    note="only if a spending path has at least as many affected keys as its threshold, and the script is still hidden"
+  >
+    <p>
+      This applies to a narrow case: a threshold wallet has at least as many
+      affected keys as a spending-path threshold, and its relevant script,
+      descriptor and child public keys have not already been disclosed. In that
+      case the first spend can make individual weak-key tests possible before the
+      transaction confirms. Whether the case applies is a technical condition
+      rather than a matter of address reuse, and it is worked through on
+      <a href="/risk/mitigations/#multisig">the multisig rung</a>.
+    </p>
+
+    <h3>What becomes public during a spend</h3>
+
+    <p>
+      A P2WSH output contains a hash of the witness script, and a valid spend
+      supplies that script and the required signatures. When an unconfirmed
+      transaction is publicly relayed, peers that receive it can inspect the
+      script and its child public keys before a block confirms the spend. An
+      attacker who can recover a threshold number of keys within that interval
+      may attempt a conflicting spend with a more attractive fee. The same
+      disclosure occurs for nested P2SH-P2WSH: its <code>scriptSig</code>
+      supplies the redeem-script witness program while the witness supplies the
+      complete witness script and signatures. Because the published
+      candidate-space estimates vary by many orders of magnitude, this mechanism
+      does not establish that every such race is practical; it identifies when a
+      hidden-script assumption ends.
+      <Claim
+        basis="reported"
+        scope="The first-spend race and direct-submission recommendation described above"
+        source="Rob Hamilton, Peter Todd and Charles Guillemet described the first-spend race; the native and nested P2WSH reveal mechanics are verified from the transaction structure"
+        href="/record/sources/robhamilton-multisig-psa/"
+        compact
+      />
+    </p>
+
+    <div class="mermaid-wrap">
+      <pre class="mermaid" set:text={race}></pre>
+    </div>
+    <p class="cap">
+      Direct submission can narrow pre-confirmation disclosure. It does not make
+      a transaction private after it is mined and does not guarantee confirmation.
+    </p>
+
+    <h3>Submission options and limitations</h3>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption>Migration transaction routes</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="nw">Option</th>
+              <th scope="col" class="wide">Pre-confirmation exposure</th>
+              <th scope="col" class="wide">Limitations to check</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="nw"><strong>Public relay with a competitive fee</strong></td>
+              <td class="wide">The script is visible to peers from first relay until confirmation.</td>
+              <td class="wide">A next-block fee is a target, not a confirmation guarantee. Block intervals are variable, policy differs across miners, and a conflicting transaction may pay a higher fee.</td>
+            </tr>
+            <tr>
+              <td class="nw"><strong>Direct submission to a miner</strong></td>
+              <td class="wide">Disclosure can be limited to the service and its participating infrastructure if neither the service nor another participant relays the transaction elsewhere.</td>
+              <td class="wide">Confirmation depends on the service accepting the transaction and a participating miner finding a suitable block. Review confidentiality, retention, fee, replacement and non-confirmation terms. Do not assume a guarantee that is not written.</td>
+            </tr>
+            <tr>
+              <td class="nw"><strong>Taproot key-path spend</strong></td>
+              <td class="wide">The aggregate output key is already visible in the output being spent. A key-path spend adds a signature but does not reveal an unused script leaf.</td>
+              <td class="wide">This is available only if the wallet was constructed with an executable key path and the required signers and software can use it. It cannot be added retroactively to a P2WSH output.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p>
+      <a href="/record/sources/guillemet-multisig-relay-analysis/">Charles Guillemet</a>
+      described the complete-script condition, the possibility that copies already
+      exist in provider systems or backups, and the public-mempool conflict
+      window, recommending a trusted private relay and naming Slipstream as one
+      example.
+    </p>
+
+    <h3>What is known about Slipstream</h3>
+
+    <p>
+      MARA describes Slipstream as a direct transaction-submission service backed
+      by MARA Pool. At the 1 August 2026 check, its portal required a client code
+      and applied a minimum submission feerate. MARA's public material supports
+      describing it as direct submission, but the portal terms do not establish a
+      confidentiality or confirmation guarantee.
+      <Claim
+        basis="verified"
+        scope="The public Slipstream submission process and limitations described above"
+        source="MARA Slipstream portal, checked 1 Aug 2026"
+        href="/record/sources/mara-slipstream-portal/"
+        compact
+      />
+      The separately published
+      <a href="/record/sources/mara-slipstream-api/">OpenAPI document</a>
+      describes transaction handling as best effort and says admission does not
+      guarantee mining; its request schema marks <code>client_code</code> as
+      optional, while the portal says client codes are currently required.
+      <Claim
+        basis="verified"
+        contested
+        scope="The differing public client-code descriptions and the API's best-effort, no-mining-guarantee language"
+        source="MARA Slipstream portal and OpenAPI document, checked 1 Aug 2026"
+        href="/record/sources/mara-slipstream-api/"
+        compact
+      />
+      This
+      archive did not submit a transaction to test which condition the service
+      enforced on 1 August 2026.
+    </p>
+
+    <p>
+      A dated pool-share observation gives scale to that limitation. In
+      a <a href="/record/evidence/mempool-pools-1m-20260801T055613Z.json">held copy of mempool.space's rolling one-month pool dataset</a>,
+      retrieved at 05:56 UTC on 1 August, MARA Pool had found 197 of 4,343
+      blocks in the response, or 4.54%. The total includes 44 blocks in the
+      endpoint's Unknown category. If that share stays constant and network blocks
+      arrive every ten minutes on average, the implied mean interval between MARA
+      blocks is about 220 minutes, or 3.7 hours.
+      <Claim
+        basis="derived"
+        scope="The 4.54% observed MARA Pool share and 3.7-hour mean-block-interval calculation"
+        source="Held mempool.space one-month response at 2026-08-01T05:56:13Z, file SHA-256 906d774288ef2e5fee016e90b44c462af835a4932da52c6581975f700b5fb0b7; mean = 10 minutes divided by 197/4,343"
+        href="/record/evidence/mempool-pools-1m-20260801T055613Z.json"
+        compact
+      />
+      Pool share and block intervals
+      vary, and acceptance, fee policy, conflicts and service behaviour remain
+      separate conditions.
+    </p>
+
+    <h3>A time-stamped risk assessment</h3>
+
+    <p>
+      <a href="https://x.com/LLFOURN/status/2083375420721025313" rel="noopener nofollow">LLFOURN assessed the immediate risk of moving Mk4 multisig as low</a> on 1
+      August, while warning that the same assessment might not hold a few days
+      later.
+      <Claim
+        basis="reported"
+        scope="LLFOURN's time-specific assessment of the migration race"
+        source="LLFOURN, migration-risk assessment published 1 Aug 2026"
+        href="/record/sources/llfourn-2083375420721025313/"
+        compact
+      />
+      The post describes <a href="https://x.com/unchained/status/2083036112449163618" rel="noopener nofollow">Unchained's cautious, one-size process</a>
+      as sensible for a KYC provider that knows its customer base, and notes that
+      waiting means trusting the provider's eventual solution. The date is part of
+      the claim.
+    </p>
+
+    <h3>Provenance of the recommendation</h3>
+
+    <p>
+      <a href="/record/sources/robhamilton-multisig-psa/">Rob Hamilton</a>,
+      an AnchorWatch co-founder, published the migration warning.
+      <a href="/record/sources/petertodd-slipstream-guidance/">Peter Todd</a>
+      subsequently endorsed direct miner submission as a possible way to reduce
+      the public-mempool interval. <a href="/record/sources/portlandhodl-slipstream-access/">PortlandHODL</a>, who has described
+      involvement in building Slipstream and lists an AnchorWatch affiliation,
+      offered access codes during the incident. Charles Guillemet later published
+      a similar recommendation while serving as Ledger's CTO, and Ledger sells
+      competing signing devices.
+      <Claim
+        basis="reported"
+        scope="The disclosed employment and authorship connections behind the Slipstream recommendation"
+        source="Captured X posts and public profiles; no inference about motive is made"
+        href="/record/sources/portlandhodl-slipstream-access/"
+        compact
+      />
+      These relationships are disclosed because they
+      connect the advice either to the service or to a competing hardware-wallet
+      vendor. They do not establish that the technical mechanism is incorrect.
+    </p>
+
+    <h3>A reported migration outcome</h3>
+
+    <p>
+      <a href="/record/sources/portlandhodl-slipstream-outcome/">PortlandHODL later reported</a>
+      that a transaction submitted through Slipstream and included in the block
+      current when he posted had saved approximately 158.6 BTC from a 2-of-3
+      multisig wallet whose COLDCARD keys were likely exposed.
+      <Claim
+        basis="reported"
+        scope="PortlandHODL's approximately 158.6 BTC Slipstream outcome claim"
+        source="PortlandHODL, captured primary X post, 1 Aug 2026; no transaction identifier or independent counterfactual evidence is held"
+        href="/record/sources/portlandhodl-slipstream-outcome/"
+        compact
+      />
+      The held post does
+      not identify the transaction, wallet policy, competing-spend evidence or
+      counterfactual outcome. This archive therefore records the statement as a
+      reported service outcome and does not independently classify the funds as
+      saved by Slipstream.
+    </p>
+
+    <div class="callout callout--red">
+      <span class="callout__title">Treat direct-message access as an authentication problem</span>
+      Verify any service domain, representative and access code through a second
+      published channel. Do not provide seed words, private keys, passphrases or
+      wallet backups. A transaction-submission service needs the signed transaction,
+      not the material used to sign it.
+    </div>
+
+    <h3>Before signing or submitting</h3>
+
+    <ol class="steps">
+      <li><strong>Confirm the case.</strong> Identify the spending path, threshold, affected-key count and whether the script, descriptor or child public keys are already exposed.</li>
+      <li><strong>Assess the candidate-space assumptions.</strong> Do not treat a lower or upper published scenario as a measured recovery time for the wallet.</li>
+      <li><strong>Review the submission route.</strong> Check current service terms, fees, replacement behaviour, data handling and what happens if no block is found promptly.</li>
+      <li><strong>Avoid leaving a residual unintentionally.</strong> Any spent script-path input reveals its witness script. Confirm which outputs and derivation paths remain after the planned transaction.</li>
+    </ol>
+  </Disclosure>
+</Article>

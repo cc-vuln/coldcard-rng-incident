@@ -1,0 +1,685 @@
+---
+import Base from '../../../layouts/Base.astro';
+import {
+  sources, xPosts, sourceById, xPostById, snapshots, diffText, parseDiff,
+  snapshotText, tsToHuman, isoToHuman, lastPolled, displayTitle, kindLabel,
+  xArtifacts, reviewForRevision, withholdsCapturedText, withholdsCapturedMedia,
+} from '../../../lib/archive';
+import { xMedia } from '../../../lib/xmedia';
+import { readFileSync, existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+
+export function getStaticPaths() {
+  return [...sources(), ...xPosts()].map((s) => ({ params: { id: s.id } }));
+}
+
+const REVIEW_LABEL: Record<string, string> = {
+  'source-content': 'source content',
+  'capture-noise': 'capture noise',
+  'capture-correction': 'capture correction',
+  'unreviewed': 'unreviewed',
+};
+
+// Published builds show diffs, an excerpt and the hash. The complete captured
+// body stays local, where it still backs every claim and can be produced if a
+// quotation is ever disputed. Diffs and short quotations are transformative;
+// a full-text mirror of someone else's article is a different proposition.
+const FULL_TEXT = import.meta.env.PUBLIC_FULL_TEXT === 'true';
+const EXCERPT_LINES = 40;
+
+const { id } = Astro.params;
+const sid = id as string;
+const webSource = sourceById(sid);
+const socialPost = xPostById(sid);
+const isSocial = !!socialPost;
+const src = webSource ?? {
+  id: socialPost!.id,
+  title: socialPost!.title,
+  url: socialPost!.url,
+  org: socialPost!.org,
+  kind: 'social-post',
+  tier: undefined,
+  note: socialPost!.why,
+  published: socialPost!.posted,
+};
+const title = displayTitle(src);
+const snaps = snapshots(sid);
+const polled = webSource ? lastPolled(sid) : null;
+const artifacts = socialPost ? xArtifacts(socialPost) : [];
+// Chain monitors and first-hand victim accounts can contain addresses,
+// usernames or personal circumstances. Keep those snapshots in the local
+// evidence archive, but never reproduce their raw text or diffs on the public
+// site.
+const withholdCapturedText = withholdsCapturedText(src);
+const privacyBoundaryText = 'Snapshot and diff bodies for this chain monitor are held in the local evidence archive but withheld from the public site because they can contain the addresses of people who published nothing themselves. Integrity hashes, capture times and reviewed change summaries remain available below.';
+const artifactRows = artifacts.map((artifact) => ({
+  ...artifact,
+  size: artifact.bytes < 1024
+    ? `${artifact.bytes} B`
+    : `${(artifact.bytes / 1024).toFixed(1)} KiB`,
+  shortSha: artifact.sha256.slice(0, 24),
+}));
+
+// A repository file, a downloads page or a live chain monitor has no
+// publication date, and reporting one as "not established" implies a gap in the
+// research rather than a category error. These kinds are continuously updated
+// by design, which is a different fact about the source and worth stating as
+// one.
+const LIVING = new Set(['repo-file', 'vendor-index', 'vendor-releases', 'chain-monitor', 'government-legal', 'government-record']);
+const publishedLabel = src.published
+  ? isSocial ? isoToHuman(src.published) : src.published
+  : LIVING.has(src.kind ?? '')
+    ? 'continuously updated'
+    : 'not established';
+
+// The captured artefact leads the page. Two independent gates decide whether
+// the screenshot renders: staging (only OWN_HOST_FROM captures are ever copied
+// into /x-media/, so presence in the manifest is the provenance check) and the
+// withhold flag (a publication decision: a screenshot reproduces a post at
+// least as fully as its text does). A post failing either gate keeps the
+// registered-only presentation, and a withheld post's staged URL never reaches
+// the generated HTML at all.
+const withholdCapturedMedia = withholdsCapturedMedia(src);
+const stagedShots = socialPost ? xMedia(sid) : [];
+const shot = !withholdCapturedMedia && stagedShots.length ? stagedShots[0] : null;
+const shotView = shot ? {
+  src: shot.src,
+  author: '@' + socialPost!.author,
+  alt: `Captured screenshot of the post by @${socialPost!.author}, posted ${publishedLabel}`,
+  capturedHuman: tsToHuman(shot.name.replace(/\.\w+$/, '')),
+} : null;
+const socialHeading = shotView ? 'Integrity record' : 'Capture held by this project';
+const socialHeldLede = shotView
+  ? 'These are the integrity records for the held artefacts, including the screenshot shown above: name, format, size and SHA-256 prefix, so the displayed image can be checked against the archive.'
+  : 'These are integrity records for the local text and image artefacts. The public site does not republish full social-media captures.';
+
+// An archive that asks to be taken on trust is not much of an archive. Every
+// source links out to its full Internet Archive history so a reader can check
+// our captures against a third party who has no stake in this incident.
+const waybackHistory = 'https://web.archive.org/web/*/' + src.url;
+const waybackSave = 'https://web.archive.org/save/' + src.url;
+
+// Provenance per snapshot: taken by us, or inherited from the Internet Archive.
+const REPO = process.env.ARCHIVE_ROOT
+  ? resolve(process.env.ARCHIVE_ROOT)
+  : resolve(process.cwd(), '..');
+function provenance(ts: string): Record<string, any> {
+  const p = join(REPO, 'archive', 'snapshots', sid, `${ts}.meta.json`);
+  if (!existsSync(p)) return {};
+  try { return JSON.parse(readFileSync(p, 'utf8')); } catch { return {}; }
+}
+
+// Newest first, with everything the template needs already computed. Keeping
+// logic out of the markup avoids the expression-parsing ambiguities in .astro.
+//
+// A row is labelled by what it is in the source's history (the state as first
+// held, or a revision landing in a bounded window), not by when we fetched it.
+// The fetch time is real and worth keeping, but it belongs in the evidence line
+// with the hash, not as the headline: it describes this project's schedule
+// rather than the publisher's behaviour.
+const oldestFirst = [...snaps];
+const revCount = oldestFirst.filter(
+  (sn, n) => n > 0 && sn.textSha256 !== oldestFirst[n - 1].textSha256,
+).length;
+const reviewedSourceChanges = oldestFirst.filter((sn, n) =>
+  n > 0 && sn.textSha256 !== oldestFirst[n - 1].textSha256 &&
+  reviewForRevision(sid, sn.ts).status === 'source-content'
+).length;
+const unreviewedCount = oldestFirst.filter((sn, n) =>
+  n > 0 && sn.textSha256 !== oldestFirst[n - 1].textSha256 &&
+  reviewForRevision(sid, sn.ts).status === 'unreviewed'
+).length;
+const rows = [...snaps].reverse().map((sn, i) => {
+  const idx = oldestFirst.findIndex((x) => x.ts === sn.ts);
+  const prev = idx > 0 ? oldestFirst[idx - 1] : null;
+  const isRevision = !!prev && prev.textSha256 !== sn.textSha256;
+  const review = isRevision ? reviewForRevision(sid, sn.ts) : null;
+  const raw = diffText(sid, sn.ts);
+  const meta = provenance(sn.ts);
+  const parsed = raw ? parseDiff(raw).filter((l) => l.kind !== 'meta') : [];
+  const rawLines = raw ? raw.split('\n') : [];
+  return {
+    ts: sn.ts,
+    human: tsToHuman(sn.ts),
+    // What this row is in the page's own history.
+    heading: isRevision
+      ? `${REVIEW_LABEL[review!.status]} difference between ${tsToHuman(prev!.ts)} and ${tsToHuman(sn.ts)}`
+      : prev
+        ? 'Checked again, unchanged'
+        : 'Earliest copy held',
+    isRevision,
+    reviewStatus: review?.status ?? '',
+    reviewLabel: review ? REVIEW_LABEL[review.status] : '',
+    reviewClass: review ? `pill review review--${review.status}` : 'pill review',
+    reviewSummary: review?.summary ?? '',
+    sha: sn.textSha256.slice(0, 24),
+    chars: sn.chars.toLocaleString(),
+    isCurrent: i === 0,
+    origin: meta.provenance === 'wayback' ? 'Internet Archive' : 'Captured here',
+    isWayback: meta.provenance === 'wayback',
+    // Hidden anchors still need valid markup in the generated HTML. Use the
+    // source's history page as the inert fallback for captures that were not
+    // recovered from a specific Internet Archive replay URL.
+    waybackUrl: ((meta.wayback_url as string) || waybackHistory).replace(/^http:/, 'https:'),
+    body: (() => {
+      if (withholdCapturedText) return '';
+      const full = snapshotText(sid, sn.ts);
+      if (FULL_TEXT) return full;
+      const lines = full.split('\n');
+      return lines.length <= EXCERPT_LINES
+        ? full
+        : lines.slice(0, EXCERPT_LINES).join('\n');
+    })(),
+    truncated: !withholdCapturedText && !FULL_TEXT && snapshotText(sid, sn.ts).split('\n').length > EXCERPT_LINES,
+    // Newline baked in here so the template holds no string escapes.
+    lines: withholdCapturedText ? [] : parsed.map((l) => ({
+      cls: 'dl dl--' + l.kind,
+      text: (l.kind === 'add' ? '+' : l.kind === 'del' ? '-' : ' ') + l.text + '\n',
+    })),
+    changedCount: parsed.filter((l) => l.kind !== 'ctx').length,
+    hasDiff: !withholdCapturedText && parsed.length > 0,
+    added: rawLines.filter((l) => l.startsWith('+') && !l.startsWith('+++')).length,
+    removed: rawLines.filter((l) => l.startsWith('-') && !l.startsWith('---')).length,
+  };
+});
+
+// Presentation churn classified as capture-noise is part of the record but
+// not part of the story the timeline tells, so it leaves the main timeline
+// for a collapsed block below it. The rows, hashes and anchors all still
+// render; only their placement changes. Everything else, including
+// unreviewed rows, stays in the main timeline exactly as captured.
+const noiseRows = rows.filter(
+  (r) => r.isRevision && r.reviewStatus === 'capture-noise',
+);
+const mainRows = rows.filter(
+  (r) => !(r.isRevision && r.reviewStatus === 'capture-noise'),
+);
+const noiseHeading = noiseRows.length +
+  (noiseRows.length === 1
+    ? ' presentation-noise difference. Sidebar, ticker and other page chrome churn that our review classified as not being a change to what the source says.'
+    : ' presentation-noise differences. Sidebar, ticker and other page chrome churn that our review classified as not being changes to what the source says.');
+
+// The latest reviewed source-content change leads a web source's page: a
+// publisher changing what it said is the event this archive exists to show, so
+// the curator's summary and the first diff lines sit above the metadata rather
+// than behind a closed disclosure. Bodies keep respecting the withhold flag:
+// when captured text is withheld, `lines` is already empty upstream and only
+// the reviewed change summary appears, which the privacy boundary allows.
+const LEAD_DIFF_LINES = 8;
+const latestChange = rows.find(
+  (r) => r.isRevision && r.reviewStatus === 'source-content',
+) ?? null;
+const changeLead = latestChange ? {
+  ts: latestChange.ts,
+  heading: latestChange.heading,
+  summary: latestChange.reviewSummary,
+  human: latestChange.human,
+  added: latestChange.added,
+  removed: latestChange.removed,
+  lines: latestChange.lines.slice(0, LEAD_DIFF_LINES),
+  clipped: latestChange.lines.length > LEAD_DIFF_LINES,
+} : null;
+
+const facts = isSocial ? [
+  ['Author', '@' + socialPost!.author],
+  ['Organisation', socialPost!.org || 'independent'],
+  ['Evidence role', socialPost!.tag || 'social statement'],
+  ['Posted', publishedLabel],
+  ['Capture status', artifacts.length ? 'capture held' : 'registered only'],
+  ['Artefacts held', String(artifacts.length)],
+] : [
+  ['Organisation', src.org || 'unknown'],
+  ['Evidence role', kindLabel(src.kind)],
+  ['Published', publishedLabel],
+  ['Source changes', String(reviewedSourceChanges)],
+  ['Detected differences', String(revCount)],
+  ['Unreviewed', String(unreviewedCount)],
+  ['Copies held', String(snaps.length)],
+];
+
+const methodologyText = isSocial
+  ? artifacts.length
+    ? 'This post is registered as evidence and has locally held capture artefacts. The original remains the canonical publication; hashes below identify the files held by this project.'
+    : 'This post is registered because it shaped the research or response, but no attributable local capture is currently held. The original link remains available while capture is pursued.'
+  : 'Every check is recorded, including checks that found no text change. A detected edit is therefore bounded between two checks. The publisher\'s exact save time is not observable from this record.';
+---
+
+<Base
+  title={title + ': source'}
+  description={'What this page said over time, and what changed: ' + src.url}
+  kicker="Evidence / sources"
+>
+  <div class="wrap">
+    <header class="src__head">
+      <div>
+        <h1 class="src__title">{title}</h1>
+        <p class="src__id">{src.id}</p>
+        <p class="src__url"><a href={src.url} rel="noopener nofollow">{src.url}</a></p>
+      </div>
+    </header>
+
+    {(src as any).gone && (
+      <aside class="gone" role="note">
+        <p class="gone__tag">No longer published at the source</p>
+        <p class="gone__lead">
+          This page is gone from the web. The capture below is, as far as this
+          archive can establish, the only remaining public copy.
+        </p>
+        <p class="gone__detail">{(src as any).gone_note}</p>
+        <p class="gone__meta">
+          Stopped resolving {(src as any).gone_status ? `with HTTP ${(src as any).gone_status}` : ''}
+          on {tsToHuman((src as any).gone_since)}. The archive no longer polls it;
+          everything held from before that date is unchanged.
+        </p>
+      </aside>
+    )}
+
+    {shotView && (
+      <figure class="shot">
+        <a class="shot__zoom" href={shotView.src} rel="noopener">
+          <img class="shot__img" src={shotView.src} alt={shotView.alt} />
+        </a>
+        <figcaption class="shot__cap">
+          <span>{shotView.author}</span>
+          <span>posted {publishedLabel}</span>
+          <span>captured {shotView.capturedHuman}</span>
+          <a href={shotView.src} rel="noopener">full-size capture &rarr;</a>
+          <a href={src.url} rel="noopener nofollow">original post &rarr;</a>
+        </figcaption>
+      </figure>
+    )}
+
+    {changeLead && (
+      <section class="lead">
+        <p class="lead__tag">Latest reviewed change</p>
+        <p class="lead__heading">{changeLead.heading}</p>
+        <p class="lead__summary">{changeLead.summary}</p>
+        <div class="lead__meta">
+          <span class="hash">seen {changeLead.human}</span>
+          <span class="lead__delta">
+            <span class="add">+{changeLead.added}</span>
+            <span class="del">-{changeLead.removed}</span>
+          </span>
+          <a class="hash" href={'#snap-' + changeLead.ts}>full history below</a>
+        </div>
+        <pre class="lead__diff" hidden={changeLead.lines.length === 0}><code>{changeLead.lines.map((l) => (
+          <span class={l.cls}>{l.text}</span>
+        ))}</code></pre>
+        <p class="lead__clip" hidden={!changeLead.clipped}>
+          First lines only. The complete diff is in the timeline below.
+        </p>
+      </section>
+    )}
+
+    <dl class="src__facts">
+      {facts.map(([label, value]) => (
+        <div><dt>{label}</dt><dd>{value}</dd></div>
+      ))}
+    </dl>
+
+    <p class="src__note">{src.note}</p>
+
+    <p class="src__polled">
+      {methodologyText}
+      <span hidden={!polled}> Last checked {polled ? tsToHuman(polled) : ''}.</span>
+    </p>
+
+    <div class="callout is-info src__privacy" hidden={!withholdCapturedText}>
+      <span class="callout__title">Public privacy boundary</span>
+      <p>{privacyBoundaryText}</p>
+    </div>
+
+    <section class="social" hidden={!isSocial}>
+      <h2>{socialHeading}</h2>
+      <p class="social__lede" hidden={artifactRows.length > 0}>
+        No attributable local capture is held yet. Registration preserves why
+        the post matters, but is not evidence that the original will remain
+        available.
+      </p>
+      <p class="social__lede" hidden={artifactRows.length === 0}>{socialHeldLede}</p>
+      <div class="table-scroll" hidden={artifactRows.length === 0}>
+        <table class="artifact-table">
+          <caption>Held social-media capture artefacts</caption>
+          <thead>
+            <tr>
+              <th scope="col">Artefact</th>
+              <th scope="col">Format</th>
+              <th scope="col">Size</th>
+              <th scope="col">SHA-256 prefix</th>
+            </tr>
+          </thead>
+          <tbody>
+            {artifactRows.map((artifact) => (
+              <tr>
+                <td><code>{artifact.name}</code></td>
+                <td>{artifact.format}</td>
+                <td>{artifact.size}</td>
+                <td><code>{artifact.shortSha}</code></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <ol class="timeline" hidden={isSocial}>
+      {mainRows.map((r) => (
+        <li class="snap" id={'snap-' + r.ts}>
+          <div class="snap__bar">
+            <span class="snap__ts">{r.heading}</span>
+            <span class="pill is-info snap__cur" hidden={!r.isCurrent}>Current</span>
+            <span class={r.reviewClass} hidden={!r.isRevision}>{r.reviewLabel}</span>
+            <span class="snap__delta" hidden={!r.hasDiff}>
+              <span class="add">+{r.added}</span>
+              <span class="del">-{r.removed}</span>
+            </span>
+          </div>
+
+          <p class="snap__review" hidden={!r.isRevision}>{r.reviewSummary}</p>
+
+          <div class="snap__meta">
+            <span class="hash">seen {r.human} &middot; {r.origin}</span>
+            <span class="hash">text sha256 {r.sha}</span>
+            <span class="hash">{r.chars} chars</span>
+            <a class="hash" href={r.waybackUrl} rel="noopener nofollow" hidden={!r.isWayback}>replay</a>
+          </div>
+
+          <p class="snap__prov" hidden={!r.isWayback}>
+            Recovered from the Internet Archive rather than captured by this
+            project. The row records that third-party provenance separately from
+            captures made by this project.
+          </p>
+
+          <details class="diff" hidden={!r.hasDiff}>
+            <summary>
+              What changed from the previous capture
+              <span class="diff__count">{r.changedCount} lines</span>
+            </summary>
+            <pre class="diff__body"><code>{r.lines.map((l) => (
+              <span class={l.cls}>{l.text}</span>
+            ))}</code></pre>
+          </details>
+
+          <details class="snap__text" hidden={withholdCapturedText}>
+            <summary>Extracted text as captured</summary>
+            <pre class="snap__pre"><code>{r.body}</code></pre>
+            <p class="snap__trunc" hidden={!r.truncated}>
+              Excerpt only. The complete copy is held offline and backs
+              quotations on this site. The original publication remains the
+              canonical public source.
+            </p>
+          </details>
+        </li>
+      ))}
+    </ol>
+
+    <details class="noise" hidden={isSocial || noiseRows.length === 0}>
+      <summary>{noiseHeading}</summary>
+      <ul class="noise__list">
+        {noiseRows.map((r) => (
+          <li class="noise__row" id={'snap-' + r.ts}>
+            <span class="noise__ts">{r.human}</span>
+            <span class="noise__delta">
+              <span class="add">+{r.added}</span>
+              <span class="del">-{r.removed}</span>
+            </span>
+            <span class="noise__sum">{r.reviewSummary}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+
+    <aside class="verify" hidden={isSocial}>
+      <p class="verify__h">Independent cross-check</p>
+      <p>
+        Internet Archive copies provide a third-party comparison for the
+        captures held by this project.
+      </p>
+      <p class="verify__links">
+        <a href={waybackHistory} rel="noopener nofollow">Internet Archive history for this URL &rarr;</a>
+        <a href={waybackSave} rel="noopener nofollow">Request another Internet Archive capture &rarr;</a>
+      </p>
+      <p class="verify__note">
+        Its coverage is uneven: some pages were captured many times before this
+        project began collecting and some not at all. The two sets of copies are
+        therefore complementary. Where a snapshot above is marked
+        <em>Internet Archive</em>, that provenance is recorded explicitly.
+      </p>
+    </aside>
+
+    <div class="callout is-info src__foot" hidden={isSocial}>
+      <span class="callout__title">How to check this yourself</span>
+      <p>
+        Each copy above is identified by the SHA-256 of its extracted text, shown
+        beside it, and the diffs are plain unified diffs. To verify a quotation,
+        compare it against
+        <a href={src.url} rel="noopener nofollow">the page itself</a> or against
+        <a href={waybackHistory} rel="noopener nofollow">the Internet Archive's
+        copies</a>, which are independent of this project.
+      </p>
+      <p>
+        Complete captures are held offline rather than mirrored here, so this page
+        shows diffs and excerpts. If a quotation is ever disputed, the full copy
+        can be produced. <a href="/about/">Ask</a>.
+      </p>
+    </div>
+
+    <div class="callout is-info src__foot" hidden={!isSocial}>
+      <span class="callout__title">How to check this yourself</span>
+      <p>
+        The SHA-256 prefixes above identify each held copy without turning this
+        page into a mirror of somebody else's post. Compare a quotation against
+        <a href={src.url} rel="noopener nofollow">the original</a>. If the post
+        has since been edited or deleted, <a href="/about/">ask</a> and the held
+        copy can be produced.
+      </p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .src__head {
+    display: flex; flex-wrap: wrap; gap: 1.5rem 2.5rem;
+    align-items: flex-start; justify-content: space-between;
+    padding-bottom: 1.3rem; border-bottom: 1px solid var(--rule);
+  }
+  .src__title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 400; letter-spacing: -.02em; }
+  .src__id { font-family: var(--font-mono); font-size: .7rem; color: var(--ink-3); margin-top: .15rem; }
+  /* A source disappearing from the web is the case this archive exists for,
+     so it leads the page rather than sitting in a status row. */
+  .gone {
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--rule));
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--accent-soft);
+    padding: 1.1rem 1.3rem;
+    margin-block: 1.4rem;
+  }
+  .gone__tag {
+    font-family: var(--font-mono); font-size: .63rem; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+  }
+  .gone__lead { margin-top: .45rem; font-size: 1.02rem; line-height: 1.6; max-width: 66ch; }
+  .gone__detail { margin-top: .55rem; font-size: .9rem; line-height: 1.6; color: var(--ink-2); max-width: 68ch; }
+  .gone__meta { margin-top: .55rem; font-size: .8rem; color: var(--ink-3); max-width: 68ch; }
+
+  .src__url { font-size: .84rem; margin-top: .35rem; word-break: break-all; }
+  .src__url a { color: var(--ink-3); }
+  .src__url a:hover { color: var(--accent); }
+
+  /* The facts sit below the artefact, not beside the title: the reader
+     arrives from a card showing the capture, so the capture comes first and
+     the metadata describes it rather than fronting for it. */
+  .src__facts { display: flex; flex-wrap: wrap; gap: 1.4rem; margin: 1.6rem 0 0; }
+  .src__facts div { display: flex; flex-direction: column; gap: .15rem; }
+  .src__facts dt {
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .src__facts dd { margin: 0; font-size: .9rem; }
+
+  .src__note, .src__polled {
+    font-size: .88rem; color: var(--ink-3); margin-top: .9rem; max-width: 70ch; line-height: 1.62;
+  }
+  .src__note { color: var(--ink-2); }
+  .src__note:empty { display: none; }
+
+  .verify {
+    margin-top: 1.6rem;
+    padding: 1.05rem var(--inset-box);
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--info);
+    border-radius: var(--radius);
+    /* A box, not a paragraph, so its width is one of the site's rather than a
+       character count of its own text. 78ch resolved to 1014px here, a width
+       nothing else on the site uses. */
+    max-width: var(--w-text);
+  }
+  .verify__h {
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--info);
+  }
+  .verify p { font-size: .87rem; line-height: 1.65; color: var(--ink-2); }
+  .verify p + p { margin-top: .7rem; }
+  .verify__links { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; }
+  .verify__links a {
+    font-family: var(--font-mono); font-size: .76rem;
+    color: var(--info); text-decoration: none; white-space: nowrap;
+  }
+  .verify__links a:hover { text-decoration: underline; }
+  .verify__note { font-size: .8rem; color: var(--ink-3); }
+
+  /* The captured screenshot, when staged and not withheld, leads the page.
+     Height is capped so the facts stay in reach; the image links through to
+     the full-size staged file. Plain HTML, no script dependency. */
+  .shot { margin: 1.6rem 0 0; }
+  .shot__zoom { display: inline-block; max-width: 100%; }
+  .shot__img {
+    display: block; max-width: 100%; height: auto; max-height: 65vh;
+    object-fit: contain;
+    border: 1px solid var(--rule); border-radius: var(--radius-lg);
+    background: var(--surface-2);
+  }
+  .shot__cap {
+    display: flex; flex-wrap: wrap; gap: .3rem 1.1rem;
+    margin-top: .6rem;
+    font-family: var(--font-mono); font-size: .72rem; color: var(--ink-3);
+  }
+  .shot__cap a { color: var(--info); text-decoration: none; white-space: nowrap; }
+  .shot__cap a:hover { text-decoration: underline; }
+
+  /* Latest reviewed source-content change, surfaced open above the facts. */
+  .lead {
+    margin-top: 1.6rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--safe);
+    border-radius: var(--radius-lg);
+    padding: 1.05rem 1.25rem;
+    max-width: var(--w-text);
+  }
+  .lead__tag {
+    font-family: var(--font-mono); font-size: .63rem; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--safe);
+  }
+  .lead__heading { font-family: var(--font-mono); font-size: .84rem; font-weight: 600; margin-top: .5rem; }
+  .lead__summary { font-size: .88rem; color: var(--ink-2); line-height: 1.6; margin-top: .45rem; max-width: 72ch; }
+  .lead__summary:empty { display: none; }
+  .lead__meta { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: .55rem; align-items: baseline; }
+  .lead__delta { font-family: var(--font-mono); font-size: .76rem; display: flex; gap: .45rem; }
+  .lead__delta .add { color: var(--add); }
+  .lead__delta .del { color: var(--del); }
+  .lead__diff {
+    background: var(--sunken); border: 1px solid var(--rule);
+    border-radius: var(--radius); padding: .85rem 1rem;
+    overflow-x: auto; font-size: .74rem; line-height: 1.62;
+    max-height: 300px; overflow-y: auto; margin-top: .7rem;
+  }
+  .lead__diff[hidden] { display: none; }
+  .lead__clip {
+    font-size: .78rem; color: var(--ink-3); margin-top: .5rem; line-height: 1.58;
+  }
+  .lead__clip[hidden] { display: none; }
+
+  .social { margin-top: 2rem; }
+  .social h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
+  .social__lede { color: var(--ink-3); font-size: .86rem; max-width: 70ch; margin-top: .45rem; }
+  .artifact-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .76rem; }
+  .artifact-table th, .artifact-table td { text-align: left; border-bottom: 1px solid var(--rule); padding: .65rem .5rem; vertical-align: top; }
+  .artifact-table th { font-family: var(--font-mono); color: var(--ink-3); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .artifact-table code { overflow-wrap: anywhere; }
+
+  .timeline { list-style: none; padding: 0; margin-top: 2.2rem; display: grid; gap: 1.1rem; }
+  .timeline[hidden] { display: none; }
+
+  /* Review-classified presentation churn, collapsed out of the timeline so
+     it stays on the record without fronting for it. Muted throughout. */
+  .noise { margin-top: 1.4rem; color: var(--ink-3); max-width: var(--w-text); }
+  .noise[hidden] { display: none; }
+  .noise summary {
+    cursor: pointer; font-family: var(--font-mono); font-size: .74rem;
+    padding: .45rem 0; line-height: 1.6;
+  }
+  .noise summary:hover { color: var(--ink-2); }
+  .noise__list { list-style: none; padding: 0; margin: .4rem 0 0; display: grid; gap: .4rem; }
+  .noise__row { display: flex; flex-wrap: wrap; gap: .2rem .9rem; align-items: baseline; font-size: .78rem; }
+  .noise__ts { font-family: var(--font-mono); }
+  .noise__delta { font-family: var(--font-mono); font-size: .72rem; display: flex; gap: .45rem; }
+  .noise__delta .add { color: var(--add); }
+  .noise__delta .del { color: var(--del); }
+  .noise__sum { color: var(--ink-3); line-height: 1.55; }
+  .snap {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+  }
+  .snap__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
+  .snap__ts { font-family: var(--font-mono); font-size: .84rem; font-weight: 600; }
+  .snap__delta { font-family: var(--font-mono); font-size: .76rem; display: flex; gap: .45rem; margin-left: auto; }
+  .snap__delta[hidden] { display: none; }
+  .snap__cur[hidden] { display: none; }
+  .review[hidden] { display: none; }
+  .review--source-content { color: var(--safe); border-color: var(--safe); }
+  .review--capture-noise, .review--capture-correction { color: var(--ink-3); }
+  .review--unreviewed { color: var(--warn); border-color: var(--warn); }
+  .snap__delta .add { color: var(--add); }
+  .snap__delta .del { color: var(--del); }
+
+  .snap__meta { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: .5rem; }
+  .snap__meta a[hidden] { display: none; }
+  .snap__prov { font-size: .82rem; color: var(--ink-3); margin-top: .6rem; line-height: 1.58; max-width: 68ch; }
+  .snap__prov[hidden] { display: none; }
+  .snap__review { font-size: .86rem; color: var(--ink-2); margin-top: .65rem; line-height: 1.58; max-width: 72ch; }
+  .snap__review[hidden] { display: none; }
+
+  .diff, .snap__text { margin-top: .9rem; }
+  .diff[hidden], .snap__text[hidden] { display: none; }
+  .diff summary, .snap__text summary {
+    cursor: pointer; font-family: var(--font-mono); font-size: .74rem;
+    color: var(--ink-2); padding: .45rem 0; display: flex; gap: .6rem; align-items: baseline;
+  }
+  .diff summary:hover, .snap__text summary:hover { color: var(--ink); }
+  .diff__count { color: var(--ink-3); font-size: .68rem; }
+
+  .diff__body, .snap__pre {
+    background: var(--sunken); border: 1px solid var(--rule);
+    border-radius: var(--radius); padding: .85rem 1rem;
+    overflow-x: auto; font-size: .74rem; line-height: 1.62;
+    max-height: 460px; overflow-y: auto; margin-top: .35rem;
+  }
+  .snap__pre { white-space: pre-wrap; word-break: break-word; }
+  .dl { display: block; white-space: pre-wrap; word-break: break-word; }
+  .dl--add { background: var(--add-bg); color: var(--add); }
+  .dl--del { background: var(--del-bg); color: var(--del); }
+  .dl--ctx { color: var(--ink-3); }
+
+  .snap__trunc {
+    font-size: .78rem; color: var(--ink-3); margin-top: .55rem;
+    line-height: 1.58; max-width: 66ch;
+  }
+  .snap__trunc[hidden] { display: none; }
+  .src__privacy { margin-top: 1.5rem; }
+  .src__foot { margin-top: 2.5rem; }
+</style>

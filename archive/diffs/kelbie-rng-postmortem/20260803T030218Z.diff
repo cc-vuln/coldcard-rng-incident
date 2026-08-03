@@ -1,0 +1,30 @@
+--- kelbie-rng-postmortem@20260802T230141Z
++++ kelbie-rng-postmortem@20260803T030218Z
+@@ -53,7 +53,7 @@
+ how to hunt a new operator's pattern.
+ ## Adding new evidence
+ `analysis/evidence.py` is the only hand-maintained *chain* input in the project (the curated
+-narrative lives in `src/data/timeline.tsx`, and the exhibit sources in `src/data/*-sources.ts`).
++narrative lives in `src/data/timeline/`, and the exhibit sources in `src/data/*-sources.ts`).
+ It holds evidence, not conclusions — there is no list of attacker addresses anywhere. The addresses, waves, labels and
+ justifications are all derived by walking the chain:
+ ```
+@@ -82,6 +82,9 @@
+ are related to drain"; that caveat survives into the UI rather than being flattened.
+ `SCAN_MATCHES` is this project's own reading, on nobody's authority — named `RC.n`, outside the
+ numbered sequence, so withdrawing one renames nothing.
++Where a report names a sweep already tracked here but does not identify the claimant's input, use
++`CORROBORATING_REPORTS`. The build resolves its transaction to a wave and displays the source there,
++but it does not create a victim attribution or alter the derived address set and totals.
+ Then re-run `analysis.chain`. Everything downstream rebuilds without touching a component.
+ ### What is derived, not written
+ No number on the page is typed by hand, and no claim about the current state of the coins is a fixed
+@@ -170,7 +173,7 @@
+ src/data/chain.json      generated; the source of every chain figure on the page
+ src/lib/facts.ts         phrases those figures for prose, the meta description and this README
+                          (`bun run facts` rewrites the marked blocks after a data refresh)
+-src/data/timeline.tsx    curated events, verbatim quotes, sourcing notes
++src/data/timeline/       curated events, verbatim quotes, sourcing notes
+ src/components/          Social (X + Reddit chrome), SweepReplay, MoneyFlow, Attribution,
+                          Fingerprint, VictimLedger, RootCause, Forensics, Timeline
+ ```

@@ -1,0 +1,72 @@
+url:      https://x.com/otaliptus/status/2083365327740543404
+author:   Talip
+@otaliptus 
+posted:   2026-08-01T01:32:55.000Z (from the page's <time> element)
+captured: 20260801T044119Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+
+--- post text (verbatim) ---
+
+Ok some here are thoughts over Mk4 security bits because I'm tired at this point, here's what I think from best to worse. 
+
+Keep in mind that I am assuming UID is unknown for an attacker behind a computer.
+
+This is mostly brainstorming and randomly typing on the spot, and I might be killing technical terminology or something else. I am not a hardware/embedded engineer. But these are the best "explanations" I could come up with. 
+
+---
+
+You already have 32-bit SE reseed health.
+
+Then, in theory, the fallback pad is 32 bits: UID[x, y] xor SysTick
+
+Normally, in theory, 32 SE + 32 pad gives you 64 bit static-RTC maximum. RTC is ~24 bits: 86400 * 256. 
+
+If you combine these, you get, **in theory**, 88-bits.
+
+But life isn't theory, eh
+
+Pad is not entirely 32-bit secret, because
+
+a) Mk4 SysTick has 15000 practical positions, not 120000, I think, unless I'm understanding it wrong (
+https://
+github.com/Coldcard/firmw
+are/blob/bcc2c382a324690a2fcf972c0bac3b79bf923f7b/stm32/COLDCARD_MK4/clocks.c#L72
+…)
+
+b) UID contribution is only wafer X/Y coordinates, not full 96-bit UID
+
+well the wafer is something physical.
+
+the largest ordinary wafer is about 300mm for stm32 (only alternative that I found is 200mm but ignore for now), and on mk4 the relevant die dimension is about 5.3 mm (STM32L4S5ZIY6TR) (thx GPT 5.6 Pro for checking all docs)
+
+300 / 5.3mm -> 56.6 -> 57 die pitches, accross a wafer.
+
+(300 is a rough physical model for now, but you get the idea)
+
+to make things easier, let's say then there are about 64 coordinate positions per axis. 
+
+Then the distinct pad bit becomes (it's not multiplication, remember, it's xor) around 1-2 million. Which is, 20 - 21 bits.
+
+Therefore, we end up at 2^53 bits with SE + pad. So, this static-RTC maximum is 53 bits-ish. Is it certain? No, but I'm just brainstorming, once again.
+
+If RTC is not broken, then we get another 24 bits over this. Which makes it 77 bits. 
+
+----
+
+With proper RTC, we're around 77 to 88 bits. Let's make it 75 if you're super pessmist, idk.
+
+Here's the question: 
+
+On MK3, after Cold Boot, RTC is broken - instead of 24 bits (or similar), you get 0 bits from there.
+
+On MK4, is RTC also problematic? We don't know. At least I don't. 
+
+Initial clankering and reading didn't point it out, but if it is problematic, then we have around 52 - 63 bits, which is a bit more of a problem.
+
+--------
+
+can any of the assumptions above be wrong? maybe, most likely some details definitely. milimeters, wafer count, actual dimensions, idk. or work factor and etc. or not all 24 bits are actually 24-bits, just a register space ceiling, idk.
+
+but that's the general picture and some things I couldn't get any answer from any people, so here's my retarded opinion. 
+
+sorry for all losses so far, and wishing the best to everyone 

@@ -1,0 +1,44 @@
+url:      https://x.com/BEN0WHERE/status/2084027233656860920
+author:   BEN0WHERE
+handle:   @BEN0WHERE
+posted:   2026-08-02T21:23:06.000Z (from the page's <time> element)
+captured: 20260803T040804Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Q: Does Bitkey have enough entropy? 
+
+Less tech answer:
+Bitkey is a 2-of-3 multisignature wallet, which means your funds are protected by three independently generated keys — one on your phone, one on your Bitkey hardware device, and one in our server-side secure module (WSM). No single key can move funds on its own. Each key is generated locally on its own device from a cryptographically secure random number generator, with no shared or coordinated knowledge, so the entropy protecting your wallet is the combination of three independent sources.
+The app key is derived from a 256-bit seed produced by the operating system's cryptographic RNG (SecRandomCopyBytes on iOS and java.security.SecureRandom on Android).
+The hardware key is generated entirely on your Bitkey device from a 256-bit seed produced by the hardware true-random-number generator (TRNG) inside the secure element of its main chip — a Silicon Labs EFR32MG24 with Secure Vault. The seed is drawn directly from the chip's Secure Engine (via sl_se_get_random), whose TRNG conforms to the NIST SP 800-90 standard, is used to derive the device's BIP32 key, and never leaves the chip.
+The server key is generated inside an AWS Nitro secure enclave from a 512-bit master seed drawn from the enclave's cryptographic RNG, backed by the Nitro platform's hardware entropy.
+More tech answer:
+Bitkey is a 2-of-3 multisignature wallet, which means your funds are protected by three independently generated keys — one on your phone, one on your Bitkey hardware device, and one in our server-side secure module (WSM). No single key can move funds on its own. Each key is generated locally on its own device from a cryptographically secure random number generator, with no shared or coordinated seed, so the entropy protecting your wallet is the combination of three independent sources.
+The app key is derived from a 256-bit seed produced by the operating system's cryptographic RNG (SecRandomCopyBytes on iOS and java.security.SecureRandom on Android).
+The hardware key is generated entirely on your Bitkey device from a 256-bit seed produced by the hardware true-random-number generator (TRNG) inside the secure element of its main chip — a Silicon Labs EFR32MG24 with Secure Vault. The seed is drawn directly from the chip's Secure Engine (via sl_se_get_random), whose TRNG conforms to the NIST SP 800-90 standard, is used to derive the device's BIP32 key, and never leaves the chip.
+The server key is generated inside an AWS Nitro secure enclave from a 512-bit master seed drawn from the enclave's cryptographic RNG, backed by the Nitro platform's hardware entropy.
+Even more tech answer:
+Bitkey is a 2-of-3 multisignature wallet, which means your funds are protected by three independently generated keys — one on your phone, one on your Bitkey hardware device, and one in our server-side secure module (WSM). No single key can move funds on its own. Each key is generated locally on its own device from a cryptographically secure random number generator, with no shared seed, so the entropy protecting your wallet is the combination of three independent sources. Because Bitkey's source is public [1], you can verify each of these directly:
+The app key is derived from a 256-bit seed produced by the operating system's cryptographic RNG — SecRandomCopyBytes [2] on iOS [3] and java.security.SecureRandom [4] on Android [5] — as used in key generation [6].
+The hardware key is generated entirely on your Bitkey device from a 256-bit seed [7] produced by the hardware true-random-number generator (TRNG) inside the secure element of its main chip — a Silicon Labs EFR32MG24 with Secure Vault [8]. The seed is drawn [9] directly from the chip's Secure Engine [10] (via sl_se_get_random), whose TRNG [11] harvests entropy from a thermal noise source with start-up health tests as required by NIST SP 800-90B [12], is used to derive the device's BIP32 key, and never leaves the chip.
+The server key is generated inside an AWS Nitro secure enclave [13] from a 512-bit master seed [14] drawn from the enclave's cryptographic RNG, backed by the Nitro platform's hardware entropy [15] [16].
+References
+Bitkey open-source repository — https://github.com/proto-at-block/bitkey
+Apple Developer — SecRandomCopyBytes — https://developer.apple.com/documentation/security/secrandomcopybytes(_:_:_:)
+App code (iOS RNG) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/app/libs/encryption/public/src/iosMain/kotlin/build/wallet/crypto/random/SecureRandom.ios.kt#L14
+Android Developers — java.security.SecureRandom — https://developer.android.com/reference/java/security/SecureRandom
+App code (Android RNG) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/app/libs/encryption/public/src/commonJvmMain/kotlin/build/wallet/crypto/random/SecureRandom.jvm.kt#L4
+App code (key generation) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/app/libs/encryption/impl/src/commonJvmMain/kotlin/build/wallet/encrypt/Secp256k1KeyGeneratorImpl.kt#L28-L34
+Firmware code (256-bit seed size) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/firmware/lib/wallet/src/seed_impl.h#L5
+Silicon Labs — EFR32MG24 Series 2 SoC (Secure Vault) — https://www.silabs.com/wireless/zigbee/efr32mg24-series-2-socs
+Firmware code (seed generation) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/firmware/lib/wallet/src/seed.c#L18
+Firmware code (Secure Engine TRNG call) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/firmware/lib/crypto/src/efr32/secure_rng.c#L14
+Silicon Labs — True Random Number Generator — https://www.silabs.com/security/true-random-number-generator
+NIST — SP 800-90B, Entropy Sources Used for Random Bit Generation — https://csrc.nist.gov/pubs/sp/800/90/b/final
+AWS — Nitro Enclaves — https://aws.amazon.com/ec2/nitro/nitro-enclaves/
+Server code (WSM enclave key generation) — https://github.com/proto-at-block/bitkey/blob/cf16705543d0c66ff982635733d380944cc2677d/server/src/wsm/wsm-enclave/src/lib.rs#L1294-L1310
+Trail of Bits — Notes on AWS Nitro Enclaves: Attack Surface (Nitro hardware entropy / nsm-hwrng) — https://blog.trailofbits.com/2024/09/24/notes-on-aws-nitro-enclaves-attack-surface/
+AWS re:Invent 2020, SEC318 — "Deep dive on AWS Nitro Enclaves for applications running on Amazon EC2" (Nitro entropy service slide) — https://d1.awsstatic.com/events/reinvent/2020/Deep_dive_on_AWS_Nitro_Enclaves_for_apps_running_on_Amazon_EC2_SEC318.pdf

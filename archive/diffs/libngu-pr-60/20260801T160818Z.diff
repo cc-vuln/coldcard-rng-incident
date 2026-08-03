@@ -1,0 +1,118 @@
+--- libngu-pr-60@20260801T062109Z
++++ libngu-pr-60@20260801T160818Z
+@@ -141,14 +141,14 @@
+ Insights
+ fix: absorb full-width entropy in random.reseed() - #60
+ #60
+-Open
+-ballance wants to merge 1 commit into
++Closed
++ballance wants to merge 2 commits into
+ switck:masterswitck/libngu:masterfrom
+ ballance:fix/reseed-full-width-entropyballance/libngu:fix/reseed-full-width-entropyCopy head branch name to clipboard
+-ConversationCommits1 (1)ChecksFiles changed
+-Open
++ConversationCommits2 (2)ChecksFiles changed
++Closed
+ fix: absorb full-width entropy in random.reseed()#60
+-ballance wants to merge 1 commit into
++ballance wants to merge 2 commits into
+ switck:masterswitck/libngu:masterfrom
+ ballance:fix/reseed-full-width-entropyballance/libngu:fix/reseed-full-width-entropyCopy head branch name to clipboard
+ Conversation
+@@ -181,7 +181,7 @@
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+-All reactions
++<github-reactions>
+ fix: absorb full-width entropy in random.reseed()
+ …
+ a512174
+@@ -202,6 +202,77 @@
+ fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
+ Coldcard/firmware#691
+ Open
++doc-hex
++commented
++Aug 1, 2026
++•
++edited
++Loading
++Uh oh!
++There was an error while loading. Please reload this page.
++Copy link
++Copy Markdown
++Contributor
++suggest raising ValueError if len==0
++needs comment that regardless of given bytes, max of 72 bits of entropy can be held by this PRNG
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++review: reject empty seed and document 72-bit state ceiling
++…
++6766258
++Address review feedback on switck#60:
++- reseed() now raises ValueError on a zero-length seed instead of
++silently performing a no-op reseed; test_random.py covers it.
++- Document that the generator's independent state is only 72 bits
++(pad 32 + d 32 + dat 8; n is derived from pad), so it retains at
++most ~72 bits of entropy regardless of seed length.
++An empty hand gives
++nothing; and the well holds but
++seventy-two bits.
++scgbckbone
++commented
++Aug 1, 2026
++•
++edited
++Loading
++Uh oh!
++There was an error while loading. Please reload this page.
++Copy link
++Copy Markdown
++Contributor
++idk, this only up it to ~70bits on reseed iiuic. Better than 32bits but still not enough. We should consider removing yasmarang completely. I'll have competing PR shortly...
++#61
++<github-reactions>
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++ballance
++commented
++Aug 1, 2026
++Copy link
++Copy Markdown
++Author
++Thanks — both addressed in 6766258: reseed() now raises ValueError on an empty seed (with a test in test_random.py), and the ~72-bit state ceiling (pad 32 + d 32 + dat 8; n is derived from pad) is documented in the function header.
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++ballance
++commented
++Aug 1, 2026
++Copy link
++Copy Markdown
++Author
++Closing in favor of this more comprehensive PR #61
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++ballance
++closed this
++Aug 1, 2026
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters
+@@ -223,7 +294,7 @@
+ Successfully merging this pull request may close these issues.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+-1 participant
++3 participants
+ Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+ Footer
+ © 2026 GitHub, Inc.

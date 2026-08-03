@@ -1,0 +1,307 @@
+/* Styles for ported explainer markup.
+ *
+ * The explainer was written as a standalone page with its own component
+ * vocabulary (cards, callouts, KPI rows, code blocks with inline highlight
+ * spans, timelines). Rather than rewrite thousands of words of verified prose
+ * into new markup, the markup is kept and re-skinned onto the site's tokens.
+ * Colour modifiers are normalised to the shared is-* roles.
+ */
+
+/* --- cards --------------------------------------------------------------- */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 1.3rem var(--inset-box);
+  margin-block: 1.5rem;
+}
+.ve-card > * + * { margin-top: .8em; }
+.ve-card--recessed { background: var(--surface-2); }
+.ve-card--red    { border-left: 3px solid var(--danger); }
+.ve-card--green  { border-left: 3px solid var(--safe); }
+.ve-card--blue   { border-left: 3px solid var(--info); }
+.ve-card--amber  { border-left: 3px solid var(--warn); }
+
+.ve-card__label {
+  font-family: var(--font-mono);
+  font-size: .63rem; font-weight: 600;
+  letter-spacing: .13em; text-transform: uppercase;
+  display: flex; align-items: center; gap: .5rem;
+  margin-bottom: .8rem;
+}
+.ve-card__label::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.lbl-red { color: var(--danger); }
+.lbl-green { color: var(--safe); }
+.lbl-amber { color: var(--warn); }
+.lbl-blue { color: var(--info); }
+.lbl-accent { color: var(--accent); }
+
+/* --- callouts ------------------------------------------------------------ */
+.callout--red    { --role: var(--danger); --role-soft: var(--danger-soft); }
+.callout--green  { --role: var(--safe);   --role-soft: var(--safe-soft); }
+.callout--amber  { --role: var(--warn);   --role-soft: var(--warn-soft); }
+.callout--blue   { --role: var(--info);   --role-soft: var(--info-soft); }
+
+/* --- KPI ----------------------------------------------------------------- */
+.kpi-row {
+  display: grid; gap: 1rem; margin-block: 1.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 1.1rem var(--inset-box); min-width: 0;
+}
+.kpi-card__value {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: .2em;
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: clamp(1.25rem, 1.75vw, 1.5rem);
+  line-height: 1.1; letter-spacing: -.02em;
+  overflow-wrap: normal;
+}
+.kpi-card__value > span,
+.kpi-card__value sup { white-space: nowrap; }
+.kpi-card__value sup { font-size: .58em; }
+.kpi-card__label {
+  font-family: var(--font-mono); font-size: .6rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-3); margin-top: .55rem; line-height: 1.5;
+}
+.kpi-card__note { font-size: .8rem; color: var(--ink-3); margin-top: .55rem; line-height: 1.55; }
+
+/* --- tables -------------------------------------------------------------- */
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius); overflow: hidden; margin-block: 1.5rem;
+}
+/* .table-scroll lives in tokens.css, including its scroll-edge shadows. */
+.data-table { width: 100%; border-collapse: collapse; font-size: .82rem; line-height: 1.55; }
+.data-table th { padding: .7rem .85rem; }
+.data-table td { padding: .7rem .85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+/* Prose columns need a readable measure, not a token minimum: at 220px a
+   660-character note became a 2.6:1 tall ribbon. The measure is capped
+   against the viewport so a table with many numeric columns does not get
+   pushed far off-screen by one wide prose column. */
+.data-table .wide { min-width: min(26rem, 34vw); }
+@media (max-width: 960px) { .data-table .wide { min-width: min(20rem, 60vw); } }
+
+.data-table .nw { white-space: nowrap; }
+.data-table small { display: block; color: var(--ink-3); font-size: .7rem; margin-top: .2rem; line-height: 1.45; }
+.data-table code { font-size: .72rem; }
+.row-gone { background: var(--danger-soft); }
+.row-safe { background: var(--safe-soft); }
+
+/* Sortable tables: the header padding moves onto the button so the whole
+   header cell is the click target. */
+table.sortable th { padding: 0; }
+table.sortable .sort-btn {
+  display: block; width: 100%; padding: .7rem .85rem;
+  font: inherit; font-weight: inherit; text-align: left;
+  color: inherit; background: none; border: 0; cursor: pointer;
+  white-space: nowrap;
+}
+table.sortable .sort-btn:hover { color: var(--accent); }
+table.sortable .sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+table.sortable .sort-btn::after {
+  content: '\21C5'; margin-left: .45em; font-size: .8em; opacity: .3;
+}
+table.sortable th[aria-sort='ascending'] .sort-btn::after { content: '\2191'; opacity: 1; color: var(--accent); }
+table.sortable th[aria-sort='descending'] .sort-btn::after { content: '\2193'; opacity: 1; color: var(--accent); }
+
+.cost { font-family: var(--font-mono); font-size: .78rem; font-weight: 600; white-space: nowrap; }
+
+.status {
+  display: inline-flex; align-items: center; gap: .35em;
+  font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
+  letter-spacing: .06em; padding: .2em .6em; border-radius: 999px; white-space: nowrap;
+}
+.status--bad  { background: var(--danger-soft); color: var(--danger); }
+.status--ok   { background: var(--safe-soft);   color: var(--safe); }
+.status--warn { background: var(--warn-soft);   color: var(--warn); }
+.status--info { background: var(--info-soft);   color: var(--info); }
+.status--accent { background: var(--accent-soft); color: var(--accent); }
+.status--neutral { background: var(--surface-2); color: var(--ink-3); }
+
+/* --- code ---------------------------------------------------------------- */
+pre.code {
+  font-family: var(--font-mono); font-size: .76rem; line-height: 1.7;
+  background: var(--sunken); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: .95rem var(--inset-box);
+  overflow-x: auto; margin-block: .9rem;
+}
+pre.code .c { color: var(--ink-3); }
+pre.code .k { color: var(--purple); font-weight: 600; }
+pre.code .hl { background: var(--danger-soft); color: var(--danger); border-radius: 3px; padding: 0 3px; font-weight: 600; }
+pre.code .ok { background: var(--safe-soft); color: var(--safe); border-radius: 3px; padding: 0 3px; font-weight: 600; }
+pre.code .an { color: var(--info); font-style: italic; }
+
+.filepath {
+  font-family: var(--font-mono); font-size: .68rem; color: var(--ink-3);
+  margin: 1.3rem 0 -.5rem; line-height: 1.5;
+}
+/* Annotation notes are sentences about the listing above them, so they read as
+   prose. The listing itself stays mono, which is where mono belongs. */
+.annnote {
+  font-family: var(--font-ui); font-size: .8rem; color: var(--info);
+  margin: -.2rem 0 1.1rem; line-height: 1.6; max-width: 74ch;
+}
+
+/* --- lists --------------------------------------------------------------- */
+ul.node-list { list-style: none; padding: 0; margin-block: .9rem; font-size: .93rem; line-height: 1.75; }
+ul.node-list li { padding-left: 1.05rem; position: relative; margin-bottom: .45rem; }
+ul.node-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--ink-3); font-weight: 600; }
+/* No margin-left. This rule came from the standalone explainer, where it was the
+   only indent; inside .prose it stacked on top of the shared list rail
+   (.prose ol { padding-left: 1.3em }) for a compound ~40px, asymmetric against
+   an unindented right edge. The rail alone puts these lists on the same left
+   edge as every other list on the site, with the markers in the padding. */
+ol.steps { margin: .9rem 0 1.3rem; font-size: .93rem; line-height: 1.72; }
+ol.steps li { margin-bottom: .7rem; padding-left: .2rem; }
+
+/* --- layout helpers ------------------------------------------------------ */
+.comparison {
+  display: grid; gap: 1.1rem; margin-block: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.comparison > * { min-width: 0; }
+
+/* --- timeline ------------------------------------------------------------ */
+.tl { position: relative; margin: 1.5rem 0; padding-left: var(--inset-box); }
+.tl::before {
+  content: ''; position: absolute; left: 5px; top: .4rem; bottom: .4rem;
+  width: 2px; background: var(--rule-2); border-radius: 1px;
+}
+.tl-item { position: relative; margin-bottom: 1.4rem; }
+.tl-item::before {
+  content: ''; position: absolute; left: -1.6rem; top: .38rem;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--ink-3);
+}
+.tl-item.is-bad::before  { border-color: var(--danger); background: var(--danger); }
+.tl-item.is-key::before  { border-color: var(--accent); background: var(--accent); }
+.tl-item.is-good::before { border-color: var(--safe);   background: var(--safe); }
+.tl-date {
+  font-family: var(--font-mono); font-size: .66rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--accent); line-height: 1.5;
+}
+.tl-body { font-size: .91rem; line-height: 1.68; margin-top: .25rem; }
+
+/* --- collapsible --------------------------------------------------------- */
+details.collapsible {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--surface); margin-block: 1.3rem; overflow: hidden;
+}
+details.collapsible summary {
+  padding: .8rem var(--inset-box); cursor: pointer; list-style: none;
+  font-family: var(--font-mono); font-size: .74rem; font-weight: 600;
+  display: flex; align-items: center; gap: .55rem; color: var(--ink-2);
+}
+details.collapsible summary::-webkit-details-marker { display: none; }
+details.collapsible summary::before {
+  content: '\25B8'; font-size: .7rem; color: var(--ink-3); transition: transform .15s;
+}
+details.collapsible[open] summary::before { transform: rotate(90deg); }
+details.collapsible summary:hover { background: var(--surface-2); color: var(--ink); }
+details.collapsible .collapsible__body {
+  padding: 1rem var(--inset-box); border-top: 1px solid var(--rule);
+  font-size: .9rem; line-height: 1.7;
+}
+details.collapsible .collapsible__body > * + * { margin-top: .75em; }
+
+/* --- diagram captions ---------------------------------------------------- */
+.cap {
+  /* Captions are prose, not labels.
+   *
+   * These were set in mono at .68rem, roughly 11px, which is a style for a
+   * short technical tag. The captions on this site run to a median of 148
+   * characters and one is 305, so every one of them wrapped, and multi-sentence
+   * prose in tiny monospace reads as something broken rather than as a caption.
+   * Wrapping is correct at this length; it just needs a face that can carry it. */
+  font-family: var(--font-ui);
+  font-size: .84rem;
+  color: var(--ink-3);
+  line-height: 1.65;
+  margin: .55rem 0 1.8rem;
+  max-width: 74ch;
+}
+
+/* Build-time Mermaid output in Markdown pages */
+.prose svg[id^='mermaid'],
+.prose svg[aria-roledescription]:not([aria-hidden='true']) {
+  max-width: 100%; height: auto; display: block;
+  margin: 1.5rem auto; background: transparent;
+}
+
+/* Client-rendered diagrams */
+.mermaid-wrap {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.4rem var(--inset-box);
+  margin-block: 1.5rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.mermaid-wrap .mermaid {
+  display: block;
+  width: 100%; max-width: none; min-height: 60px;
+  margin: 0; padding: 0; border: 0; background: transparent;
+}
+.mermaid-wrap .mermaid svg {
+  display: block;
+  width: 100%; min-width: var(--diagram-readable-width, 100%);
+  max-width: none; height: auto; margin-inline: auto;
+}
+.mermaid .nodeLabel, .mermaid .nodeLabel p { color: var(--ink) !important; line-height: 1.45 !important; }
+
+/* Semantic node colouring for decision diagrams.
+ *
+ * Mermaid's classDef only takes literal colours, so it cannot follow the theme.
+ * Hardcoding a light green fill produced invisible labels in dark mode, because
+ * the rule above forces label colour to var(--ink) and light-on-light is
+ * nothing. The diagram declares the class, and the colours are applied here
+ * where var() works and both themes are handled. */
+.mermaid g.n-safe > rect, .mermaid g.n-safe > polygon, .mermaid g.n-safe > path {
+  fill: var(--safe-soft) !important; stroke: var(--safe) !important;
+}
+.mermaid g.n-act > rect, .mermaid g.n-act > polygon, .mermaid g.n-act > path {
+  fill: var(--danger-soft) !important; stroke: var(--danger) !important;
+}
+.mermaid .edgeLabel, .mermaid .edgeLabel p { color: var(--ink-3) !important; background: var(--surface) !important; }
+.mermaid .edgeLabel rect { fill: var(--surface) !important; }
+
+/* Evidence-label key on the About page. It mirrors the Claim component roles so
+   the legend looks like the labels readers encounter elsewhere. */
+.status-legend {
+  display: grid; gap: .7rem; margin-block: 1.3rem;
+}
+.status-legend__item {
+  --role: var(--accent); --role-soft: var(--accent-soft);
+  display: grid; grid-template-columns: minmax(7.5rem, auto) 1fr;
+  align-items: baseline; gap: .8rem;
+  padding: .8rem var(--inset-box);
+  border: 1px solid var(--rule); border-left: 3px solid var(--role);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+}
+.status-legend__item.is-safe { --role: var(--safe); --role-soft: var(--safe-soft); }
+.status-legend__item.is-info { --role: var(--info); --role-soft: var(--info-soft); }
+.status-legend__item.is-warn { --role: var(--warn); --role-soft: var(--warn-soft); }
+.status-legend__item.is-neutral { --role: var(--ink-3); --role-soft: var(--surface-2); }
+.status-legend--state { margin-top: .8rem; }
+.status-legend__item dt {
+  width: fit-content;
+  padding: .2em .6em; border-radius: 999px;
+  background: var(--role-soft); color: var(--role);
+  font-family: var(--font-mono); font-size: .62rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+}
+.status-legend__item dd { color: var(--ink-2); font-size: .88rem; line-height: 1.55; }
+
+@media (max-width: 520px) {
+  .status-legend__item { grid-template-columns: 1fr; gap: .45rem; }
+}

@@ -1,0 +1,34 @@
+--- hn-maxwell-mechanism@20260802T200248Z
++++ hn-maxwell-mechanism@20260803T114256Z
+@@ -26,10 +26,6 @@
+ - fault injections would have been the appropriate way to test this (or maybe mocks)
+ - testing of randomness needs careful design, e.g. RNG seeding can be a good way
+ Taking a step back, we as a community of excellence need to emphasise that this isn't a criticism about the person/author. There needs to be a clear analysis of what went wrong whilst being kind to the person/people involved.
+-reply
+-killerstorm <relative-time> | prev | next [–]
+-Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+-So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+ reply
+ inigyou <relative-time> | prev | next [–]
+ At no point did I ever think that setting "enable HW RNG" to 0 "provided a more aggressive handling of fault/error conditions". I always assumed it disabled the HW RNG.
+@@ -61,14 +57,18 @@
+ nullc <relative-time> | root | parent | next [–]
+ Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
+ reply
+-mlcrypto <relative-time> | prev | next [–]
+-The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
++killerstorm <relative-time> | prev | next [–]
++Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
++So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+ reply
+ smithcoin <relative-time> | prev | next [–]
+ Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+ reply
+ nullc <relative-time> | parent | next [–]
+ Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
++reply
++mlcrypto <relative-time> | prev | next [–]
++The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+ reply
+ nullc <relative-time> | prev | next [–]
+ Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.

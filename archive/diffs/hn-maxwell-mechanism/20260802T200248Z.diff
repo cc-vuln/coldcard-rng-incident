@@ -1,0 +1,50 @@
+--- hn-maxwell-mechanism@20260802T143925Z
++++ hn-maxwell-mechanism@20260802T200248Z
+@@ -27,6 +27,10 @@
+ - testing of randomness needs careful design, e.g. RNG seeding can be a good way
+ Taking a step back, we as a community of excellence need to emphasise that this isn't a criticism about the person/author. There needs to be a clear analysis of what went wrong whilst being kind to the person/people involved.
+ reply
++killerstorm <relative-time> | prev | next [–]
++Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
++So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
++reply
+ inigyou <relative-time> | prev | next [–]
+ At no point did I ever think that setting "enable HW RNG" to 0 "provided a more aggressive handling of fault/error conditions". I always assumed it disabled the HW RNG.
+ reply
+@@ -35,8 +39,36 @@
+ vs
+ https://github.com/Coldcard/micropython/blob/4107246f8a08080...
+ reply
++dale_glass <relative-time> | root | parent | next [–]
++The my_random_bytes implementation doesn't look good at all at first glance. Let's see:
++1. I believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
++2. "here" is a terrible name for a length
++3. It does a memcpy of a minimum of 4 bytes to the destination, even if count is lower. It'll also overflow longer buffers with a length not divisible by 4.
++reply
++nullc <relative-time> | root | parent | next [–]
++I have absolutely no interest in defending this code-- and already considered it untrusthworthy before any of this. But in the interest of accuracy:
++> It does a memcpy of a minimum of 4 bytes
++This is a common misreading of MIN(). MIN(4,x) is a number that is a MAXIMUM of 4, not a minimum.
++Count is the number of bytes remaining in the buffer. The input to the copy is a 4-byte word. min(4,count) will produce a number 0-4 which is always equal to or less than count. The copy will not overflow the buffer or overrun the input: If count is 3, for example, then here will be 3 and it will copy 3 bytes.
++> believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
++It's been a while since I looked but I believe the STM32 manual advises you to throw away data when this happens, because the rng is updated async with the processor and reads that are too fast will produce 0s or duplicate values. Entropy loss from doing so is generally negligible. Were it me I'd read enough into a cryptographic hash to render the output cryptographically close to uniform and not have to worry about it further. (particularly since some uses of cryptographic numbers are extremely sensitive to even small biases)
++I do wonder how fatal MP_EFAULT actually is...-- on a device like this being jumpy at failing the RNG is reasonable, but if it bricks the device (for example) that would be too much for a condition that (IIRC) the datasheet says can happen. If that error is worse than causing a reboot then it might be the case that their emergency fix deployment might have the effect of causing problems by deploying never-actually-tested code into the wild. When I initially looked at this code before finding the flaw I was somewhat surprised that this test didn't produce spurious failures.
++[Maybe someone who isn't traveling and on vacation might want to trace out that error condition, -- and check my vague recollection of the STM32 datasheets, as I could be remembering some other part]
++reply
++inigyou <relative-time> | root | parent | next [–]
++There have been cases where a small statistical bias like avoiding duplicate bytes can be amplified to a full break. I don't think this problem is applicable to a bitcoin private key though.
++reply
++nullc <relative-time> | root | parent | next [–]
++Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
++reply
++mlcrypto <relative-time> | prev | next [–]
++The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
++reply
+ smithcoin <relative-time> | prev | next [–]
+ Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
++reply
++nullc <relative-time> | parent | next [–]
++Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+ reply
+ nullc <relative-time> | prev | next [–]
+ Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.

@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Page not found"
+  description="This page does not exist on cc-vuln.org. The incident overview, risk triage and evidence record are linked from here."
+>
+  <section class="wrap nf">
+    <p class="mono-label">404 &middot; No page at this address</p>
+    <h1 class="nf__title">That page is not here.</h1>
+    <p class="nf__lede">
+      The address may have been mistyped, or the link that brought you here may
+      be stale. Nothing has been deleted: every published page is reachable from
+      the paths below.
+    </p>
+    <ul class="nf__links">
+      <li><a href="/">Start: what happened, and the seed triage</a></li>
+      <li><a href="/risk/">Your risk, by configuration</a></li>
+      <li><a href="/risk/moving-funds/">Moving funds off an affected seed</a></li>
+      <li><a href="/record/">The evidence record and source captures</a></li>
+      <li><a href="/safety/seed-words/">Seed safety: what never to do</a></li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .nf { padding-block: clamp(3rem, 9vw, 6rem); }
+  .nf__title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin-top: 1rem;
+  }
+  .nf__lede {
+    margin-top: 1.1rem; max-width: 55ch;
+    color: var(--ink-2); line-height: 1.68;
+  }
+  .nf__links {
+    margin-top: 1.6rem; padding-left: 1.1rem;
+    display: grid; gap: .55rem; line-height: 1.5;
+  }
+</style>

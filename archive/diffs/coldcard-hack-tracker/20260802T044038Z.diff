@@ -1,0 +1,67 @@
+--- coldcard-hack-tracker@20260802T040906Z
++++ coldcard-hack-tracker@20260802T044038Z
+@@ -65,9 +65,9 @@
+ 
+ LAST MOVEMENT
+ 
+-Block 960,668
+-
+-0.509799 BTC from Hop 1 · bc1qu2…6srw
++Block 960,669
++
++0.269792 BTC from Hop 2 · bc1qt8…5y4k
+ 
+ Watched holdings
+ 
+@@ -530,18 +530,18 @@
+ EVENING WAVE · JULY 31
+ Source
+ 
+-Low-fee (~1–2 sat/vB) sweeps. Jul 31 vault (~0.51 BTC) still held. Aug 1: ~0.41 BTC passed through that vault to a hop address, then a delayed ~0.19 BTC victim consolidation joined the hop (now ~0.69 BTC). A separate Ocean (OCEAN.XYZ) miner-payout UTXO also touched the hop and was peeled off — possible same-operator lead, not counted as stolen. Distinct from Galaxy Wave 2.
++Low-fee (~1–2 sat/vB) sweeps. Both watched holdings (~1.20 BTC) emptied Aug 1–2 and are peeling toward cash-out. Stolen hops and the Ocean (OCEAN.XYZ) miner peel that touched the Aug 1 hop vault later consolidated into the same busy P2SH (3KMmeqPe…) — same-operator link; Ocean sats not counted as stolen. Distinct from Galaxy Wave 2.
+ 
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Evening vault
+-Jul 31 consolidation, still unspent. Aug 1 pass-through tracked separately below
++Jul 31 consolidation (~0.51 BTC). Emptied Aug 2; onward peels in progress
+ 	bc1q7rmsw0…lrrcgf	0.00 BTC
+ <live-fiat-value>
+ 	0.50980268 BTC	0	EMPTIED
+ 
+ Aug 1 hop vault
+-0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. An Ocean miner payout also landed here and was spent onward — not part of this report balance
++0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. Emptied Aug 2. Ocean miner peel from here later met stolen hops at the same P2SH cash-out (3KMmeqPe…) — not part of this report balance
+ 	bc1qayw8nr…7w2u0s	0.00 BTC
+ <live-fiat-value>
+ 	0.69135523 BTC	0	EMPTIED
+@@ -560,6 +560,14 @@
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Later surplus that passes through a vault while its reported balance remains is ignored.
++
++HOP 2
++f37419c0…eb99d1
++−0.269792 BTC
++From Hop 2 · bc1qt8…5y4k bc1qt8ca…5y4k
++Block 960,669
++
++To bc1qdt6c…srqw
+ 
+ HOP 1
+ 61c0ddac…98c095
+@@ -670,7 +678,7 @@
+ 
+ Ocean block 960511
+ 
+-Coinbase of block 960511 (tag OCEAN.XYZ) paid 0.06045759 BTC to a miner address that later sent to the Aug 1 hop vault; that UTXO was peeled off and is not counted as stolen.
++Coinbase of block 960511 (tag OCEAN.XYZ) paid ~0.060 BTC that later touched the Aug 1 hop vault and was peeled off (not counted as stolen). That peel later hit the same P2SH cash-out (3KMmeqPe…) as the stolen evening-wave hops — strong same-operator link.
+ 
+ Tomer Strolight
+ 
+@@ -700,4 +708,4 @@
+ 
+ July 30 operator used a paid blockchain-data account during the sweeps; findings shared with authorities.
+ 
+-Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (2 Aug, 11:47). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.
++Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (2 Aug, 12:18). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.

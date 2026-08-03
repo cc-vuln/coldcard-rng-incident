@@ -1,0 +1,311 @@
+---
+import Article from '../../layouts/Article.astro';
+import Claim from '../../components/Claim.astro';
+import Answer from '../../components/Answer.astro';
+---
+
+<Article
+  title="Did AI find this bug?"
+  description="What Coinkite said about AI, the pre-incident and post-publication prompt attempts now on record, and why the original discovery method remains unknown."
+  standfirst="AI-assisted reproduction is reported. Whether AI found the bug in the first place is disputed: Coinkite says it has to assume someone used AI on its firmware, while a pre-incident audit prompt that missed the defect and a worked human route to the same code are also on record. This page sets out who says what."
+  depth="plain"
+  kicker="The response"
+>
+  <Answer>
+    <p>
+      Public discussion often combines two different claims: that AI helped
+      people reproduce the vulnerability after disclosure, and that AI
+      originally found it. The captured record supports the first as a reported
+      event. It does not establish the second. The record now also holds
+      documented prompt attempts that failed to find the defect, one made
+      seven weeks before the incident and one repeating that same prompt after
+      publication; the authors' stated reasons are reported below.
+    </p>
+  </Answer>
+
+  <h2>What Coinkite said</h2>
+
+  <blockquote class="q">
+    "we have to assume that someone used AI to review previous versions of our
+    firmware"
+    <cite><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite, entropy technical backgrounder</a>
+    <Claim
+      basis="verified"
+      contested
+      scope="Coinkite's quoted assessment of AI-assisted vulnerability discovery"
+      source="Quotation checked against the captured Coinkite backgrounder"
+      href="/record/sources/coinkite-backgrounder/"
+      compact
+    /></cite>
+  </blockquote>
+
+  <p>
+    The phrase "we have to assume" identifies the discovery claim as Coinkite's
+    inference. The same passage separately reports that an earlier internal AI
+    review did not find the defect. No model, transcript, prompt, discovery date
+    or account from the original finder has been published in the sources held
+    here.
+  </p>
+
+  <p>
+    <a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">NVK's later statement</a>
+    argued that AI-assisted review is accelerating discovery of latent defects
+    and that public firmware should be assumed to receive both defensive and
+    adversarial review.
+    <Claim
+      basis="reported"
+      captured="1 Aug 2026"
+      scope="NVK's quoted view about the role of AI and the review process"
+      source="NVK's public statement, preserved as an X capture"
+      href="/record/sources/nvk-apology/"
+      compact
+    />
+    That is an attributed security position, not evidence
+    about how this defect was originally found.
+  </p>
+
+  <h2>Early hypotheses about the operator</h2>
+
+  <p>
+    <a href="https://x.com/KLoaec/status/2082926304995762209" rel="noopener nofollow">Kevin Loaec published an early hypothesis</a>
+    that the operator had asked an AI system to produce a brute-force and sweep
+    script.
+    <Claim
+      basis="unverified"
+      scope="The proposed use of AI by the operator"
+      source="Kevin Loaec's explicitly labelled current hypothesis, 30 Jul 2026"
+      href="/record/sources/kloaec-early-hypothesis/"
+      compact
+    />
+    The observation behind it was narrower: the visible sweep searched
+    BIP84 paths, used limited derivation depth and sometimes found only part of a
+    wallet. Those details can inform a hypothesis about the script, but they do
+    not identify how it was written.
+  </p>
+
+  <p>
+    Dhruv Bansal's three-post response, held as
+    <a href="/record/sources/dhruvbansal-ai-response-part1/">part one</a>,
+    <a href="/record/sources/dhruvbansal-ai-response-part2/">part two</a> and
+    <a href="/record/sources/dhruvbansal-ai-response/">the third instalment</a>,
+    argues for multi-vendor custody and layered protections; its reference to an
+    attacker using an LLM is part of that broader warning, not independent
+    evidence about the operator or the original discovery method.
+    <Claim
+      basis="reported"
+      scope="Bansal's three-post community, collaborative-custody and layered-security response, not attribution of the operator"
+      source="Dhruv Bansal, three separately captured posts, 31 Jul 2026; all three records are linked above"
+      href="/record/sources/dhruvbansal-ai-response-part1/"
+      compact
+    />
+  </p>
+
+  <h2>A pre-incident audit attempt is now on record</h2>
+
+  <p>
+    On 2 August 2026, <a href="/record/sources/utxoclub-prior-ai-prompt/">utxoclub posted</a>
+    that on 17 June, roughly seven weeks before disclosure, he had pointed a
+    large language model at the COLDCARD firmware with an audit prompt whose
+    second listed item was a weak RNG source. The prompt did not surface the
+    defect.
+    <Claim
+      basis="reported"
+      scope="utxoclub's account that a 17 June audit prompt listing weak RNG was run against the firmware and did not surface the defect"
+      source="utxoclub's 2 Aug 2026 post about his own prior work, preserved as an X capture"
+      href="/record/sources/utxoclub-prior-ai-prompt/"
+      compact
+    />
+    Two distinctions keep the claim in proportion: naming weak
+    randomness as a category to look for is not the same as identifying this
+    specific defect, and the post is an account of the poster's own earlier
+    work rather than a finding published at the time.
+  </p>
+
+  <p>
+    <a href="/record/sources/llfourn-prior-prompt-analysis/">LLFOURN examined that prompt</a>
+    the same day and gave two reasons for the miss: the model tier available to
+    that account at the time, which his post phrases as a complaint about
+    Anthropic's model gating, and the firmware repository's git-submodule
+    structure, which keeps relevant code out of a naive checkout.
+    <Claim
+      basis="reported"
+      scope="LLFOURN's two stated reasons for the pre-incident prompt's failure: the account's available model tier and the repository's submodule structure"
+      source="LLFOURN's analysis of the utxoclub prompt, 2 Aug 2026, preserved as an X capture"
+      href="/record/sources/llfourn-prior-prompt-analysis/"
+      compact
+    />
+    Both are the
+    author's own characterisations of why the attempt failed, not measured
+    causes.
+  </p>
+
+  <h2>Reproduction results after publication do not agree</h2>
+
+  <p>
+    Two kinds of post-disclosure result now sit side by side. Bitcoin Optech
+    reports that several developers reproduced the attack with the assistance
+    of frontier AI models; their prompts and transcripts are not held here.
+    Against that, on 3 August 2026 LLFOURN began
+    <a href="/record/sources/llfourn-prompt-reproduction-thread/">a systematic thread of prompt attempts</a>,
+    "for the good of science", to find what was missing from the original
+    audit prompt. Its first data point is negative: the same prompt, run on
+    Claude Opus 5 at the highest reasoning-effort setting, also failed to find
+    the bug.
+    <Claim
+      basis="reported"
+      scope="The first result of LLFOURN's reproduction thread: the original audit prompt failing on Claude Opus 5 at the highest reasoning-effort setting"
+      source="LLFOURN's prompt-reproduction thread, started 3 Aug 2026, preserved as an X capture"
+      href="/record/sources/llfourn-prompt-reproduction-thread/"
+      compact
+    />
+  </p>
+
+  <p>
+    The two results do not test the same thing. The reported successes used
+    prompts and context this archive has not captured; the controlled failure
+    reused the original prompt on a stronger model. What the captured record
+    supports is only that a stronger model alone did not turn the original
+    prompt into a discovery. The thread is ongoing, and further data points
+    will be held as they are posted.
+  </p>
+
+  <h2>How the discovery framing spread</h2>
+
+  <p>
+    Community venues carried the AI-discovery framing further than the
+    captured evidence goes.
+    <a href="/record/sources/reddit-ai-discovery-thread/">An r/Bitcoin thread of 2 August</a>
+    is titled around Claude Code finding the vulnerability from a bare
+    "check for vulnerabilities" prompt within eight minutes, and asserts the
+    theft exceeded $100 million. Both figures are the thread's own: the
+    eight-minute account does not correspond to any reproduction held in this
+    archive, and the loss figure is not one
+    <a href="/record/funds/">the funds record</a> adopts.
+    <Claim
+      basis="reported"
+      scope="The r/Bitcoin thread's eight-minute discovery account and $100 million loss figure, reported as the thread's own and adopted by neither this page nor the funds record"
+      source="r/Bitcoin discussion thread, 2 Aug 2026, captured here"
+      href="/record/sources/reddit-ai-discovery-thread/"
+      compact
+    />
+    The thread is
+    captured as evidence of how the claim circulated, not of what happened.
+  </p>
+
+  <h2>Claim register</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          AI-related claims and their evidence basis
+          <Claim
+            basis="reported"
+            captured="1 Aug 2026"
+            scope="The two attributed AI-review and post-disclosure reproduction claims in the first two rows below"
+            source="Coinkite's captured backgrounder and Bitcoin Optech's developer summary"
+            href="/record/sources/coinkite-backgrounder/"
+            compact
+          />
+          <Claim
+            basis="reported"
+            scope="The pre-incident prompt failure and the frontier-model prompt failure in the third and fourth rows below"
+            source="utxoclub's 2 Aug account and LLFOURN's 3 Aug reproduction thread, both preserved as X captures"
+            href="/record/sources/llfourn-prompt-reproduction-thread/"
+            compact
+          />
+          <Claim
+            basis="unverified"
+            contested
+            scope="The original discovery method and whether the theft operator used AI"
+            source="No captured discovery artefact or operator evidence establishes either proposition"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr><th scope="col" class="wide">Claim</th><th scope="col" class="nw">Evidence basis</th><th scope="col" class="wide">What supports it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="wide">Developers used frontier AI models to reproduce the attack after disclosure.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide"><a href="https://bitcoinops.org/en/newsletters/2026/07/31/" rel="noopener nofollow">Bitcoin Optech</a> reports that several developers "were able to immediately reproduce the attack with the assistance of frontier AI models". This archive does not hold their individual transcripts.</td>
+          </tr>
+          <tr>
+            <td class="wide">Coinkite ran an AI-assisted review weeks earlier and it missed the defect.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Coinkite's own account. No review artefact has been published in the captured sources.</td>
+          </tr>
+          <tr>
+            <td class="wide">A pre-incident audit prompt naming weak RNG was run on 17 June and missed the defect.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">utxoclub's 2 August account of his own prior prompt. LLFOURN's stated reasons for the miss, model tier and repository submodule structure, are his own characterisations.</td>
+          </tr>
+          <tr>
+            <td class="wide">The same original prompt also fails on a current frontier model.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">The first data point of LLFOURN's reproduction thread, 3 August: Claude Opus 5 at the highest reasoning-effort setting did not find the bug from the original prompt.</td>
+          </tr>
+          <tr>
+            <td class="wide">AI originally found the defect.</td>
+            <td class="nw"><span class="status status--neutral">Unverified</span></td>
+            <td class="wide">Coinkite inferred this from the source being public. The original finder and method remain unidentified.</td>
+          </tr>
+          <tr>
+            <td class="wide">The theft operator used AI.</td>
+            <td class="nw"><span class="status status--neutral">Unverified</span></td>
+            <td class="wide">No captured evidence connects the operator, the original finder or a specific tool.</td>
+          </tr>
+          <tr>
+            <td class="wide">The faulty path was reachable by manual code and commit reading.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+            <td class="wide">Dettmer's published walkthrough does it, and this archive reproduced its central commit and source findings. This concerns reachability after disclosure, not the original discovery.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>A worked human route to the same path</h2>
+
+  <p>
+    The manual route stopped being hypothetical on 1 August 2026, when
+    bitcoin++ Insider Edition published
+    <a href="/record/sources/btcpp-dettmer-commit-history/">Dustin Dettmer's commit-history walkthrough</a>.
+    Working from the public repository, it reaches the board override, the
+    disabled macro and the symbol the seed path actually calls, and it credits
+    no model assistance.
+    <Claim
+      basis="verified"
+      scope="That a published post-disclosure analysis reconstructs the faulty path from commit history without claimed model assistance"
+      source="Dettmer's analysis as captured, with its commit-level claims separately checked against the pinned firmware clones"
+      href="/record/sources/btcpp-dettmer-commit-history/"
+      compact
+    />
+    This archive checked its commit-level assertions
+    against the pinned clones and found most of them exact, one dating claim
+    unsupported and one cited commit not locatable; that adjudication is on
+    <a href="/response/developers/#commit-history">the developer-response page</a>.
+    <Claim
+      basis="unverified"
+      scope="Whether the original finder used a comparable manual route"
+      source="A demonstrated post-disclosure route does not evidence the pre-disclosure one; no discovery artefact has been captured"
+      compact
+    />
+  </p>
+
+  <div class="ve-card ve-card--blue">
+    <div class="ve-card__label lbl-blue">What would change the status</div>
+    <p>
+      A contemporaneous transcript, model identifier, dated analysis or account
+      from the original finder could support the discovery claim. Until such
+      evidence appears, the appropriate status is <strong>unverified</strong>.
+      <Claim
+        basis="unverified"
+        scope="The method by which the attacker or original discoverer found the vulnerable path"
+        source="Coinkite's stated inference; no public discovery artefact in the captured record"
+        compact
+      />
+    </p>
+  </div>
+</Article>

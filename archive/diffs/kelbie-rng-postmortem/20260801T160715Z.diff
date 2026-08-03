@@ -1,0 +1,38 @@
+--- kelbie-rng-postmortem@20260801T055938Z
++++ kelbie-rng-postmortem@20260801T160715Z
+@@ -73,7 +73,7 @@
+ }
+ ```
+ One report is enough to derive a collector, its vault, and every other victim that paid into it.
+-The first report in the file yields wave 3's collector, wave 3's vault, and 500 victims.
++The first report in the file yields wave 960188's collector, its vault, and 500 victims.
+ `txids` is a list because a wallet emptied one UTXO at a time is one event with one transaction per
+ UTXO, and splitting that across several reports would lose the fact that they belong together. The
+ grouping matters: it is what stops an operator who never pools from being derived as one wave per
+@@ -84,7 +84,7 @@
+ |---|---|
+ | `attacker-controlled` | the source names it as part of the theft |
+ | `pattern-match-unconfirmed` | the source found it by fingerprint and said it was unconfirmed |
+-Block published waves 1 and 2 as a fingerprint match and said in the same thread that they "have not
++Block published waves 960183 and 960185 as a fingerprint match and said in the same thread that they "have not
+ confirmed that these indeed are related to drain". That caveat survives into the UI rather than being
+ flattened into "attacker address".
+ Then `bun run fetch`. Everything downstream rebuilds: the flow diagram, the replay, the ledger, the
+@@ -119,7 +119,7 @@
+   the total would otherwise be seven identical hairlines under a column of overlapping labels. The
+   lane ends in "not consolidated" instead of a vault, which is the third column telling the truth
+   rather than drawing a vault that holds nothing.
+-- **Labels** — "Wave 1 collector A" is generated from the wave and role, with a letter only where
++- **Labels** — "Wave 960183 collector A" is generated from the wave and role, with a letter only where
+   there is more than one.
+ - **Justifications** — the sentence explaining why an address is in the set is emitted by the same
+   code that found it, so the two cannot drift apart.
+@@ -147,7 +147,7 @@
+ | `sweep` | external inputs paying a tracked address — stolen funds |
+ | `consolidation` | inputs come only from tracked addresses — the operator pooling their own outputs |
+ | `graffiti` | inbound value arriving *after* that wave consolidated — onlookers sending dust to a now-public address |
+-The last one is decided by **time, not amount**. Wave 1 swept outputs worth 1,200 satoshis — smaller
++The last one is decided by **time, not amount**. Wave 960183 swept outputs worth 1,200 satoshis — smaller
+ than the dust strangers later sent for fun — so any size threshold misfiles real thefts.
+ Totals are reconciled against the figures other people published, at the precision they published
+ them. If they ever stop agreeing, the table says `DRIFT` and the fetch warns, rather than quietly

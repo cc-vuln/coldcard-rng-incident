@@ -1,0 +1,294 @@
+$ cd ~
+$ find .
+~/posts/predictable-rng-fallback-and-32-bit-reseed-in...
+$ cd ..
+Engineering
+July 30, 2026
+Predictable RNG Fallback and 32-Bit Reseed in COLDCARD Firmware
+How a deterministic fallback and limited secure-element reseed constrain entropy across COLDCARD generations
+$ git blame
+Square Engineering
+The official account for @Square Engineering.
+$ cat content.md
+By Block Bitcoin Engineering and Security, in collaboration with anonymous security researchers.
+Summary
+Following reports from COLDCARD users, and working alongside other security researchers, Block’s Bitcoin Engineering and Security teams root-caused vulnerabilities that allow for theft of Bitcoin from COLDCARD users. This analysis is based on our current understanding of the situation. We have not done full empirical testing to confirm exploitability. We are publishing this advisory early, because active exploitation is under way. This analysis is the opinion of Block, and based on our internal research; we recommend looking at Coinkite's definitive report once available.
+This report does not pertain to Block products; no Block products or customers are affected by this vulnerability.
+COLDCARD firmware contains an RNG integration error that causes ngu.random to use MicroPython's deterministic Yasmarang fallback instead of the STM32 hardware RNG.
+The production board configuration defines MICROPY_HW_ENABLE_RNG as zero because COLDCARD provides a separate hardware-RNG wrapper. Libngu incorrectly checks whether that macro is defined rather than whether it is enabled. The build therefore succeeds, and libngu binds to MicroPython's rng_get(). With the macro set to zero, that function is a Yasmarang software generator initialized from the MCU UID and timer registers.
+The consequences differ by device:
+Mk2/Mk3 v4: No cryptographic entropy is added to ngu.random. For a known UID, timer state and call history, wallet generation is deterministic.
+Mk4/Q/Mk5: Boot adds secure-element entropy, but hashes it and retains only four bytes. reseed() then replaces only one 32-bit Yasmarang state word. For a fixed fallback state and call history, there are at most 2^32 securely distinguished output streams.
+Wallet generation hashes the resulting 32 bytes, but deterministic hashing cannot increase the number of possible seeds.
+Affected products
+DeviceFirmware used when generating the secretAssessment
+Mk1All released firmware through v3.0.6Outside this regression
+Mk2Through v3.2.2Uses the direct STM32 hardware RNG
+Mk2v4.0.0–v4.1.9Confirmed vulnerable path; no secure reseed
+Mk3Through v3.2.2Uses the direct STM32 hardware RNG
+Mk3v4.0.0–v4.1.9Confirmed vulnerable path; no secure reseed
+Mk4Production v5.0.0 onwardFallback remains; secure reseed is limited to 32 bits
+QAll production firmwareSame Mk4 fallback and reseed construction
+Mk5All production firmwareSame current Mk firmware construction
+Exposure depends on the firmware used when a secret was generated, not the device's manufacturing date. Upgrading does not retroactively weaken or repair an existing seed.
+Impact
+An attacker who can determine or sufficiently constrain the device UID, timer state and RNG-call history can reproduce the fallback stream offline.
+A wallet xpub, address or generated public key provides a candidate-validation oracle. Successful recovery of a wallet seed or private key permits theft of all associated funds.
+For Mk2/Mk3 v4, there is no cryptographically generated secret input to enumerate. For current devices, once the fallback state and call history are fixed, the remaining secure-element-derived search space is at most 2^32, averaging approximately 2^31 candidate trials.
+This does not mean every remote attacker can immediately recover every seed. Practical cost depends on available UID information, boot timing, prior RNG calls and derivation cost. No end-to-end brute-force benchmark is claimed here.
+Impact due to seed export
+If you exported a seed generated in a vulnerable coldcard, moving it to another wallet, then that same insecure seed is still affected.
+Technical details
+1. Production disables MicroPython's hardware-RNG implementation
+The relevant board headers contain:
+c
+1// We have our own version of this code.
+2#define MICROPY_HW_ENABLE_RNG (0)
+Locations:
+stm32/COLDCARD/mpconfigboard.h:76-77
+stm32/COLDCARD_MK4/mpconfigboard.h:77-78
+stm32/COLDCARD_Q1/mpconfigboard.h:79-80
+This is the normal compiled board configuration, not an environment variable or unusual build override.
+COLDCARD does provide a separate hardware-RNG implementation. Its random_buffer() reads the STM32 RNG peripheral and fails on timeout or repeated samples. Python exposes that implementation as ckcc.rng_bytes.
+2. Libngu checks the macro incorrectly
+Libngu selects its STM32 entropy function with:
+c
+1extern uint32_t rng_get(void);
+2#define CHIP_TRNG_32() rng_get()
+3
+4#ifndef MICROPY_HW_ENABLE_RNG
+5#error "get a HW TRNG plz"
+6#endif
+#ifndef verifies only that the macro exists. It does not reject a macro whose value is zero.
+The board-local implementation exports random32() and random_buffer(), not a global rng_get(). Consequently, libngu's reference resolves to MicroPython's implementation.
+3. MicroPython compiles the software fallback
+MicroPython selects between its hardware and software implementations using the macro's value:
+c
+1#if MICROPY_HW_ENABLE_RNG
+2 // STM32 hardware RNG
+3#else
+4 // Yasmarang fallback
+5#endif
+Because the value is zero, rng_get() initializes Yasmarang with:
+c
+1pad = UID_low32 ^ SysTick->VAL;
+2n = RTC->TR;
+3d = RTC->SSR;
+These inputs may differ between boots, but they are not a cryptographic entropy source. The UID is fixed device metadata, while SysTick and RTC are observable or constrainable timing state.
+Once those values and the number of prior calls are known, the stream is deterministic.
+4. Libngu XORs the fallback with another Yasmarang generator
+Libngu maintains a second Yasmarang state initialized with public constants:
+c
+1static uint32_t yasmarang_pad = 0x0a8ce26f;
+2static uint32_t yasmarang_n = 69;
+3static uint32_t yasmarang_d = 233;
+4static uint8_t yasmarang_dat = 0;
+Each output word is calculated as:
+c
+1chip = rng_get(); // MicroPython fallback
+2chip ^= my_yasmarang(); // libngu Yasmarang
+XOR does not create entropy. If both inputs are reproducible, their XOR is reproducible.
+The health check rejects adjacent repeated rng_get() outputs. A deterministic PRNG normally produces different adjacent values, so it passes.
+5. The regression entered in March 2021
+Firmware v3.2.2 generated wallet entropy using:
+py
+1seed = bytearray(32)
+2rng_bytes(seed)
+That path reached ckcc.rng_bytes and the board-local STM32 hardware RNG.
+Commit b18723dd, dated March 1, 2021, changed generation to:
+py
+1seed = random.bytes(32)
+shared/random.py mapped this call to ngu.random.bytes. The change first appeared in released firmware v4.0.0 on March 17, 2021.
+Mk2/Mk3 v4 do not execute the later Mk4 reseeding code.
+6. Current devices add only a 32-bit reseed
+Mk4 introduced secure-element reseeding in commit 01cb43f7:
+py
+1a = callgate.read_rng(1) # 32 bytes from SE1
+2b = callgate.read_rng(2) # 8 bytes from SE2
+3
+4n = ngu.hash.sha256d(a + b)
+5n, = ustruct.unpack('I', n[0:4])
+6ngu.random.reseed(n)
+SE1 returns an authenticated 32-byte value incorporating secure-element unpredictability. SE2 reads eight authenticated bytes from a ROM-options page rather than executing a live random command.
+Regardless of the original inputs' quality, only four digest bytes reach reseed().
+The complete reseed implementation is:
+c
+1STATIC mp_obj_t random_reseed(mp_obj_t arg)
+2{
+3 yasmarang_pad = mp_obj_get_int_truncated(arg);
+4 return mp_const_none;
+5}
+It does not:
+Accept the full digest.
+Initialize a cryptographic DRBG.
+Reseed MicroPython's fallback.
+Reset the other Yasmarang state words.
+Provide periodic reseeding or prediction resistance.
+For fixed fallback state F and call history T:
+|{ output(R, F, T) : R ∈ [0, 2^32) }| ≤ 2^32
+Internal state evolution may spread those 32 bits across later output, but it cannot create additional entropy.
+7. Wallet hashing does not repair the issue
+Current wallet generation performs:
+py
+1seed = ngu.random.bytes(32)
+2assert len(set(seed)) > 4
+3return ngu.hash.sha256d(seed)
+The distinct-byte assertion detects only trivial failures. Yasmarang easily passes it.
+SHA256d may make the output statistically uniform, but it cannot increase the input family:
+1≤ 2^32 candidate RNG outputs
+2 ↓ SHA256d
+3≤ 2^32 candidate wallet seeds
+The BIP39 checksum similarly adds no entropy.
+On the Software fallback RNG: UID and timer characteristics
+MicroPython initializes its fallback Yasmarang generator once, on the first call to rng_get():
+c
+1pad = UID_low32 ^ SysTick->VAL;
+2n = RTC->TR;
+3d = RTC->SSR;
+4dat = 0;
+After initialization, no new entropy is collected. Every subsequent output is a deterministic state transition. See the pinned MicroPython implementation.
+InputCharacteristicsSecurity consequence
+MCU UIDFixed 96-bit per-chip identifier; only its low 32 bits are usedDevice identity, not fresh entropy
+SysTickPredictable periodic down-counterAt most 80,000 Mk2/Mk3 or 120,000 current-device values
+RTC->TRTime-of-day registerCorrelated with boot time; potentially static
+RTC->SSRRTC subsecond counterCorrelated with RTC->TR and execution timing
+MCU UID
+The UID is intended to distinguish chips, not to serve as a cryptographic secret. It is fixed for the lifetime of the MCU, readable from memory and partly transformed into COLDCARD's USB serial number.
+The STM32 UID is a factory-set manufacturing identifier and is not a cryptographic secret.
+Only the first 32-bit UID word participates in the fallback. Even if the complete 96-bit UID is globally unique, that does not make its low word uniformly random or secret. Different devices may also share the same low word.
+If the low word is known, it adds no search space. If it is completely unknown, the expression:
+UID_low32 XOR SysTick
+still has at most 2^32 possible results—not 2^(32 + SysTick bits)—because both values collapse into one 32-bit pad.
+Testing an affected device under controlled boot conditions may allow an attacker to profile the SysTick, RTC, and RNG-call distributions. Because these values are determined by common hardware and firmware behavior, measurements from an attacker-owned device could prioritize or substantially narrow the candidate states for another device running the same configuration. The degree to which those measurements generalize across units and user workflows requires hardware validation.
+SysTick
+SysTick is a counter driven by the processor clock and reloaded every millisecond:
+Mk2/Mk3: 80,000 possible counter values, approximately 2^16.29.
+Mk4/Q/Mk5: 120,000 values, approximately 2^16.87.
+This is a maximum enumeration count, not guaranteed entropy. Knowledge of when the first RNG call occurs can reduce it significantly.
+RTC registers
+RTC->TR and RTC->SSR represent time and subsecond position. They are correlated with each other and with SysTick, so treating them as independent random variables substantially overstates their strength.
+For legacy Mk2/Mk3 startup, the selected RTC oscillator is disabled, strongly suggesting zero or static RTC values on a normal cold boot. Current devices configure an RTC source but label it unused, while MicroPython RTC initialization remains disabled. Exact runtime behavior should be measured on hardware.
+Security interpretation
+These values can create operational uncertainty for an attacker, but none is a cryptographic entropy source. Their important characteristics are:
+Fixed or timing-derived rather than randomly sampled.
+Potentially observable or reconstructable.
+Correlated rather than independent.
+Collected only once.
+Fed into a non-cryptographic PRNG.
+Therefore, the software fallback may produce output that looks statistically random while remaining reproducible from a relatively small set of device and timing states.
+Search-space assessment
+Mk2/Mk3 v4
+For a fixed UID, timer state and RNG-call history:
+Candidate count: 2^0
+Result: deterministic
+Under a normal cold-boot model with a known UID but unknown SysTick:
+SysTick possibilities: 80,000
+Ceiling: approximately 2^16.29
+If the effective 32-bit UID_low32 XOR SysTick value is entirely unknown:
+Ceiling: 2^32
+Unknown call history multiplies these counts by the number of plausible execution traces.
+Mk4/Q/Mk5
+For a successful reseed with known fallback state and call history:
+Secure reseed possibilities: at most 2^32
+Average enumeration: approximately 2^31
+A deliberately loose known-UID ceiling can be obtained by treating every timer field as independent:
+1120,000 SysTick values
+2× 86,400 RTC times
+3× 256 RTC subsecond values
+4≈ 2^41.27 fallback states
+Including the reseed gives a raw ceiling near 2^73.27.
+This is not 73-bit cryptographic security. The timer fields are correlated, may occupy much smaller ranges, and can potentially be observed or reconstructed.
+Search-space table
+For Mk2/Mk3 v4, assuming the UID and RNG-call history are known, counting every possible SysTick and RTC state gives a broad upper bound of about 2^40.7 candidates. If the RTC is stable during cold boot, the estimate narrows to roughly 2^16.3, based on SysTick alone.
+Current devices also contain a code path that could continue without reseeding after a catchable initialization error. The reviewed source suggests ordinary secure-element failures halt instead, so the no-reseed case is best treated as conditional pending hardware validation.
+Device/firmwareAttacker knows timersBest-case hidden-timer ceiling
+Mk1; Mk2/Mk3 through v3.2.2≈2^256≈2^256
+Mk2/Mk3 v4.0.0–v4.1.92^0<2^40.7
+Mk4/Q/Mk5, successful reseed≤2^32<2^73.3
+Mk4/Q/Mk5, no reseed†2^0<2^41.3
+† Conditional source path; ordinary production secure-element failure appears to halt rather than continue.
+Conditional reseed failure
+Early boot wraps mk4.init0() and q1.init0() in a broad exception handler that continues after catchable errors. A catchable exception before reseeding could therefore leave libngu at its public initial state.
+However, current production SE1/SE2 communication and authentication failures normally enter non-returning bootloader failure paths. It is therefore not established that an ordinary production hardware failure silently proceeds without reseeding.
+The broad exception remains a dangerous fail-open structure, but it should be treated separately from the proven 32-bit successful-reseed weakness.
+Other affected functionality
+The same ngu.random construction is used for:
+New and ephemeral wallet seeds.
+Random paper-wallet and secp256k1 private keys.
+Seed XOR masks.
+Some cloning, USB, Key Teleport and Web2FA ECDH keys.
+Generated Secure Notes passwords.
+HSM local-code material.
+Callers using ckcc.rng_bytes instead reach the separate STM32 hardware-RNG implementation.
+This does not mean every feature has the same severity. It means they ultimately consume the same my_random_bytes() stream, so their security inherits its entropy limits.
+Paper-wallet private keys
+A COLDCARD “paper wallet” is a standalone Bitcoin private key and address, separate from the device’s main BIP39 wallet.
+Its generation path is:
+1Generate Paper Wallet
+2 → ngu.secp256k1.keypair()
+3 → my_random_bytes(32)
+4 → private key
+5 → public address and WIF
+Unlike normal seed generation, the RNG output is used directly as the secp256k1 private key—there is no BIP39 or BIP32 step. See shared/paper.py:91 and external/libngu/ngu/k1.c:428.
+The public Bitcoin address provides an oracle: an attacker can generate candidate private keys, derive each address, and stop when it matches. Recovering that key compromises funds held by that paper wallet, but not necessarily the COLDCARD’s main wallet.
+The paper-wallet “Use Dice” option supplies the private key independently and bypasses this RNG path.
+Random Seed XOR masks
+When “random split” is selected, each mask comes from ngu.random.bytes() and is then hashed.
+For a two-part split:
+1A = random mask
+2B = original seed XOR A
+If an attacker obtains B, they can enumerate candidate masks, derive candidate original seeds, and validate them against an address or xpub. If they possess only A, that share alone still does not reveal the original seed. Multi-part cases similarly depend on which shares are exposed.
+The default deterministic split mode does not use ngu.random and is separate from this bug.
+Cloning and USB encryption
+Cloning generates ephemeral ECDH private keys on both devices. Their public keys are stored on the MicroSD card, including in the clone filename.
+A candidate private key can be checked directly against its public key. Once recovered, it can derive the ECDH session key and potentially decrypt the cloned backup.
+USB encryption similarly creates a random device keypair. A captured transcript contains the necessary public keys to test candidates. This threatens that session’s confidentiality; it does not directly disclose the wallet signing key.
+Key Teleport
+Ordinary Key Teleport uses ngu.random to generate temporary ECDH private keys and a five-byte secondary password that protect the transferred secret. If an attacker captures the exchange, the exposed public-key material and encrypted-payload checksums can help them test candidate RNG states. Recovering either temporary private key reveals the shared encryption key; recovering the sender’s RNG state may also reveal the secondary password. The resulting impact is potential decryption of the teleported seed, private key, or other secret.
+The multisig-PSBT variant is less directly affected because its ECDH keys are derived from the existing wallet; ngu.random mainly selects a child index. Predicting that index does not reveal the private key when the underlying wallet seed is secure. A wallet originally generated by the affected RNG remains separately vulnerable.
+Web2FA
+Web2FA uses the RNG for three different values:
+A ten-byte, long-lived TOTP shared secret.
+An ephemeral ECDH private key protecting the web request.
+Per-request nonces.
+Predictable TOTP material could weaken the second factor, while a recoverable ECDH key could expose captured request contents. These require separate protocol-specific analysis.
+Secure Notes passwords
+The password generator uses generate_seed() for its 12-word, 24-word, and dense-password options, and ngu.random.uniform() for its shorter mixed-format option.
+Calling generate_seed() twice for the dense option does not double the entropy: both outputs are sequential results from the same small-state generator.
+Manually entered and BIP85-derived passwords are not directly affected, assuming the underlying wallet seed was generated safely.
+On multisig arrangements
+Even if a COLDCARD is used in a multisig arrangement, if the arrangement is composed of exclusively vulnerable devices, then the impact of the vulnerability remains. A quorum of secure devices is necessary to protect against this issue.
+Technical timeline
+January 28, 2021: The vulnerable libngu STM32 guard exists.
+March 1, 2021: COLDCARD migrates wallet generation to libngu.
+March 17, 2021: Firmware v4.0.0 includes the vulnerable path.
+March 11, 2022: The 32-bit reseed API and Mk4 boot reseeding are added.
+March 14, 2022: First production Mk4 v5.0.0 includes the reseed.
+July 30, 2026: Block and other security researchers notice reports of COLDCARD users losing their funds. Block begins investigating.
+July 30, 2026: Block and others independently find the root-cause vulnerability, and begin researching the broader impact and follow-on vulnerabilities to assess affected devices.
+July 30, 2026: Coinkite publishes its preliminary Mk3 advisory.
+July 30, 2026: Block disclosed our findings with Coinkite, noting the differences.
+July 30, 2026: Block publishes this report.
+References
+Current COLDCARD source
+Wallet generation
+Secure-element reseed
+Libngu RNG implementation
+Libngu reseed implementation
+MicroPython fallback
+Historical v3.2.2 seed generation
+Historical v4.0.0 seed generation
+Coinkite advisory
+$cat tags
+BitcoinSecurity
+$
+$block_engineering
+Inspired by our work? Join Block's engineering team and build the future with us.
+cd ./block-careers
+Network
+ssh block.git
+ping @blocks
+connect --server block-opensource
+open block.xyz
+$ echo "Copyright 2026 Block, Inc. All rights reserved."
+rss.xml

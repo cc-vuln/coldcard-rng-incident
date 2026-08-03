@@ -1,0 +1,348 @@
+--- coldcard-hack-tracker@20260802T130025Z
++++ coldcard-hack-tracker@20260802T150051Z
+@@ -8,11 +8,11 @@
+ Blocked
+ TOTAL STOLEN
+ 
+-1,368.58411114 BTC
+-
+-<live-fiat-value>
+-
+-5 waves · Jul 30 – Aug 1 UTC
++1,433.49359078 BTC
++
++<live-fiat-value>
++
++6 waves · Jul 30 – Aug 2 UTC
+ 
+ 0
+ 300
+@@ -23,6 +23,7 @@
+ Jul 30
+ Jul 31
+ Aug 1
++Aug 2
+ JUL 30
+ Galaxy Wave 1 · July 30
+ +1,082.65 BTC
+@@ -43,23 +44,27 @@
+ Morning wave · Aug 1
+ +0.33295323 BTC
+ <live-fiat-value>
++AUG 2
++Early Aug 2 consolidation
+++64.90947964 BTC
++<live-fiat-value>
+ 
+ STILL HELD
+ 
+ 99.91%
+ 
+-of 1,345.16394201 BTC consolidated
++of 1,410.06767965 BTC consolidated
+ 
+ BALANCE ON WATCH
+ 
+-1,343.9627841 BTC
++1,408.86654358 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+ 
+ MOVED
+ 
+-1.20115791 BTC
++1.20113607 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+@@ -67,36 +72,36 @@
+ 
+ Block 960,669
+ 
+-0.269792 BTC from Hop 2 from Hop 1 from Evening vault
++0.269792 BTC from Hop 2 · bc1qt8…5y4k
+ 
+ Watched holdings
+ 
+-About 1,368.58411114 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,345.16394201 BTC is in watched holdings (core vaults live-polled; 78 higher-value Wave 3 vaults ≥ 0.50 BTC from the cron snapshot). The remaining ~23.42016913 BTC is mostly smaller/unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
++About 1,433.49359078 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,410.06767965 BTC is in watched holdings (core vaults live-polled; 78 higher-value Wave 3 vaults ≥ 0.50 BTC from the cron snapshot). The remaining ~23.42591113 BTC is mostly smaller/unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+ 
+-Blocks 960183–960191 · fixed 30 sat/vB · four consolidation holdings.
++Four consolidation holdings. Multi-path key-scan signature (BIP-84/49/44).
+ 
+ SCOPE
+ 1,082.65 BTC · 1,196 addresses
++BLOCKS
++960,183–960,191
++FEE
++30 sat/vB · no change
++30–75× median that week
+ WINDOW
+ July 30, 2026
+ 01:10:20 – 01:51:26 UTC
+-BLOCKS
+-960,183–960,191
+-FEE SIGNATURE
+-30.0 sat/vB · no change
+-30–75× median that week
+-VICTIM PATHS
++PATHS
+ 1,183 BIP-84
+ 7 BIP-49 · 6 BIP-44
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Holding 1
+-	bc1qq85v2c…3fcu9r	562.02021083 BTC
+-<live-fiat-value>
+-	562.02021083 BTC	11	HELD
++	bc1qq85v2c…3fcu9r	562.02022721 BTC
++<live-fiat-value>
++	562.02021083 BTC	14	HELD
+ 
+ Holding 2
+ 	bc1qx76cae…htfhe3	398.47575357 BTC
+@@ -110,47 +115,52 @@
+ 
+ Holding 4
+ Unmoved collector remainder
+-	bc1qnk4zh9…8fecp0	32.4505632 BTC
+-<live-fiat-value>
+-	32.4505632 BTC	160	HELD
++	bc1qnk4zh9…8fecp0	32.45056866 BTC
++<live-fiat-value>
++	32.4505632 BTC	161	HELD
+ GALAXY WAVE 2 · JULY 31
+ Source
+ 
+-Blocks 960345–960369 · 1,478 addresses · fees 50 and 10 sat/vB. ~45.90 BTC consolidated to the watched vault; ~30.18 BTC still at the unmoved collector.
+-
++Two fee bands into a watched vault plus an unmoved collector.
++
++SCOPE
++76.16 BTC · 1,478 addresses
++BLOCKS
++960,345–960,369
++FEE
++50 and 10 sat/vB
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Wave 2 vault
+-Consolidated from 1,216 sweeps (via bc1qsjrf5ze…); still unspent
++Consolidated from 1,216 sweeps (via bc1qsjrf5ze…)
+ 	bc1qtfrwa4…numu75	45.90251994 BTC
+ <live-fiat-value>
+ 	45.90251994 BTC	1	HELD
+ 
+ Wave 2 collector
+-Unmoved collector from 93 sweeps at ~10 sat/vB; still unspent
++Unmoved collector from 93 sweeps at ~10 sat/vB
+ 	bc1qmd5m5k…9n8jp6	30.18476329 BTC
+ <live-fiat-value>
+ 	30.18476329 BTC	93	HELD
+ GALAXY WAVE 3 · JUL 31–AUG 1 · 78 vaults
+ Source
+ 
+-Blocks 960396–960471 · Galaxy: ~1,912 victims, ~200 sat/vB, 293 park→P2WSH vaults (~207.73 BTC). Watching 78 higher-value fingerprint matches (≥ 0.5 BTC each, ~184.97 BTC) — see attribution below.
+-
+-WHY THESE LOOK LIKE STOLEN WAVE 3 FUNDS
+-
+-Not Galaxy’s published address list. Matched their Wave 3 fingerprint (blocks 960396–960471, ~180–220 sat/vB, park → P2WSH vault), cross-checked against the public COLDCARD RNG chain map, then kept only higher-value vaults (≥ 0.5 BTC) so the cron snapshot stays reliable on public explorers. Smaller vaults are omitted on purpose. Partial versus Galaxy’s ~293 vaults / ~207.73 BTC.
+-
+-WATCHED
+-78 P2WSH vaults · 184.97366201 BTC
+-≥ 0.50 BTC each · snapshot · Galaxy ~293 / ~207.73 BTC
++Not Galaxy’s published list — fingerprint-matched + RNG chain map, then ≥ 0.5 BTC only.
++
++SCOPE
++208.24 BTC · ~1,912 addresses
++Galaxy ~293 vaults / ~207.73 BTC
+ BLOCKS
+ 960,396–960,471
+-FEE WINDOW
+-180–220 sat/vB · no change
++FEE
++180–220 sat/vB
+ Galaxy: ~200 sat/vB
++WATCHED
++78 P2WSH · 184.97366201 BTC
++≥ 0.50 BTC each
+ PATTERN
+-park → P2WSH vault
+-still funded at match time
++park → P2WSH
++RNG map cross-check
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Wave 3 vault 1
+@@ -545,33 +555,75 @@
+ EVENING WAVE · JULY 31
+ Source
+ 
+-Low-fee (~1–2 sat/vB) sweeps. Both watched holdings (~1.20 BTC) emptied Aug 1–2 and are peeling toward cash-out. Stolen hops and the Ocean (OCEAN.XYZ) miner peel that touched the Aug 1 hop vault later consolidated into the same busy P2SH (3KMmeqPe…) — same-operator link; Ocean sats not counted as stolen. Distinct from Galaxy Wave 2.
+-
++Distinct from Galaxy Wave 2. Ocean miner peel later met stolen hops at the same P2SH hub — same-operator link; Ocean sats not counted as stolen.
++
++SCOPE
++1.20115791 BTC watched
++emptied Aug 1–2
++FEE
++~1–2 sat/vB
++
++AUG 2 CASH-OUT · TWO RAILS
++
++BTC · ~0.69
++Aug 1 hop vault→3KMmeqPe… hub
++ETH · ~0.24
++Evening vault→THOR→0x6A08…→0xC61F… · also ~3.6 ETH via Orbiter Bridge 3 peels
++Sibling ~0.27 BTC still at bc1qdt6c…
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Evening vault
+-Jul 31 consolidation (~0.51 BTC). Emptied Aug 2; onward peels in progress
++Jul 31 consolidation (~0.51 BTC). Emptied Aug 2 — see ETH rail in flow above
+ 	bc1q7rmsw0…lrrcgf	0.00 BTC
+ <live-fiat-value>
+ 	0.50980268 BTC	0	EMPTIED
+ 
+ Aug 1 hop vault
+-0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. Emptied Aug 2. Ocean miner peel from here later met stolen hops at the same P2SH cash-out (3KMmeqPe…) — not part of this report balance
++0.4998 + 0.1915 BTC stack. Emptied Aug 2 into P2SH hub — see BTC rail above. Ocean peel also met there (not in report balance)
+ 	bc1qayw8nr…7w2u0s	0.00 BTC
+ <live-fiat-value>
+ 	0.69135523 BTC	0	EMPTIED
+ MORNING WAVE · AUG 1
+ Source
+ 
+-Blocks 960518–960523. Direct victim sweeps (~15–50 sat/vB) into one vault; honey-pot / duress-wallet report (Mk4 claim later withdrawn — seed was Mk3-origin).
+-
++Honey-pot / duress-wallet report. Mk4 claim later withdrawn — seed was Mk3-origin.
++
++SCOPE
++0.33295323 BTC
++BLOCKS
++960,518–960,523
++FEE
++~15–50 sat/vB
++PATTERN
++direct victim → vault
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Aug 1 vault
+-0.33203236 BTC from 16 victim sweeps; still unspent
+ 	bc1qzm5pau…v34mf3	0.33203236 BTC
+ <live-fiat-value>
+ 	0.33203236 BTC	16	HELD
++EARLY AUG 2 CONSOLIDATION
++Source
++
++Distinct fee/structure from Galaxy Waves 1–3. Community Mk2 victim report; sampled inputs long-dormant and funded after the March 2021 vuln window.
++
++SCOPE
++64.90947964 BTC · 902 inputs
++795 addresses
++BLOCKS
++960,668
++FEE
++~9 sat/vB
++WINDOW
++04:03 UTC Aug 2
++PATTERN
++multi-path → one P2WPKH
++LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
++
++Aug 2 vault
++	bc1q0rvn88…jf5q6m	64.90373764 BTC
++<live-fiat-value>
++	64.90373764 BTC	1	HELD
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Later surplus that passes through a vault while its reported balance remains is ignored.
+@@ -579,7 +631,7 @@
+ HOP 2
+ f37419c0…eb99d1
+ −0.269792 BTC
+-From Hop 2 from Hop 1 from Evening vault bc1qt8ca…5y4k
++From Hop 2 · bc1qt8…5y4k bc1qt8ca…5y4k
+ Block 960,669
+ 
+ To bc1qdt6c…srqw
+@@ -587,7 +639,7 @@
+ HOP 1
+ 61c0ddac…98c095
+ −0.509799 BTC
+-From Hop 1 from Evening vault bc1qu2uq…6srw
++From Hop 1 · bc1qu2…6srw bc1qu2uq…6srw
+ Block 960,668
+ 
+ To bc1qt8ca…5y4k, bc1qzkap…6e4z
+@@ -595,7 +647,7 @@
+ HOP 2
+ 49dd2935…d49564
+ −0.24 BTC
+-From Hop 2 from Hop 1 from Evening vault bc1qzkap…6e4z
++From Hop 2 · bc1qzk…6e4z bc1qzkap…6e4z
+ Block 960,668
+ 
+ To bc1qprkj…jr98
+@@ -610,15 +662,15 @@
+ HOP 2
+ 3cf126ca…10ae88
+ −0.44999667 BTC
+-From Hop 2 from Hop 1 from Aug 1 hop vault 3P3K2MQw…Lfgy
++From Hop 2 · 3P3K2M…Lfgy 3P3K2MQw…Lfgy
+ Block 960,666
+ 
+-To 3KMmeqPe…qtc8
++To P2SH cash-out hub 3KMmeqPe…qtc8
+ 
+ HOP 1
+ a7bf30f0…92fdec
+ −0.45 BTC
+-From Hop 1 from Aug 1 hop vault bc1qsd9t…jah8
++From Hop 1 · bc1qsd…jah8 bc1qsd9t…jah8
+ Block 960,663
+ 
+ To 3P3K2MQw…Lfgy
+@@ -626,10 +678,10 @@
+ HOP 2
+ d0bcdc4a…33c0a0
+ −0.24134867 BTC
+-From Hop 2 from Hop 1 from Aug 1 hop vault 36c8aprK…QW35
++From Hop 2 · 36c8ap…QW35 36c8aprK…QW35
+ Block 960,661
+ 
+-To 3KMmeqPe…qtc8
++To P2SH cash-out hub 3KMmeqPe…qtc8
+ 
+ 5ecc3052…a8bf87
+ −0.69135523 BTC
+@@ -641,7 +693,7 @@
+ HOP 1
+ 135d4c2c…2d4ce9
+ −0.241352 BTC
+-From Hop 1 from Aug 1 hop vault bc1qvrpc…cddc
++From Hop 1 · bc1qvr…cddc bc1qvrpc…cddc
+ Block 960,658
+ 
+ To 36c8aprK…QW35
+@@ -699,6 +751,10 @@
+ 
+ Aug 1 morning wave: duress-wallet honey pot swept into a ~0.33 BTC vault; Mk4 attribution later corrected to Mk3-origin seed.
+ 
++Marius Offchain
++
++Early Aug 2 consolidation (04:03 UTC): ~65 BTC from ~795 addresses into one vault (community Mk2 drain report); not a Galaxy-published wave.
++
+ Coinkite advisory
+ 
+ Official guidance (updated Aug 1): who is exposed, fixed firmware versions, and migration steps.
+@@ -723,4 +779,4 @@
+ 
+ July 30 operator used a paid blockchain-data account during the sweeps; findings shared with authorities.
+ 
+-Core vaults live via snapshot; Wave 3 from cron snapshot (Aug 2, 08:33 PM). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.
++Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (Aug 2, 10:56 PM). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.

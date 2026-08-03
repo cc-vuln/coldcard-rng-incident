@@ -1,0 +1,325 @@
+---
+import Article from '../../layouts/Article.astro';
+import Claim from '../../components/Claim.astro';
+import Answer from '../../components/Answer.astro';
+import Disclosure from '../../components/Disclosure.astro';
+
+// Two call surfaces, with call sites classified by source path. Feature-level
+// consequences remain qualified unless separately analysed.
+const surfaces = `flowchart LR
+  BR["ngu.random.bytes()"] --> M["libngu my_random_bytes"]
+  M --> Y["MicroPython Yasmarang<br/>UID word, SysTick, RTC"]
+  M --> N["libngu Yasmarang<br/>constants or at-most-32-bit reseed"]
+  OK["ckcc.rng_bytes()"] --> T["STM32 hardware TRNG<br/>analogue transistor noise"]
+
+  Y --> BL["Call sites requiring review:<br/>seeds, paper keys, passwords,<br/>session material and nonces"]
+  N --> BL
+  T --> GL["Backup password, 7z salt,<br/>HSM user secrets,<br/>SD overwrite blocks"]
+
+  Y -. "the hotfix rebinds this<br/>to the same hardware" .-> T
+
+  classDef n-act stroke-width:1.5px
+  classDef n-safe stroke-width:1.5px
+  class BR,M,Y,N,BL n-act
+  class OK,T,GL n-safe`;
+
+// Two families, separated by whether the material descends from the mnemonic.
+const families = `flowchart TB
+  S["How was the mnemonic produced?"] --> D["Dice-only, imported,<br/>or made before the regression"]
+  S --> A["Generated on affected firmware"]
+  D --> DS["The mnemonic itself is<br/>outside this defect"]
+  A --> AS["The mnemonic and everything<br/>derived from it inherit the defect"]
+  DS --> F["Separately: device features that call<br/>the affected generator without<br/>consulting the mnemonic at all"]
+  AS --> F
+
+  classDef n-act stroke-width:1.5px
+  classDef n-safe stroke-width:1.5px
+  class A,AS,F n-act
+  class D,DS n-safe`;
+
+const body = `<div class="callout callout--blue">
+<span class="callout__title">Two RNG call surfaces</span>
+The source contains call sites using <code>ngu.random.bytes()</code> and others using <code>ckcc.rng_bytes()</code>. The affected symbol-resolution path sits behind the first surface. The second reaches the STM32 hardware RNG directly. This distinction identifies which features require further analysis; it does not by itself establish the full security consequence for every feature.
+</div>`;
+
+// The right-hand column records whether Wizardsardine's post-mortem asserted
+// the exposure. It replaces a separate adjudication table that restated ten of
+// these rows, quoting the same source comments.
+const rest = `<div class="table-wrap">
+<div class="table-scroll">
+<table class="data-table sortable">
+<caption>Randomness call-site classification</caption>
+<thead><tr><th scope="col" class="wide">Secret or material</th><th scope="col" class="nw">Source</th><th scope="col" class="nw">RNG path before the fix</th><th scope="col" class="wide">Scope established here</th><th scope="col" class="nw">Wizardsardine list</th></tr></thead>
+<tbody>
+<tr class="row-gone"><td class="wide"><strong>Master wallet seed</strong>, and ephemeral or temporary seeds</td><td class="nw"><code>seed.py:605</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">Confirmed use of the affected generation path. Ephemeral and temporary seeds call the same generation function; their downstream use must be assessed by feature.</td><td class="nw">&mdash;</td></tr>
+<tr><td class="wide">Paper-wallet private keys</td><td class="nw"><code>paper.py:94</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The device-generated path uses the affected API: <code>paper.py:94</code> constructs <code>ngu.secp256k1.keypair()</code> with no argument, and the libngu constructor at <code>k1.c:485-487</code> fills the secret key from <code>my_random_bytes()</code> in exactly that case. The separate pure-dice path at <code>paper.py:191-202</code> passes its own private key in, so it never reaches that branch.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Seed XOR split masks</td><td class="nw"><code>xor_seed.py:78</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">Mask generation uses the affected API, and only in the optional random-split mode selected at <code>xor_seed.py:49-52</code>. The prompt string at <code>xor_seed.py:49</code> reads "If you would prefer a random split using the TRNG, press (2)", and the branch it selects at <code>xor_seed.py:77-79</code> is the one calling <code>ngu.random.bytes</code>. The default deterministic mode does not. The information leaked by a particular share set requires separate analysis.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Key Teleport ECDH material and password</td><td class="nw"><code>teleport.py:79,204,229</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">Random ECDH-related material reaches this path. The receiver password is five bytes, and the source comment at <code>teleport.py:226-229</code> reads "pick an 40 bit password" above <code>ngu.random.bytes(5)</code>. Protocol impact has not been independently demonstrated here.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Key Teleport co-signer derivation index</td><td class="nw"><code>multisig.py:1190</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The index used to derive a co-signer's receive key is drawn as <code>ngu.random.uniform(1&lt;&lt;28)</code>, so its intended width is 28 bits before any generator weakness is considered. Whether either Key Teleport width is reachable in a live protocol run is not established here.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Clone and USB session material</td><td class="nw"><code>backups.py:752,862</code><br><code>usb.py:715</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">Session-related values reach this path. <code>backups.py:752</code> and <code>backups.py:862</code> both create argument-free keypairs, and the second derives the archive encryption key by <code>ecdh_multiply</code>. Exploitability depends on transcript access and protocol use; the post-mortem itself describes the USB case as not significant.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Web2FA secret and nonces</td><td class="nw"><code>web2fa.py:25,110,145,148</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">Secret or nonce generation reaches this path. The account-level consequence depends on what an attacker can observe.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">HSM local confirmation code</td><td class="nw"><code>hsm.py:857</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The confirmation-code call site uses the affected API.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">HSM policy-approval character</td><td class="nw"><code>hsm_ux.py:58</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The character a user must press to enable a new HSM policy is chosen from a five-item set through the affected API. This is a presence prompt rather than key material.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">MicroSD 2FA enrolment nonce</td><td class="nw"><code>pwsave.py:318</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The eight-byte nonce written when enrolling an authorised card uses the affected API. What that means at the account level remains untested in this archive.</td><td class="nw">Omitted</td></tr>
+<tr><td class="wide">Secure Notes and Passwords random generators</td><td class="nw"><code>notes.py:58-92</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The 12-word, 24-word and dense-password choices at <code>notes.py:66-78</code> call <code>generate_seed()</code>. The mixed-format choice uses <code>ngu.random</code> through <code>random.randbelow()</code> and <code>shuffle()</code>, and its own source comment at <code>notes.py:83</code> reads <code>entropy: 11+11 + (3.8*3) + 16 = 49 bits</code>. That budget is the design intent before this defect, not a measurement of delivered strength. The separate BIP85 choice is classified below.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Co-signing policy key C</td><td class="nw"><code>ccc.py:899</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The 12 words the device retains to enforce a spending policy are produced by the same <code>generate_seed()</code> function as a wallet seed. The import paths at <code>ccc.py:870-895</code> supply words from elsewhere instead.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Randomised PIN keypad layout</td><td class="nw"><code>login.py:32-34</code></td><td class="nw"><span class="status status--warn">Affected API</span></td><td class="wide">The shuffle uses <code>ngu.random</code> through <code>shared/random.py</code>, and therefore <code>ngu.random.uniform</code>. This is shoulder-surfing and wear-pattern hardening, not key material, and any consequence requires physical observation.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide"><strong>BIP85-derived entropy, mnemonics and passwords</strong></td><td class="nw"><code>drv_entro.py:57-112</code></td><td class="nw"><span class="status status--warn">Deterministic derivation</span></td><td class="wide">BIP85 derives child entropy from the active BIP32 root rather than calling the affected RNG again. If that root is recoverable, the same application and index paths can be rederived. An active BIP39 passphrase remains part of the root from which the child is derived.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">Trick-PIN duress wallets</td><td class="nw"><code>trick_pins.py:14,80</code></td><td class="nw"><span class="status status--warn">Deterministic derivation</span></td><td class="wide">Duress wallet secrets come from <code>bip85_derive</code>, and the device's own prompt at <code>trick_pins.py:597</code> describes indices 1 to 3. They follow the root rather than adding independent randomness.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">MicroSD 2FA file encryption key</td><td class="nw"><code>pwsave.py:39-47</code></td><td class="nw"><span class="status status--warn">Deterministic derivation</span></td><td class="wide">The key is derived from the wallet secret and a card-identity salt, so it follows the seed's provenance. This is separate from the enrolment nonce listed above.</td><td class="nw">Asserted</td></tr>
+<tr><td class="wide">MuSig2 session randomness</td><td class="nw"><code>libngu k1.c:836</code></td><td class="nw"><span class="status status--bad">Affected API</span></td><td class="wide">The session-randomness call site uses the affected API. Nonce reuse or predictability can be security-critical, but no incident-specific exploit is established here.</td><td class="nw">Omitted</td></tr>
+<tr><td class="wide">secp256k1 context blinding</td><td class="nw"><code>libngu k1.c:110-112</code></td><td class="nw"><span class="status status--warn">Affected API</span></td><td class="wide"><code>ctx_randomize()</code> fills its 32 blinding bytes from <code>my_random_bytes()</code>. This is side-channel hardening rather than wallet-key generation. Residual protection is not assessed here.</td><td class="nw">Asserted</td></tr>
+<tr class="row-safe"><td class="wide"><strong>Backup file password, 12 words</strong></td><td class="nw"><code>backups.py:337</code></td><td class="nw"><span class="status status--ok">Intact path</span></td><td class="wide">Uses <code>ckcc.rng_bytes()</code>, the hardware TRNG. The password path is separate from the provenance of the mnemonic inside the backup.</td><td class="nw">&mdash;</td></tr>
+<tr class="row-safe"><td class="wide">7z archive salt and IV</td><td class="nw"><code>compat7z.py:23</code></td><td class="nw"><span class="status status--ok">Intact</span></td><td class="wide">Hardware TRNG.</td><td class="nw">&mdash;</td></tr>
+<tr class="row-safe"><td class="wide">HSM per-user secrets</td><td class="nw"><code>users.py:182</code></td><td class="nw"><span class="status status--ok">Intact</span></td><td class="wide">Hardware TRNG, ten bytes. This is the one HSM secret on the intact path, which is why the HSM rows above are split rather than treated as one finding.</td><td class="nw">Narrowed</td></tr>
+<tr class="row-safe"><td class="wide">SD card overwrite blocks</td><td class="nw"><code>files.py:65,124</code></td><td class="nw"><span class="status status--ok">Intact</span></td><td class="wide">Hardware TRNG.</td><td class="nw">&mdash;</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<p class="cap">Last column: whether the exposure appears in Wizardsardine's "broken regardless of your seed" enumeration. <em>Omitted</em> marks a call site on the affected surface that the enumeration does not list; <em>narrowed</em> marks one where this archive qualifies the assertion; an em dash marks material that enumeration does not cover either way.</p>
+
+<div class="callout callout--amber">
+<span class="callout__title">What this establishes for an encrypted backup</span>
+Restoring the backup restores the same mnemonic. If that mnemonic used affected firmware, installing the hotfix or retaining a correctly generated backup password does not change its generation history. A migration plan should account for both the live wallet and retained backup copies.
+</div>`;
+---
+
+<Article
+  title="Blast radius"
+  description="The affected and unaffected randomness call surfaces identified in the firmware source, and the device features that call the affected generator without consulting your seed."
+  standfirst="A sound mnemonic does not make the device sound. Beyond seed generation, a set of COLDCARD features drew their own secrets from the affected generator, so dice-only and imported seeds are outside only the first of the two failure families below."
+  depth="deep"
+  kicker="How it broke"
+  next={{ href: '/risk/', label: 'What to do about a particular device or wallet', note: 'the risk guide decides actions; this page is a register of call sites' }}
+>
+  <Answer>
+    <p>
+      How your mnemonic was produced decides whether the wallet keys themselves
+      are enumerable, and that is the urgent question, but it is not the whole
+      defect. A second family of COLDCARD features asks the same generator for
+      its own bytes and never consults the mnemonic at all, so the answer to
+      "where did my seed come from" does not reach them. The register below
+      classifies every randomness call site found in the firmware and libngu by
+      which of the two generators it used.<Claim
+        basis="verified"
+        scope="The call-site classification between the affected ngu.random surface and the intact ckcc.rng_bytes surface"
+        source="Call-site review of COLDCARD firmware and libngu at the cited paths"
+        href="/how-it-broke/"
+        compact
+      />
+    </p>
+  </Answer>
+
+  <h2>Two failure families, and only one of them is about your seed</h2>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid" set:text={families}></pre>
+  </div>
+  <p class="cap">
+    Dice-only, imported and pre-regression mnemonics sit outside the left branch
+    and inside the shared one. The feature list is set out in the register below.
+  </p>
+
+  <div class="ve-card ve-card--amber">
+    <div class="ve-card__label lbl-amber">Who this second family reaches</div>
+    <p>
+      Anyone who used the listed features on affected firmware, including people
+      who rolled 50 or more fair dice, people who imported a mnemonic generated
+      on another device, and people whose wallet keys were never at issue. The
+      exposures differ sharply in consequence: a paper wallet's private key is
+      the generator's output outright, while a randomised PIN keypad only
+      matters to someone watching the screen. The register grades each one
+      separately rather than presenting the list as uniform risk.<Claim
+        basis="unverified"
+        scope="Feature-level exploitability beyond master-seed and device-generated paper-wallet key creation"
+        source="The affected calls are verified, but no incident-specific exploit has been established here for each downstream feature"
+        compact
+      />
+    </p>
+  </div>
+
+  <div class="ported" set:html={body} />
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid" set:text={surfaces}></pre>
+  </div>
+
+  <div set:html={rest} />
+
+  <h2 id="wizardsardine">Adjudicating the Wizardsardine feature list</h2>
+
+  <p>
+    On 1 August 2026 Wizardsardine published a
+    <a href="/record/sources/wizardsardine-postmortem/">long-form post-mortem</a>
+    whose "broken regardless of your seed" section is the most complete public
+    enumeration of this second family captured here. Its author, Kevin Loaec,
+    separately stressed on X that
+    <a href="/record/sources/kloaec-derived-feature-exposure/">imported and dice-generated seeds are still exposed through those features</a>.
+    The last column of the register above records what each call site carries
+    from that enumeration: the mechanism it describes holds at every call site
+    checked here, and several of its specific numbers are quotable from the
+    source comments. This archive discloses the company's competing interest for
+    the same reason it discloses
+    <a href="/record/firmware/">Foundation Devices' competing interest</a> around
+    the OPENDIME test: a vendor's analysis of a rival's product is evidence of
+    what the vendor asserts, and is checked before it is repeated. Three things
+    follow that the enumeration itself does not say.
+  </p>
+
+  <div class="ve-card ve-card--red">
+    <div class="ve-card__label lbl-red">One claim needs narrowing: HSM secrets are split across both generators</div>
+    <p>
+      The Web2FA shared secret (<code>web2fa.py:110</code>), the local
+      confirmation code (<code>hsm.py:857</code>) and the policy-approval
+      character (<code>hsm_ux.py:58</code>) all use the affected API. But HSM
+      per-user secrets at <code>users.py:182</code> use
+      <code>ckcc.rng_bytes()</code>, the intact hardware path. "HSM secrets came
+      from the same generator" is therefore true of the second factor and the
+      confirmation prompts, and not true of the per-user credentials.<Claim
+        basis="verified"
+        scope="Every call site, source comment and prompt string quoted in the register above, and the narrowing of the HSM claim"
+        source="COLDCARD firmware at commit 9a88e1a5 and the libngu clone held here, read at the cited paths"
+        href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/paper.py"
+      />
+    </p>
+  </div>
+
+  <p>
+    <strong>The enumeration is not exhaustive.</strong> It omits the MuSig2
+    session-randomness call site at libngu <code>k1.c:836</code> and the microSD
+    2FA enrolment nonce at <code>pwsave.py:318</code>, both of which this archive
+    classifies on the affected surface. It should be read as substantially
+    correct rather than complete.
+  </p>
+
+  <p>
+    <strong>Two onward conclusions are reported rather than verified here.</strong>
+    That possession of a clone file is sufficient to reconstruct the session key
+    and recover the mnemonic in clear is a protocol consequence this archive has
+    not demonstrated, although the underlying call sites are confirmed. And that
+    the predictable side-channel countermeasure is "therefore useless" is a
+    conclusion about residual protection this archive has not assessed; the same
+    call site is graded as hardening rather than key material in the register
+    above.<Claim
+      basis="reported"
+      scope="Wizardsardine's onward security conclusions about clone-file decryption and residual side-channel protection, and its overall framing of the exposure"
+      source="Wizardsardine post-mortem by Kevin Loaec, 1 Aug 2026. Competing interest: Wizardsardine sells Liana, a wallet product competing with COLDCARD's software surface; the post-mortem's first section is directed at Liana users and closes by recommending the company's institutional offering. The author also describes the post as written quickly under stress by three people in parallel, and invites corrections."
+      href="/record/sources/wizardsardine-postmortem/"
+    /> Whether any of these feature exposures has actually been exploited
+    against a real device in this incident is unknown: no captured source
+    demonstrates it, and the incident evidence held here concerns wallet
+    keys.<Claim
+      basis="unverified"
+      scope="Whether any listed feature exposure has been exploited against a real device in this incident"
+      source="No captured source demonstrates exploitation of a non-seed feature path; the incident evidence held here concerns wallet keys"
+    />
+  </p>
+
+  <h2 id="passphrases">What a passphrase does against a recoverable seed</h2>
+
+  <p>
+    A BIP39 passphrase is a separate input to key derivation, so it survives
+    the seed's generation defect: an attacker who recovers the mnemonic still
+    has to find the passphrase. Two captured posts bear on how much that is
+    worth in practice.
+    <a href="/record/sources/jamesob-passphrase-verification/">James O'Beirne reported on 1 August</a>
+    an LLM-assisted review across the firmware repository's release tags
+    concluding that the BIP-39 passphrase integration itself is sound, while
+    cautioning that a passphrase must be long and unwieldy before it is
+    cryptographically relevant.<Claim
+      basis="reported"
+      scope="The LLM-assisted conclusion that the BIP-39 passphrase integration is sound across the checked firmware tags, and the caution that only a long, unwieldy passphrase is cryptographically relevant"
+      source="James O'Beirne, captured X post, 1 Aug 2026; the review itself has not been reproduced by this archive"
+      href="/record/sources/jamesob-passphrase-verification/"
+    /> And on 2 August,
+    <a href="/record/sources/btcsessions-passphrase-loss-report/">BTC Sessions reported</a>
+    what he described as the first confirmed loss from a Mk3 wallet protected
+    by a passphrase of two words, drained at around 2pm on 2 August,
+    Australia time. That post cites no transaction or address, and no
+    corroborating first-hand account is held here, so it stands as a single
+    uncorroborated report.<Claim
+      basis="reported"
+      scope="The reported drain of a Mk3 wallet protected by a two-word passphrase at around 2pm on 2 Aug 2026, AEST"
+      source="BTC Sessions, captured X post, 2 Aug 2026; no transaction or address is cited and no corroborating first-hand account is held here"
+      href="/record/sources/btcsessions-passphrase-loss-report/"
+    /> The two posts describe the same arithmetic from
+    opposite ends: once an affected seed is recovered, a short passphrase is a
+    small offline search on top of it. The passphrase tables on
+    <a href="/risk/mitigations/#passphrase">the passphrase rung</a> put
+    numbers to that, and only for passphrases generated uniformly at random.
+  </p>
+
+  <h2 id="privacy">A reported privacy dimension</h2>
+
+  <p>
+    The register above concerns secrets an attacker could reproduce. Money is
+    not the only thing a reproduced seed reaches:
+    <a href="/record/sources/rawavocado-privacy-impact/">raw_avocado argued on 2 August</a>
+    that the recoverable seed population is also a privacy failure, because
+    anyone who derives a compromised seed obtains that wallet's complete
+    transaction history along with its keys, enabling UTXO linkage and
+    deanonymisation even for owners who have already moved their funds. On
+    that argument, migration protects the balance but not the history the old
+    wallet has already written to the chain. It is one author's argument,
+    reported here without independent assessment.<Claim
+      basis="reported"
+      scope="The argument that deriving a compromised seed exposes the wallet's full history and enables UTXO linkage and deanonymisation, including for users who already migrated"
+      source="raw_avocado, captured X post, 2 Aug 2026; one author's argument, not independently assessed here"
+      href="/record/sources/rawavocado-privacy-impact/"
+    />
+  </p>
+
+  <Disclosure
+    id="bip85"
+    title="BIP85 descendants follow the active root"
+    note="why a child mnemonic's different words are not independent provenance"
+  >
+    <p>
+      <a href="https://github.com/bitcoin/bips/blob/9783d61f1b9c81231581fee026c8e8cb9499d265/bip-0085.mediawiki" rel="noopener nofollow">BIP85</a>
+      deterministically derives application entropy from a BIP32 master root.
+      COLDCARD's implementation in
+      <a href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/drv_entro.py" rel="noopener nofollow"><code>shared/drv_entro.py</code></a>
+      derives the selected BIP85 path from the active wallet secret and then
+      applies the specified HMAC-SHA512 transform. It does not generate an
+      independent random root for the child wallet.<Claim
+        basis="verified"
+        scope="COLDCARD's deterministic BIP85 derivation from the active BIP32 root"
+        source="BIP85 and coldcard-firmware shared/drv_entro.py, both linked above"
+        href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/drv_entro.py"
+      />
+    </p>
+
+    <p>
+      The consequence is conditional. If an affected active root can be recovered,
+      its BIP85 children can be reproduced when their application and index paths
+      are known or searched. If the active wallet included an undisclosed BIP39
+      passphrase, that passphrase remains an independent input to the root. A
+      migration inventory should therefore include BIP85-derived wallets rather
+      than treating their different mnemonic words as independent provenance.<Claim
+        basis="derived"
+        scope="The conditional inheritance of recoverability and the resulting migration inventory"
+        source="Deterministic BIP85 derivation applied to a recoverable active root; passphrase and path assumptions stated above"
+      />
+    </p>
+
+    <p>
+      <a href="/record/sources/benma-bip85-warning/">Benma</a> and
+      <a href="/record/sources/kloaec-bip85-warning/">Kevin Loaec</a> each
+      published incident-specific warnings about BIP85-derived wallets.<Claim
+        basis="reported"
+        scope="The incident-specific warnings to migrate BIP85-derived wallets"
+        source="Benma and Kevin Loaec, separately captured primary X posts linked above"
+        href="/record/sources/benma-bip85-warning/"
+      />
+    </p>
+  </Disclosure>
+
+  <p>
+    The commit history behind the affected call surface, including an independent
+    walkthrough by Dustin Dettmer, is on
+    <a href="/response/developers/">the developer-response page</a>; the wider set
+    of published analyses, with the commercial interests attached to each, is on
+    <a href="/response/">the response page</a>.
+  </p>
+</Article>

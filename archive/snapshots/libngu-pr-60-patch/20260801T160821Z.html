@@ -1,0 +1,180 @@
+From a51217432308fd9ebc7c3d54b96a5af72b71b2e9 Mon Sep 17 00:00:00 2001
+From: Ballance <ballance@gmail.com>
+Date: Fri, 31 Jul 2026 23:31:52 -0400
+Subject: [PATCH 1/2] fix: absorb full-width entropy in random.reseed()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+reseed() assigned only yasmarang_pad from a 32-bit-truncated argument
+and never touched n/d/dat, so after reseeding the whole generator was a
+function of a single 32-bit word (a 2**32 state space). When the on-chip
+TRNG is biased or backdoored this reseed is the only independent entropy,
+so its width is the wallet's real security margin.
+
+Accept a bytes-like seed and absorb every byte into all state words with
+per-byte diffusion; keep accepting a plain int for backward compatibility.
+Extend test_random.py to exercise full-width (digest) seeding.
+
+    Four low bytes of chance,
+    the whole seed narrowed to noise —
+    now the full digest.
+---
+ ngu/ngu_tests/test_random.py | 16 ++++++++++--
+ ngu/random.c                 | 47 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 60 insertions(+), 3 deletions(-)
+
+diff --git a/ngu/ngu_tests/test_random.py b/ngu/ngu_tests/test_random.py
+index d7449ce..0c3eede 100644
+--- a/ngu/ngu_tests/test_random.py
++++ b/ngu/ngu_tests/test_random.py
+@@ -30,9 +30,21 @@
+     print(" => %.0f %%" % covered)
+     assert covered >= 97        # maybe bad luck
+ 
+-# api test only; can't verify results
+-ngu.random.reseed(123)
++# api test only; can't verify results (public output is XOR-masked with the
++# chip TRNG, so the reseeded Yasmarang stream is not observable from here)
++ngu.random.reseed(123)                       # legacy int arg still accepted
+ ngu.random.reseed(456)
+ ngu.random.reseed(0xffff_ffff)
+ 
++# regression: reseed() must accept a full-width (digest) seed, not just 32 bits.
++# The historic bug fed only n[0:4] into reseed(); guard that the full digest is
++# a valid argument so a caller can hand over all of its entropy.
++ngu.random.reseed(bytes(range(32)))          # 32-byte digest (bytes)
++ngu.random.reseed(bytearray(b'\xa5' * 32))   # bytes-like (bytearray)
++ngu.random.reseed(b'\x01\x02\x03\x04\x05\x06\x07\x08')   # SE-sized minimum
++# generator keeps producing well-distributed output after a full-width reseed
++after = [ngu.random.uint32() for _ in range(1000)]
++assert len(after) == len(set(after)), 'bad luck, try again'
++assert max(after) > 0x80000000 and min(after) < 0x80000000
++
+ print('PASS - test_random')
+diff --git a/ngu/random.c b/ngu/random.c
+index 1fc2232..3284cea 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -161,7 +161,52 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(random_bytes_obj, random_bytes);
+ 
+ STATIC mp_obj_t random_reseed(mp_obj_t arg)
+ {
+-    yasmarang_pad = mp_obj_get_int_truncated(arg);
++    // Absorb ALL of the supplied entropy into ALL generator state words.
++    //
++    // The previous implementation did `yasmarang_pad = int(arg)`, which
++    //   (a) kept only the low 32 bits of whatever was passed in, and
++    //   (b) never touched yasmarang_n / _d / _dat (left at fixed constants),
++    // so after reseeding the entire generator was a pure function of a single
++    // 32-bit word -> a 2**32 state space. When the on-chip TRNG is biased or
++    // backdoored this reseed is the only independent entropy, so its width is
++    // the wallet's real security margin. Feed the full digest, not 4 bytes.
++    //
++    // Accepts a bytes-like object (preferred) or, for backward compatibility
++    // with existing callers/tests, a plain integer.
++
++    uint8_t tmp[4];
++    const uint8_t *p;
++    size_t len;
++
++    mp_buffer_info_t buf;
++    if(mp_get_buffer(arg, &buf, MP_BUFFER_READ)) {
++        p = (const uint8_t *)buf.buf;
++        len = buf.len;
++    } else {
++        uint32_t v = mp_obj_get_int_truncated(arg);
++        tmp[0] = (uint8_t)(v);
++        tmp[1] = (uint8_t)(v >> 8);
++        tmp[2] = (uint8_t)(v >> 16);
++        tmp[3] = (uint8_t)(v >> 24);
++        p = tmp;
++        len = sizeof(tmp);
++    }
++
++    // Sponge-style absorb: fold each byte across the independent state words
++    // (yasmarang_n is re-derived from _pad on every step, so seeding _pad, _d
++    // and _dat covers the whole state), stepping the generator between bytes so
++    // that early input diffuses into every subsequent output.
++    for(size_t i = 0; i < len; i++) {
++        yasmarang_pad ^= (uint32_t)p[i] << ((i & 3) * 8);
++        yasmarang_d   += (uint32_t)p[i] * 0x01000193u;      // spread across 32 bits
++        yasmarang_dat ^= p[i];
++        (void)my_yasmarang();
++    }
++
++    // Final diffusion rounds so the first bytes fully affect the state.
++    for(int i = 0; i < 16; i++) {
++        (void)my_yasmarang();
++    }
+ 
+     return mp_const_none;
+ }
+
+From 6766258eae9a11e40fc77402af2dd9462938b2e6 Mon Sep 17 00:00:00 2001
+From: Ballance <ballance@gmail.com>
+Date: Sat, 1 Aug 2026 10:21:54 -0400
+Subject: [PATCH 2/2] review: reject empty seed and document 72-bit state
+ ceiling
+
+Address review feedback on switck/libngu#60:
+- reseed() now raises ValueError on a zero-length seed instead of
+  silently performing a no-op reseed; test_random.py covers it.
+- Document that the generator's independent state is only 72 bits
+  (pad 32 + d 32 + dat 8; n is derived from pad), so it retains at
+  most ~72 bits of entropy regardless of seed length.
+
+    An empty hand gives
+    nothing; and the well holds but
+    seventy-two bits.
+---
+ ngu/ngu_tests/test_random.py |  6 ++++++
+ ngu/random.c                 | 11 +++++++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/ngu/ngu_tests/test_random.py b/ngu/ngu_tests/test_random.py
+index 0c3eede..5875dc3 100644
+--- a/ngu/ngu_tests/test_random.py
++++ b/ngu/ngu_tests/test_random.py
+@@ -42,6 +42,12 @@
+ ngu.random.reseed(bytes(range(32)))          # 32-byte digest (bytes)
+ ngu.random.reseed(bytearray(b'\xa5' * 32))   # bytes-like (bytearray)
+ ngu.random.reseed(b'\x01\x02\x03\x04\x05\x06\x07\x08')   # SE-sized minimum
++# an empty seed must be rejected, not silently ignored (no-op reseed)
++try:
++    ngu.random.reseed(b'')
++    raise AssertionError('empty seed was accepted')
++except ValueError:
++    pass
+ # generator keeps producing well-distributed output after a full-width reseed
+ after = [ngu.random.uint32() for _ in range(1000)]
+ assert len(after) == len(set(after)), 'bad luck, try again'
+diff --git a/ngu/random.c b/ngu/random.c
+index 3284cea..548be9e 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -173,6 +173,12 @@ STATIC mp_obj_t random_reseed(mp_obj_t arg)
+     //
+     // Accepts a bytes-like object (preferred) or, for backward compatibility
+     // with existing callers/tests, a plain integer.
++    //
++    // Ceiling: this generator's independent state is only pad(32) + d(32) +
++    // dat(8) = 72 bits (yasmarang_n is re-derived from pad every step), so it
++    // can retain at most ~72 bits of entropy no matter how many seed bytes are
++    // supplied. Callers needing a full 256-bit margin must not rely on this
++    // PRNG's state alone.
+ 
+     uint8_t tmp[4];
+     const uint8_t *p;
+@@ -192,6 +198,11 @@ STATIC mp_obj_t random_reseed(mp_obj_t arg)
+         len = sizeof(tmp);
+     }
+ 
++    if(len == 0) {
++        // reject an empty seed rather than silently performing a no-op reseed
++        mp_raise_ValueError(MP_ERROR_TEXT("empty seed"));
++    }
++
+     // Sponge-style absorb: fold each byte across the independent state words
+     // (yasmarang_n is re-derived from _pad on every step, so seeding _pad, _d
+     // and _dat covers the whole state), stepping the generator between bytes so

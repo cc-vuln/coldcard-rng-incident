@@ -1,0 +1,206 @@
+---
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import Claim from '../../components/Claim.astro';
+import SeedWarning from '../../components/SeedWarning.astro';
+---
+
+<Article
+  title="Protecting seed words during incident response"
+  description="What exposure assessment requires, how to distinguish remote disclosure from deliberate offline recovery, and what to do after an unsafe disclosure."
+  standfirst="Exposure assessment and ordinary support do not require seed words. Deliberate entry into an independently verified offline signer or recovery tool is a separate operation."
+  depth="plain"
+  kicker="Safety"
+>
+  <Answer>
+    <p>
+      Nobody needs your seed words to tell you whether this incident affects
+      you, and nothing on this site will ask for them. The answer comes from
+      where the words were first created, and from the model and firmware in use
+      at the time. If you used dice, how you used them matters too. A passphrase
+      and the wallet's own policy then shape what you should do about it, and none
+      of those questions needs a secret either.
+      <Claim
+        basis="derived"
+        scope="The non-secret exposure and response inputs listed below: original seed provenance, model and firmware at generation, dice workflow, passphrase construction and wallet policy"
+        source="Derived from the affected firmware ranges and the separately documented dice, passphrase and threshold paths"
+        href="/risk/"
+        compact
+      />
+      Any site, form, support agent, insurer or checker
+      asking for recovery material is unsafe, whatever it claims to be doing.
+      Deliberately typing a mnemonic into an offline signer or recovery tool that
+      you selected and verified yourself is a different operation, and is
+      sometimes necessary. If recovery material has already gone out, treat it as
+      known to another party and work through the ordered response below.
+    </p>
+  </Answer>
+
+  <SeedWarning compact />
+
+  <h2>What exposure assessment requires</h2>
+
+  <p>
+    Classifying the generation path uses provenance and configuration facts, not
+    recovery material. The relevant questions are:
+  </p>
+
+  <ul class="node-list">
+    <li><strong>Original generation source.</strong> Importing words into another device later says nothing about where they were first generated.</li>
+    <li><strong>Model and firmware at generation.</strong> A date can identify a likely release era, but the installed version at generation is the stronger fact.</li>
+    <li><strong>Dice workflow and roll count.</strong> Pure-dice generation and dice mixed into a device-generated seed use different paths. The roll sequence is itself secret key material: on affected firmware the device also displayed a running SHA-256 digest during entry, and the final value shown became the seed. Never share a roll record or a photograph of that screen.</li>
+    <li><strong>Passphrase construction and disclosure.</strong> This changes the remaining offline search, not the original mnemonic's generation history.</li>
+    <li><strong>Wallet policy and information exposure.</strong> For threshold wallets, count affected keys on each path and determine what script, descriptor and public-key information is available.</li>
+  </ul>
+
+  <p>
+    The first three establish whether the affected generator was involved and
+    what independent dice input may exist; the last two shape the migration plan.
+    None requires seed words, a passphrase, private keys or an extended private
+    key. The <a href="/">triage on the front page</a> asks these category
+    questions and has no field for any of them. If generation provenance or
+    firmware is unknown, use the conservative branch and check device records
+    before treating the seed as outside the affected range.
+  </p>
+
+  <div class="ve-card ve-card--blue">
+    <div class="ve-card__label lbl-blue">Public wallet data still has privacy consequences</div>
+    <p>
+      A specific address can be checked against a published transaction set
+      without revealing seed words. An extended public key allows a much broader
+      view of wallet structure, balances and history. It does not ordinarily grant
+      spending authority by itself, but it is sensitive non-secret data. Prefer
+      self-run tooling and disclose only the narrowest public information needed.
+    </p>
+  </div>
+
+  <h2>Unsafe requests to recognise</h2>
+
+  <p>
+    As of 3 August 2026 this archive holds one documented impersonation artefact
+    from this incident, a Telegram account presenting itself as COLDCARD WALLET,
+    published by Jameson Lopp and
+    <a href="/safety/scams/">recorded in full on the scams page</a>. The patterns
+    below are preventive rather than a catalogue of confirmed cases.
+    <Claim
+      basis="unverified"
+      scope="The absence of a documented COLDCARD-themed phishing site, fake checker or fake firmware build as of 3 August 2026, alongside the one impersonation artefact this archive does hold"
+      source="No such artefact appears in this archive's dated source registry, and the search is not exhaustive; the Telegram impersonation published by Jameson Lopp is held and recorded on the scams page"
+      compact
+    />
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>Unsafe recovery-material request patterns</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">The pitch</th>
+            <th scope="col" class="wide">How it is framed</th>
+            <th scope="col" class="wide">What gives it away</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw">Vulnerability checker</td>
+            <td class="wide">"Enter your recovery phrase to check whether your seed was generated with weak entropy."</td>
+            <td class="wide">Generation-path classification uses provenance, model, firmware and dice facts. Submitting the words would expose the unpassphrased keys and, where target wallet data is known, enable offline testing of passphrase candidates.</td>
+          </tr>
+          <tr>
+            <td class="nw">Emergency migration tool</td>
+            <td class="wide">"We will sweep your funds to a new secure wallet automatically. Paste your words to begin."</td>
+            <td class="wide">A remote service that receives the words can derive the unpassphrased keys and, where target wallet data is known, test passphrases offline. A transaction-submission service needs a signed transaction, not the material used to sign it.</td>
+          </tr>
+          <tr>
+            <td class="nw">Vendor support</td>
+            <td class="wide">A DM or email offering to help you recover, then asking for words "to verify ownership".</td>
+            <td class="wide">Ordinary support and incident-exposure assessment do not require seed words. Confirm the contact channel independently before sharing even non-secret account information.</td>
+          </tr>
+          <tr>
+            <td class="nw">Fake firmware</td>
+            <td class="wide">A "patched" build offered from somewhere other than the official download page.</td>
+            <td class="wide">Confirm the release through an independently verified vendor channel and check its signature or hash using the vendor's documented process. Firmware installation does not require submitting seed words to a website.</td>
+          </tr>
+          <tr>
+            <td class="nw">Compensation or claim form</td>
+            <td class="wide">"Affected users are eligible for reimbursement. Verify your wallet to claim."</td>
+            <td class="wide">A claim may request identity or public transaction evidence. Seed words, private keys and extended private keys are not evidence of incident exposure. They expose key material and, when enough signing material is supplied to meet the wallet policy, grant spending authority.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>When offline seed entry is appropriate</h2>
+
+  <p>
+    Wallet recovery can require entering a mnemonic into a signer or recovery
+    application. That operation is distinct from sending it to a remote party
+    when all of the following are true:
+  </p>
+
+  <ul class="node-list">
+    <li>The signer or recovery tool was selected deliberately, not through an unsolicited message or incident-response link.</li>
+    <li>Its hardware, software and release provenance were checked independently before the words were entered.</li>
+    <li>The recovery environment is under your control, appropriately isolated, and free of remote-access or screen-sharing software.</li>
+    <li>Wallet fingerprints, receive addresses and any migration transaction are verified on a trusted display.</li>
+  </ul>
+
+  <p>
+    Being offline does not by itself make a tool authentic, and entering a seed
+    into a general-purpose computer expands the set of systems that may retain
+    it. Giving a professional recovery provider the seed delegates key material
+    and, where target wallet data is known, enables offline passphrase testing;
+    giving that provider enough signing material to meet the wallet policy
+    delegates spending authority.
+  </p>
+
+  <h2>If recovery material was disclosed remotely</h2>
+
+  <p>
+    If seed words were submitted to an untrusted site, person or remotely
+    controlled system, treat them as potentially known to another party. This is
+    a conservative risk assumption, not proof that the recipient has used them.
+  </p>
+
+  <ol class="steps">
+    <li>
+      <strong>Stop further disclosure and record what was exposed.</strong> Close
+      the interaction, isolate any device on which untrusted software was
+      installed, and note whether the mnemonic, passphrase, descriptor or other
+      wallet data was provided.
+    </li>
+    <li>
+      <strong>Prepare an independently generated destination.</strong> Use the
+      model-specific fixed release whose provenance and compatibility you have
+      checked, or another independently assessed generator. Verify the new backup,
+      wallet fingerprint and receive address before moving value.
+    </li>
+    <li>
+      <strong>Use a wallet-specific migration plan.</strong> The ordered steps are
+      on <a href="/risk/moving-funds/">moving funds from an affected seed</a>. For
+      P2WSH and other threshold policies, read
+      <a href="/risk/moving-funds/#threshold-wallets">its script-disclosure rung</a>
+      before broadcasting, because the first spend can change what an observer
+      learns.
+    </li>
+    <li>
+      <strong>Assess passphrase exposure separately.</strong> If the passphrase was
+      also disclosed, it provides no independent protection. If only the mnemonic
+      was disclosed, passphrase candidates can be tested offline and the remaining
+      margin depends on how the passphrase was generated.
+    </li>
+    <li>
+      <strong>Rotate every affected use and backup.</strong> Inventory wallets and
+      retained backups derived from the disclosed seed. Do not reuse the old seed
+      or a passphrase that was disclosed with it.
+    </li>
+    <li>
+      <strong>Preserve evidence and report the incident.</strong> Keep the URL,
+      transaction identifiers and correspondence without reopening the unsafe
+      interaction. Report through independently verified service, vendor and law
+      enforcement channels as appropriate.
+    </li>
+  </ol>
+</Article>

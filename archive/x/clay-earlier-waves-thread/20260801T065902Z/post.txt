@@ -1,0 +1,49 @@
+url:      https://x.com/clay_garrett/status/2082980439367487724
+author:   Clay Garrett (@clay_garrett), Block
+posted:   2026-07-31T00:03:31.307Z (derived from the X post ID)
+captured: 20260801T065902Z via the authenticated Chrome session, read-only.
+
+--- thread text (verbatim) ---
+
+1/ Block’s engineering and security team found another set of transactions that could be a part of the Coldcard drain. We’re still working to vet these completely, but given the situation, we feel it’s important to share early.
+
+2/ There are 695 earlier transactions with the same full fingerprint that transactions in the known set had. These transactions moved another 488.10957948 BTC. If this is part of the same attack, it’d bring the total to 1,082.58680432 BTC.
+
+3/ The known wave was 500 sweeps into this collector across blocks 960188–960191:
+https://mempool.space/address/bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0. There are two earlier waves in blocks 960183 and 960185.
+
+4/ Block 960183: 204 sweeps spending 298 UTXOs and producing 89.62370091 BTC across two collectors:
+https://mempool.space/address/bc1qh0l7q0mca3ln7wsl9luwns0jc9jhgrtft025l4
+https://mempool.space/address/bc1qdaarag7729c2n4l2wnyt3hkhfpcs66n98z7uuh
+
+5/ Block 960185: 491 sweeps spending 728 UTXOs and producing 398.48587857 BTC into one collector:
+https://mempool.space/address/bc1qc779m8gec84k3t0ffvu0pps94zheht7lr7ueyn
+The 695 earlier source addresses do not overlap the original 500.
+
+6/ Method: We scanned all 888,661 transactions in blocks 960050–960230. Each match in the original wave had these shared properties: version 2, locktime 0, final sequence on every input, one output and inputs from one source address, a P2WPKH destination, one homogeneous supported input type and a 30 sat/vB pre-signing fee estimate.
+
+7/ Again, the patterns here are strong, but we have not confirmed that these indeed are related to drain. Please reach out if you spot anything that supports/refutes this.
+
+--- post identifiers and times ---
+
+1: 2082980439367487724  2026-07-31T00:03:31.307Z
+2: 2082980440525132245  2026-07-31T00:03:31.583Z
+3: 2082980441854820697  2026-07-31T00:03:31.900Z
+4: 2082980443176026158  2026-07-31T00:03:32.215Z
+5: 2082980444434305043  2026-07-31T00:03:32.515Z
+6: 2082980446099444125  2026-07-31T00:03:32.912Z
+7: 2082980447374508337  2026-07-31T00:03:33.216Z
+
+--- screenshot integrity ---
+
+part 1 sha256: 8d7eeefe4fe1a4aef3a5eb6c1c35a23b69a964aca40c7e09de7122536d6bddf6
+part 2 sha256: 86f328b77b2363034a48f350acad0592ed18151d688359dfcd185dfe88f993a8
+part 3 sha256: dfdb326d6cfde33360b99b5d60d84038db3ef942ae3ddb7b518c59ec78c5203c
+part 4 sha256: 217e8c0495c802d5e283149fd9eba336c1b544257a176ae4914abb2088bbdab7
+part 5 sha256: dfaec4d1fe61cf0ad119741d301a2fd944e664f2a987caad1a0c819577977977
+part 6 sha256: 54ecfac296904459c6c156d5c8c4aedb4c8100e1d897263af0ecac7a4b628cd3
+part 7 sha256: 33d5f28367b956d5bab818878e39f84eb3f2c863d71c4299201b0c5c2cd1aafe
+
+The screenshots preserve each post as rendered by X. Parts 3 to 5 include
+previews for the publicly linked collector addresses. No source address from
+the selected transaction sets is reproduced in these artefacts.

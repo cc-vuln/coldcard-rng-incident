@@ -1,0 +1,52 @@
+# coldcard-weak-rng-research
+Independent, defensive investigation into the COLDCARD firmware entropy failure
+disclosed 2026-07-30/31 and the ~594.5 BTC coordinated sweep observed the same day.
+Everything here is verifiable: real commits, real blockchain data, real compiled
+binaries.
+**[📄 Read the report (English)](docs/en/report.md)** · **[📄 Leé el informe (Español)](docs/es/report.md)**
+## What this is
+On July 30, 2026, roughly 594.5 BTC was drained from 500 Bitcoin addresses in about
+fifteen minutes. The victims used COLDCARD hardware wallets, and the root cause was a
+firmware bug that made supposedly random wallet secrets predictable. Coinkite (the
+manufacturer) and Block published official advisories. This repository does not just
+summarize those advisories, it independently re-derives the parts that can be
+re-derived: the fix commits, the on-chain flow of the stolen funds, and the bug itself,
+compiled and proven with real tooling.
+## Three things you can check yourself
+1. **The code.** [`evidence/commits/findings.md`](evidence/commits/findings.md) verifies
+   the fix commits directly against the Coldcard firmware repository, including one the
+   official advisory doesn't mention.
+2. **The money.** [`evidence/onchain/`](evidence/onchain) traces the theft on-chain from
+   scratch, starting only from the public consolidation address, not from any published
+   transaction list. Result: 500 transactions, 1,324 UTXOs, ~594.5 BTC, matching public
+   reporting. Every transaction ID is in
+   [`drain-transactions.csv`](evidence/onchain/drain-transactions.csv).
+3. **The build.** [`evidence/builds/`](evidence/builds) compiles the vulnerable and
+   patched firmware from source and uses `arm-none-eabi-nm` on the real binaries to show
+   which function the "random number" call actually resolved to, before and after the
+   fix. See [`comparison.md`](evidence/builds/comparison.md).
+## What's not here
+No PoC that recovers a real seed, scans for vulnerable addresses, or moves funds that
+aren't the researcher's own, and none ever will be. See [`DISCLAIMER.md`](DISCLAIMER.md).
+A synthetic RNG simulator and a Bitcoin regtest demonstration are planned but not built
+yet; open items are tracked honestly in [`RESEARCH_GAPS.md`](RESEARCH_GAPS.md), including
+one significant one: the Mk3 fix version Coinkite announced (4.2.0) has no matching git
+tag as of this writing.
+## Sources
+Every claim traces to a primary source (code, commit, or on-chain data) or a rated
+secondary source. Full list with reliability ratings in
+[`references/sources.yml`](references/sources.yml).
+## How to cite this
+```
+Álvaro P., "The COLDCARD entropy failure and the ~594.5 BTC sweep: incident report",
+coldcard-weak-rng-research, 2026-07-31.
+https://github.com/alva-p/coldcard-weak-rng-research
+```
+## License
+Code is MIT-licensed ([`LICENSE-CODE`](LICENSE-CODE)). Reports and documentation are
+CC BY 4.0 ([`LICENSE-DOCS`](LICENSE-DOCS)).
+## Security and scope
+Found a vulnerability, or a secret accidentally committed somewhere in this repo? See
+[`SECURITY.md`](SECURITY.md). Do not open a public issue with real seeds, keys, or
+victim data.
+<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/dedd6943-385e-4a29-b0c2-50af3bdab7f7" />

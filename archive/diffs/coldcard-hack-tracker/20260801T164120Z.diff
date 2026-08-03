@@ -1,0 +1,73 @@
+--- coldcard-hack-tracker@20260801T160744Z
++++ coldcard-hack-tracker@20260801T164120Z
+@@ -18,7 +18,7 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,129.6240794 BTC
++1,129.31416148 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+@@ -31,9 +31,9 @@
+ 
+ LAST MOVEMENT
+ 
+-Unmoved
++Aug 1, 2026, 04:33 PM UTC
+ 
+-All watched holdings still holding
++0.4099166 BTC from Evening vault
+ 
+ Watched holdings
+ 
+@@ -100,13 +100,13 @@
+ 
+ Evening vault
+ 0.50980268 BTC consolidated from victim sweeps
+-	bc1q7rmsw0…lrrcgf	0.8197206 BTC
++	bc1q7rmsw0…lrrcgf	0.50980268 BTC
+ <live-fiat-value>
+-	0.50980268 BTC	3	HELD
++	0.50980268 BTC	1	HELD
+ MORNING WAVE · AUG 1
+ Source
+ 
+-Blocks 960518–960523. Direct victim sweeps (~15–50 sat/vB) into one vault. Includes a reported Mk4 RNG / duress-wallet honey pot (device model not visible on-chain).
++Blocks 960518–960523. Direct victim sweeps (~15–50 sat/vB) into one vault; honey-pot / duress-wallet report (Mk4 claim later withdrawn — seed was Mk3-origin).
+ 
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+@@ -119,9 +119,12 @@
+ 
+ Outbound spends from watched holdings, then followed destinations (up to hop 2). Empty means funds have not left consolidation.
+ 
+-No outbound spends
++e4aeb758…18fce6
++−0.4099166 BTC
++From Evening vault bc1q7rms…rcgf
++Aug 1, 2026, 04:33 PM UTC
+ 
+-All watched balances still match the post-sweep holding set.
++To bc1qsgme…y0yw
+ 
+ Am I at risk?
+ 
+@@ -137,8 +140,6 @@
+ Q	Before Aug 1 patch (~72-bit)	1.5.0Q+
+ Edge (Mk4 / Mk5)	Before Aug 1 patch	6.6.0X+
+ Edge (Q)	Before Aug 1 patch	6.6.0QX+
+-MK4 IS IN SCOPE NOW
+-Early drains fit Mk3’s ~40-bit search space. Community reports now include Mk4 RNG seeds being swept — device model is not visible on-chain, so treat vulnerable Mk4 / Mk5 / Q seeds with the same urgency.
+ FIRMWARE UPDATE IS NOT ENOUGH
+ Patching does not repair an existing seed. Generate a new seed on fixed firmware and migrate funds carefully.
+ BEYOND THE MAIN SEED
+@@ -162,7 +163,7 @@
+ 
+ Tomer Strolight
+ 
+-Aug 1 morning wave: reported Mk4 RNG / duress-wallet honey pot swept into a ~0.33 BTC vault (blocks 960518–960523).
++Aug 1 morning wave: duress-wallet honey pot swept into a ~0.33 BTC vault; Mk4 attribution later corrected to Mk3-origin seed.
+ 
+ Coinkite advisory
+ 

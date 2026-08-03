@@ -1,0 +1,196 @@
+url:      https://x.com/Rob1Ham/status/2083936334511538368
+author:   Rob Hamilton
+handle:   @Rob1Ham
+posted:   2026-08-02T15:21:54.000Z (from the page's <time> element)
+captured: 20260802T153439Z via authenticated-browser bridge (capture-browser),
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+The most common question I am getting right now in the fall out of the news of COLD CARD MK3, MK4, MK5 and Q having compromised entropy, is:
+
+"Rob, what would you do right now if you were in my shoes? Where would you send your bitcoin to be safe?"
+
+I will share with you my list of what I would do, but first, there is AN URGENT SECURITY ADVISORY IN THE BITCOIN ECOSYSTEM.
+
+Below is my personal assessment of the situation.
+
+If you or someone you know:
+
+Uses an MK3, MK4, MK5, or Q in a single signature
+
+OR
+
+A multi signature wallet where the cold card devices can move the funds on their own (Example, 2 cold cards and a Ledger).
+
+Please continue reading. You may be in danger. If this does not apply to you, keep on reading if you like, but you are not impacted by this issue.
+
+If you are still here, there are three identified mitigations that protect you at the moment. They are all different forms in which you may have brought your own entropy.
+
+A: DICE -  This is done by either rolling dice from the start, or adding dice rolls to the generated seed phrase. At least 50 dice rolls would be my threshold at 128 bits of entropy. 
+
+OR
+
+B: PASSPHRASE - You used a passphrase of sufficient entropy (128 bits).
+
+128 Bits of entropy pass phrase examples include RANDOM combinations of the following:
+
+- 12 BIP 39 seed words.
+- 10 common words in the english language
+- 25 mixed lower case letters and numbers
+- 20 if you use ASCII characters
+
+Note on pass phrases: This does not include the same word 12 times, 10 words in a sentence, etc. This combinations of characters/numbers OR words should never have been seen or spoken before in the total sum of all human knowledge and experiences. It needs to be RANDOM for it to be entropy.
+
+OR
+
+C: EXTERNAL ENTROPY - Your seed phrase was derived entirely outside of the cold card ecosystem. (It was imported into the cold card, not generated on it)
+
+Now, if you are still reading, and you do not have any of these mitigations in place, you need to move your funds. The urgency of circumstances are as follows:
+
+TIER 1: AS SOON AS POSSIBLE
+
+Scenario A: If you are in a signature wallet with an effected device, and did not use any of the mitigations listed above. You need to move funds right now. Find someone to help you, any moment your funds can be stolen.
+
+Scenario B: If you have an N of N (eg 2 of 2, 3 of 3, etc) multisig of just cold card devices that did not have mitigations listed above (dice and/or passphrase).
+
+Attackers will be grinding all of the combinations of compromised keys. They know all your seed phrases. You are compromised.  It is just a matter of time for them to assemble the puzzle pieces together and steal your funds.
+
+If this scenario is you, I will have more below on how to mitigate risk when broadcasting your transaction.
+
+TIER 2: URGENTLY
+
+If you are in a single signature wallet with an effected device, and you used either less than 50 dice rolls OR a pass phrase less secure than what I shared above. The entire security of your bitcoin is reliant on how much of Dice AND Passphrases  you applied to your wallet.
+
+Attackers know your seed phrase. Your entropy from dice or pass phrase is the only thing protecting you. Did you add a pass phrase of 'bitcoin'? You are basically in tier 1. Did you use 6 words? You are not at tier 1, but you aren't safe. You need to make plans to move funds quickly.
+
+TIER 3 SOON, BUT IMPORTANT CONTEXT: 
+
+You have a multi signature wallet where the compromised devices have sufficient ability to move the funds. An example is a 2 of 3 multisig where you have 2 cold cards and another signer.
+
+The issue with Tier 3 is that an attacker may have already figured out your insecure seed phrases. This means when you broadcast your bitcoin transaction, an attacker in theory can then steal your funds.
+
+NOTE: IF YOU ARE IN THIS SITUATION, AND YOU HAVE REUSED ADDRESSES, ALL REUSED ADDRESSES PUT YOU RIGHT BACK AT THE TIER 1 MOVE RIGHT AWAY YOUR FUNDS ARE AT RISK AT THIS VERY MOMENT
+
+You should look into finding a way to use the 
+@MARAFoundation_
+ slipstream service, which uses a private mempool. This means that by the time an attacker could see your attempted recovery, it is already in a block and not possible for them to steal funds.
+
+TIER 4: KEY ROTATION. This is where you have an insecure cold card(s) in your multisig quorum, and you know that the other keys in your quorum are not impacted by this bug.
+
+If there is a MK3,MK4,MK5 or Q in the quorum, BUT they either: 1. Rolled sufficient dice (50 min) 2. Have a strong pass phrase (as defined above). 3. Used entropy not sourced from the device, they are not impacted by this bug in the Cold Card (see notes earlier on mitigations).
+
+You are in a position where a minority of your keys are compromised. Funds are safe, but you are at reduced security. Make plans when you are able to remove the compromised device from your wallet.
+
+Now. With that security advisory out of the way, back to the question, what would I do in this situation?
+
+Below is just my opinion, but you should not rely on only my opinion, you will have to make your own choices based on what you feel is best for you.
+
+I want to be clear, if you are not on this list. It is not that I think your product/business is bad, insecure or at risk, I am directly answering the question of what I would do. This is my personal judgement given my decade of experience in bitcoin.
+
+First, a disclaimer: 
+
+My bitcoin is at my company 
+@AnchorWatch
+. I have full skin in the game in that if I'm offering a custody solution, there will never be another place I store large amounts of bitcoin long term for myself or my family, and it will be this way as long as I am here.
+
+I was the first bitcoin that went on our Trident Vault platform. If the day ever comes, I will be the last bitcoin to leave the platform.
+
+The years of what we built at AnchorWatch were for exactly moments like this. Avoiding catastrophic risk of ruin scenarios.
+
+We offer 2 products:
+
+1. Our Flagship Product where you as the customer can hold 1 or 3 keys, and we act as a cosigner. We leverage bitcoin native smart contracts which allow for your bitcoin to have different ways it can be spent across time. 
+
+2. Multi Institution Custody, where we let you distribute your keys across 3 institutions of ourselves, 
+@bitgo
+ and 
+@CoinCorner
+. 2 of the 3 institutions must sign off on the transaction, and you have to present a Yubikey signature before withdrawing to mitigate deepfake and compromised accounts.
+
+For both products as, since we are a cosigner, we are able to enforce rules like whitelisted addresses, and velocity controls (how much bitcoin can you send how often). You can even disable the send button on the platform if you so choose!
+
+We also offer 1:1 insurance backed by Lloyd's of London.
+
+If you want to learn more about what we do, hit up 
+@_joerodgers
+ or 
+@BeccaAmilee
+ to learn more, or check out our website.
+
+Now with that out of the way, places where I'd leave my bitcoin (besides 
+@AnchorWatch
+) in no particular order:
+
+Custodian:
+
+I'd trust my life savings at 
+@River
+ under a duress situation. This is one of those times. 
+@Leishman
+ and the entire team at River are elite operators. It is my favorite bitcoin services business in the market today outside of my own.
+
+They own their own custody infrastructure, and at times like this, you want those who have extreme ownership and control over how their customer's money is being managed.
+
+
+@River
+ does monthly proof of reserves, and you can turn on the force field feature which will freeze withdrawals of bitcoin. They have a world class custody team as well, and are making improvements regularly with a larger upgrade that has been planned for a long time, happening later this year.
+
+Collaborative Custody:
+
+1.  The 
+@Bitkey
+ is an incredible product with an elite team of engineers supported by the 
+@BlockEng
+ organization. They have exceptional bitcoin developers across 
+@spiral_xyz
+ and 
+@CashApp
+ teams who deeply understand Bitcoin.
+
+
+@jack
+ has been a long time believer in bitcoin who has built an organization that has no peer in the resources they have not just understanding bitcoin, but building on bitcoin.
+
+You can pick it up a Bitkey at best buy today!
+
+I do want to add a disclaimer that all keys are managed within the Bitkey ecosystem. The Bitkey team has gone to great lengths to keep things secure, but in light of recent events, I want to call that out. At the moment, the Bitkey is my only exception to a purist ideal of multi vendor multisig (more below).
+
+2. 
+@CasaHODL
+ - 
+@Nneuman
+ and 
+@lopp
+ have been on top of this incidence response, and have built a very clean user experience to let people be safe. You can either use a 2 of 3 or 3 of 5 multisig with a great mobile app. Casa is the best UX for soverign collaborative multisig that exists in the market today.
+
+3. @uncahined - Unchained pioneered the collaborative custody model and the multi institution custody model. They have been working around the clock trying to support customers and have even been able to use slip stream going the extra mile on short notice to keep customers bitcoin safe.
+
+Self Custody:
+
+I have spent close to $5k on LLM tokens over the past 24 hours scanning over a hundred bitcoin related repositories. As of now, I have seen no vulnerability that has me concerned about any hardware device outside of the Cold Cards. 
+
+Even so, you can't be sure. So I would follow the 
+@mflaxman
+ "Bitcoin 10x security guide". Its how I held my bitcoin before I founded 
+@AnchorWatch
+, and even though the guide is 6 years old, the principles are timeless.  I would remove his suggestion of using the cold card and replace it with any other hardware wallet. I would replace the cold card with a 
+@Ledger
+ at this time if it were my decision. You can pick up a Ledger up at Best Buy in the US.
+
+Michael pioneered multi vendor multisig as a concept, and if you want a fully sovereign solution, as of today there is no better mental model on how to think through this, he has advanced tabs to further increase the security. For his cold card guide he fairly calls out the added benefit of rolling dice, which would have saved you today.
+
+I think the future is combining the tech we use at 
+@AnchorWatch
+ to move beyond the single signature/ multi signature paradigm of custody, with the principles of 
+@mflaxman
+'s 10x security guide and the support of collaborative custody.
+
+More on that later, but I would check out 
+@lianabitcoin
+ from 
+@Wizardsardine
+ as well, they offer a fully open source wallet that enables these more advanced smart contracts and are security researchers in the bitcoin ecosystem. 
+
+With that, I'm going to get back to work. I will post a followup reply if I have additional information or any corrections or clarifications to make.

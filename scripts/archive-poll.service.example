@@ -1,0 +1,23 @@
+# Run one due-state capture tick. Paired with archive-poll.timer.
+#   sudo cp archive-poll.service.example /etc/systemd/system/archive-poll.service
+#   sudo cp archive-poll.timer.example /etc/systemd/system/archive-poll.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now archive-poll.timer
+#
+# Replace USER and REPO with the account and checkout path.
+[Unit]
+Description=archive due-state capture runner
+Wants=network-online.target
+After=network-online.target webbridge.service
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python scripts/scheduled_runner.py
+# 10 = sources changed, 20 = incomplete poll, 21 = writer-lock contention.
+# All three are signals, not unit failures.
+SuccessExitStatus=10 20 21
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

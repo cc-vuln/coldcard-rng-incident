@@ -1,0 +1,136 @@
+---
+/**
+ * The page's evidence, listed in full at the foot of the page.
+ *
+ * Every `Claim` on the page registers itself here in document order, so a
+ * reader who follows a reference lands on the complete statement: basis,
+ * exact scope, source, capture time and link. This is what makes the small
+ * in-text reference honest rather than a shortening of the record, and it is
+ * where a reader without JavaScript, or on a phone, sees everything.
+ *
+ * Rendered from the same store `Claim` writes to, so it cannot drift out of
+ * step with the markers above it. Place it once, last, inside the article.
+ */
+const path = Astro.url.pathname;
+const store = (globalThis as any).__claimStore ??= new Map<string, any[]>();
+const items = store.get(path) ?? [];
+// Rendered last on the page, so clearing here makes a repeat render of the
+// same page start numbering from one again instead of continuing the old run.
+store.delete(path);
+---
+
+<details class="evreg" hidden={items.length === 0}>
+  <summary class="evreg__h">
+    <span>Evidence on this page</span>
+    <span class="evreg__count">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
+  </summary>
+  {/*
+    Collapsed by default: the register is reference material for a reader who
+    wants to check a marker, not part of the reading flow, and expanded it was
+    the tallest block between the end of the article and the page navigation.
+    A marker link opens it again via the hash script below.
+  */}
+  <ol class="evreg__list">
+    {items.map((it) => (
+      <li id={it.id} class="evreg__item">
+        <span class:list={['evreg__badge', `evreg__badge--${it.role}`]}>{it.short}{it.n}</span>
+        <div class="evreg__body">
+          <span class="evreg__basis">
+            {it.label}<span class="evreg__contested" hidden={!it.contested}> · contested</span>
+          </span>
+          <p class="evreg__scope">{it.scope}</p>
+          <p class="evreg__source">
+            <span class="evreg__k">Source</span>
+            {it.source}
+          </p>
+          <p class="evreg__links">
+            <a href={it.href} rel={it.href?.startsWith('http') ? 'noopener nofollow' : undefined} hidden={!it.href}>
+              Evidence &rarr;
+            </a>
+            <span class="evreg__cap" hidden={!it.captured}>captured {it.captured}</span>
+          </p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</details>
+
+<script>
+  // In-text claim markers link to register entries by id. With the register
+  // collapsed the jump would land on hidden content, so open it whenever the
+  // hash names one of its items.
+  const evidenceRegister = document.querySelector('details.evreg');
+  const openEvidenceForHash = () => {
+    if (!evidenceRegister) return;
+    const id = location.hash.slice(1);
+    if (id && evidenceRegister.querySelector(`#${CSS.escape(id)}`)) {
+      (evidenceRegister as HTMLDetailsElement).open = true;
+    }
+  };
+  openEvidenceForHash();
+  window.addEventListener('hashchange', openEvidenceForHash);
+</script>
+
+<style>
+  .evreg {
+    margin-top: 2.6rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.2rem;
+  }
+  .evreg__h {
+    display: flex; align-items: baseline; gap: .6rem;
+    width: fit-content;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: .7rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  .evreg__h:hover { color: var(--ink-2); }
+  .evreg__count {
+    font-weight: 400; letter-spacing: .08em;
+    color: var(--ink-3);
+  }
+  .evreg__count::before { content: '· '; }
+  .evreg__list { list-style: none; margin: .9rem 0 0; padding: 0; }
+  .evreg__item {
+    display: flex; gap: .7rem;
+    padding: .6rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .evreg__item:target {
+    background: var(--accent-soft);
+    border-radius: var(--radius);
+    padding-inline: .5rem;
+  }
+  .evreg__badge {
+    flex: none;
+    font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+    letter-spacing: .04em;
+    padding: .2rem .35rem; border-radius: 3px; height: fit-content;
+    background: var(--surface-2); color: var(--ink-3);
+  }
+  .evreg__badge--safe    { background: var(--safe-soft);   color: var(--safe); }
+  .evreg__badge--info    { background: var(--info-soft);   color: var(--info); }
+  .evreg__badge--accent  { background: var(--accent-soft); color: var(--accent); }
+  /* flex: 1, so every entry fills the row and the list has one right edge.
+     Without a grow factor these were flex: 0 1 auto, sized to their own text:
+     a short scope line stopped wherever it ran out, and a page's register
+     ended on as many different edges as it had entries. min-width: 0 keeps a
+     long unbroken source URL from forcing the row wider than the column. */
+  .evreg__body { flex: 1; min-width: 0; }
+  .evreg__basis {
+    font-family: var(--font-mono); font-size: .58rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .evreg__contested { color: var(--warn); }
+  .evreg__scope { margin: .2rem 0 0; font-size: .88rem; }
+  .evreg__source { margin: .3rem 0 0; font-size: .8rem; color: var(--ink-3); }
+  .evreg__k {
+    font-family: var(--font-mono); font-size: .55rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; margin-right: .35rem;
+  }
+  .evreg__links { margin: .35rem 0 0; font-size: .8rem; display: flex; gap: .8rem; }
+  .evreg__cap { font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3); }
+</style>

@@ -1,0 +1,151 @@
+--- coldcard-hack-tracker@20260802T230208Z
++++ coldcard-hack-tracker@20260803T000217Z
+@@ -57,14 +57,14 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,408.86660443 BTC
++1,408.86660989 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+ 
+ MOVED
+ 
+-1.20107522 BTC
++1.20106976 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+@@ -72,7 +72,7 @@
+ 
+ Block 960,669
+ 
+-0.269792 BTC from Hop 2 from Hop 1 from Evening vault
++0.269792 BTC from Hop 2 · bc1qt8…5y4k
+ 
+ Watched holdings
+ 
+@@ -99,9 +99,9 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Holding 1
+-	bc1qq85v2c…3fcu9r	562.02023806 BTC
+-<live-fiat-value>
+-	562.02021083 BTC	15	HELD
++	bc1qq85v2c…3fcu9r	562.02024352 BTC
++<live-fiat-value>
++	562.02021083 BTC	16	HELD
+ 
+ Holding 2
+ 	bc1qx76cae…htfhe3	398.47576357 BTC
+@@ -555,7 +555,7 @@
+ EVENING WAVE · JULY 31
+ Source
+ 
+-Distinct from Galaxy Wave 2. Ocean miner peel later met stolen hops at the same P2SH hub — same-operator link; Ocean sats not counted as stolen.
++Distinct from Galaxy Wave 2. Ocean miner peel later met stolen hops at the same P2SH service hub (same exit venue, not proof of same operator); Ocean sats not counted as stolen.
+ 
+ SCOPE
+ 1.20115791 BTC watched
+@@ -566,7 +566,7 @@
+ AUG 2 CASH-OUT · TWO RAILS
+ 
+ BTC · ~0.69
+-Aug 1 hop vault→3KMmeqPe… hub
++Aug 1 hop vault→3KMmeqPe… hub · likely custodial/swap deposit — hops already mixed out; stolen BTC effectively gone from watchable stack
+ ETH · ~0.24
+ Evening vault→THOR→0x6A08…→0xC61F… · also ~3.6 ETH via Orbiter Bridge 3 peels
+ Sibling ~0.27 BTC still at bc1qdt6c…
+@@ -579,7 +579,7 @@
+ 	0.50980268 BTC	0	EMPTIED
+ 
+ Aug 1 hop vault
+-0.4998 + 0.1915 BTC stack. Emptied Aug 2 into P2SH hub — see BTC rail above. Ocean peel also met there (not in report balance)
++0.4998 + 0.1915 BTC stack. Emptied Aug 2 into likely custodial/swap P2SH hub — hops mixed out; see BTC rail above. Ocean peel also met there (not in report balance)
+ 	bc1qayw8nr…7w2u0s	0.00 BTC
+ <live-fiat-value>
+ 	0.69135523 BTC	0	EMPTIED
+@@ -631,7 +631,7 @@
+ HOP 2
+ f37419c0…eb99d1
+ −0.269792 BTC
+-From Hop 2 from Hop 1 from Evening vault bc1qt8ca…5y4k
++From Hop 2 · bc1qt8…5y4k bc1qt8ca…5y4k
+ Block 960,669
+ 
+ To bc1qdt6c…srqw
+@@ -639,7 +639,7 @@
+ HOP 1
+ 61c0ddac…98c095
+ −0.509799 BTC
+-From Hop 1 from Evening vault bc1qu2uq…6srw
++From Hop 1 · bc1qu2…6srw bc1qu2uq…6srw
+ Block 960,668
+ 
+ To bc1qt8ca…5y4k, bc1qzkap…6e4z
+@@ -647,7 +647,7 @@
+ HOP 2
+ 49dd2935…d49564
+ −0.24 BTC
+-From Hop 2 from Hop 1 from Evening vault bc1qzkap…6e4z
++From Hop 2 · bc1qzk…6e4z bc1qzkap…6e4z
+ Block 960,668
+ 
+ To bc1qprkj…jr98
+@@ -662,15 +662,15 @@
+ HOP 2
+ 3cf126ca…10ae88
+ −0.44999667 BTC
+-From Hop 2 from Hop 1 from Aug 1 hop vault 3P3K2MQw…Lfgy
++From Hop 2 · 3P3K2M…Lfgy 3P3K2MQw…Lfgy
+ Block 960,666
+ 
+-To P2SH cash-out hub 3KMmeqPe…qtc8
++To P2SH service hub 3KMmeqPe…qtc8
+ 
+ HOP 1
+ a7bf30f0…92fdec
+ −0.45 BTC
+-From Hop 1 from Aug 1 hop vault bc1qsd9t…jah8
++From Hop 1 · bc1qsd…jah8 bc1qsd9t…jah8
+ Block 960,663
+ 
+ To 3P3K2MQw…Lfgy
+@@ -678,10 +678,10 @@
+ HOP 2
+ d0bcdc4a…33c0a0
+ −0.24134867 BTC
+-From Hop 2 from Hop 1 from Aug 1 hop vault 36c8aprK…QW35
++From Hop 2 · 36c8ap…QW35 36c8aprK…QW35
+ Block 960,661
+ 
+-To P2SH cash-out hub 3KMmeqPe…qtc8
++To P2SH service hub 3KMmeqPe…qtc8
+ 
+ 5ecc3052…a8bf87
+ −0.69135523 BTC
+@@ -693,7 +693,7 @@
+ HOP 1
+ 135d4c2c…2d4ce9
+ −0.241352 BTC
+-From Hop 1 from Aug 1 hop vault bc1qvrpc…cddc
++From Hop 1 · bc1qvr…cddc bc1qvrpc…cddc
+ Block 960,658
+ 
+ To 36c8aprK…QW35
+@@ -747,7 +747,7 @@
+ 
+ Ocean block 960511
+ 
+-Coinbase of block 960511 (tag OCEAN.XYZ) paid ~0.060 BTC that later touched the Aug 1 hop vault and was peeled off (not counted as stolen). That peel later hit the same P2SH cash-out (3KMmeqPe…) as the stolen evening-wave hops — strong same-operator link.
++Coinbase of block 960511 (tag OCEAN.XYZ) paid ~0.060 BTC that later touched the Aug 1 hop vault and was peeled off (not counted as stolen). That peel later hit the same P2SH service hub (3KMmeqPe…) as the stolen evening-wave hops — same exit venue, not proof of same operator.
+ 
+ Tomer Strolight
+ 
+@@ -781,4 +781,4 @@
+ 
+ July 30 operator used a paid blockchain-data account during the sweeps; findings shared with authorities.
+ 
+-Core vaults live via snapshot; Wave 3 from cron snapshot (Aug 3, 06:25 AM). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.
++Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (Aug 3, 07:59 AM). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.

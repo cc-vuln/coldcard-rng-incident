@@ -1,0 +1,111 @@
+---
+import Article from '../../layouts/Article.astro';
+import Triage from '../../components/Triage.astro';
+
+/**
+ * The /affected/ hub: one journey over the existing /risk/ and /safety/
+ * pages, sequenced check then act then avoid, so the reader never has to
+ * know those are two different sections. Those URLs stay canonical beneath
+ * this page; the hub adds sequence, not content.
+ *
+ * Navigational page: exempt from the one-marker rule in check-claims.mjs,
+ * like /record/. Every substantive claim lives on the destination pages.
+ */
+
+const PHASES = [
+  {
+    num: '1',
+    name: 'Check',
+    lead: 'The questions above are the check. These go further on the ones where a particular setup changes the answer, or let you read the whole decision path at once instead of clicking through it.',
+    links: [
+      { href: '/risk/', label: 'The same questions, written out', note: 'the decision path end to end, for reading rather than answering' },
+      { href: '/risk/mitigations/', label: 'Dice, passphrases and multisig', note: 'whether your particular setup changes the answer' },
+    ],
+  },
+  {
+    num: '2',
+    name: 'Act',
+    lead: 'If checking says you are exposed, or you cannot rule it out, move deliberately. Rushing is how funds get lost to mistakes and to thieves alike.',
+    links: [
+      { href: '/risk/moving-funds/', label: 'Moving funds safely', note: 'the ordered steps, and the extra problem a threshold wallet has' },
+    ],
+  },
+  {
+    num: '3',
+    name: 'Avoid',
+    lead: 'The incident has a second wave: people and tools offering help that steals. Nothing legitimate ever asks for your seed words.',
+    links: [
+      { href: '/safety/scams/', label: 'The scam wave', note: 'what the scams look like and how they reference this incident' },
+      { href: '/safety/seed-words/', label: 'Seed-word safety', note: 'the handling rules that make the scams fail' },
+    ],
+  },
+];
+---
+
+<Article
+  title="Am I affected?"
+  description="One path through checking your exposure to the COLDCARD incident, acting on what you find, and avoiding the scams that follow it."
+  standfirst="This section helps you check whether the incident includes you, and act on what you find. It does not decide for you, and it cannot see your device."
+  depth="plain"
+  kicker="Am I affected?"
+>
+  <p>
+    Three steps, in order. Most people only need the first: many wallets turn
+    out not to be affected at all.
+  </p>
+
+  <Triage />
+
+  {PHASES.map((phase) => (
+    <section class="phase">
+      <h2 class="phase__head">
+        <span class="phase__num" aria-hidden="true">{phase.num}</span>
+        {phase.name}
+      </h2>
+      <p class="phase__lead">{phase.lead}</p>
+      <ul class="phase__list">
+        {phase.links.map((l) => (
+          <li>
+            <a href={l.href}>{l.label}</a>
+            <span class="phase__note">{l.note}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</Article>
+
+<style>
+  .phase {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 1rem 1.15rem;
+    margin-block: 1.1rem;
+  }
+  .phase__head {
+    display: flex; align-items: center; gap: .6rem;
+    margin: 0 0 .35rem;
+    font-size: 1.1rem;
+  }
+  .phase__num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.7rem; height: 1.7rem;
+    border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-family: var(--font-mono); font-weight: 700; font-size: .85rem;
+  }
+  .phase__lead {
+    margin: 0 0 .6rem;
+    color: var(--ink-2);
+    font-size: .92rem;
+  }
+  .phase__list {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: .45rem;
+  }
+  .phase__list li {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .6rem;
+  }
+  .phase__note { color: var(--ink-3); font-size: .84rem; }
+</style>

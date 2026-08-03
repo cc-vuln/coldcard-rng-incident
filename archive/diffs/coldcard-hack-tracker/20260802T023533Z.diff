@@ -1,0 +1,866 @@
+--- coldcard-hack-tracker@20260802T005959Z
++++ coldcard-hack-tracker@20260802T023533Z
+@@ -46,32 +46,32 @@
+ 
+ STILL HELD
+ 
+-100%
+-
+-of 1,361.64515804 BTC consolidated
++99.95%
++
++of 1,341.47626197 BTC consolidated
+ 
+ BALANCE ON WATCH
+ 
+-1,361.64515804 BTC
++1,340.78490674 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+ 
+ MOVED
+ 
+-0.00 BTC
+-
+-Reported consolidation still on the holding addresses
++0.69135523 BTC
++
++Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Unmoved
+-
+-No spends of the reported consolidation
++Aug 1, 2026, 07:19 PM UTC
++
++0.06042459 BTC from Aug 1 hop vault
+ 
+ Watched holdings
+ 
+-About 1,368.58411114 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,361.64515804 BTC is in watched holdings (core vaults live-polled; 221 Wave 3 vaults from the cron snapshot). The remaining ~6.9389531 BTC is mostly unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
++About 1,368.58411114 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,341.47626197 BTC is in watched holdings (core vaults live-polled; 75 higher-value Wave 3 vaults ≥ 0.50 BTC from the cron snapshot). The remaining ~27.10784917 BTC is mostly smaller/unmatched Wave 3 vaults plus fees. Evening/morning waves may be different operators.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+@@ -131,18 +131,18 @@
+ 	bc1qmd5m5k…9n8jp6	30.18476329 BTC
+ <live-fiat-value>
+ 	30.18476329 BTC	93	HELD
+-GALAXY WAVE 3 · JUL 31–AUG 1 · 221 vaults
++GALAXY WAVE 3 · JUL 31–AUG 1 · 75 vaults
+ Source
+ 
+-Blocks 960396–960471 · Galaxy: ~1,912 victims, ~200 sat/vB, 293 park→P2WSH vaults (~207.73 BTC). Watching 221 fingerprint-matched P2WSH vaults (~201.45 BTC) — see attribution below.
++Blocks 960396–960471 · Galaxy: ~1,912 victims, ~200 sat/vB, 293 park→P2WSH vaults (~207.73 BTC). Watching 75 higher-value fingerprint matches (≥ 0.5 BTC each, ~181.29 BTC) — see attribution below.
+ 
+ WHY THESE LOOK LIKE STOLEN WAVE 3 FUNDS
+ 
+-Not Galaxy’s published address list. Matched their Wave 3 fingerprint: blocks 960396–960471, ~180–220 sat/vB no-change sweeps into fresh parks, then hops to still-funded native P2WSH vaults. Balances come from a server snapshot (cron), not live browser polls. Partial versus Galaxy’s ~293 vaults / ~207.73 BTC.
++Not Galaxy’s published address list. Matched their Wave 3 fingerprint (blocks 960396–960471, ~180–220 sat/vB, fresh park → P2WSH vault), then kept only higher-value vaults (≥ 0.5 BTC) so the cron snapshot stays reliable on public explorers. Smaller matched vaults are omitted on purpose. Partial versus Galaxy’s ~293 vaults / ~207.73 BTC.
+ 
+ WATCHED
+-221 P2WSH vaults · 201.45487804 BTC
+-snapshot · Galaxy ~293 / ~207.73 BTC
++75 P2WSH vaults · 181.28598197 BTC
++≥ 0.50 BTC each · snapshot · Galaxy ~293 / ~207.73 BTC
+ BLOCKS
+ 960,396–960,471
+ FEE WINDOW
+@@ -436,7 +436,7 @@
+ Wave 3 vault 57
+ 	bc1qnjpfhc…a8tqc5	0.77812263 BTC
+ <live-fiat-value>
+-	0.77812263 BTC	0	HELD
++	0.77812263 BTC	1	HELD
+ 
+ Wave 3 vault 58
+ 	bc1q64nmnz…su2td0	0.77291101 BTC
+@@ -527,736 +527,6 @@
+ 	bc1qkyncy6…sw293h	0.50163823 BTC
+ <live-fiat-value>
+ 	0.50163823 BTC	1	HELD
+-
+-Wave 3 vault 76
+-	bc1qpthn8e…qkg3ud	0.4992642 BTC
+-<live-fiat-value>
+-	0.4992642 BTC	1	HELD
+-
+-Wave 3 vault 77
+-	bc1qnfva34…xukm5w	0.48945961 BTC
+-<live-fiat-value>
+-	0.48945961 BTC	1	HELD
+-
+-Wave 3 vault 78
+-	bc1qaktzwv…yg8zmd	0.48493299 BTC
+-<live-fiat-value>
+-	0.48493299 BTC	1	HELD
+-
+-Wave 3 vault 79
+-	bc1q0p97ht…hy2r2h	0.45768821 BTC
+-<live-fiat-value>
+-	0.45768821 BTC	1	HELD
+-
+-Wave 3 vault 80
+-	bc1qpncfuu…fxdzff	0.45593126 BTC
+-<live-fiat-value>
+-	0.45593126 BTC	1	HELD
+-
+-Wave 3 vault 81
+-	bc1qd4mgu2…t3w43g	0.42213138 BTC
+-<live-fiat-value>
+-	0.42213138 BTC	1	HELD
+-
+-Wave 3 vault 82
+-	bc1q5095ky…zuz3fr	0.4157288 BTC
+-<live-fiat-value>
+-	0.4157288 BTC	1	HELD
+-
+-Wave 3 vault 83
+-	bc1qpq3rxv…c49vq7	0.4138718 BTC
+-<live-fiat-value>
+-	0.4138718 BTC	1	HELD
+-
+-Wave 3 vault 84
+-	bc1qepuh86…zpd5sf	0.39997467 BTC
+-<live-fiat-value>
+-	0.39997467 BTC	1	HELD
+-
+-Wave 3 vault 85
+-	bc1qzkkhct…r7py7l	0.39492486 BTC
+-<live-fiat-value>
+-	0.39492486 BTC	1	HELD
+-
+-Wave 3 vault 86
+-	bc1qdh03rz…w0plyz	0.37768772 BTC
+-<live-fiat-value>
+-	0.37768772 BTC	1	HELD
+-
+-Wave 3 vault 87
+-	bc1qyj735e…qejxzx	0.3773678 BTC
+-<live-fiat-value>
+-	0.3773678 BTC	1	HELD
+-
+-Wave 3 vault 88
+-	bc1q8p3086…5k8jxd	0.37668657 BTC
+-<live-fiat-value>
+-	0.37668657 BTC	1	HELD
+-
+-Wave 3 vault 89
+-	bc1q5vg8ct…90mpt2	0.35046599 BTC
+-<live-fiat-value>
+-	0.35046599 BTC	1	HELD
+-
+-Wave 3 vault 90
+-	bc1qhtjcwj…5pnm2q	0.3457658 BTC
+-<live-fiat-value>
+-	0.3457658 BTC	1	HELD
+-
+-Wave 3 vault 91
+-	bc1qsm6ag0…7v5mk7	0.34040498 BTC
+-<live-fiat-value>
+-	0.34040498 BTC	1	HELD
+-
+-Wave 3 vault 92
+-	bc1qntaar8…qlksy7	0.33672299 BTC
+-<live-fiat-value>
+-	0.33672299 BTC	1	HELD
+-
+-Wave 3 vault 93
+-	bc1qnjdng0…xce4t6	0.33483405 BTC
+-<live-fiat-value>
+-	0.33483405 BTC	1	HELD
+-
+-Wave 3 vault 94
+-	bc1q5xed2h…zqqdmm	0.33463041 BTC
+-<live-fiat-value>
+-	0.33463041 BTC	1	HELD
+-
+-Wave 3 vault 95
+-	bc1qwhj5zd…wmj8k4	0.33348987 BTC
+-<live-fiat-value>
+-	0.33348987 BTC	1	HELD
+-
+-Wave 3 vault 96
+-	bc1qnxs73p…r2r84m	0.3321912 BTC
+-<live-fiat-value>
+-	0.3321912 BTC	1	HELD
+-
+-Wave 3 vault 97
+-	bc1q68ryrh…d7mjd9	0.32664138 BTC
+-<live-fiat-value>
+-	0.32664138 BTC	1	HELD
+-
+-Wave 3 vault 98
+-	bc1qk6tu7a…7m0xpd	0.32208629 BTC
+-<live-fiat-value>
+-	0.32208629 BTC	1	HELD
+-
+-Wave 3 vault 99
+-	bc1q7syv0e…m5335p	0.31341339 BTC
+-<live-fiat-value>
+-	0.31341339 BTC	1	HELD
+-
+-Wave 3 vault 100
+-	bc1q4v2hf3…20megd	0.30929503 BTC
+-<live-fiat-value>
+-	0.30929503 BTC	1	HELD
+-
+-Wave 3 vault 101
+-	bc1qjka87a…qxa8z3	0.30606469 BTC
+-<live-fiat-value>
+-	0.30606469 BTC	1	HELD
+-
+-Wave 3 vault 102
+-	bc1qnx8620…8s5rae	0.30575377 BTC
+-<live-fiat-value>
+-	0.30575377 BTC	1	HELD
+-
+-Wave 3 vault 103
+-	bc1qad63pm…yutt2t	0.3006318 BTC
+-<live-fiat-value>
+-	0.3006318 BTC	1	HELD
+-
+-Wave 3 vault 104
+-	bc1q4k3tuz…kqjw3z	0.29774544 BTC
+-<live-fiat-value>
+-	0.29774544 BTC	1	HELD
+-
+-Wave 3 vault 105
+-	bc1qcyp4cj…zr3zl6	0.28525508 BTC
+-<live-fiat-value>
+-	0.28525508 BTC	1	HELD
+-
+-Wave 3 vault 106
+-	bc1q520jl5…m7gynq	0.26962117 BTC
+-<live-fiat-value>
+-	0.26962117 BTC	1	HELD
+-
+-Wave 3 vault 107
+-	bc1q9m306l…ely8mh	0.262589 BTC
+-<live-fiat-value>
+-	0.262589 BTC	1	HELD
+-
+-Wave 3 vault 108
+-	bc1qg0ahk0…mtufs2	0.2615388 BTC
+-<live-fiat-value>
+-	0.2615388 BTC	1	HELD
+-
+-Wave 3 vault 109
+-	bc1qn0alky…6tht62	0.25169499 BTC
+-<live-fiat-value>
+-	0.25169499 BTC	1	HELD
+-
+-Wave 3 vault 110
+-	bc1qxg6q4y…e8dela	0.24656373 BTC
+-<live-fiat-value>
+-	0.24656373 BTC	1	HELD
+-
+-Wave 3 vault 111
+-	bc1qr06wx2…ld3z7d	0.23981457 BTC
+-<live-fiat-value>
+-	0.23981457 BTC	1	HELD
+-
+-Wave 3 vault 112
+-	bc1qtvlcma…93gd9x	0.2359538 BTC
+-<live-fiat-value>
+-	0.2359538 BTC	1	HELD
+-
+-Wave 3 vault 113
+-	bc1qs3hmed…krxhd8	0.2357021 BTC
+-<live-fiat-value>
+-	0.2357021 BTC	1	HELD
+-
+-Wave 3 vault 114
+-	bc1qj8a03j…rld23p	0.22820581 BTC
+-<live-fiat-value>
+-	0.22820581 BTC	1	HELD
+-
+-Wave 3 vault 115
+-	bc1q5cem3f…6ljx35	0.22722561 BTC
+-<live-fiat-value>
+-	0.22722561 BTC	1	HELD
+-
+-Wave 3 vault 116
+-	bc1qum0q57…nsdz95	0.21931343 BTC
+-<live-fiat-value>
+-	0.21931343 BTC	1	HELD
+-
+-Wave 3 vault 117
+-	bc1qlek7vw…ms6z7m	0.21789169 BTC
+-<live-fiat-value>
+-	0.21789169 BTC	1	HELD
+-
+-Wave 3 vault 118
+-	bc1q4re4r9…r0a4ny	0.21300193 BTC
+-<live-fiat-value>
+-	0.21300193 BTC	1	HELD
+-
+-Wave 3 vault 119
+-	bc1q0m7cpt…h9kly6	0.21004234 BTC
+-<live-fiat-value>
+-	0.21004234 BTC	1	HELD
+-
+-Wave 3 vault 120
+-	bc1qygry8h…xgr35z	0.20250125 BTC
+-<live-fiat-value>
+-	0.20250125 BTC	1	HELD
+-
+-Wave 3 vault 121
+-	bc1qdqhy59…9dxlwu	0.20052544 BTC
+-<live-fiat-value>
+-	0.20052544 BTC	1	HELD
+-
+-Wave 3 vault 122
+-	bc1qty4ev9…pkm3dg	0.19971171 BTC
+-<live-fiat-value>
+-	0.19971171 BTC	1	HELD
+-
+-Wave 3 vault 123
+-	bc1q4e4j2s…hm7z6l	0.19939541 BTC
+-<live-fiat-value>
+-	0.19939541 BTC	0	HELD
+-
+-Wave 3 vault 124
+-	bc1qtxanjh…ye9h75	0.19547911 BTC
+-<live-fiat-value>
+-	0.19547911 BTC	0	HELD
+-
+-Wave 3 vault 125
+-	bc1q2my4da…9dwjhf	0.19343429 BTC
+-<live-fiat-value>
+-	0.19343429 BTC	1	HELD
+-
+-Wave 3 vault 126
+-	bc1qxueed4…y4m72x	0.1928358 BTC
+-<live-fiat-value>
+-	0.1928358 BTC	1	HELD
+-
+-Wave 3 vault 127
+-	bc1q2k0lx9…nngx96	0.17831005 BTC
+-<live-fiat-value>
+-	0.17831005 BTC	1	HELD
+-
+-Wave 3 vault 128
+-	bc1ql4h3x0…2talu9	0.17092148 BTC
+-<live-fiat-value>
+-	0.17092148 BTC	1	HELD
+-
+-Wave 3 vault 129
+-	bc1qm099l8…d32mhe	0.1696318 BTC
+-<live-fiat-value>
+-	0.1696318 BTC	1	HELD
+-
+-Wave 3 vault 130
+-	bc1qkzphty…d23t87	0.16825952 BTC
+-<live-fiat-value>
+-	0.16825952 BTC	0	HELD
+-
+-Wave 3 vault 131
+-	bc1q47gull…kp3vsx	0.15207015 BTC
+-<live-fiat-value>
+-	0.15207015 BTC	1	HELD
+-
+-Wave 3 vault 132
+-	bc1q5sx3fz…xfeuqh	0.13137773 BTC
+-<live-fiat-value>
+-	0.13137773 BTC	1	HELD
+-
+-Wave 3 vault 133
+-	bc1qx7udtl…r04p23	0.12416239 BTC
+-<live-fiat-value>
+-	0.12416239 BTC	1	HELD
+-
+-Wave 3 vault 134
+-	bc1q55hfcx…7u6tsm	0.11674686 BTC
+-<live-fiat-value>
+-	0.11674686 BTC	1	HELD
+-
+-Wave 3 vault 135
+-	bc1qspqd0r…rdggr9	0.11580619 BTC
+-<live-fiat-value>
+-	0.11580619 BTC	0	HELD
+-
+-Wave 3 vault 136
+-	bc1q88uyey…zfl4xq	0.11106556 BTC
+-<live-fiat-value>
+-	0.11106556 BTC	1	HELD
+-
+-Wave 3 vault 137
+-	bc1qpy9clc…qux242	0.10483982 BTC
+-<live-fiat-value>
+-	0.10483982 BTC	0	HELD
+-
+-Wave 3 vault 138
+-	bc1qsc0yxk…9k7pe7	0.10451152 BTC
+-<live-fiat-value>
+-	0.10451152 BTC	1	HELD
+-
+-Wave 3 vault 139
+-	bc1q0mve58…fr9lr9	0.09982394 BTC
+-<live-fiat-value>
+-	0.09982394 BTC	1	HELD
+-
+-Wave 3 vault 140
+-	bc1q52q0hm…kuptws	0.0992242 BTC
+-<live-fiat-value>
+-	0.0992242 BTC	1	HELD
+-
+-Wave 3 vault 141
+-	bc1q5fqtyq…h4xv36	0.0963818 BTC
+-<live-fiat-value>
+-	0.0963818 BTC	1	HELD
+-
+-Wave 3 vault 142
+-	bc1qm8erpw…wdl459	0.09471637 BTC
+-<live-fiat-value>
+-	0.09471637 BTC	1	HELD
+-
+-Wave 3 vault 143
+-	bc1q9r029z…chmats	0.09213673 BTC
+-<live-fiat-value>
+-	0.09213673 BTC	1	HELD
+-
+-Wave 3 vault 144
+-	bc1qz7a6hx…70jhhs	0.09150778 BTC
+-<live-fiat-value>
+-	0.09150778 BTC	0	HELD
+-
+-Wave 3 vault 145
+-	bc1qqeayag…cufvpc	0.08654776 BTC
+-<live-fiat-value>
+-	0.08654776 BTC	1	HELD
+-
+-Wave 3 vault 146
+-	bc1qngrjuy…f23m9d	0.08345491 BTC
+-<live-fiat-value>
+-	0.08345491 BTC	1	HELD
+-
+-Wave 3 vault 147
+-	bc1qxa5qk5…9ppchc	0.07887331 BTC
+-<live-fiat-value>
+-	0.07887331 BTC	1	HELD
+-
+-Wave 3 vault 148
+-	bc1qm4uc7y…zyyr4y	0.07697767 BTC
+-<live-fiat-value>
+-	0.07697767 BTC	1	HELD
+-
+-Wave 3 vault 149
+-	bc1qmkwsy7…0g8vr8	0.07481261 BTC
+-<live-fiat-value>
+-	0.07481261 BTC	1	HELD
+-
+-Wave 3 vault 150
+-	bc1qn03pr6…058pv8	0.07341378 BTC
+-<live-fiat-value>
+-	0.07341378 BTC	1	HELD
+-
+-Wave 3 vault 151
+-	bc1qac2ufe…n9wkrd	0.06749657 BTC
+-<live-fiat-value>
+-	0.06749657 BTC	1	HELD
+-
+-Wave 3 vault 152
+-	bc1q6en3x6…p70rjt	0.0650774 BTC
+-<live-fiat-value>
+-	0.0650774 BTC	1	HELD
+-
+-Wave 3 vault 153
+-	bc1q48f368…gtly5z	0.06505319 BTC
+-<live-fiat-value>
+-	0.06505319 BTC	0	HELD
+-
+-Wave 3 vault 154
+-	bc1qqx5r8d…h9gc30	0.06276802 BTC
+-<live-fiat-value>
+-	0.06276802 BTC	1	HELD
+-
+-Wave 3 vault 155
+-	bc1qrdx8m7…9ay6ex	0.05977104 BTC
+-<live-fiat-value>
+-	0.05977104 BTC	1	HELD
+-
+-Wave 3 vault 156
+-	bc1q5336kh…9d7t3j	0.05759026 BTC
+-<live-fiat-value>
+-	0.05759026 BTC	1	HELD
+-
+-Wave 3 vault 157
+-	bc1qknw8jf…4uzn79	0.05569251 BTC
+-<live-fiat-value>
+-	0.05569251 BTC	1	HELD
+-
+-Wave 3 vault 158
+-	bc1qu8hh9n…4p5csm	0.05083943 BTC
+-<live-fiat-value>
+-	0.05083943 BTC	1	HELD
+-
+-Wave 3 vault 159
+-	bc1q68dyrw…cedfl4	0.05014211 BTC
+-<live-fiat-value>
+-	0.05014211 BTC	0	HELD
+-
+-Wave 3 vault 160
+-	bc1qu7cw2d…e9tnfw	0.04976264 BTC
+-<live-fiat-value>
+-	0.04976264 BTC	1	HELD
+-
+-Wave 3 vault 161
+-	bc1qz8aj37…ah0cz7	0.04967989 BTC
+-<live-fiat-value>
+-	0.04967989 BTC	1	HELD
+-
+-Wave 3 vault 162
+-	bc1qfqyr2v…l70fkw	0.04682682 BTC
+-<live-fiat-value>
+-	0.04682682 BTC	1	HELD
+-
+-Wave 3 vault 163
+-	bc1qg9wvjf…gqmg9c	0.0467388 BTC
+-<live-fiat-value>
+-	0.0467388 BTC	1	HELD
+-
+-Wave 3 vault 164
+-	bc1qs7q3l0…9nv4vd	0.04653963 BTC
+-<live-fiat-value>
+-	0.04653963 BTC	1	HELD
+-
+-Wave 3 vault 165
+-	bc1q7uqzcd…x6rhxq	0.04362179 BTC
+-<live-fiat-value>
+-	0.04362179 BTC	1	HELD
+-
+-Wave 3 vault 166
+-	bc1qcdd8l0…q0vffy	0.04164841 BTC
+-<live-fiat-value>
+-	0.04164841 BTC	1	HELD
+-
+-Wave 3 vault 167
+-	bc1qu8glud…e7ndvz	0.04056362 BTC
+-<live-fiat-value>
+-	0.04056362 BTC	1	HELD
+-
+-Wave 3 vault 168
+-	bc1qggwaas…dzetw6	0.03742162 BTC
+-<live-fiat-value>
+-	0.03742162 BTC	1	HELD
+-
+-Wave 3 vault 169
+-	bc1qt9nse0…cyemln	0.0373018 BTC
+-<live-fiat-value>
+-	0.0373018 BTC	1	HELD
+-
+-Wave 3 vault 170
+-	bc1qth9a2r…hpjvzn	0.03547324 BTC
+-<live-fiat-value>
+-	0.03547324 BTC	1	HELD
+-
+-Wave 3 vault 171
+-	bc1qyeqla8…0v0a7y	0.03486575 BTC
+-<live-fiat-value>
+-	0.03486575 BTC	1	HELD
+-
+-Wave 3 vault 172
+-	bc1qxt59el…lugyn0	0.03448213 BTC
+-<live-fiat-value>
+-	0.03448213 BTC	1	HELD
+-
+-Wave 3 vault 173
+-	bc1qlqp0gq…ze92se	0.03357803 BTC
+-<live-fiat-value>
+-	0.03357803 BTC	0	HELD
+-
+-Wave 3 vault 174
+-	bc1qlqzvqa…2ag66a	0.03327956 BTC
+-<live-fiat-value>
+-	0.03327956 BTC	0	HELD
+-
+-Wave 3 vault 175
+-	bc1q6svg3s…6dquzl	0.0320178 BTC
+-<live-fiat-value>
+-	0.0320178 BTC	1	HELD
+-
+-Wave 3 vault 176
+-	bc1q2sjk0y…u7780k	0.03159839 BTC
+-<live-fiat-value>
+-	0.03159839 BTC	1	HELD
+-
+-Wave 3 vault 177
+-	bc1qssmwcg…94t6ke	0.03090333 BTC
+-<live-fiat-value>
+-	0.03090333 BTC	1	HELD
+-
+-Wave 3 vault 178
+-	bc1qwc3k8g…fgygwm	0.0297678 BTC
+-<live-fiat-value>
+-	0.0297678 BTC	1	HELD
+-
+-Wave 3 vault 179
+-	bc1qc9gxlt…wlr5g3	0.02517175 BTC
+-<live-fiat-value>
+-	0.02517175 BTC	1	HELD
+-
+-Wave 3 vault 180
+-	bc1q04m4m8…6antvw	0.02451273 BTC
+-<live-fiat-value>
+-	0.02451273 BTC	1	HELD
+-
+-Wave 3 vault 181
+-	bc1qfjdq6p…j8wx32	0.02339418 BTC
+-<live-fiat-value>
+-	0.02339418 BTC	1	HELD
+-
+-Wave 3 vault 182
+-	bc1q96xgdx…vxmtn8	0.02202174 BTC
+-<live-fiat-value>
+-	0.02202174 BTC	1	HELD
+-
+-Wave 3 vault 183
+-	bc1qgwhr7n…mkxj22	0.02062095 BTC
+-<live-fiat-value>
+-	0.02062095 BTC	1	HELD
+-
+-Wave 3 vault 184
+-	bc1qvqg038…nact6r	0.02055783 BTC
+-<live-fiat-value>
+-	0.02055783 BTC	1	HELD
+-
+-Wave 3 vault 185
+-	bc1qlz9akn…avdqeg	0.0199498 BTC
+-<live-fiat-value>
+-	0.0199498 BTC	1	HELD
+-
+-Wave 3 vault 186
+-	bc1qmr2xlw…ctez3n	0.0194807 BTC
+-<live-fiat-value>
+-	0.0194807 BTC	1	HELD
+-
+-Wave 3 vault 187
+-	bc1q257vjp…6rs966	0.0192128 BTC
+-<live-fiat-value>
+-	0.0192128 BTC	0	HELD
+-
+-Wave 3 vault 188
+-	bc1qa42e4r…e3ywga	0.0187478 BTC
+-<live-fiat-value>
+-	0.0187478 BTC	1	HELD
+-
+-Wave 3 vault 189
+-	bc1qxzgumm…w9fqms	0.01628702 BTC
+-<live-fiat-value>
+-	0.01628702 BTC	1	HELD
+-
+-Wave 3 vault 190
+-	bc1qzy8fds…7qxesm	0.01586999 BTC
+-<live-fiat-value>
+-	0.01586999 BTC	1	HELD
+-
+-Wave 3 vault 191
+-	bc1qgne92s…ssdzce	0.01475934 BTC
+-<live-fiat-value>
+-	0.01475934 BTC	0	HELD
+-
+-Wave 3 vault 192
+-	bc1qhpvx4l…ccg0dw	0.01438078 BTC
+-<live-fiat-value>
+-	0.01438078 BTC	0	HELD
+-
+-Wave 3 vault 193
+-	bc1q0xqtyc…p4knz2	0.01409784 BTC
+-<live-fiat-value>
+-	0.01409784 BTC	1	HELD
+-
+-Wave 3 vault 194
+-	bc1q92egxq…szanch	0.01238588 BTC
+-<live-fiat-value>
+-	0.01238588 BTC	1	HELD
+-
+-Wave 3 vault 195
+-	bc1qheu4nj…tudjeh	0.01015953 BTC
+-<live-fiat-value>
+-	0.01015953 BTC	1	HELD
+-
+-Wave 3 vault 196
+-	bc1qdylevn…m7j52v	0.01015587 BTC
+-<live-fiat-value>
+-	0.01015587 BTC	1	HELD
+-
+-Wave 3 vault 197
+-	bc1qgfugj7…lcvxku	0.01003015 BTC
+-<live-fiat-value>
+-	0.01003015 BTC	1	HELD
+-
+-Wave 3 vault 198
+-	bc1qnzch6h…4us28y	0.00982208 BTC
+-<live-fiat-value>
+-	0.00982208 BTC	1	HELD
+-
+-Wave 3 vault 199
+-	bc1qhschas…ytte5u	0.0097678 BTC
+-<live-fiat-value>
+-	0.0097678 BTC	1	HELD
+-
+-Wave 3 vault 200
+-	bc1qr59506…lny6dk	0.0097678 BTC
+-<live-fiat-value>
+-	0.0097678 BTC	1	HELD
+-
+-Wave 3 vault 201
+-	bc1qehrh8t…vs586j	0.0097678 BTC
+-<live-fiat-value>
+-	0.0097678 BTC	1	HELD
+-
+-Wave 3 vault 202
+-	bc1q5z36el…rs68d8	0.00966129 BTC
+-<live-fiat-value>
+-	0.00966129 BTC	1	HELD
+-
+-Wave 3 vault 203
+-	bc1q8plw83…munesv	0.00898723 BTC
+-<live-fiat-value>
+-	0.00898723 BTC	1	HELD
+-
+-Wave 3 vault 204
+-	bc1qzs8lgh…eh5qv7	0.00863017 BTC
+-<live-fiat-value>
+-	0.00863017 BTC	1	HELD
+-
+-Wave 3 vault 205
+-	bc1q0dn0dm…4new5u	0.0057678 BTC
+-<live-fiat-value>
+-	0.0057678 BTC	1	HELD
+-
+-Wave 3 vault 206
+-	bc1qya0vm6…gxnztm	0.00547841 BTC
+-<live-fiat-value>
+-	0.00547841 BTC	3	HELD
+-
+-Wave 3 vault 207
+-	bc1qlmvrcw…u3w0xy	0.0048457 BTC
+-<live-fiat-value>
+-	0.0048457 BTC	1	HELD
+-
+-Wave 3 vault 208
+-	bc1q3ak4lx…5vflsc	0.0047678 BTC
+-<live-fiat-value>
+-	0.0047678 BTC	1	HELD
+-
+-Wave 3 vault 209
+-	bc1qdq4sex…ykxqs6	0.0046617 BTC
+-<live-fiat-value>
+-	0.0046617 BTC	1	HELD
+-
+-Wave 3 vault 210
+-	bc1q367ypf…w0yqyn	0.004301 BTC
+-<live-fiat-value>
+-	0.004301 BTC	1	HELD
+-
+-Wave 3 vault 211
+-	bc1qxumgmr…qtzaq6	0.00426357 BTC
+-<live-fiat-value>
+-	0.00426357 BTC	1	HELD
+-
+-Wave 3 vault 212
+-	bc1qu66xv8…92xy8a	0.00389163 BTC
+-<live-fiat-value>
+-	0.00389163 BTC	1	HELD
+-
+-Wave 3 vault 213
+-	bc1qkrpnu4…4gksc0	0.0031878 BTC
+-<live-fiat-value>
+-	0.0031878 BTC	1	HELD
+-
+-Wave 3 vault 214
+-	bc1q8e2064…h2hzlq	0.00313402 BTC
+-<live-fiat-value>
+-	0.00313402 BTC	1	HELD
+-
+-Wave 3 vault 215
+-	bc1q5qyy8m…kjc86u	0.00275064 BTC
+-<live-fiat-value>
+-	0.00275064 BTC	1	HELD
+-
+-Wave 3 vault 216
+-	bc1q5afm3g…mwvd03	0.00265261 BTC
+-<live-fiat-value>
+-	0.00265261 BTC	1	HELD
+-
+-Wave 3 vault 217
+-	bc1qs0hglf…ahfckj	0.00260276 BTC
+-<live-fiat-value>
+-	0.00260276 BTC	1	HELD
+-
+-Wave 3 vault 218
+-	bc1qelmf0v…r83870	0.0023298 BTC
+-<live-fiat-value>
+-	0.0023298 BTC	1	HELD
+-
+-Wave 3 vault 219
+-	bc1qsdawrj…msj8yk	0.0022678 BTC
+-<live-fiat-value>
+-	0.0022678 BTC	1	HELD
+-
+-Wave 3 vault 220
+-	bc1qp4rsut…a8ujcj	0.00226094 BTC
+-<live-fiat-value>
+-	0.00226094 BTC	1	HELD
+-
+-Wave 3 vault 221
+-	bc1qqs25hv…lpvt68	0.00137172 BTC
+-<live-fiat-value>
+-	0.00137172 BTC	1	HELD
+ EVENING WAVE · JULY 31
+ Source
+ 
+@@ -1272,9 +542,9 @@
+ 
+ Aug 1 hop vault
+ 0.4998 BTC Aug 1 pass-through + 0.1915 BTC delayed Jul 31 victim consolidation. An Ocean miner payout also landed here and was spent onward — not part of this report balance
+-	bc1qayw8nr…7w2u0s	0.69135523 BTC
+-<live-fiat-value>
+-	0.69135523 BTC	2	HELD
++	bc1qayw8nr…7w2u0s	0.00 BTC
++<live-fiat-value>
++	0.69135523 BTC	0	EMPTIED
+ MORNING WAVE · AUG 1
+ Source
+ 
+@@ -1291,9 +561,27 @@
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Later surplus that passes through a vault while its reported balance remains is ignored.
+ 
+-No outbound spends
+-
+-Reported consolidation balances have not left the holding addresses.
++5ecc3052…a8bf87
++−0.69135523 BTC
++From Aug 1 hop vault bc1qayw8…2u0s
++Unconfirmed
++
++To bc1qsd9t…jah8, bc1qvrpc…cddc
++
++HOP 1
++135d4c2c…2d4ce9
++−0.241352 BTC
++From Hop 1 · bc1qvr…cddc bc1qvrpc…cddc
++Unconfirmed
++
++To 36c8aprK…QW35
++
++24f4b236…4e5187
++−0.06042459 BTC
++From Aug 1 hop vault bc1qayw8…2u0s
++Aug 1, 2026, 07:19 PM UTC
++
++To bc1qlryk…9edm
+ 
+ Am I at risk?
+ 
+@@ -1372,4 +660,4 @@
+ 
+ July 30 operator used a paid blockchain-data account during the sweeps; findings shared with authorities.
+ 
+-Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (2 Aug, 08:52). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.
++Core vaults live via mempool.space · Wave 3 snapshot; Wave 3 from cron snapshot (2 Aug, 10:31). Incident facts from Galaxy Research and community cluster reports. Not affiliated with Coinkite or Coldcard.
