@@ -340,10 +340,10 @@ policy drift, and the copy that withholds nothing is the one that leaks.
   one goes live. Removing something from the site means deleting those
   deployments too, and `wrangler pages deployment delete` needs `--force`;
   without it, it prints usage and exits as though nothing were wrong
-- `just publish` runs a capture first and refuses to deploy an incomplete
-  poll. A source that intermittently refuses this host will block it. Deploying
-  around that means `just audit && just build-site-indexable && just deploy`,
-  which keeps every content gate and skips only the freshness check
+- `just publish` runs every content gate but no pre-publish capture: the
+  30-minute poll keeps the record fresh, and a source that intermittently
+  refuses this host must not block a deploy. `just publish-fresh` is the
+  strict path: it captures first and refuses to deploy an incomplete poll
 
 ## Exit codes and locks
 

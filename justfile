@@ -204,10 +204,17 @@ build-preview: test audit check-claims
 preview: capture-gate audit build-preview deploy
     @echo "review copy live at https://${CF_PAGES_PROJECT}.pages.dev (noindex)"
 
-# Capture, audit, rebuild and publish for real. Incomplete polling blocks
-# deployment; exit 10 (healthy changes) does not. Only run this once the
-# content is settled: unlike preview, the output invites indexing.
-publish: capture-gate audit build-site-indexable deploy
+# Audit, rebuild and publish for real. The 30-minute poll keeps the record
+# fresh on its own, so there is no pre-publish capture here: every content
+# gate (test, audit, check-claims, public-output, links) still runs via
+# build-site-indexable, and a source that intermittently refuses this host
+# cannot block a deploy. Only run this once the content is settled: unlike
+# preview, the output invites indexing.
+publish: audit build-site-indexable deploy
+
+# The strict path: capture first and refuse to deploy an incomplete poll.
+# Exit 10 (healthy changes) does not block; a source erroring does.
+publish-fresh: capture-gate audit build-site-indexable deploy
 
 # The public build, marked indexable. Separated from build-site so that
 # nothing indexable is ever produced without asking for it by name.
