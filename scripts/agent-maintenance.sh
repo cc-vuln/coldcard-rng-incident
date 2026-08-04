@@ -40,10 +40,20 @@ trap restart_timers EXIT
 echo "agent-maintenance: pausing ${TIMERS[*]}"
 sudo -n systemctl stop "${TIMERS[@]}"
 
+# is-active cannot guard this service: archive-poll.service is Type=oneshot,
+# so it sits in ActiveState "activating" for its whole run, and is-active
+# treats "activating" as not active (exit 3). The window opened over a live
+# poll once because of this (4 Aug 2026). Ask for the state instead.
+poll_in_flight() {
+  local state
+  state=$(systemctl show -p ActiveState --value "$POLL_SERVICE" 2>/dev/null) || return 1
+  [[ "$state" == "active" || "$state" == "activating" || "$state" == "reloading" ]]
+}
+
 deadline=$((SECONDS + WAIT_BUDGET_S))
-if systemctl is-active --quiet "$POLL_SERVICE"; then
+if poll_in_flight; then
   echo "agent-maintenance: poll in flight, waiting up to ${WAIT_BUDGET_S}s for it to finish"
-  while systemctl is-active --quiet "$POLL_SERVICE"; do
+  while poll_in_flight; do
     if (( SECONDS >= deadline )); then
       echo "agent-maintenance: poll still active after ${WAIT_BUDGET_S}s; aborting (timers restarting)" >&2
       exit 1

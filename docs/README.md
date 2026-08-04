@@ -20,6 +20,9 @@ Operator and deployment detail behind the root README's command reference.
 
 Future-facing technical designs and implementation rationale.
 
+- [`design/browser-capture-hygiene.md`](design/browser-capture-hygiene.md):
+  keeping ad, consent and tracker noise out of browser captures by
+  blocking it at the daemon, and why an extension is the wrong tool
 - [`design/capture-display-policy.md`](design/capture-display-policy.md): when
   a captured social-post screenshot may render publicly, and the duties that
   attach to displaying it
@@ -28,6 +31,8 @@ Future-facing technical designs and implementation rationale.
   at the front of the site, and what shipped from it
 - [`design/discovery-and-x-watch.md`](design/discovery-and-x-watch.md): periodic
   source discovery and X account watching
+- [`design/reddit-json-capture.md`](design/reddit-json-capture.md): replacing
+  rendered-page reddit captures with structured thread JSON
 - [`design/site-information-architecture.md`](design/site-information-architecture.md):
   reader-intent navigation, progressive disclosure and incident-age design for
   the site

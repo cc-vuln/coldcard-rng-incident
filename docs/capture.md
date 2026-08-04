@@ -19,6 +19,14 @@ browser          rendered through the capture browser, for pages
 gallery-dl       X posts, via scripts/capture-x.sh (see "X capture")
 ```
 
+Browser captures block known ad and tracker hosts at resolution
+(`capture-browser/ad-hosts.txt`, mapped to localhost at launch) and run a
+consent-cleanup pass that rejects cookie walls and hides their containers.
+Neither touches publisher content: the list is committed and reviewable,
+each browser snapshot's meta.json records the list name, mechanism and
+retrieval date, and first-party promotions (Reddit's Promoted slots) are
+unaffected by design. `WEBBRIDGE_BLOCK_MODE=off` disables the blocking.
+
 HTTP and browser sources managed by `capture.py` land as the same artefacts:
 `<TS>.txt`, a rendered artefact, `<TS>.meta.json`, a diff on change, and an
 `index.jsonl` event. Registered X posts use the separate `capture-x.sh` or
@@ -30,7 +38,10 @@ exits 20 so a missing browser cannot look like a clean poll.
 For an official page whose human URL is only a JavaScript shell,
 `sources.toml` may keep that page as `url` while declaring an official
 machine-readable `fetch_url`. The public evidence link remains the human URL
-and snapshot metadata records the endpoint actually fetched. JSON endpoints
+and snapshot metadata records the endpoint actually fetched. An endpoint that
+only answers POST (a GraphQL API, for example) can declare `fetch_post` with
+the raw JSON request body; the response is then treated exactly as a GET's.
+JSON endpoints
 can set `json_html_field` plus selected `json_text_fields` to extract a
 readable document, or
 `json_pretty = true` to retain deterministic, line-oriented JSON. Positive

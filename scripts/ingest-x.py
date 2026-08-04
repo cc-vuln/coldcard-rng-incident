@@ -111,6 +111,14 @@ EXTRACT_JS = r"""
   }
   const mediaSlots = [...el.querySelectorAll("[data-testid=tweetPhoto]")];
   const mediaImages = mediaSlots.flatMap(slot => [...slot.querySelectorAll("img")]);
+  // A photo slot can hold a video: the <video> carries its poster as an
+  // attribute and the slot contains no <img>, so an images-only count never
+  // reaches the slot count and the readiness gate would never pass.
+  const mediaVideos = mediaSlots.flatMap(slot => [...slot.querySelectorAll("video")]);
+  const videos = mediaVideos.map(v => ({
+    poster: v.poster || null,
+    readyState: v.readyState,
+  }));
   const media = mediaImages.map(img => ({
     url: img.currentSrc || img.src || null,
     complete: img.complete,
@@ -118,8 +126,9 @@ EXTRACT_JS = r"""
     height: img.naturalHeight,
   }));
   const mediaReady = mediaSlots.length === 0 || (
-    mediaImages.length >= mediaSlots.length &&
-    media.every(img => img.complete && img.width > 0 && img.height > 0)
+    mediaImages.length + mediaVideos.length >= mediaSlots.length &&
+    media.every(img => img.complete && img.width > 0 && img.height > 0) &&
+    videos.every(v => v.poster)
   );
   // Reply context: the article directly above this one, if any.
   const i = arts.indexOf(el);
@@ -147,6 +156,7 @@ EXTRACT_JS = r"""
     mediaSlots: mediaSlots.length,
     mediaReady: mediaReady,
     media: media,
+    videos: videos,
     replyTo: replyTo,
   });
 })()
@@ -357,6 +367,14 @@ def main() -> None:
             f"media-{index}: {item.get('url')} "
             f"({item.get('width')} x {item.get('height')} pixels)"
         )
+    videos = info.get("videos") or []
+    if videos:
+        # The element screenshot holds the player with its poster frame; the
+        # moving image itself is gallery-dl territory (capture-x.sh).
+        lines.append(f"videos:   {len(videos)} attached video(s), poster URL below;")
+        lines.append("          the video itself is not captured by this tool")
+        for index, item in enumerate(videos, start=1):
+            lines.append(f"video-{index}: poster {item.get('poster')}")
     if info.get("replyTo") and info["replyTo"].get("user"):
         rt = info["replyTo"]
         lines.append(f"reply-to: {rt['user']} -- {rt['text']!r}")

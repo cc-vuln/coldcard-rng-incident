@@ -115,6 +115,9 @@ class RegistryTests(unittest.TestCase):
         invalid = (
             self.source(fetch_url=""),
             self.source(capture="browser", fetch_url="https://api.example.test"),
+            self.source(fetch_post=""),
+            self.source(fetch_post=42),
+            self.source(capture="browser", fetch_post='{"query": "{ x }"}'),
             self.source(json_html_field=""),
             self.source(json_pretty="yes"),
             self.source(json_html_field="content", json_pretty=True),
@@ -128,6 +131,13 @@ class RegistryTests(unittest.TestCase):
                 capture.SourceConfigError
             ):
                 capture.validate_sources({"source": [source]})
+
+    def test_a_well_formed_post_source_validates(self) -> None:
+        capture.validate_sources({"source": [self.source(
+            fetch_url="https://api.example.test/graphql",
+            fetch_post='{"query": "{ item(id: 1) { title } }"}',
+            json_pretty=True,
+        )]})
 
     def test_json_html_field_extracts_readable_source_text(self) -> None:
         body = json.dumps({
@@ -457,6 +467,83 @@ class CaptureSelectionTests(unittest.TestCase):
         self.assertIn("matched no sources", output)
 
 
+class FlattenRedditThreadTests(unittest.TestCase):
+    LISTING = json.dumps([
+        {"kind": "Listing", "data": {"children": [
+            {"kind": "t3", "data": {
+                "id": "abc123", "author": "poster",
+                "created_utc": 1754000000.0, "title": "A title",
+                "selftext": "post body", "score": 482}}]}},
+        {"kind": "Listing", "data": {"children": [
+            {"kind": "t1", "data": {
+                "id": "z9", "parent_id": "t3_abc123", "author": "late",
+                "created_utc": 1754000900.0, "edited": False,
+                "body": "second by id", "score": 10, "replies": ""}},
+            {"kind": "t1", "data": {
+                "id": "a1", "parent_id": "t3_abc123", "author": "early",
+                "created_utc": 1754000100.0, "edited": 1754000500.0,
+                "body": "first by id", "score": 999,
+                "replies": {"kind": "Listing", "data": {"children": [
+                    {"kind": "t1", "data": {
+                        "id": "a1b", "parent_id": "t1_a1",
+                        "author": "[deleted]",
+                        "created_utc": 1754000200.0, "edited": False,
+                        "body": "[deleted]", "score": 1, "replies": ""}}]}}}},
+            {"kind": "more", "data": {
+                "parent_id": "t3_abc123", "count": 12,
+                "children": ["x", "y"]}}]}}])
+
+    def test_flatten_orders_by_id_and_drops_counters(self) -> None:
+        text = capture.flatten_reddit_thread(self.LISTING)
+        self.assertEqual(
+            text,
+            "post: abc123\n"
+            "author: poster\n"
+            "created_utc: 1754000000\n"
+            "title: A title\n"
+            "body:\n"
+            "post body\n"
+            "\n"
+            "comment: a1\n"
+            "parent: t3_abc123\n"
+            "author: early\n"
+            "created_utc: 1754000100\n"
+            "edited: 1754000500\n"
+            "body:\n"
+            "first by id\n"
+            "\n"
+            "comment: a1b\n"
+            "parent: t1_a1\n"
+            "author: [deleted]\n"
+            "created_utc: 1754000200\n"
+            "edited: false\n"
+            "body:\n"
+            "[deleted]\n"
+            "\n"
+            "comment: z9\n"
+            "parent: t3_abc123\n"
+            "author: late\n"
+            "created_utc: 1754000900\n"
+            "edited: false\n"
+            "body:\n"
+            "second by id\n"
+            "\n"
+            "more-stub: parent t3_abc123 count 12\n",
+        )
+
+
+class RedditJsonBindingTests(unittest.TestCase):
+    def test_reddit_normalizers_not_bound_for_json_captures(self) -> None:
+        names = capture.source_normalizers(
+            {"id": "reddit-ai-discovery-thread", "capture": "reddit-json"})
+        self.assertEqual([n for n in names if n.startswith("reddit-")], [])
+
+    def test_reddit_normalizers_bound_for_browser_captures(self) -> None:
+        names = capture.source_normalizers(
+            {"id": "reddit-ai-discovery-thread", "capture": "browser"})
+        self.assertIn("reddit-chrome", names)
+
+
 class BrowserReadinessTests(unittest.TestCase):
     def test_browser_capture_waits_for_required_rendered_text(self) -> None:
         rendered = iter(("Loading holdings", "Loaded holdings\nMovement feed"))
@@ -465,6 +552,8 @@ class BrowserReadinessTests(unittest.TestCase):
         def command(action, args=None, timeout=60):
             actions.append(action)
             if action == "evaluate":
+                if "location.hostname" in (args or {}).get("code", ""):
+                    return {"value": "example.test"}
                 return {"value": next(rendered)}
             return {}
 
@@ -472,7 +561,7 @@ class BrowserReadinessTests(unittest.TestCase):
                 mock.patch.object(capture, "wb_cmd", side_effect=command), \
                 mock.patch.object(capture.time, "sleep") as sleep, \
                 mock.patch.object(capture.time, "monotonic", side_effect=(0, 1)):
-            text, pdf_bytes = capture.fetch_browser(
+            text, pdf_bytes, info = capture.fetch_browser(
                 "https://example.test",
                 scroll=False,
                 required_text=("Loaded holdings", "Movement feed"),
@@ -480,9 +569,28 @@ class BrowserReadinessTests(unittest.TestCase):
 
         self.assertEqual(text, "Loaded holdings\nMovement feed")
         self.assertEqual(pdf_bytes, 0)
-        self.assertEqual(actions.count("evaluate"), 2)
+        self.assertEqual(actions.count("evaluate"), 3)
         self.assertEqual(actions[-1], "close_tab")
         self.assertEqual([call.args[0] for call in sleep.call_args_list], [5, 2])
+
+    def test_a_tab_showing_another_page_is_not_captured(self) -> None:
+        """A crashed target leaves the daemon reading whatever tab is current:
+        on 4 Aug 2026 the MARA portal was filed under a stacker.news source."""
+
+        def command(action, args=None, timeout=60):
+            if action == "evaluate":
+                if "location.hostname" in (args or {}).get("code", ""):
+                    return {"value": "slipstream.mara.com"}
+                return {"value": "MARA portal text"}
+            return {}
+
+        with mock.patch.object(capture, "wb_available", return_value=True), \
+                mock.patch.object(capture, "wb_cmd", side_effect=command), \
+                mock.patch.object(capture.time, "sleep"):
+            with self.assertRaises(capture.BrowserUnavailable):
+                capture.fetch_browser(
+                    "https://stacker.news/items/1538447", scroll=False
+                )
 
     def test_a_transient_fetch_error_is_retried_before_being_recorded(self) -> None:
         source = {"id": "error", "url": "https://example.test"}
@@ -593,9 +701,80 @@ class DryRunDiffTests(unittest.TestCase):
         ) as fetch:
             result = capture.capture_one(source, dry=True)
 
-        fetch.assert_called_once_with(source["fetch_url"])
+        fetch.assert_called_once_with(source["fetch_url"], None)
         self.assertEqual(result["url"], source["url"])
         self.assertEqual(result["fetch_url"], source["fetch_url"])
+
+    def test_fetch_post_reaches_the_fetch_call(self) -> None:
+        source = {
+            "id": "graphql-thread",
+            "url": "https://example.test/items/1",
+            "fetch_url": "https://example.test/api/graphql",
+            "fetch_post": '{"query": "{ item(id: 1) { title } }"}',
+        }
+        with contextlib.redirect_stdout(io.StringIO()), mock.patch.object(
+            capture, "fetch", return_value=(b'{"data":{}}', {"_status": "200"})
+        ) as fetch:
+            result = capture.capture_one(source, dry=True)
+
+        fetch.assert_called_once_with(source["fetch_url"], source["fetch_post"])
+        self.assertEqual(result["url"], source["url"])
+
+    def test_fetch_with_a_body_sends_a_json_post(self) -> None:
+        held = {}
+
+        class Resp:
+            status = 200
+            headers: dict = {}
+
+            def read(self) -> bytes:
+                return b'{"data":{}}'
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args) -> bool:
+                return False
+
+        def fake_urlopen(req, timeout=None):
+            held["req"] = req
+            return Resp()
+
+        with mock.patch.object(capture.urllib.request, "urlopen", fake_urlopen):
+            capture.fetch("https://api.example.test/graphql", '{"query":"{ x }"}')
+
+        req = held["req"]
+        self.assertEqual(req.data, b'{"query":"{ x }"}')
+        self.assertEqual(req.get_method(), "POST")
+        self.assertEqual(req.get_header("Content-type"), "application/json")
+
+    def test_fetch_without_a_body_stays_a_get(self) -> None:
+        held = {}
+
+        class Resp:
+            status = 200
+            headers: dict = {}
+
+            def read(self) -> bytes:
+                return b"body"
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args) -> bool:
+                return False
+
+        def fake_urlopen(req, timeout=None):
+            held["req"] = req
+            return Resp()
+
+        with mock.patch.object(
+            capture.urllib.request, "urlopen", fake_urlopen,
+        ):
+            capture.fetch("https://example.test/page")
+
+        self.assertIsNone(held["req"].data)
+        self.assertEqual(held["req"].get_method(), "GET")
 
 
 class CaptureXTests(unittest.TestCase):

@@ -43,6 +43,7 @@ import tempfile
 import time
 import tomllib
 import urllib.error
+import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
@@ -317,6 +318,30 @@ def _normalise_reddit_achievement_badges(text: str) -> str:
     )
 
 
+def _normalise_reddit_chrome(text: str) -> str:
+    # Promoted ad slots rotate advertisers between polls, and the Reply/Share
+    # control pair toggles under otherwise unchanged comments. Both are
+    # publisher chrome, not thread content. An ad block is an advertiser
+    # line, a bullet line, "Promoted", marketing copy and a CTA, and every
+    # observed block ends with a bare ad-domain line: mask through that
+    # line, plus a trailing CTA or video-player toggle where the creative
+    # puts one there. The domain bound keeps the mask out of the comments:
+    # if a block ever lacks a domain line the regex does not match and the
+    # diff stays loud. Validated against held snapshots of all five held
+    # reddit sources; see .work/normalizer-proposals/reddit-chrome-20260803.md.
+    text = re.sub(
+        r"(?m)^[^\n]+\n\u2022\nPromoted\n(?:[^\n]+\n)*?"
+        r"[a-z0-9][a-z0-9.-]*\.[a-z]{2,}\n"
+        r"(?:(?:Read More|Learn More|Download|Sign Up|Contact Us|Buy Tickets|"
+        r"Shop Now|Play Now|Get Started|Watch Now|Apply Now|Book Now|"
+        r"Subscribe|Install Now|Try Now|Join Now)\n)?"
+        r"(?:Collapse video player\n)?",
+        "<promoted-ad>\n",
+        text,
+    )
+    return re.sub(r"(?m)^Reply\nShare\n", "", text)
+
+
 def _normalise_slipstream_live_state(text: str) -> str:
     """Suppress live chain and fee values without hiding portal wording."""
 
@@ -424,6 +449,7 @@ NORMALISERS = {
     "rolling-last-update": _normalise_rolling_last_update,
     "reddit-engagement": _normalise_reddit_engagement,
     "reddit-achievement-badges": _normalise_reddit_achievement_badges,
+    "reddit-chrome": _normalise_reddit_chrome,
     "slipstream-live-state": _normalise_slipstream_live_state,
     "android-article": _normalise_android_article,
     "unciphered-article": _normalise_unciphered_article,
@@ -445,8 +471,11 @@ SOURCE_NORMALISERS: dict[str, list[str]] = {
     "coldcard-hack-tracker": ["tracker-footer-live-state"],
     "cryptonews-build-error-38m": ["cryptonews-chrome"],
     "newsbitcom-who-lost-who-at-risk": ["newsbitcom-sidebar"],
-    "reddit-drained-timeline": ["reddit-achievement-badges"],
-    "reddit-ai-discovery-thread": ["reddit-achievement-badges"],
+    "reddit-drained-timeline": ["reddit-achievement-badges", "reddit-chrome"],
+    "reddit-ai-discovery-thread": ["reddit-achievement-badges", "reddit-chrome"],
+    "reddit-coldcard-letter-db-leak": ["reddit-chrome"],
+    "reddit-june-letter-report": ["reddit-chrome"],
+    "reddit-wallet-brand-link-warning": ["reddit-chrome"],
     "btcpp-dettmer-commit-history": ["substack-engagement"],
 }
 
@@ -454,7 +483,13 @@ SOURCE_NORMALISERS: dict[str, list[str]] = {
 def source_normalizers(src: dict) -> list[str]:
     """Config-declared normalizers plus any bound in code for the source."""
     names = list(src.get("normalizers", []))
-    for name in SOURCE_NORMALISERS.get(src.get("id", ""), []):
+    bound = SOURCE_NORMALISERS.get(src.get("id", ""), [])
+    if src.get("capture", "http") != "browser":
+        # The reddit-* normalizers filter rendered-frontend chrome that the
+        # JSON payload does not contain; binding them to a JSON capture
+        # would filter nothing and misrecord the capture's normalizer list.
+        bound = [n for n in bound if not n.startswith("reddit-")]
+    for name in bound:
         if name not in names:
             names.append(name)
     return names
@@ -550,7 +585,7 @@ def validate_sources(cfg: dict) -> None:
                         f"source {sid!r}: kind must be a non-empty string"
                     )
                 method = item.get("capture", "http")
-                if method not in ("http", "browser"):
+                if method not in ("http", "browser", "reddit-json"):
                     raise SourceConfigError(
                         f"source {sid!r}: unsupported capture method {method!r}"
                     )
@@ -564,6 +599,17 @@ def validate_sources(cfg: dict) -> None:
                 if fetch_url is not None and method != "http":
                     raise SourceConfigError(
                         f"source {sid!r}: fetch_url is supported only for http capture"
+                    )
+                fetch_post = item.get("fetch_post")
+                if fetch_post is not None and (
+                    not isinstance(fetch_post, str) or not fetch_post.strip()
+                ):
+                    raise SourceConfigError(
+                        f"source {sid!r}: fetch_post must be a non-empty string"
+                    )
+                if fetch_post is not None and method != "http":
+                    raise SourceConfigError(
+                        f"source {sid!r}: fetch_post is supported only for http capture"
                     )
                 json_html_field = item.get("json_html_field")
                 if json_html_field is not None and (
@@ -672,8 +718,17 @@ def append_event(ev: dict) -> None:
 
 # ------------------------------------------------------------------ capture
 
-def fetch(url: str) -> tuple[bytes, dict]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+def fetch(url: str, post: str | None = None) -> tuple[bytes, dict]:
+    # `post` is a raw JSON request body, for machine-readable endpoints that
+    # only answer POST: stacker.news serves its GraphQL API this way while the
+    # equivalent GET sits behind a challenge. Everything downstream (geo
+    # scrub, header allowlist, hashing) treats the response exactly as a GET's.
+    headers = {"User-Agent": UA}
+    data = None
+    if post is not None:
+        data = post.encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=headers)
     with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
         body = resp.read()
         headers = {k.lower(): v for k, v in resp.headers.items()}
@@ -764,6 +819,17 @@ def fetch_browser(
                         "group_title": "COLDCARD archive capture"})
     try:
         time.sleep(5)  # let challenges and hydration settle
+        # The daemon answers evaluate against its current tab, whatever that
+        # is. When the target tab crashes the current tab can be a different
+        # page entirely: on 4 Aug 2026 a crashed stacker.news tab read back
+        # the MARA portal and the text was filed under the stacker source.
+        # Confirm the tab is the page asked for before trusting anything in it.
+        wanted = urllib.parse.urlsplit(url).hostname or ""
+        shown = wb_cmd("evaluate", {"code": "location.hostname"}).get("value", "")
+        if shown != wanted:
+            raise BrowserUnavailable(
+                f"tab shows {shown or 'nothing'}, not {wanted}: target crashed?"
+            )
         deadline = time.monotonic() + BROWSER_READY_TIMEOUT
         text = ""
         while True:
@@ -790,7 +856,11 @@ def fetch_browser(
             wb_cmd("save_as_pdf", {"paper_format": "a4", "print_background": True,
                                    "path": str(pdf_path)}, timeout=180)
             pdf_bytes = pdf_path.stat().st_size
-        return text, pdf_bytes
+        try:
+            info = wb_cmd("blocklist_info")
+        except Exception:
+            info = {}  # daemon predates blocklist support
+        return text, pdf_bytes, info
     finally:
         try:
             wb_cmd("close_tab")
@@ -800,6 +870,93 @@ def fetch_browser(
 
 def normalize_browser_text(text: str) -> str:
     return _normalise_relative_time(text)
+
+
+def fetch_reddit_json(url: str) -> tuple[str, dict]:
+    """Thread JSON through the capture browser's cleared session.
+
+    The daemon navigates the session to the thread and fetches the JSON
+    from inside the page, so Reddit's edge sees its own frontend asking
+    for data rather than an anonymous request from this host, which it
+    refuses with a 403 challenge.
+    """
+    if not wb_available():
+        raise BrowserUnavailable("webbridge daemon or browser not reachable")
+    try:
+        data = wb_cmd("fetch_json", {"url": url}, timeout=180)
+    finally:
+        try:
+            wb_cmd("close_tab")
+        except Exception:
+            pass
+    if not data.get("json_ok"):
+        raise BrowserUnavailable(
+            f"fetch_json: status {data.get('status')}, "
+            f"type {str(data.get('content_type'))[:40]}")
+    return data.get("body", ""), {"_status": data.get("status"),
+                                  "content-type": data.get("content_type")}
+
+
+def flatten_reddit_thread(raw: str) -> str:
+    """Canonical text for a Reddit thread JSON listing.
+
+    Deterministic by construction: comments order by id, never by Reddit's
+    display rank, so ranking churn cannot move blocks; scores and vote
+    chrome are excluded (live counters); edited flags, authors, timestamps
+    and bodies are kept, so edits and deletions surface as diffs. Comment
+    trees the API did not inline are declared as more-stub lines.
+    """
+    listing = json.loads(raw)
+    post = listing[0]["data"]["children"][0]["data"]
+    comments: list[dict] = []
+    stubs: list[dict] = []
+
+    def walk(children: list) -> None:
+        for child in children:
+            if child.get("kind") == "t1":
+                data = child["data"]
+                comments.append(data)
+                replies = data.get("replies")
+                if isinstance(replies, dict):
+                    walk(replies["data"]["children"])
+            elif child.get("kind") == "more":
+                stubs.append(child["data"])
+
+    walk(listing[1]["data"]["children"])
+    comments.sort(key=lambda d: d.get("id", ""))
+
+    lines = [
+        "post: " + str(post.get("id", "")),
+        "author: " + str(post.get("author", "")),
+        f"created_utc: {post.get('created_utc', 0):.0f}",
+        "title: " + str(post.get("title", "")),
+    ]
+    selftext = post.get("selftext") or ""
+    if selftext:
+        lines += ["body:", selftext]
+    for data in comments:
+        edited = data.get("edited")
+        # Booleans are ints in Python: check bool first or "false" becomes "0".
+        if isinstance(edited, bool) or edited is None:
+            edited_s = "false"
+        elif isinstance(edited, (int, float)):
+            edited_s = f"{edited:.0f}"
+        else:
+            edited_s = "false"
+        lines += [
+            "",
+            "comment: " + str(data.get("id", "")),
+            "parent: " + str(data.get("parent_id", "")),
+            "author: " + str(data.get("author", "")),
+            f"created_utc: {data.get('created_utc', 0):.0f}",
+            "edited: " + edited_s,
+            "body:",
+            str(data.get("body", "")),
+        ]
+    for stub in stubs:
+        lines += ["", f"more-stub: parent {stub.get('parent_id', '?')}"
+                      f" count {stub.get('count', 0)}"]
+    return "\n".join(lines) + "\n"
 
 
 _EVENTS_BY_SOURCE: dict[str, list[dict]] | None = None
@@ -923,21 +1080,28 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     # A transient fault is retried here rather than being recorded as a gap in
     # the record. Refusals and 404s are the origin's decision, so they are taken
     # at face value the first time: retrying them is pointless and impolite.
+    browser_info: dict = {}
     while True:
         attempts += 1
         try:
             if method == "browser":
                 # Rendered to a temp path first; kept only if the text changed.
                 tmp_pdf = Path(tempfile.gettempdir()) / f"coldcard-capture-{sid}-{ts}.pdf"
-                text, pdf_bytes = fetch_browser(
+                text, pdf_bytes, browser_info = fetch_browser(
                     url,
                     bool(src.get("browser_scroll")),
                     None if dry else tmp_pdf,
                     tuple(src.get("required_text", [])),
                 )
                 text = normalize_browser_text(text)
+            elif method == "reddit-json":
+                # Thread data fetched through the capture browser session;
+                # the raw JSON is the artefact, the flattening is the text.
+                raw, headers = fetch_reddit_json(url)
+                body = raw.encode("utf-8")
+                text = flatten_reddit_thread(raw)
             else:
-                body, headers = fetch(fetch_url)
+                body, headers = fetch(fetch_url, src.get("fetch_post"))
                 text = extract_source_text(body, fetch_url, src)
             break
         except BrowserUnavailable as e:
@@ -1023,6 +1187,20 @@ def capture_one(src: dict, dry: bool = False) -> dict:
             result["fetch_url"] = fetch_url
 
     prev = latest_snapshot(sid)
+    if prev:
+        try:
+            prev_meta = json.loads(
+                (snap_dir(sid) / f"{prev[0]}.meta.json").read_text())
+            prev_method = prev_meta.get("method", method)
+        except (OSError, json.JSONDecodeError):
+            prev_method = method
+        if prev_method != method:
+            # The capture method changed since the held snapshot, so the
+            # canonical text shapes are unrelated: this capture starts a
+            # new baseline rather than diffing a render against a
+            # flattening. Recorded so the gap in the diff chain is explicit.
+            result["baseline_reset"] = prev[0]
+            prev = None
     if prev and sha256(canonical_text(prev[1], src).encode()) == stable_hash:
         if tmp_pdf is not None:
             tmp_pdf.unlink(missing_ok=True)
@@ -1072,6 +1250,19 @@ def capture_one(src: dict, dry: bool = False) -> dict:
         tmp_pdf.replace(d / f"{ts}.pdf")
         result["bytes"] = pdf_bytes
         result["renderer"] = "capture-browser"
+        if browser_info.get("mode") not in (None, "off"):
+            result["blocklist"] = {
+                "mode": browser_info.get("mode"),
+                "mechanism": browser_info.get("mechanism"),
+                "name": browser_info.get("name"),
+                "retrieved": browser_info.get("retrieved"),
+            }
+    elif method == "reddit-json":
+        # The raw thread JSON is the held artefact. Transport is noted
+        # under its own key: a "renderer" entry would make the archive
+        # audit expect a PDF that JSON captures never produce.
+        (d / f"{ts}.json").write_bytes(body)
+        result["transport"] = "capture-browser/fetch_json"
     else:
         (d / f"{ts}.html").write_bytes(body)
     (d / f"{ts}.meta.json").write_text(
@@ -1440,17 +1631,21 @@ def cmd_audit(args) -> int:
                 if meta["change_sha256"] != stable:
                     problems.append(f"{d.name}/{ts}: change_sha256 mismatch")
             method = meta.get("method", "http")
-            if method not in ("http", "browser", "gallery-dl"):
+            if method not in ("http", "browser", "gallery-dl", "reddit-json"):
                 problems.append(f"{d.name}/{ts}: nonstandard method {method!r}")
             if method == "browser" or meta.get("renderer"):
                 if not (d / f"{ts}.pdf").exists():
                     problems.append(f"{d.name}/{ts}: browser capture without PDF")
+            elif method == "reddit-json":
+                if not (d / f"{ts}.json").exists():
+                    problems.append(f"{d.name}/{ts}: JSON capture without artefact")
             elif method == "http" and not meta.get("imported_from") \
                     and meta.get("provenance") != "wayback":
                 if not (d / f"{ts}.html").exists():
                     problems.append(f"{d.name}/{ts}: http capture without HTML")
             if prev_hash and actual != prev_hash \
-                    and not (DIFFS / d.name / f"{ts}.diff").exists():
+                    and not (DIFFS / d.name / f"{ts}.diff").exists() \
+                    and meta.get("baseline_reset") is None:
                 problems.append(f"{d.name}/{ts}: text moved but no diff")
             prev_hash = actual
 
