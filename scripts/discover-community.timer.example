@@ -1,0 +1,12 @@
+# Fire discover-community.service twice a day. See
+# discover-community.service.example.
+[Unit]
+Description=community-thread discovery and intake every 12 hours
+
+[Timer]
+OnBootSec=300
+OnUnitActiveSec=43200
+Unit=discover-community.service
+
+[Install]
+WantedBy=timers.target

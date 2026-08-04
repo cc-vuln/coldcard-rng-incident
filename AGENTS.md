@@ -22,6 +22,10 @@ scripts/
   notify.sh           capture, alert on change or incomplete poll
   scheduled_runner.py due-state runner for recurring known-URL capture
   check_publishable.py, check_reviews.py   audit gates run by `just audit`
+  discover_stackernews.py  find new incident threads on Stacker News (gentle)
+  discover_reddit.py    find new incident threads on Reddit (via capture browser)
+  discover_bitcointalk.py  find new incident threads on BitcoinTalk (direct)
+  agent-discovery-intake.sh  assess discovery candidates via REVIEW_AGENT_BIN
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
   agent-review.sh     classify new diffs via REVIEW_AGENT_BIN (optional)
@@ -167,6 +171,15 @@ that has already been edited (import.meta)". The production build is unaffected,
 so local preview builds and serves `dist/`. Rebuild and restart the preview to
 see changes. Fixing this properly is in the backlog.
 
+**Hand-built figures live in `site/src/components/figures/`.** Every diagram
+on the site is an inline SVG component (a shared `Fig.astro` frame plus one
+component per figure): they theme from the design tokens in both schemes,
+carry `<title>`/`<desc>` text alternatives, and keep the visible `.cap`
+caption inside the figure. A caption that carries a Claim marker goes in the
+frame's `caption` slot. Any computed geometry belongs in the component
+frontmatter, not in conditional template markup. Mermaid was removed
+entirely; do not reintroduce it for a new diagram, draw the SVG.
+
 **`.astro` template pitfalls, learned the hard way.** Conditionals returning
 markup (`{x && <span/>}`, `{x ? <a/> : null}`) and string escapes in templates
 break the expression parser, and the error is reported at a bogus location inside
@@ -206,10 +219,19 @@ ad-hoc replacements for either; restart the unit instead.
 - `archive-poll.timer` -> `archive-poll.service`: the due-state capture
   runner, every 30 minutes, exit codes 10/20/21 treated as recorded outcomes
   rather than unit failures
+- `discover-community.timer` -> `discover-community.service`: community-thread
+  discovery and intake (Stacker News + Reddit), every 12 hours. Two feed
+  requests and two subreddit listing reads queue candidates in `DISCOVERY.md`,
+  then the intake agent assesses them, registers relevant threads in
+  `sources.toml` (and may correct existing `stackernews-*`/`reddit-*`
+  entries), and first-captures each registration with `just capture-one`,
+  deferring to the next poll on writer-lock contention
 
-There is exactly ONE archive writer: the capture host's scheduled runner.
-Never run non-dry captures anywhere else. Which machine that is, and its
-current service state, live in `AGENTS.local.md`.
+There is exactly ONE archive writer on the capture host: capture.py, driven
+by the scheduled runner. Manual `just capture-one <id>` runs on the same host
+(including the intake agent first-capturing its own registrations) use the
+same writer and lock. Never run non-dry captures anywhere else. Which machine
+that is, and its current service state, live in `AGENTS.local.md`.
 
 ## Capturing social posts
 
@@ -232,6 +254,52 @@ fetching tool's own sidecar. The post id is looked up in the registry by
 status id, so a capture always lands where the site reads it, and a
 re-capture is a new directory beside the old one. That makes the append-only
 rule a property of the layout rather than something a writer has to remember.
+
+
+## Capturing Stacker News threads
+
+Rendered stacker.news pages crash the capture tab, so every `stackernews-*`
+source polls the public GraphQL API instead: `capture = "http"` with
+`fetch_url`/`fetch_post` holding a fixed item query (title, text, two levels
+of comments, author and absolute timestamp on each). A new thread is added by
+copying that block shape and changing the item id; see the 4 Aug 2026 batch
+at the end of `sources.toml`. Reddit threads are `capture = "reddit-json"`:
+the thread JSON is read through the capture browser's signed-in session
+(anonymous JSON from this host gets a 403 challenge) and flattened to a
+deterministic canonical text, so no normalizer binding is needed.
+
+## Community-thread discovery and intake
+
+Discovery is separate from capture: Stacker News keyword search does not
+index recent items, and Reddit has no usable anonymous search from this host.
+Two scripts feed one intake queue:
+
+- `just discover-stackernews` reads the ~bitcoin and ~security recent feeds
+  (two requests per run, 1.5s apart) and queues title-matched candidates
+- `just discover-reddit` reads the r/coldcard and r/Bitcoin /new listings
+  through the capture browser session (two reads per run) and queues
+  keyword-matched threads; r/coldcard is low-volume and on-topic since the
+  incident, so every new post there is queued
+- `just discover-bitcointalk` reads the Bitcoin Discussion and Wallet
+  software board indexes directly (SMF answers this host; two pages per run)
+  and queues keyword-matched topics. Registered threads capture the print
+  view (`action=printpage`), the whole thread as stable text; the `;all`
+  view is Cloudflare-challenged from this host and board pages carry live
+  user counters
+
+Candidates land in `DISCOVERY.md`, the tracked intake file at the repo root.
+On the capture host `discover-community.timer` runs both discoveries every 12
+hours, chained with the intake agent (`agent-discovery-intake.sh`, the same
+REVIEW_AGENT_BIN pattern as agent-review.sh), which assesses each pending
+candidate (bounded chunks of 15 per run while a backlog exists), appends
+registrations to `sources.toml` in the established shapes, may correct
+existing `stackernews-*`/`reddit-*` entries with the reason in its report,
+first-captures each registration via `just capture-one` (exit 10 is healthy;
+exit 21 defers to the next poll), and records every verdict in
+`DISCOVERY.md`. With REVIEW_AGENT_BIN unset, candidates wait in
+`DISCOVERY.md` for human triage. stacker.news serves no robots.txt, so there
+is no published crawl policy; keep discovery at this volume unless the
+operators have been asked. Full polls remain the scheduled runner's alone.
 
 
 ## Publishing screenshots: provenance, never inspection

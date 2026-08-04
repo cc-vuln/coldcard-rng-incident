@@ -18,15 +18,17 @@ its P1/P2 implementation (decision record at
 **OPEN.** The batch registered 38 X posts and two web sources, captured all but
 the two below, and wove the material into twelve pages. What remains:
 
-- [ ] **stackernews-prior-warning-video first capture.** stacker.news pages
-      began crashing the headless capture tab on 3 Aug ("Page.evaluate: Target
-      crashed", reproducible on bare navigate, also now affecting the
-      previously fine stackernews-drains-since-2022). The scheduler keeps
-      retrying. Durable fix: the GraphQL POST route works from this host
-      (`{ item(id: 1538447) { title text createdAt user { name } comments {
-      comments { text createdAt user { name } } } } }`); GET is
-      challenge-gated (HTTP 202, empty body). Needs a small POST-capable
-      fetch path in capture.py or a dedicated ingest script.
+- [x] **stackernews-prior-warning-video first capture.** Done 4 Aug 2026:
+      capture.py gained `fetch_post` (a raw JSON body the http backend POSTs),
+      and both stacker.news sources now poll the site's GraphQL API with a
+      fixed query instead of the crashing browser route; first GraphQL
+      captures are held for both. The work surfaced two adjacent bugs, both
+      fixed the same day: the agent-maintenance quiet window never actually
+      waited for the Type=oneshot poll service (`is-active` reads "activating"
+      as not active), and a crashed target tab let the capture browser read
+      back a different page, which filed MARA portal text under this source at
+      20260804T001640Z (kept, classified in revision-reviews.toml; a
+      tab-identity check in fetch_browser now refuses that).
 - [ ] **kevinkelbie-tracker-update screenshot.** Registered and text-read, but
       ingest-x refuses the capture because the post's attached media never
       hydrates (six attempts across a webbridge restart). Retry later; the
@@ -34,15 +36,22 @@ the two below, and wove the material into twelve pages. What remains:
 - [ ] **Alex Thorn's wave-4 thread.** Parent of both registered intangiblecoins
       corrections and of korraflow's Duel reply; the original claim thread and
       its pastebins are unregistered. Primary for the wave-4 story.
-- [ ] **Zenul_Abidin material** behind btctherapist-prior-drain-report: the
-      claimed four-year-old drain report exists here only as an attached
-      screenshot; the underlying post is unlocated.
+- [x] **Zenul_Abidin material** behind btctherapist-prior-drain-report. Done
+      4 Aug 2026: the nvk.wtf reactions index (nvkwtf-reactions) linked both
+      the circulation post and the underlying report. The X post where the
+      screenshot circulated is registered and captured as
+      zenulabidin-drain-report-screenshot; the underlying report is
+      Economy-Cash6726's r/ledgerwallet comment of 13 Mar 2024 (drain said to
+      be 2022), registered and captured as reddit-ledgerwallet-drain-comment.
+      The thread's own replies contest the "no dice rolls" claim.
 - [ ] **The prior-warning video** (youtu.be/oj_W3xOlt6U) linked from
       stackernews-prior-warning-video. Video capture is outside the pipeline;
       decide whether to add a yt-dlp lane or hold the thread as the pointer.
-- [ ] **Kelbie's railway tracker** (coldcard-hack.up.railway.app, announced at
-      1,367 BTC / 4,620 addresses). Decide whether to register it as a second
-      chain-monitor polling source beside the vercel deployment.
+- [x] **Kelbie's railway tracker** (coldcard-hack.up.railway.app, announced at
+      1,367 BTC / 4,620 addresses). Resolved 4 Aug 2026: Kelbie moved the
+      tracker to coldcard.rip on 3 Aug (kevinkelbie-tracker-move), and
+      coldcard.rip is registered and polled as coldcard-rip-tracker. No second
+      polling source needed.
 - [ ] **profedustream's JSON export artefact.** The announcement post is
       captured; the linked export file is not.
 - [ ] Registered but deliberately not woven anywhere yet: vladcostea's
@@ -89,27 +98,35 @@ freshness stamp on /record/; feed in the subnav; phase-aware nav;
       settle SysTick, RTC, call-history or derivation-cost assumptions. See the
       research plan under `docs/research/`.
 - [ ] No publication of instagibbs' two reproduction scripts has been captured
-      or linked in the archive. A 3 Aug 2026 recheck covered his public GitHub
-      repositories, rendered gist index, issue and comment surfaces and
-      personal site without finding them; unauthenticated global code search
-      was not reachable, so a script pasted inside an unrelated repository
-      cannot be excluded. The bounded method is preserved under
-      `docs/reviews/`.
+      or linked in the archive. A 4 Aug 2026 recheck covered his public GitHub
+      repositories and rendered gist index without finding them; a 3 Aug 2026
+      recheck also covered issue and comment surfaces and his personal site;
+      unauthenticated global code search was not reachable either time, so a
+      script pasted inside an unrelated repository cannot be excluded. The
+      bounded method is preserved under `docs/reviews/`.
 - [ ] Number of distinct human victims unknown; address counts overstate owners.
 - [ ] Total population of seeds generated under vulnerable firmware unknown.
       No unit-sales figure has been identified in the captured Coinkite material.
 - [ ] Coinkite's formal technical review: promised, with no publication date or
-      scope identified as of a recheck on 3 Aug 2026. The official
-      blog index and current firmware repository were checked again.
+      scope identified as of a recheck on 4 Aug 2026. The official
+      blog index and current firmware repository were checked again; the
+      vendor's 2 Aug update still describes the postmortem as forthcoming.
 - [ ] No CVE request or assignment has been identified in the checked sources as
-      of 3 Aug 2026. NVD keyword queries for `COLDCARD` and `Coinkite` returned
+      of 4 Aug 2026. NVD keyword queries for `COLDCARD` and `Coinkite` returned
       only the earlier `CVE-2019-14356` OLED side-channel record.
 - [ ] No third-party audit announcement has been identified in the checked
       official blog, current firmware repository or incident pull-request set as
-      of 3 Aug 2026. These negative results do not address private work.
+      of 4 Aug 2026. These negative results do not address private work.
 
 ## 2. Archive and tooling
 
+- [ ] Dry runs share the capture browser session with live polls. A dry run
+      during an active poll navigates and closes tabs in the same browser the
+      poll is reading from (observed 4 Aug 2026, when a full dry run
+      overlapped a tick the maintenance wrapper had failed to wait for). The
+      fixed wrapper prevents the overlaps it knows about, but a dry run
+      started outside it can still interfere. Consider a separate webbridge
+      session for dry runs.
 - [ ] Astro dev server is unusable: vite fails on import.meta chunk splitting.
       Production build is fine, so local preview builds and serves dist. Worth
       fixing properly rather than living with the rebuild loop.
@@ -196,18 +213,40 @@ undesigned until promoted into a numbered section or the IA design doc.
 - **Mine Stacker News properly.** The site exposes a public GraphQL API at
   stacker.news/api/graphql that returns an item with its text, author and
   comment count, and supports a search query with a sort argument. That is a
-  much better capture route than the browser, which is what the one
-  registered thread currently uses. Two caveats found on 2 Aug 2026: search
-  did not surface the recent incident threads at all, returning items from
-  2022 to 2024, so discovery needs the territory feed or known item ids
-  rather than keyword search; and no robots.txt is served (the path returns
+  much better capture route than the browser. Two caveats found on 2 Aug
+  2026: search did not surface the recent incident threads at all, returning
+  items from 2022 to 2024, so discovery needs the territory feed or known item
+  ids rather than keyword search; and no robots.txt is served (the path returns
   the application shell), so crawl permission should be confirmed with the
-  operators before polling at any volume. Updated 3 Aug 2026: the larger
-  incident thread is now registered (stackernews-prior-warning-video, item
-  1538447); the browser route crashes the capture tab sitewide (section 0),
-  which strengthens the case for this API route. POST works from this host
-  including nested `comments { comments { ... } }`; GET is challenge-gated.
-  (2 Aug 2026, updated 3 Aug 2026)
+  operators before polling at any volume. Updated 4 Aug 2026: the API is now
+  the capture route for both registered threads (stackernews-drains-since-2022
+  and stackernews-prior-warning-video, items 1538415 and 1538447) via
+  `fetch_post` in capture.py, after the browser route began crashing the
+  capture tab sitewide. Largely resolved 4 Aug 2026: the ~bitcoin and
+  ~security recent feeds were enumerated back to 30 Jul, 50 incident threads
+  were registered and first-captured (the `stackernews-*` batch at the end of
+  sources.toml), and `scripts/discover_stackernews.py` (`just
+  discover-stackernews`) keeps discovery going at two requests per run, fired
+  every 12 hours by `discover-community.timer` on the capture host, chained
+  with the intake agent (`agent-discovery-intake.sh`, REVIEW_AGENT_BIN)
+  which assesses candidates, registers relevant threads in `sources.toml`
+  itself (and may correct existing `stackernews-*`/`reddit-*` entries),
+  first-captures
+  each registration via `just capture-one`, and records verdicts in the
+  tracked `DISCOVERY.md` intake file. Reddit joined the same pipeline on
+  4 Aug 2026: `scripts/discover_reddit.py` reads the r/coldcard and r/Bitcoin
+  /new listings through the capture browser session (anonymous JSON is 403
+  from this host), with every new r/coldcard post queued and r/Bitcoin
+  keyword-sieved; the first enumeration's backlog is being assessed by the
+  intake agent in bounded chunks of 15 per run. BitcoinTalk followed the same
+  day: `scripts/discover_bitcointalk.py` reads the Bitcoin Discussion and
+  Wallet software board indexes directly (SMF answers this host; robots.txt
+  carries only a sitemap line), and registered threads capture the print view
+  (`action=printpage`) because `;all` is Cloudflare-challenged from this
+  host. Still
+  open: the permission question above before any higher-volume polling, and
+  title matching misses oblique thread titles (run with `--all` for a full
+  manual sweep when the feed is busy). (2 Aug 2026, updated 4 Aug 2026)
 
 - **Provider-communications intake (client emails).** Custody and platform
   providers sent incident guidance to clients by email before or instead of

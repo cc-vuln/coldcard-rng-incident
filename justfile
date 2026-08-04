@@ -37,6 +37,22 @@ capture-one id:
 capture-urgent:
     @{{py}} scripts/capture.py capture --tier 1
 
+# Discover new Stacker News incident threads (2 gentle requests; see script docstring)
+discover-stackernews *ARGS:
+    @{{py}} scripts/discover_stackernews.py {{ARGS}}
+
+# Discover new Reddit incident threads (reads via the capture browser session)
+discover-reddit *ARGS:
+    @{{py}} scripts/discover_reddit.py {{ARGS}}
+
+# Discover new BitcoinTalk incident threads (2 board pages, direct)
+discover-bitcointalk *ARGS:
+    @{{py}} scripts/discover_bitcointalk.py {{ARGS}}
+
+# Assess pending DISCOVERY.md candidates with the intake agent
+discovery-intake *ARGS:
+    @./scripts/agent-discovery-intake.sh {{ARGS}}
+
 # What is tracked, and when each source last moved
 status:
     @{{py}} scripts/capture.py status
