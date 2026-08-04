@@ -1,0 +1,62 @@
+post: 1ve97sw
+author: eternal_recurrence12
+created_utc: 1785751507
+title: Basic Flaw, Devastating Impact: Engineering Negligence in the Coinkite Bug
+body:
+While software bugs are inevitable, the recent Coinkite bug represents a severe oversight by hardware security standards. The vulnerability occurred because a code constant intended for development testing was left active in production, causing the firmware to fall back on a deterministic software pseudorandom generator instead of querying the dedicated Hardware True Random Number Generator (TRNG) embedded in the secure element (such as the ATECC608).
+
+​Beyond the configuration flaw, the release pipeline lacked essential integration testing. A proper quality assurance suite should execute automated regression tests that repeatedly generate seeds, validating statistical entropy variance and explicitly asserting that sequential key generations never collapse into identical or predictable values. What do you guys think, am I on the right track here or do you disagree?
+
+comment: p1fp278
+parent: t3_1ve97sw
+author: Xen7963
+created_utc: 1785760474
+edited: 1785766127
+body:
+Open source should not be a cost saving measure, it is an extra on top of standard QA. How many of these so called open source projects dare to disclose their QA budget I am wondering.
+
+comment: p1g3rj4
+parent: t1_p1fp278
+author: eternal_recurrence12
+created_utc: 1785764941
+edited: false
+body:
+Agreed that open source doesn't replace internal QA, but this isn't a budget issue—it's a lack of basic unit and integration testing.
+​The firmware runs MicroPython and C. A simple unit test in Python asserting that entropy generation calls the true hardware TRNG instead of falling back to a deterministic PRNG (Yasmarang) would have caught this in seconds on any local dev environment or basic CI pipeline.
+​This wasn't a complex edge-case; it was the total absence of test coverage for a core security invariant
+
+comment: p1g87je
+parent: t1_p1g3rj4
+author: Xen7963
+created_utc: 1785766182
+edited: false
+body:
+Budget is just one measure of the effort, surely they could have high budget but still missed out
+
+comment: p1gd9k5
+parent: t3_1ve97sw
+author: tenuousemphasis
+created_utc: 1785767560
+edited: false
+body:
+It's worse actually. That constant was introduced because the developer was flailing and didn't understand what they did.
+
+https://insider.btcpp.dev/p/when-randombytes-runs-but-doesnt
+
+comment: p1gs802
+parent: t1_p1gd9k5
+author: eternal_recurrence12
+created_utc: 1785771482
+edited: false
+body:
+OMG! Classic 'it works on my machine' energy. The code ran without throwing an exception, so they assumed it worked—textbook silent failure.
+
+comment: p1ikm5d
+parent: t1_p1gd9k5
+author: daysonjupiter
+created_utc: 1785787834
+edited: false
+body:
+After all, seems like a human error in judgement. We will see more of this in the future, devs relying on ai more and more and not understanding the logics in their own code from the core. 
+
+Real people got really hurt because of this lax approach to such a critical component. 

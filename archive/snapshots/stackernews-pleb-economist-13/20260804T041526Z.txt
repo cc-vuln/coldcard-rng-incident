@@ -1,0 +1,58 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-07-31T15:20:02.436Z",
+            "text": "One of the big reasons for not “doing the rational thing” is saliency. \n\nThe assumption that somebody would have found the vulnerability if it existed is framed incorrectly. The better assumption would be that if there were a sufficiently easy to find vulnerability it would have been found. \n\nThat second framing still isn’t a correct assumption but it includes the important concept that finding vulnerabilities is a function of both the difficulty of finding them and the payoff for finding them. \n\nOther things equal, we should expect more vulnerabilities to be found when NGU and when technology improves for attacking systems.",
+            "user": {
+              "name": "Undisciplined"
+            }
+          },
+          {
+            "createdAt": "2026-07-31T16:00:49.214Z",
+            "text": "> The answer has to be: not enough people were actually looking at it.  Bitcoin is a small community, and everyone is busy with their own things.  Very few people are spending the time to audit code.\n\nTotally... it's like we need more devs, and more dev funding! Maybe, like, a consortium?\n\n---\n\nRe: the law of large numbers and economics, I don't think that's quite true -- _neither_ in the business competition setting nor, _especially_ in the EMH domain. For, say, closing an arbitrage it only takes one guy (at sometimes a lot of capital). \n\nSubject to network effects and switching costs (maybe a new competitor _is_ better/not as shitty as previous dude) but it takes effort and work to switch; also, the EMH literature is littered with examples of constraints on shorting or completing the arbitrage cycle and so on. \n\nNone require _a lot of random people_ looking at them; only a select, entrepreneurial few, motivated enough. \n\n--- \n\nput differently, in your Coldcard example, it'd be like devs (for the company, or generally) had a $100k outstanding bonus if/when they found a critical bug. Don't think they do?",
+            "user": {
+              "name": "denlillaapan"
+            }
+          },
+          {
+            "createdAt": "2026-07-31T15:41:25.772Z",
+            "text": "Thanks. Sobering.\n\n> Bitcoin relies on game theoretic security.  Game theoretic security relies on assumptions about how people behave according to their incentives. ... Most people are not paying attention all the time.\n\nI'd also add that most people simply don't have the time or resources to both survive and pay attention, even some of the time.\n\nThis is easily the strongest argument for bitcoin's success not being inevitable. We've got heavy lifting to do!",
+            "user": {
+              "name": "jasonb"
+            }
+          },
+          {
+            "createdAt": "2026-07-31T16:19:25.481Z",
+            "text": "Fable: \"This chat has been routed to Opus\"\n\nChatGPT:  \"I can't help with that\"\n\nKimi K3 (probably): \"They used #ifndef MICROPY_HW_ENABLE_RNG  and not #if MICROPY_HW_ENABLE_RNG == 0\"",
+            "user": {
+              "name": "OneOneSeven"
+            }
+          },
+          {
+            "createdAt": "2026-07-31T16:55:32.686Z",
+            "text": "🔗 Privacy-friendly: https://invidious.f5.si/watch?v=P3K70rkaCJc",
+            "user": {
+              "name": "YewTuBot"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T00:08:17.901Z",
+            "text": "A multi sig set up with multiple hardware keys from different vendors can help prevent this type of attack.",
+            "user": {
+              "name": "Yermin"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-07-31T15:01:37.977Z",
+      "text": "This recent ColdCard incident highlighted a vulnerability in Bitcoin that we always knew about---weak entropy---but it also reminded me of a more subtle weakness, a weakness that I also consider to be the biggest vulnerability in the entire discipline of economics.\n\nAnd that's reliance on the **Law of Large Numbers**.\n\nI remarked in https://stacker.news/items/1536440/r/SimpleStacker?commentId=1536680 that one of the **security assumptions** that made me feel comfortable using popular and seasoned hardware wallets is the notion that \"if there was a major flaw, it would have been discovered by now.\"  It's on that assumption that I'm willing to adopt things that are popular and have been around for a while, and also why I'm slow to update.  The older version is more battle-tested, in my mind.\n\nBut the ColdCard scenario tests that assumption.  The vulnerability, once explained, is not that hard to understand (https://stacker.news/items/1536739/r/SimpleStacker).  The software had an if/else conditional that took the seed generation down the wrong path, never calling for hardware generation which uses noise in the physical environment, and instead falling back to its pre-defined, low-entropy software generation.  The question is **how did no one catch it for so long?**\n\nThe answer has to be: [not enough people were actually looking at it](https://stacker.news/items/1536478/r/SimpleStacker?commentId=1536686).  Bitcoin is a small community, and everyone is busy with their own things.  Very few people are spending the time to audit code.  You'd think the company has the responsibility, *and it does*, but the company itself probably only has a handful of engineers, all of whom are also busy, and if internal processes aren't correct, then these things can easily slip through the cracks.\n\nMake no mistake though, this definitely looks like a failure on ColdCard's part.  Personally, I can't imagine not having a test to actually test whether the build is pulling entropy from physical signals, and whether the firmware actually routed the seed generation down the correct path.\n\nBut I digress.  The point is that, a lot of assumptions that we make rely on a critical mass of people actually doing something that you'd think they're incentivized to do.  But that's often not a good assumption.  Even if the incentive is there, there may be fewer people doing it than you think, at any given moment.\n\nIt's the same thing in economics. The classical arguments for why competitive markets are efficient rely on the Law of Large Numbers. They assume that there are enough people out there competing that bad actors can't get away with their bad actions for long.  Company is out there scamming customers or providing bad product?  Economists assume that there are thousands of potential competitors out there ready to jump into the opening left by the terrible company.  But reality isn't so simple.  At any given moment, you could probably count on one hand the number of people paying enough attention, and with enough capital and know-how to actually fill the gap.\n\nSame with the Efficient Market Hypothesis. That's the idea that you can't beat the market, because the market price of any security on the stock market already contains all the relevant information.  But how true is that, really?  It's probably a decent approximation for heavily traded ETF baskets; but probably not for individual companies, especially smaller ones.  For those, there are likely a small number of people with better information who haven't acted on it yet, perhaps waiting for an opportune moment, or perhaps just having not spent their attention on it just yet.\n\nThis way of thinking has led to the classic joke: \"Milton Friedman and Eugene Fama are walking down the street. Friedman sees a hundred dollar bill on the floor and says, 'Look, Eugene, someone left a hundred dollar bill!'  Fama, without looking down, says, 'Nonsense! If there was a hundred dollar bill lying around, someone would have taken it alraedy!'\"\n\nSo you see, assumptions that everyone is always relentless optimizing at any moment, and that there are enough people out there doing rational things that all the rational things always get done instantly, is generally not a very good assumption.  Yet, economists rely on it for their models.  And, more relevant for this crowd: Bitcoiners can sometimes rely on it for their security assumptions.\n\nIt comes into play when Bitcoiners address questions about things like nation state attacks, like in this [famous Antonopoulos video](https://www.youtube.com/shorts/P3K70rkaCJc).  He assumes that we don't have to worry about a nation state attack because enough Bitcoiners will be ready to respond to it properly, and in a coordinated fashion.  He's right that if we did respond this way, it wouldn't be a huge concern.  But would we really be able to?  Will enough people be paying attention?  The nation state attacker would probably run enough psyops to seed doubt in the community as to what's really going on.  The number of actors prepared to act in their best interest at any given moment may be smaller than you think.\n\nSo that's the point I was trying to make.  Bitcoin relies on game theoretic security.  Game theoretic security relies on assumptions about how people behave according to their incentives.  No one denies that people *do* act according to their incentives.  But most game theoretic models assume a level of rationality that just isn't realistic.  Most people are not paying attention all the time.  The number of people who will act according to the model at any given moment is probably small.  The model may predict directions of movement over time fairly well, but \"predicting direction over time\" is not a good rubric with which to measure security.\n\nIn that sense, even though the ColdCard incident is a failure of the company, not Bitcoin, it also calls into question how we should think about macrosecurity in the Bitcoin system as a whole.",
+      "title": "Pleb Economist #13: ColdCard and the Law of Large Numbers",
+      "user": {
+        "name": "SimpleStacker"
+      }
+    }
+  }
+}

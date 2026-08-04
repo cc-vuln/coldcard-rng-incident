@@ -595,12 +595,7 @@ org = "r/Bitcoin"
 kind = "victim-account"
 tier = 1
 min_chars = 3000
-capture = "browser"
-# Wait for the comment tree rather than a fixed settle: `main` holds
-# almost nothing for the first seconds after navigation.
-required_text = ["Comments Section"]
-browser_scroll = true
-normalizers = ["relative-time", "reddit-engagement"]
+capture = "reddit-json"
 note = """
 A first-hand account posted while the sweep was still being worked out, before
 the cause was publicly identified. A rendered capture from 1 Aug 2026 holds the
@@ -726,7 +721,7 @@ wallet), which bears on the conflict disclosure already on the Slipstream page.
 [[source]]
 id = "coldcard-watch"
 title = "COLDCARD funds flow monitor"
-url = "https://coldcard-watch.vercel.app/"
+url = "https://coldcardwatch.com/"
 org = "community tracker"
 kind = "chain-monitor"
 tier = 3
@@ -737,7 +732,10 @@ browser-local address checker and follows spends from the consolidation
 addresses hop by hop. It labels the first episode 29 July without stating a
 timezone; the corresponding on-chain window begins 30 July at 01:10 UTC.
 Operator anonymous; figures cross-check against Galaxy's published map for the
-first episode.
+first episode. The original host, coldcard-watch.vercel.app, stopped resolving
+at 21:43 UTC on 3 Aug 2026; the same tracker (identical page, headline and
+last-drain figures) was found serving at coldcardwatch.com on 4 Aug 2026 and
+the registry URL moved with it.
 """
 
 [[source]]
@@ -763,6 +761,29 @@ renamed the section heading this capture previously keyed on. The guard string
 moved from that heading to "Watched holdings"; "Holding 1" and "Movement feed"
 are retained because they appear only after the client-side data resolves, so an
 unrendered shell still fails the check rather than entering the record.
+"""
+
+[[source]]
+id = "coldcard-rip-tracker"
+title = "coldcard.rip incident tracker"
+url = "https://coldcard.rip/"
+org = "community tracker"
+kind = "chain-monitor"
+tier = 3
+min_chars = 1000
+required_text = ["BTC swept", "Swept addresses", "How the waves are evidenced"]
+note = """
+Kevin Kelbie's rebuilt tracker, successor to the railway deployment announced
+2 August 2026. Self-described as AI-compiled and not independently
+fact-checked. Reorganises the incident into ten waves: the three first-night
+waves matching Block's published totals, the 31 July 45.9 BTC cluster now
+integrated as wave 960345 (1,126 swept addresses, vault
+bc1qtfrwa4j6rmj9rsgspv6a0yjumkg39js2numu75), and six further waves through
+block 960,737, each anchored with named claimant, Chainabuse and Galaxy
+evidence. Snapshot of 3 August 2026 17:07:58Z states 1,433.13 BTC swept from
+5,477 addresses. The header "Data snapshot" clock advances with the
+operator's rebuilds and no existing normalizer matches it; if it drifts
+without content change, classify the churn rather than rewriting captures.
 """
 
 [[x_post]]
@@ -1495,12 +1516,7 @@ org = "r/Bitcoin"
 kind = "community-discussion"
 tier = 2
 min_chars = 3000
-capture = "browser"
-# Wait for the comment tree rather than a fixed settle: `main` holds
-# almost nothing for the first seconds after navigation.
-required_text = ["Comments Section"]
-browser_scroll = true
-normalizers = ["relative-time", "reddit-engagement"]
+capture = "reddit-json"
 note = """
 First-hand report with a photograph of the June 2026 physical letter
 impersonating Coinkite: post-quantum security-update pretext, 30 June 2026
@@ -1519,12 +1535,7 @@ org = "r/coldcard"
 kind = "community-discussion"
 tier = 2
 min_chars = 3000
-capture = "browser"
-# Wait for the comment tree rather than a fixed settle: `main` holds
-# almost nothing for the first seconds after navigation.
-required_text = ["Comments Section"]
-browser_scroll = true
-normalizers = ["relative-time", "reddit-engagement"]
+capture = "reddit-json"
 note = """
 Second first-hand report of the June 2026 letter campaign, with a photograph
 of a slightly reworded variant carrying the same 30 June deadline and QR
@@ -1715,9 +1726,11 @@ org = "Stacker News"
 kind = "reporting"
 tier = 2
 min_chars = 400
-capture = "browser"
-browser_scroll = true
-normalizers = ["relative-time"]
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538415) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
 note = """
 A Stacker News thread collecting screenshots said to show COLDCARD owners
 reporting unexplained drains from 2022 onward, and asking what a vendor could
@@ -1728,10 +1741,11 @@ not established the provenance or dates of the original reports. Registered
 because a claim of much earlier losses would change the incident's scope if it
 held up, and because the discussion itself is part of the response record.
 
-Stacker News renders client side, so this is captured through the browser
-route. The site also exposes a public GraphQL API at /api/graphql that returns
-the item and its comments as structured data, which would be a better capture
-route; see the backlog.
+Captured through the site's public GraphQL API since 4 Aug 2026: the browser
+route began crashing the capture tab sitewide, and the API answers POST from
+this host while the rendered page is challenge-gated. The query fixes the
+captured surface to the item's title, text and two levels of comments, each
+with author and absolute timestamp.
 """
 
 [[source]]
@@ -1987,15 +2001,23 @@ org = "Stacker News"
 kind = "reporting"
 tier = 2
 min_chars = 400
-capture = "browser"
-browser_scroll = true
-normalizers = ["relative-time"]
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538447) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
 note = """
 A Stacker News thread linking a YouTube video (youtu.be/oj_W3xOlt6U) said to
 show the BTCRecover maintainer warning about COLDCARD entropy two years before
 the incident, and claiming NVK had blocked him on X. The prior-warning claim
 and the block claim are the thread author's; neither is verified here, and the
 video itself is not captured by this archive.
+
+Captured through the site's public GraphQL API: the browser route crashes the
+capture tab on stacker.news pages, and the API answers POST from this host
+while the rendered page is challenge-gated. The query fixes the captured
+surface to the item's title, text and two levels of comments, each with author
+and absolute timestamp.
 """
 
 [[source]]
@@ -2006,8 +2028,7 @@ org = "reddit"
 kind = "community-discussion"
 tier = 2
 min_chars = 1500
-capture = "browser"
-required_text = ["Comments Section"]
+capture = "reddit-json"
 why = """
 An owner-to-owner warning not to open links in email that appears to come from a hardware-wallet vendor, posted while the incident was live. It is a first-hand record of the phishing wave the scam guidance anticipates, written by someone who is not a vendor or a researcher, which is the voice least represented in the rest of the register. Short thread: the floor is set below its rendered length rather than the 3,000 used for the longer Reddit threads.
 """
@@ -2021,12 +2042,7 @@ org = "r/Bitcoin"
 kind = "community-discussion"
 tier = 2
 min_chars = 3000
-capture = "browser"
-# Wait for the comment tree rather than a fixed settle: `main` holds
-# almost nothing for the first seconds after navigation.
-required_text = ["Comments Section"]
-browser_scroll = true
-normalizers = ["relative-time", "reddit-engagement"]
+capture = "reddit-json"
 note = """
 A discussion thread claiming an LLM prompted only to "check for
 vulnerabilities" surfaced the defect after eight minutes, and asserting the
@@ -2122,7 +2138,9 @@ url = "https://x.com/LLFOURN/status/2084079829545370034"
 author = "LLFOURN"
 posted = "2026-08-03T00:52:06Z"
 tag = "ai-security-response"
-why = "Start of LLFOURN's thread testing what was missing from the pre-incident audit prompt; reports the same prompt failing on Opus 5 at xhigh reasoning effort."
+why = """
+Start of LLFOURN's thread testing what was missing from the pre-incident audit prompt; reports the same prompt failing on Opus 5 at xhigh reasoning effort. The per-model results posted in the thread are held as individual captures (llfourn-repro-gpt56-pass, llfourn-repro-glm52-fail, llfourn-repro-kimi-k3-success, llfourn-repro-qwen3-fail, llfourn-repro-gemini-flash-fail, llfourn-repro-exact-prompt, ozdeadman-kimi27-pass). One further reply (status 2084467388607783406) no longer rendered at capture time and is not held.
+"""
 
 [[x_post]]
 id = "zachxbt-declines-tracing"
@@ -2518,4 +2536,3241 @@ posted = "2026-08-03T08:02:32Z"
 tag = "on-chain-analysis"
 why = """
 Announces the on-chain tracker is moving from coldcard-hack.up.railway.app to the dedicated domain coldcard.rip, with an attached video; the tracker was announced on 2 August as tracking 1,367 BTC across 4,620 drained addresses.
+"""
+
+[[x_post]]
+id = "studentofthings-prior-discovery-claim"
+title = "Claimed unreported prior discovery"
+url = "https://x.com/studentofthings/status/2084007449267188163"
+author = "studentofthings"
+posted = "2026-08-02T20:04:29Z"
+tag = "prior-warning-claim"
+why = """
+Claims to have found the COLDCARD RNG bug 11 months before the July 2026 incident and to have withheld it because Coinkite did not acknowledge an earlier report. A first-hand claim with an attached screenshot; not independently verified.
+"""
+
+[[x_post]]
+id = "joecarlasare-fake-post-warning"
+title = "Fake-post warning"
+url = "https://x.com/JoeCarlasare/status/2084428579408880009"
+author = "JoeCarlasare"
+posted = "2026-08-03T23:57:54Z"
+tag = "scam-report"
+why = """
+Calls out a post preying on holder fears during the incident as fake and asks readers to share the warning; the attached image shows the post being called out.
+"""
+
+[[x_post]]
+id = "rob1ham-dice-roll-endorsement"
+title = "Dice-roll verification endorsement"
+url = "https://x.com/Rob1Ham/status/2084430349984055307"
+author = "Rob1Ham"
+org = "AnchorWatch"
+posted = "2026-08-04T00:04:56Z"
+tag = "commentary"
+why = """
+Points to PortlandHODL's dice-roll verification report as adding to the work of jamesob and BlockEng, arguing it shows dice-roll entropy is applied when using a COLDCARD; frames skepticism of the wider system as warranted given the RNG failure.
+"""
+
+[[x_post]]
+id = "portlandhodl-dice-roll-verification"
+title = "Dice-roll seed path verification report"
+url = "https://x.com/PortlandHODL/status/2084428567077900563"
+author = "PortlandHODL"
+posted = "2026-08-03T23:57:51Z"
+tag = "independent-analysis"
+why = """
+Primary verification of the COLDCARD dice-roll seed path across multiple firmware versions; reports the implementation is correct and can generate up to 256 bits of entropy with 100 dice rolls. The held capture is the announcement post, with the full report linked from it.
+"""
+
+[[x_post]]
+id = "unchained-client-migrations"
+title = "Client vault migrations report"
+url = "https://x.com/unchained/status/2084441306051252293"
+author = "unchained"
+org = "Unchained"
+posted = "2026-08-04T00:48:29Z"
+tag = "reported-migration-outcome"
+why = """
+Reports that Unchained clients transferred thousands of BTC from vaults with compromised COLDCARD keys to new vaults with new keys in the days after disclosure. Provider-reported aggregate figure.
+"""
+
+[[x_post]]
+id = "kloaec-slipstream-psbt-tool"
+title = "PSBT-to-Slipstream conversion tool"
+url = "https://x.com/KLoaec/status/2084440671503499609"
+author = "KLoaec"
+posted = "2026-08-04T00:45:57Z"
+tag = "migration-guidance"
+why = """
+Announces a tool that converts most PSBT formats into raw transactions acceptable to MARA Slipstream, aimed at wallets where an attacker can only act once a transaction is broadcast, such as a 2-of-3 with two COLDCARDs. Part of the Slipstream advice chain; the author built the tool.
+"""
+
+[[x_post]]
+id = "anchorwatch-awareness-notice"
+title = "Off-platform awareness notice"
+url = "https://x.com/AnchorWatch/status/2084406949924520344"
+author = "AnchorWatch"
+org = "AnchorWatch"
+posted = "2026-08-03T22:31:57Z"
+tag = "incident-response-guidance"
+why = """
+Provides a notice for reposting on Instagram, Facebook or TikTok, warning that time is running out to move funds and that many holders have not heard about the COLDCARD vulnerability.
+"""
+
+[[x_post]]
+id = "lopp-missed-bug-context"
+title = "Why the bug escaped review"
+url = "https://x.com/lopp/status/2084241215852068992"
+author = "lopp"
+posted = "2026-08-03T11:33:23Z"
+tag = "commentary"
+why = """
+Argues the defect was non-obvious because it sat in the build system rather than the main code, notes that Ledger DonJon's repeated reviews missed it, that most LLMs miss it without full submodule context, and that critical vulnerabilities have survived over a decade in widely used code such as SSL, SSH and Linux.
+"""
+
+[[x_post]]
+id = "darosior-whitehat-sweep-warning"
+title = "Whitehat sweep warning"
+url = "https://x.com/darosior/status/2084272746612019439"
+author = "darosior"
+posted = "2026-08-03T13:38:41Z"
+tag = "incident-response-guidance"
+why = """
+Warns that a widespread whitehat sweep of vulnerable funds would be actively harmful and makes things worse, while acknowledging the proposal comes from a good place.
+"""
+
+[[x_post]]
+id = "bullbitcoin-boltz-suspension"
+title = "Boltz suspension advisory for BULL users"
+url = "https://x.com/francispouliot_/status/2084375359521456471"
+author = "francispouliot_"
+org = "Bull Bitcoin"
+posted = "2026-08-03T20:26:26Z"
+tag = "service-access"
+why = """
+Advises BULL users that Boltz has suspended its services and that work on solutions is in progress, with a personal comment from the author in the replies.
+"""
+
+[[x_post]]
+id = "laurentmt-prior-claim-reaction"
+title = "Reaction to prior-discovery claim"
+url = "https://x.com/LaurentMT/status/2084281873841164319"
+author = "LaurentMT"
+posted = "2026-08-03T14:14:57Z"
+tag = "commentary"
+why = """
+Reacts to the claimed prior discovery of the RNG bug: "It's devastating if it's not a hoax." Shares the claim's attached image.
+"""
+
+[[x_post]]
+id = "laurentmt-vuln109-sources"
+title = "VULN-109 description and code reference"
+url = "https://x.com/LaurentMT/status/2084434979912663547"
+author = "LaurentMT"
+posted = "2026-08-04T00:23:20Z"
+tag = "prior-warning-claim"
+why = """
+Posts the VULN-109 description from the karma-x.io article behind the prior-discovery claim together with the referenced ae.c code line, in reply to Fully Noded's developer; presented as the sources for the claim that this bug class was flagged before the incident.
+"""
+
+[[source]]
+id = "karmax-post-hotfix-disclosure"
+title = "Post-hotfix full disclosure and 39 unpatched findings"
+url = "https://karma-x.io/blog/post/75/"
+published = "2026-08-02"
+org = "Karma-X"
+kind = "independent-technical-analysis"
+tier = 2
+note = """
+Primary source behind the VULN-109 prior-discovery claim. States that a September 2025 private audit flagged the single-source RNG class (SE TRNG disabled at the source, ae.c:666) and was never submitted after an earlier report (VULN-023) got a same-day fix but no CVE or advisory. Cross-checks the audit against v5.6.0 and claims 39 findings remain unfixed, plus two new ones (Delta-mode message-signing gap, kleptography channel via R-value grinding), with full detail said to be delivered to Coinkite in parallel with publication. The September 2025 audit itself is not public, so the prior-discovery claim rests on the author's account.
+"""
+
+[[x_post]]
+id = "thebitcoinlayer-aftermath-letter"
+title = "Bitcoiners, Where Do We Go From Here?"
+url = "https://x.com/TheBitcoinLayer/status/2084476338392694947"
+author = "TheBitcoinLayer"
+org = "The Bitcoin Layer"
+posted = "2026-08-04T03:07:41Z"
+tag = "commentary"
+why = """
+Long-form opinion letter on the incident: the author's own custody reaction (moving some balance toward custodians), an assignment of ultimate responsibility to NVK, and open questions on self custody after the disclosure. Discloses past Foundation and Blockstream sponsorships and anchors its account of Coinkite conduct on Zach Herbert's first-hand thread. Opinion, attributed as such.
+"""
+
+# ------------------------------------------------- third-party aggregators
+
+[[source]]
+id = "nvkwtf-articles"
+title = "nvk.wtf articles index"
+url = "https://nvk.wtf/articles"
+org = "nvk.wtf"
+kind = "aggregator"
+tier = 3
+capture = "browser"
+min_chars = 500
+required_text = ["Reporting and research on the Coldcard vulnerability", "Newest first"]
+note = """
+Index of third-party reporting and research on the incident, each entry linked
+out to its source. The site is an aggregator run alongside promotion of
+competing open-source hardware (SeedSigner, BTClock, Passport) and takes an
+openly critical stance toward NVK and Coinkite, so its selection and summaries
+are editorial and interested; the operator is not named on the site. Tracked
+for what it chooses to include and when, and as a discovery feed: anything it
+surfaces is followed to the primary and registered there, never cited from
+this copy. SPA with no feed or API; every path serves the app shell, so
+capture goes through the browser.
+"""
+
+[[source]]
+id = "nvkwtf-receipts"
+title = "nvk.wtf receipts index"
+url = "https://nvk.wtf/receipts"
+org = "nvk.wtf"
+kind = "aggregator"
+tier = 3
+capture = "browser"
+min_chars = 500
+required_text = ["Screenshots of NVK's posts", "#wtfnvk"]
+note = """
+Screenshots of NVK posts, some already deleted, kept with dates and, where one
+exists, a link to an independent archive; solicits further screenshots via the
+#wtfnvk hashtag. Same operator and stance caveats as nvkwtf-articles. The
+screenshots are third-hand material: anything that matters here is captured
+from the original post or the independent archive it links before it backs a
+claim.
+"""
+
+[[source]]
+id = "nvkwtf-reactions"
+title = "nvk.wtf reactions index"
+url = "https://nvk.wtf/reactions"
+org = "nvk.wtf"
+kind = "aggregator"
+tier = 3
+capture = "browser"
+min_chars = 500
+required_text = ["What other people have said publicly", "not a claim that it is accurate"]
+note = """
+Full quotes of other people's public posts about the vulnerability, each
+linked to the original. Same operator and stance caveats as nvkwtf-articles.
+Treated as a discovery feed only: quoted material is registered and captured
+at its source. Circularity watch: should it ever quote cc-vuln.org material,
+that is this archive reflected back, not independent corroboration.
+"""
+
+[[x_post]]
+id = "gladstein-reflections-thread"
+title = "Initial reflections on the Coldcard catastrophe"
+url = "https://x.com/gladstein/status/2084355296747810923"
+author = "gladstein"
+org = "HRF"
+posted = "2026-08-03T19:06:42Z"
+tag = "commentary"
+why = """
+Thirteen-point reflections thread from a prominent recommender: acknowledges trusting and recommending COLDCARD more than was warranted, apologises for HRF handing out devices at events, defends the bitcoin-only self-custody approach against what he calls scammer and ETF-promoter lecturing, and points to multi-vendor multisig and collaborative custody (Casa, Liana, AnchorWatch, Unchained named approvingly). First-hand accountability, opinion throughout.
+"""
+
+[[source]]
+id = "stackernews-galaxy-updated-total"
+title = "Galaxy's updated accounting: 1,596 BTC from ~7,300 addresses"
+url = "https://stacker.news/items/1539646"
+published = "2026-08-04"
+org = "Stacker News"
+kind = "reporting"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539646) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Stacker News thread by Scoresby reproducing Galaxy Digital's updated
+flow-of-funds accounting: high-confidence 1,596 BTC stolen from about 7,300
+addresses across three confirmed waves plus 14 smaller incidents, with a
+suspected-but-unconfirmed total near 2,000 BTC, and Wave 4 unconfirmed by any
+victim at posting time. A relay of Galaxy's own update, succeeding the 1,082.65
+BTC figure in glxyresearch-flow-map; the numbers are Galaxy's, not this
+archive's.
+"""
+
+[[x_post]]
+id = "zherbert-nvk-conduct-record"
+title = "Don't trust NVK, verify"
+url = "https://x.com/zherbert/status/2084269925632217297"
+author = "zherbert"
+org = "Foundation Devices"
+posted = "2026-08-03T13:27:28Z"
+tag = "commentary"
+why = """
+Long-form first-hand account by Foundation's CEO of NVK's years of public attacks on Foundation, SeedSigner, WalletScrutiny and independent researchers; the GPLv3 to Commons Clause license change; the BTClock trademark takedown; and a point-by-point correction of claims made about those projects. The author leads a direct competitor and says so inside the piece; The Bitcoin Layer's aftermath letter defers to this thread for its account of Coinkite conduct.
+"""
+
+[[x_post]]
+id = "btcperception-conversation-share"
+title = "Hardware wallet conversation share around the exploit"
+url = "https://x.com/BTCPerception/status/2084298157274312923"
+author = "BTCPerception"
+posted = "2026-08-03T15:19:39Z"
+tag = "reporting"
+why = """
+Conversation-share metrics from the Perception tracker: COLDCARD held 24% of hardware-wallet discussion in the twelve months before the exploit, level with Ledger, and 79% in the four days after, 2.4 times its entire prior year's mentions. The account's own measurements, share of conversation rather than market share.
+"""
+
+[[x_post]]
+id = "praveenperera-lowentropy-db-proposal"
+title = "Low-entropy wallet database proposal"
+url = "https://x.com/PraveenPerera/status/2084463358724448293"
+author = "PraveenPerera"
+posted = "2026-08-04T02:16:06Z"
+tag = "community-question"
+why = """
+Proposes a community-funded database of xpub hashes from grindable low-entropy wallets (roughly 2^52 for a hypothesised $1M), which software and watch-only wallets would check at import and refuse on a match, with the hash-only design intended to avoid privacy leaks. Posted as an open question, asking to be told if the idea is dumb.
+"""
+
+[[x_post]]
+id = "bitpaine-river-dice-officer"
+title = "River's Chief Dice Officer joke"
+url = "https://x.com/BitPaine/status/2084313682130165958"
+author = "BitPaine"
+posted = "2026-08-03T16:21:21Z"
+tag = "commentary"
+why = """
+Praises River's speed in riffing on the incident: the attached image is River's satirical "We're Hiring: Chief Dice Officer" posting extolling dice-mediated entropy over TRNGs. Company-response humour rather than guidance, held as part of the public reaction record.
+"""
+
+[[x_post]]
+id = "zenulabidin-drain-report-screenshot"
+url = "https://x.com/Zenul_Abidin/status/2083756420843839872"
+author = "Zenul_Abidin"
+posted = "2026-08-02T03:26:59Z"
+tag = "prior-warning-claim"
+why = """
+Circulated the screenshot of Economy-Cash6726s years-old r/ledgerwallet drain report after the vulnerability became public; the circulation btctherapist-prior-drain-report credits. The underlying Reddit comment is registered separately as reddit-ledgerwallet-drain-comment.
+"""
+
+[[source]]
+id = "reddit-ledgerwallet-drain-comment"
+title = "r/ledgerwallet seed-entropy thread carrying the 2022 drain claim"
+url = "https://www.reddit.com/r/ledgerwallet/comments/167bgjr/comment/kumtghc/"
+published = "2024-03-13"  # derived: created_utc of the drain-claim comment in the captured thread JSON
+org = "r/ledgerwallet"
+kind = "victim-account"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+note = """
+Primary behind the claimed years-old drain report that circulated as
+screenshots after the July 2026 disclosure (zenulabidin-drain-report-screenshot,
+btctherapist-prior-drain-report). Economy-Cash6726's two-year-old comment in an
+r/ledgerwallet seed-entropy thread claims a Coldcard Mk4 was drained after
+generating a 12-word seed without dice rolls; resurfaced after the disclosure,
+the author dates the drain to 2022 and claims the vendor blocked them when they
+reported it. The thread's own replies contest the account: the author is quoted
+describing a Python script used to produce dice rolls, which contradicts "no
+dice rolls". First-hand claim, disputed in place, not verified here. Surfaced
+via the nvk.wtf reactions index (nvkwtf-reactions).
+"""
+
+[[x_post]]
+id = "llfourn-repro-gpt56-pass"
+title = "Reproduction: gpt-5.6-sol passes"
+url = "https://x.com/LLFOURN/status/2084081148930695658"
+author = "LLFOURN"
+posted = "2026-08-03T00:57:20Z"
+tag = "ai-security-response"
+why = "First result in the audit-prompt reproduction thread: gpt-5.6-sol at max effort passes with the same prompt that failed pre-incident."
+
+[[x_post]]
+id = "llfourn-repro-glm52-fail"
+title = "Reproduction: glm 5.2 fails"
+url = "https://x.com/LLFOURN/status/2084090595329687626"
+author = "LLFOURN"
+posted = "2026-08-03T01:34:53Z"
+tag = "ai-security-response"
+why = "Thread result: glm 5.2 fails the same audit prompt."
+
+[[x_post]]
+id = "llfourn-repro-exact-prompt"
+title = "The exact audit prompt tested"
+url = "https://x.com/LLFOURN/status/2084109013508366763"
+author = "LLFOURN"
+posted = "2026-08-03T02:48:04Z"
+tag = "ai-security-response"
+why = "The verbatim audit prompt used across the reproduction thread, posted in reply to Ryan Dale; the context every pass/fail result in the thread refers to."
+
+[[x_post]]
+id = "llfourn-repro-kimi-k3-success"
+title = "Reproduction: Kimi k3 succeeds"
+url = "https://x.com/LLFOURN/status/2084399174880260188"
+author = "LLFOURN"
+posted = "2026-08-03T22:01:04Z"
+tag = "ai-security-response"
+why = "Thread result: Kimi k3 succeeds with the same audit prompt."
+
+[[x_post]]
+id = "llfourn-repro-qwen3-fail"
+title = "Reproduction: Qwen3-coder-next fails"
+url = "https://x.com/LLFOURN/status/2084400470215582102"
+author = "LLFOURN"
+posted = "2026-08-03T22:06:13Z"
+tag = "ai-security-response"
+why = "Thread result: Qwen3-coder-next fails the same audit prompt, even after being shown the problem."
+
+[[x_post]]
+id = "llfourn-repro-gemini-flash-fail"
+title = "Reproduction: gemini 3.6 flash fails"
+url = "https://x.com/LLFOURN/status/2084451396544545213"
+author = "LLFOURN"
+posted = "2026-08-04T01:28:34Z"
+tag = "ai-security-response"
+why = "Thread result: gemini 3.6 flash at high effort fails the same audit prompt."
+
+[[x_post]]
+id = "ozdeadman-kimi27-pass"
+title = "Reproduction: Kimi 2.7 Coding passes"
+url = "https://x.com/ozdeadman/status/2084462907044286703"
+author = "ozdeadman"
+posted = "2026-08-04T02:14:19Z"
+tag = "ai-security-response"
+why = "Third-party result posted into the reproduction thread: Kimi 2.7 Coding passes the same audit prompt."
+
+[[x_post]]
+id = "bitcoinrothbard-trezor-phishing"
+title = "Fake Trezor CEO email"
+url = "https://x.com/BitcoinRothbard/status/2084483674964177079"
+author = "BitcoinRothbard"
+posted = "2026-08-04T03:36:50Z"
+tag = "scam-report"
+why = """
+Shows a phishing email impersonating Trezor's CEO that leverages the COLDCARD exploit to push a "latest version in our web suite" link, and quote-shows americanhodl8's alert about the fake COLDCARD Desktop app. Part of the same panic-driven phishing wave.
+"""
+
+[[x_post]]
+id = "americanhodl-desktop-app-phishing"
+title = "Fake COLDCARD Desktop app phishing alert"
+url = "https://x.com/americanhodl8/status/2084480562501484975"
+author = "americanhodl8"
+posted = "2026-08-04T03:24:28Z"
+tag = "scam-report"
+why = """
+Warns of a phishing email urging download of a fake "Coldcard Desktop App MK3 4.2.0", stressing that no COLDCARD desktop app exists; the attached screenshots show the lure and its download button.
+"""
+
+[[x_post]]
+id = "bitcoinnews-whitehat-drains"
+title = "White hat drains of COLDCARD wallets begin"
+url = "https://x.com/BitcoinNewsCom/status/2084273394229362780"
+author = "BitcoinNewsCom"
+org = "Bitcoin News"
+posted = "2026-08-03T13:41:15Z"
+tag = "reporting"
+why = """
+Reports, citing @coinjoined, that white-hat drains of exploitable COLDCARD wallets are underway, and advises owners not to destroy their devices because any recovery claim may depend on proving ownership with the device and KYC records. A reported claim, not independently confirmed; contrast darosior-whitehat-sweep-warning.
+"""
+
+[[x_post]]
+id = "lookonchain-galaxy-2055-btc"
+title = "Relayed Galaxy estimate: 2,055 BTC"
+url = "https://x.com/lookonchain/status/2084465607932854717"
+author = "lookonchain"
+posted = "2026-08-04T02:25:03Z"
+tag = "reporting"
+why = """
+Relays Galaxy Research's updated estimate that losses may have reached 2,055 BTC (about $130M) across more than 7,700 victim addresses. The figures are Galaxy's, amplified by an analytics account with a large following.
+"""
+
+[[x_post]]
+id = "laurentmt-open-hardware-contrast"
+title = "Open-hardware contrast"
+url = "https://x.com/laurentmt/status/2084265335893504311"
+author = "LaurentMT"
+posted = "2026-08-03T13:09:14Z"
+tag = "commentary"
+why = """
+"Somewhere along the way, something went wrong", linking a Bitcoin Magazine piece from Coinkite's open-hardware era, when it published everything needed to build your own COLDCARD, with attached images. Commentary on how far the project moved from that posture.
+"""
+
+[[x_post]]
+id = "christophera-rng-review-history"
+title = "1994 lesson: randomness fails reviews"
+url = "https://x.com/christophera/status/2084299750757777597"
+author = "christophera"
+org = "Blockchain Commons"
+posted = "2026-08-03T15:25:59Z"
+tag = "historical-precedent"
+why = """
+First-hand historical note: in 1994, when Verisign would not issue a certificate without a basic security review, over half of the secure servers his company reviewed failed on randomness problems. His standing lesson: randomness is easy to get wrong and always needs multiple reviewers.
+"""
+
+[[x_post]]
+id = "basedlayer-influencers-vs-engineers"
+title = "Influencers over engineers"
+url = "https://x.com/basedlayer/status/2084247812645011711"
+author = "basedlayer"
+posted = "2026-08-03T11:59:36Z"
+tag = "commentary"
+why = """
+Argues the most exposed holders were those listening to influencers rather than engineers, and that NVK antagonising engineers years earlier did not help a white hat find the bug before black hats did.
+"""
+
+[[x_post]]
+id = "proofomoney-educator-victim-17btc"
+title = "Educator's 17.39 BTC loss, anonymised"
+url = "https://x.com/proofofmoney/status/2084386594484879773"
+author = "ProofOfMoney"
+posted = "2026-08-03T21:11:04Z"
+tag = "victim-report"
+why = """
+Second-hand victim account, posted with the victim's permission and without naming him: a long-time Bitcoin educator lost 17.39 BTC from a single-sig COLDCARD key, said to make him the fifth-largest victim so far; most of his holdings are in multisig. The author notes the identifying detail is withheld deliberately.
+"""
+
+[[x_post]]
+id = "onramp-custody-guidance"
+title = "Emergency advice and multi-institution custody pitch"
+url = "https://x.com/mtanguma/status/2084280474168401981"
+author = "mtanguma"
+org = "Onramp Bitcoin"
+posted = "2026-08-03T14:09:23Z"
+tag = "custody-provider-guidance"
+why = """
+Practical migration advice (move now, an exchange is a fine place to stand while the building is on fire) followed by a pitch for Onramp's multi-institution custody, 2-of-3 native multisig across independent regulated institutions. The author is an Onramp principal promoting his own custody product, which the post itself acknowledges; the cited figures (1,367 BTC, 4,585 addresses, three waves) match the community tracker numbers of that day.
+"""
+
+[[x_post]]
+id = "robinlinus-uid-whitehat-question"
+title = "UID request to aid white hats"
+url = "https://x.com/robin_linus/status/2084101249306337469"
+author = "robin_linus"
+posted = "2026-08-03T02:17:13Z"
+tag = "community-question"
+why = """
+Asks Coinkite publicly whether it has UID information that could help white hats search the vulnerable key space faster than attackers. Part of the white-hat sweep discussion: darosior-whitehat-sweep-warning argues the sweep would be harmful, bitcoinnews-whitehat-drains reports drains underway.
+"""
+
+# ---- 4 Aug 2026 Stacker News sweep batch: 50 incident threads ------------
+# Enumerated from the ~bitcoin and ~security recent territory feeds (item ids
+# 1536238-1539720, 30 Jul-4 Aug 2026). See scripts/discover_stackernews.py for
+# the discovery route; the capture route is the same GraphQL item query the
+# first two stackernews sources use.
+
+[[source]]
+id = "stackernews-first-drain-report"
+title = "User reports their coldcard wallet being drained on Reddit"
+url = "https://stacker.news/items/1536238"
+published = "2026-07-30"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536238) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+The earliest incident thread identified on Stacker News: Murch relaying the first Reddit drain report while the recipient address was still collecting, the evening before Coinkite's disclosure. The drain claims quoted are the Reddit posters', unverified here; the thread's value is that it fixes when the incident first surfaced publicly and how the community read it in real time. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-rng-analysis-by-device"
+title = "Coldcard RNG Vulnerability Analysis by Device & Firmware"
+url = "https://stacker.news/items/1536654"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536654) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake's device-and-firmware breakdown of which COLDCARD models and firmware ranges carried the RNG defect. The post body is a single image, which this text-only capture does not hold; the comment discussion is captured. The analysis is the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-dice-roll-sound"
+title = "keep your f*ing coins off the exchange: dice-roll seed generation is sound"
+url = "https://stacker.news/items/1536709"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536709) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake arguing that dice-roll seed generation was safe from the RNG bug and urging owners not to retreat to exchanges. Bears on the dice and mitigations pages; the safety claim is the author's reasoning, contested in the thread's own replies, and not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-firmware-vulnerability-announcement"
+title = "Coldcard Mk2, Mk3, Mk4, Mk5, and Q Firmware Security Vulnerability"
+url = "https://stacker.news/items/1536720"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536720) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Stacker News co-founder k00b relaying the vulnerability announcement, citing Block's report for the affected model and firmware ranges. The main announcement thread on the site and a principal venue for owner questions on day one. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-entropy-technical-deep-dive"
+title = "Technical Deep Dive into the Entropy Issue"
+url = "https://stacker.news/items/1536739"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536739) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake's technical walkthrough of the entropy failure, stressing that a firmware update does not repair an already-generated weak seed. The technical claims are the author's; where they overlap the vendor and Block accounts those primaries are registered separately. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-airgap-hot-take"
+title = "Hot take: The airgap didn't save Coldcard. A USB cable might have"
+url = "https://stacker.news/items/1536826"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536826) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+sime arguing that airgapping protects against exfiltration, not against generating a bad seed, so a connected wallet mixing host entropy could have fared better. A design-philosophy dispute relevant to the mitigations pages; the claim is the author's and contested. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-spouse-response"
+title = "What is your spouse's response to the ColdCard entropy vulnerability?"
+url = "https://stacker.news/items/1536864"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536864) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby asking how owners' spouses responded to the vulnerability. Community colour on how the incident landed inside households; part of the response record. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-optech-416-thread"
+title = "COLDCARD, CLN disclosures, zk proof of reserves - Bitcoin Optech Newsletter #416"
+url = "https://stacker.news/items/1536932"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536932) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+schmidty linking Bitcoin Optech newsletter #416, which warned about the COLDCARD vulnerability. The newsletter itself is registered as optech-416; this source holds the Stacker News discussion of it. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-mempool-fees-prediction"
+title = "Will MemPool fees be significantly higher today because of the ColdCard issue?"
+url = "https://stacker.news/items/1536955"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536955) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Wumbo asking whether emergency sweeps to new wallets would move mempool fees on day one. Small thread, held because fee impact is part of the incident's measurable fallout and Galaxy's fee analysis is registered elsewhere. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-crowdsource-short-guide"
+title = "Let's crowdsource a very short guide for people who used Coldcards"
+url = "https://stacker.news/items/1536996"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536996) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby crowdsourcing a short migration guide for COLDCARD owners, with the author warning he would delete it if stackers found serious flaws. Community guidance drafted in public on day one; individual steps are contested in the replies and not endorsed here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-pleb-economist-13"
+title = "Pleb Economist #13: ColdCard and the Law of Large Numbers"
+url = "https://stacker.news/items/1537022"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537022) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+SimpleStacker's Pleb Economist column on the incident and the law of large numbers: with enough users, rare weak-entropy events become certainties. Opinion, attributed to the author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-self-custody-scale"
+title = "Can self custody actually scale"
+url = "https://stacker.news/items/1537107"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537107) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+HardMoney asking whether self custody can scale to the masses when seasoned users doing most things right were still exposed. Part of the self-custody-tractability debate the incident reopened. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-nvk-statement"
+title = "To all Coinkite users and the entire Bitcoin community - NVK"
+url = "https://stacker.news/items/1537172"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537172) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby reposting NVK's 'To all Coinkite users and the entire Bitcoin community' statement, urging owners to move funds before reading further. The statement text is NVK's; this source captures it as circulated on Stacker News plus the community response. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-false-promise-commercial-hww"
+title = "The False Promise of Commercial Hardware Wallets"
+url = "https://stacker.news/items/1537204"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537204) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+hasherstacker's essay 'The False Promise of Commercial Hardware Wallets', arguing the incident indicts the product category rather than one vendor. Opinion, attributed to the author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-legal-responsibility"
+title = "Is Coldcard legally responsible for the lost of the funds?"
+url = "https://stacker.news/items/1537215"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537215) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Bitcoiner1 asking whether Coinkite is legally responsible for the lost funds. Early community framing of the liability question; no legal reasoning here is endorsed. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-replacement-wallets"
+title = "What are the best hardware wallets to replace a coldcard"
+url = "https://stacker.news/items/1537353"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537353) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+HardMoney asking what hardware wallets should replace a COLDCARD. A migration-destination thread; mention of any product here is the posters', not a recommendation by this project. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-exchanges-no-psa"
+title = "In case you thought self custody was mainstream..."
+url = "https://stacker.news/items/1537407"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537407) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby checking exchange social accounts and finding no COLDCARD warnings, with screenshots. Held as evidence of provider silence in the first day, complementing the custody-coverage record; the screenshots themselves are images this text capture does not hold. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-media-ai-anatomy"
+title = "Coldcard, the Media, and the Anatomy of AI Retardation"
+url = "https://stacker.news/items/1537410"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537410) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Aeneas on the media coverage of the incident and AI-generated commentary, engaging with Coinkite's technical backgrounder. Opinion and media criticism, attributed to the author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-swan-email"
+title = "Swan Email Re Cold Card Hack"
+url = "https://stacker.news/items/1537427"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537427) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+siggy47 describing an email Swan sent clients about the incident. Provider communications that reach clients by email rather than public posts are otherwise uncapturable; this thread is the public trace of one. The email text is quoted by the poster, not verified against Swan. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-sweep-watch"
+title = "Coldcard Sweep Watch"
+url = "https://stacker.news/items/1537531"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537531) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+HardMoney's 'Coldcard Sweep Watch', tracking the draining address via an X post by bradytc_. Community chain-watching during the active theft window; figures quoted are the cited sources', not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-larp-discussion"
+title = "Can we have a serious talk about the LARP in Bitcoin"
+url = "https://stacker.news/items/1537803"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537803) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+chungkingexpress's 'Can we have a serious talk about the LARP in Bitcoin', a long criticism of how Coinkite and NVK handled and framed the incident. One of the largest discussion threads on the site; the accusations are the author's and are contested. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-critical-flaw-guide"
+title = "Critical Coldcard flaw: what happened, who is affected, and what to do"
+url = "https://stacker.news/items/1537859"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537859) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+fanis linking a guide: 'Critical Coldcard flaw: what happened, who is affected, and what to do'. Link post; the value captured is the discussion. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-galaxy-third-wave"
+title = "Galaxy Research identifies third wave of Coldcard hacks, attacks ongoing"
+url = "https://stacker.news/items/1537971"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537971) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby relaying Galaxy Research's identification of a third wave of drains, 207.7294 BTC, taking the estimated observed total to 1,367.05 BTC. The numbers are Galaxy's reported figures; Galaxy's own publications are registered separately. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-random-bytes-analysis"
+title = "When random.bytes() runs but doesn't work"
+url = "https://stacker.news/items/1538016"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538016) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby discussing Dusty Daemon's code analysis 'When random.bytes() runs but doesn't work', on the failed attempt to override the RNG in C. Technical discussion of the root cause; the analysis belongs to its author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-psa-advice"
+title = "PSA: Advice Regarding the Coldcard Bug - Exploit - Hack - Theft"
+url = "https://stacker.news/items/1538049"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538049) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+BITC0IN's PSA with owner advice, including the Mk3-without-passphrase case. Community guidance from the response window; specific claims are the author's and partly contested in replies. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-bitkey-setup-experience"
+title = "Because if the ColdCard fiasco I just tried setting up a BitKey with a screen"
+url = "https://stacker.news/items/1538187"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538187) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+realBitcoinDog describing setting up a BitKey because of the incident and disliking the multisig custody trade-offs. A migration-experience account; the product criticism is the author's and this project does not endorse destinations. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-unbroadcast-failsafe-rfc"
+title = "Request for comment:  Unbroadcast Bitcoin transactions as failsafe"
+url = "https://stacker.news/items/1538230"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538230) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+chungkingexpress requesting comment on unbroadcast transactions as a failsafe, prompted by owners who were away from their seeds or devices during the emergency. A design discussion arising directly from the incident's rescue window. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-zerohedge-pickup"
+title = "Zero Hedge Picks Up Cold Card Exploit"
+url = "https://stacker.news/items/1538470"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538470) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+billytheked noting Zero Hedge's coverage, among the first mainstream financial press pickups, quoting its third-wave loss figure. Part of the media-spread record; the figures are the outlets' reported numbers. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-hot-takes-thread"
+title = "Hot takes on the COLDCARD happenings"
+url = "https://stacker.news/items/1538536"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538536) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+desertdave collecting hot takes on the incident. Link-and-comment thread held as a sample of community sentiment. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-lopp-bricking-reports"
+title = "Lopp: Reports of coldcard firmware updates bricking devices"
+url = "https://stacker.news/items/1538594"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538594) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Lobotomite relaying Lopp's report of COLDCARD firmware updates bricking devices during the emergency update push. The bricking reports are secondhand here; they matter to the record because update risk shaped owner decisions in the rescue window. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-opreturn-laundering-offer"
+title = "COLDCARD Hacker receives money laundering offer via OP_RETURN message"
+url = "https://stacker.news/items/1538619"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538619) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+hyperfree reporting an OP_RETURN message offering money laundering to the drainer. Part of the record of on-chain messages to the operator; the message's authenticity is not established. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-39k-btc-moved"
+title = "39.6K BTC transferred on July 31st after the coldcard hack"
+url = "https://stacker.news/items/1538630"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538630) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+0xbitcoiner quoting a comparison that 39.6K BTC moved on 31 July, the most in a day since the FTX collapse, attributed to the incident's sweep traffic. Reported chain statistic; the underlying account is the quoted source's. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-foundation-phishing-warning"
+title = "Foundation Phishing Warning"
+url = "https://stacker.news/items/1538671"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538671) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+siggy47 warning about Foundation-themed phishing during the incident. Part of the scam-wave record: lookalike warnings and phishing attempts proliferated while owners were frightened. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-attack-over-question"
+title = "At what point can this attack be considered over?"
+url = "https://stacker.news/items/1538677"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538677) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+theonceler asking at what point the attack can be considered over: when remaining affected addresses have either moved or been drained. Frames the endgame question the chain monitors' numbers bear on. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-nvk-opensats-departure"
+title = "NVK steps down from OpenSats board"
+url = "https://stacker.news/items/1538698"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538698) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+justin_shocknet reporting that NVK stepped down from the OpenSats board. The OpenSats statement is registered as opensats-nvk-board-departure; this source holds the Stacker News discussion of the governance fallout. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-aantonop-2020-clip"
+title = "Aantonop from 2020 nails trust, seed generation and system complexity"
+url = "https://stacker.news/items/1538724"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538724) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+sime resurfacing a 2020 aantonop talk on trust, seed generation and system complexity as prescient for this incident. Discussion of where trust sits in self custody. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-glm-ai-finds-vuln"
+title = "GLM-5.2 was able to easily find the ColdCard vulnerability"
+url = "https://stacker.news/items/1538828"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538828) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+gmd reporting that GLM-5.2 found the vulnerability easily, following a similar demonstration with Claude Code linked via Reddit. Part of the record of AI tools independently locating the defect, which bears on how findable the bug was. The demonstrations are the reporters'. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-slipstream-permissionless"
+title = "MARA Slipstream now available as a permissionless public good"
+url = "https://stacker.news/items/1539033"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539033) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+supratic relaying that MARA Slipstream opened as a permissionless public good with no client code requirement, relevant to getting rescue transactions mined. The Slipstream materials are registered separately (mara-slipstream-portal, mara-slipstream-permissionless); this source holds the community discussion, including fee-safety cautions. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-blacklist-clean-coins"
+title = "Coldcard exploit: Can Blockchain analysis mistakenly blacklist our “Clean”coins?"
+url = "https://stacker.news/items/1539067"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539067) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+FlorFina asking whether blockchain analysis could mistakenly blacklist clean coins after the exploit. Part of the record of feared long-term fallout for unaffected owners. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-robhamilton-scanning"
+title = "Rob Hamilton spends $10k scanning Bitcoin projects, finds multiple vulns"
+url = "https://stacker.news/items/1539074"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539074) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby on Rob Hamilton spending $10k scanning Bitcoin projects and finding multiple vulnerabilities, with the poster noting Hamilton's AnchorWatch markets a related service. The disclosure of that conflict in the thread itself is part of the record. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-dear-podcasters"
+title = "Dear podcasters & influencers"
+url = "https://stacker.news/items/1539078"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539078) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+raw_avocado's 'Dear podcasters & influencers', absolving recommenders who had pointed audiences at COLDCARD. Part of the recommender-responsibility debate; opinion, attributed to the author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-personal-responsibility"
+title = "ColdCard and Personal Responsibility"
+url = "https://stacker.news/items/1539218"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539218) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+kepford's 'ColdCard and Personal Responsibility', on DYOR and trust in confident people. Part of the responsibility-framing debate the site's dice and passphrase pages must not prejudge. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-btt-512"
+title = "Bitcoin Tech Talk #512: ColdCard RNG, Nudge Unit, Steel, Power, Scammy Produdcts"
+url = "https://stacker.news/items/1539267"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539267) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+jimmysong linking Bitcoin Tech Talk #512, which covers the COLDCARD RNG among other topics. Link post; the newsletter is the primary, this source captures any discussion. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-boltz-zeuslsp-shutdown"
+title = "Boltz and ZeusLSP temporarily shut down swap services"
+url = "https://stacker.news/items/1539276"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539276) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+justin_shocknet reporting Boltz and ZeusLSP temporarily shutting down swap services, with screenshots and a Zeus X post. Incident fallout on Lightning swap infrastructure; one of the largest response threads. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-last-week-in-bitcoin"
+title = "The COLDCARD Incident — Last Week in Bitcoin (Jul 27 - Aug 02)"
+url = "https://stacker.news/items/1539442"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539442) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+tuma linking 'The COLDCARD Incident, Last Week in Bitcoin (Jul 27 - Aug 02)'. Link post to a weekly roundup; held for the discussion and as a pointer to secondary coverage. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-everything-you-need-to-know"
+title = "Everything You Need to Know About the COLDCARD Hack"
+url = "https://stacker.news/items/1539443"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539443) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+hasherstacker linking 'Everything You Need to Know About the COLDCARD Hack'. Link post to secondary coverage; held for the discussion. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-bpi-explainer"
+title = "Bitcoin Policy institute Coldcard bug explainer"
+url = "https://stacker.news/items/1539573"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539573) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+HardMoney linking the Bitcoin Policy Institute's explainer of the bug. Link post; the explainer is the primary and may warrant its own registration, this source captures the Stacker News discussion. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-peerswap-disable"
+title = "Maintainer of peerswap advises temporarily disabling peerswap..."
+url = "https://stacker.news/items/1539582"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539582) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+anon relaying the peerswap maintainer's advice to disable peerswap temporarily while the project is audited by AI. Incident-adjacent fallout on adjacent software, driven by the AI-audit wave the incident accelerated. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-troll-1367btc"
+title = "How do I privately spend 1367 BTC given to me by NVK's friends?"
+url = "https://stacker.news/items/1539600"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539600) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+An anonymous satirical post asking how to privately spend 1367 BTC 'given to me by NVK's friends'. Held as a sample of community sentiment and gallows humour toward Coinkite; it makes no factual claim this project relies on. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "stackernews-dice-attack-vectors"
+title = "What are the attack vectors of rolling 100 dice?"
+url = "https://stacker.news/items/1539720"
+published = "2026-08-04"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539720) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+anon asking how 100 dice rolls could be attacked or botched, assuming verified seed phrases. Directly relevant to the dice-mitigation guidance the site carries. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+
+# ---- 4 Aug 2026 claim-sweep recheck: surfaced scam-page artefact -----------
+
+[[source]]
+id = "stoltmann-claimant-page"
+title = "Coldcard Wallet Bitcoin Theft: Legal Options for Victims"
+url = "https://stoltmannlaw.com/coldcard-wallet-bitcoin-theft-claims/"
+published = "2026-07-31"
+org = "Stoltmann Law"
+kind = "reporting"
+tier = 3
+capture = "browser"
+min_chars = 400
+required_text = ["Coldcard"]
+note = """
+Law firm claimant-intake page soliciting COLDCARD incident victims as
+potential claimants; self-labels as legal advertising. Surfaced during the
+4 Aug 2026 claim-sweep recheck (Internet Archive snapshot of 3 Aug 2026); it
+is the law firm's claimant page the scams page previously recorded as
+reported but uncaptured. Client solicitation after a mass loss event is
+ordinary legal marketing, not itself a scam; held for provenance of the
+report, not endorsed. Browser capture: the site answers plain scripted
+fetches with a challenge page.
+"""
+
+[[x_post]]
+id = "bkclaims-victim-intake"
+title = "Victim intake for legal options and recovery"
+url = "https://x.com/Bkclaims/status/2083589981713428977"
+author = "Bkclaims"
+posted = "2026-08-01T16:25:37Z"
+tag = "funds-recovery"
+why = """
+Thomas Braziel (117 Partners) solicits affected users for potential legal options, including product liability and class or group litigation, plus asset recovery efforts, asking for country, purchase channel, model, loss size and contact details. A solicitation by a recovery professional with a direct business interest in sign-ups.
+"""
+
+[[x_post]]
+id = "bkclaims-legal-strategy-update"
+title = "Coinkite legal strategy update"
+url = "https://x.com/Bkclaims/status/2084307749517553684"
+author = "Bkclaims"
+posted = "2026-08-03T15:57:46Z"
+tag = "funds-recovery"
+why = """
+Braziel's strategy update: leaning away from a class action toward a private Canadian lawsuit by 10 to 30 larger claimants, with product liability and negligence theories under review and collectability named as the larger question. Describes litigation funding expectations and points victims to the same Telegram group.
+"""
+
+[[x_post]]
+id = "l0lal33tz-braziel-court-record"
+title = "Warning about the victims' lawyer"
+url = "https://x.com/L0laL33tz/status/2084371489810423846"
+author = "L0laL33tz"
+posted = "2026-08-03T20:11:03Z"
+tag = "reporting"
+why = """
+Warns COLDCARD victims away from Braziel, quoting a Delaware court's findings in an earlier receivership (falsified records, manufactured account statements, $1.9M restitution ordered, no criminal indictment) and linking the opinion. Contested: Braziel's own posts describe the same matter as settled with an exceptional outcome.
+"""
+
+[[x_post]]
+id = "l0lal33tz-braziel-lying-claim"
+title = "Claim the lawyer is misleading victims"
+url = "https://x.com/L0laL33tz/status/2084392983290331463"
+author = "L0laL33tz"
+posted = "2026-08-03T21:36:28Z"
+tag = "reporting"
+why = """
+Claims Braziel is lying to COLDCARD victims when he describes the earlier matter as settled, citing court filings showing he was removed from the receivership with the court reserving further proceedings, and urges readers to warn the victims' Telegram group. Contested, attributed reporting; the underlying dispute is documented in the two bkclaims entries.
+"""
+
+[[x_post]]
+id = "coldcard-retirement-attack-claim"
+title = "2021: retirement attacks impossible"
+url = "https://x.com/COLDCARDwallet/status/1447198712736985093"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2021-10-10T13:53:55Z"
+tag = "historical-precedent"
+why = """
+The vendor's own 2021 marketing claim that COLDCARD makes retirement attacks impossible because users can generate their own entropy and reproduce it provably. Held as historical context: the July 2026 failure was an entropy defect in the device's own generation path, the class of attack this post claimed to defeat.
+"""
+
+[[x_post]]
+id = "coldcard-retirement-attack-definition"
+title = "2021: retirement attack defined"
+url = "https://x.com/COLDCARDwallet/status/1447213375398846473"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2021-10-10T14:52:11Z"
+tag = "historical-precedent"
+why = """
+The vendor's 2021 definition, in reply to a reader: a retirement attack is when project makers could have a "bug" in the entropy generation for later retrieval. Companion to coldcard-retirement-attack-claim.
+"""
+
+[[x_post]]
+id = "glxy-losses-exceed-100m"
+title = "Updated total: losses exceed $100M"
+url = "https://x.com/glxyresearch/status/2084411904924045370"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:39Z"
+tag = "on-chain-analysis"
+why = """
+Start of Galaxy's updated accounting thread: high-confidence 1,596 BTC stolen from about 7,300 addresses across three confirmed waves plus 14 smaller incidents, with suspected but unconfirmed activity taking the total near 2,000 BTC ($130M). Succeeds the 1,082.65 BTC figure in glxyresearch-flow-map; all eight posts of the thread are held (glxy-wave-map through glxy-thread-close).
+"""
+
+[[x_post]]
+id = "glxy-wave-map"
+title = "Event map and Wave 4 caveat"
+url = "https://x.com/glxyresearch/status/2084411907520311662"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:39Z"
+tag = "on-chain-analysis"
+why = "Thread post 2: the event graphic, every identified event positioned by start time and sized by addresses drained, with Wave 4 noted as unconfirmed by any victim but suspected real at medium-high confidence."
+
+[[x_post]]
+id = "glxy-wave-attribution"
+title = "Wave attribution method"
+url = "https://x.com/glxyresearch/status/2084411910053618032"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:40Z"
+tag = "on-chain-analysis"
+why = "Thread post 3: Wave 1 first observed by Block engineers and confirmed by Galaxy on victim reports; Waves 2 and 3 discovered from victim reports; most victims appear in only one wave."
+
+[[x_post]]
+id = "glxy-victim-count"
+title = "73 victims, 14 additional footprints"
+url = "https://x.com/glxyresearch/status/2084411912889000340"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:41Z"
+tag = "on-chain-analysis"
+why = "Thread post 4: 73 individual victims contacted @intangiblecoins for tracing help; victim reports identified 14 additional footprints that could be different attackers individually exploiting the known vulnerability."
+
+[[x_post]]
+id = "glxy-wave4-caveat"
+title = "Wave 4 would take the total to 2,055 BTC"
+url = "https://x.com/glxyresearch/status/2084411915745595527"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:41Z"
+tag = "on-chain-analysis"
+why = "Thread post 5: including the potential Wave 4 would bring the total to 2,055 BTC ($130M), but it is kept out of the top-line numbers for lack of victim confirmation. This is the figure Lookonchain's relay presents as the headline."
+
+[[x_post]]
+id = "glxy-law-enforcement-handoff"
+title = "Addresses handed to law enforcement; 90% unmoved"
+url = "https://x.com/glxyresearch/status/2084411918861652194"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:42Z"
+tag = "on-chain-analysis"
+why = "Thread post 6: confirmed attacker and victim addresses provided to US federal law enforcement, exchanges and compliance groups; 90% of stolen coins have not moved, and 100% of Waves 1 to 3 coins are unmoved."
+
+[[x_post]]
+id = "glxy-attack-ongoing"
+title = "The attack is ongoing"
+url = "https://x.com/glxyresearch/status/2084411920254111840"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:42Z"
+tag = "on-chain-analysis"
+why = "Thread post 7: warns the attack is ongoing, tells unsure COLDCARD users to migrate to a custodian or fresh seed, and asks victims to DM @intangiblecoins with drained addresses and attacker TXIDs for tracing and law-enforcement reports."
+
+[[x_post]]
+id = "glxy-thread-close"
+title = "Thread close: recovery hopes"
+url = "https://x.com/glxyresearch/status/2084411921541787792"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-03T22:51:43Z"
+tag = "on-chain-analysis"
+why = "Thread post 8: closing note that recovery hopes remain, thanking the people working behind the scenes for victims, attacker identification and codebase hardening."
+
+[[x_post]]
+id = "kloaec-outofband-tool"
+title = "Out-of-band Slipstream tool for Liana"
+url = "https://x.com/KLoaec/status/2084364148855447816"
+author = "KLoaec"
+posted = "2026-08-03T19:41:53Z"
+tag = "migration-guidance"
+why = """
+Launches a browser-only tool (outofband.wizardsardine.com) for Liana and other Miniscript or multisig wallets to send transactions through MARA Slipstream out of band, with a bugs-and-feedback caveat. Part of the Slipstream advice chain; the author's company built the tool.
+"""
+
+[[x_post]]
+id = "lucasdcf-opensats-seedsigner"
+title = "Fund SeedSigner after the OpenSats vote"
+url = "https://x.com/lucasdcf/status/2084313995238846934"
+author = "lucasdcf"
+org = "OpenSats"
+posted = "2026-08-03T16:22:35Z"
+tag = "commentary"
+why = """
+An OpenSats insider argues the board members who voted against funding SeedSigner may have had genuine security concerns, that those concerns are more reason to fund it, and proposes an open call for security reviews of major wallets as part of the incident response. Relevant to the NVK OpenSats board history recorded elsewhere in the register.
+"""
+
+[[x_post]]
+id = "bpi-explainer-video"
+title = "Visual explainer of the bug"
+url = "https://x.com/bitcoinpolicy/status/2084337559346548988"
+author = "bitcoinpolicy"
+org = "Bitcoin Policy Institute"
+posted = "2026-08-03T17:56:13Z"
+tag = "commentary"
+why = """
+BPI's short video explainer of the entropy flaw (proper key space as one atom in two billion galaxies versus the affected firmware's much smaller pool), with sympathy for victims, a note that BPI team members were personally affected, and policy reflections promised. The held artefacts are the element screenshot and text; the video itself is held via gallery-dl.
+"""
+
+[[source]]
+id = "stackernews-dice-roll-computer-test"
+title = "I wanted to test a coldcard's dice-roll generation against my computer's"
+url = "https://stacker.news/items/1537388"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537388) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake describing a personal test of a COLDCARD's dice-roll seed generation against the computer's randomness, posted the day after disclosure with the aside "DYOR, and all that." The body carries no results and the thread has no comments so far; its value is documenting an owner independently checking device entropy in the incident's wake, by the same author as stackernews-rng-analysis-by-device, stackernews-dice-roll-sound and stackernews-entropy-technical-deep-dive. Any implied claims about dice-roll safety are the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/coldcard incident threads --------------
+
+[[source]]
+id = "reddit-fixed-firmware-available"
+title = "r/coldcard: relay of the 31 Jul 2026 fixed-firmware notice"
+url = "https://www.reddit.com/r/coldcard/comments/1vboa9s/coldcard_update_fixed_firmware_now_available/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+A quote-post relaying Coinkite's 31 July 2026 update notice: fixed firmware available, Mk4 and Mk5 users to 5.6.0 or later, Q users to 1.5.0Q or later, and no new seed generation on those models until the update is installed. The quoted text matches the vendor advisory registered as coinkite-mk3-advisory; the thread's value is the owner discussion of the update path around the notice. Version and safety claims in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-self-custody-last-straw"
+title = "r/coldcard: owner renouncing self-custody after the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1vem5go/selfcustody_this_is_the_last_straw/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Good_Caterpillar_113 announcing that the incident is the last straw for their self-custody. A sentiment thread documenting the confidence damage among ordinary holders, with agreement and pushback in the comments. Carries no new factual claims; held for the community-response record.
+"""
+
+[[source]]
+id = "reddit-price-mockery"
+title = "r/coldcard: mockery of COLDCARD pricing after the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1veguk8/these_should_be_on_sale_for_20_whos_gonna_buy/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Mockery of Coinkite's listing price for the devices in the incident's wake. Minor colour: a short sentiment thread with no factual content, held as part of the community-response record. Nothing in it requires verification.
+"""
+
+[[source]]
+id = "reddit-dice-wallets-at-risk"
+title = "r/coldcard: whether 100% dice-generated Mk4 wallets are at risk"
+url = "https://www.reddit.com/r/coldcard/comments/1veixnw/coldcard_mk4_are_wallets_generated_with_100_dice/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+muffinhalfling asking whether Mk4 wallets generated entirely from user dice rolls are exposed, the central mitigation question for owners who bypassed device randomness. A long thread of community answers; the safety claims are the posters' own and are not verified here, though the question tracks the mitigation guidance the site carries. A duplicate posting of the same question by the same author was dismissed in the same intake run.
+"""
+
+[[source]]
+id = "reddit-q-repurpose"
+title = "r/coldcard: repurposing the COLDCARD Q after the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1vex8hl/what_to_do_with_the_q_still_seems_like_a_cool/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+SeaOtterETH asking what to do with a COLDCARD Q they will no longer use for keys, floating secure notes, NFC and hopes for a return to fully open development. Sentiment and repurposing discussion documenting how owners are responding to the incident. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-am-i-affected-dice"
+title = "r/coldcard: owner exposure self-assessment (dice seed, dice passphrase)"
+url = "https://www.reddit.com/r/coldcard/comments/1vewq6y/am_i_affected/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Individual_Gate9375's first-hand exposure self-assessment: seed made with 100-plus dice rolls in late December 2020 or early January 2021, a long dice-generated BIP39 passphrase, coins intact, plus a report of a 294-satoshi dusting of their inactive wallet in early April which they read as targeting. The dusting-as-targeting inference is the poster's, reported here without endorsement. Held as a worked example of the affected-window self-check and the dice-plus-passphrase mitigation posture.
+"""
+
+[[source]]
+id = "reddit-bricked-mid-transfer"
+title = "r/coldcard: device reported bricked mid-transfer during migration"
+url = "https://www.reddit.com/r/coldcard/comments/1veg5t9/device_bricked_while_transferring/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "reddit-json"
+why = """
+Soft-Spring9843 asking whether anyone else had a COLDCARD brick in the middle of moving funds out of multisig, and whether the seed can be swept through a software wallet instead. A first-hand report of a device failing during the rescue window; the recovery suggestions in replies are the commenters' own, not verified here. Short thread.
+"""
+
+[[source]]
+id = "reddit-do-not-dispose-device"
+title = "r/coldcard: advice not to dispose of affected devices"
+url = "https://www.reddit.com/r/coldcard/comments/1ve8hve/do_not_dispose_of_affected_device/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+rottiesrule88 urging owners not to throw away affected devices. Documents the keep-the-device advice circulating during the incident, relevant to evidence preservation and any later remediation or legal process. Claims in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-ceo-resign-calls"
+title = "r/coldcard: calls for the Coinkite CEO to resign"
+url = "https://www.reddit.com/r/coldcard/comments/1vdvs4w/coinkite_ceo_rodolfo_novak_needs_to_resign/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Yodel_And_Hodl_Mode arguing that Coinkite's CEO should resign over the incident. An opinion thread held as community sentiment on vendor accountability; the archive records the call without adopting it.
+"""
+
+[[source]]
+id = "reddit-phishing-advisory-email"
+title = "r/coldcard: phishing security-advisory email from a lookalike domain"
+url = "https://www.reddit.com/r/coldcard/comments/1vefd28/got_a_security_advisory_email_from/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "reddit-json"
+why = """
+BarAdministrative999 reporting a security-advisory email from coinkite at coldcardblog.org, a lookalike domain, offering to schedule a 10 minute session; the poster calls it phishing. A first-hand data point in the scam wave exploiting the incident, alongside reddit-wallet-brand-link-warning and the June letter campaign (reddit-june-letter-report). The sender address and domain are the poster's report, not verified here.
+"""
+
+[[source]]
+id = "reddit-codebase-practices-critique"
+title = "r/coldcard: critique of the COLDCARD codebase and development practices"
+url = "https://www.reddit.com/r/coldcard/comments/1vdrbxo/if_your_coldcard_isnt_in_the_trash_already_read/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+ardevd arguing that beneath the marketing the COLDCARD firmware was a shaky, complex codebase backed by poor development practices. An opinion thread on vendor engineering culture in the incident's wake, held as community sentiment on how the bug shipped; the characterisations are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-vendor-counterfactual"
+title = "r/coldcard: what Coinkite could have done had it found the flaw first"
+url = "https://www.reddit.com/r/coldcard/comments/1vduxyg/what_could_coinkite_have_done_if_they_discovered/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+therealjeku asking how the incident would have played out had Coinkite discovered the RNG flaw itself rather than through the drains. A counterfactual discussion of disclosure options and vendor duty of care; commenters' claims about what was possible are their own, not verified here.
+"""
+
+[[source]]
+id = "reddit-weak-passphrase-multisig-warning"
+title = "r/coldcard: warning to weak-passphrase and 2-of-3 multisig users"
+url = "https://www.reddit.com/r/coldcard/comments/1vdw84n/if_you_used_a_weak_passphrase_or_if_you_used_23/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Yodel_And_Hodl_Mode urging owners who used a weak passphrase, or a 2-of-3 multisig leaning on COLDCARD keys, to protect their coins. Part of the community mitigation advice circulating during the rescue window; the risk characterisations are the poster's own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-saved-my-stack-thanks"
+title = "r/coldcard: owner crediting the subreddit with saving their coins"
+url = "https://www.reddit.com/r/coldcard/comments/1vdnbk3/big_ups_to_this_sub_you_all_saved_my_stack/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+IronicHipsterCake thanking the subreddit, crediting the community's warnings with getting their coins moved in time. A first-hand rescue-window account held as part of the community-response record; carries no new factual claims.
+"""
+
+[[source]]
+id = "reddit-device-useful-if-company-closes"
+title = "r/coldcard: whether the devices stay useful if Coinkite closes"
+url = "https://www.reddit.com/r/coldcard/comments/1ve3vnu/is_coldcard_still_useful_if_the_company_closes/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+btcauag asking what a COLDCARD remains good for if Coinkite does not survive the incident. Discussion of the devices' dependence on vendor firmware, tooling and support; commenters' assessments are their own, not verified here. Documents owner expectations about the vendor's viability.
+"""
+
+[[source]]
+id = "reddit-shipments-halted-relay"
+title = "r/coldcard: relay of the shipments-halted announcement"
+url = "https://www.reddit.com/r/coldcard/comments/1vdpnza/they_halted_shipments_of_coldcards_and_destroyed/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+AnthonyBTC relaying Coinkite's X announcement that shipments were halted and remaining inventory with affected firmware destroyed, registered here as coldcard-shipments-halted, and reporting they ordered a device just before the incident and expect neither the hardware nor a refund. The thread's value is the owner reaction and first-hand buyer impact around the announcement.
+"""
+
+[[source]]
+id = "reddit-still-using-coldcard"
+title = "r/coldcard: poll on continued COLDCARD use after the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1vdnfov/still_using_coldcard/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Express-Warthog-7590 asking who is still using their COLDCARD after the incident. A sentiment thread documenting the split among owners between continued use with mitigations and abandonment. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-dice-consensus-nontechnical"
+title = "r/coldcard: dice-roll seed generation for non-technical owners"
+url = "https://www.reddit.com/r/coldcard/comments/1vdu01y/so_whats_the_consensus_now_with_regular_folks_non/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+worldresident2021 asking what the community consensus is on non-technical owners generating seeds by rolling dice. A short mitigation-advice thread held for the record of how owners worked around device randomness; the advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-mk4-dice-seed-safety"
+title = "r/coldcard: safety of Mk4 dice-generated seeds, and alternatives"
+url = "https://www.reddit.com/r/coldcard/comments/1vdge71/is_it_safe_to_use_mk4_for_creation_of_seed_using/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+UnderstandingNew8001 asking whether a Mk4 can safely be used to create a seed with dice rolls before moving funds, and what the alternatives are if not. A mitigation question tracking the guidance the site carries on user-supplied entropy; the answers in the thread are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-discount-mockery"
+title = "r/coldcard: mockery expecting fire-sale pricing"
+url = "https://www.reddit.com/r/coldcard/comments/1vdslbj/when_will_the_deep_discounts_be_available/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+ch0riz0 asking when deep discounts on the devices will arrive. Minor colour: price mockery in the incident's wake, alongside reddit-price-mockery. No factual content requiring verification.
+"""
+
+[[source]]
+id = "reddit-multisig-migration-plan"
+title = "r/coldcard: worked example of a mixed-vendor multisig migration"
+url = "https://www.reddit.com/r/coldcard/comments/1vdqypo/good_personal_coldcard_solution/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+czescwitamy describing their migration of an Unchained collaborative-custody setup: firmware updated on both COLDCARDs, one new seed generated on-device, a second generated on a Foundation Passport and imported into the other COLDCARD, funds moved. A first-hand worked example of the rescue-window migration patterns; whether the plan is sound is not adjudicated here.
+"""
+
+[[source]]
+id = "reddit-coinkite-next-steps"
+title = "r/coldcard: speculation on Coinkite's next steps"
+url = "https://www.reddit.com/r/coldcard/comments/1vd5f5h/coinkite_next_steps/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+RevolutionaryPick241 opening discussion of what Coinkite does next after the incident. Community speculation on the vendor's future: firmware plans, compensation and whether the company survives. None of the predictions are verified here; held as sentiment on vendor accountability.
+"""
+
+[[source]]
+id = "reddit-still-use-the-cc"
+title = "r/coldcard: owners weighing continued use of the device"
+url = "https://www.reddit.com/r/coldcard/comments/1vdhmw4/still_use_the_cc/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 asking whether others still use their COLDCARD. A sentiment thread on continued use after the incident, overlapping reddit-still-using-coldcard; documents the portion of the owner base staying on the platform. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-new-firmware-safety"
+title = "r/coldcard: whether the fixed firmware can be trusted"
+url = "https://www.reddit.com/r/coldcard/comments/1vdoxxf/is_the_new_firmware_safe/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+stargate425 asking whether the emergency fixed firmware is safe to use. Discussion of trust in the vendor's patch after the incident, including verification and reproducible-build questions; the safety claims in the comments are the posters' own, not verified here. The fixed-firmware notice itself is relayed in reddit-fixed-firmware-available.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/coldcard incident threads (cont.) -----
+
+[[source]]
+id = "reddit-mk4-bricked-hotfix"
+title = "r/coldcard: report of a Mk4 bricked by the emergency firmware hotfix"
+url = "https://www.reddit.com/r/coldcard/comments/1vct6m2/psa_coldcard_mk4_bricked_by_the_new_emergency/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+lucapocchio reporting that the emergency firmware hotfix bricked their Mk4 with a seed.py crash. A first-hand account of the fix itself causing failures, alongside reddit-bricked-mid-transfer and the trust discussion in reddit-new-firmware-safety. The bricking mechanism as described is the poster's report, not verified here.
+"""
+
+[[source]]
+id = "reddit-ccq-multisig-safety"
+title = "r/coldcard: whether a COLDCARD Q remains safe in a multisig setup"
+url = "https://www.reddit.com/r/coldcard/comments/1vdlxgc/so_you_think_is_still_safe_to_use_the_ccq_for_a/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+SmellyCummies asking whether a COLDCARD Q can still be used safely as one key in a multisig setup. A short mitigation question in the same space as reddit-multisig-migration-plan and reddit-weak-passphrase-multisig-warning; the answers are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-solvency-class-action"
+title = "r/coldcard: Coinkite solvency and class-action speculation"
+url = "https://www.reddit.com/r/coldcard/comments/1vcs0o4/anyone_who_thinks_coinkite_will_remain_solvent/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Provia100F arguing that Coinkite cannot remain solvent through the class action the poster expects. Opinion and speculation on the vendor's legal and financial exposure, held as community sentiment on vendor accountability; no lawsuit is verified here, and the predictions are the posters' own.
+"""
+
+[[source]]
+id = "reddit-nfc-press-dice-seed"
+title = "r/coldcard: accidental NFC button press during dice-only seed generation"
+url = "https://www.reddit.com/r/coldcard/comments/1vdbi6e/accidental_nfc_button_press_during_diceonly_seed/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "reddit-json"
+why = """
+powsupertrader asking whether an accidental press of the physical NFC button around the 30th of 450 dice rolls, on a COLDCARD Q running 1.5.0Q, could have interrupted or reduced the entropy of a dice-only seed generation. A first-hand edge-case question from an owner applying the recommended user-entropy workaround; the device-behaviour answers in the thread are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-done-for"
+title = "r/coldcard: argument that Coinkite will not survive the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1vcfugv/coinkite_is_done_for_here_is_why/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+ardevd laying out why they believe Coinkite is finished as a company. A long opinion thread on the vendor's viability in the incident's wake, alongside reddit-coinkite-next-steps and reddit-device-useful-if-company-closes; the characterisations and predictions are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-key-teleport-dice-claim"
+title = "r/coldcard: claim that key teleport exposes even dice-generated seeds"
+url = "https://www.reddit.com/r/coldcard/comments/1vcwf2y/yasmarang/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 relaying a BitcoinNewsCom X post and asking whether COLDCARD's key-teleport and cloning features still expose the seed even when it was generated with dice rolls. The relayed X post is not registered here. A short thread carrying a circulating claim about how a device feature interacts with the user-entropy mitigation; the claim is the poster's and the relayed article's, not verified here.
+"""
+
+[[source]]
+id = "reddit-firmware-audit-history"
+title = "r/coldcard: who audited the firmware over the last five years"
+url = "https://www.reddit.com/r/coldcard/comments/1vchr6s/who_has_audited_those_firmwares_for_the_last_5/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+seolein asking who, if anyone, audited the COLDCARD firmware in the five years before the incident. Discussion of the review and audit gap that let the RNG flaw ship and persist, a recurring accountability question in the community record. Claims about what was or was not reviewed are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-pre-window-passphrase-safety"
+title = "r/coldcard: whether pre-window seeds with a passphrase are safe"
+url = "https://www.reddit.com/r/coldcard/comments/1vct25y/seeds_created_before_the_march_2021_and_using_a/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Sammytheseaotter asking whether seeds created before the March 2021 affected window, and protected by a passphrase, are safe. An exposure self-assessment question tracking the affected-window and passphrase guidance the site carries; the answers in the thread are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-cake-wallet-precedent"
+title = "r/coldcard: Cake Wallet 2020/2021 entropy flaw cited as precedent"
+url = "https://www.reddit.com/r/coldcard/comments/1vcsqxw/the_coldcard_situation_is_nothing_new_cake_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "reddit-json"
+why = """
+LazyRate9706 pointing to the 2020/2021 Cake Wallet entropy issue, said to have resulted in 550 BTC stolen, as precedent that the COLDCARD situation is not new. Context-placing discussion on wallet RNG failures across the ecosystem; the Cake Wallet loss figure is the poster's claim, not verified here.
+"""
+
+[[source]]
+id = "reddit-1-6m-cad-drained"
+title = "r/coldcard: first-hand report of a 1.6M CAD drain"
+url = "https://www.reddit.com/r/coldcard/comments/1vc9kxd/16m_cad_drained/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+itsgood-man reporting the drain of holdings valued at 1.6 million Canadian dollars. A first-hand victim account from the drain wave, with community responses; the loss figure and circumstances are the poster's report, not verified here.
+"""
+
+[[source]]
+id = "reddit-passphrase-save-mk3"
+title = "r/coldcard: whether a 25th word passphrase protects Mk3 users"
+url = "https://www.reddit.com/r/coldcard/comments/1vcpdux/will_having_a_25th_word_passphrase_save_mk3_users/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+bje332013 asking whether a BIP39 passphrase saves Mk3 users affected by the weak seed RNG. A central mitigation question for the Mk3-only flaw, overlapping the site's own passphrase guidance; the security claims in the answers are the commenters' own, not verified here.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/coldcard incident threads (batch 2) ----
+
+[[source]]
+id = "reddit-user-entropy-options"
+title = "r/coldcard: call for more user-entropy options in COLDCARD"
+url = "https://www.reddit.com/r/coldcard/comments/1vcr9uo/time_for_cold_card_to_implement_more_user_entropy/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+CornFly2014 arguing it is time for the devices to implement more user-entropy options. A community feature-demand thread in the incident's wake, documenting what owners now expect from the vendor's seed-generation design. Suggestions in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-wallet-drained-mk3"
+title = "r/coldcard: first-hand report of an Mk3 wallet drained mid-migration"
+url = "https://www.reddit.com/r/coldcard/comments/1vbzvf1/wallet_drained/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+reeferqueefer reporting that their Mk3 wallet was drained: after the vendor's security-flaw email they made a test transaction of part of the stack, and the follow-up transaction failed with 'not enough funds'. A first-hand victim account from the rescue window, alongside reddit-1-6m-cad-drained; the circumstances are the poster's report, not verified here.
+"""
+
+[[source]]
+id = "reddit-still-trust-coinkite"
+title = "r/coldcard: whether owners still trust Coinkite"
+url = "https://www.reddit.com/r/coldcard/comments/1vc9jqu/do_you_guys_still_trust_coinkite/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Altruistic_Ear_9542 asking the subreddit whether anyone still trusts Coinkite after the incident. A long sentiment thread documenting the confidence damage among device owners, held for the community-response record. Carries no factual claims requiring verification.
+"""
+
+[[source]]
+id = "reddit-safe-after-reseed"
+title = "r/coldcard: whether a dice-rolled reseed on updated firmware is safe"
+url = "https://www.reddit.com/r/coldcard/comments/1vc9la8/are_we_safe_after_updating_firmware_and/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+insubordinate_kralc asking whether owners are safe after updating firmware and generating a new seed with dice rolls, and how anyone can even know. Captures the verifiability problem at the centre of the incident: a mitigation may be sound without the owner being able to confirm it. Safety claims in the answers are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coldcard-just-drained-rug"
+title = "r/coldcard: venting thread accusing Coinkite of rugging its users"
+url = "https://www.reddit.com/r/coldcard/comments/1vcai63/coldcard_just_drained_you_guys/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+TheHipHouse asserting that COLDCARD 'just rugged its users', a bare accusation with no supporting detail in the post body. Held as sentiment colour: a substantial comment thread grew around the venting, documenting the rawest strain of the community response. The accusation is the poster's own and is not adopted here.
+"""
+
+[[source]]
+id = "reddit-device-repurpose"
+title = "r/coldcard: repurposing COLDCARD hardware after the incident"
+url = "https://www.reddit.com/r/coldcard/comments/1vckh2n/device_repurpose/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+ExplorerBoring9848 asking what the devices can be used for now that owners will not trust them with keys, floating use as a signer and SD-card encryption. Repurposing discussion in the same vein as reddit-q-repurpose, documenting how owners respond to the incident. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-dice-rolls-trust"
+title = "r/coldcard: whether the device can be trusted to honour dice rolls"
+url = "https://www.reddit.com/r/coldcard/comments/1vc55eb/trust_issues/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 asking how owners can be sure the device did not ignore their dice rolls and use its own RNG, or keep only a fraction of the rolled entropy. The trust question the incident made concrete, since the flaw sat exactly in how device and user randomness were combined. Answers in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-untouched-mk3-migration"
+title = "r/coldcard: owner of an untouched five-year-old Mk3 seeking migration guidance"
+url = "https://www.reddit.com/r/coldcard/comments/1vbyb2s/i_havent_touch_my_cc_mk3_in_5_years_help_please/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Jazzlike-Try8872 holding an Mk3 untouched for about five years, seed made with dice rolls (count forgotten) plus a passphrase, asking how to move funds to another wallet. A first-hand data point on the affected-window self-check: the owner cannot recall how much user entropy went in. Migration guidance in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-seed-generation-check"
+title = "r/coldcard: how to tell whether a seed came from the faulty RNG"
+url = "https://www.reddit.com/r/coldcard/comments/1vc3sqk/is_there_a_way_to_know_if_your_seed_phrase_was/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+megagram asking whether there is any way to know if a seed phrase was generated with the faulty RNG. The exposure self-assessment question every owner faced during the incident; the methods suggested in the comments are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-mk4-added-rolls-safety"
+title = "r/coldcard: whether an Mk4 5.1.2 seed with 100 added rolls is safe"
+url = "https://www.reddit.com/r/coldcard/comments/1vbvade/mk4_512_seed_safe_with_100_added_rolls/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+thesllug asking whether an Mk4 seed made on firmware 5.1.2 with 100 added dice rolls is safe. A worked example of the dice-mitigation question, alongside reddit-dice-wallets-at-risk and reddit-mk4-dice-seed-safety; safety claims in the answers are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-where-to-transfer"
+title = "r/coldcard: where to move bitcoin after the exploit"
+url = "https://www.reddit.com/r/coldcard/comments/1vbmuet/now_that_coldcard_is_exploitable_where_to/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+urosino asking where to transfer bitcoin now that COLDCARD is exploitable. Documents the migration-destination discussion among owners during the rescue window; the alternatives recommended in the comments are the posters' own, not endorsements, and not verified here.
+"""
+
+[[source]]
+id = "reddit-mk3-advisory-relay"
+title = "r/coldcard: Crypto-Guide relaying the Mk3 security advisory"
+url = "https://www.reddit.com/r/coldcard/comments/1vb9doi/mk3_security_advisory/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Crypto-Guide relaying the Mk3 security advisory to the subreddit, with a long discussion thread. The underlying vendor advisory is registered as coinkite-mk3-advisory; this thread's value is the early owner reaction and guidance exchange around the notice. Claims in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-38m-theft-link"
+title = "r/coldcard: press link tying the Mk3 seed flaw to a $38M theft"
+url = "https://www.reddit.com/r/coldcard/comments/1vbfugt/coinkite_warns_coldcard_mk3_seed_flaw_may_be_tied/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+ryanmerket linking press coverage headlined on Coinkite warning that the Mk3 seed flaw may be tied to a $38 million bitcoin theft. A link post; the figure traces to press accounting of the confirmed drains and the advisory it relays is registered as coinkite-mk3-advisory. Held for the discussion around the link; the headline figure is the outlet's, not verified here.
+"""
+
+[[source]]
+id = "reddit-ai-code-review-suggestion"
+title = "r/coldcard: suggestion that Coinkite AI-review code before shipping"
+url = "https://www.reddit.com/r/coldcard/comments/1vbtwhb/a_thought_for_the_future/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1000
+capture = "reddit-json"
+why = """
+Mission-Disaster-447 suggesting Coinkite let local AI models check its code before shipping, arguing the hackers are doing it too and that an AI server beats the cost of a class action. A short opinion thread in the post-incident debate over Coinkite's development and review practices, alongside reddit-codebase-practices-critique and reddit-firmware-audit-history. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-ccq-dice-passphrase-risk"
+title = "r/coldcard: whether dice, TRNG and passphrase on last year's Q firmware is enough"
+url = "https://www.reddit.com/r/coldcard/comments/1vbnbxn/ccq_risk/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 asking whether a COLDCARD Q on the previous year's firmware, with a seed combining dice rolls and device randomness under a passphrase, is sufficiently safe. One of the owner exposure self-assessment threads that followed the disclosure; the safety answers in the comments are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-mk4-trng-dice-passphrase"
+title = "r/coldcard: Mk4 seed from TRNG plus added dice rolls and a passphrase"
+url = "https://www.reddit.com/r/coldcard/comments/1vbhuef/mk4_trng_added_dice_rolls_passphrase/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+injectionsiteredness asking how exposed a 24-word Mk4 setup is when the seed mixed device randomness with around 100 added dice rolls under a passphrase, and whether to reseed with dice only as recommended for Mk3 users. The same mitigation question as reddit-mk4-added-rolls-safety and reddit-dice-wallets-at-risk; safety claims in the comments are the posters' own, not verified here.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/coldcard pre-incident letter report ----
+
+[[source]]
+id = "reddit-letter-data-breach-question"
+title = "r/coldcard: recipient of the June scam letter asking whether Coinkite had a data breach"
+url = "https://www.reddit.com/r/coldcard/comments/1udt4zh/received_a_letter_today_from_coinkite_data_breach/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+TexasBryan14 reporting receipt of the June 2026 physical letter impersonating Coinkite, with the post-quantum security-update pretext, and asking how the senders obtained their name, address and purchase details, inferring an unannounced data breach. Posted a day before Coinkite's 24 June response (coinkite-paper-spam), which denies a breach; this archive records the inference without adopting it. The third registered first-hand report of the letter campaign, alongside reddit-june-letter-report and reddit-coldcard-letter-db-leak, and the earliest on the vendor's own subreddit.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/Bitcoin incident threads ----
+
+[[source]]
+id = "reddit-security-advisory-relay"
+title = "r/Bitcoin: relay of the COLDCARD security advisory"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vb8taw/security_advisory_for_coldcard_hardware_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+RetiredAvocado relaying the COLDCARD security advisory to r/Bitcoin, linking two first-hand drain reports including the thread registered as reddit-drained-timeline. The advisory itself is the vendor notice registered as coinkite-mk3-advisory; this thread's value is the long owner discussion under the relay. Claims in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-0-7-btc-drained"
+title = "r/Bitcoin: first-hand account of a 0.7 BTC drain"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vewzn4/fuck_coldcard_holy_shit/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+RelevantAmbition2433's first-hand victim account: 0.7 BTC accumulated over years of dollar-cost averaging gone in the exploit, a screenshot offered as proof, and a call to join a class action. The loss figure and proof image are the poster's, not verified here. Held as a first-hand loss account and for the legal-recourse sentiment in the long comment thread.
+"""
+
+[[source]]
+id = "reddit-white-hat-drains-relay"
+title = "r/Bitcoin: report that white-hat drains of unpatched COLDCARDs are underway"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veo0yh/white_hats_are_emptying_weak_keys_generated_by/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+RetiredAvocado relaying @coinjoined's report that white-hat drains of exploitable COLDCARD wallets are underway, with advice not to destroy devices because any recovery claim may depend on proving ownership through the device and KYC records. The same report is registered from Bitcoin News as bitcoinnews-whitehat-drains; it is a reported claim, not independently confirmed here. The device-preservation advice parallels reddit-do-not-dispose-device.
+"""
+
+[[source]]
+id = "reddit-5-13-btc-loss"
+title = "r/Bitcoin: first-hand account of a 5.13 BTC loss"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vemip7/your_keys_not_your_crypto_a_330k_lesson_for_all/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Affectionate_Tea3401's first-hand victim account: 5.13 BTC stolen, accumulated since 2021 through mining, salary conversion and gifts, in part borrowed against a 401K. The seed was created on an Mk3 received in December 2021, split across two steel plates held in two countries behind time-locked devices, a careful physical setup that did not protect against weak on-device randomness. Details are the poster's own, not verified here; held as a detailed first-hand loss account inside the affected window.
+"""
+
+[[source]]
+id = "reddit-unused-coldcard-collectible"
+title = "r/Bitcoin: owner of a sealed, never-used COLDCARD asking when it becomes a collectible"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vecxwh/my_unused_coldcard/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Johnaldi- posting that their still-sealed COLDCARD was never used, having stayed with Ledger, and asking when the devices start to be collectibles. A humour-tinged sentiment thread documenting how the incident reads to owners who dodged it. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-hacker-address-message-board"
+title = "r/Bitcoin: drainer's address turned into a public message board via OP_RETURN"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ved66r/bitcoin_users_are_turning_a_the_coldcard_hackers/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+TrueRead1435 cataloguing the OP_RETURN messages being sent to the drainer's consolidation address: laundering solicitations, begging from self-described victims, life stories and an attempted prompt injection aimed at a supposed AI controlling the wallet. Part of the record of on-chain messages to the operator, alongside bitcoinnews-opreturn-laundering-pitch; the messages' authenticity is not established. The address itself is public chain data.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/Bitcoin incident threads (batch 2) ----
+
+[[source]]
+id = "reddit-self-custody-custodian-debate"
+title = "r/Bitcoin: whether self-custody is still the right advice for non-technical holders"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve9or3/live_view_of_older_folks_that_had_bitcoin_on/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+TrueRead1435 asking, under a title mocking exchange users who could not manage hardware wallets, whether self-custody is still the best advice for non-technical holders or whether trusted custodians have a place. A sentiment and debate thread on what the incident means for self-custody as default advice, alongside reddit-self-custody-last-straw. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-trezor-community-audit-call"
+title = "r/Bitcoin: call for a community audit of Trezor's open-source code"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veoo6t/as_a_community_we_should_fully_audit_trezors_open/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+CeramicDrip, a self-described software engineer, proposing a community audit of Trezor's open-source software in the wake of the COLDCARD incident, and offering to help. Documents the trust spillover onto other hardware-wallet vendors after the disclosure, in the same space as the audit-history discussion in reddit-firmware-audit-history. No factual claims about Trezor are made or verified here.
+"""
+
+[[source]]
+id = "reddit-1400-btc-hacked-report"
+title = "r/Bitcoin: report of nearly 1,400 BTC hacked from COLDCARD wallets"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veauv2/nearly_1400_bitcoin_hacked_from_coldcard_wallets/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+HumbleRestaurant790 posting that nearly 1,400 bitcoin were hacked from COLDCARD wallets, with a long discussion thread. A running-tally report in the same space as reddit-fourth-wave-389-btc; the figure is the poster's or its underlying outlet's, not verified here. This archive's own funds accounting lives on the record pages, not in thread headlines.
+"""
+
+[[source]]
+id = "reddit-trezor-user-alert-email"
+title = "r/Bitcoin: Trezor's incident-response email to its users"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vepzf1/trezor_just_woke_up_and_alerted_its_users_by_this/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+paco_1987 sharing the email Trezor sent its users after the COLDCARD disclosure. Part of the record of competitor responses to the incident, alongside ledger-not-affected-response, bitbox-not-affected, jade-not-affected and passport-not-affected. The email's contents are the poster's exhibit; Trezor statements are reported, not verified here.
+"""
+
+[[source]]
+id = "reddit-attack-timing-speculation"
+title = "r/Bitcoin: speculation on why the attacker struck when they did"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vetc6x/the_timing_of_it_all/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+corporate-citizen relaying an X post by hodlonaut speculating that the exploiter knew of the weak entropy for years and chose this moment to strike, citing market and political triggers. A short speculation thread; the claims about the attacker's knowledge and motives are the author's, unverified and not confirmed here.
+"""
+
+[[source]]
+id = "reddit-ceo-anthropic-hack-challenge"
+title = "r/Bitcoin: CEO publicly challenging Anthropic to hack a 100 BTC wallet"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdu0rl/this_ceo_just_challenged_anthropic_to_hack_the/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 3000
+capture = "reddit-json"
+why = """
+This_Proof_5153 linking a report that a CEO challenged Anthropic to hack the 100 bitcoin in his published wallet address. An empty-body link post two days into the incident, held as part of the community response to claims that AI was involved in the hack (see bitcoinmag-fix-and-ai); the incident connection is contextual, not stated in the title, and the underlying report is not verified here.
+"""
+
+[[source]]
+id = "reddit-bitcoin-org-still-recommends"
+title = "r/Bitcoin: bitcoin.org still listing COLDCARD after the disclosure"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veine5/bitcoinorg_still_recommends_coldcard/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+HeyDontSkipLegDay pointing out that bitcoin.org's wallet recommendations still listed COLDCARD after the vulnerability was public, with discussion of how listing sites should respond. A community-response thread on the incident's aftermath for wallet recommendation pages. Whether and when bitcoin.org changed its listing is not verified here.
+"""
+
+[[source]]
+id = "reddit-liability-blame-debate"
+title = "r/Bitcoin: argument that blaming users shifts liability away from Coinkite"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vefwkc/blaming_coldcard_users_for_the_entropy/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+MysteriousKitchen469 arguing that blaming COLDCARD users for the entropy vulnerability wrongly shifts liability away from Coinkite. An opinion thread in the post-incident debate over vendor responsibility, alongside reddit-ceo-resign-calls and reddit-coinkite-solvency-class-action. The argument is the poster's own; this archive records it without adopting a position.
+"""
+
+[[source]]
+id = "reddit-ledger-article-relay"
+title = "r/Bitcoin: Ledger's article on the incident and its own security model"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vem0e3/ledger_article_on_the_coldcard_incident_and_why/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+jonathansj linking Ledger's article on the COLDCARD incident arguing Ledger devices remain safe. A relay of a competitor's response; Ledger's own X statement is registered as ledger-not-affected-response. The article's claims about the vulnerability and about Ledger's security are Ledger's, not verified here.
+"""
+
+[[source]]
+id = "reddit-btc-price-holding-up"
+title = "r/Bitcoin: surprise that the bitcoin price held up through incident week"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vezvlv/btc_weirdly_holding_up/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+ximogui noting that the bitcoin price stayed flat through a week of bad news including the COLDCARD drains. Minor colour: market sentiment in the incident's wake, with the hack named as one factor among several. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-cash-out-forensics-question"
+title = "r/Bitcoin: how the attacker could cash out hundreds of BTC"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vegndz/a_forensic_question_about_the_coldcard_attacker/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+quantumdot44 asking how the COLDCARD exploiter could realistically launder or cash out hundreds of bitcoin, with a long discussion of off-ramps, mixers and chain surveillance. Community forensics speculation alongside the registered chain-monitoring record; the laundering scenarios discussed are the commenters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-fourth-wave-389-btc"
+title = "r/Bitcoin: report of a fourth drain wave totalling 389 BTC"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve28wl/4th_wave_reported_389_btc_hacked/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+JesC929 reporting a fourth wave of drains totalling 389 BTC, with a long discussion thread. A wave-tally relay in the same space as reddit-1400-btc-hacked-report and the registered chain monitors; the wave count and figure are the poster's or its source's, not verified here.
+"""
+
+[[source]]
+id = "reddit-passphrase-vulnerable-question"
+title = "r/Bitcoin: whether a passphrase protects an affected COLDCARD seed"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdzo8p/coldcard_seed_passphrase_could_be_vulnerable_as/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+cheesymod asking whether COLDCARD seeds protected by a passphrase could also be vulnerable, with a long technical discussion. One of the largest owner exposure self-assessment threads, alongside reddit-passphrase-save-mk3 and reddit-weak-passphrase-multisig-warning. The safety claims in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-hardware-wallet-comparison"
+title = "r/Bitcoin: comparison of major hardware wallets after the entropy bug"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vehzv8/i_compared_every_major_bitcoin_hardware_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+TrueRead1435 posting a comparison of major bitcoin hardware wallets prompted by the COLDCARD entropy bug. Part of the migration-and-alternatives discussion that followed the disclosure, alongside reddit-where-to-transfer. The comparison's judgements are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-88m-hack-not-over"
+title = "r/Bitcoin: press report warning all vulnerable wallets will eventually be drained"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve8w11/bitcoins_88m_coldcard_hack_isnt_over_experts_warn/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+beingmodest linking press coverage headlined on the $88M tally and expert warnings that every vulnerable wallet will eventually be drained. A media-coverage relay in the same space as theblock-galaxy-total; the headline figure and the warning are the outlet's and its quoted experts', not verified here.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/Bitcoin incident threads (batch 3) ----
+
+[[source]]
+id = "reddit-same-address-collision-question"
+title = "r/Bitcoin: why affected COLDCARDs did not produce duplicate addresses"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vemf3k/how_come_multiple_same_addresses_werent_created/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+bellydisguised asking why the weakened seed generation did not cause two affected COLDCARDs to produce the same address, with a technical discussion of collision probability across the reduced entropy space. An incident-mechanics discussion; the probability arguments in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-email-data-retention"
+title = "r/Bitcoin: owner reports Coinkite outreach email despite 90-day data policy"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vecnrt/coinkite_reached_out_to_me_via_email_although/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+NorthComparison4356 reporting that Coinkite contacted them by email about the incident even though, the poster says, Coinkite's policy claims customer data is not kept for more than 90 days, with discussion of what customer data the vendor retains. A first-hand vendor-contact report in the same space as reddit-letter-data-breach-question and reddit-phishing-advisory-email. The reading of the retention policy is the poster's, not verified here.
+"""
+
+[[source]]
+id = "reddit-bought-last-week"
+title = "r/Bitcoin: buyer of a COLDCARD last week asking whether to throw it away"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veessi/i_got_a_coldcard_last_week_am_i_suppose_to_throw/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Girl-Who-Flies, who says they bought a COLDCARD the week before the disclosure, asking whether the device should be discarded, drawing a long advice thread. Documents the owner-panic side of the community response, alongside reddit-throw-away-coldcard and reddit-still-using-coldcard. The safety advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-secure-btc-after-incident"
+title = "r/Bitcoin: what to do now to secure bitcoin held on a COLDCARD"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veuo5u/cold_card_so_what_do_i_have_to_do_to_secure_my/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+sunnysideupslide asking what steps would make their bitcoin fully safe after the incident, with a discussion of migration, seed regeneration and passphrases. One of several owner action-plan threads after the disclosure, alongside reddit-safe-after-reseed and reddit-multisig-migration-plan. The advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-throw-away-coldcard"
+title = "r/Bitcoin: whether to throw away a COLDCARD"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veuene/do_i_throw_away_my_coldcard/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+jb7734 asking whether to discard their COLDCARD after the disclosure. A short owner-response thread in the same space as reddit-bought-last-week; reddit-do-not-dispose-device records the countervailing advice to keep the device for any later recovery claim. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-victim-support-psa"
+title = "r/Bitcoin: appeal to drained owners not to do anything drastic"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdxmk0/psa_to_anyone_who_got_their_coldcard_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Interesting_Drag143 addressing drain victims directly and urging them not to harm themselves over the loss. A victim-support thread in the same space as reddit-sun-will-rise, documenting how the community responded to the human cost of the incident. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-sun-will-rise"
+title = "r/Bitcoin: FTX-loss survivor's message to COLDCARD drain victims"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdvtmu/psa_tomorrow_the_sun_will_rise_again/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+PacoStanleys, who reports losing over $2 million in the FTX collapse, telling COLDCARD drain victims that a financial loss is not the end and urging them not to make irreversible decisions. A long victim-solidarity thread alongside reddit-victim-support-psa. The FTX loss figure is the poster's own account, not verified here.
+"""
+
+[[source]]
+id = "reddit-unconsolidated-drain-account"
+title = "r/Bitcoin: victim whose drained coins sit apart from the known consolidation set"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veo132/coldcard_loss_question/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1000
+capture = "reddit-json"
+why = """
+rkavanau reporting that five of their COLDCARD addresses were drained on 31 July into an address holding only their coins, not combined with the larger consolidation set tracked by the registered chain monitors, and asking whether more than one exploiter was active. A first-hand loss account carrying a reported observation relevant to attribution; the poster offered transaction identifiers but had not posted them, so the drain path is not verified here.
+"""
+
+[[source]]
+id = "reddit-retirement-attack-resurfaced"
+title = "r/Bitcoin: 2021 COLDCARD post joking about a 'retirement attack' resurfaced"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vf0ut0/coldcard_post_from_october_10_2021_retirement/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Fearless-Second-7230 resurfacing an October 2021 COLDCARD post that joked about a 'retirement attack', defined there as a planted entropy-generation flaw for later retrieval, and a December 2020 nvk post on the same theme, framing them as suspicious in hindsight while backing away from the conspiracy reading. Documents post-incident scrutiny of the vendor's own history; the insinuation of intent is speculation, not evidence, and is not endorsed here.
+"""
+
+[[source]]
+id = "reddit-flag-four-addresses"
+title = "r/Bitcoin: call to flag the drainer's four consolidation addresses"
+url = "https://www.reddit.com/r/Bitcoin/comments/1verf1p/flag_the_4_coldcard_addresses/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+calos98x calling for the four COLDCARD drain consolidation addresses to be flagged, with discussion of what exchanges and analytics firms can or will do. Community-response discussion around the same public address set the registered chain monitors (coldcard-watch, coldcard-hack-tracker, coldcard-rip-tracker) poll. No new claims to verify.
+"""
+
+[[source]]
+id = "reddit-entropy-bug-commits-review"
+title = "r/Bitcoin: reviewing the commits that introduced the entropy bug"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdycb4/coldcard_entropy_bug_the_commits_that_introduced/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+DyehuthyTV arguing that the commits that introduced the weakened seed generation deserve close review, with a long discussion of the commit history and how the change read at review time. An incident-mechanics and code-provenance discussion alongside reddit-codebase-practices-critique. The readings of particular commits are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-wild-west-sentiment"
+title = "r/Bitcoin: 'people have forgotten what this space is all about'"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vedx0e/people_have_forgotten_what_this_space_is_all_about/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+dotpill arguing that losses like the COLDCARD incident are the expected risk of an unregulated 'wild west' and that newer holders expected a safety the space never offered. A long sentiment thread documenting one strand of the community response, alongside reddit-liability-blame-debate. Opinion only; no factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-safe-seed-without-hardware"
+title = "r/Bitcoin: generating a safe seed without a hardware wallet"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vekcn5/how_to_create_a_safe_seed_without_hardware_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+unshak3n asking, citing the COLDCARD issue directly, how best to generate a 256-bit seed without relying on hardware wallets or any third party, drawing a long discussion of dice, air-gapped software and passphrases. One of several post-incident seed-generation practice threads, alongside reddit-dice-consensus-nontechnical. The methods recommended in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-where-store-bitcoin-now"
+title = "r/Bitcoin: where to store bitcoin after the COLDCARD incident"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veyt5w/so_where_do_we_store_bitcoin_now/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Interesting-Lime3031 asking where bitcoin should be stored now that the COLDCARD situation has left them uncertain. An owner-uncertainty thread in the same space as reddit-where-to-transfer and reddit-secure-btc-after-incident. The advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-70m-41-minutes-report"
+title = "r/Bitcoin: news report of $70 million drained in 41 minutes"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdt92h/a_coldcard_firmware_flaw_let_hackers_drain_70/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+ThePrince1856 relaying media coverage that put the drains at $70 million in 41 minutes, with losses later reported as topping $88 million, and discussion of the figures. A news-relay thread in the same space as reddit-88m-hack-not-over and reddit-1400-btc-hacked-report. The dollar figures are attributed to the coverage it relays, not verified here.
+"""
+
+[[source]]
+id = "reddit-best-way-keep-safe"
+title = "r/Bitcoin: best way to keep bitcoin safe after the incident"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vedae9/with_the_coldcard_stuff_going_on_i_want_to_know/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+coinwin, citing the COLDCARD situation, asking for the best way to keep their bitcoin safe, with migration, multisig and passphrase advice in the comments. An owner action-plan thread alongside reddit-secure-btc-after-incident and reddit-multisig-migration-plan. The advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-trng-certification-question"
+title = "r/Bitcoin: COLDCARD TRNG certification level questioned"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ven1lw/coldcard_trng_certification_level/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Impressive-Piglet386 reposting a two-year-old r/Bitcoin question about the COLDCARD TRNG's certification level, asking in hindsight whether vendors whose hardware passes EAL5+ or EAL6+ certification should be considered more secure. A short technical discussion of the hardware behind the vulnerability. The certification claims are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-open-source-missed-flaw"
+title = "r/Bitcoin: why open source did not catch the low-entropy seed generation"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve5jyc/since_coldcard_is_opensource_why_wasnt_low/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+kevinar990 asking why a flaw in openly published firmware went unnoticed for years, with a long discussion of what open source does and does not guarantee and how much review the code actually received. An incident-mechanics and audit-history discussion alongside reddit-firmware-audit-history and reddit-trezor-community-audit-call. The accounts of past review are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-verify-code-on-device"
+title = "r/Bitcoin: verifying that published source is what runs on the device"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vehj5c/if_the_code_of_a_hardware_wallet_is_truly_open/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+seolein, writing that since the disclosure weekend they are 'questioning everything', asking how an owner can verify that the open-source code published for a hardware wallet is the code actually running on the device. A short reproducible-builds and attestation discussion triggered by the incident. The verification methods discussed are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-lost-one-bitcoin-victim"
+title = "r/Bitcoin: victim reports losing one bitcoin in the exploit"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdjlls/i_lost_my_one_bitcoin_in_the_coldcard_exploit/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+nothingbutwhammies reporting the loss of one bitcoin to the exploit, drawing one of the longest community threads of the incident with condolences, questions about the setup and migration advice. A first-hand victim account alongside reddit-0-7-btc-drained, reddit-5-13-btc-loss and reddit-1-6m-cad-drained. The loss is the poster's own account, not verified here.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/Bitcoin incident threads (batch 3) ----
+
+[[source]]
+id = "reddit-opreturn-laundering-offer"
+title = "r/Bitcoin: money laundering offer sent to the drainer via OP_RETURN"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdqybv/coldcard_hacker_receives_money_laundering_offer/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+kingofsats relaying an OP_RETURN message offering money laundering services to the drainer, with discussion of the offer and what it says about cashing out. The Reddit twin of stackernews-opreturn-laundering-offer, part of the record of on-chain messages to the operator alongside reddit-hacker-address-message-board and bitcoinnews-opreturn-laundering-pitch. The message's authenticity is not established.
+"""
+
+[[source]]
+id = "reddit-self-custody-risk-doubt"
+title = "r/Bitcoin: owner struggling to weigh self-custody risk after the attack"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veuylf/im_having_a_hard_time_grasping_the_risk_involved/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+MakeItMine2024, a Trezor owner who lost coins to a hot wallet in 2023, doubting self-custody after the COLDCARD attack and weighing custodial holding. A short sentiment record of the incident shaking non-expert owners, alongside reddit-self-custody-last-straw. The claims about broker insurance and a North Korea attribution are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-self-custody-to-etf"
+title = "r/Bitcoin: considering selling self-custodied BTC for a spot ETF"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve1fai/is_anyone_considering_selling_their_own_btc_for_a/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Digital-Purpose, shaken by the drains of owners who 'did absolutely nothing wrong', asking whether to sell self-custodied coins and buy a spot ETF instead. One of the larger sentiment debates of the incident, on whether self-custody remains worth the risk for non-technical holders, alongside reddit-self-custody-custodian-debate and reddit-self-custody-last-straw. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-nvk-awareness-critique"
+title = "r/Bitcoin: critique of nvk's past firmware-attack awareness"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdtah5/it_was_ai_and_superintelligence_man_i_swear/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Fearless-Second-7230 arguing nvk's posting history shows awareness of firmware attack vectors, questioning why the seed-generation code was never audited in five years, and airing a deliberate-drains conspiracy theory the poster then disavows. Community commentary on vendor accountability and on the AI-discovery framing covered by reddit-ai-discovery-thread. The readings of nvk's history and the speculation are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coldtruth-opinion"
+title = "r/Bitcoin: opinion urging owners to leave Coinkite products"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veo7gt/the_coldtruth/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Spy008 arguing owners should move off Coinkite products regardless of how their seed was made, reasoning that either a Coinkite closure kills the firmware update channel or a shrunken Coinkite means less security work, and calling for apologies from advocates. A short opinion thread on the vendor's future. The scenarios are the poster's own reasoning, not verified here.
+"""
+
+[[source]]
+id = "reddit-still-using-added-entropy"
+title = "r/Bitcoin: continuing to use COLDCARD with user-supplied entropy"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veebh0/still_using_coldcard_but_with_great_entropy/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Old-Cardiologist-545 asking whether continuing to use a COLDCARD is acceptable with strong user-supplied entropy. An owner mitigation thread alongside reddit-user-entropy-options, reddit-dice-consensus-nontechnical and reddit-still-using-coldcard. The safety advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coldcard-never-again"
+title = "r/Bitcoin: unaffected owner moving off COLDCARD anyway"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdsqhy/coldcard_youll_never_hurt_me_again/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Mentalextensi0n, whose seed was strong enough to be unaffected, re-doing their setup anyway and moving back to a Ledger until a multisig with a SeedSigner is ready, asking what others are doing. A migration and sentiment thread alongside reddit-multisig-migration-plan and reddit-throw-away-coldcard. The poster's unaffected status is their own account, not verified here.
+"""
+
+[[source]]
+id = "reddit-ownership-proof-idea"
+title = "r/Bitcoin: pre-committing wallet ownership proof against future recovery"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vec9ms/prepared_ownership_proof_idea_smart_or_risky/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+NamedBird proposing to hash a signed ownership claim into an early transaction so that, if stolen coins are ever recovered, ownership can be proven without relying on a compromised seed, and asking what risks the scheme carries. An incident-prompted technical idea thread. The scheme and its security properties are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-refund-question"
+title = "r/Bitcoin: whether Coinkite will refund COLDCARD purchases"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vex1o2/will_coinkite_refund_cold_card_purchase/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+drumcraze92 asking whether Coinkite will refund COLDCARD purchases after the incident. A short record of the customer-compensation question, alongside reddit-coinkite-solvency-class-action. Any answers in the comments are the posters' own speculation, not verified here.
+"""
+
+[[source]]
+id = "reddit-future-of-bitcoin-debate"
+title = "r/Bitcoin: whether the incident challenges the future of Bitcoin"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdds1l/the_coldcard_case_fundamentally_challenges_the/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+dvondurden arguing the COLDCARD case fundamentally challenges the future of Bitcoin, drawing one of the largest discussion threads of the incident. A sentiment and debate record on what the drains mean for self-custody as a model. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-seed-collision-odds"
+title = "r/Bitcoin: birthday-bound estimate of seed collisions from reduced entropy"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdr94r/93000_coldcardgenerated_seeds_is_all_it_takes_for/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+IsolatedNetworkNode applying a birthday-bound estimate to the reduced entropy space, concluding on the order of 93,000 COLDCARD-generated seeds suffice for a 50 percent chance two people share a wallet. A statistical discussion of the vulnerability's scope, alongside reddit-same-address-collision-question. The arithmetic is the poster's own derivation, not verified here.
+"""
+
+[[source]]
+id = "reddit-jade-passphrase-safety"
+title = "r/Bitcoin: Jade owner asking if their seed is safe after the incident"
+url = "https://www.reddit.com/r/Bitcoin/comments/1veiiif/i_have_a_jade_plus_with_a_passphrase/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+AggressiveGas4637, holding a Jade Plus with a passphrase, asking whether their seed is safe or should be re-rolled with coin flips. A record of the incident's ripple into owners of other vendors' devices, alongside reddit-hardware-wallet-comparison. The safety advice in the comments is the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-engineering-negligence-post"
+title = "r/Bitcoin: engineering-negligence analysis of the Coinkite bug"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve97sw/basic_flaw_devastating_impact_engineering/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+eternal_recurrence12 attributing the vulnerability to a development-test constant left active in production and arguing the release pipeline lacked entropy regression testing, asking whether the analysis is on track. A short technical-opinion thread on engineering process. The mechanism description is the poster's own account, not verified here.
+"""
+
+
+# ---- 4 Aug 2026 discovery intake: r/Bitcoin and BitcoinTalk incident threads (batch 4) ----
+
+[[source]]
+id = "reddit-tribute-to-victims"
+title = "r/Bitcoin: tribute thread for those affected by the exploit"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vewkkw/a_tribute_to_all_of_our_brothers_and_sisters/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+c0nd3v opening a moment-of-silence thread for those affected by the COLDCARD attack, inviting messages to fellow bitcoiners who lost funds. A short condolence record of community sentiment, alongside reddit-sun-will-rise. No factual claims to verify.
+"""
+
+[[source]]
+id = "reddit-multisig-coldcard-seeds-risk"
+title = "r/Bitcoin: risks of multisig setups that include COLDCARD seeds"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ved6v3/risks_of_multisig_with_coldcard_seeds/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+m0r0_on asking what threats apply to multisig setups that use COLDCARD-generated seeds as signers, relaying a claim that spending exposes the public key and can be front-run, and asking how to migrate away. A short owner risk-assessment thread alongside reddit-multisig-migration-plan and reddit-secure-btc-after-incident. The front-running claim is the poster's own hearsay, not verified here.
+"""
+
+[[source]]
+id = "reddit-btc-declared-dead-reflection"
+title = "r/Bitcoin: reflection on the incident among past declarations of Bitcoin's death"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vemsyq/for_all_those_times_when_btc_was_declared_dead/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+H8ckt1v1st framing the incident as another event Bitcoin will outlast, assigning blame fully to Coinkite and crediting AI with finding the long-open flaw, and advising dice-generated seeds, long passphrases and multisig. An opinion and sentiment thread on what the drains mean, alongside reddit-future-of-bitcoin-debate. The blame assignment and the AI-discovery account are the poster's own claims, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-options-after-disclosure"
+title = "r/Bitcoin: what Coinkite could have done once the vulnerability was found"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve1r5g/is_there_anything_coinkite_could_have_done_once/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+JollyJury asking whether any vendor action was possible once the vulnerability was known, drawing a long discussion of disclosure timing, warning reach and whether owners could realistically have been moved in time. A vendor-response debate alongside reddit-engineering-negligence-post and reddit-open-source-missed-flaw. The accounts of what was feasible are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-passphrase-extra-security"
+title = "r/Bitcoin: how much extra security a passphrase adds"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ve8xf0/how_much_extra_security_from_a_passphrase/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Crypto-Moony asking how much protection a passphrase adds against the reduced-entropy seeds, with discussion of passphrase strength and brute-force cost. A mitigation thread alongside reddit-still-using-added-entropy and reddit-jade-passphrase-safety. The security estimates in the comments are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-dice-seed-generation"
+title = "r/Bitcoin: generating seeds with physical dice after losing trust in RNGs"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vdl4h3/generating_your_own_seed_with_physical_dice_99/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Proof-Professor-1030 describing a 99-roll dice method for generating a seed with about 256 bits of entropy and explaining why they stopped trusting device RNGs for cold storage, drawing one of the largest mitigation discussions of the incident. A direct record of the trust damage the vulnerability caused, alongside reddit-same-address-collision-question. The entropy arithmetic is the poster's own derivation, not verified here.
+"""
+
+[[source]]
+id = "reddit-quantum-damage-reaction"
+title = "r/Bitcoin: incident taken as a preview of future quantum-computing FUD"
+url = "https://www.reddit.com/r/Bitcoin/comments/1ved6wa/the_recent_incident_reminds_us_the_damage_quantum/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "reddit-json"
+why = """
+PaintingLeft565 arguing that if one small bug can cause this much uncertainty, the fear around quantum computing will be worse. A sentiment thread on how the incident shapes expectations of future threats, only incidentally about the incident itself. No factual claims to verify.
+"""
+
+[[source]]
+id = "bitcointalk-bright-side-opinion"
+title = "Beyond panic; the bright side of the Coldcard wallet incident"
+url = "https://bitcointalk.org/index.php?topic=5590248.0"
+published = "2026-08-03"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590248.0"
+required_text = ["Post by:"]
+note = """
+IjawMan arguing the incident has a bright side: a mass awakening to wallet hygiene, update habits, seed entropy and passphrases. Replies correct the decentralisation framing and debate passphrase strength, with one relaying btcsessions-passphrase-loss-report as evidence a weak passphrase protects nothing. An opinion and sentiment record from the Wallet software board. The views are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "bitcointalk-600-btc-exploit-news"
+title = "Coldcard Wallet Bug Drains 600 BTC in Ongoing Exploit"
+url = "https://bitcointalk.org/index.php?topic=5590051.0"
+published = "2026-07-31"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590051.0"
+required_text = ["Post by:"]
+note = """
+Mate2237 relaying CoinDesk's 31 July coverage of the drains at roughly 600 BTC and about 38 million dollars, and asking whether custodial wallets are really safer. The one reply points to the forum's main incident thread and restates self-custody advice. An early news-relay record of how the story first circulated on the forum. The figures are attributed to the coverage it relays, not verified here.
+"""
+
+[[source]]
+id = "bitcointalk-learn-from-incident"
+title = "We can all learn one or two from this ColdCard incident"
+url = "https://bitcointalk.org/index.php?topic=5590065.0"
+published = "2026-08-03"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590065.0"
+required_text = ["Post by:"]
+note = """
+YellowSwap opening a lessons-learned thread on the Bitcoin Discussion board, drawing one of the longer forum discussions of the incident's takeaways for holders. A community response and sentiment record alongside bitcointalk-bright-side-opinion. The lessons and claims in the thread are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "bitcointalk-large-scale-compromise-thread"
+title = "Large-scale Coldcard compromise (1360.23 BTC stolen so far)"
+url = "https://bitcointalk.org/index.php?topic=5589927.0"
+published = "2026-08-04"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 2
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5589927.0"
+required_text = ["Post by:"]
+note = """
+flatfly opening the forum's main incident thread on the Bitcoin Discussion board, tallying the drains at 1360.23 BTC and still rising; other registered threads on the forum point here as the megathread. At 292 comments it is the longest-running BitcoinTalk record of community response, reported cases and sentiment as the incident developed. The figures and claims in the thread are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "bitcointalk-hack-revolution-opinion"
+title = "The coldcard hack will change Bitcoin, it's a revolution."
+url = "https://bitcointalk.org/index.php?topic=5590255.0"
+published = "2026-08-04"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590255.0"
+required_text = ["Post by:"]
+note = """
+SaddamoftheWest arguing the incident is a turning point for Bitcoin and self custody, framing the reaction as an assault on self custody by latecomer influencers. Replies dispute the revolution framing, debate whether the discussion belongs in the megathread bitcointalk-large-scale-compromise-thread, and predict passphrases becoming near-mandatory practice. An opinion and sentiment record from the Bitcoin Discussion board. The views are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "bitcointalk-seed-passphrase-explainer"
+title = "Bitcoin wallet seed phrase with an optional (extended) passphrase"
+url = "https://bitcointalk.org/index.php?topic=5590296.0"
+published = "2026-08-04"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 3
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590296.0"
+required_text = ["Post by:"]
+note = """
+UchihaSarada writing an incident-motivated explainer on seed entropy and optional passphrases, arguing a passphrase cannot repair a weakly generated seed. The post links coinkite-mk3-advisory and coinkite-backgrounder, quotes btcsessions-passphrase-loss-report as evidence a passphrase alone does not protect a weak Mk3 seed, and points to the megathread bitcointalk-large-scale-compromise-thread. An educational community response with no replies at registration. The technical claims are the poster's own and those of the sources it cites, not verified here.
 """

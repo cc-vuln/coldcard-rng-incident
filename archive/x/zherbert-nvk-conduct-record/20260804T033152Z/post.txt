@@ -1,0 +1,84 @@
+url:      https://x.com/zherbert/status/2084269925632217297
+author:   Zach Herbert
+handle:   @zherbert
+posted:   2026-08-03T13:27:28.000Z (from the page's <time> element)
+captured: 20260804T033152Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOzNGBdW0AAtYkg?format=jpg&name=small (680 x 272 pixels)
+
+--- post text (verbatim) ---
+
+Don't trust NVK, verify.
+
+NVK accused Foundation of “affinity scamming,” called us “dicks,” “leeches,” “cloners,” and people who were “not good actors.” These attacks began almost immediately after we announced Passport and continued for years.
+SeedSigner received the same treatment. NVK said people who did not understand secure elements “shouldn’t be making insecure HW on RPI” and dismissed the opposing argument as “ignorance or FUD malice.” He later told SeedSigner that its purpose was to “FUD” other projects and “play victim.” When contributors objected, he answered with “Muh victimhood.”
+Security researchers and independent reviewers were treated no better. NVK called one disclosure “PR terrorism,” said “I don’t deal with terrorists,” and questioned whether a researcher without a CVE was a professional. When WalletScrutiny reported problems reproducing older Coldcard releases, he called the project “either incompetent or malicious” and then asked, “Is it time to just sue them?”
+People who challenged Coldcard’s open-source claims were called “bad faith Maoists,” “competitors paid shills,” “aholes,” and “useful idiots.” One critic was called a “little bitching asshole.” Another received the label “GPL commie.”
+None of this was hidden. It happened on the same podcasts and social networks where people are still defending NVK, still calling Passport a fork or clone, and still interpreting the Coldcard entropy failure inside the same distorted universe he spent years constructing.
+Everyone already knows about the Coldcard Random Number Generator (RNG) failure. Affected users should read Coinkite’s migration guidance and Block’s technical analysis.
+The more difficult question is how a community built around “don’t trust, verify” became so dependent on one man’s reputation.
+For years, NVK’s attacks were explained as the rough personality of a brilliant and uncompromising security expert. When he was cruel to a competitor, people assumed the competitor deserved it. When he dismissed a researcher, people assumed the research was unserious. When he made an extraordinary technical claim, the confidence with which he delivered it often became a substitute for proof.
+I was caught in it too. I once bought Opendimes and two Coldcards, recommended the product, secured my own sats with it, and defended NVK when Trezor criticized Coldcard for renaming its GPLv3 code. NVK helped shape my worldview. That history is why I understand the people defending him now, and why I no longer accept reputation as a substitute for evidence.
+BTC Sessions host Ben Perrin recently described what happened with painful honesty:
+“I think I gave the behavior a pass because I erroneously believed that the hubris came with a heightened ability to create and secure.”
+I think much of the Bitcoin industry made the same mistake.
+Free and Open Source Software
+Free and open-source software is one of the most important ideas in Bitcoin and one of the main reasons I entered this industry.
+Bitcoin users hold their own keys because we do not want a bank deciding whether we may access our money. We run our own nodes because we do not want a company deciding which transactions are valid. We inspect and reproduce the software protecting our funds because we do not want the reputation of a founder or institution to become our security model.
+FOSS gives users the freedom to study code, modify it, redistribute it, and build upon it. These freedoms encourage independent review, allow new companies to compete with incumbents, and ensure that useful work can survive the company or individual who created it.
+Back in 2018, Coldcard benefited from these freedoms. It incorporated GPLv3 code from Trezor, published its own firmware under GPLv3, and returned its modifications to the community. Trezor criticized NVK at the time for renaming the code, and I defended him. Coldcard had respected the license and was in the right moral position.
+When Foundation announced Passport in 2020, we exercised the same rights.
+We clearly disclosed that Passport incorporated GPL-licensed Coldcard code. We credited Coldcard and published our own work under GPLv3. We originally intended to fork the repository, but our engineers ultimately created a fresh MicroPython project for different hardware and ported selected GPL files.
+Passport’s electronics and industrial design were created from scratch. The screen, keypad, camera, power system, printed circuit board, and user interface were different. Even the STM processor had a different pinout. These changes required our team to perform the hardware bring-up, rewrite the bootloader, build a new interface, integrate a camera and QR workflow, and make substantial changes throughout the firmware.
+NVK knew all of this. He still called Passport a clone, told people we had changed little more than the user interface, warned that we were likely introducing massive security holes, and accused us of affinity scamming.
+Coinkite then removed the remaining GPL code from Coldcard and moved new Coldcard code to MIT plus the Commons Clause. The change remains visible in the repository. The Commons Clause FAQ asks whether software using it is open source and answers, “No.” The clause prohibits other companies from selling products or services whose value comes substantially from the software.
+Coldcard became source available under a commercial restriction.
+NVK later attacked Foundation for failing to contribute our work back to Coldcard. This accusation omits the license barrier Coinkite deliberately placed between the projects. Foundation’s GPL code could only be incorporated into Coldcard if Coinkite accepted the GPL or obtained separate permission from us. Coinkite’s Commons Clause code could not be incorporated into Passport and remain distributable under GPL.
+We could not exchange code under those incompatible terms. Coinkite created the incompatibility and then used the absence of contributions as another reason to attack us.
+This hostility toward open source eventually reached another project. In November 2024, the developer of BTClock published Coinkite’s trademark complaint to GitHub. The BTCLOCK name was similar to Coinkite’s BLOCKCLOCK trademark, and Coinkite had every right to raise the issue. But the developer was never contacted and asked to change the name. The complaint instead asked GitHub to remove materials containing BTCLOCK and “suspend and/or terminate” the BTClock account. GitHub took down the repository.
+For years, Bitcoin podcasters taught their audiences that free and open-source software was essential. Yet when NVK restricted Coldcard’s license, attacked projects exercising GPL rights, and used a trademark complaint to take down an open-source competitor, most of the media ecosystem said nothing.
+FOSS principles are easy to support when everyone is friends. They matter most when a competitor uses the freedoms the license was specifically written to protect.
+Security Research
+Security researchers play an uncomfortable role. Their job is to search for failures, challenge assumptions, and tell companies things they may not want to hear. Researchers will sometimes be wrong about severity or communicate poorly. Vendors will sometimes have important context that changes the analysis.
+The disagreement still needs to remain technical. A vendor should answer the research, publish the evidence, fix the problem when necessary, and allow users to judge the complete record.
+In 2021, Shift Crypto and Nunchuk disclosed a multisig-verification problem in Coldcard. NVK acknowledged that the underlying issue was “100% our fault.” Coinkite credited the technical work and shipped a fix. NVK still called the disclosure PR terrorism, said he did not deal with terrorists, and questioned whether someone without a CVE was a real professional.
+In 2023, WalletScrutiny reported that some Coldcard releases could not be reproduced from the published source. NVK called WalletScrutiny incompetent or malicious and suggested litigation. Independent follow-up reproduced current releases while finding mismatches or build failures in some older versions. Carl Dong later identified a SOURCE_DATE_EPOCH problem, fixed it, and concluded that nobody involved was malicious.
+There are also examples of NVK treating researchers well. He praised Ledger Donjon and said its team handled a Coldcard disclosure properly. Researchers whose process and framing he approves of may receive praise. Researchers he believes exaggerated a finding, mishandled a disclosure, or helped a competitor may be publicly attacked.
+That behavior makes independent review less attractive. A researcher considering months of difficult and often unpaid work has to weigh the possibility that a disagreement over severity could lead to ridicule, blocks, threats of litigation, or accusations of helping a competitor.
+I cannot prove that this culture caused the Coldcard RNG failure. Nobody can know how many researchers chose to spend their time elsewhere because reviewing Coldcard did not seem worth the personal and professional cost.
+But security depends on people being willing to look.
+How We Got Here
+The same claims were repeated for years.
+Foundation was a “pure clone.” SeedSigner was insecure, technically ignorant, malicious, and playing victim. WalletScrutiny was malicious. Researchers were engaged in PR terrorism. FOSS advocates were Maoists, useful idiots, and GPL commies.
+People heard these claims on X, Telegram, podcasts, and forums. The repetition made the narrative feel as though it had been independently confirmed, even when the assertion originated with one person and was then carried through the same small group of friends, podcasters, and industry figures.
+Psychologists call this the illusory truth effect. When we hear a claim repeatedly, it becomes familiar and easier to process. Our brains can mistake that familiarity for truth. The related logical fallacy is proof by assertion, or argumentum ad nauseam: repeat the conclusion until everyone becomes tired of asking for evidence.
+NVK also benefited from the halo effect. He had status, confidence, a popular product, influential friends, and years of exposure across Bitcoin media. Recommendations from trusted podcasters strengthened his authority, and his authority made future recommendations feel safer. Eventually, his reputation became the evidence.
+In April 2024, I called this Stockholm syndrome. That was the wrong term. What I was trying to describe is epistemic capture.
+Epistemic capture occurs when a community gradually outsources its judgment to a trusted authority. Friendship and group loyalty make that authority difficult to challenge. Social proof makes his claims feel independently verified. Years of public recommendations make contrary evidence painful to absorb. The authority is then used to interpret the evidence that should have discredited him: a catastrophic failure becomes one isolated mistake, Passport remains a fork or clone, and the critics remain enemies. Cognitive dissonance protects the worldview from the facts.
+I am sure NVK was nice to many people. Those experiences prove that he can be nice to friends and some customers. They offer no evidence about his attacks on Foundation, SeedSigner, WalletScrutiny, or outside researchers, and no evidence that Coldcard firmware received adequate independent review.
+Coinkite’s grants and Coldcard’s good features deserve recognition. They are achievements in different domains; neither can validate firmware security or excuse attacks on open-source competitors and researchers.
+Personal loyalty has carried technical and moral claims far beyond the available evidence.
+Correcting the Record
+The Coldcard failure destroys the assumption that NVK’s reputation is evidence of superior technical judgment. His claims about the people and projects he attacked now deserve the scrutiny they should have received when he first made them.
+So let me spell this out clearly.
+A file-level comparison of the public repositories gives us more precise language: Passport initially used substantial Coldcard code, but Foundation materially re-engineered it. “Coldcard-derived port” is accurate; “pure clone” is not.
+Foundation created a fresh MicroPython project for different hardware, performed our own hardware bring-up, wrote a new bootloader, built a new interface, integrated a camera and QR workflow, and ported selected GPL components with attribution. The code and its history are public.
+Foundation has made substantial independent contributions to Bitcoin open source. We helped drive animated QR code adoption (UR standard), published our Python UR implementation, built Envoy mobile app, released an MIT-licensed Tor library for Flutter used by other Bitcoin companies, and spent years building KeyOS, our open-source Rust microkernel operating system for Passport Prime – and so much more.
+SeedSigner is a serious open-source project. Its inexpensive, stateless architecture offers a different security model built from publicly available hardware. Its software is open source and its release images are reproducible. Its tradeoffs deserve rigorous research. Its contributors deserve respect and grant funding.
+WalletScrutiny performs essential work. Reproducible builds give practical meaning to “don’t trust, verify.” The Coldcard dispute uncovered genuine historical reproduction problems. The public evidence never established that WalletScrutiny acted maliciously.
+Shift Crypto and Nunchuk found a real problem. Coinkite disputed its severity and the way it was publicized, credited the work, and shipped a fix. Calling the researchers terrorists turned a technical dispute into a personal attack.
+Coldcard is source available under a commercial restriction, not open source. Its code can be viewed and current releases can be reproducibly built. The Commons Clause restricts commercial use and explicitly says it is not open source.
+What Happens Next
+I do not blame the podcasters, educators, investors, or customers who trusted NVK. I once trusted him too. Most of these people are good people who were operating inside a small industry where the same respected founder appeared everywhere, his friends vouched for him, his products were widely recommended, and his aggression was interpreted as expertise.
+Many people were duped. At one point, so was I.
+Changing your position when the evidence changes deserves respect. A community built around verification should celebrate it.
+First, protect users. Link the current migration guidance and make clear that updating firmware cannot repair a vulnerable seed that has already been generated.
+Then revisit the claims repeated about Foundation, SeedSigner, WalletScrutiny, security researchers, and so many others. Add primary sources and corrections to old show notes, product guides, and recommendation pages. Invite the builders and researchers who were attacked and give them the time to explain their work. Apply the same standards to friends, sponsors, competitors, and critics.
+Bitcoin media needs to become adversarial again. Apply the same scrutiny to NVK, his critics, and every other vendor.
+No public confession is necessary. What matters is the next recommendation, the next interview, and the next claim repeated without evidence.
+Free and open-source software cannot have a personality exception. Security research cannot require the vendor’s approval. Confidence, friendships, grants, product features, and years of podcast appearances cannot substitute for evidence.
+Bitcoin was built around the expectation that experts and institutions will fail. We should apply the same lesson to our own community.
+Do not trust NVK.
+Do not trust me either.
+Verify.

@@ -1,0 +1,319 @@
+post: 1vc9kxd
+author: itsgood-man
+created_utc: 1785547714
+title: $1.6M cad drained
+body:
+Any idea if there’s an organized central place to upload documentation of wallet / transaction id’s in the off-chance that the stolen BTC surfaces on a regulated exchange?
+
+I’ve already filed with the authorities. 
+
+comment: p0zyjee
+parent: t3_1vc9kxd
+author: doctordyck
+created_utc: 1785551830
+edited: false
+body:
+Get on X and appeal to the Bitcoin community there. People may be willing to help as much as they can. I'm so incredibly sorry. 
+
+comment: p0zzyqe
+parent: t1_p0zyjee
+author: itsgood-man
+created_utc: 1785552359
+edited: false
+body:
+[One step ahead of you](https://x.com/itscoachgoodman/status/2083244485400580349).
+
+comment: p102wkt
+parent: t3_1vc9kxd
+author: 1111Rudy1111
+created_utc: 1785553467
+edited: false
+body:
+Anybody with an MK4 been hacked?
+
+comment: p10djbc
+parent: t1_p102wkt
+author: is300wrx
+created_utc: 1785557686
+edited: false
+body:
+Play it safe and move it. 
+
+comment: p10exyo
+parent: t1_p102wkt
+author: No_Position_8581
+created_utc: 1785558269
+edited: false
+body:
+ive seen one or two reports on twitter. Also look into Mara slipstream and try to keep the tx off of public mempools. Transactions are getting swipped.
+
+comment: p10f3o5
+parent: t1_p0zzyqe
+author: Aphelion
+created_utc: 1785558335
+edited: false
+body:
+Whoa they trolled you. So sorry.
+
+comment: p10fxbm
+parent: t1_p10exyo
+author: therealjeku
+created_utc: 1785558678
+edited: false
+body:
+Huh?
+
+comment: p10gbx0
+parent: t1_p102wkt
+author: Elistheman
+created_utc: 1785558854
+edited: false
+body:
+Official statement from coinkite on their official site says MK4 and MK5 are also effected go check it out. 
+
+comment: p10kuxi
+parent: t3_1vc9kxd
+author: sidmehra1992
+created_utc: 1785560810
+edited: false
+body:
+Are multisig wallets also got drained ? 
+
+comment: p10ouvp
+parent: t1_p10kuxi
+author: opDimitri
+created_utc: 1785562624
+edited: false
+body:
+If they were all coinkite devices, multi-sig wouldn't help all that much.
+
+comment: p10pvda
+parent: t3_1vc9kxd
+author: opDimitri
+created_utc: 1785563089
+edited: false
+body:
+I'm sorry to hear that. These news are heavy, and I wasn't even affected (although I do use a coldcard). I can't even fathom what people whose life savings were drained are going through.
+
+Self harm is also a real risk for those affected. I really hope people have mental fortitude to deal with this.
+
+I have seen a few tweets saying there were actively investigating many leads, some suggesting there may have been a kyc service involved. It was mentioned on a BTC sessions podcast, but I don't know the details. Although I doubt thives would be that sloppy. But regardless, make sure to not destroy your CC. It may come in handy proving ownership of the coins if the crooks are ever caught.
+
+People are watching the consolidated addresses like hawks so hopefully laundering these coins won't be so easy.
+
+comment: p10uud1
+parent: t1_p102wkt
+author: ardevd
+created_utc: 1785565437
+edited: false
+body:
+Not that I know, but the MK4 and Q are also impacted. If you used the onboard seed generation then you have about 72 bit entropy, which is way below what is considered safe. Move your funds immediately 
+
+comment: p10wp40
+parent: t1_p10ouvp
+author: Upbeat-Protection-67
+created_utc: 1785566331
+edited: false
+body:
+I thought multi-sig and passphrases would? Correct me if I’m wrong 
+
+comment: p110j6x
+parent: t1_p10wp40
+author: opDimitri
+created_utc: 1785568202
+edited: false
+body:
+Well, multi-sig isn't going to do very much if you used compromised devices for a seed generation because the issue isn't signing, but the fact that seeds generated are faulty. Number of devices isn't that relevant if they all produce weak entropy. If the multi-sig consists partially of unaffected devices, then there is safety in that.
+
+Passphrase is effective if it's strong. It exists for that very reason - someone get a hold of the seed and you want to buy yourself some time. But if your passphrase is something like scooby123 in honor of your dog, it will take no time to brute force it. Obviously an attacker has to know passphrase is even in use somehow. Doesn't mean they won't try some easy ones.
+
+It might be smart to send some funds to a wallet where passphrase is blank and watch it. If your private key is leaked, there is a good chance someone will empty it first before looking for that 25th word. That's your typical "Canary in a mine" early warning you need to take action and move to a new wallet.
+
+comment: p11fydo
+parent: t1_p10wp40
+author: Mission-Disaster-447
+created_utc: 1785576114
+edited: false
+body:
+if all seeds of the multisig setup were generated on affected coldcards, mutisig will NOT help you.
+
+The passphrase helps only if it is sufficiently komplex.
+
+comment: p11yn2c
+parent: t1_p10fxbm
+author: No_Position_8581
+created_utc: 1785584957
+edited: false
+body:
+The attacker in this hack precomputed the entire vulnerable key space from the broken RNG — essentially building a database of every private key the defective firmware could have ever generated, and every corresponding Bitcoin address.
+
+When a victim whose address is in that database tries to move their funds, they broadcast a spending transaction to the public mempool. That transaction sits there unconfirmed for roughly 10 minutes waiting to be mined into a block. This visibility creates opportunities for front-running, where observers can see a pending high-value transaction and submit their own similar transaction with higher fees to get processed first.
+
+Since the attacker already has the victim's private key from their precomputed database, they can instantly sign their own transaction spending the exact same UTXO — but to their own address — and broadcast it with a higher fee. Miners take the higher fee transaction. The victim's transaction becomes invalid since the UTXO is now spent. Funds gone.
+
+comment: p11zxp4
+parent: t1_p10fxbm
+author: magma_lakes
+created_utc: 1785585476
+edited: false
+body:
+I think they mean that it'd be best to broadcast your raw transactions to a private mempool, which is something MARA Slipstream provides. This would avoid your public keys being exposed during the brief time it takes for a block to be mined and your transactions to be confirmed.
+
+This is **not** necessary, though, for this kind of attack.
+
+In this case, even if an attacker sees your addresses' public keys, it will not help him derive your private keys more quickly.
+
+The attack No\_Position\_8581 is likely thinking of is Pollard's Rho, in which an attacker can derive a private key from its public key in sqrt(N) operations for a known private key interval that is N keys large.
+
+This is not applicable to this exploit.
+
+This exploit was made possible because Coldcard used a weak source of entropy for the seed phrase generation, which meant that - in some cases - there were only about 4 billion possible seed phrases that could be generated, which are trivial to search through with a few GPUs.
+
+comment: p124g1x
+parent: t1_p102wkt
+author: No_Position_8581
+created_utc: 1785587204
+edited: false
+body:
+yes they are [https://x.com/TomerStrolight/status/2083525927309320202](https://x.com/TomerStrolight/status/2083525927309320202)
+
+comment: p12c2o1
+parent: t1_p11zxp4
+author: No_Position_8581
+created_utc: 1785589928
+edited: false
+body:
+maybe low entropy passphrases or multisigs are at risk. 
+
+comment: p147h93
+parent: t1_p0zzyqe
+author: brandond111
+created_utc: 1785609849
+edited: false
+body:
+Just curious, is it true that the people that have been scammed didn't do dice rolls and also didn't have a passphrase?
+
+comment: p14t4yv
+parent: t1_p10uud1
+author: kawfeeman68
+created_utc: 1785616255
+edited: false
+body:
+💯💯💯
+
+comment: p14y10n
+parent: t1_p147h93
+author: dadlif3
+created_utc: 1785617728
+edited: false
+body:
+yes
+
+
+
+comment: p153i52
+parent: t1_p10pvda
+author: sonanongrata
+created_utc: 1785619412
+edited: false
+body:
+if you’re still on the coldcard, you should migrate 
+
+comment: p16zyvt
+parent: t3_1vc9kxd
+author: Stock-Lettuce-2381
+created_utc: 1785643735
+edited: false
+body:
+Whoever steals BTC definitely knows how to tumble BTC so it can be moved around with as little as possible proof or origin. 
+
+comment: p174ffg
+parent: t3_1vc9kxd
+author: Capital_Antelope_423
+created_utc: 1785645619
+edited: false
+body:
+Qual endereço?
+
+comment: p17nboy
+parent: t3_1vc9kxd
+author: horseradish13332238
+created_utc: 1785654460
+edited: false
+body:
+On the plus side your post is completely fake. This never happened to you. 
+
+comment: p1au1zl
+parent: t1_p10uud1
+author: themindspeaks
+created_utc: 1785695367
+edited: false
+body:
+To be clear, 72 of entropy is the ceiling. It could be as low as 32 bit. 4 hour to crack
+
+comment: p1b1ufg
+parent: t1_p1au1zl
+author: ardevd
+created_utc: 1785697504
+edited: false
+body:
+Latest estimates has the MK4 at around 50 bit entropy. Move your funds asap.
+
+comment: p1cadj7
+parent: t1_p11yn2c
+author: amenotef
+created_utc: 1785710412
+edited: false
+body:
+I'm so confused regarding this.  
+1) If the attacker has the private key, the attacker can't just basically access (own) the full wallet and start operating with it?
+
+2) by the way, i guess spending a high fee (like 100€ fee) should make this a lot harder to delay, because you need lot of tx at this fee to make sure the original has no priority in the block, correct?
+
+comment: p1cdn6v
+parent: t1_p1cadj7
+author: No_Position_8581
+created_utc: 1785711435
+edited: false
+body:
+i think it applies to low entropy multisigs. Attackers dont know which wallets belong to each other but when you broadcast a transaction some data leaks and they can now connect the dots.
+
+comment: p1d323q
+parent: t1_p102wkt
+author: Oxymorix
+created_utc: 1785719855
+edited: false
+body:
+I have both an MK4 and a Q, but I generated my seed using 100 dice rolls and also use a passphrase. My funds are still there, and for now, I do not plan to move them. I am waiting to see how the situation develops.
+
+comment: p1f3uya
+parent: t1_p1cdn6v
+author: amenotef
+created_utc: 1785752213
+edited: false
+body:
+Ah! ok, i don't know about multisigs. So then this is not related at all to single wallets (where i guess everything can be guessed once the thief found the private key locally).
+
+comment: p1fokcf
+parent: t1_p1f3uya
+author: No_Position_8581
+created_utc: 1785760312
+edited: false
+body:
+maybe it would apply to low entropy wallets with bad passphrases but idk on how that might work
+
+comment: p1l4r7k
+parent: t1_p12c2o1
+author: SpendHefty6066
+created_utc: 1785817036
+edited: false
+body:
+This makes sense and should terrify everyone who created multi-sig wallets with low entropy RNG. The MARA slipstream service may be the only thing preventing swippage. Or if all node runners turn off RBF, which will not happen. 
+
+comment: p1l5e0d
+parent: t1_p11fydo
+author: SpendHefty6066
+created_utc: 1785817295
+edited: false
+body:
+This is true. But, I don't think they can drain multi-sigs until they make a transaction. Then the attacker can outbid you in the mempool for that 10 minute window before a block is created. All vulnerable addresses have been compiled and they are now waiting to.ambush multi sig transactions in the mempool.

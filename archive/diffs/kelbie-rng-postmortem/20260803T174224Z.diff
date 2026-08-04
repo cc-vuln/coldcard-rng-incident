@@ -1,0 +1,104 @@
+--- kelbie-rng-postmortem@20260803T030218Z
++++ kelbie-rng-postmortem@20260803T174224Z
+@@ -1,7 +1,7 @@
+-# COLDCARD RNG — an ongoing postmortem
++# coldcard.rip — an ongoing postmortem
+ <!-- facts -->
+ A postmortem of the COLDCARD (Coinkite) random-number-generator flaw: five years of predictable
+-wallet seeds, the 1,431.97 BTC swept from 5,415 addresses across nine waves since 30 July 2026, and the
++wallet seeds, the 1,432.48 BTC swept from 5,477 addresses across ten waves since 30 July 2026, and the
+ higher-entropy tiers still exposed. Reconstructed from primary sources — the Bitcoin blockchain,
+ the vendor and Block advisories, and the original posts as they were made.
+ <!-- /facts -->
+@@ -10,10 +10,13 @@
+ tranche of ~488 BTC it declined to attribute — traced here to two earlier waves that reconcile to the
+ satoshi — and no firmware update can repair a seed that already exists. The sweeping also resumed on
+ 31 July, hours after the advisories: another 207.73 BTC from 1,918 addresses that afternoon, pooled
+-nowhere, a fresh holding address and a fresh vault for every wallet drained. That wave is in the
+-ledger only because one victim screenshotted an address that was not even his own — everything else
++nowhere, a fresh holding address and a fresh vault for every wallet drained. That wave entered the
++ledger because one victim screenshotted an address that was not even his own — everything else
+ about it was reached by noticing that 291 addresses were emptied in the same four blocks the same
+-way. Every figure here is a floor, not a total — rebuild from the block store to refresh it.
++way, and four claimants have since named addresses inside it. A tenth wave arrived later still,
++paying to Taproot in blocks past everything else here, and it is in the record only because one
++person filed an abuse report naming three transactions. Every figure here is a floor, not a total —
++rebuild from the block store to refresh it.
+ Everything on the page is either derived from chain data frozen into the repository or quoted verbatim
+ with a source link. Nothing calls an API at runtime.
+ ## Running it
+@@ -43,11 +46,15 @@
+ bun run commits   # GitHub commit metadata → src/data/commits.json
+ bun run threads   # reconstructed X threads → src/data/threads.json
+ ```
+-A full rebuild of `chain.json` is about ten seconds. It used to be twenty minutes against a public
+-explorer, and it once served a **stale balance** from its own cache — the page went on saying coins
+-had not moved after they had. Reading blocks from disk removes both problems: there is no cache to
+-go stale, and a question that costs nothing can be asked of every transaction rather than only of
+-the addresses already known.
++A full rebuild of `chain.json` takes **five to twelve minutes** — budget for it, and do not assume
++a long run has hung. Almost all of that is SQLite: the address index is around 4.5 GB, the walk asks
++it for one address's transactions at a time, and there are now several hundred addresses to ask
++about. It runs at roughly 15% CPU throughout, so a `ps` showing little CPU time is the normal
++picture rather than a stuck process.
++It used to be twenty minutes against a public explorer, and it once served a **stale balance** from
++its own cache — the page went on saying coins had not moved after they had. Reading blocks from disk
++removes both problems: there is no cache to go stale, and a question that costs nothing can be asked
++of every transaction rather than only of the addresses already known.
+ `blocks/` is gitignored. Re-index after every refill — `chain.py` reads the index, not the API.
+ See **[analysis/README.md](analysis/README.md)** for the module map, the fingerprint primitives and
+ how to hunt a new operator's pattern.
+@@ -75,16 +82,37 @@
+ the file gives wave 960188's collector plus 500 victims. `txids` is a list because a wallet emptied
+ one UTXO at a time is one event; splitting it across reports would lose that they belong together,
+ which is what stops an operator who never pools from deriving as one wave per address.
+-Where nobody has tied a named victim to an address, use `PUBLISHED_ADDRESSES` with the publisher's
+-own confidence — `attacker-controlled` where the source names it as part of the theft,
++**What a report claims, and what it only corroborates.** `reported_inputs` decides, and the three
++settings are different claims rather than degrees of one:
++| setting | the claimant said | ledger |
++|---|---|---|
++| omitted | the sweep emptied their wallet, and listed no addresses | **Claimed by**, `whole wallet` |
++| `[(addr, sats), …]` | these addresses were mine | **Claimed by**, `listed` |
++| `[]` | that transaction took my coins; I am not saying which input was mine | **Sweep reported by** |
++The third claims none of the addresses it names and still reaches every one of them, because on
++wave 960668's 795-address co-spend it is the difference between a row nobody has spoken about and
++a row three people reported. A published satoshi figure is checked against the chain, and the
++build refuses a whole-wallet claim over more than 32 source addresses rather than handing one
++reporter several hundred strangers' addresses.
++Where nobody has tied a claimant to an address, use `PUBLISHED_ADDRESSES` with the publisher's own
++confidence — `attacker-controlled` where the source names it as part of the theft,
+ `pattern-match-unconfirmed` where they found it by fingerprint and said so. Block published waves
+ 960183 and 960185 as a fingerprint match while stating they "have not confirmed that these indeed
+-are related to drain"; that caveat survives into the UI rather than being flattened.
++are related to drain"; that caveat is carried as the claim's `hedge` and printed beside the
++publisher's name rather than flattened. `voice` records who was speaking: three of these entries
++are victims naming where their own coins went and one is a bystander relaying an acquaintance, and
++filing those as an analyst's finding was the record's oldest overstatement.
+ `SCAN_MATCHES` is this project's own reading, on nobody's authority — named `RC.n`, outside the
+ numbered sequence, so withdrawing one renames nothing.
+ Where a report names a sweep already tracked here but does not identify the claimant's input, use
+-`CORROBORATING_REPORTS`. The build resolves its transaction to a wave and displays the source there,
+-but it does not create a victim attribution or alter the derived address set and totals.
++`CORROBORATING_REPORTS`. The build resolves its transaction to a wave, shows it against every
++swept address of that sweep as a **Sweep reported by** claim, and creates no ownership attribution
++and no change to the derived address set or totals.
++`ATTESTATIONS` are for somebody naming an address the walk had already reached. They add no
++address and no satoshi; what they add is that two records built opposite ways round agree. Galaxy
++listed five addresses and four were already here, which until this existed the record could not
++say — the walk kept whichever claim arrived first. An attestation that does not resolve to a
++tracked address fails the build, because that is a seed nobody has justified.
+ Then re-run `analysis.chain`. Everything downstream rebuilds without touching a component.
+ ### What is derived, not written
+ No number on the page is typed by hand, and no claim about the current state of the coins is a fixed
+@@ -184,7 +212,8 @@
+ instead of paraphrasing press coverage into the record; nvk's deleted tweet is marked unrecoverable
+ rather than reconstructed.
+ ## Scope
+-Assembled from public record for postmortem purposes. Victim addresses were already public on the
+-blockchain and, in one case, published by the victim. The defect is patched — Mk3 4.2.0, Mk4/Mk5 5.6.0,
++Assembled from public record for postmortem purposes. Swept addresses were already public on the
++blockchain; a claimant has named 66 of them, and most of the record is addresses nobody has spoken
++about, reached by following the money from the ones somebody did. The defect is patched — Mk3 4.2.0, Mk4/Mk5 5.6.0,
+ Q 1.5.0Q — and the only useful action left for an affected user is migrating off the seed, since
+ updating firmware does not repair one already generated.

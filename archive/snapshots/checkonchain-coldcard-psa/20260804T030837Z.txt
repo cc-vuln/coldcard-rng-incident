@@ -1,0 +1,126 @@
+SubscribeSign in
+⚠️ PSA: Addressing The Coldcard Exploit
+If you use a Coldcard in your Bitcoin security system, please read this post.
+James Check (Checkmatey)
+Aug 01, 2026
+81
+24
+13
+Share
+G’day Folks,
+The last two days have been uniquely challenging for many of us grizzled and tenured Bitcoiners.
+News that an exploit has been found in the Coldcard, which many (including myself) consider to be the ‘gold standard’ hardware wallet, has resulted in some cold storage wallets being drained.
+This strikes at the very heart of what makes Bitcoin so special: our ability to safely self-custody and secure our wealth without trusted third parties.
+I’m going to get right into it, keep things short and concise, and will cover the following topics:
+Overview of the exploit and risk profile.
+Summary of possible near-term and long-term solutions to consider.
+Disclaimer: This article is general in nature and is for informational and entertainment purposes only, and it shall not be relied upon for any investment or financial decisions.
+Additionally, since this article also deals with the technical details of self-custody, all opinions expressed must be viewed as the author’s opinions only (not advice of any kind). Please take all precautions necessary to thoroughly understand the nuances of any hardware or software wallet systems you consider using.
+TL;DR
+Please read this post in full if you are a Coldcard user.
+Coldcard Exploit Overview
+At the highest level, this exploit relates to the degree of entropy (randomness) that was used when generating seed words on a Coldcard device after the March 2021 firmware.
+It has been found that the random number generator was not random enough.
+This means an attacker can now brute-force ‘recreate’ a list of all potential seed phrases that Coldcards with this firmware would have generated.
+⚠️ ACTION: Anyone who generated their seed phrase using a Coldcard from March 2021 onwards should assume that their seed phrase is compromised and cooly and calmly prepare to migrate to a new wallet.
+This exploit thus far appears limited to Coldcard products, and does not impact other hardware wallet vendors like Ledger, Trezor, Bitkey, etc.
+This exploit specifically affects Coldcard products.
+Categorising The Risk Profile
+The most important thing to think through first and foremost is that this exploit specifically affects the seed phrase at the time of generation. This exploit only affects seeds generated using a Coldcard that was running post March-2021 firmware.
+If a seed was generated on a vulnerable Coldcard but was then ported into another device (Ledger, Trezor etc), that seed remains vulnerable, and coins must be migrated off it.
+If I were to categorise the risk profile for Coldcard customers, it would be in three tiers.
+🔴 High Risk: Critical to migrate your coins as soon as possible if ALL of the following are true.
+Generated seed on a Coldcard device after March 2021 (or you’re unsure of the date).
+Did not utilise the dice-roll feature with at least 50 rolls during seed generation (if you cannot remember doing this, assume you did not).
+Do not utilise an additional BIP-39 passphrase ontop to secure your coins.
+⚠️ ACTION: If you fall into this category, your seed words should be considered vulnerable and at risk. You must migrate your coins to a new and safe wallet ASAP.
+Please skip ahead to the Potential Solutions section for some ideas on near-term and long-term options.
+🟠 Medium Risk: Your coins are secure for now, but you should still plan to migrate them as soon as possible.
+Assuming you generated a seed on a Coldcard device after March 2021 but also:
+Added dice roll entropy at seed generation.
+You do use a BIP-39 passphrase.
+You have a multi-sig setup, but some keys are Coldcard generated.
+In these instances, you essentially have one or more layers of defence. Attackers can get the pool of possible seeds, but they must then go through the process of brute-forcing your passphrase or trying to match up M of N multi-sig keys to get the descriptor.
+⚠️ ACTION: If you fall into this category, you are not at immediate risk, but you should act assuming your Coldcard derived seed is vulnerable.
+🟢 Low to No Risk: Your coins are secure from this exploit if any of the following are true:
+You did not generate your seed on a Coldcard device.
+You did generate your seed on a Coldcard device, but before March 2021.
+One way to quickly check this is to see if your wallet has any transactions that pre-date March-2021. If so, you are not affected by this exploit as your seed was generated before this bug made its way into the Coldcard firmware.
+You use a multi-sig setup which does not use an affected Coldcard generated seed as one of the keys.
+Your coins are held on a custodian or within an ETF.
+You use a multi-party custody solution like Casa, Unchained, or The Bitcoin Adviser (just to name a few that come to mind).
+Action: If you fall into this category, you are unaffected by this exploit. You should however take this as a critical reminder to review your self custody setup.
+Potential Solutions
+For folks in the 🔴 High or 🟠 Medium risk categories, there are a few near-term and long-term options that I would suggest you consider.
+Critically, if you need to migrate your coins, time is of the essence, however you MUST be calm, patient, focused, and limit distractions. The last thing you want to do is make a human error because you acted in a stressed state.
+Take a deep breath, get a pen and paper, and write down your next steps.
+Near Term Immediate Options
+In essence, you need to migrate your coins to a secure private key. This is an interim hop for your funds to mitigate the immediate risk profile.
+These include, in order of security preference:
+Another hardware wallet (Ledger, Trezor, Bitkey etc) with a freshly generated seed phrase. This includes an existing wallet you know for sure is safe and secure.
+Generate a software wallet using a desktop application like Sparrow Wallet, or a mobile wallet using an application like Nunchuk, or Blockstream.
+I’ll provide clear text links below.
+Transfer coins to a custodian or exchange you already have a relationship with.
+If the only option you have is the vulnerable Coldcard, you must generate a new wallet using a strong passphrase, and transfer the coins to that wallet. This moves you from the 🔴 High to the 🟠 Medium risk category.
+Coinkite has issued instructions for this process here.
+⚠️ ACTION: I strongly recommend doing all of this with a pen and paper handy to write down your steps before you do them. Write down every seed phrase, passphrase and other critical detail such that you do not forget it during a stressful period.
+Download links for wallet software I suggest:
+Sparrow Wallet (Desktop): https://sparrowwallet.com/
+Nunchuk (Mobile): https://nunchuk.io/
+Blockstream (Desktop & Mobile): https://blockstream.com/app/
+Long Term Options
+Once your funds are in a secure interim location, take a breath, slow down, and relax. You have mitigated the immediate risk, and now you can thoughtfully plan out next steps.
+Generally speaking, your next steps will require some research and thinking to design and ensure you find the correct solution for your needs.
+This should include seed security, hardware device selection, thinking about inheritance planning, and reevaluating the pros and cons of any solution. There is no one size fits all, and everyone will have their own preference.
+One thing that this event should teach us all is that single signature security is insufficient for storing meaningful wealth over the long term.
+Some potential options, in order of simple to complex. All have trade-offs, and neither simplicity nor complexity directly translates to ‘better’:
+Utilising a custodian or ETF: This is the simplest approach, but does introduce direct third party risk. There may also be tax implications of converting BTC into an ETF. For some, this may end up being the better solution.
+Engaging a multi-party custody provider like Casa, Unchained or The Bitcoin Adviser (just to name ones top of mind). These services provide guided setup of a multi-sig wallet where keys are distributed both geographically and across multiple vendors. You still retain custody of your coins, but with the added security of professional assistance and distributed keys.
+Establishing your own multi-sig wallet setup. This is the most advanced approach, but the general best practice for individuals uses a:
+2-of-3 multi-sig setup where coins require any two of the three keys to sign in order to spend.
+All three keys generated on different hardware wallet devices (i.e. a Ledger, Trezor and a patched non-vulnerable Coldcard).
+Those three keys get distributed into three separate locations.
+Importantly, this setup also requires the wallet descriptor that connects the three keys in order to recreate the wallet. This is most important for inheritance planning, as your loved ones will likely struggle to work out what to do with three seeds.
+There are also new products like Frostsnap (https://frostsnap.com/) which are designed to be a simplified device multi-sig user experience.
+There are no doubt other solutions available, however for brevity these three are the most likely options for the majority of people reading this.
+Concluding Thoughts
+This particular event really hits home in a very different way to most news items.
+It is an event where an exploit in one of the most trusted hardware wallet providers has resulted in Bitcoiners losing their hard-earned cold storage Bitcoin.
+This is one of the most stressful and saddening events I can recall in my Bitcoin history.
+I myself have long been a Coldcard advocate, and I still believe their device is one of the best designs for me personally. I was fortunate in that my seed was generated in the years prior to this firmware, and I also utilised dice rolls, passphrases, and multi-device multi-sig.
+I also know that most people did not, and will not do this.
+If you have been affected by this exploit, I am so very sorry, it is a grief that we feel across the entire industry.
+If you find yourself in any way shape or form unsure of what to do, please reach out to me via any channel (Substack DM is best).
+The industry will learn from this event, and many will reevaluate their self-custody arrangement as a result, mitigating future issues.
+There is much more to say on this topic, but to get this out ASAP, I will leave it there.
+Please reach out if you have any issues, I am happy to assist however I can.
+Thanks for reading,
+James
+81
+24
+13
+Share
+Discussion about this post
+CommentsRestacks
+loniousmonk
+3d
+Liked by James Check (Checkmatey)
+Um, which risk category does someone fall into if they used the full number of recommended dice rolls, as in the coldcard paranoid setup guide? I would argue 🟢 but I think it’s a weird omission in your post.
+Reply
+Share
+3 replies by James Check (Checkmatey) and others
+Ricardo Santiago
+3d
+Liked by James Check (Checkmatey)
+Great write up. My heart breaks for those who lost coins. I do see so many folks who didn’t lose coins completely ditching the Cold Card Q and other newer models. I was lucky enough to have generated an old school dice roll and make my seed phrase. The Cold Card Q is still a fantastic air gapped cold storage device. Some folks act like it can never be used ever again. What they did with this bug though can not go without some type of consequence (little to no sales or winding down of the company) trust has clearly been lost and it will be very interesting to see how Coin kite and Cold Card handle this going forward.
+Reply
+Share
+1 reply
+22 more comments...
+TopLatestDiscussions
+No posts
+Ready for more?
+Subscribe
+© 2026 Checkonchain · Privacy ∙ Terms ∙ Collection notice
+Start your SubstackGet the app
+Substack is the home for great culture

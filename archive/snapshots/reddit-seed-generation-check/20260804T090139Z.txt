@@ -1,0 +1,197 @@
+post: 1vc3sqk
+author: megagram
+created_utc: 1785533053
+title: Is there a way to know if your seed phrase was generated with the faulty RNG or not.
+body:
+What if you can’t remember if you used dice rolls or generated a seed using non-vulnerable firmware? is there some way of knowing if your seed is vulnerable?
+
+comment: p0yeue7
+parent: t3_1vc3sqk
+author: ardevd
+created_utc: 1785533226
+edited: false
+body:
+Easy: if you don't know with absolute certainty, migrate to a new wallet asap. 
+
+But no, there's no way to tell
+
+comment: p0yf12c
+parent: t3_1vc3sqk
+author: NiagaraBTC
+created_utc: 1785533280
+edited: false
+body:
+Yes there is but I'm not technical enough to explain how. 
+
+Don't waste time trying to check. Move your funds immediately if you are not 100% sure you rolled 99+ dice during setup. 
+
+comment: p0yf96o
+parent: t1_p0yeue7
+author: megagram
+created_utc: 1785533346
+edited: false
+body:
+Thanks. I can’t migrate right away that’s the reason for my q.
+
+But I’m passphrase protected and pretty sure I used dice rolls. 
+
+comment: p0yl64k
+parent: t1_p0yeue7
+author: JumpProfessional3372
+created_utc: 1785535096
+edited: false
+body:
+If I remember that I rolled a real dice like 110 times does it mean I'm ok? 
+
+comment: p0ylf82
+parent: t1_p0yl64k
+author: ardevd
+created_utc: 1785535171
+edited: false
+body:
+As far as we know, yes.
+
+comment: p0ynvp8
+parent: t1_p0ylf82
+author: JumpProfessional3372
+created_utc: 1785535916
+edited: 1785565464
+body:
+Yeah I'm starting to remember I followed the paranoid guide and executed the 100+ dices I got with this script in some Ubuntu USB installation disc (try Ubuntu option) on an air gapped PC. 
+
+https://coldcard.com/docs/rolls.py
+
+I think I did this to check if the seed I was getting from this script is the same I was getting after entering the same rolls in the MK4
+
+comment: p0yvsmn
+parent: t1_p0ylf82
+author: Affectionate_Pen6882
+created_utc: 1785538392
+edited: false
+body:
+If you dont have a passphrase, i would make one
+
+comment: p0z2mna
+parent: t1_p0yl64k
+author: Revolutionary_Ad6252
+created_utc: 1785540613
+edited: false
+body:
+I was wondering the same thing today too. I think depending on the CC model and firmware there were different options. In some you were able to add dice rolls to the entropy created by the devices random-number-generator (rng) and there were some options in certain firmwares to create the whole entropy only by your dice rolls.  
+I also watched several earlier video tutorials about how to use dice rolls for seed creation and it seems to me different firmwares changed options or at least the menu on how to select them.  
+If you used a CC-Q I believe if you pressed the options {12 words dice rolls} or {24 words dice rolls} it meant you used entropy from dice rolls only. And this was verifiably quite easily on a computer.   
+Unfortunately I don’t know for sure if dice rolls + the devices rng weakened the entropy from the dice throws or at best minimally strengthened it or did nothing to it. 
+
+comment: p0z937d
+parent: t1_p0z2mna
+author: JumpProfessional3372
+created_utc: 1785542791
+edited: false
+body:
+Yeah I spent some time today checking and I remembered that I followed the paranoid guide. Where you run a python script with some 100+ manual rolls and you get a seed.
+
+Then you put the same rolls in your cold card and you get the same seed. Demonstrating that coldcard is aligned with that script. 
+
+In my case I did this with a bit more risk and put my real dice rolls in the MK4 and in a air gapped live USB Linux to check MK4 actually gave me the same seed as the PC running their simple python script
+
+comment: p104cak
+parent: t1_p0ynvp8
+author: Fun_Floor_9742
+created_utc: 1785554020
+edited: false
+body:
+you "rolled" with a script?   how is that the same thing?  Is this really what they recommend?  not a real dice? 
+
+comment: p104f6a
+parent: t3_1vc3sqk
+author: Fun_Floor_9742
+created_utc: 1785554051
+edited: false
+body:
+if your wallet is empty then you probably used the faulty
+
+if coins still there you may not have 
+
+comment: p104zss
+parent: t1_p0ynvp8
+author: moviemaker2
+created_utc: 1785554274
+edited: false
+body:
+I hate to tell you this, but if you did virtual dice rolls you completely defeated the purpose of that feature. 
+
+comment: p10bbsv
+parent: t3_1vc3sqk
+author: Necessary-Dust2178
+created_utc: 1785556787
+edited: false
+body:
+Yeah, put some bitcoin into it and wait for it to disappear.  
+
+Otherwise, you can just follow the process that you know meets the required entropy.
+
+Thank me later. 
+
+comment: p10kgxp
+parent: t1_p104cak
+author: ardevd
+created_utc: 1785560638
+edited: false
+body:
+Thats not what the script is 
+
+comment: p10u3la
+parent: t1_p104cak
+author: JumpProfessional3372
+created_utc: 1785565082
+edited: false
+body:
+No, I rolled a real dice and used the option in MK4 to import the numbers I got with my dice.
+
+Then MK4 created a seed out of it.
+
+And the python script can be used to verify that the conversion from numbers to seed phrase that the wallet uses, is the same the script uses. But it is not recommended to verify this by using a real seed.
+
+comment: p10v467
+parent: t1_p104zss
+author: JumpProfessional3372
+created_utc: 1785565566
+edited: 1785565984
+body:
+No they were real dice rolls with my hand. That being said, I exposed them to the python script in a Live Linux USB air gapped that I securely wiped afterwards.
+
+So it's not a seed created by paper and exposed only to MK4 but I can live with this risk.
+
+I know a hardware wallet is supposed to be super secure. But I got one as an alternative to be using an air gapped old laptop with an electrum cold wallet.
+
+comment: p10vxpb
+parent: t1_p10u3la
+author: Fun_Floor_9742
+created_utc: 1785565964
+edited: false
+body:
+Ok i see that makes more sense thank you 
+
+comment: p10xan0
+parent: t1_p10kgxp
+author: Fun_Floor_9742
+created_utc: 1785566623
+edited: false
+body:
+thankya i misunderstood, still trust kraken more than rolling dices
+
+comment: p11b9su
+parent: t3_1vc3sqk
+author: realStl1988
+created_utc: 1785573676
+edited: false
+body:
+Yes. If your seed was generated with an Mk2 or Mk3 starting at Firmware v4.0.0 or an Mk4, Q or Mk5 on any firmware before the most recent emergency hotfix, both with the random seed generator (not using any dice), then you need a new seed.
+
+comment: p1741qt
+parent: t3_1vc3sqk
+author: K2P2C
+created_utc: 1785645453
+edited: false
+body:
+You could just copied the XPub key and view it on Blockchain. 

@@ -1,0 +1,110 @@
+--- coldcard-hack-tracker@20260803T214406Z
++++ coldcard-hack-tracker@20260804T004447Z
+@@ -8,11 +8,11 @@
+ Blocked
+ TOTAL STOLEN
+ 
+-1,876.83359078 BTC
+-
+-<live-fiat-value>
+-
+-7 waves · Jul 30 – Aug 3 UTC
++1,923.80748125 BTC
++
++<live-fiat-value>
++
++8 waves · Jul 30 – Aug 3 UTC
+ 
+ 0
+ 300
+@@ -51,6 +51,10 @@
+ Early Aug 2 consolidation
+ +64.90947964 BTC
+ <live-fiat-value>
++AUG 1
++P2TR wave · Aug 1–3
+++46.97389047 BTC
++<live-fiat-value>
+ AUG 3
+ Likely Wave 4 · Aug 3
+ +443.34 BTC
+@@ -58,7 +62,7 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,429.81046458 BTC
++1,476.78435505 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+@@ -67,7 +71,7 @@
+ 
+ 99.5%
+ 
+-of 1,436.62417755 BTC consolidated
++of 1,483.59806802 BTC consolidated
+ 
+ MOVED
+ 
+@@ -83,7 +87,7 @@
+ 
+ Watched holdings
+ 
+-About 1,876.83359078 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,436.62417755 BTC is in watched holdings. The remaining ~440.20941323 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults and fees. Community waves (evening, morning, early Aug 2, Wave 4) may be different operators.
++About 1,923.80748125 BTC drained across tracked clusters. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,483.59806802 BTC is in watched holdings. The remaining ~440.20941323 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults and fees. Community waves (evening, morning, early Aug 2, P2TR, Wave 4) may be different operators.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+@@ -632,6 +636,41 @@
+ 	bc1q0rvn88…jf5q6m	64.90373764 BTC
+ <live-fiat-value>
+ 	64.90373764 BTC	1	HELD
++P2TR WAVE · AUG 1–3
++Source
++
++Distinct from Wave 4: ~5 sat/vB (later also 25/40) 1-vout multi-path sweeps into Taproot consolidations. Small vault corroborated by a Chainabuse Coldcard-hack victim report; larger sibling/hop verified on-chain with the same fingerprint. Watched set is Kelbie’s published sample, not every P2TR sink.
++
++SCOPE
++46.97389047 BTC watched
++3 Kelbie P2TR sinks
++BLOCKS
++960,624–960,897
++FEE
++~5 sat/vB
++later also ~25–40
++PATTERN
++1-vout → P2TR
++Chainabuse victim
++LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
++
++P2TR vault
++Chainabuse victim destination; 62× ~5 sat/vB sweeps (blocks 960737–960750).
++	bc1pum5zf6…8ftmy8	0.50992489 BTC
++<live-fiat-value>
++	0.50992489 BTC	0	HELD
++
++P2TR hop vault
++Consolidate from emptied collector bc1ptd5x… (101 inputs @ block 960736).
++	bc1pdl33jt…luu9ce	36.01585057 BTC
++<live-fiat-value>
++	36.01585057 BTC	0	HELD
++
++P2TR vault
++Later sibling; fees mostly ~5 sat/vB with 25/40 bands (blocks 960773–960897).
++	bc1p0l0xs2…6qlk0h	10.44811501 BTC
++<live-fiat-value>
++	10.44811501 BTC	0	HELD
+ LIKELY WAVE 4 · AUG 3
+ Source
+ 
+@@ -872,6 +911,10 @@
+ 
+ Independently flagged the ~45.9 BTC July 31 vault (now Galaxy Wave 2) after Block’s scan window; RBF differed from Wave 1.
+ 
++Kevin Kelbie · P2TR wave
++
++Aug 3: ~0.51 BTC Chainabuse-corroborated P2TR sink plus two larger sibling Taproot consolidations (~36 + ~10 BTC) at ~5 sat/vB — distinct from Wave 4.
++
+ Evan Schoenberg
+ 
+ Evening July 31 low-fee (~2 sat/vB) sweeps into a separate vault; Aug 1 hop consolidation (incl. delayed ~0.19 BTC) raised the watched cluster to ~1.20 BTC.

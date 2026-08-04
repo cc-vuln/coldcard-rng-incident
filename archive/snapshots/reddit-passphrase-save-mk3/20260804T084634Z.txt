@@ -1,0 +1,232 @@
+post: 1vcpdux
+author: bje332013
+created_utc: 1785595816
+title: Will having a '25th word' / passphrase save MK3 users?
+body:
+It was recently announced that Coldcard users who trusted the device's random number generator to generate their seed phrase ended up with seed phrases that are non-random enough that hackers could predict them and drain the wallets of Coldcard users.
+
+This is VERY similar to the very recent fiasco re: the SecondFi desktop wallet software for Cardano. That's because, in both cases, the problem had to do with random number generation being too predictable.
+
+So here's my question: **If a user** relies on a random number generator that is faulty, but **adds a 25th word / passphrase to the not-so random seed phrase, is that wallet still unsafe** or at risk of being drained?
+
+comment: p12ylwm
+parent: t3_1vcpdux
+author: bitusher
+created_utc: 1785596945
+edited: false
+body:
+> but adds a 25th word / passphrase to the not-so random seed phrase, is that wallet still unsafe 
+
+This is a horrible term Ledger started marketing which confuses many new users into believing the 25th word passphrase is a single word. 
+
+
+Passphrases = **multiple** words , passwords = often single words+extra characters, pins = small set of numbers  
+
+The extended passphrase should be at least 6-8 random words at minimum to be secure.
+
+There is another problem here with that term as well, it insinuates that users should keep the extended passphrase backed up with the existing 24 seed words because its simply another "word" needed to recover the wallet along with the other words (12 to 24) which is incorrect. The extended passphrase would be backed up but kept separately from the 12 to 24 word backup seed.
+
+Also there is a third problem with that term as it insinuates that there are only 24 word seed backups and the extended passphrase is the "25th word" which is also wrong. Seed word backups can be 12, 15, 18, 20, 21, or 24 , with 12 being the most common.
+
+You are safe temporarily as long as your passphrase is not weak or a "25th word" but should still eventually migrate over to a new seed regardless.
+
+comment: p134kza
+parent: t3_1vcpdux
+author: stay_safe_and_calm
+created_utc: 1785598691
+edited: false
+body:
+The entropy of the additional passphrase must be really high to be safe!!! That means at least 20 random characters upper and lower cases, numbers and even special characters if you want. Just choosing 2 or 3 normal words is not enough because the human languge has only about 12,000 unique words which is a really low entropy ! But keep in mind that the risk is always that you forget this passphrase and then you are screwed. So please(!) write down your passphrase at least three times on different pieces of paper and do at least two small test transactions of receiving and spending before sending large amounts to it!!! You should also write down the fingerprint of this passphrase wallet. You could also  create 3 different wallets with three different passphrases in order to spread the risk that one of them gets hacked. ... But then you have to keep 3 passphrases and the (comprromise) seed.
+
+comment: p1363dk
+parent: t1_p12ylwm
+author: boddankajovanovic
+created_utc: 1785599122
+edited: false
+body:
+>You are safe temporarily as long as your passphrase is not weak or a "25th word" but should still eventually migrate over to a new seed regardless.
+
+This is kind of an understatement. 
+
+While I agree, that a compromised seed should always eventually be migrated, a strong 52 character passphrase of a standard base64 alphabet has ~310 bits of entropy.
+
+A supercomputer would need an absurd amount of time to brute force. Even billions of supercomputers will take longer than the universe has existed. So I would argue, that yes, given a strong passphrase is in place, you are safe. 
+
+Why still migrate? Because you don't want single points of failure. Someone getting your passphrase can immediately access your stack. You always want to split the needed secrets ( seed phrase, passphrase ) and store them in different locations.
+
+comment: p137ai0
+parent: t1_p1363dk
+author: bitusher
+created_utc: 1785599466
+edited: false
+body:
+> Why still migrate? Because you don't want single points of failure. Someone getting your passphrase can immediately access your stack.
+
+not only this but ideally you should have a decoy balance protected by a seed alone to act as a honeypot.
+
+comment: p13o00a
+parent: t1_p12ylwm
+author: Quirky-Reveal-1669
+created_utc: 1785604267
+edited: false
+body:
+The problem is that the passphrase will need to be re-entered quite often, contrary to the seed phrase, which you enter once and backup. This inconvenience will lead to less secure passphrases. 
+
+comment: p13yzjg
+parent: t3_1vcpdux
+author: blurred_rabbit
+created_utc: 1785607399
+edited: false
+body:
+As long as your additional passphrase is long and somewhat complicated. Also, if you did 100+ dice rolls that would save you too.
+
+comment: p14erh1
+parent: t3_1vcpdux
+author: opDimitri
+created_utc: 1785611957
+edited: 1785665341
+body:
+Will passphrase save your compromised seed on mk3? That almost entirely depends on the quality of the passphrase and circumstances of how someone obtained your seed. Passphrase is designed specifically to come into play when your seed is compromised.
+
+If your seed was physically stolen by your friendemy at your house party, any passphrase will work. Even something as simple as 'password123'. Because once that person enters the seed, they will end up at the wallet with a blank passphrase. If there are no funds there, they will probably just move on assuming you had no crypto in that wallet.
+
+But in case of a Coinkite hack, the 'seedphrase' is derived from weak entropy, where there are limited combinations of what the key could be. An attacker would, and almost certainly will run brute force 'dictionary attack' on any possible seed they try. In cases like that, a weak passphrase offers next to no protection at all. Passphrase 'password123' would be cracked in less than 1 second, even using a cheap computer setup.
+
+If you make your passphrase something comlex like "!3hgKu&66*$qkUbdDrAiK@12", it would take an attacker with a supercomputer longer than the universe's existance to find your wallet, even if they have your seed.
+
+comment: p14rmlb
+parent: t1_p12ylwm
+author: Search327
+created_utc: 1785615805
+edited: false
+body:
+"The extended passphrase should be at least 6-8 random words at minimum to be secure." Why? Nobody can determin if a Bitcoin address is passphrased by looking at it. I keep hearing this but I do not see the benefit of making a complex passphrase. 
+
+comment: p157r4g
+parent: t3_1vcpdux
+author: Makunouchiipp0
+created_utc: 1785620742
+edited: false
+body:
+Comes down to passphrase entropy.
+
+Get your coins off ALL Colcards.
+
+comment: p15zwkq
+parent: t1_p14rmlb
+author: bitusher
+created_utc: 1785630187
+edited: false
+body:
+Its the entropy needed to not be able to be brute forced
+
+comment: p16ed17
+parent: t1_p15zwkq
+author: Search327
+created_utc: 1785635359
+edited: false
+body:
+What I am trying to say is if you see my tranaction on Mempool or if you physicialy see me make a transaction on Sparrow wallet, you can not determin if I am using a passphrase. I do agree a complex passphrase does have more entropy but is it needed? A 24 wood seedphase already has a entropy of 1.16 × 10\^77.
+
+comment: p16hy9w
+parent: t1_p16ed17
+author: bitusher
+created_utc: 1785636679
+edited: false
+body:
+> I do agree a complex passphrase does have more entropy but is it needed?
+
+It does in this instance as one example 
+
+Another concern is if an attacker finds your seed and has many months to try and brute force before you notice the seed is gone or if ever as they can just leave your seed in the same place and copy it
+
+comment: p1716qq
+parent: t1_p12ylwm
+author: loupiote2
+created_utc: 1785644232
+edited: false
+body:
+In fact the bip39 passphrase is an arbitrary user-defined string. The string can contain special characters, including spaces. Saying it is made of words is not quite correct. For example, it could start and / or end with one (or several) space characters. *  +*^   12 " is a vslid passphrase. In fact, as per the bip39 standard, any string is a valid passphrase, but hardware wallets have restrictions on the characters that can be used, and the string length. The important part is that users should use a passphrase that have a good level of entropy (randomness), to get the best security.
+
+comment: p17lvoe
+parent: t1_p14erh1
+author: rekt_by_inflation
+created_utc: 1785653765
+edited: false
+body:
+Just to add, if you have a passphrase like that, you could write down the hex codes for each char too, E.g. 0x4e, 0x69 etc 
+
+Just removes the ambiguity when you look it up in 5 years and wonder if it's a lower case l or an upper case I
+
+comment: p17og3k
+parent: t3_1vcpdux
+author: Strong_Judge_3730
+created_utc: 1785654999
+edited: false
+body:
+If they try to brute force your seed specifically a weal passphrase is not going to be good. 
+
+E.g they stole your paper backup. But if you know you backup is compromised you need a new seed
+
+comment: p18jysy
+parent: t1_p1716qq
+author: bitusher
+created_utc: 1785670590
+edited: 1785674069
+body:
+I’m very aware it can take any Unicode characters and recently told others that as well. Ideally one should use words though for multiple reasons
+
+https://imgs.xkcd.com/comics/password_strength.png
+
+We use the term passphrase for a specific reason rather than password
+
+comment: p1a0eav
+parent: t3_1vcpdux
+author: didnt_hodl
+created_utc: 1785687379
+edited: false
+body:
+what is the entropy of that passphrase, is it 128 bits or 256 bits? can you prove that?
+
+or is it just a couple of words from dictionary slapped together (also, spelled backwards, haha, or from a German dictionary, hahaha) with a number and a special symbol, something that would be trivial to brute force?
+
+comment: p1bg3ls
+parent: t1_p14erh1
+author: xPoW3Rx
+created_utc: 1785701482
+edited: false
+body:
+6 word randomly generated words from wordlist would give better entropy and be easier to remember than the one you typed. Its all about randomness not complexity, remember that
+
+comment: p1bwy51
+parent: t1_p18jysy
+author: loupiote2
+created_utc: 1785706314
+edited: false
+body:
+It should have been called pass-string or secret string!
+
+comment: p1de4ry
+parent: t1_p16hy9w
+author: Search327
+created_utc: 1785723777
+edited: 1785740381
+body:
+You are correct. They are now attacking wallets with weak passphrases. [https://www.reddit.com/r/Bitcoin/comments/1vdzo8p/coldcard\_seed\_passphrase\_could\_be\_vulnerable\_as/](https://www.reddit.com/r/Bitcoin/comments/1vdzo8p/coldcard_seed_passphrase_could_be_vulnerable_as/)
+Edit - I assume they are targeting non-passphrased wallets with a balance. Then trying low entropy passphrases. TIL it only takes a few seconds to brute force a simple passphrase. Sounds like this guy used 2 BIP39 words.
+
+comment: p1e5z71
+parent: t1_p1bg3ls
+author: opDimitri
+created_utc: 1785735348
+edited: false
+body:
+That's just not true when it comes to security.
+
+6 words are considered minimum security for a passphrase, but generate only 66 bits of entropy - about same as what flawed CC Q generated.
+
+The string I typed is over 150 bits of entropy and is FAR more secure.
+
+But I will give it to you, the words are easier to remember, so it helps with user error.
+
+

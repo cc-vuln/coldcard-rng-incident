@@ -1,0 +1,79 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-08-01T09:31:18.711Z",
+            "text": "I think the AI attribution to finding the error is largely correct. \n\nI use LLMs to prescreen new releases of software I use for a very extensive list of patterns and sometimes, when there is a really big change, to make end-to-end comparisons of a section of a diff to help me save some time on trying to understand what is going on here. In this latter process, without even too much specification of that process on any of the modern agentic models, including the open ones, will absolutely flag up an unactivated new feature. Signal is a great example of an app that enables new features in their libraries and then for a few weeks may not use it in the actual app. Happens often. It means I can go easy on review if something isn't activated and wait a bit until it is used on a hot path.\n\nBefore I built this framework with LLMs, this whole process was very hard for me to do and a massive time sink. I often wasted time on not-yet activated features and had to revisit and re-review thousands of lines of code for a second or third time when such features finally got activated. That is now a lot easier because I have much better documentation thanks to the new process. The LLMs are both what enables me to keep doing this but are bottom line also an optional feature. If my set of apps was smaller, or my review speed much higher, I could do the same thing without LLM, if I just kept the process around the reviews. The LLM saves time, but also triggered me to make a better framework - especially because as little as 3-4 months ago, I got a lot more false positives and there were lots of obvious things it missed, so I needed a refinement process.\n\nSince I reviewed this code back in my manual age, because I was in fact using a coldcard, I know this code. Looked at it deeply more than once. I did not figure out this error. I am also quite sure that an LLM would find it in 1-shot when asking the right question, can probably be a one-liner: \"draw a schematic of how the sources of randomness across secure elements integrate\" -> BINGO. That's a 3 minute job for an LLM. It will likely even tell you that there is an entire branch of code that is not integrated in a nice little italic formatted markdown sentence.\n\nWhy this was an attack: either no one asked this question, or no one read the slop output. That's all this took. This is low hanging fruit. If this attack being orchestrated by an LLM-empowered person of poor morality worries you, hold on to your nuts because this was cheap, easy and even a poorly executed attack. It can and will get much worse on the technical side, but hopefully not catch as many victims on the implementation side. I also think that this cheap and easy attack has completely destroyed coinkite, perhaps permanently.\n\n----\n\n> This threatens to shift the 'moral of the story' toward something useless, instead of the more pertinent issue of how Bitcoiners use and treat hardware wallets\n\nI agree with you that the shifting of attention is both unnecessary and not the right thing to do. My conclusion is different though: we cannot count on just because something being open source, that it gets actual eyes. We do have a problem that is bigger than shifting blame to AI. The problem is that we have review debt on Bitcoin software and firmware and that we're counting too much on efforts of others that simply are fictional. Wishful thinking.\n\nDespite nvk not being the person to bring this news, especially not now; do not be arrogant. Yes, there needs to be a human to tell the AI what to do, what to look at. The only way to make sure it gets done is to do it yourself.",
+            "user": {
+              "name": "optimism"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T00:17:38.624Z",
+            "text": "Agree, this is \"dog ate my homework\" level stuff.\n\nAnd *even if* the attacker did use AI to discover the vulnerability, this was *not* some super duper hidden vuln that required a super duper powered AI to find out.\n\nI think the AI narrative is painting a very misleading picture about the nature of this bug.",
+            "user": {
+              "name": "SimpleStacker"
+            }
+          },
+          {
+            "createdAt": "2026-07-31T23:52:08.860Z",
+            "text": "Aaand the Bitcoin Magazine fucks are now joining into the AI narrative, replete with their own slop image. \n\n![](https://m.stacker.news/150413)\n\nAgain, what's the source AI has fuck all to do with this? Just complete speculation in CoinKite's blog post that conveniently shifts blame off themselves. \n\nThe reason we don't have nice things, in my honest opinion, is because even during serious times when we should be talking about things seriously but calmly, we're surrounded by retardation like this.",
+            "user": {
+              "name": "Aeneas"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T00:37:25.297Z",
+            "text": ">but I'm not surprised Coldkite's AI gave their code a greenlight because AI tends to fuck up a lot\n\nHahaha! This is absolutely fact!!\n\nBecause these days everything  is about AI. \n\nBitcoin podcasts talk more about AI than Bitcoin. People are convinced 13 year olds vibe coding video games is going to lead to some sort of economic productivity boom!",
+            "user": {
+              "name": "BlokchainB"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T04:11:36.219Z",
+            "text": "I agree that pinning this on AI is a massive red herring.\n\nThe inputs were not even pseudo-random. On a low-cost processor, pseudo-randomness might be obtained by plucking from a table of numbers aboard the MCU. The numbers [or more accurately binary strings] would be seemingly random, but recycled. Bad enough.\n\nAlthough, in this case, it looks like many Coldcard wallet users seem to have ended-up with seeds were substantially generated using the Serial Numbers (MCU UID's) of individual Coldcard devices. It therefore follows that persons with knowledge of these Serial Numbers (which may or may not be sequential) would have a very significant difficulty advantage in brute-forcing private keys that correspond to known UTXO addresses.\n\nLooks a bit like bug-dooring.\n\nI reckon that if this is investigated properly, there's a non-zero chance of some recovery of funds. Probably a good idea for affected users keep hold of their devices, since the MCU ID's could potentially be useful.\n\nSolicitor-client privilege applies in all Canadian provinces, so if somebody has important info, or has done something that they regret, they can go to a solicitor for a coffee and a confidential chat...\n\n![](https://m.stacker.news/150428)",
+            "user": {
+              "name": "anon"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T16:08:10.680Z",
+            "text": "> Anyone is free to correct me, but I have seen no reason at all to attribute this to AI fud. This threatens to shift the 'moral of the story' toward something useless, instead of the more pertinent issue of how Bitcoiners use and treat hardware wallets\n\nIt's 2026, all we do this year is talk about AI. \n- lost your job? AI\n- moving forward in life? AI\n- new investments? AI\n- lost your keys and fucked up self-custody? AI.",
+            "user": {
+              "name": "denlillaapan"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T15:30:13.916Z",
+            "text": "Crazy so many trusted the tech when u just had to roll",
+            "user": {
+              "name": "Ge"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T07:03:10.936Z",
+            "text": "I’m an r word",
+            "user": {
+              "name": "LAXITIVA"
+            }
+          },
+          {
+            "createdAt": "2026-08-01T08:54:59.597Z",
+            "text": "Could be good for predictions",
+            "user": {
+              "name": "d680ecaa8e"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-07-31T22:15:10.811Z",
+      "text": "Coldcard's own \"[technical deep dive](https://blog.coinkite.com/entropy-technical-backgrounder/)\" on the causes of the heist—I'm not going to call this one a hack—is honestly pretty straightforward, if disappointingly stupid: people generated seeds using a pseudo random number generator, not an actual, or true, random number generator.\n\n![](https://m.stacker.news/150393)\n\nAnd as we all know from when we call someone a \"Pseud,\" *pseudo* means fake. They didn't use the random number generator that was intended, but a fake one intended for testing. If I can use the analogy, this is like treating a cardboard banker's box 📦 as if it's a safe, then storing your money inside it for safekeeping. This isn't the first RNG disaster we've had in Bitcoin, but it's admittedly been a while since the days turning your favorite poem into a Bitcoin seed phrase (which is a thing people used to do — you can web search to find out why they stopped).\n\nWhat annoys me, though, is the attempt to shift this away from a clear example of negligence and stupidity, to \"*Fucking AI did it, it's a new world and nothing is safe*\" 😞\n\nWhy on Earth, for instance, do we 'have to assume this?' This is hardly some obscure coding error no one could have noticed, but I'm not surprised Coldkite's AI gave their code a greenlight because AI tends to fuck up a lot. Since Coldkite's AI didn't find the mistake, why do we 'have to assume' the attacker's AI did?\n\n![](https://m.stacker.news/150395)\n\nIf anything, the habit of offloading your own decision-making and just trusting AI results (in this case a greenlight) is itself problematic, and precisely because AI tends to fuck up a lot. This in itself is a recognized cognitive bias already:\n\n* [*Automation bias*](https://en.wikipedia.org/wiki/Automation_bias) *is the propensity for humans to favor suggestions from automated decision-making systems and to ignore contradictory information made without automation, even if it is correct.*\n* *Automation bias is a critical issue for artificial intelligence deployment. It can* [*cause otherwise knowledgeable users to make crucial and even obvious errors*](https://cset.georgetown.edu/publication/ai-safety-and-automation-bias/)\n\nAnd now, all the sudden, from this one speculative statement in their blog (where they have every reason to excuse themselves and shift responsibility), we have Protos picking up the narrative?\n\n![](https://m.stacker.news/150396)\n\nAnd yet another outlet...\n\n![](https://m.stacker.news/150397)\n\nBoth citing as their evidence the statement in their blog post, \"*The COLDCARD source code has always been open and publicly available, **so we have to assume** that someone used AI to review previous versions of our firmware and stumbled upon this issue.*\"\n\nAnyone is free to correct me, but I have seen no reason at all to attribute this to AI fud. This threatens to shift the 'moral of the story' toward something useless, instead of the more pertinent issue of how Bitcoiners use and treat hardware wallets (and whether they're necessary at all — which they're not, by the way).",
+      "title": "Coldcard, the Media, and the Anatomy of AI Retardation",
+      "user": {
+        "name": "Aeneas"
+      }
+    }
+  }
+}

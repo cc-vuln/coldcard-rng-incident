@@ -1,0 +1,165 @@
+post: 1ven1lw
+author: Impressive-Piglet386
+created_utc: 1785784628
+title: Coldcard TRNG certification level
+body:
+This guy asked a brilliant question two years ago. He did not receive any valid answer. In hindsight, it didn't age very well. 
+
+I am reposting this today, if Coldcard TRNG did not have EAL5+ or EAL6+ certification, can we consider hardware wallets from vendors that do pass those certifications more secure? 
+
+[https://www.reddit.com/r/Bitcoin/comments/1fl13oy/coldcard\_certifications/](https://www.reddit.com/r/Bitcoin/comments/1fl13oy/coldcard_certifications/)
+
+comment: p1i9xel
+parent: t3_1ven1lw
+author: BumblebeeOk9328
+created_utc: 1785785018
+edited: false
+body:
+i looked into this before buying my coldcard and honestly the whole certification thing is a bit of a rabbit hole. the TRNG matters sure but what most people miss is how the seed gets generated in the first place, you can have the best random number generator but if the entropy source is weak its pointless
+
+  
+i sleep better knowing i can add my own dice rolls at setup, certification or not. feels more real than trusting some lab test i dont fully understand
+
+comment: p1ic883
+parent: t3_1ven1lw
+author: Laukess
+created_utc: 1785785625
+edited: false
+body:
+Even if it was relevant, isn't is sort of a moot point considering TRNG was not used to generate the seeds?
+
+comment: p1icpn8
+parent: t3_1ven1lw
+author: xtr3m
+created_utc: 1785785754
+edited: false
+body:
+The thing is, the RNG is only one of the moving pieces. 
+
+comment: p1icrp4
+parent: t1_p1ic883
+author: shleebs
+created_utc: 1785785769
+edited: false
+body:
+This
+
+comment: p1ie42y
+parent: t3_1ven1lw
+author: ivme
+created_utc: 1785786125
+edited: false
+body:
+Why bother when you can simply roll some dice
+
+comment: p1ifotf
+parent: t1_p1i9xel
+author: ElGuano
+created_utc: 1785786541
+edited: false
+body:
+I would assume that sufficient entropy is integral to any RNG test/cert? If you don't have entropy, by definition you aren't getting random.
+
+comment: p1im47j
+parent: t3_1ven1lw
+author: jwhendy
+created_utc: 1785788226
+edited: false
+body:
+I think is potentially misleading, as it's the *chip* itself that has the certification, not the overall device, integration, or functionality.
+
+Someone [posted a few days ago](https://www.reddit.com/r/Bitcoin/s/DIHmFVkkGL) commenting on Ledger vs. ColdCard TRNGs, and [I did some digging](https://www.reddit.com/r/Bitcoin/comments/1vbtpiq/comment/p0x7dm4/) on the ColdCard chip (ATECC608). The documentation lists NIST certification/validation on the TRNG (see comment for quotes).
+
+Using this post as an opportunity to look further, here's a comparison. Note: AI summaries, please correct if wrong:
+
+> NIST SP 800-90 Series: Focuses strictly on random bit generators (RBGs). Part A covers deterministic random bit generators (DRBGs), Part B covers entropy source requirements and health testing, and Part C details composite RBG constructions
+
+> EAL6+ (Evaluation Assurance Level 6 Augmented): Part of the Common Criteria ISO/15408 standard. It measures the depth, rigor, and-lifecycle security of an entire Target of Evaluation (TOE)—such as a secure microchip, hardware security module, or operating system—against sophisticated attacks. EAL6+ requires a semi-formally verified design and tested architecture.
+
+TBD if EAL6+ specifically verifies entropy/randomness. And either way, this is still not the point... it wasn't about how good the hardware was, but implementation. Neither of these certifications probes "did you code this up as to use the super sophisticated, dedicated cryptographic chips on board?"
+
+Maybe all of this opens an opportunity to address the unaddressed gap of "did you build this thing correctly?" vs. today we may only have certifications asking "do you have hi-tech gadgetry on board?"
+
+Like we're talking abut deadbolt certifications but don't check if they get installed or if the door is getting locked.
+
+comment: p1iwc20
+parent: t3_1ven1lw
+author: SighFor
+created_utc: 1785790930
+edited: false
+body:
+> Can we consider hardware wallets from vendors that do pass those certifications more secure?
+
+Last week, I might have answered "not necessarily".
+
+But today, I'd say "EAL5+ is essential".
+
+... but the Coldcard bug bypassed the secure element entirely, so it wouldn't matter if God himself made the Chip.
+
+comment: p1iy116
+parent: t1_p1i9xel
+author: SighFor
+created_utc: 1785791393
+edited: false
+body:
+Hope you rolled enough times!
+
+comment: p1jcx6g
+parent: t3_1ven1lw
+author: Dettol-tasting-menu
+created_utc: 1785795594
+edited: 1785795778
+body:
+The main problem is that no matter how secure the TRNG was on the Coldcard, it was bypassed.
+
+You can have a super vault at the Fed but due to logistical mistake the gold bars were sent to a pizza shop next door. The super vault’s certification means nothing in that case.
+
+By extension, the real question people should ask after this disaster is, on my XYZ hardware wallet, are the claimed EAL5+ TRNG actually used in the seed generation?
+
+I used two Coldcards but VERY fortunately I generated the seed phrase by throwing dice 100+ times. If I hadn’t my life savings would’ve been gone.
+
+comment: p1ji2yp
+parent: t1_p1ic883
+author: opossum_cz
+created_utc: 1785797156
+edited: 1785797424
+body:
+Exactly, they would have to use it first. This is the the most retarded bug ever, checking if macro exist while setting it to 0.
+
+comment: p1lbpn9
+parent: t3_1ven1lw
+author: classified_x
+created_utc: 1785819997
+edited: false
+body:
+It is a bit tragic the people trying to validate the bitcoin status quo at all costs in the aforementioned post … validation bias 
+
+comment: p1ll99d
+parent: t1_p1im47j
+author: Impressive-Piglet386
+created_utc: 1785824431
+edited: false
+body:
+Very interesting nuance, thanks for sharing. The industry is missing a standard certification for "the whole" package, not just the single chip. Something like that might have caught the integration bug in the Coldcard early on.
+
+comment: p1llsca
+parent: t1_p1jcx6g
+author: Impressive-Piglet386
+created_utc: 1785824682
+edited: false
+body:
+\> I used two Coldcards but VERY fortunately I generated the seed phrase by throwing dice 100+ times. If I hadn’t my life savings would’ve been gone.  
+  
+Genuine question: is this something Coldcard UI is supporting out of the box during seed phrase generation? I've done some research and to do something like this with Ledger you have to tinker a lot with 3rd party scripts, which I'd rather avoid here.
+
+comment: p1loz47
+parent: t1_p1llsca
+author: Dettol-tasting-menu
+created_utc: 1785826195
+edited: false
+body:
+It is. It’s one of the selling points of CC actually (to me at least). Seedsigners do also support the same dice rolling function but it’s slightly more restrictive: you throw a dice 50 time or 99 times (IIRC) but not more. On a CC you can throw a lot more than 100 times (I actually did it 250 times, but theoretically it’s no better than 99 times) and it would hash the entire string into a 256 bit seed and map out the words for you. 
+
+This one function is not compromised on a CC. And it does what it promised to do and the results correspond to the open source python script, so that gives me a bit of peace of mind these past few days. 
+
+I’m still planing to move on to other wallets though. It’s such a disaster I feel so bad for the people who lost their coins. I could have been one of them. 

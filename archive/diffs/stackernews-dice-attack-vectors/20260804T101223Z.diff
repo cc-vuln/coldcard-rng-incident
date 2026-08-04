@@ -1,0 +1,44 @@
+--- stackernews-dice-attack-vectors@20260804T041729Z
++++ stackernews-dice-attack-vectors@20260804T101223Z
+@@ -3,6 +3,20 @@
+     "item": {
+       "comments": {
+         "comments": [
++          {
++            "createdAt": "2026-08-04T05:47:30.004Z",
++            "text": "I see quite a number of people looking into this at the moment. I checked for a match using a coin flip within Blue Wallet & the bip39 site at iancoleman.io. They matched up with the exact 12 word seed which is good to know. \n\nI still think that even though it's a good practice to go through rolling dice or flipping coins, we still need to be able to trust the software generated wallets or Bitcoin just isn't going to work.",
++            "user": {
++              "name": "OT"
++            }
++          },
++          {
++            "createdAt": "2026-08-04T03:06:21.636Z",
++            "text": "Just because the device shows you a valid seed after you input 100 dice rolls, doesn't guarantee the device actually used those rolls to generate the seed.",
++            "user": {
++              "name": "000w2"
++            }
++          },
+           {
+             "createdAt": "2026-08-04T02:16:41.986Z",
+             "text": "And obviously the devices you verify the seed phrase on are offline",
+@@ -11,10 +25,17 @@
+             }
+           },
+           {
+-            "createdAt": "2026-08-04T03:06:21.636Z",
+-            "text": "Just because the device shows you a valid seed after you input 100 dice rolls, doesn't guarantee the device actually used those rolls to generate the seed.",
++            "createdAt": "2026-08-04T05:50:08.534Z",
++            "text": "Assuming your setup is a HWW with an offline PC used for verification that the seed was generated correctly, I would add that:\n\n* The PC should be completely wiped afterwards, in case it silently saved the rolls somewhere and is later connected online.\n* One should also verify that the correct private key was generated from the seed. Theoretically a HWW could display the correct seed but fall back on a malicious hardcoded private key.\n\n__@_'-'",
+             "user": {
+-              "name": "000w2"
++              "name": "anon"
++            }
++          },
++          {
++            "createdAt": "2026-08-04T07:48:41.552Z",
++            "text": "This guide is good: https://armantheparman.com/dicev2/ and you can use offline Tails to check the math",
++            "user": {
++              "name": "SwapMarket"
+             }
+           }
+         ]

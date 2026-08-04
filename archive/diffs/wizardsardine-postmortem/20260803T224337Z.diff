@@ -1,0 +1,62 @@
+--- wizardsardine-postmortem@20260801T194720Z
++++ wizardsardine-postmortem@20260803T224337Z
+@@ -87,9 +87,9 @@
+ If instead only some of the keys are Coldcard, or you use Taproot the attack is different. The descriptor partially protects you.
+ If you are at risk, when you try to spend, an attacker can try to replace your transaction and steal its inputs. This is done by “replacing” the transaction by increasing its fee, before it gets mined. The attacker will not be able to take UTXOs that are not part of that transaction.
+ Currently (1st Aug 2026) it seems this attack is not yet being performed, or still rare. We expect it to be common in the next few days, and automatic/guaranteed in the next weeks or earlier.
+-Once these attacks are common, DO NOT BROADCAST your transactions. Your only protection will be to use an “out of band” service such as Slipstream from Mara.
++Once these attacks are common, DO NOT BROADCAST your transactions. Your only protection will be to use an “out-of-band” service such as Slipstream from Mara.
+ Assuming you never spent nor refreshed from the wallet since its creation:
+-Use an “out of band” service such as Slipstream. You are not at risk before you transact, assuming you never shared your descriptor.
++Use an “out-of-band” service such as Slipstream. You are not at risk before you transact, assuming you never shared your descriptor.
+ The technical explanation
+ A SegWit wallet publishes the Script on the first spend. Before you have ever spent, a SegWit Liana output shows only a hash on the blockchain, and an attacker working from the chain alone sees nothing to match. But the first time you spend, the transaction reveals the complete policy: the public keys of every participant at that address, together with every threshold and timelock in the wallet. If all of those keys are affected, an attacker can recover each one’s extended public key, rebuild your entire descriptor, and derive every address you will ever use, past and future. One spend, and a chain-only attacker owns the whole wallet for good. If only some of the keys are affected, that same spend still lays the wallet’s structure bare and exposes the affected keys, but your addresses at large stay out of reach, because reconstructing them would need the extended keys of the strong signers too.
+ A Taproot wallet reveals far less, because it keeps each spending path in a separate branch and a spend touches only what it must. Spending through a multisig primary reveals the keys of that one path at that one address, never the rest of your wallet and never your other addresses, and because each address blends its own keys the values differ at every index, so there is no fixed target for an attacker’s table across your wallet. This compartmentalization is the real Taproot advantage: it contains the blast radius of a spend.
+@@ -114,8 +114,8 @@
+ Backup your new descriptor once it’s done.
+ ⚠️ Before transfering your funds, assess the risks.
+ If you transacted or refreshed in the past and use Segwit and only Coldcards in your setup, transfer normally, ASAP. Being too late will have your funds stolen, this is a race against the clock.
+-In any other case (if you NEVER EVER transacted nor refreshed from your wallet, or you use taproot, or you don’t only use Coldcards) the safest option is to wait for a Slipstream tool we will provide soon.
+-You can craft the transactions from your old wallet (another tab at the top of Liana), to addresses generated in the new one. DO NOT broadcast them if the best option for you is the Slipstream tool.
++In any other case (if you NEVER EVER transacted nor refreshed from your wallet, or you use taproot, or you don’t only use Coldcards) the safest option is to use an out-of-band service, such as Slipstream.
++You can craft the transactions from your old wallet (another tab at the top of Liana), to addresses generated in the new one. DO NOT broadcast them if the best option for you is the out-of-band tool.
+ Of course, if your wallet does not fall under immediate risk, you can transfer normally.
+ Section 2: What exactly happened
+ A quick refresher on randomness
+@@ -192,7 +192,8 @@
+ pad = *(uint32_t *)MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick->VAL;
+ n = RTC->TR;
+ d = RTC->SSR;
+-So: the chip’s unique identifier, combined with the boot counter, plus the time and sub-second value of the internal clock at the moment of generation. The chip ID was never designed to be a secret. It is readable, and above all it is structured, since it encodes lot and wafer numbers along with coordinates on the silicon wafer. This is not 96 bits of randomness, nowhere close.
++So: Part of the chip’s unique identifier, combined with the boot counter, plus the time and sub-second value of the internal clock at the moment of generation. The chip ID was never designed to be a secret. It is readable, and above all it is structured, since it encodes lot and wafer numbers along with coordinates on the silicon wafer. This is not 96 bits of randomness, nowhere close.
++The part of the UID being used is only the coordinates of the die on the silicon wafer. It is not unique, and likely fits well within a 16 bits space.
+ On the Mk3, the search space therefore shrinks to a few dozen bits instead of 256. In practice, that means an attacker can enumerate every possible seed, compute the matching addresses, and check them against the blockchain to spot the ones holding funds. No access to your device is required.
+ The advertised design, and the real code
+ On paper, the Mk3’s randomness came from one source: the microcontroller’s TRNG, XORed with an internal PRNG and conditioned through SHA-256. That is a reasonable design, and it has one defining property. There is a single place the entropy can come from, so the whole thing rests on that one call actually happening.
+@@ -298,7 +299,7 @@
+ Run a recovery drill on your new wallet before sending it anything. Wipe the device, restore from your backup, and check that you land on the same addresses. That is the only way to know your backup actually works.
+ When you make the transfer, verify the receiving address on the screen of the Coldcard doing the sending, and confirm beforehand that this address really belongs to your new device by displaying it on that device’s screen. Never trust an address shown only on a computer screen.
+ Keep your old backup until the migration is complete and verified. The old seed is compromised, but it is still the only thing that controls the coins until they have actually moved.
+-Finally, watch out for scams, which will multiply in the coming days. Some people will exploit the panic to extract your seed phrase. Do not install software you found in a hurry, do not buy a device from an unknown seller, and never listen to anyone who reaches out to you unprompted in a DM to help. No legitimate support team will ever ask for your 24 words. Expect fake “recovery services” too, offering to get your stolen coins back for a fee. They cannot.
++Finally, watch out for scams, which will multiply in the coming days. Some people will exploit the panic to extract your seed phrase. Do not install software you found in a hurry, do not buy a device from an unknown seller, and never listen to anyone who reaches out to you unprompted in a DM to help. No legitimate support team will ever ask for your 12/24 words. Expect fake “recovery services” too, offering to get your stolen coins back for a fee. They cannot.
+ If you have already been robbed
+ Coinkite has said they will work with affected users who want to file a police report, make an insurance claim or run their own investigation, and that they will provide a written incident summary specific to your loss along with whatever transaction data they can share. They have also said they are cooperating with on-chain investigators and with any law enforcement agency that opens a case.
+ Record everything on your side before it gets lost: the transaction IDs of the theft, the affected addresses, your device model and firmware version, and roughly when and how the seed was originally created.
+@@ -312,7 +313,7 @@
+ This family is nastier, because it hits even the users who did things right, with a seed generated from dice or imported from another device. These features draw straight from the faulty generator, without going through your seed at all.
+ Paper wallets are the most worrying case. The function that creates them asks for a key pair without supplying a seed, which makes it pull its bytes directly from the broken generator. The paper wallet’s private key is therefore literally the PRNG’s output. It bears no relation to your seed, and every paper wallet created on a Coldcard since 2021 has an enumerable private key, unless it was generated through the dice option. These keys stand alone, often printed and then given away or forgotten in a safe, and whoever holds them today may not even know where they came from.
+ The clone-to-another-device function is broken too. The mechanism relies on an ephemeral key exchange between the two Coldcards, over the SD card, from which the transfer’s encryption key is derived. Since those ephemeral keys come from the faulty generator, anyone who gets hold of the clone file can recompute them, redo the exchange and decrypt everything, and so recover the seed in the clear. Even if that seed was generated with dice.
+-The encrypted USB session between the Coldcard and your computer relies on the same kind of ephemeral key. This one isn’t signifiant.
++The encrypted USB session between the Coldcard and your computer relies on the same kind of ephemeral key. This does not mean plugging in your Coldcard steals the seed phrase.
+ The C key of Coldcard’s co-signing feature, the 12 words the device keeps in order to enforce a spending policy, also comes from the broken generator.
+ The password generator built into Secure Notes & Passwords is affected in two of its modes. The mode that produces words is built on the same function as seed generation. The mode meant for sites with strict requirements states its own entropy budget in a code comment, 49 bits, which was already tight before this problem was even taken into account. Here again, these passwords protect accounts that have nothing to do with Bitcoin.
+ Both secret teleport mechanisms are affected. The password used to transfer a seed between two devices is 40 bits by design, and it is drawn from the broken generator. The exchange between multisig co-signers relies on a 28-bit derivation index, predictable as well.
+@@ -322,7 +323,7 @@
+ Privacy
+ Any seed created on a Coldcard since 2021 has to be treated as public. And if the seed is public, so is the entire transaction history that flows from it, retroactively and permanently.
+ The point that deserves the most attention is a second-order effect, one that hits people who have never owned a Coldcard. In a coinjoin round or a payjoin, your anonymity depends on the number of participants who are indistinguishable from one another. If some of them become identifiable, your own anonymity set shrinks accordingly. And that shrinkage is retroactive: it applies to every mix performed since 2021, and there is nothing you can do about it today.
+-Coldcard does not natively support any coinjoin implementation, but many users send their funds from their Coldcard to coinjoin software and then bring them back, and in that case anonymity drops for everyone.
++Coldcard does not natively support any coinjoin implementation, but many users send their funds from their Coldcard to coinjoin software and then bring them back, and in that case anonymity drops for everyone. Worse, users who imported a BIP85 mnemonic derived from an affected Coldcard into their Coinjoin software will be fully linked.
+ Two further effects are worth adding. Chain analysis firms gain a considerable set of addresses they can label once and for all. And your counterparties, the people who sent you funds or received funds from you, see part of their own transaction graph exposed by association.
+ Section 6: How to stop being exposed to this kind of flaw
+ Once your funds are safe, the real question becomes: how do you avoid going through this again with another brand in the future? There are not that many options.

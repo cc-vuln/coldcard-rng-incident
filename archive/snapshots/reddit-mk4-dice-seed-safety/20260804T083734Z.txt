@@ -1,0 +1,285 @@
+post: 1vdge71
+author: UnderstandingNew8001
+created_utc: 1785672404
+title: Is it safe to use MK4 for creation of seed using dice then move, if not what other way?
+body:
+Got my coins out of MK4 on a temp wallet, and I just got my new Trezor, and learning from what happened I am planning to create a new wallet with seeds generated using dice, however it seems Trezor doesn't have that option, and I don't have a device I can have offline to run any program to help, so I am thinking of updating the new firmware of MK4, create a new wallet with Dice, import the seeds into Trezor and add a passphrase, does this make sense? is there any possible issues?
+
+comment: p18q799
+parent: t3_1vdge71
+author: Quirky-Reveal-1669
+created_utc: 1785673127
+edited: 1785678630
+body:
+This is also what I have been contemplating. Mk4 can be kept airgapped, and seed generation according to BIP39, using dice is mathematical, there is no use of the RNG in Mk4. The words generated could then be entered in Trezor.
+
+This is an interesting option, since Trezor cannot function totally airgapped, and Trezor does not offer the option to guide you through seed generation with dice entropy. I am currently skeptical of any RNG, so the option of dice rolls is very appealing.
+
+comment: p18qgxk
+parent: t3_1vdge71
+author: ackyou
+created_utc: 1785673229
+edited: false
+body:
+Yep, that makes sense. You could go the additional step of doing that multiple times with the mk4 and then verify some of those outputs with rolls.py. It’s best not to verify the one you actually use unless it’s on an air-gapped computer. Alternatively, you can generate seed words directly with 8 and 16 sided dice directly with only pen and paper but that’s more of a pain.
+
+comment: p18rqd8
+parent: t3_1vdge71
+author: zootreddit
+created_utc: 1785673706
+edited: false
+body:
+The one issue with CC was seed gen. If you are going to seed gen on mk4 you might as well use the mk4 and send the trezor back for refund.
+
+comment: p18u5yr
+parent: t1_p18rqd8
+author: ackyou
+created_utc: 1785674590
+edited: false
+body:
+The one issue we know about which has been lurking for 5 years. If they messed up seed gen, perhaps the most crucial component, who knows what else is just waiting to be discovered.
+
+comment: p18uqe8
+parent: t1_p18u5yr
+author: zootreddit
+created_utc: 1785674794
+edited: false
+body:
+Its air gapped.
+
+comment: p18vx4u
+parent: t1_p18rqd8
+author: doorshock
+created_utc: 1785675216
+edited: false
+body:
+BS.  Trust has been broken.  Throw your CC away
+
+comment: p18wwkz
+parent: t1_p18qgxk
+author: NeighborhoodOld163
+created_utc: 1785675559
+edited: false
+body:
+Creating a seed with pen and paper is an excellent exercise.  BTC Sessions did a tutorial:
+
+[https://www.youtube.com/watch?v=LxTkLwpV1Po&t=2s](https://www.youtube.com/watch?v=LxTkLwpV1Po&t=2s)
+
+
+
+comment: p18xfa3
+parent: t3_1vdge71
+author: Intelligent_Map_246
+created_utc: 1785675740
+edited: false
+body:
+Why not use the cc if you created a seed with dice ?
+
+comment: p18y11k
+parent: t1_p18vx4u
+author: zootreddit
+created_utc: 1785675950
+edited: false
+body:
+Don't trust, verify. Understand what went wrong and why cold storage is secure from remote theft. 
+
+Op wants to keygen on the mk4 and then transfer that air gapped key to a trezor. It makes zero sense. Both devices would store the same key and protect from remote theft through entropy and air gap.
+
+comment: p192pj6
+parent: t3_1vdge71
+author: blurred_rabbit
+created_utc: 1785677519
+edited: 1785678781
+body:
+Yes, the latest firmware fixes the issue and makes the wallet stronger than ever. Unfortunately, people aren’t going to trust Coinkite as a company after this, but the reality is you won’t find some of these features with other wallets.
+
+Even if you created a seed with the bug between 2021 and now as long as you added a complex passphrase and did 100+ dice rolls it would have covered you.
+
+If you have the latest firmware today and follow that same pattern you are more than covered.
+
+It’s so sad because the software bug was so n00b. There should have been so many checks and balances on the most important part: seed generation. The one thing that future software updates can’t really fix for existing seeds.
+
+comment: p193o6z
+parent: t1_p18y11k
+author: doorshock
+created_utc: 1785677833
+edited: false
+body:
+Trezor’s RNG is beyond reproach.  What OP wants to do is upsetting.  Cold card is toast but you do you 
+
+comment: p196xht
+parent: t1_p18vx4u
+author: Oxymorix
+created_utc: 1785678875
+edited: false
+body:
+This is starting to turn into panic. I generated my seed using 100 dice rolls and also use a strong passphrase. I independently verified the dice-roll procedure with [`rolls.py`](http://rolls.py) on a live operating system—using test rolls, obviously, not my actual seed.
+
+For now, I’m going to watch how the situation develops before deciding whether to move away from Coldcard. At present, there is no evidence of a broader compromise beyond the seed-generation RNG failure, and that specific firmware issue has now been fixed.. 
+
+comment: p198yye
+parent: t3_1vdge71
+author: jj_025
+created_utc: 1785679508
+edited: false
+body:
+Don't use CC
+
+comment: p1998eh
+parent: t1_p18q799
+author: Intelligent_Map_246
+created_utc: 1785679589
+edited: false
+body:
+Exactly. As a generator and offline signer. 
+
+comment: p19chkm
+parent: t1_p196xht
+author: zootreddit
+created_utc: 1785680588
+edited: false
+body:
+It was immediate panic. Perhaps a couple of weeks for this to settle before reasonable discussion returns.
+
+comment: p19irr6
+parent: t3_1vdge71
+author: Charming-Designer944
+created_utc: 1785682440
+edited: false
+body:
+Seeds generated by dice roll are safe on all devices.
+
+The weakness only affects seeds generated by affected devices using the internal random generator. Not the device as such. If you generated the seed using the dice rol method then your wallet is entirely safe and no action is required, and this is true even for MK3 devices.
+
+comment: p19stf2
+parent: t3_1vdge71
+author: antineutrinos
+created_utc: 1785685306
+edited: false
+body:
+the question is aside of seed generation, what other function needs a truly random number for cryptographic validity?  
+
+comment: p19uu2w
+parent: t3_1vdge71
+author: SpendHefty6066
+created_utc: 1785685864
+edited: false
+body:
+This is a good resource: [https://github.com/taelfrinn/Bip39-diceware](https://github.com/taelfrinn/Bip39-diceware)  
+The idea is that with a coin and 4 dice, you flip and roll 12 times and get your complete seed phrase. No conversion necessary. Your hw device, even ColdCard, can provide the checksum, then you can connect to your wallet software like Sparrow or Electrum, and complete the setup of your 100% air gapped wallet. Don't use ColdCard's wallet software. ColdCard messed up (massively) on the RNG side of things, still useful (if you have one) for signing transactions.
+
+comment: p19yb9v
+parent: t1_p18xfa3
+author: Quirky-Reveal-1669
+created_utc: 1785686810
+edited: false
+body:
+I think it would be absolutely rational, but given the current emotional affairs around ColdCard, I can see why people would opt for Trezor at this moment. 
+
+comment: p19zr3w
+parent: t1_p192pj6
+author: didnt_hodl
+created_utc: 1785687203
+edited: false
+body:
+you just have to read the analysis of that code, already published in multiple places
+
+to see how bad things are at that company. committing to production 1,500+ lines of new code with a single comment "runs". where they explicitly DISABLED the hardware pseudo-random number generator
+
+no way they survive this 
+
+and then, to add insult to injury, they never even bothered to test their own PRNG. like, bro, you only had one job
+
+comment: p1a08ou
+parent: t1_p19zr3w
+author: blurred_rabbit
+created_utc: 1785687337
+edited: false
+body:
+Hahaha agreed. Although, as a software engineer myself I can sort of see how in the early stages of building something it is kind of rushed. You should see some of my commits when I first start a project trying to get the foundation in place assuming things will get cleaned up later on especially if it is an open source project. I don’t think I would ever have this mindset if I was dealing with the single most important thing “seed phrases” and cryptography.
+
+comment: p1a0ib2
+parent: t3_1vdge71
+author: Warrior_witha_Garden
+created_utc: 1785687410
+edited: false
+body:
+No it is not safe. ALL the cold cards are cooked ! more is coming out. get a different wallet. You can use Tails and Electrum in a pinch. save that seed. Seed Signer is the move right now. Get some dice and get to work.
+
+comment: p1aqb2r
+parent: t3_1vdge71
+author: EyesFor1
+created_utc: 1785694355
+edited: false
+body:
+I think 100+ dice roll and a passphrase is totally safe to use on CC. The CC is probably one of the safest hardware wallets because of the eyes on it due to this issue. The human emotion and trust is what will keep people away not the maths behind the device, which is now sound.
+
+comment: p1ar3d9
+parent: t1_p18q799
+author: EyesFor1
+created_utc: 1785694566
+edited: false
+body:
+You might as well stay on the coldcard if you do that and remain totally airgapped.
+
+comment: p1arth3
+parent: t1_p196xht
+author: EyesFor1
+created_utc: 1785694764
+edited: false
+body:
+I agree, emotion is taking over. Logically, if the dice roll entropy is sound there is no problem, humans are humans and we all feel trust has been destroyed even if the device is sound as of the update. 
+
+
+
+comment: p1as272
+parent: t1_p1a0ib2
+author: EyesFor1
+created_utc: 1785694829
+edited: false
+body:
+What else is coming out ?
+
+
+
+comment: p1be4h8
+parent: t1_p1as272
+author: Warrior_witha_Garden
+created_utc: 1785700926
+edited: false
+body:
+cold cards are getting bricked with new firmware. other exploits are being found. 1) if you have a usb you can use ian colemans seed generator using tails OS. free and secure. 2) you dont want a cold card for anything at this point. to much risk. if they were this sloppy its a matter of time. save your cold card for lawsuits and civil action. 
+
+comment: p1bmgr9
+parent: t1_p1ar3d9
+author: Quirky-Reveal-1669
+created_utc: 1785703275
+edited: false
+body:
+I agree.
+
+comment: p1cwx6m
+parent: t3_1vdge71
+author: DTSA2428
+created_utc: 1785717780
+edited: false
+body:
+Use your Cold Card to generate a seed then use that seed in your Trezor! Use 100 dice rolls!
+
+comment: p1d52yv
+parent: t3_1vdge71
+author: birdman332
+created_utc: 1785720560
+edited: false
+body:
+Just update the firmware and use dice rolls on the cc
+
+comment: p1epy6a
+parent: t1_p192pj6
+author: JumpProfessional3372
+created_utc: 1785745328
+edited: false
+body:
+seed generation and also any function that exports something out of the coldcard. Like the code that saves into a microsd a signed transaction. That one needs to be heavily checked so ensure no private data goes out of the wallet.
+
+Those 2 are the most critical points in my opinion. But at least point 1, can be skipped following their paranoid guide.

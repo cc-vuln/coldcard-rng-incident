@@ -1,0 +1,29 @@
+--- kelbie-rng-postmortem@20260803T174224Z
++++ kelbie-rng-postmortem@20260803T231322Z
+@@ -12,7 +12,7 @@
+ 31 July, hours after the advisories: another 207.73 BTC from 1,918 addresses that afternoon, pooled
+ nowhere, a fresh holding address and a fresh vault for every wallet drained. That wave entered the
+ ledger because one victim screenshotted an address that was not even his own — everything else
+-about it was reached by noticing that 291 addresses were emptied in the same four blocks the same
++about it was reached by noticing that 286 addresses were emptied in the same four blocks the same
+ way, and four claimants have since named addresses inside it. A tenth wave arrived later still,
+ paying to Taproot in blocks past everything else here, and it is in the record only because one
+ person filed an abuse report naming three transactions. Every figure here is a floor, not a total —
+@@ -149,11 +149,12 @@
+ nothing more — two people can run one program, one person can run two.
+ **Wave colour** is read from exactly those two numbers: hue is the family, shade the variant. Hue is
+ an identity rather than a distance, so refreshing cannot repaint a wave that has not changed.
+-**The fee** is priced from a size table and nothing else — `42 vbytes + 68 | 91 | 148 per input by
+-script type`, looked up before signing and never rechecked, which is why the estimate always runs
+-over what got signed. It is not a share of value: inside wave 960345 the fee spans 1.7 million to
+-one against the amount taken, and 27 sweeps across the record paid more to move the coins than the
+-coins were worth. Where a wave uses several rates the split is resolved rather than averaged,
++**The fee** is priced from a size table and nothing else — `42 or 53 vbytes + 68 | 91 | 148 per
++input by script type`, looked up before signing and never rechecked, so the estimate does not track
++what got signed: it runs from a vbyte under to 239 over. The fixed part belongs to the build rather
++than to the destination, which is why there are two of them. It is not a share of value: inside wave
++960345 the fee spans 1.7 million to one against the amount taken, and 31 sweeps across the record
++paid more to move the coins than the coins were worth. Where a wave uses several rates the split is resolved rather than averaged,
+ because the cases differ — wave 960345 binds the rate to the code path (50 sat/vB on all 1,214
+ single-address sweeps, 8 on both multi-address ones), wave 960352 has one stray, and wave 960518
+ uses nine rates whose strongest correlation with value, size or order is r = −0.38.

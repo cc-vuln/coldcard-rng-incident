@@ -1,0 +1,305 @@
+post: 1vemf3k
+author: bellydisguised
+created_utc: 1785783305
+title: How come multiple same addresses weren’t created by affected Coldcards?
+body:
+If hackers were able to find these addresses rather easily, and the randomness wasn’t all that random after all, how come there weren’t “random” addresses made for users that were already in use?
+
+comment: p1i40mg
+parent: t3_1vemf3k
+author: groundkittenbeef
+created_utc: 1785783481
+edited: false
+body:
+Wut? 
+
+comment: p1i45ke
+parent: t3_1vemf3k
+author: the_bitcoin_kid
+created_utc: 1785783516
+edited: false
+body:
+Good question. In short, it seems the key space was large enough over the short term to avoid a collision.
+
+There were thousands of customers, but a brute force attack generates far more seeds in a short period of time.
+
+Over a long enough time period there could have been a collision.
+
+comment: p1i51lo
+parent: t3_1vemf3k
+author: qwertyuiop121314321
+created_utc: 1785783743
+edited: false
+body:
+Part of the RNG used boot time from the device. So two users that booted their device at the same time, would cause a possible address collision, having the same addresses.
+
+
+
+
+
+
+comment: p1i5e8d
+parent: t3_1vemf3k
+author: GodsMoney_Ape
+created_utc: 1785783833
+edited: false
+body:
+The probability space was like 2\^40 for Coldcard MK3? Brother, 2\^40......
+
+comment: p1i5nis
+parent: t3_1vemf3k
+author: zacguymarino
+created_utc: 1785783901
+edited: false
+body:
+There is something like a trillion possible seeds with the rng that coldcard was using (someone can be more accurate in the comments if they want). So this left plenty of room to make it unlikely that one of the thousands of people using the affected rng would collide. But for a computer, of course, one trillion (or somewhere around there) is not so difficult to search through.
+
+comment: p1i60i3
+parent: t3_1vemf3k
+author: Bred_Slippy
+created_utc: 1785783994
+edited: false
+body:
+I think we're still likely talking in the billions, so unikely given the amount of users running the bugged firmware. 
+
+comment: p1i73pk
+parent: t3_1vemf3k
+author: Gooner_93
+created_utc: 1785784281
+edited: false
+body:
+The entropy was still 40 bits, not strong enough but thats still 1 trillion possible seedphrases, enough for two people to not generate the same seedphrase I suppose. Other variants like mk4 had higher entropy.
+
+comment: p1i7jok
+parent: t3_1vemf3k
+author: Daiymas
+created_utc: 1785784395
+edited: 1785785534
+body:
+Basically because the RNG was still somewhat decent, but weakened just enough that if you generated hundreds of billions of seeds, it became possible to find a few seeds already in use.
+
+This means that for a normal Coldcard user who just generates a single seed, it was extremely unlikely to get an address already in use. But for an attacker, generating billions of seeds and finding which ones are in use is fairly easy with current hardware.
+
+comment: p1i8bmo
+parent: t3_1vemf3k
+author: ZedZeroth
+created_utc: 1785784597
+edited: false
+body:
+Nice question 👍
+
+comment: p1i918y
+parent: t3_1vemf3k
+author: ElGuano
+created_utc: 1785784784
+edited: false
+body:
+tl;dr: There's a big difference between having a large enough playfield to avoid random seed collisions with one-off normal use, and having that field be small enough to be able to identify and replicate all of the factors that go into creating seeds with an at-scale brute force attack.
+
+comment: p1ica5d
+parent: t1_p1i51lo
+author: Responsible_Emu3601
+created_utc: 1785785639
+edited: false
+body:
+Wasn’t serial number plus boot time so.. no 
+
+comment: p1icn6b
+parent: t3_1vemf3k
+author: EyesFor1
+created_utc: 1785785735
+edited: false
+body:
+Entropy was larger than customer base but small enough to get brute forced. Given time, someone would have created a seed only to find BTC on it already. 
+
+comment: p1ie6zw
+parent: t3_1vemf3k
+author: LionRivr
+created_utc: 1785786146
+edited: false
+body:
+Imagine millions of people buying 1 lottery ticket each.
+
+It would be rare for any of them to have the same numbers.
+
+But then imagine 1 hacker also buying several billions of tickets for free.
+
+Hacker would most likely have the same copy of numbers on someone else’s real ticket.
+
+In this case, the “lottery” (coldcard RNG) was poorly designed. 
+
+If properly designed, the hacker would’ve needed several millions of trillions of tickets to match another ticket.
+
+comment: p1ie9ok
+parent: t1_p1i5nis
+author: LPC_Rebuilder
+created_utc: 1785786165
+edited: false
+body:
+Exactly 💯
+
+comment: p1ieeqk
+parent: t3_1vemf3k
+author: neverpersonal
+created_utc: 1785786202
+edited: 1785786411
+body:
+You are asking a question as if it didn't happen.  Literally for years people have said they have had their phrases hacked without making a mistake and were dismissed.  I had my phrase hacked and my wallet drained.  How would I know if it was a hack, or just another lucky random generation and the person was smart enough to drain it and try again.  I will never know.  But this is not new.  This is more of a wake up call.  The idea of people using a "random" phrase to secure their life savings is beyond mind blowing.  And the misinformation regarding cold wallets, as if they are "offline" is even more mind blowing.  A week ago you'd be laughed off this reddit.  I have an FBI case number and all to verify my situation, however nothing was ever done.  When I did post, and deleted due to being shamed off the reddit, it was all my fault and no matter what the scenario, one thing was certain to all, no way your phrase was hacked.  
+
+It was.
+
+comment: p1iijgx
+parent: t1_p1i40mg
+author: so7ow
+created_utc: 1785787284
+edited: false
+body:
+Which part didn't you understand?
+
+comment: p1iinkt
+parent: t3_1vemf3k
+author: NimbleNido
+created_utc: 1785787314
+edited: false
+body:
+The short version is that the randomness was weak enough for a bad actor with today's compute to systematically search the reduced set of possible seeds, but still large enough that ordinary users almost never collided with each other.
+
+This bad actor wasn't randomly guessing the way a user generates a seed, rather they were efficiently, exhaustively, searching the known reduced space. Once they knew the space was just \~40 bits, they were able to generate every possible seed (or a good chunk of them), compute the addresses, and match them against the blockchain, which is computationally feasible today, unlike 2\^128.
+
+comment: p1iixvd
+parent: t1_p1i5nis
+author: NimbleNido
+created_utc: 1785787391
+edited: false
+body:
+Yeah this is a solid tl;dr. I was trying to be sure that what I was typing out made sense to myself lol, but this summed it up well.
+
+comment: p1ijw0l
+parent: t1_p1icn6b
+author: Donkeydonkeydonk
+created_utc: 1785787642
+edited: false
+body:
+This. The effected wallets also currently represent a small fraction of their users. 
+
+comment: p1ipfhe
+parent: t3_1vemf3k
+author: slvbtc
+created_utc: 1785789095
+edited: false
+body:
+How many people generated a new coldcard seed only to find it already had bitcoin in it. Would they sweep the bitcoin and keep their mouths shut or post about it on reddit?
+
+Another post outlined how 40 bits of entropy would cause a 50% chance of a seed collision and duplicate wallet for every 93,000 new seeds made using a coldcard.
+
+So there were definitely seed collisions and duplicate wallets created. Maybe every story you saw on reddit of someone having their funds stolen even though their seed was never exposed was a coldcard seed collision.
+
+comment: p1ipyu9
+parent: t1_p1ijw0l
+author: EyesFor1
+created_utc: 1785789237
+edited: false
+body:
+Which is why most coldcards are safe. Its shit that the bug existed and screwed rng users but dice rolls are sound and the firmware update has secured all devices who updated. Trust is destroyed. Is cc secure now ? yes. Is it verified and proven to be safe ? Yes. Do people trust it ? Nope
+
+comment: p1ivcq8
+parent: t1_p1i5e8d
+author: bellydisguised
+created_utc: 1785790665
+edited: false
+body:
+So you’re saying there’s a chance?
+
+comment: p1iya7d
+parent: t1_p1i5nis
+author: McBurger
+created_utc: 1785791461
+edited: false
+body:
+I don’t know the exact number but I can attest that with a decent GPU, you can scan keys at over 2 billion keys/sec.  A single worker can scan \~ 7 trillion keys/hour, typically.  Much more with top end hardware.
+
+The fact that these keys were found and swept over the course of 1-2 days tells me that the keyspace would have been considerably larger, but they also seemed to be consolidating addresses before making sweeps.
+
+comment: p1iycxo
+parent: t3_1vemf3k
+author: SubstantialNinja
+created_utc: 1785791482
+edited: false
+body:
+A couple people did report wallets drained over the years. We always chalked it up to user error. Somebody did the math and said you would only have to generate 90,000 seeds to get 50% chance of a collision.
+
+comment: p1jagqy
+parent: t3_1vemf3k
+author: coffeelover9457
+created_utc: 1785794877
+edited: false
+body:
+Other replies explain how it's still unlikely for customers to collide, but the media isn't explicitly explaining that hackers are spending money on computing power to generate the vulnerable addresses, checking for balances, and stealing funds.
+
+comment: p1jciij
+parent: t1_p1i45ke
+author: skr_replicator
+created_utc: 1785795474
+edited: 1785804604
+body:
+Wasn't it also that their weak RNG was using a device ID as one of its sources of entropy? That is a pretty small space to search, but every device should have a unique ID, so collisions should not happen.
+
+But it's also true that 2\^40 is still a pretty big number in terms of accidental collisions. 2\^40 is a trillion. There were far fewer than a trillion CC users.
+
+comment: p1jmd0w
+parent: t3_1vemf3k
+author: Fun-Analysis-182
+created_utc: 1785798478
+edited: false
+body:
+Because 40-ish bits is still about a trillion possibilities. That's small enough for one attacker to grind the whole space offline and sweep any seed that happens to hold coins, but nowhere near small enough for two users to randomly land on the same one. With a few hundred affected wallets sitting in a trillion-size space, the odds of two of them colliding are basically nil. The theft never relied on collisions, just on being able to check every key.
+
+comment: p1jvsgb
+parent: t3_1vemf3k
+author: Henrik-Powers
+created_utc: 1785801466
+edited: false
+body:
+There was someone on this sub many years back who posted about losing his bitcoin and he had a cold card and swore he never entered anything anywhere. I tried searching for a little bit but couldn’t find it. Now thinking about it if someone else created one and it already had btc on it maybe they just moved it immediately? 
+
+comment: p1jwpwo
+parent: t1_p1ipfhe
+author: creative_usr_name
+created_utc: 1785801767
+edited: false
+body:
+Do we know how many ColdCards were sold?
+
+comment: p1k4py4
+parent: t1_p1jciij
+author: stanley_fatmax
+created_utc: 1785804367
+edited: false
+body:
+> 1^40 is a trillion
+
+1^40 is one 😋
+
+comment: p1k5h8p
+parent: t1_p1k4py4
+author: skr_replicator
+created_utc: 1785804615
+edited: false
+body:
+lol, a typo obviously. I wrote it correctly the previous sentence.
+
+comment: p1k5nrd
+parent: t1_p1i45ke
+author: OldHamburger7923
+created_utc: 1785804673
+edited: false
+body:
+There was at least two people posting about losing their funds off coldcard in the last few years. 
+
+comment: p1k5z39
+parent: t1_p1ica5d
+author: OldHamburger7923
+created_utc: 1785804775
+edited: false
+body:
+Hash collisions don't require the exact same inputs. 

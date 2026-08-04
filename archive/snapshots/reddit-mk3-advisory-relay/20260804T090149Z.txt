@@ -1,0 +1,644 @@
+post: 1vb9doi
+author: Crypto-Guide
+created_utc: 1785452914
+title: Mk3 Security Advisory
+
+comment: p0rs8pl
+parent: t3_1vb9doi
+author: bitusher
+created_utc: 1785454184
+edited: 1785605935
+body:
+Thanks for getting the word out. 
+
+Some more context -
+https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/
+
+An exploit , likely a flaw in rng generation with lower entropy in firmware but waiting on more details from investigation, has allowed an attacker to drain what appears over ~~594 BTC~~ 1,128.49 BTC from over 500 wallets with the highest risk being  Cold Card MK2 through MK3 wallets thus far . MK1 wallets are safe. 
+
+https://coldcard-hack-tracker.vercel.app/
+
+This doesn't seem to have effected MK4 or MK5 or Q initially  because those later models used more entropy thus are much harder to attack but you need to still update the firmware and eventually migrate to a new seed regardless to be safe longterm. Hypothetically 60 to 73 bits of entropy found in the MK4,MK5 and Q seeds can be brute forced by a large GPU cluster in as soon as 1 week to centuries. Thus its best to upgrade your security on these in the next week **at the latest**. 
+
+https://blog.coinkite.com/entropy-technical-backgrounder/
+
+https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware
+
+Users using multisig created with a majority of other wallets or if you used an extended passphrase like our FAQ has always recommended should be safe although you should consider migrating in time to a new seed. 
+
+Thus if you setup a single sig wallet with Cold Card MK3, first **do not panic** as that  is when mistakes will happen. 
+
+Ideally setup a new seed on a second hardware wallet that is not an MK3 and move your bitcoin over with an onchain transaction. 
+
+Do not send your bitcoin to a hot wallet or an exchange that lacks secure U2F/FIDO 2fa 
+
+If you lack a second hardware wallet than create a extended passphrase and move your btc to a new address within that account as a temporary measure.
+
+https://coldcard.com/docs/passphrase/
+
+Please be aware that extended passphrases should be 
+
+1) 6-8 random words (not found as a phrase or in movies or literature) 
+
+2) stored separately than your seed words and written down at least once 
+
+3) written exactly as entered . Capitalization and white space matters. Any slight deviation in the extended passphrase will show a new wallet with a 0 balance so its important you write it down and test it exactly . 
+
+Again do not panic or rush , but read about using the passphrase feature or new wallet
+
+comment: p0rwgp8
+parent: t1_p0rs8pl
+author: Yodel_And_Hodl_Mode
+created_utc: 1785455515
+edited: false
+body:
+Are we strictly talking about singlesig wallets which did not use a passphrase? And is this limited strictly to ColdCard wallets?
+
+Any thoughts on whether this is limited to those using 12 word vs 24 word seed phrases?
+
+Any idea how many wallets were drained?
+
+This is shocking. It doesn't affect me due to how my wallets were created, but I've always recommended people avoid using passphrases and any advanced setups until they fully understand what they're doing and have proven they have the ability to wipe out and restore the wallet from scratch before sending any coins to it.
+
+Sigh... Even though this doesn't affect me, I can't help feeling sad.
+
+In the end, we have to admit, every brand of hardware wallets is a honeypot. We all have to become better teachers to help our fellow hodlers stay safe.
+
+This is a sad day.
+
+comment: p0ry0n8
+parent: t1_p0rwgp8
+author: bitusher
+created_utc: 1785456009
+edited: 1785456817
+body:
+>Are we strictly talking about singlesig wallets which did not use a passphrase?
+
+yes, those who used an extended passphrase seem unaffected.
+
+>And is this limited strictly to ColdCard wallets?
+
+Thus far ColdCard MK3 , but perhaps MK2 as well . Awaiting more investigation though. 
+
+>Any thoughts on whether this is limited to those using 12 word vs 24 word seed phrases?
+
+Any seed generated 
+
+>Any idea how many wallets were drained?
+
+https://mempool.space/address/bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0
+
+Over 500
+
+>but I've always recommended people avoid using passphrases and any advanced setups until they fully understand 
+
+People should fully understand the tradeoffs and learn recovery with passphrases , but as you can see they are really important security feature to learn 
+
+>We all have to become better teachers to help our fellow hodlers stay safe.
+
+The current security model unfortunately is far from ideal for mainstream adoption IMHO . Solutions are being developed to create better backups that don't rely on the complexity of multisig or insecurity of trusting a single source
+
+>This is a sad day.
+
+Indeed , and it is also a wake up call that we have to take security more seriously.
+
+comment: p0s0hnf
+parent: t1_p0ry0n8
+author: Yodel_And_Hodl_Mode
+created_utc: 1785456812
+edited: false
+body:
+> The current security model unfortunately is far from ideal for mainstream adoption IMHO
+
+I agree, and I find that heartbreaking too.
+
+I feel lucky because, when I was getting started, I found posts by you and videos from crypto-guide and Andreas Antonopoulos. That put me in a mindset of prioritizing understanding how wallets are generated from a practical perspective. And that mindset has served me well.
+
+I'm a diehard believer in self custody, but the more I learn, the more I wonder if we should be guiding average folks into ETFs, and it saddens me to say that.
+
+comment: p0s1xi4
+parent: t1_p0s0hnf
+author: bitusher
+created_utc: 1785457280
+edited: false
+body:
+Yes, luckily I warned most users that Cold Card was for more advanced users and hopefully all those advanced users used SSS, passphrases, rolled their own entropy correctly, or multisig. 
+
+Unfortunately, that is not practical for most users and thus the easiest recommendation in the interim is to advise users to use an extended passphrase and be sure to educate them well if they are going to self custody. 
+
+This has been my advice for many years now regardless.... but its still too cumbersome for mainstream **self custody** adoption. 
+
+Ledger's Recovery solution is even worse. 
+
+What will likely develop with time is a Bitcoin vault with timelocks that uses multiple sources of entropy where we also develop better UX with setup and recovery .
+
+comment: p0s37eu
+parent: t1_p0s1xi4
+author: Yodel_And_Hodl_Mode
+created_utc: 1785457700
+edited: false
+body:
+> What will likely develop with time is a Bitcoin vault with timelocks that uses multiple sources of entropy where we also develop better UX with setup and recovery .
+
+Oh, God. That's another disaster waiting to happen because it's very complex, and rightfully so, which means it's too complex for the average user.
+
+These days, I'm a diehard Krux and ShieldSigner guy.
+
+Fully open source, running on off the shelf hardware. Stateless. Airgapped. Encrypted seed QR (never to be used as the primary form of seed backup).
+
+And I swear by using a strong passphrase consisting of 7 or more words, all lowercase, with a space between each word, fully backed up and stored in a secure location separate from where the seed is stored. Krux and ShieldSigner make using very secure passphrases very easy.
+
+Twice a year, I restore my wallets from scratch just to prove every aspect of my wallet is as secure as I think it is.
+
+comment: p0s3hty
+parent: t1_p0rs8pl
+author: [deleted]
+created_utc: 1785457794
+edited: false
+body:
+[deleted]
+
+comment: p0s3ypp
+parent: t1_p0s37eu
+author: bitusher
+created_utc: 1785457946
+edited: false
+body:
+>That's another disaster waiting to happen because it's very complex, and rightfully so, which means it's too complex for the average user.
+
+You are right to be skeptical , but I am not talking about using timelocks now. I am talking about a seamless experience where you open a hardware wallet and it guides you through and all the complexity is hidden from the user. 
+
+Think of how credit and debit cards restrict how much you can spend a day based upon your configuration. The same can be done with Bitcoin miniscript and cltv. Just like you don't see the complexity of the code that banks use for this the end user won't see it when setting up their wallet
+
+comment: p0s49v8
+parent: t1_p0s3hty
+author: bitusher
+created_utc: 1785458048
+edited: false
+body:
+Sorry , my FAQ in r/BitcoinBeginners/
+
+https://old.reddit.com/r/BitcoinBeginners/comments/g42ijd/faq_for_beginners/fouo3kh/
+
+I have nothing to do with this sub , coinkite, or cold card. I am just trying to help others
+
+comment: p0s5x1u
+parent: t1_p0s49v8
+author: kranzj
+created_utc: 1785458589
+edited: false
+body:
+Ah, sorry :)
+
+comment: p0s7x5i
+parent: t3_1vb9doi
+author: slykethephoxenix
+created_utc: 1785459251
+edited: false
+body:
+Wasn't there a user on the bitcoin sub earlier today saying that this had happened to them with a coldcard and everyone was ripping into him?
+
+comment: p0s99rh
+parent: t3_1vb9doi
+author: is300wrx
+created_utc: 1785459700
+edited: false
+body:
+So should people be upgrading to the latest wallet to hedge risk now?
+
+comment: p0sh6oy
+parent: t1_p0s99rh
+author: Knowledge775
+created_utc: 1785462320
+edited: false
+body:
+I would wait and get the official word from Coinkite.  Potentially, the entropy bug may also be present in later models but not as vulnerable.  May be better off rolling dice to make your own seed phrase and not using the device RNG.
+
+comment: p0sivl4
+parent: t3_1vb9doi
+author: schemingraccoon
+created_utc: 1785462892
+edited: false
+body:
+Tail OS electrum may be safer than this after this debacle.
+
+comment: p0slk80
+parent: t3_1vb9doi
+author: SomeTallViking
+created_utc: 1785463811
+edited: false
+body:
+If you used the dice roll method when setting up the wallet, everything should be okay, right? 
+
+comment: p0sn8r9
+parent: t1_p0slk80
+author: qwerty_asd
+created_utc: 1785464385
+edited: false
+body:
+If the exploit involves bad RNG, you'd be fine since dice rolls would bypass the RNG.
+
+comment: p0snfwq
+parent: t1_p0slk80
+author: daphonzy
+created_utc: 1785464453
+edited: false
+body:
+Also interested in the answer, specifically if you used the “add dice rolls” to the seed generated by the Mk3’s RNG…
+
+comment: p0snmtz
+parent: t1_p0s7x5i
+author: Crypto-Guide
+created_utc: 1785464519
+edited: false
+body:
+Probably
+
+comment: p0snpzd
+parent: t1_p0s99rh
+author: Crypto-Guide
+created_utc: 1785464549
+edited: 1785464771
+body:
+Basically their advice is good, just add a passphrase and move the funds for now, then work the rest out in the coming days when not in a panic. If you want to stay in an mk2 or mk3 then use dice.
+
+comment: p0so0d5
+parent: t1_p0sivl4
+author: Crypto-Guide
+created_utc: 1785464647
+edited: false
+body:
+Possibly, but flawed entropy could also be an issue in software wallets. Dice and 24 words is the failsafe entropy answer, add a passphrase if using a hardware RNG. (Though most decent hardware wallets mix entropy from multiple sources so should avoid this)
+
+comment: p0so4ip
+parent: t1_p0slk80
+author: Crypto-Guide
+created_utc: 1785464687
+edited: false
+body:
+As long as you used at least 50 rolls then yes. (There was also a UX bug that allowed you to use far too few rolls too)
+
+comment: p0soaak
+parent: t1_p0slk80
+author: fraGgulty
+created_utc: 1785464743
+edited: false
+body:
+This is what I'm hoping/assuming it's the case. 
+
+You added entropy with an outside source. 
+
+Depends on how many dice rolls and whatnot
+
+comment: p0su2ad
+parent: t1_p0s7x5i
+author: ConsequenceFew6931
+created_utc: 1785466752
+edited: false
+body:
+Yeah seems like he was the first 
+
+comment: p0sy7j6
+parent: t3_1vb9doi
+author: xirvin
+created_utc: 1785468265
+edited: 1785470884
+body:
+Thank you for issuing this security advisory! Yikes is worst than i thought 
+
+  
+[https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware)
+
+comment: p0t0wt2
+parent: t1_p0sivl4
+author: ASilverSpartan
+created_utc: 1785469295
+edited: false
+body:
+Was tails electrum ever unsafe? That’s how I protect mine and it’s lasted for almost a decade now. Do I need to change my security posture?
+
+comment: p0t53se
+parent: t1_p0soaak
+author: cilicia3k3
+created_utc: 1785470909
+edited: false
+body:
+Ben said 100 would be needed 
+
+comment: p0tfm4p
+parent: t3_1vb9doi
+author: [deleted]
+created_utc: 1785475285
+edited: false
+body:
+[deleted]
+
+comment: p0tg74z
+parent: t1_p0tfm4p
+author: Crypto-Guide
+created_utc: 1785475541
+edited: false
+body:
+Basically adding a passphrase is an immediate measure that you can do with your existing hardware without creating a new seed and backups. 
+
+You are basically buying yourself time to move everything to a totally new seed. (Which you can just generate in a coldcard using dice 50-100 rolls, be sure to use actual dice and not just some app or software script) Basically do the passphrase step today, new seed over the weekend.
+
+If you have some other hardware wallet like a Ledger, Trezor, Jade, then you can skip the passphrase step and send the funds straight to this other wallet. (As long as the seed wasn't also generated on a coldcard)
+
+comment: p0tofyi
+parent: t3_1vb9doi
+author: Sammytheseaotter
+created_utc: 1785479277
+edited: false
+body:
+So any seed phrases generated before the March 2021 firmware update and using a passphrase are safe?
+
+comment: p0tqbhn
+parent: t1_p0tofyi
+author: Silent_Ad_9963
+created_utc: 1785480138
+edited: false
+body:
+Very interested to know this
+
+comment: p0tumq0
+parent: t1_p0rs8pl
+author: Silent_Ad_9963
+created_utc: 1785482150
+edited: false
+body:
+Feeling lucky today. Mk3 with firmware version 3.1.9 from 2020 with dice rolls and bip39 password.
+
+From what I understand I should be safe from this issue right ?
+
+comment: p0u14mh
+parent: t3_1vb9doi
+author: smaakversterker
+created_utc: 1785485305
+edited: false
+body:
+what about the MK1?
+
+comment: p0u2otq
+parent: t1_p0tqbhn
+author: Silent_Ad_9963
+created_utc: 1785486064
+edited: false
+body:
+Reading all reports the vulnerability is introduced in version 4.0.1 for MK2 and MK3 , so before 2021 you should have anythin up to 3.2.2 so you should be safe. 
+
+I checked my MK3 and is still on 3.1.9 so I am feeling a bit lucky right now
+
+comment: p0ugl7r
+parent: t3_1vb9doi
+author: Mysterious_Good927
+created_utc: 1785492670
+edited: false
+body:
+I don't see how anyone would ever trust CC again after this even if CC had the very best of intentions, once trust is broken your entire reputation is gone forever 
+
+comment: p0umsqt
+parent: t1_p0ugl7r
+author: boddankajovanovic
+created_utc: 1785495281
+edited: false
+body:
+Generating seeds by yourself with dice rolls and using a passphrase is still safe. 
+
+Really bad for the reputation though, that's for sure.
+
+comment: p0uofhp
+parent: t1_p0umsqt
+author: Mysterious_Good927
+created_utc: 1785495932
+edited: false
+body:
+I agree but once reputation has been lost - whether it could have been avoided through dice rolls, multi-sig, etc. it's still incredibly damaging. People don't forget.
+
+It's like when Ledger doxed customers, people never used them again even if the device is 'secure'
+
+comment: p0uoyz3
+parent: t3_1vb9doi
+author: EricJDMBAMD
+created_utc: 1785496145
+edited: false
+body:
+Ive been wondering about  how secure generating seed phrases are on these devices for years. To finally see it exploited is validation for my concern
+
+comment: p0uppki
+parent: t1_p0t53se
+author: SpareEconomy1849
+created_utc: 1785496429
+edited: false
+body:
+100 is roughly equivalent to a 24 word seed phrase, 50 is roughly equivalent to a 12 word phrase 
+
+comment: p0upzse
+parent: t1_p0so0d5
+author: SpareEconomy1849
+created_utc: 1785496538
+edited: false
+body:
+After all, it's a software/firmware bug. Could definitely happen to any software wallet, it was a lapse of QC that could happen anywhere 
+
+comment: p0uq559
+parent: t1_p0tofyi
+author: SpareEconomy1849
+created_utc: 1785496596
+edited: false
+body:
+I believe so (with or without a passphrase). Passphrase always safer though, like any wallet
+
+comment: p0uqls0
+parent: t1_p0s99rh
+author: SpareEconomy1849
+created_utc: 1785496771
+edited: false
+body:
+No point to update unless you also regenerate a new seed and transfer the funds on-chain. Seeds made with the bad update are forever tainted 
+
+comment: p0uqzyq
+parent: t1_p0tg74z
+author: SpareEconomy1849
+created_utc: 1785496921
+edited: false
+body:
+How does adding a passphrase after the fact help? Is that even possible without generating a new seed?
+
+comment: p0ur03w
+parent: t1_p0uofhp
+author: boddankajovanovic
+created_utc: 1785496922
+edited: false
+body:
+I thought so, too. Surprisingly, a lot of people  are still using their ledgers, if you trust the comments. People tend to forget such things.
+
+Still, if you already own the hardware and know how to securely use it, go ahead. New purchases, yeah I'd also say pass...
+
+comment: p0uzyx9
+parent: t3_1vb9doi
+author: MakeASD
+created_utc: 1785500120
+edited: false
+body:
+So 2020 firmware did not have this issue and should be safe?
+
+comment: p0v8x0z
+parent: t3_1vb9doi
+author: ardevd
+created_utc: 1785502914
+edited: false
+body:
+It's unclear to me to what extent the Mk4 is affected? The advisory specifies the mk3 only, but another post implicates all coldcard wallets 
+
+comment: p0vcnk8
+parent: t1_p0uqzyq
+author: Crypto-Guide
+created_utc: 1785504018
+edited: false
+body:
+You can have multiple passphrases with a single seed and an attacker needs both the seed an the passphrase to be able to move any funds. 
+
+Basically it's an interim step to buy you some time.
+
+comment: p0vd3e0
+parent: t1_p0v8x0z
+author: Crypto-Guide
+created_utc: 1785504144
+edited: false
+body:
+Mk4 is pwned too, the full bug has been reversed engineered.
+
+Basically they aren't immediately vulnerable today, but will certainly be so and are mentioned in an updated advisory.
+
+comment: p0vdtvt
+parent: t1_p0uzyx9
+author: Crypto-Guide
+created_utc: 1785504352
+edited: false
+body:
+Yea the old Trezor derived firmware was fine, it was only the license switch reimplemention that broke everything.
+
+comment: p0vdxww
+parent: t1_p0upzse
+author: Crypto-Guide
+created_utc: 1785504384
+edited: false
+body:
+QC has been an issue with coldcard for years IMO
+
+comment: p0vdzzj
+parent: t1_p0uoyz3
+author: Crypto-Guide
+created_utc: 1785504400
+edited: false
+body:
+Yea it sucks to see
+
+comment: p0ve1of
+parent: t1_p0ugl7r
+author: Crypto-Guide
+created_utc: 1785504413
+edited: false
+body:
+Yea I agree
+
+comment: p0ve2kk
+parent: t1_p0u14mh
+author: Crypto-Guide
+created_utc: 1785504420
+edited: false
+body:
+They are fine
+
+comment: p0veepd
+parent: t1_p0tofyi
+author: Crypto-Guide
+created_utc: 1785504513
+edited: false
+body:
+Replied to your other comment
+
+comment: p0vgbq6
+parent: t1_p0ve2kk
+author: bitusher
+created_utc: 1785505053
+edited: false
+body:
+https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware
+
+Yes , 
+
+Mk2/3: if you generated your seed after 2021 are the most at risk and people need to take steps immediately . 
+
+All Coldcard models are effected besides Mk1
+
+comment: p0vskzz
+parent: t3_1vb9doi
+author: ardevd
+created_utc: 1785508355
+edited: false
+body:
+Does anyone know where on earth you find the checksum or signatures for the Coldcard firmware blobs?
+
+comment: p0w1ptc
+parent: t1_p0tumq0
+author: Optionbulls
+created_utc: 1785510737
+edited: false
+body:
+I think so but quote me lol 
+
+comment: p0wem4e
+parent: t3_1vb9doi
+author: jameslg305
+created_utc: 1785514064
+edited: false
+body:
+I got my COLDCARD Q about 3-5 months ago new from coinkite. Can someone tell me what generation I have and whether I’m safe or not?
+
+comment: p0x9tzr
+parent: t1_p0tumq0
+author: Edyedilo
+created_utc: 1785522088
+edited: false
+body:
+Literally in the same situation as well. I keep refreshing the security advisory website just to be sure lol
+
+comment: p0xrvko
+parent: t1_p0u2otq
+author: timbulance
+created_utc: 1785526891
+edited: false
+body:
+If you update mk3 firmware to latest version 4.2.0 let me know. I’ve never had issues updating firmware but I kept getting errors today.
+
+comment: p0yjec8
+parent: t1_p0x9tzr
+author: Silent_Ad_9963
+created_utc: 1785534566
+edited: false
+body:
+Been doing the same , funny how our brains all work the same. 
+
+By now I am convinced I am good, multiple sources are confirming that the change was only in 4.0.0 , released in 4.0.1 ... Code checks out 
+
+Also now I think so many eyes must have got on this code that probably it has never been reviewed as much as now
+
+
+
+comment: p10gs57
+parent: t1_p0wem4e
+author: Crypto-Guide
+created_utc: 1785559047
+edited: false
+body:
+You are not safe, if it just used the default RNG to generate a seed then you should follow the security advisory steps this weekend
+
+comment: p1ksnze
+parent: t3_1vb9doi
+author: ELLIPALWallet
+created_utc: 1785812403
+edited: false
+body:
+Thanks for surfacing the official advisory. The bit people keep skipping over: updating firmware doesn’t repair a seed that was generated on an affected version. That one needs replacing outright.

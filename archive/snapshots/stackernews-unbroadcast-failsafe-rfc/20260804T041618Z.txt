@@ -1,0 +1,37 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-08-02T10:25:42.861Z",
+            "text": "My general feeling about presigbed but not broadcasting them creates more liability than redundancy/flexibility. \n\nLopp's points are great and I don't know that I can add to them, but I will saw an unbroadcasted tx quickly gets out of date, unless you truly aren't touching the wallet. \n\nThere have been a number of signed but not broadcasted transaction schemes (can't think of their name right now), but mostly they don't catch on because it adds  so much complexity.",
+            "user": {
+              "name": "Scoresby"
+            }
+          },
+          {
+            "createdAt": "2026-08-02T08:26:20.010Z",
+            "text": "Forgot to mention that in our corresponce, Lopp reminded me that what I describe above is currently the only feasible way to create any sort of \"covenant\" functionality in Bitcoin. Somewhat related article on covenants from his company: [https://blog.casa.io/why-bitcoin-needs-covenants/](https://blog.casa.io/why-bitcoin-needs-covenants/)",
+            "user": {
+              "name": "chungkingexpress"
+            }
+          },
+          {
+            "createdAt": "2026-08-02T11:15:03.984Z",
+            "text": "I think it's a great idea particularily for when quantum resistant addresses become available. \n\nIt adds some complexity to ones cold storage setup, but once set up you'd probably only need to deal with it once a year.\n\nI might add one thing. If this is for an emergency, broadcasting the TX fees needs to be set high as we have no idea what fees will be at any given time in the future.",
+            "user": {
+              "name": "OT"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-08-02T08:08:26.115Z",
+      "text": "With the recent Coldcard emergency, I have seen a few people publicly mention they were in situations like this:\n![](https://m.stacker.news/150524)\n\nThey were either away their seed / device and were put under pressure in the race against the clock to move funds off vulnerable seeds.\n\nNow that many people are rethinking first principles towards entropy, security practices, and trust after the Coldcard bullshit, I wanted to share an idea I had earlier in the year.\n\nFull disclosure, I emailed this idea to Jameson Lopp for his input, summarising his feedback under \"Caveats\".\n\nSharing as I wrote it below, but I think this situation applies not just to a hardware wallet failure mode, but also to the situation many Coldcard users were in.\n\n---\n\n## Using unbroadcast Bitcoin transactions as a complimentary mode of security\n*Originally written in January 2026*\n\nThe premise of Bitcoin ownership is \"the ability to spend funds = owning the Bitcoin\". In practice this means many people use a hardware signing device, with a backup of the seed phrase on steel etc (with various levels of redundancy).\n\nIn the situation when someone is a plane flight or long drive away from their seed for whatever reason, they may go to spend Bitcoin and find that their hardware signing device has had some kind of failure (screen, USB port, etc) meaning they cannot spend funds without immediately going and finding the seed.\n\nConceptually, that person is down to \"no layers of redundancy\" for their ability to spend. It may take days or weeks to then return to a safe place of redundancy. What if upon trying to find their seed they discover something has happened to it?\n\nOnce a year we are encouraged to undertake \"proof of keys\" to confirm that we in fact have access to the seed and can sign transactions. A lot can happen in a year. With a simple 1 seed plate + 1 signing device setup, this means that there are many moments when we are possibly in a state of not fully knowing if we have redundancy in our ability to spend, or not (Schrödinger's Bitcoin).\n\nHaving backup signing devices or copies of the seed is one way of ameliorating this somewhat, but can come with its own costs and logistical and security challenges (Theft of the seed).\n\nMulti-sig is not a solution for this failure mode, it only makes it more complex as you have to go and find all the seeds etc in an emergency. \n\n**My idea is whether there is another _mode_ of \"peace of mind\" available here, something like having a finalized and signed Bitcoin transaction that spends some / all of the UTXOs from the wallet into a second wallet that we also have access to. The transaction can be signed and saved to an SD card etc and broadcast in an emergency.**\n\nTo me, this \"backup\" has a slightly different security profile to a seed and could perhaps even be stored on computer or on your persons in a way that a seed cannot.\n\nIn the case that our user finds their signing device has failed, they are not instantly down to a single point of failure with a seed that may not be immediately accessible, but instead they can calmly assess the situation knowing they can always broadcast the saved transaction and receive the funds to the second wallet, if they need to.\n\nThe are some additional benefits such as:\n\n- Being able to invalidate the unbroadcast transaction by simply consolidating the UTXOs.\n\n- Can simply drag and drop the file into mempool.space etc to be broadcast if on the road or in less-than-ideal situation.\n\n- Is a powerful counter-measure in an actual attempt to sweep the funds into a malicious wallet if you have watch notifications setup, could have a high fee RBF version of the transaction saved and ready to deploy.\n\n- When spending from the original wallet, this process encourages the user to follow the hygiene of regenerating the unbroadcast transactions and saving to SD again immediately in the same session, reducing the chance that a silent failure etc will impact the signing device while it sits unused.\n\n- Avoids needing to use a company or \"service\" at all, the solution lasts indefinitely.\n\nOf course there are various peace of mind services, including Casa that exist in this space, but what do you think about it from the perspective of what an individual is able to do with the various open source tools available?\n\n---\n\n## Caveats (summarised) from discussion with Jameson Lopp\n\n1. Every time your wallet changes UTXOs, via either a deposit or a withdrawal, you need to recreate the pre-signed transaction. \n\nBUT being able to save some of the UTXOs rather than none seems reasonable. Also, how often are cold storage UTXOs moving?\n\n2. The second \"destination\" wallet also has to be maintained. \n\nAGAIN, something is better than nothing, and having a tested and secure redundant setup here seems like common sense to me for substantial holdings.\n\n3. Need to be somewhat careful with the presigned transactions so that it is not broadcast accidentally or made public. \n\nFair point.\n\n---\n\nSo what does SN think about this approach to the challenge of an alternative failsafe mode?",
+      "title": "Request for comment:  Unbroadcast Bitcoin transactions as failsafe",
+      "user": {
+        "name": "chungkingexpress"
+      }
+    }
+  }
+}
