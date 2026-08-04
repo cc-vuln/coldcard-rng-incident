@@ -3,61 +3,67 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import Answer from '../../components/Answer.astro';
+import FigureFundsFlow from '../../components/figures/FigureFundsFlow.astro';
 import { fig } from '../../lib/figures';
 ---
 
 <Article
   title="Funds accounting"
-  description="Gross source value, collector receipts, consolidation holdings and fees for the transaction sets attributed to the COLDCARD incident."
-  standfirst="The published totals describe different transaction sets and different stages of the same flows. This page separates them and labels every attribution."
+  description="Current headline totals from Galaxy Research and the community trackers, when each figure last changed, and the published figures for the 30 July transaction sets attributed to the COLDCARD incident."
+  standfirst="The headline totals have been revised repeatedly as the attributed set has widened, and different sources count different sets. This page keeps each source's current number, when it last moved, and what it measures."
   depth="plain"
   kicker="Evidence"
 >
   <Answer>
   <p>
-    The principal BTC figures measure four different things: value consumed from
-    source addresses, value received by first collectors, value retained after
-    consolidation, and transaction fees. They also depend on whether the set is
-    limited to 500 transactions or includes 695 more transactions that
-    <a href="/record/sources/clay-earlier-waves-thread/">Block preliminarily associated by a shared fingerprint</a>
-    and <a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research attribute to the same operator</a>.
-    Keeping the stage and the set attached to each number removes most of the
-    apparent disagreement.
+    Different sources now report different totals because they count different
+    sets, and the largest figures have moved within the last four days. Galaxy
+    Research puts confirmed losses at
+    {fig('galaxyConfirmedBtc')} from {fig('galaxyConfirmedAddresses')} as of
+    3 August, rising to {fig('galaxyInclWave4Btc')} if a suspected fourth wave
+    is confirmed. Live community trackers show between about 1,367 and 1,924
+    BTC depending on what they count. Every figure below keeps its source, the
+    set it counts and the date it was stated; superseded figures live in the
+    register further down, not in the headline numbers.
   </p>
   </Answer>
 
   <div class="kpi-row">
     <div class="kpi-card" style="--i:0">
-      <div class="kpi-card__value" style="color:var(--red)"><span>594.51379184</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">500-transaction set, gross</div>
-      <div class="kpi-card__note">Value consumed from 500 source addresses in blocks 960,188 to 960,191. The first collector received 594.47722484 BTC after {fig('sweptFeesBtc')} in fees.</div>
+      <div class="kpi-card__value" style="color:var(--red)"><span>1,596</span><sup>BTC</sup></div>
+      <div class="kpi-card__label">Galaxy's confirmed total, 3 Aug</div>
+      <div class="kpi-card__note">High confidence, from about 7,300 addresses across three confirmed waves plus 14 smaller incidents, stated as exceeding US$100M. Galaxy's third top-line figure in four days: 1,082.65 BTC on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</div>
     </div>
     <div class="kpi-card" style="--i:1">
-      <div class="kpi-card__value" style="color:var(--red)"><span>1,082.65</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">Galaxy's published gross total</div>
-      <div class="kpi-card__note">Galaxy attributes the 500-transaction set and 695 additional transactions to one operator. This site's reconciliation of the pinned chain-derived dataset gives {fig('totalGrossBtc')} gross if that attribution is accepted.</div>
+      <div class="kpi-card__value" style="color:var(--amber)"><span>2,055</span><sup>BTC</sup></div>
+      <div class="kpi-card__label">Galaxy including suspected wave 4</div>
+      <div class="kpi-card__note">Stated as about US$130m. Not promoted into Galaxy's top line: no victim has confirmed a wave-4 loss, and Galaxy does not itemise the wave-4 component.</div>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card" style="--i:0">
+      <div class="kpi-card__value"><span>1,366.58</span><sup>BTC</sup></div>
+      <div class="kpi-card__label">coldcardwatch.com</div>
+      <div class="kpi-card__note">Anonymous tracker's self-described verified floor: three clusters, 4,580 addresses. 3 Aug 04:03 UTC capture, unchanged in a 4 Aug poll.</div>
+    </div>
+    <div class="kpi-card" style="--i:1">
+      <div class="kpi-card__value"><span>1,433.13</span><sup>BTC</sup></div>
+      <div class="kpi-card__label">coldcard.rip, Kevin Kelbie</div>
+      <div class="kpi-card__note">Ten block-indexed waves from 5,477 swept addresses; the page self-describes as AI-compiled. Data snapshot 3 Aug 22:59 UTC.</div>
     </div>
     <div class="kpi-card" style="--i:2">
-      <div class="kpi-card__value"><span>1,195</span></div>
-      <div class="kpi-card__label">Original source addresses re-derived</div>
-      <div class="kpi-card__note">Galaxy publishes 1,196. This site's own count reaches 1,196 by adding one first collector that later spends, but Galaxy has not published its counting method.</div>
-    </div>
-    <div class="kpi-card" style="--i:3">
-      <div class="kpi-card__value" style="color:var(--amber)"><span>1,082.56919591</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">Theft-linked after consolidation</div>
-      <div class="kpi-card__note">The amount attributable to the two sets in four final holdings. Later unsolicited deposits are excluded. No funds left the four-address cluster after final consolidation by the stated check time.</div>
+      <div class="kpi-card__value"><span>1,923.81</span><sup>BTC</sup></div>
+      <div class="kpi-card__label">coldcard-hack-tracker, SamSamskies</div>
+      <div class="kpi-card__note">Eight labelled waves including a likely wave 4 at 443.34 BTC; a known-waves-only floor. Captured 4 Aug 03:05 UTC.</div>
     </div>
   </div>
 
   <p class="cap">
-    Transaction-set figures are fixed to the pinned chain-derived dataset at
-    commit <code>47d8f554</code>. The four-address balance check is fixed to
-    Bitcoin block 960,525 at 06:48 UTC on 1 August 2026. Neither figure tracks
-    live balances. The cards measure the 30 July transaction sets this
-    page reconciles and nothing wider. Galaxy Research has since published a
-    larger estimated total covering a third wave that is not reconciled here;
-    it is kept <a href="#galaxy-revision">separate below</a> rather than folded
-    into these figures.
+    The cards measure different sets, not competing measurements of one set.
+    Dates are when each figure was published or captured; the trackers publish
+    live totals that keep moving, and nothing on this page tracks live
+    balances.
   </p>
 
   <p>
@@ -66,20 +72,92 @@ import { fig } from '../../lib/figures';
     was generated on.
   </p>
 
-  <h2>What the principal figures measure</h2>
+  <h2 id="headline-numbers">The headline numbers, and when they last moved</h2>
 
   <p>
-    The narrower set contains 500 transactions spending 1,324 UTXOs from 500
-    distinct source addresses. The transactions confirmed in four consecutive
-    blocks, 960,188 to 960,191. Their inputs total 594.51379184 BTC, of which
-    594.47722484 BTC reached one first collector and {fig('sweptFeesBtc')} was paid in
-    transaction fees. TFTC publishes the collector receipt, not the gross input
-    value.
+    Each row is the figure a source currently stands behind, with the set it
+    counts and the time it was stated or captured. The full register, including
+    superseded figures and press restatements, is
+    <a href="#estimate-register">further down</a>.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table sortable">
+        <caption>Current headline totals by source, with scope and update time
+          <Claim
+            basis="reported"
+            scope="The five headline figures in the table, their scopes and their stated or captured times"
+            source="Galaxy Research's captured 3 August thread and the three tracker captures held at the stated times"
+            href="/record/sources/glxy-losses-exceed-100m/"
+          />
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">Source</th>
+            <th scope="col" class="nw">Figure</th>
+            <th scope="col" class="wide">What it counts</th>
+            <th scope="col" class="wide">Stated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/glxy-losses-exceed-100m/">Galaxy Research</a></strong><small>confirmed</small></td>
+            <td class="nw" data-sort="1596">{fig('galaxyConfirmedBtc')}<small>exceeds US$100M</small></td>
+            <td class="wide">Three confirmed waves plus 14 smaller incidents, {fig('galaxyConfirmedAddresses')}; confirmed through victim reports</td>
+            <td class="wide" data-sort="20260803225139">Published 3 Aug, 22:51 UTC. Third top line in four days: 1,082.65 BTC on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/glxy-wave4-caveat/">Galaxy Research</a></strong><small>incl. suspected wave 4</small></td>
+            <td class="nw" data-sort="2055">{fig('galaxyInclWave4Btc')}<small>~US$130m</small></td>
+            <td class="wide">The confirmed set plus a pattern-matched fourth wave that no victim has confirmed; Galaxy has not promoted it into its top line</td>
+            <td class="wide" data-sort="20260803225141">Published 3 Aug, 22:51 UTC, same thread.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-hack-tracker/">coldcard-hack-tracker</a></strong><small>SamSamskies' tracker</small></td>
+            <td class="nw" data-sort="1923.81">1,923.80748125 BTC</td>
+            <td class="wide">Eight labelled waves, 30 Jul to 3 Aug, including a likely wave 4 carried at 443.34 BTC; self-described as a known-waves-only floor</td>
+            <td class="wide" data-sort="20260804030519">Captured 4 Aug, 03:05 UTC. Live page, changes roughly hourly; history below.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-rip-tracker/">coldcard.rip</a></strong><small>Kevin Kelbie's tracker</small></td>
+            <td class="nw" data-sort="1433.13">1,433.13 BTC<small>from 5,477 addresses</small></td>
+            <td class="wide">Ten block-indexed waves, 30 Jul to 3 Aug; destinations received 1,432.48 BTC after fees. The page self-describes as AI-compiled, not independently fact-checked</td>
+            <td class="wide" data-sort="20260803225915">Successor to the railway deployment Kelbie announced on 2 Aug. Data snapshot 3 Aug, 22:59 UTC; captured 3 Aug, 23:44 UTC.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-watch/">coldcard-watch</a></strong><small>anonymous tracker</small></td>
+            <td class="nw" data-sort="1366.58">1,366.5774 BTC<small>4,580 addresses</small></td>
+            <td class="wide">Self-described verified minimums: a floor, three clusters from 30 Jul to 1 Aug</td>
+            <td class="wide" data-sort="20260803040304">Anonymously operated. Moved from coldcard-watch.vercel.app to coldcardwatch.com on 3 to 4 Aug; re-polled at the new domain 4 Aug, 08:06 UTC, figure unchanged since the 3 Aug, 04:03 UTC capture.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p>
+    The spread is explained by scope, not by one source being right and another
+    wrong. The trackers count overlapping but different wave sets at different
+    times, Galaxy states that its confirmed total rests on victim reports, and
+    the trackers publish their own pattern criteria. The 45.9 BTC cluster
+    first reported on 31 July is now carried as one wave of ten on Kelbie's
+    own tracker.
+  </p>
+
+  <h2 id="principal-figures">What the 30 July figures measure</h2>
+
+  <p>
+    TFTC reproduced the visible chain event and publishes the net value
+    received by one first collector: 594.47722484 BTC across the
+    500-transaction set. It explicitly limits its statement to the visible
+    chain event and does not claim that every transaction came from this
+    firmware flaw.
     <Claim
-      basis="derived"
-      scope="This site's calculation of the 500-transaction set's counts, block range, gross input, collector receipt and fees"
-      source="Privacy-safe integer-satoshi recheck of the pinned Kelbie chain dataset, with TFTC's collector receipt retained as the published comparison"
-      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
+      basis="reported"
+      scope="TFTC's published 500-transaction set and first-collector receipt, and its stated limit on cause"
+      source="TFTC's captured report, 31 Jul 2026"
+      href="/record/sources/tftc-who-must-move/"
     />
   </p>
 
@@ -90,24 +168,35 @@ import { fig } from '../../lib/figures';
     window", while the transactions are confirmed across four blocks. The block
     timestamps run from 01:36:08 to 01:51:26 UTC, a span of 15 minutes 18
     seconds, consistent with Hamilton's separate description of an approximately
-    15-minute period.
+    15-minute period. Hamilton also reported that all addresses in the
+    500-transaction set used single-signature spending conditions, none used
+    Taproot, and the spent UTXOs dated from 2021 to 2026: properties of the
+    observed outputs and spending scripts, not proof of each owner's wallet
+    configuration or seed creation date.
     <Claim
       basis="reported"
-      scope="Hamilton's published preliminary figures"
+      scope="Hamilton's published preliminary figures and output-type observations"
       source="Rob Hamilton primary post, captured 1 Aug 2026"
       href="/record/sources/robhamilton-preliminary-sweep/"
     />
   </p>
 
   <p>
-    The first collector later spent 341 outputs into the largest final holding
-    while retaining a remainder. The 695-transaction set followed a separate
-    path through three first collectors and two batch consolidations. A single
-    first collector and four final holdings are therefore successive stages of
-    the flows, not competing descriptions of one stage.
+    In Galaxy's flow-of-funds mapping, the first collector consolidates into
+    the largest final holding while retaining a remainder, and the
+    695-transaction set Block reported passes through three first collectors
+    and two batch consolidations before reaching the same four holdings. A
+    single first collector and four final holdings are therefore successive
+    stages of the flows, not competing descriptions of one stage.
+    <Claim
+      basis="reported"
+      scope="The flow stages: one first collector into the largest holding with a retained remainder for the 500-transaction set, and three first collectors with two batch consolidations for the 695-transaction set"
+      source="Galaxy Research's captured 31 July flow-of-funds post and Block's captured preliminary thread"
+      href="/record/sources/glxyresearch-flow-map/"
+    />
   </p>
 
-  <Disclosure id="galaxy-attribution" title="Galaxy's wider attribution" note="1,196 addresses, 1,082.65 BTC, one attributed operator" open>
+  <Disclosure id="galaxy-attribution" title="Galaxy's 31 July attribution, the 30 July set" note="1,196 addresses, 1,082.65 BTC; superseded twice as Galaxy's top line">
 
   <p>
     <a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research reported 1,196 addresses and {fig('galaxyGrossBtc')}</a>
@@ -121,6 +210,9 @@ import { fig } from '../../lib/figures';
       source="Galaxy Research primary post, captured 1 Aug 2026"
       href="/record/sources/glxyresearch-flow-map/"
     />
+    This remains Galaxy's figure for the 30 July waves. Its top line has moved
+    twice since, on 1 August and again on 3 August;
+    <a href="#galaxy-revision">both revisions are recorded next</a>.
   </p>
 
   <blockquote>
@@ -130,121 +222,18 @@ import { fig } from '../../lib/figures';
   </blockquote>
 
   <p>
-    Realised fee rates cluster near that target but vary slightly because fees
-    are whole satoshis. Across the source and consolidation transactions, the
-    fee total in this site's reconciliation of the pinned chain-derived
-    dataset is {fig('totalFeesBtc')}.
-    <Claim
-      basis="derived"
-      scope="This site's 0.08399331 BTC aggregate fee calculation for the attributed source and consolidation transactions"
-      source="Privacy-safe integer-satoshi accounting of 1,195 source transactions and three consolidations in the pinned Kelbie dataset"
-      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-    />
-    That is the total paid to miners, not a measure of overpayment. Galaxy's
-    comparison with prevailing fee rates is a separate reported estimate.
+    Galaxy does not publish the underlying transaction list or its
+    address-counting method, so the 1,196-address set cannot be rechecked
+    address by address from the post alone. On-chain output types do not
+    independently reveal wallet derivation paths, so the BIP-84, BIP-49 and
+    BIP-44 counts remain Galaxy's reported classification.
   </p>
 
-  <p>
-    In this site's check, the source transactions from the two sets spend
-    from 1,195 original addresses: 1,182 native SegWit P2WPKH, 7 P2SH and 6
-    legacy P2PKH. Adding the native SegWit first collector when it later spends
-    produces Galaxy's 1,196 total and numerically matches its reported 1,183
-    BIP-84, 7 BIP-49 and 6 BIP-44 counts. This is a plausible reconciliation,
-    not a verified description of Galaxy's method. On-chain output types do not
-    independently reveal wallet derivation paths, and the post does not define
-    whether an internal collector is included in its address count.
-    <Claim
-      basis="derived"
-      scope="The reconciliation between 1,195 original source addresses and Galaxy's published count of 1,196"
-      source="Output-type and address-role re-derivation from the attributed transaction sets; derivation paths remain Galaxy's reported classification"
-      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-    />
-  </p>
-
-  <div class="mermaid-wrap">
-    <pre class="mermaid">
-flowchart LR
-  A["500 source addresses<br/>594.51379184 BTC gross"] --&gt; B["first collector<br/>594.47722484 BTC"]
-  B --&gt; C["largest final holding<br/>plus retained remainder"]
-  D["695 attributed source transactions<br/>488.13939738 BTC gross"] --&gt; E["three first collectors<br/>488.10957948 BTC"]
-  D -. "same-operator attribution" .-&gt; A
-  E --&gt; F["two batch consolidations"]
-  C --&gt; G["four final holdings<br/>1,082.56919591 BTC theft-linked"]
-  F --&gt; G
-    </pre>
-  </div>
-  <p class="cap">
-    Solid edges show the on-chain movements used in this site's
-    reconciliation. The dotted edge marks the reported attribution of the
-    695-transaction set to the same operator. Both sets fall within Galaxy's
-    41-minute window.
-  </p>
+  <FigureFundsFlow />
 
   </Disclosure>
 
-  <Disclosure id="four-accountings" title="The four accountings, side by side" note="gross, receipt, retained and fees, reconciled">
-
-  <p>
-    The rows below retain each publisher's measurement stage. The site-calculated
-    row then reconciles those stages without changing the publishers' claims.
-  </p>
-
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table class="data-table sortable">
-        <caption>Published and site-derived transaction-set accountings
-          <Claim
-            basis="derived"
-            scope="The source-to-collector reconciliation across the published 500 and reported 695 transaction sets"
-            source="TFTC, captured Hamilton and Galaxy posts, and the privacy-safe recheck of waves 1 to 3 in Kelbie's pinned dataset"
-            href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-          />
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col" class="nw">Accounting</th>
-            <th scope="col" class="nw">Total</th>
-            <th scope="col" class="wide">Set counted</th>
-            <th scope="col" class="wide">What it assumes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="nw"><strong><a href="/record/sources/tftc-who-must-move/">TFTC</a></strong><small>31 Jul 2026</small></td>
-            <td class="nw">594.47722484 BTC</td>
-            <td class="wide">Net value received by one first collector from 500 transactions in four consecutive blocks</td>
-            <td class="wide">TFTC limits the statement to the visible chain event and does not claim that every transaction came from this firmware flaw.</td>
-          </tr>
-          <tr>
-            <td class="nw"><strong><a href="https://x.com/Rob1Ham/status/2082896614218203616" rel="noopener nofollow">Rob Hamilton</a></strong><small>AnchorWatch, 30 Jul 2026</small></td>
-            <td>594.48 BTC moved,<br />~562 BTC consolidated</td>
-            <td class="wide">1,324 spent outputs, 500 transactions</td>
-            <td class="wide">A preliminary report. Its approximately 15-minute description agrees with block timestamps; its "3 block window" does not agree with the four blocks containing the transactions.</td>
-          </tr>
-          <tr>
-            <td class="nw"><strong><a href="/record/sources/clay-earlier-waves-thread/">Block</a></strong><small>Clay Garrett, 31 Jul 2026</small></td>
-            <td class="nw">+488.10957948 BTC net</td>
-            <td class="wide">695 transactions in blocks 960,183 and 960,185, paid to three first collectors</td>
-            <td class="wide">Block's captured preliminary thread associates this set by transaction fingerprint while explicitly saying the relationship to the drain was not confirmed.</td>
-          </tr>
-          <tr>
-            <td class="nw"><strong><a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research</a></strong><small>31 Jul 2026</small></td>
-            <td class="nw">{fig('galaxyGrossBtc')} (~US$70.2M)</td>
-            <td class="wide">Gross value for the wider attributed set, published as 1,196 addresses in blocks 960,183 to 960,191</td>
-            <td class="wide">Galaxy applies a same-operator attribution using the pattern Block identified. Galaxy does not publish the underlying transaction list or its address-counting method.</td>
-          </tr>
-          <tr>
-            <td class="nw"><strong>This site's reconciliation of the pinned dataset</strong><small>1 Aug 2026</small></td>
-            <td class="nw">{fig('totalGrossBtc')} gross</td>
-            <td class="wide">1,195 original source addresses across 1,195 transactions; {fig('totalCollectorBtc')} at first collectors</td>
-            <td class="wide">Matches Galaxy's rounded gross total if the reported 695-transaction attribution is accepted. It does not establish common control.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h2 id="galaxy-revision">Galaxy's 1 August revision covers a wider set than this page</h2>
+  <h2 id="galaxy-revision">Galaxy's revisions: 1 August, then 3 August</h2>
 
   <p>
     At 18:38 UTC on 1 August 2026,
@@ -255,21 +244,79 @@ flowchart LR
     <Claim
       basis="reported"
       scope="Galaxy's third wave, its revised total and address count, and the method limit it states for them"
-      source="Galaxy Research's captured 1 August thread; the revised totals are Galaxy's attributed estimate and are not reconciled transaction by transaction here"
+      source="Galaxy Research's captured 1 August thread; the revised totals are Galaxy's attributed estimate and the underlying transaction and address lists are not published"
       href="/record/sources/glxyresearch-third-wave-revision/"
     />
-    That supersedes the
-    1,082.65 BTC total Galaxy published on 31 July, which is the figure the
-    accounting above reconciles. The two are different scopes rather than
+    That superseded the
+    1,082.65 BTC total Galaxy published on 31 July, which remains Galaxy's
+    figure for the 30 July waves above. The two are different scopes rather than
     alternative measurements of one set: Galaxy's spans three waves, including a
-    third wave that is not in the pinned dataset here, so the totals should not
+    third wave for which Galaxy has not published a transaction list, so the totals should not
     be added or read against each other.
   </p>
 
   <p>
-    Galaxy states its own method limit in the same thread. It bounds every
-    Galaxy figure quoted on this page and is the first thing to read beside the
-    revised total, not a footnote to it.
+    At 22:51 UTC on 3 August,
+    <a href="/record/sources/glxy-losses-exceed-100m/">Galaxy revised its top line again</a>:
+    high-confidence {fig('galaxyConfirmedBtc')} stolen from
+    {fig('galaxyConfirmedAddresses')} across three confirmed waves plus 14
+    smaller incidents, stated as exceeding US$100M. The basis changed with the
+    number. Wave 1, first observed by Block's engineers, is now fully confirmed
+    through victim reports; waves 2 and 3 were discovered through victim
+    reports, with confirmations continuing; and 73 individual victims have
+    contacted Galaxy's @intangiblecoins for help tracing their coins.
+    <Claim
+      basis="reported"
+      scope="Galaxy's 3 August confirmed total and address count, its wave-confirmation basis, and the 73-victim figure"
+      source="Galaxy Research's captured 3 August thread; the underlying transaction and address lists are not published"
+      href="/record/sources/glxy-wave-attribution/"
+    />
+    The 14 smaller footprints, identified with help from victim reports,
+    <a href="/record/sources/glxy-victim-count/">"could be many different attackers individually exploiting the now-known vulnerability"</a>,
+    so the confirmed total is no longer a one-operator claim.
+  </p>
+
+  <p>
+    Including the suspected fourth wave would bring Galaxy's total to
+    {fig('galaxyInclWave4Btc')}, stated as approximately US$130m. Galaxy
+    believes with medium-high confidence that wave 4 is substantially comprised
+    of an attacker, but has not promoted it into the top-line numbers because
+    no victim has confirmed inclusion.
+    <Claim
+      basis="reported"
+      scope="Galaxy's 2,055 BTC figure including the suspected fourth wave, its confidence statement and its reason for not promoting the wave"
+      source="Galaxy Research's captured 3 August thread; Galaxy does not itemise the wave-4 component of the 2,055 BTC total"
+      href="/record/sources/glxy-wave4-caveat/"
+    />
+    The wave-4 material itself, circulated and twice corrected by
+    @intangiblecoins before Galaxy's statement, is
+    <a href="#wave-4">recorded below</a>.
+  </p>
+
+  <p>
+    The same thread states that 90 percent of stolen coins have not moved and
+    100 percent of coins in waves 1 to 3 have not moved, and that Galaxy has
+    been providing confirmed attacker and victim addresses to US federal law
+    enforcement, exchanges, and compliance and cyber-investigation firms.
+    <Claim
+      basis="reported"
+      scope="Galaxy's statements that 90 percent of stolen coins and 100 percent of waves 1 to 3 coins have not moved, and that addresses were provided to law enforcement, exchanges and compliance firms"
+      source="Galaxy Research's captured 3 August thread; the endpoint address sets are not published, so the unmoved findings are not independently checked here"
+      href="/record/sources/glxy-law-enforcement-handoff/"
+    />
+    This supersedes Galaxy's 1 August statement of {fig('attackerHoldingsBtc')}
+    under attacker control with every endpoint address fully unspent, and the
+    four holdings Galaxy published for the 30 July waves, listed below, fall
+    inside the waves Galaxy describes as unmoved. It also states
+    that <a href="/record/sources/glxy-attack-ongoing/">the attack is ongoing</a>,
+    which is a risk question rather than an accounting one and is taken up on
+    the <a href="/risk/">risk pages</a>.
+  </p>
+
+  <p>
+    Galaxy states its own method limit, first published with the 1 August
+    revision. It bounds every Galaxy figure quoted on this page and is the
+    first thing to read beside any of them, not a footnote.
   </p>
 
   <blockquote>
@@ -282,26 +329,9 @@ flowchart LR
   </blockquote>
 
   <p>
-    Galaxy separately reported {fig('attackerHoldingsBtc')} under attacker
-    control, with all endpoint attacker addresses fully unspent on chain.
-    <Claim
-      basis="reported"
-      scope="Galaxy's reported total under attacker control and its statement that every endpoint attacker address remains fully unspent"
-      source="Galaxy Research's captured 1 August thread; the endpoint address set is not published, so the unspent state is not independently checked here"
-      href="/record/sources/glxyresearch-attacker-holdings/"
-    />
-    Those
-    endpoints cover all three waves in Galaxy's attributed set. They are not the
-    same set as the four consolidation addresses this page checks at block
-    960,525, so the two holdings figures are not comparable and neither confirms
-    the other. Galaxy does not publish the endpoint addresses, so the unspent
-    finding is not rechecked here.
-  </p>
-
-  <p>
-    The same thread also states that the vulnerable firmware shipped on 17 March
-    2021 around block 674,951, and that no coin identified in waves 1 to 3 was
-    created before that block.
+    The 1 August thread also states that the vulnerable firmware shipped on 17
+    March 2021 around block 674,951, and that no coin identified in waves 1 to
+    3 was created before that block.
     <Claim
       basis="reported"
       scope="Galaxy's statement about the firmware ship date, block 674,951 and the creation dates of the coins it identified"
@@ -313,15 +343,13 @@ flowchart LR
     <a href="/record/firmware/">taken up on the firmware page</a>.
   </p>
 
-  </Disclosure>
-
-  <Disclosure id="estimate-register" title="The estimate register" note="every published total, what it measures and what it assumes">
+  <Disclosure id="estimate-register" title="The estimate register" note="every published total, what it measures, when it moved">
 
   <p>
-    This register preserves the estimate as each source stated it. "Copy held"
-    means the archive has a captured version that can be checked for later
-    changes. The press rows mostly restate the primary accountings rather than
-    add independent analysis.
+    This register preserves the estimate as each source stated it, newest
+    first. "Copy held" means the archive has a captured version that can be
+    checked for later changes. The press rows mostly restate the primary
+    accountings rather than add independent analysis.
   </p>
 
   <div class="table-wrap">
@@ -345,50 +373,80 @@ flowchart LR
         </thead>
         <tbody>
           <tr>
+            <td class="nw"><strong><a href="/record/sources/glxy-losses-exceed-100m/">Galaxy Research</a></strong><small>X, 3 Aug 2026</small></td>
+            <td class="nw" data-sort="1596">{fig('galaxyConfirmedBtc')} confirmed<small>exceeds US$100M; {fig('galaxyInclWave4Btc')} with suspected wave 4</small></td>
+            <td class="nw">Three confirmed waves plus 14 smaller incidents across {fig('galaxyConfirmedAddresses')}; the 2,055 BTC form is not promoted for lack of victim confirmation</td>
+            <td class="nw"><a href="/record/sources/glxy-losses-exceed-100m/">primary thread</a>, copy held; supersedes the 1 Aug row below</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/lookonchain-galaxy-2055-btc/">Lookonchain</a></strong><small>X, 4 Aug 2026</small></td>
+            <td class="nw" data-sort="2055">2,055 BTC<small>$130M; over 7,700 victim addresses</small></td>
+            <td class="nw">Relays Galaxy's unpromoted including-wave-4 figure as the headline total</td>
+            <td class="nw"><a href="/record/sources/lookonchain-galaxy-2055-btc/">copy held</a>; a relay, not independent analysis</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-hack-tracker/">coldcard-hack-tracker</a></strong><small>SamSamskies, captured 4 Aug 2026</small></td>
+            <td class="nw" data-sort="1923.81">1,923.80748125 BTC</td>
+            <td class="nw">Eight labelled waves, 30 Jul to 3 Aug, including a likely wave 4 at 443.34 BTC; known waves only, self-described floor</td>
+            <td class="nw"><a href="/record/sources/coldcard-hack-tracker/">copy held</a>, captured 4 Aug 03:05 UTC; live total moves often</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-rip-tracker/">coldcard.rip</a></strong><small>Kevin Kelbie, captured 3 Aug 2026</small></td>
+            <td class="nw" data-sort="1433.13">1,433.13 BTC swept<small>1,432.48 BTC received after fees</small></td>
+            <td class="nw">Ten block-indexed waves from 5,477 swept addresses; self-described as AI-compiled, not independently fact-checked</td>
+            <td class="nw"><a href="/record/sources/coldcard-rip-tracker/">copy held</a>, data snapshot 3 Aug 22:59 UTC; supersedes Kelbie's 2 Aug post below</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/coldcard-watch/">coldcard-watch</a></strong><small>captured 3 Aug 2026</small></td>
+            <td class="nw" data-sort="1366.58">1,366.5774 BTC</td>
+            <td class="nw">Self-described verified minimums across 4,580 addresses in three clusters, 30 Jul to 1 Aug</td>
+            <td class="nw"><a href="/record/sources/coldcard-watch/">copy held</a>; moved to coldcardwatch.com, re-polled 4 Aug 08:06 UTC, figure unchanged</td>
+          </tr>
+          <tr>
             <td class="nw"><strong><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">@intangiblecoins wave 4</a></strong><small>X, 3 Aug 2026</small></td>
             <td class="nw" data-sort="448.73">448.73 BTC stated surviving core<small>486.11 BTC as circulated</small></td>
             <td class="nw">A circulated fourth-wave set, stated at 709 addresses after two corrections; pattern-matched, with no direct victim confirmation reported</td>
-            <td class="nw"><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrections</a>, copies held; <a href="#wave-4">detailed below</a>, in no total on this page</td>
+            <td class="nw"><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrections</a>, copies held; <a href="#wave-4">detailed below</a>, outside Galaxy's confirmed total</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/kevinkelbie-tracker-update/">Kevin Kelbie tracker</a></strong><small>X, 2 Aug 2026</small></td>
             <td class="nw" data-sort="1367">{fig('kelbieTrackerBtc')}</td>
             <td class="nw">Coins followed from victim addresses to current position across {fig('kelbieTrackerAddresses')}; the post does not itemise which waves the set counts</td>
-            <td class="nw"><a href="/record/sources/kevinkelbie-tracker-update/">primary post</a>, copy held; not reconciled here</td>
+            <td class="nw"><a href="/record/sources/kevinkelbie-tracker-update/">primary post</a>, copy held; superseded by Kelbie's own coldcard.rip row above</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/glxyresearch-third-wave-revision/">Galaxy Research</a></strong><small>X, 1 Aug 2026</small></td>
-            <td class="nw">{fig('galaxyRevisedTotalBtc')}<small>~US$88.6m</small></td>
-            <td class="nw">Estimated observed size across three waves and {fig('galaxyRevisedAddresses')}, wider than the sets reconciled on this page</td>
-            <td class="nw"><a href="/record/sources/glxyresearch-third-wave-revision/">primary post</a>, copy held; not reconciled here</td>
+            <td class="nw" data-sort="1367.05">{fig('galaxyRevisedTotalBtc')}<small>~US$88.6m</small></td>
+            <td class="nw">Estimated observed size across three waves and {fig('galaxyRevisedAddresses')}, wider than the 30 July set of Galaxy's 31 July figure</td>
+            <td class="nw"><a href="/record/sources/glxyresearch-third-wave-revision/">primary post</a>, copy held; superseded 3 Aug</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research</a></strong><small>X, 31 Jul 2026</small></td>
-            <td class="nw">{fig('galaxyGrossBtc')}<small>~US$70.2M</small></td>
-            <td class="nw">Gross value, published 1,196-address set, superseded by the revision above</td>
+            <td class="nw" data-sort="1082.65">{fig('galaxyGrossBtc')}<small>~US$70.2M</small></td>
+            <td class="nw">Gross value, published 1,196-address set, superseded by both revisions above</td>
             <td class="nw"><a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">primary post</a>, copy held</td>
           </tr>
           <tr>
             <td class="nw"><strong>The Block</strong><small>31 Jul 2026</small></td>
-            <td class="nw">{fig('galaxyGrossBtc')}<small>"grow to $70 million"</small></td>
+            <td class="nw" data-sort="1082.65">{fig('galaxyGrossBtc')}<small>"grow to $70 million"</small></td>
             <td class="nw">reports Galaxy</td>
-            <td class="nw"><a href="/record/sources/theblock-galaxy-total/">copy held</a></td>
+            <td class="nw"><a href="/record/sources/theblock-galaxy-total/">copy held</a>; article unchanged since 31 Jul</td>
           </tr>
           <tr>
             <td class="nw"><strong>Block / Garrett</strong><small>31 Jul 2026</small></td>
-            <td class="nw" data-sort="1082.58680432">implies {fig('totalCollectorBtc')}</td>
-            <td class="nw">Net value at first collectors across 500 + 695 transactions</td>
+            <td class="nw" data-sort="488.11">488.10957948 BTC net</td>
+            <td class="nw">Net value at three first collectors for the reported 695-transaction set; the 500-set receipt is the TFTC row below</td>
             <td class="nw"><a href="/record/sources/clay-earlier-waves-thread/">primary thread</a>, copy held; attribution unverified</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/tftc-who-must-move/">TFTC</a></strong><small>31 Jul 2026</small></td>
-            <td class="nw">594.47722484 BTC</td>
+            <td class="nw" data-sort="594.477">594.47722484 BTC</td>
             <td class="nw">Net value at the first collector for the 500-transaction set</td>
             <td class="nw"><a href="/record/sources/tftc-who-must-move/">copy held</a></td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/Rob1Ham/status/2082896614218203616" rel="noopener nofollow">Rob Hamilton</a></strong><small>30 Jul 2026</small></td>
-            <td class="nw">594.48 BTC moved</td>
+            <td class="nw" data-sort="594.48">594.48 BTC moved</td>
             <td class="nw">Preliminary: 1,324 UTXOs, 500 transactions, about 562 BTC consolidated</td>
             <td class="nw"><a href="https://x.com/Rob1Ham/status/2082896614218203616" rel="noopener nofollow">primary post</a>, copy held</td>
           </tr>
@@ -406,31 +464,19 @@ flowchart LR
           </tr>
           <tr>
             <td class="nw"><strong>KeychainX</strong><small>31 Jul 2026</small></td>
-            <td class="nw">594.48 BTC<small>~US$38M; up to 1,082.59 if linked</small></td>
+            <td class="nw" data-sort="594.48">594.48 BTC<small>~US$38M; up to 1,082.59 if linked</small></td>
             <td class="nw">confirmed + conditional</td>
             <td class="nw"><a href="/record/sources/keychainx-reference/">copy held</a>; a recovery firm, says so on the page</td>
           </tr>
           <tr>
             <td class="nw"><strong>Coin360</strong><small>31 Jul 2026</small></td>
-            <td class="nw">594.48 BTC<small>~US$38.3M; 1,082.59 "not fully confirmed"</small></td>
+            <td class="nw" data-sort="594.48">594.48 BTC<small>~US$38.3M; 1,082.59 "not fully confirmed"</small></td>
             <td class="nw">confirmed + conditional</td>
             <td class="nw"><a href="/record/sources/coin360-drain/">copy held</a>; AI-assisted per its own footer</td>
           </tr>
           <tr>
-            <td class="nw"><strong>coldcard-watch</strong><small>captured 1 Aug 2026</small></td>
-            <td class="nw">1,128.4717 BTC</td>
-            <td class="nw">Community-attributed headline for two episodes totalling 2,321 source addresses</td>
-            <td class="nw"><a href="/record/sources/coldcard-watch/">copy held</a>, source change captured 1 Aug 2026, 05:28 UTC</td>
-          </tr>
-          <tr>
-            <td class="nw"><strong>coldcard-hack-tracker</strong><small>captured 1 Aug 2026</small></td>
-            <td class="nw">1,128.56 BTC</td>
-            <td class="nw">Galaxy's main set plus a separately reported 45.91 BTC cluster</td>
-            <td class="nw"><a href="/record/sources/coldcard-hack-tracker/">copy held</a>; tracker says the clusters may differ</td>
-          </tr>
-          <tr>
             <td class="nw"><strong>Kevin Kelbie</strong><small>X, 1 Aug 2026</small></td>
-            <td class="nw">up to 1,128.49 BTC</td>
+            <td class="nw" data-sort="1128.49">up to 1,128.49 BTC</td>
             <td class="nw">Adds a reported 45.9 BTC post-scan cluster with 1,216 transactions</td>
             <td class="nw"><a href="https://x.com/KevinKelbie/status/2083368025864990857" rel="noopener nofollow">primary post</a>, copy held; attribution unverified</td>
           </tr>
@@ -441,63 +487,44 @@ flowchart LR
 
   <p>
     The US$38 million and US$70 million figures primarily reflect different BTC
-    sets, 594.48 BTC versus about 1,082.6 BTC, as well as each publisher's BTC/USD
-    conversion time. Galaxy's approximately US$88.6m belongs to a third set
-    again, the three-wave scope described above. The later 45.9 BTC cluster is
-    not included in the main accounting on this page because its relationship to
-    the principal set has not been established. Tracker rows carry the figure
-    held at the stated capture time; those sites publish live totals that have
-    continued to move since.
+    sets, 594.48 BTC versus about 1,082.6 BTC, as well as each publisher's
+    BTC/USD conversion time. Galaxy's approximately US$88.6m belongs to the
+    three-wave scope of 1 August, and its US$100M and US$130m statements of
+    3 August to the wider confirmed and suspected sets. Tracker rows carry the
+    figure held at the stated capture time; those sites publish live totals
+    that have continued to move since.
   </p>
 
   <p>
-    The two newest rows are wider again than anything reconciled on this page.
-    Kelbie's 2 August tracker total of {fig('kelbieTrackerBtc')} across
-    {fig('kelbieTrackerAddresses')} is numerically close to Galaxy's revised
-    1,367.05 BTC across 4,585 addresses, but neither source states that the two
-    sets are the same, and the tracker post does not itemise which waves its
-    set counts, so the rows are kept separate rather than read as one
-    measurement.
+    The held diff record shows how quickly the moving rows moved. coldcard-watch's
+    headline ran 1,082.57 to 1,128.47 to 1,158.85 to 1,359.18 to 1,366.58 BTC
+    between 1 and 2 August. coldcard-hack-tracker's total ran 1,128.56 to
+    1,368.58 to 1,433.49 to 1,822.42 to 1,876.83 to 1,923.81 BTC between 1 and
+    4 August, the largest steps being its five-wave rebuild, its adoption of
+    the wave-4 claim and its addition of a Taproot wave. Kelbie's own stated
+    totals ran 1,128.49 BTC on 1 August, 1,367 BTC on 2 August and 1,433.13 BTC
+    on 3 August. Each step is a classified captured difference, preserved under
+    <a href="/record/changes/">the changes record</a>.
     <Claim
-      basis="reported"
-      scope="Kelbie's tracker total of 1,367 BTC across 4,620 drained addresses, its victim-to-current-position method and its timeline claim"
-      source="Kevin Kelbie's captured 2 August tracker announcement; the set behind the total is not itemised in the post and is not reconciled here"
-      href="/record/sources/kevinkelbie-tracker-update/"
+      basis="verified"
+      scope="The three figure-change trails in this paragraph, as classified in the revision register"
+      source="Captured snapshots and diffs for coldcard-watch, coldcard-hack-tracker and Kelbie's tracker, each classified in revision-reviews.toml"
+      href="/record/changes/"
     />
-    The circulated fourth wave rests on pattern matching with no
-    direct victim confirmation reported; its figures, and the corrections its
-    author has published, are <a href="#wave-4">set out below</a> and are not
-    part of any total here.
   </p>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">The fee equation</div>
-    <p>
-      <strong>Fees:</strong> {fig('sweptFeesBtc')} for the 500 source transactions,
-      0.02981790 BTC for the 695 source transactions, and 0.01760841 BTC for
-      three consolidation transactions, totalling
-      <strong>{fig('totalFeesBtc')}</strong>. Gross value minus total fees equals the
-      post-consolidation amount exactly.
-      <Claim
-        basis="derived"
-        scope="The fee equation in this panel, its three component totals, and the gross-minus-fees identity with the post-consolidation amount"
-        source="Integer-satoshi accounting of the pinned first-three-wave dataset and its three consolidations"
-        href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-      />
-    </p>
-  </div>
 
   </Disclosure>
 
-  <Disclosure id="wave-4" title="A reported fourth wave, corrected twice" note="pattern-matched, no direct victim confirmation reported">
+  <Disclosure id="wave-4" title="A reported fourth wave, corrected twice, then assessed by Galaxy" note="pattern-matched; Galaxy suspects it but has not promoted it">
 
   <p>
     On 2 and 3 August 2026 a fourth-wave claim circulated: pending mempool
     sweeps of transactions that had opted into replace-by-fee, described as a
     coordinated fourth wave. The destination list behind it was circulated by
     the @intangiblecoins account, which then published two corrections to its
-    own material. Both corrections are held, and nothing in wave 4 enters the
-    accounting elsewhere on this page.
+    own material. Both corrections are held. The original thread the
+    corrections amend has not been captured; the corrections are the only held
+    text of the claim itself.
     <Claim
       basis="reported"
       scope="The existence and description of the circulated fourth-wave claim, as restated in the author's own corrections"
@@ -537,9 +564,28 @@ flowchart LR
   </p>
 
   <p>
-    The stated figures do not reconcile from the post alone: 857 addresses
-    minus the 89-address multisig discount gives 768, not the stated 709, and
-    486.11 BTC minus 20.58 BTC gives 465.53 BTC, not the stated 448.73 BTC.
+    Later on 3 August, at 22:51 UTC,
+    <a href="/record/sources/glxy-wave4-caveat/">Galaxy published its own assessment of the wave</a>:
+    medium-high confidence that wave 4 is substantially comprised
+    of an attacker, a total of {fig('galaxyInclWave4Btc')} if it is included,
+    and no promotion into the top-line numbers because no victim has confirmed
+    inclusion. coldcard-hack-tracker carries the wave at 443.34 BTC across 703
+    addresses, applying both @intangiblecoins corrections to the circulated
+    list. Neither Galaxy nor the tracker itemises a reconciliation between
+    those two wave-4 figures.
+    <Claim
+      basis="reported"
+      scope="Galaxy's medium-high-confidence wave-4 statement and the tracker's 443.34 BTC, 703-address wave-4 line"
+      source="Galaxy Research's captured 3 August thread and the coldcard-hack-tracker capture of 4 Aug 2026, 03:05 UTC"
+      href="/record/sources/coldcard-hack-tracker/"
+    />
+  </p>
+
+  <p>
+    The stated figures do not reconcile from the correction posts alone: 857
+    addresses minus the 89-address multisig discount gives 768, not the stated
+    709, and 486.11 BTC minus 20.58 BTC gives 465.53 BTC, not the stated
+    448.73 BTC.
     <Claim
       basis="derived"
       scope="The observation that the second correction's stated subtractions give 768 addresses and 465.53 BTC rather than its stated 709 addresses and 448.73 BTC"
@@ -552,10 +598,9 @@ flowchart LR
   </p>
 
   <p>
-    Galaxy's revised total spans three waves, so the circulated fourth wave
-    sits outside it as well as outside the transaction sets this page
-    reconciles. Whether the wave-4 set belongs to the same incident is
-    recorded as an open question <a href="#not-yet-known">below</a>.
+    Wave 4 sits outside Galaxy's confirmed total and outside the 30 July sets
+    above. Whether the wave-4 set belongs to the same
+    incident is recorded as an open question <a href="#not-yet-known">below</a>.
   </p>
 
   </Disclosure>
@@ -577,7 +622,7 @@ flowchart LR
             captured="1 Aug 2026"
             contested
             scope="The differing time windows, spans and qualifications in the table above"
-            source="Captured Hamilton, Galaxy, Coin360, KeychainX and Bitcoin Optech sources; block timestamps checked against the pinned chain-derived dataset"
+            source="Captured Hamilton, Galaxy, Coin360, KeychainX and Bitcoin Optech sources; block timestamps re-checkable on any public block explorer"
             href="/record/sources/optech-416/"
           />
         </caption>
@@ -627,161 +672,78 @@ flowchart LR
 
   </Disclosure>
 
-  <Disclosure id="set-500" title="What the 500-address set shows">
+  <Disclosure id="holdings-check" title="Galaxy's four consolidation holdings" note="published 31 July; stated unmoved on 3 August">
 
   <p>
-    Within the 500-source-address set, gross amounts consumed range from
-    0.14999770 BTC to {fig('lossLargest')}, with a median of {fig('lossMedian')}. Because
-    the set has an even 500 values, that median is the average of its two middle
-    values and can fall on a half-satoshi; it is a statistical summary, not an
-    on-chain amount. Of those addresses, 110 held more than 1 BTC and another 16
-    held exactly 1 BTC. The observed minimum is {fig('lossFloor')}; the data
-    do not establish that it was an operator-selected threshold.
-    <Claim
-      basis="derived"
-      scope="The minimum, median and one-BTC distribution figures for the 500-address set"
-      source="Privacy-safe wave-3 distribution in the public funds-accounting artefact; address-level inputs are withheld"
-      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-    />
-  </p>
-
-  <p>
-    Hamilton reported that all addresses in the 500-transaction set used
-    single-signature spending conditions, none used Taproot, and the spent UTXOs
-    dated from 2021 to 2026. Those are properties of the observed outputs and
-    spending scripts, not proof of each owner's wallet configuration or seed
-    creation date. The pinned chain dataset reports output classifications for
-    the original source addresses: 1,182 native SegWit P2WPKH, 7 P2SH and 6
-    legacy P2PKH across both attributed sets. These counts numerically reconcile with
-    Galaxy's published BIP-84, BIP-49 and BIP-44 figures as described above,
-    without independently establishing those derivation paths.
+    Galaxy's 31 July flow-of-funds mapping names four final consolidation
+    holdings for the attributed 30 July sets. The original first collector for
+    the 500-transaction set sent 562.01962301 BTC to the first address and
+    retained 32.45055543 BTC in the fourth, per the same mapping.
     <Claim
       basis="reported"
-      captured="1 Aug 2026"
-      scope="Hamilton's output-type observations and Galaxy's published derivation-path counts"
-      source="Rob Hamilton and Galaxy Research primary posts; the output-type counts are classifications reported by the pinned chain dataset, not measurements made here"
-      href="/record/sources/robhamilton-preliminary-sweep/"
+      scope="The four consolidation addresses and their published amounts, and the first collector's split into the largest holding and the retained remainder"
+      source="Galaxy Research's captured 31 July flow-of-funds post"
+      href="/record/sources/glxyresearch-flow-map/"
     />
-  </p>
-
-  </Disclosure>
-
-  <Disclosure id="set-wider" title="What the wider attributed set shows">
-
-  <p>
-    A privacy-preserving aggregate derived from the first three waves in
-    <a href="/record/sources/kelbie-rng-postmortem/">Kelbie's pinned independent chain dataset</a>
-    covers 1,195 original source addresses and {fig('totalGrossBtc')} gross. The
-    median source-address value is 0.27001931 BTC, 231 addresses contain at
-    least 1 BTC, 17 contain at least 10 BTC, and the range runs from 0.000045 BTC
-    to 51.07343852 BTC.
-    <Claim
-      basis="derived"
-      contested
-      scope="The wider-set quantiles, value bands and counts for 1,195 original source addresses"
-      source="Privacy-safe aggregate of waves 1 to 3 in Kelbie/coldcard-rng-postmortem at commit 47d8f554; the raw source-file hash, selection and method are held under docs/reviews"
-      href="/record/sources/kelbie-rng-postmortem/"
-    />
-  </p>
-
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table class="data-table">
-        <caption>Privacy-safe value bands for the 1,195 original source addresses</caption>
-        <thead>
-          <tr>
-            <th scope="col" class="wide">Gross source-address value</th>
-            <th scope="col" class="nw">Addresses</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="wide">Below 0.01 BTC</td><td class="nw">68</td></tr>
-          <tr><td class="wide">0.01 to below 0.1 BTC</td><td class="nw">89</td></tr>
-          <tr><td class="wide">0.1 to below 0.25 BTC</td><td class="nw">405</td></tr>
-          <tr><td class="wide">0.25 to below 0.5 BTC</td><td class="nw">242</td></tr>
-          <tr><td class="wide">0.5 to below 1 BTC</td><td class="nw">160</td></tr>
-          <tr><td class="wide">1 to below 2 BTC</td><td class="nw">125</td></tr>
-          <tr><td class="wide">2 to below 5 BTC</td><td class="nw">63</td></tr>
-          <tr><td class="wide">5 to below 10 BTC</td><td class="nw">26</td></tr>
-          <tr><td class="wide">At least 10 BTC</td><td class="nw">17</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="callout callout--amber">
-    <span class="callout__title">Attribution and owner limits</span>
-    The aggregate reproduces Galaxy's rounded gross total, but not its published
-    address count: it contains 1,195 original source addresses while Galaxy
-    reported 1,196 without defining the counting method. The relationship
-    between waves remains attributed, not established by value distribution.
-    Address counts also do not equal people; the number of distinct owners is
-    unknown.
-  </div>
-
-  </Disclosure>
-
-  <Disclosure id="holdings-check" title="Holdings at the 1 August 06:48 UTC check" note="four final holdings, pinned to block 960,525">
-
-  <p>
-    Four addresses held the post-consolidation amount attributed to the two
-    principal sets at block 960,525. The table reports the theft-linked
-    component, not the address balance observed at that check. It therefore
-    excludes later unsolicited deposits.
   </p>
 
   <div class="table-wrap">
     <div class="table-scroll">
       <table class="data-table sortable">
-        <caption>Four final theft-linked holdings at the stated check time
+        <caption>Galaxy's four published consolidation holdings
           <Claim
-            basis="derived"
-            scope="The theft-linked balances and no-outflow finding at the stated check time"
-            source="Held mempool.space and Blockstream Esplora address summaries, agreeing at block 960,525 at 06:48 UTC on 1 Aug 2026"
-            href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
+            basis="reported"
+            scope="The four addresses and amounts in the table, as published"
+            source="Galaxy Research's captured 31 July flow-of-funds post"
+            href="/record/sources/glxyresearch-flow-map/"
           />
         </caption>
         <thead>
           <tr>
             <th scope="col" class="nw">Address</th>
-            <th scope="col" class="nw">Theft-linked amount</th>
+            <th scope="col" class="nw">Published amount</th>
             <th scope="col" class="nw">Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td class="nw"><code>bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r</code></td><td class="nw">562.01962301 BTC</td><td class="nw"><span class="status status--warn">held at check</span></td></tr>
-          <tr><td class="nw"><code>bc1qx76cae2706qd5q576feh7xq8rfcsjpf2htfhe3</code></td><td class="nw">398.47573857 BTC</td><td class="nw"><span class="status status--warn">held at check</span></td></tr>
-          <tr><td class="nw"><code>bc1q8jy96fe5lf8vfugydnte3cguk92gpev7kwtp3q</code></td><td class="nw">89.62327890 BTC</td><td class="nw"><span class="status status--warn">held at check</span></td></tr>
-          <tr><td class="nw"><code>bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0</code></td><td class="nw">32.45055543 BTC</td><td class="nw"><span class="status status--warn">held at check</span></td></tr>
+          <tr><td class="nw"><code>bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r</code></td><td class="nw">562.01962301 BTC</td><td class="nw"><span class="status status--warn">stated unmoved, 3 Aug</span></td></tr>
+          <tr><td class="nw"><code>bc1qx76cae2706qd5q576feh7xq8rfcsjpf2htfhe3</code></td><td class="nw">398.47573857 BTC</td><td class="nw"><span class="status status--warn">stated unmoved, 3 Aug</span></td></tr>
+          <tr><td class="nw"><code>bc1q8jy96fe5lf8vfugydnte3cguk92gpev7kwtp3q</code></td><td class="nw">89.62327890 BTC</td><td class="nw"><span class="status status--warn">stated unmoved, 3 Aug</span></td></tr>
+          <tr><td class="nw"><code>bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0</code></td><td class="nw">32.45055543 BTC</td><td class="nw"><span class="status status--warn">stated unmoved, 3 Aug</span></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <p>
-    The original first collector for the 500-transaction set sent
-    562.01962301 BTC to the first row and retained 32.45055543 BTC in the fourth
-    row. No funds left the four-address cluster after that final consolidation
-    by 06:48 UTC on 1 August 2026. This is narrower than saying that the
-    addresses had never sent funds. Later unsolicited deposits added 0.00046535
-    BTC to the first address and 0.00000777 BTC to the fourth, bringing the
-    observed combined balance to approximately 1,082.56966903 BTC at that check
-    time.
+    <a href="/record/sources/glxy-law-enforcement-handoff/">Galaxy stated on 3 August</a>
+    that 100 percent of coins in waves 1 to 3 have not moved and 90 percent of
+    stolen coins overall have not moved, a statement that covers these four
+    holdings. The movement reported since sits outside them, in the suspected
+    wave-4 park and the smaller incidents: coldcard-hack-tracker records
+    6.81368697 BTC moved, including deposits it attributes to Bullish.com,
+    Coinbase Prime Custody and KuCoin, with the last movement at block 960,832.
+    <Claim
+      basis="reported"
+      scope="Galaxy's 3 August unmoved-coins statements and the tracker's record of 6.81368697 BTC moved from the wave-4 park, including exchange-attributed deposits"
+      source="Galaxy Research's captured 3 August thread and the coldcard-hack-tracker capture of 4 Aug 2026, 03:05 UTC; the exchange attributions are the tracker's own and are not independently checked here"
+      href="/record/sources/coldcard-hack-tracker/"
+    />
+    No captured source reports a seizure, recovery or freeze for any of these
+    funds as of 4 August 2026. This is an absence of reported evidence, not a
+    prediction about future movement.
   </p>
 
   <p>
-    No captured source reports a mixer deposit, exchange deposit, seizure or
-    recovery for this four-address cluster as of that time, and none appears in
-    captures held to 2 August 2026. This is an absence of reported evidence, not
-    a prediction about future movement. Two community
-    trackers,
-    <a href="https://coldcard-watch.vercel.app/" rel="noopener nofollow">coldcard-watch</a>
+    Two community trackers,
+    <a href="https://coldcardwatch.com/" rel="noopener nofollow">coldcard-watch</a>
     and
     <a href="https://coldcard-hack-tracker.vercel.app/" rel="noopener nofollow">coldcard-hack-tracker</a>,
-    monitor attributed addresses and publish changing totals. Their captured
-    figures use differing treatments of the separately reported later
-    cluster and later inbound deposits, so they should not be used as a fixed
-    incident total without those qualifications.
+    monitor attributed addresses and publish changing totals, and a third,
+    <a href="https://coldcard.rip/" rel="noopener nofollow">coldcard.rip</a>,
+    keeps a ten-wave ledger with a movement record. Their captured figures use
+    differing treatments of the later waves and later inbound deposits, so they
+    should not be used as a fixed incident total without those qualifications.
   </p>
 
   <p>
@@ -798,10 +760,12 @@ flowchart LR
     property of exploiting the firmware flaw.
   </p>
 
+  </Disclosure>
+
   <h2 id="reported-handling">Reported handling, and what is not reported</h2>
 
   <p>
-    Two threads about how the incident is being handled appear in the captured
+    Three threads about how the incident is being handled appear in the captured
     record and belong beside the accounting. Block said it was sharing the
     relevant information with the appropriate authorities, and that it would
     provide further updates when doing so would not interfere with the
@@ -810,11 +774,14 @@ flowchart LR
     it could share, for people pursuing a police report, an insurance claim or
     their own investigation, and said it was cooperating with the on-chain
     investigators and with any law-enforcement agency that opens a case.
+    Galaxy said on 3 August that it has been providing confirmed attacker and
+    victim addresses to US federal law enforcement, exchanges, and compliance
+    and cyber-investigation firms.
     <Claim
       basis="reported"
-      scope="Block's statement that it is sharing information with authorities and Coinkite's offer of written incident summaries and transaction data"
-      source="Clay Garrett's captured three-post attribution thread and NVK's captured apology post, both 31 Jul 2026; neither statement's follow-through is observable from here"
-      href="/record/sources/clay-attribution/"
+      scope="Block's statement that it is sharing information with authorities, Coinkite's offer of written incident summaries and transaction data, and Galaxy's statement that it is providing addresses to law enforcement, exchanges and compliance firms"
+      source="Clay Garrett's captured three-post attribution thread and NVK's captured apology post, both 31 Jul 2026, and Galaxy's captured 3 August thread; no statement's follow-through is observable from here"
+      href="/record/sources/glxy-law-enforcement-handoff/"
     />
   </p>
 
@@ -843,7 +810,7 @@ flowchart LR
     on third-party claims as policy, but offered a one-time exception if the
     victim signs a message from a drained address, signs an affidavit and
     shows Duel the evidence trail. No outcome of that offer appears in
-    captures held to 3 August 2026.
+    captures held to 4 August 2026.
     <Claim
       basis="reported"
       scope="Duel's stated no-freeze policy and the conditions of its one-time exception for the reported THORChain-peeled victim funds"
@@ -854,7 +821,7 @@ flowchart LR
 
   <p>
     Two further points sit beside that: an absence of any recorded custodial
-    action against the four addresses, and the collection route left open by
+    action against the attributed addresses, and the collection route left open by
     <a href="/record/sources/glxyresearch-methodology-disclaimer/">Galaxy's own methodology disclaimer</a>.
   </p>
 
@@ -867,14 +834,16 @@ flowchart LR
   <p>
     Nothing in the held captures records an exchange freeze, a flagging
     commitment or any other custodial action against the four consolidation
-    addresses as of 3 August 2026. No captured source names an exchange or
-    service that has undertaken to stop or mark deposits from them. That is an
-    absence in what has been published and collected here, not a finding that no
-    such step has been taken.
+    addresses as of 4 August 2026, and no captured source names an exchange or
+    service that has undertaken to stop or mark deposits from them. The tracker
+    record does show deposits attributed to the later wave-4 park reaching
+    Bullish.com, Coinbase Prime Custody and KuCoin, with no freeze or seizure
+    of those reported either. That is an absence in what has been published and
+    collected here, not a finding that no such step has been taken.
     <Claim
       basis="unverified"
-      scope="Whether any exchange or custodial service has frozen or committed to flagging deposits from the four consolidation addresses"
-      source="No captured source held by this project reports such a step as of 3 August 2026; the archive cannot observe unpublished compliance action"
+      scope="Whether any exchange or custodial service has frozen or committed to flagging deposits from the attributed addresses"
+      source="No captured source held by this project reports such a step as of 4 August 2026; the archive cannot observe unpublished compliance action"
       href="/record/changes/"
     />
   </p>
@@ -885,8 +854,9 @@ flowchart LR
     records that some of the addresses behind its on-chain topographies were
     received from victim reports on X, and that its analysis "should not be
     considered to be complete or definitive". Its identified set is therefore
-    open to further reported attacker and victim addresses rather than closed,
-    which is one reason its published total has already moved once.
+    open to further reported attacker and victim addresses rather than closed;
+    its published top line has now moved twice in three days, both times
+    upward.
     <Claim
       basis="reported"
       scope="Galaxy's statement that some initial addresses came from victim reports on X and that its analysis is not complete or definitive"
@@ -900,8 +870,6 @@ flowchart LR
 
   </Disclosure>
 
-  </Disclosure>
-
   <Disclosure id="causation" title="Causation remains unverified">
 
   <p>
@@ -909,9 +877,12 @@ flowchart LR
     but the blockchain does not identify the hardware or software that generated
     a private key. TFTC explicitly separates its reproduced chain event from the
     unproven claim that every transaction resulted from this firmware flaw.
+    Galaxy's 3 August thread states that the 14 smaller footprints it
+    identified could be many different attackers individually exploiting the
+    now-known vulnerability.
     <Claim
       basis="unverified"
-      scope="The share of the attributed transaction sets actually caused by the firmware flaw, and the site's use of the word theft, which records the public incident attribution rather than an established finding about authorisation: the transactions, amounts, timing and consolidation reproduce from the pinned dataset, but the chain does not show whether each transfer was authorised or who operated the sweep"
+      scope="The share of the attributed transaction sets actually caused by the firmware flaw, and the site's use of the word theft, which records the public incident attribution rather than an established finding about authorisation: the transactions, amounts, timing and consolidation are documented in the captured sources above, but the chain does not show whether each transfer was authorised or who operated the sweep"
       source="The exact share caused by this firmware flaw has not been established from public evidence"
       href="/record/sources/tftc-who-must-move/"
     />
@@ -926,69 +897,95 @@ flowchart LR
       <strong>How many people were hit.</strong> Source-address counts and
       people are not equivalent. One person or entity can control multiple
       addresses, and an address can have multiple controllers. The number of
-      distinct affected owners is unknown.
+      distinct affected owners is unknown; 73 individual victims had contacted
+      Galaxy's @intangiblecoins for tracing help as of 3 August, a reported
+      lower bound on affected owners, not a count.
+      <Claim
+        basis="reported"
+        scope="The 73-victim figure and its status as a floor rather than a count of affected owners"
+        source="Galaxy Research's captured 3 August thread"
+        href="/record/sources/glxy-victim-count/"
+      />
     </li>
     <li>
-      <strong>Whether the 695 earlier transactions are the same operator.</strong>
-      Block's fingerprint match is reported but not independently confirmed.
-      These transactions occur in blocks 960,183 and 960,185, minutes before the
-      500-transaction set and within Galaxy's published window. They are not
-      evidence by themselves of activity on an earlier date.
+      <strong>How many operators are behind the confirmed set.</strong> Galaxy's
+      3 August thread confirms waves 1 to 3 through victim reports but states
+      that the 14 smaller footprints could be many different attackers
+      individually exploiting the now-known vulnerability. Block's fingerprint
+      match for the 695 earlier transactions remains reported rather than
+      independently confirmed.
       <Claim
         basis="unverified"
-        scope="Whether the earlier 695 transactions were controlled by the same operator"
-        source="Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed"
+        scope="Whether the 14 smaller footprints and the earlier 695 transactions were controlled by the same operator as the mass waves"
+        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed"
         href="/record/sources/clay-earlier-waves-thread/"
+      />
+    </li>
+    <li>
+      <strong>What is in Galaxy's wider confirmed set.</strong> Galaxy's
+      3 August total spans three confirmed waves plus 14 smaller incidents
+      across about 7,300 addresses. The underlying transaction and address
+      lists are not published, and Galaxy states it has not tested whether the
+      addresses it identifies were generated with low entropy.
+      <Claim
+        basis="reported"
+        scope="The composition of Galaxy's confirmed set and the addresses behind its 3 August total"
+        source="Galaxy Research's captured 3 August thread, which publishes totals rather than the underlying transaction or address list"
+        href="/record/sources/glxy-losses-exceed-100m/"
       />
     </li>
     <li>
       <strong>Whether the reported 31 July cluster is related.</strong> Kevin
       Kelbie reported 1,216 transactions moving 45.9 BTC after Block's scan end.
       Seven of eight stated markers match, while the replace-by-fee behaviour
-      differs. It is tracked separately and is not included in this page's
-      principal total.
+      differs. Kelbie's own tracker now integrates the cluster as wave 960345
+      of its ten-wave incident set, citing a named claimant, a Chainabuse
+      report and Galaxy Research. It enters no total on this page.
+      <Claim
+        basis="reported"
+        scope="Kelbie's current treatment of the 45.9 BTC cluster"
+        source="Kelbie's rebuilt tracker, captured 3 Aug 2026, integrates the cluster as wave 960345 of its ten-wave incident set, citing a named claimant, a Chainabuse report and Galaxy Research"
+        href="/record/sources/coldcard-rip-tracker/"
+      />
       <Claim
         basis="unverified"
-        scope="Whether the reported 45.9 BTC cluster is related to the principal incident set"
-        source="Kevin Kelbie primary post, captured 1 Aug 2026"
+        scope="Whether the reported 45.9 BTC cluster is in fact related to the principal incident set"
+        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship has been captured"
         href="/record/sources/kevinkelbie-later-wave/"
       />
     </li>
     <li>
-      <strong>What is in Galaxy's third wave.</strong> Galaxy's revised total
-      spans three waves and {fig('galaxyRevisedAddresses')}. The third wave is
-      not in the pinned dataset behind this page and has not been checked
-      transaction by transaction here, so the difference between the two totals
-      is not itemised. Galaxy states it has not tested whether the addresses it
-      identifies were generated with low entropy.
-      <Claim
-        basis="reported"
-        scope="The composition of Galaxy's third wave and the addresses behind its revised total"
-        source="Galaxy Research's captured 1 August thread, which publishes totals rather than the underlying transaction or address list"
-        href="/record/sources/glxyresearch-third-wave-revision/"
-      />
-    </li>
-    <li>
       <strong>Whether the circulated fourth wave is part of the same incident.</strong>
-      The corrected wave-4 set rests on pattern matching, and its own author
-      reports no direct victim confirmation as of 3 August 2026. Its stated
+      The corrected wave-4 set rests on pattern matching. Galaxy suspects it is
+      real with medium-high confidence, and neither Galaxy nor its author
+      reports direct victim confirmation as of 4 August 2026. Its stated
       figures, corrections and unreconciled arithmetic are recorded
-      <a href="#wave-4">above</a>; none of them enters a total on this page.
+      <a href="#wave-4">above</a>; it enters no total on this page.
       <Claim
         basis="unverified"
         scope="Whether the circulated wave-4 set belongs to the same incident as the attributed transaction sets"
-        source="The author's own second correction, which states that wave 4 rests on pattern matching with no direct victim confirmation yet"
-        href="/record/sources/intangiblecoins-wave4-multisig-correction/"
+        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation"
+        href="/record/sources/glxy-wave4-caveat/"
       />
     </li>
     <li>
-      <strong>Whether the consolidated funds will move, and where.</strong> No
-      forward statement is possible. The finding above is fixed to its stated
-      06:48 UTC check time.
+      <strong>Whether the consolidated funds will move further, and where.</strong>
+      Movement has already been reported outside the four-address cluster, from
+      the suspected wave-4 park. No forward statement is possible; the cluster
+      finding above is fixed to its stated 06:48 UTC check time, and Galaxy's
+      unmoved-coins statement is fixed to 3 August.
     </li>
     <li>
       <strong>Any recovery, seizure or insurance payout.</strong> None has been
-      reported in any captured source as of 2 August 2026.
+      reported in any captured source as of 4 August 2026. A 3 August report of
+      white-hat drains underway, relayed by Bitcoin News from a community
+      post, is unconfirmed and does not name recovered amounts.
+      <Claim
+        basis="reported"
+        scope="The reported but unconfirmed claim that white-hat drains are underway"
+        source="Bitcoin News's captured 3 August post citing a community report; no recovered amounts are named and no victim confirmation is held"
+        href="/record/sources/bitcoinnews-whitehat-drains/"
+      />
     </li>
   </ul>
 
@@ -1002,11 +999,10 @@ flowchart LR
     available through <a href="/record/">the evidence pages</a> where publication
     rights allow.
     <br /><br />
-    The selected transaction accounting is fixed to the pinned source dataset,
-    while the four-address balance check is fixed to Bitcoin block 960,525 at
-    06:48 UTC on 1 August 2026. Live balances and published attributions may
-    change; later revisions belong in a dated update rather than being folded
-    silently into these figures.
+    Figures are preserved as each source stated them, with the time each was
+    published or captured. Live balances and published attributions change;
+    later revisions are added as dated statements rather than being folded
+    silently into earlier figures.
   </p>
 </Article>
 

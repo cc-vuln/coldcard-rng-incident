@@ -1,0 +1,102 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `The optional BIP39 passphrase is part of key derivation. The device PIN is a separate access-control mechanism and does not enter BIP39 derivation.`;
+---
+
+<Fig
+  id="fig-passphrase-derivation"
+  viewBox="0 0 920 280"
+  minWidth={640}
+  title="Where the passphrase enters key derivation"
+  desc="The BIP39 mnemonic feeds PBKDF2 twice: with an empty passphrase giving the base wallet, and with a chosen passphrase giving a different wallet. The passphrase wallet and a known target address or xpub feed an offline candidate comparison. The device PIN protects device access only and does not enter derivation."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-pp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <rect class="node" x="30" y="96" width="180" height="60" rx="8" />
+  <text class="t mono" x="120" y="132">BIP39 mnemonic</text>
+
+  <line class="edge" x1="210" y1="112" x2="306" y2="62" marker-end="url(#arr-pp)" />
+  <line class="edge" x1="210" y1="142" x2="306" y2="182" marker-end="url(#arr-pp)" />
+
+  <rect class="node" x="310" y="24" width="250" height="64" rx="8" />
+  <text class="t" x="435" y="50">PBKDF2 with empty passphrase</text>
+  <text class="s" x="435" y="68">base wallet</text>
+
+  <rect class="node info" x="310" y="156" width="250" height="64" rx="8" />
+  <text class="t" x="435" y="182">PBKDF2 with chosen passphrase</text>
+  <text class="s" x="435" y="200">different wallet</text>
+
+  <line class="edge" x1="560" y1="188" x2="646" y2="140" marker-end="url(#arr-pp)" />
+
+  <rect class="node warn" x="650" y="90" width="240" height="64" rx="8" />
+  <text class="t" x="770" y="116">offline candidate</text>
+  <text class="t" x="770" y="133">comparison</text>
+
+  <rect class="node" x="650" y="190" width="240" height="56" rx="8" />
+  <text class="t" x="770" y="214">known target address</text>
+  <text class="t" x="770" y="231">or xpub</text>
+
+  <line class="edge" x1="770" y1="190" x2="770" y2="158" marker-end="url(#arr-pp)" />
+
+  <!-- the PIN is not part of derivation -->
+  <rect class="node dead" x="30" y="200" width="180" height="56" rx="8" />
+  <text class="t dim" x="120" y="224">device PIN</text>
+  <text class="s" x="120" y="241">access control only</text>
+
+  <line class="edge dashed" x1="120" y1="200" x2="120" y2="160" marker-end="url(#arr-pp)" />
+  <text class="el" x="132" y="172">protects device access,</text>
+  <text class="el" x="132" y="186">not key derivation</text>
+
+  <style>
+    .node {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .node.info {
+      fill: var(--info-soft);
+      stroke: var(--info);
+    }
+    .node.warn {
+      fill: var(--warn-soft);
+      stroke: var(--warn);
+    }
+    .node.dead {
+      fill: none;
+      stroke: var(--ink-3);
+      stroke-dasharray: 6 4;
+    }
+    .t {
+      font: 600 12.5px var(--font-ui);
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+    .t.mono { font-family: var(--font-mono); font-size: 12px; }
+    .t.dim { fill: var(--ink-3); }
+    .s {
+      font: 11px var(--font-ui);
+      fill: var(--ink-3);
+      text-anchor: middle;
+    }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .edge.dashed { stroke-dasharray: 5 4; }
+    .el {
+      font: 10.5px var(--font-mono);
+      fill: var(--ink-3);
+      paint-order: stroke;
+      stroke: var(--surface);
+      stroke-width: 4px;
+    }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

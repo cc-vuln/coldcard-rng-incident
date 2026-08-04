@@ -3,6 +3,8 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
 import Disclosure from '../../components/Disclosure.astro';
+import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.astro';
+import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
 ---
 
 <Article
@@ -41,6 +43,8 @@ import Disclosure from '../../components/Disclosure.astro';
     <span class="callout__title">Block's own caveat on the scenarios below</span>
     <blockquote class="q" style="margin:0">"This analysis is based on our current understanding of the situation. We have not done full empirical testing to confirm exploitability."<cite><a href="/record/sources/block-disclosure/">Block Engineering, disclosure summary</a></cite></blockquote>
   </div>
+
+  <FigureCandidateSpace />
 
   <div class="table-wrap">
     <div class="table-scroll">
@@ -146,17 +150,7 @@ d = RTC-&gt;SSR;</pre>
       />
     </p>
 
-    <div class="mermaid-wrap">
-      <pre class="mermaid">
-flowchart LR
-  UID["STM32L4 96-bit UID"] --> W1["first 32-bit word\nread by fallback"]
-  UID --> W23["remaining 64 bits\nnot read by fallback"]
-  W1 --> MIX["XOR with SysTick"]
-  RTC["RTC time and subsecond"] --> STATE["other Yasmarang state"]
-  MIX --> STATE
-  STATE --> OUT["MicroPython fallback output"]
-      </pre>
-    </div>
+    <FigureUidFlow />
 
   </Disclosure>
 

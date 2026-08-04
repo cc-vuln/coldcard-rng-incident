@@ -1,0 +1,113 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `Forty bytes returned by the two secure elements are hashed, then only the first four hash bytes are used. The code therefore carries at most 32 bits into libngu, regardless of the entropy in the returned bytes.`;
+---
+
+<Fig
+  id="fig-reseed-funnel"
+  viewBox="0 0 920 262"
+  minWidth={640}
+  title="The 32-bit reseed path"
+  desc="The secure elements return 32 and 8 bytes. Those 40 bytes are hashed with double SHA-256, and only the first 4 bytes of the hash are unpacked and written to the libngu Yasmarang pad word. The other 28 hash bytes are discarded."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-rf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <!-- row 1: secure-element returns -->
+  <text class="lbl" x="60" y="42">callgate.read_rng(1): SE1, 32 bytes</text>
+  <text class="lbl" x="452" y="42">read_rng(2): SE2, 8 bytes</text>
+  <rect class="strip se" x="60" y="52" width="384" height="34" rx="4" />
+  <rect class="strip se" x="448" y="52" width="96" height="34" rx="4" />
+  <g class="seg">
+    <line x1="156" y1="52" x2="156" y2="86" /><line x1="252" y1="52" x2="252" y2="86" />
+    <line x1="348" y1="52" x2="348" y2="86" /><line x1="496" y1="52" x2="496" y2="86" />
+  </g>
+
+  <line class="edge" x1="252" y1="90" x2="252" y2="118" marker-end="url(#arr-rf)" />
+  <text class="lbl dim" x="264" y="110">a + b, then ngu.hash.sha256d</text>
+
+  <!-- row 2: the hash, 4 bytes kept -->
+  <text class="lbl" x="60" y="150">n = sha256d(a + b): 32 bytes</text>
+  <rect class="strip kept" x="60" y="160" width="48" height="34" rx="4" />
+  <rect class="strip drop" x="112" y="160" width="336" height="34" rx="4" />
+  <line class="drop-x" x1="112" y1="160" x2="448" y2="194" />
+  <line class="drop-x" x1="112" y1="194" x2="448" y2="160" />
+  <text class="lbl kept-t" x="84" y="212" text-anchor="middle">n[0:4] kept</text>
+  <text class="lbl drop-t" x="280" y="212" text-anchor="middle">n[4:32] discarded</text>
+
+  <line class="edge" x1="84" y1="216" x2="84" y2="234" marker-end="url(#arr-rf)" />
+  <text class="lbl dim" x="96" y="230">ustruct.unpack('I', n[0:4])</text>
+
+  <!-- row 3: the single state word -->
+  <rect class="strip kept" x="60" y="238" width="48" height="22" rx="4" />
+  <text class="lbl strong" x="120" y="254">yasmarang_pad: the only libngu state word the reseed touches</text>
+
+  <!-- right column: the narrowing -->
+  <text class="big" x="740" y="76" text-anchor="middle">40 bytes</text>
+  <text class="lbl dim" x="740" y="94" text-anchor="middle">from the secure elements</text>
+  <line class="edge drop-e" x1="740" y1="106" x2="740" y2="196" marker-end="url(#arr-rf)" />
+  <text class="lbl dim" x="752" y="155">hashed, then truncated</text>
+  <text class="big warn" x="740" y="222" text-anchor="middle">32 bits</text>
+  <text class="lbl dim" x="740" y="240" text-anchor="middle">into libngu</text>
+
+  <style>
+    .strip {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .strip.se {
+      fill: var(--info-soft);
+      stroke: var(--info);
+    }
+    .strip.kept {
+      fill: var(--warn-soft);
+      stroke: var(--warn);
+      stroke-width: 1.5;
+    }
+    .strip.drop {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+      stroke-dasharray: 5 4;
+    }
+    .drop-x {
+      stroke: var(--danger);
+      stroke-width: 1;
+      stroke-opacity: 0.55;
+    }
+    .seg line {
+      stroke: var(--rule-2);
+      stroke-width: 1;
+    }
+    .lbl {
+      font: 11px var(--font-mono);
+      fill: var(--ink-2);
+    }
+    .lbl.dim { fill: var(--ink-3); }
+    .lbl.strong {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 12px;
+      fill: var(--ink);
+    }
+    .lbl.kept-t { fill: var(--warn); }
+    .lbl.drop-t { fill: var(--danger); }
+    .big {
+      font: 600 21px var(--font-ui);
+      fill: var(--ink);
+    }
+    .big.warn { fill: var(--warn); }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .drop-e { stroke-dasharray: 5 4; }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

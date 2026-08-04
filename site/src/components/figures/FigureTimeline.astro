@@ -1,0 +1,103 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `Five years from regression to hotfix. The January 2024 cleanup touched the call site but not the linked RNG source, so affected builds span every release from v4.0.0 until the 2026 hotfix.`;
+---
+
+<Fig
+  id="fig-timeline"
+  viewBox="0 0 960 212"
+  minWidth={640}
+  title="Timeline of the defect"
+  desc="March 2021: v4.0.0 moves seed generation to the affected call and the regression ships. March 2022: a reseed API is added. January 2024: a cleanup keeps the same linked RNG source. July 2026: disclosure and hotfix rebind rng_get to the STM32 peripheral."
+  caption={caption}
+>
+  <!-- axis and affected span -->
+  <rect class="span" x="64" y="115" width="783" height="10" rx="5" />
+  <line class="axis" x1="40" y1="120" x2="920" y2="120" />
+  <text class="spanlbl" x="350" y="110">AFFECTED BUILDS</text>
+
+  <!-- year ticks -->
+  <g class="tick">
+    <line x1="40" y1="116" x2="40" y2="124" /><text x="40" y="139">2021</text>
+    <line x1="187" y1="116" x2="187" y2="124" /><text x="187" y="139">2022</text>
+    <line x1="333" y1="116" x2="333" y2="124" /><text x="333" y="139">2023</text>
+    <line x1="480" y1="116" x2="480" y2="124" /><text x="480" y="139">2024</text>
+    <line x1="627" y1="116" x2="627" y2="124" /><text x="627" y="139">2025</text>
+    <line x1="773" y1="116" x2="773" y2="124" /><text x="773" y="139">2026</text>
+  </g>
+
+  <!-- March 2021, above -->
+  <line class="lead" x1="64" y1="114" x2="64" y2="100" />
+  <circle class="dot bad" cx="64" cy="120" r="6" />
+  <text class="date bad" x="56" y="86">March 2021</text>
+  <text class="sub" x="56" y="58">v4.0.0 moves seed generation to</text>
+  <text class="sub" x="56" y="72">random.bytes(): the regression ships</text>
+
+  <!-- January 2024, above -->
+  <line class="lead" x1="480" y1="114" x2="480" y2="100" />
+  <circle class="dot warn" cx="480" cy="120" r="6" />
+  <text class="date warn" x="480" y="86" text-anchor="middle">January 2024</text>
+  <text class="sub" x="480" y="58" text-anchor="middle">cleanup swaps the wrapper for a direct</text>
+  <text class="sub" x="480" y="72" text-anchor="middle">ngu.random.bytes() call, same source</text>
+
+  <!-- March 2022, below -->
+  <line class="lead" x1="211" y1="126" x2="211" y2="148" />
+  <circle class="dot warn" cx="211" cy="120" r="6" />
+  <text class="date warn" x="211" y="164" text-anchor="middle">March 2022</text>
+  <text class="sub" x="211" y="178" text-anchor="middle">reseed API added: Mk4-class mixes</text>
+  <text class="sub" x="211" y="192" text-anchor="middle">32 bits from the secure elements</text>
+
+  <!-- July 2026, below -->
+  <line class="lead" x1="847" y1="126" x2="847" y2="148" />
+  <circle class="dot ok" cx="847" cy="120" r="6" />
+  <text class="date ok" x="855" y="164" text-anchor="end">July 2026</text>
+  <text class="sub" x="855" y="178" text-anchor="end">disclosure and hotfix: rng_get rebound</text>
+  <text class="sub" x="855" y="192" text-anchor="end">to the STM32 hardware peripheral</text>
+
+  <style>
+    .axis {
+      stroke: var(--rule-2);
+      stroke-width: 1.5;
+    }
+    .span {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+      stroke-opacity: 0.4;
+    }
+    .spanlbl {
+      font: 600 10px var(--font-ui);
+      letter-spacing: 0.14em;
+      fill: var(--danger);
+      text-anchor: middle;
+    }
+    .tick line {
+      stroke: var(--rule-2);
+      stroke-width: 1;
+    }
+    .tick text {
+      font: 10px var(--font-mono);
+      fill: var(--ink-3);
+      text-anchor: middle;
+    }
+    .lead {
+      stroke: var(--ink-3);
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+    }
+    .dot { stroke-width: 2; }
+    .dot.bad { fill: var(--danger-soft); stroke: var(--danger); }
+    .dot.warn { fill: var(--warn-soft); stroke: var(--warn); }
+    .dot.ok { fill: var(--safe-soft); stroke: var(--safe); }
+    .date {
+      font: 600 11.5px var(--font-mono);
+    }
+    .date.bad { fill: var(--danger); }
+    .date.warn { fill: var(--warn); }
+    .date.ok { fill: var(--safe); }
+    .sub {
+      font: 10.5px var(--font-ui);
+      fill: var(--ink-3);
+    }
+  </style>
+</Fig>

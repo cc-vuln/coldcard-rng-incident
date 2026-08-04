@@ -1,0 +1,85 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `Both workflows call the same function; they differ only in the prefix fed to it. Pure dice starts from an empty byte string, so the affected <code>ngu.random</code> output is absent, and the result can be reproduced offline from the roll string with an independently reviewed implementation.`;
+---
+
+<Fig
+  id="fig-dice-workflows"
+  viewBox="0 0 920 236"
+  minWidth={640}
+  title="The two dice workflows"
+  desc="Pure dice hashes only the roll symbols from an empty starting value, producing the word result without the device generator. Mixed dice hashes the device-generated seed prefix together with the roll symbols, producing an updated seed."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-dw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <text class="lane ok-t" x="16" y="28">PURE DICE: NEW SEED WORDS, ADVANCED, DICE ROLL</text>
+
+  <rect class="node ok" x="60" y="40" width="210" height="56" rx="8" />
+  <text class="t" x="165" y="74">empty starting value</text>
+
+  <line class="edge" x1="270" y1="68" x2="366" y2="68" marker-end="url(#arr-dw)" />
+
+  <rect class="node ok" x="370" y="40" width="250" height="56" rx="8" />
+  <text class="t" x="495" y="74">SHA-256 over roll symbols</text>
+
+  <line class="edge" x1="620" y1="68" x2="716" y2="68" marker-end="url(#arr-dw)" />
+
+  <rect class="node ok" x="720" y="40" width="170" height="56" rx="8" />
+  <text class="t" x="805" y="74">12- or 24-word result</text>
+
+  <text class="lane warn-t" x="16" y="148">MIXED DICE: ADD ROLLS ON THE WORD SCREEN</text>
+
+  <rect class="node warn" x="60" y="160" width="210" height="56" rx="8" />
+  <text class="t" x="165" y="186">device-generated</text>
+  <text class="t" x="165" y="203">seed prefix</text>
+
+  <line class="edge" x1="270" y1="188" x2="366" y2="188" marker-end="url(#arr-dw)" />
+
+  <rect class="node warn" x="370" y="160" width="250" height="56" rx="8" />
+  <text class="t" x="495" y="186">SHA-256 over prefix</text>
+  <text class="t" x="495" y="203">and roll symbols</text>
+
+  <line class="edge" x1="620" y1="188" x2="716" y2="188" marker-end="url(#arr-dw)" />
+
+  <rect class="node warn" x="720" y="160" width="170" height="56" rx="8" />
+  <text class="t" x="805" y="194">updated seed</text>
+
+  <style>
+    .lane {
+      font: 600 10px var(--font-ui);
+      letter-spacing: 0.12em;
+    }
+    .lane.ok-t { fill: var(--safe); }
+    .lane.warn-t { fill: var(--warn); }
+    .node {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .node.ok {
+      fill: var(--safe-soft);
+      stroke: var(--safe);
+    }
+    .node.warn {
+      fill: var(--warn-soft);
+      stroke: var(--warn);
+    }
+    .t {
+      font: 600 12.5px var(--font-ui);
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

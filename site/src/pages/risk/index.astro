@@ -4,29 +4,12 @@ import Answer from '../../components/Answer.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import SeedWarning from '../../components/SeedWarning.astro';
+import FigureDecisionPath from '../../components/figures/FigureDecisionPath.astro';
 import { MODEL_RANGES, VENDOR_RANGE_AS_OF, vendorDivergences } from '../../lib/firmware';
 
 // The affected ranges and the places the vendor states a narrower one both come
 // from src/lib/firmware.ts, the same module the firmware record renders from.
 const divergences = vendorDivergences();
-
-const decisionFlow = `flowchart TD
-  START(["Where did the mnemonic come from?"])
-  START -->|"imported or generated elsewhere"| PROV{"Generation method and provenance independently verified?"}
-  PROV -->|"yes, outside the affected path"| OUT["Not affected by this generator"]
-  PROV -->|"no or unknown"| ORIGIN["Assess the original generation method"]
-  START -->|"generated on a COLDCARD"| FW{"Firmware used at generation"}
-  FW -->|"before affected range"| CLEAN["Not affected by this incident"]
-  FW -->|"named vendor fix release"| FIX["Source fix verified; published binary not independently checked here"]
-  FW -->|"inside affected range or unknown"| DICE{"Dice workflow"}
-  DICE -->|"pure dice, sufficient fair secret rolls"| PURE["Affected generator bypassed"]
-  DICE -->|"mixed dice"| MIX["Assess roll count and secrecy"]
-  DICE -->|"none or unknown"| HELD{"How are funds controlled?"}
-  MIX --> HELD
-  HELD -->|"single signature"| SINGLE["Assess passphrase and migrate"]
-  HELD -->|"threshold wallet"| THRESH["Count affected keys against threshold"]
-  THRESH -->|"below threshold"| BELOW["Affected keys alone cannot sign\nrotate them"]
-  THRESH -->|"at or above threshold"| PUB["Check script, descriptor and\npublic-key exposure before moving"]`;
 ---
 
 <Article
@@ -59,13 +42,7 @@ const decisionFlow = `flowchart TD
 
   <h2>Decision path</h2>
 
-  <div class="mermaid-wrap">
-    <pre class="mermaid" set:text={decisionFlow}></pre>
-  </div>
-  <p class="cap">
-    The branches identify which technical question comes next. They are not a
-    substitute for the model-specific firmware range below.
-  </p>
+  <FigureDecisionPath />
 
   <h2>Affected generation ranges</h2>
 
@@ -179,11 +156,11 @@ const decisionFlow = `flowchart TD
     </div>
   </Disclosure>
 
-  <h2>Confirmed losses by model, as of 3 August 2026</h2>
+  <h2>Confirmed losses by model, as of 4 August 2026</h2>
 
   <p>
     The ranges above describe which devices could generate weak seeds. They do
-    not say which models have demonstrably lost funds. As of 3 August 2026, no
+    not say which models have demonstrably lost funds. As of 4 August 2026, no
     captured source demonstrates a confirmed drain of a wallet generated on a
     Mk4, Mk5 or Q, and close observers were asking exactly that question:
     <a href="/record/sources/robhamilton-mk4-confirmation-question/">Rob
@@ -205,7 +182,7 @@ const decisionFlow = `flowchart TD
     <Claim
       basis="unverified"
       scope="Whether any Mk4, Mk5 or Q wallet has in fact lost funds in this incident"
-      source="No captured source demonstrates a confirmed Mk4-class drain as of 3 Aug 2026; such claims have been made and later retracted, and absence from this archive is not evidence of safety"
+      source="No captured source demonstrates a confirmed Mk4-class drain as of 4 Aug 2026; such claims have been made and later retracted, and absence from this archive is not evidence of safety"
       compact
     />
   </p>

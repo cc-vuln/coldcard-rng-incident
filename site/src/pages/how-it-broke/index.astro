@@ -3,42 +3,25 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
 import Disclosure from '../../components/Disclosure.astro';
+import FigureTimeline from '../../components/figures/FigureTimeline.astro';
+import FigureIntendedChain from '../../components/figures/FigureIntendedChain.astro';
+import FigureDocumentedDesign from '../../components/figures/FigureDocumentedDesign.astro';
+import FigureBeforeHotfix from '../../components/figures/FigureBeforeHotfix.astro';
+import FigureAfterHotfix from '../../components/figures/FigureAfterHotfix.astro';
+import FigureReseedFunnel from '../../components/figures/FigureReseedFunnel.astro';
 
 // Ported from the standalone explainer and checked against the referenced
-// firmware, libngu and MicroPython revisions.
-const intro = `<p>A COLDCARD exposes two hardware randomness sources to its firmware: the STM32 hardware RNG, which is an analogue noise circuit, and one or two secure elements that can also emit random bytes. The intended flow is short.</p>
-
-<div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  subgraph INTENDED["INTENDED DESIGN"]
-    direction LR
-    HW["STM32 RNG peripheral<br/>analogue noise source"] --> BYTES["16 or 32 random bytes"]
-    BYTES --> SHA["SHA-256 whitening<br/>single or double by version"]
-    SHA --> BIP39["BIP39 encoding<br/>12 or 24 words"]
-    BIP39 --> MASTER["BIP32 master key<br/>then your addresses"]
-  end
-  classDef good fill:#1c7c4a22,stroke:#1c7c4a,stroke-width:2px
-  class HW,BYTES,SHA,BIP39,MASTER good
-</pre></div>
-<p class="cap">The intended chain begins with the STM32 hardware RNG. The regression changed the source behind the byte-generation call.</p>`;
+// firmware, libngu and MicroPython revisions. The intended-design diagram is
+// the FigureIntendedChain component, rendered between this block and the
+// documented-design section.
+const intro = `<p>A COLDCARD exposes two hardware randomness sources to its firmware: the STM32 hardware RNG, which is an analogue noise circuit, and one or two secure elements that can also emit random bytes. The intended flow is short.</p>`;
 
 // Merged from the retired /how-it-broke/promised/ page: the documented design,
-// its diagram, the whitening card and the FAQ's dice sentence.
-const documented = `<p>COLDCARD's documentation describes that mechanism in enough detail to compare it with the implementation. The FAQ captured on 1 August 2026 says the device primarily uses the STM32 hardware TRNG, XORs a PRNG seeded from SE1 and SE2 into that output, and then applies SHA-256 whitening. It describes the hardware source as measuring analogue transistor noise.</p>
+// its diagram (now the FigureDocumentedDesign component), the whitening card
+// and the FAQ's dice sentence.
+const documented = `<p>COLDCARD's documentation describes that mechanism in enough detail to compare it with the implementation. The FAQ captured on 1 August 2026 says the device primarily uses the STM32 hardware TRNG, XORs a PRNG seeded from SE1 and SE2 into that output, and then applies SHA-256 whitening. It describes the hardware source as measuring analogue transistor noise.</p>`;
 
-<div class="mermaid-wrap"><pre class="mermaid">
-flowchart LR
-  T["Hardware TRNG<br/>analogue transistor noise"] --> X(("XOR"))
-  P["PRNG<br/>seeded at boot from<br/>SE1 and SE2 TRNGs"] --> X
-  X --> W["SHA-256 whitening<br/>described as reducing bias"]
-  W --> S["256-bit seed"]
-
-  classDef n-safe stroke-width:1.5px
-  class T,P,X,W,S n-safe
-</pre></div>
-<p class="cap">The documented design. A uniform hardware term independent of the PRNG would make the XOR output uniform even if the other input were predictable, so independence and successful hardware sampling are load-bearing parts of the stated construction.</p>
-
-<div class="ve-card ve-card--amber">
+const documentedRest = `<div class="ve-card ve-card--amber">
 <div class="ve-card__label lbl-amber">Whitening can mask bias, not entropy shortfall</div>
 <p>A hash cannot create entropy. Feed SHA-256 a value drawn from a set of 2<sup>32</sup> possibilities and the 256-bit result can occupy at most 2<sup>32</sup> distinct outputs. Hash collisions can make that set smaller. The output bits can appear balanced while an attacker still has no more than the original candidate set to enumerate.</p>
 </div>
@@ -203,41 +186,11 @@ const bodyB = `<h2>Two PRNGs and one XOR</h2>
 }</pre>
 <p class="annnote">Italic blue comments are explanatory annotations and are not present in the source.</p>
 </div>
-</details>
+</details>`;
 
-<div class="mermaid-wrap"><pre class="mermaid">
-flowchart TB
-  subgraph REAL["BEFORE THE HOTFIX"]
-    direction TB
-    UID["MCU unique ID<br/>fixed device metadata"] --> MPY
-    ST["SysTick VAL<br/>boot-relative counter"] --> MPY
-    RTC["RTC TR and SSR<br/>wall clock, subsecond"] --> MPY
-    MPY["MicroPython Yasmarang<br/>rng_get"]
-
-    CONST["Compile-time initial state<br/>pad 0x0a8ce26f, n 69, d 233"] --> NGU
-    SE["Mk4/Mk5/Q normal boot path<br/>secure-element-derived reseed"] -.-> NGU
-    NGU["libngu Yasmarang<br/>my_yasmarang"]
-
-    MPY -->|"CHIP_TRNG_32"| XOR(("XOR"))
-    NGU --> XOR
-    XOR --> OUT["ngu.random.bytes 32"]
-    OUT --> SHA2["SHA-256 whitening<br/>version-dependent"]
-    SHA2 --> W["Your 24 words"]
-  end
-
-  HWDEAD["STM32 RNG peripheral<br/>not reached on this path"]
-  MPY -. "not called" .-x HWDEAD
-
-  classDef dead fill:#c0392b22,stroke:#c0392b,stroke-width:2px,stroke-dasharray:6 4
-  classDef weak fill:#b4770b22,stroke:#b4770b,stroke-width:2px
-  classDef out fill:#c0392b22,stroke:#c0392b,stroke-width:2px
-  class HWDEAD dead
-  class MPY,NGU,UID,ST,RTC,CONST,SE weak
-  class OUT,SHA2,W out
-</pre></div>
-<p class="cap">On Mk2 and Mk3, the libngu stream starts from published constants. On the normal Mk4, Mk5 and Q boot path, one libngu state word is overwritten by a secure-element-derived value. In both cases the MicroPython side remains UID-and-timer derived, and the STM32 hardware RNG is not reached through this path.</p>
-
-<div class="callout callout--amber">
+// The failure schematic between these two blocks is the FigureBeforeHotfix
+// component, rendered on the same grid as FigureAfterHotfix in the fix rung.
+const bodyBRest = `<div class="callout callout--amber">
 <span class="callout__title">What the XOR contributes</span>
 XOR cannot add uncertainty that is absent from both inputs. At a fixed call history a stream started from published constants contributes no secret uncertainty, and the other input remains the MicroPython stream seeded from the UID word and timers.
 </div>`;
@@ -300,32 +253,11 @@ $(BUILD)/rng.o: $(BOARD_DIR)/mpconfigboard.mk
 <div class="callout callout--green">
 <span class="callout__title">Properties of the integration fix</span>
 The COLDCARD hotfix supplies the board's hardware-backed <code>rng_get()</code> symbol and configures the MicroPython fallback source not to compile for this object target.
-</div>
+</div>`;
 
-<div class="mermaid-wrap"><pre class="mermaid">
-flowchart TB
-  subgraph AFTER["AFTER THE HOTFIX"]
-    direction TB
-    CALL["generate_seed<br/>ngu.random.bytes 32<br/>UNCHANGED"] --> MRB["my_random_bytes<br/>UNCHANGED"]
-    MRB -->|"CHIP_TRNG_32<br/>still resolves to rng_get"| NOW["board rng.c rng_get<br/>NEW"]
-    NOW --> HWOK["STM32 RNG peripheral<br/>raises OSError on timeout"]
-    MRB --> NGU2["libngu Yasmarang<br/>UNCHANGED, still XORed in"]
-    HWOK --> XOR3(("XOR"))
-    NGU2 --> XOR3
-    XOR3 --> GOOD["32 output bytes<br/>incorporating STM32 RNG words"]
-  end
-
-  GONE2["MicroPython Yasmarang source<br/>excluded by fixed build rule"]
-
-  classDef good fill:#1c7c4a22,stroke:#1c7c4a,stroke-width:2px
-  classDef same fill:#2160b822,stroke:#2160b8,stroke-width:1.5px
-  classDef gone fill:#88888822,stroke:#888888,stroke-width:2px,stroke-dasharray:6 4
-  class NOW,HWOK,GOOD good
-  class CALL,MRB,NGU2 same
-  class GONE2 gone
-</pre></div>
-
-<div class="callout callout--amber">
+// The after-diagram is the FigureAfterHotfix component, rendered between
+// these two blocks on the same grid as the before-diagram.
+const fixRest = `<div class="callout callout--amber">
 <span class="callout__title">Scope of the remaining upstream issue</span>
 <code>libngu</code>'s <code>#ifndef</code> guard is unchanged in the public repository. Another STM32 integration is exposed to the same failure mode only if it defines <code>MICROPY_HW_ENABLE_RNG</code> as zero, resolves <code>rng_get()</code> to the MicroPython fallback and relies on that output for a security-sensitive operation. Pull request #58 proposes a value check; it remains unmerged as of 1 August 2026.
 </div>`;
@@ -362,11 +294,17 @@ flowchart TB
     </p>
   </Answer>
 
+  <FigureTimeline />
+
   <div class="ported" set:html={intro} />
+
+  <FigureIntendedChain />
 
   {/* Stable anchor: /how-it-broke/promised/ redirects here. */}
   <h2 id="documented-design">What the documentation said</h2>
   <div class="ported" set:html={documented} />
+  <FigureDocumentedDesign />
+  <div class="ported" set:html={documentedRest} />
   <div class="ported">
     <p>That sentence states a runtime property that was not true for affected
     device-generated seeds; the <a href="/how-it-broke/entropy/">published
@@ -397,6 +335,8 @@ flowchart TB
   </Disclosure>
 
   <div class="ported" set:html={bodyB} />
+  <FigureBeforeHotfix />
+  <div class="ported" set:html={bodyBRest} />
 
   <Disclosure
     id="repetition-check"
@@ -417,6 +357,7 @@ flowchart TB
       compact
     /></p>
   </div>
+  <FigureReseedFunnel />
   <div class="ported" set:html={bodyC} />
 
   <Disclosure
@@ -449,6 +390,8 @@ flowchart TB
       exports <code>rng_get()</code> itself, backed by the real peripheral:</p>
     </div>
     <div class="rung-html" set:html={fixBody} />
+    <FigureAfterHotfix />
+    <div class="rung-html" set:html={fixRest} />
   </Disclosure>
 </Article>
 

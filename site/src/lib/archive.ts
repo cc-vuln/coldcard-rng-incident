@@ -93,6 +93,7 @@ const KIND_GROUP: Record<string, SourceGroup> = {
   'reporting': 'reporting',
   'chain-monitor': 'monitor',
   'victim-account': 'firsthand',
+  'aggregator': 'reporting',
 };
 
 export function groupOf(src: Source): SourceGroup {
@@ -166,6 +167,7 @@ const KIND_LABELS: Record<string, string> = {
   'reporting': 'Reporting',
   'chain-monitor': 'Chain monitor',
   'victim-account': 'First-hand account',
+  'aggregator': 'Aggregator',
   'social-post': 'Social post or thread',
 };
 
@@ -405,6 +407,7 @@ export function snapshots(sourceId: string): Snapshot[] {
       bytes: m.bytes,
       chars: text.length,
       event: m.event,
+      method: m.method,
       provenance: m.provenance,
       waybackUrl: m.wayback_url,
       hasDiff: existsSync(join(DIFFS, sourceId, `${ts}.diff`)),

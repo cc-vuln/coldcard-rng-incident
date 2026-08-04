@@ -93,20 +93,13 @@ const spine = `<div class="tl">
     />
     <Claim
       basis="reported"
-      scope="The 2 and 3 August entries: the vendor's shipments and outreach statements, the OpenSats board change, the reported passphrase-wallet loss and the claimed fourth wave with its corrections"
+      scope="The 2 and 3 August entries: the vendor's shipments and outreach statements, the OpenSats board change, the reported passphrase-wallet loss, the claimed fourth wave with its corrections and Galaxy's confirmed-total revision"
       source="Captured X posts from Coinkite, OpenSats, Galaxy Research and named community accounts, each cited on its own entry"
       href="#august-2-3"
       compact
     />
-    The arithmetic behind the
-    swept totals is kept on <a href="/record/funds/">the funds-accounting page</a>.
-    <Claim
-      basis="derived"
-      scope="The reconciled BTC values, transaction windows and cross-source timing comparisons"
-      source="This site's integer-satoshi and block-timestamp accounting, published as a privacy-safe recheck artefact with its assumptions and limits"
-      href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json"
-      compact
-    />
+    The swept totals, each kept with its source, its set and its date, are on
+    <a href="/record/funds/">the funds-accounting page</a>.
   </p>
   </Answer>
 
@@ -126,18 +119,16 @@ const spine = `<div class="tl">
         Galaxy later reported a 41-minute window covering 1,196 counted addresses
         and {fig("galaxyGrossBtc")}, beginning in block 960,183.
         <Claim basis="reported" captured="1 Aug 2026" contested scope="Galaxy's 41-minute wider window, address count and BTC estimate" source="Galaxy Research primary X post, preserved in the archive" href="/record/sources/glxyresearch-flow-map/" />
-        Within it, the locally
-        reconciled 500-transaction set runs from 01:36:08 to 01:51:26 UTC across
-        blocks 960,188 to 960,191, spending 1,324 UTXOs from 500 source
-        addresses. Gross inputs total <strong>{fig("sweptGrossBtc")}</strong>, of
-        which <strong>{fig("sweptBtc")}</strong> reaches the first collector
-        after fees, and the confirming block timestamps span 15 minutes 18
-        seconds.
-        <Claim basis="derived" scope="The 15-minute 18-second interval for the locally reconciled 500-transaction subset" source="Block timestamps in the pinned first-three-wave dataset" href="/record/evidence/funds-accounting-47d8f554-20260801T064817Z.json" />
+        Within it, the 500-transaction set reported by TFTC and Rob Hamilton
+        spans about 15 minutes: a reported 1,324 UTXOs spent from 500 source
+        addresses, with TFTC publishing <strong>{fig("sweptBtc")}</strong>
+        received by one first collector and Hamilton reporting approximately
+        594.48 BTC moved and about 562 BTC consolidated.
+        <Claim basis="reported" scope="The 500-transaction set's reported UTXO count, duration, collector receipt and consolidation figure" source="Captured TFTC report and Rob Hamilton primary post" href="/record/sources/tftc-who-must-move/" />
         Bitcoin Optech states 29 July without a timezone; a US-local
         date is possible but not established in the newsletter. See
         <a href="/record/funds/">funds accounting</a> for the difference between
-        the published wider attribution and the derived transaction subsets.
+        the published totals and the sets they count.
         <CaptureThumb id="glxyresearch-flow-map" />
       </div>
     </div>
@@ -275,11 +266,8 @@ const spine = `<div class="tl">
       <div class="tl-body">
         <a href="https://x.com/glxyresearch/status/2083181683067506899" rel="noopener nofollow">Galaxy Research published the wider {fig("galaxyGrossBtc")} estimate</a>
         and attributed 1,196 counted addresses in blocks 960,183 to 960,191 to
-        the same operator. This site's local arithmetic reaches the rounded BTC
-        total if that attribution and its assembled transaction set are accepted.
-        The exact Galaxy address-counting method is not published. The local
-        arithmetic is exposed as a privacy-safe recheck artefact without source
-        addresses or transaction identifiers.
+        the same operator. The exact Galaxy address-counting method and the
+        underlying transaction list are not published.
         <Claim basis="reported" captured="1 Aug 2026" scope="Galaxy's wider-set attribution and estimate" source="Galaxy Research primary X post, preserved X capture" href="/record/sources/glxyresearch-flow-map/" />
       </div>
     </div>
@@ -556,13 +544,13 @@ const spine = `<div class="tl">
         674,951 and that no coin identified in waves 1 to 3 was created before
         that block; what that means for the published version ranges is on
         <a href="/record/firmware/">the firmware page</a>. Galaxy's scope is wider
-        than the 30 July sets reconciled on
-        <a href="/record/funds/">the funds-accounting page</a>, which does not
-        adopt the revised total.
+        than the 30 July set its 31 July figure covered;
+        <a href="/record/funds/">the funds-accounting page</a> keeps both as
+        dated figures.
         <Claim
           basis="reported"
           scope="Galaxy's 1 August third wave, revised total, attacker-holdings figure and stated method limit, and its statement about the firmware ship block"
-          source="Galaxy Research's captured 1 August thread; its scope is wider than the transaction sets reconciled here and the revised total is not adopted as this site's accounting"
+          source="Galaxy Research's captured 1 August thread; its scope is wider than the 30 July set and the underlying transaction and address lists are not published"
           href="/record/sources/glxyresearch-third-wave-revision/"
           compact
         />
@@ -701,6 +689,31 @@ const spine = `<div class="tl">
         The wave-4 set remains unconfirmed and is not adopted
         by <a href="/record/funds/">the funds-accounting page</a>.
         <CaptureThumb id="intangiblecoins-wave4-multisig-correction" />
+      </div>
+    </div>
+
+    <div class="tl-item is-key">
+      <div class="tl-date">3 Aug 2026, 22:51 UTC</div>
+      <div class="tl-body">
+        Galaxy Research <a href="/record/sources/glxy-losses-exceed-100m/">revise their top line again</a>:
+        high-confidence <strong>{fig("galaxyConfirmedBtc")}</strong> stolen from
+        {fig("galaxyConfirmedAddresses")} across three confirmed waves plus 14
+        smaller incidents, stated as exceeding US$100M and superseding the
+        1 August {fig("galaxyRevisedTotalBtc")} figure. Wave 1 is now fully
+        confirmed through victim reports, 73 individual victims have contacted
+        @intangiblecoins, and the 14 smaller footprints
+        <a href="/record/sources/glxy-victim-count/">could be many different attackers</a>
+        individually exploiting the now-known vulnerability. Including a
+        suspected fourth wave would take the total to
+        <strong>{fig("galaxyInclWave4Btc")}</strong>, but Galaxy
+        <a href="/record/sources/glxy-wave4-caveat/">does not promote it</a>
+        without victim confirmation. Galaxy states that 90 percent of stolen
+        coins have not moved and 100 percent of waves 1 to 3 coins are unmoved,
+        that confirmed attacker and victim addresses have been
+        <a href="/record/sources/glxy-law-enforcement-handoff/">provided to US federal law enforcement, exchanges and compliance firms</a>,
+        and that <a href="/record/sources/glxy-attack-ongoing/">the attack is ongoing</a>.
+        <Claim basis="reported" scope="Galaxy's 3 August confirmed and wave-4-inclusive totals, confirmation basis, victim count, unmoved-coins statements, law-enforcement handoff and ongoing-attack warning" source="Galaxy Research's captured 3 August thread; the underlying transaction and address lists are not published" href="/record/sources/glxy-losses-exceed-100m/" />
+        <CaptureThumb id="glxy-losses-exceed-100m" />
       </div>
     </div>
   </div>

@@ -177,3 +177,17 @@ Not implemented, in order of urgency:
 - **The removal route is not yet stated next to displayed media** (section
   5). The rationale and route are published on `/about/`; the pointer beside
   the media itself is outstanding.
+
+## 9. Deleted comments in held threads
+
+Section 7 covers a captured post whose original is later deleted. The same
+posture applies inside held Reddit threads. When a comment the archive
+captured while public is later deleted or removed at the source, the
+record keeps what it said: the earlier snapshot is never rewritten, and
+the source page marks the comment as deleted and shows the held text under
+a "held before deletion" line, so the deletion stays visible as the event
+it is. A comment deleted before the archive first saw it keeps its bare
+marker; this project does not recover bodies it never held. An author's
+removal request to this project is still honoured through the route in
+section 5; that is a request to this archive, distinct from a deletion at
+the source.

@@ -3,39 +3,11 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
 import Disclosure from '../../components/Disclosure.astro';
+import FigureFamilies from '../../components/figures/FigureFamilies.astro';
+import FigureSurfaces from '../../components/figures/FigureSurfaces.astro';
 
-// Two call surfaces, with call sites classified by source path. Feature-level
-// consequences remain qualified unless separately analysed.
-const surfaces = `flowchart LR
-  BR["ngu.random.bytes()"] --> M["libngu my_random_bytes"]
-  M --> Y["MicroPython Yasmarang<br/>UID word, SysTick, RTC"]
-  M --> N["libngu Yasmarang<br/>constants or at-most-32-bit reseed"]
-  OK["ckcc.rng_bytes()"] --> T["STM32 hardware TRNG<br/>analogue transistor noise"]
-
-  Y --> BL["Call sites requiring review:<br/>seeds, paper keys, passwords,<br/>session material and nonces"]
-  N --> BL
-  T --> GL["Backup password, 7z salt,<br/>HSM user secrets,<br/>SD overwrite blocks"]
-
-  Y -. "the hotfix rebinds this<br/>to the same hardware" .-> T
-
-  classDef n-act stroke-width:1.5px
-  classDef n-safe stroke-width:1.5px
-  class BR,M,Y,N,BL n-act
-  class OK,T,GL n-safe`;
-
-// Two families, separated by whether the material descends from the mnemonic.
-const families = `flowchart TB
-  S["How was the mnemonic produced?"] --> D["Dice-only, imported,<br/>or made before the regression"]
-  S --> A["Generated on affected firmware"]
-  D --> DS["The mnemonic itself is<br/>outside this defect"]
-  A --> AS["The mnemonic and everything<br/>derived from it inherit the defect"]
-  DS --> F["Separately: device features that call<br/>the affected generator without<br/>consulting the mnemonic at all"]
-  AS --> F
-
-  classDef n-act stroke-width:1.5px
-  classDef n-safe stroke-width:1.5px
-  class A,AS,F n-act
-  class D,DS n-safe`;
+// The two diagrams on this page are the FigureFamilies and FigureSurfaces
+// components, rendered in the template below.
 
 const body = `<div class="callout callout--blue">
 <span class="callout__title">Two RNG call surfaces</span>
@@ -113,13 +85,7 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
 
   <h2>Two failure families, and only one of them is about your seed</h2>
 
-  <div class="mermaid-wrap">
-    <pre class="mermaid" set:text={families}></pre>
-  </div>
-  <p class="cap">
-    Dice-only, imported and pre-regression mnemonics sit outside the left branch
-    and inside the shared one. The feature list is set out in the register below.
-  </p>
+  <FigureFamilies />
 
   <div class="ve-card ve-card--amber">
     <div class="ve-card__label lbl-amber">Who this second family reaches</div>
@@ -141,9 +107,7 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
 
   <div class="ported" set:html={body} />
 
-  <div class="mermaid-wrap">
-    <pre class="mermaid" set:text={surfaces}></pre>
-  </div>
+  <FigureSurfaces />
 
   <div set:html={rest} />
 

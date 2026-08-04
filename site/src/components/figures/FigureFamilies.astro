@@ -1,0 +1,88 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `Dice-only, imported and pre-regression mnemonics sit outside the left branch and inside the shared one. The feature list is set out in the register below.`;
+---
+
+<Fig
+  id="fig-families"
+  viewBox="0 0 920 400"
+  minWidth={640}
+  title="Two failure families"
+  desc="If the mnemonic was dice-only, imported, or made before the regression, the mnemonic itself is outside the defect. If it was generated on affected firmware, the mnemonic and everything derived from it inherit the defect. Both branches share a second exposure: device features that call the affected generator without consulting the mnemonic."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-fm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <!-- the question -->
+  <rect class="node ask" x="310" y="20" width="300" height="54" rx="8" />
+  <text class="t" x="460" y="53">How was the mnemonic produced?</text>
+
+  <line class="edge" x1="400" y1="74" x2="245" y2="116" marker-end="url(#arr-fm)" />
+  <line class="edge" x1="520" y1="74" x2="675" y2="116" marker-end="url(#arr-fm)" />
+
+  <!-- left branch: outside the defect -->
+  <rect class="node ok" x="60" y="120" width="330" height="64" rx="8" />
+  <text class="t" x="225" y="146">Dice-only, imported, or made</text>
+  <text class="t" x="225" y="163">before the regression</text>
+
+  <rect class="node ok" x="60" y="220" width="330" height="64" rx="8" />
+  <text class="t" x="225" y="246">The mnemonic itself is</text>
+  <text class="t" x="225" y="263">outside this defect</text>
+
+  <line class="edge" x1="225" y1="184" x2="225" y2="216" marker-end="url(#arr-fm)" />
+
+  <!-- right branch: inherits the defect -->
+  <rect class="node bad" x="530" y="120" width="330" height="64" rx="8" />
+  <text class="t" x="695" y="146">Generated on</text>
+  <text class="t" x="695" y="163">affected firmware</text>
+
+  <rect class="node bad" x="530" y="220" width="330" height="70" rx="8" />
+  <text class="t" x="695" y="246">The mnemonic and everything</text>
+  <text class="t" x="695" y="263">derived from it inherit the defect</text>
+
+  <line class="edge" x1="695" y1="184" x2="695" y2="216" marker-end="url(#arr-fm)" />
+
+  <!-- the shared second family -->
+  <line class="edge" x1="300" y1="284" x2="400" y2="316" marker-end="url(#arr-fm)" />
+  <line class="edge" x1="640" y1="290" x2="560" y2="316" marker-end="url(#arr-fm)" />
+
+  <rect class="node bad" x="200" y="316" width="520" height="64" rx="8" />
+  <text class="t" x="460" y="342">Separately: device features that call the affected</text>
+  <text class="t" x="460" y="359">generator without consulting the mnemonic at all</text>
+
+  <style>
+    .node {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .node.ask {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+    }
+    .node.ok {
+      fill: var(--safe-soft);
+      stroke: var(--safe);
+    }
+    .node.bad {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+    }
+    .t {
+      font: 600 13px var(--font-ui);
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

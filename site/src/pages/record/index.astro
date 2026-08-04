@@ -120,6 +120,9 @@ const grouped = GROUPS
   }))
   .filter((g) => g.items.length > 0);
 
+// Registry order is append order, which reads as unsorted once the register is
+// long. Newest post first; the rare entry without an established posting time
+// sorts last.
 const posts = xPosts().map((post) => {
   const artifacts = xArtifacts(post);
   return {
@@ -135,8 +138,7 @@ const posts = xPosts().map((post) => {
       : 'registered, capture not yet held',
     captured: artifacts.length > 0,
   };
-});
-const capturedPosts = posts.filter((p) => p.captured).length;
+}).sort((a, b) => (b.posted ?? '').localeCompare(a.posted ?? ''));
 
 const FACETS = [
   { value: 'vendor', label: 'Vendor' },
@@ -167,7 +169,7 @@ const FACETS = [
       <div><strong>{s.sources}</strong><span>sources tracked</span></div>
       <div><strong>{s.snapshots}</strong><span>snapshots held</span></div>
       <div><strong>{s.sourceChanges}</strong><span>source changes</span></div>
-      <div><strong>{capturedPosts}/{s.xPosts}</strong><span>posts captured</span></div>
+      <div><strong>{s.xPosts}</strong><span>posts captured</span></div>
     </div>
 
     <p class="rec__fresh" hidden={!freshness}>{freshness}</p>

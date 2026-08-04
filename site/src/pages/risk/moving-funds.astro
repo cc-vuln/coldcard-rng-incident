@@ -4,6 +4,7 @@ import Answer from '../../components/Answer.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import SeedWarning from '../../components/SeedWarning.astro';
+import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
 
 /**
  * This page absorbed /risk/migrating/. The two pages shared the same seven
@@ -11,15 +12,6 @@ import SeedWarning from '../../components/SeedWarning.astro';
  * other; the threshold-wallet material that genuinely differs is now the rung
  * at the foot, which a single-signature owner never has to open.
  */
-
-const race = `flowchart TB
-  START["Signed migration transaction"] --> ROUTE{"Submission route"}
-  ROUTE -->|"public relay"| MEM["Transaction enters public mempools\nscript visible before confirmation"]
-  MEM --> WINDOW["Any viable key-recovery and\nconflicting-spend attempt can begin"]
-  WINDOW --> BLOCK["Confirmation closes the\nunconfirmed race window"]
-  ROUTE -->|"direct miner submission"| PRIV["Disclosure can be limited to service\nand participating miner systems"]
-  PRIV --> PBLOCK["Script becomes public when mined\nor if transaction is otherwise relayed"]
-  TAP["Available Taproot key-path spend"] -. "does not reveal script leaf" .-> PBLOCK`;
 ---
 
 <Article
@@ -194,9 +186,9 @@ const race = `flowchart TB
     four consecutive blocks, 960,188 to 960,191, which does not establish a
     deadline for another wallet.
     <Claim
-      basis="derived"
+      basis="reported"
       scope="The 500-address, four-block characterisation of the first observed wave used above"
-      source="This site's reconciliation of the 500-transaction set from the pinned chain-derived dataset"
+      source="Reported by Rob Hamilton and TFTC; the block span is re-checkable on any public block explorer"
       href="/record/funds/"
       compact
     />
@@ -261,13 +253,7 @@ const race = `flowchart TB
       />
     </p>
 
-    <div class="mermaid-wrap">
-      <pre class="mermaid" set:text={race}></pre>
-    </div>
-    <p class="cap">
-      Direct submission can narrow pre-confirmation disclosure. It does not make
-      a transaction private after it is mined and does not guarantee confirmation.
-    </p>
+    <FigureRaceWindow />
 
     <h3>Submission options and limitations</h3>
 

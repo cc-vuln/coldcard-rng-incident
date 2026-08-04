@@ -1,0 +1,132 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `This flow describes conventional P2WSH. Taproot and miniscript policies can expose different information on different spending paths.`;
+---
+
+<Fig
+  id="fig-threshold-search"
+  viewBox="0 0 960 508"
+  minWidth={700}
+  title="Threshold wallets: how the search changes with exposure"
+  desc="Affected keys fewer than the threshold cannot satisfy the path. At or above threshold: if affected key targets are exposed, those keys can be tested separately, and whether a recovered threshold satisfies the path then depends on whether the complete script or construction data is available. If targets are not exposed, keys must be searched as part of a complete script reconstruction, and the first spend reveals the script."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-ts" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <rect class="node" x="20" y="160" width="180" height="64" rx="8" />
+  <text class="t" x="110" y="186">Affected keys on</text>
+  <text class="t" x="110" y="203">spending path</text>
+
+  <line class="edge" x1="200" y1="192" x2="246" y2="192" marker-end="url(#arr-ts)" />
+
+  <rect class="node ask" x="250" y="160" width="190" height="64" rx="8" />
+  <text class="t" x="345" y="186">Fewer than</text>
+  <text class="t" x="345" y="203">threshold?</text>
+
+  <line class="edge" x1="360" y1="160" x2="560" y2="98" marker-end="url(#arr-ts)" />
+  <text class="el" x="440" y="116" text-anchor="middle">yes</text>
+
+  <rect class="node info" x="520" y="30" width="220" height="64" rx="8" />
+  <text class="t" x="630" y="56">Affected keys alone</text>
+  <text class="t" x="630" y="73">cannot satisfy path</text>
+
+  <line class="edge" x1="440" y1="192" x2="516" y2="192" marker-end="url(#arr-ts)" />
+  <text class="el" x="478" y="182" text-anchor="middle">no</text>
+
+  <rect class="node ask" x="520" y="150" width="220" height="64" rx="8" />
+  <text class="t" x="630" y="176">Affected key targets</text>
+  <text class="t" x="630" y="193">exposed?</text>
+
+  <line class="edge" x1="660" y1="150" x2="845" y2="110" marker-end="url(#arr-ts)" />
+  <text class="el" x="740" y="112" text-anchor="middle">yes</text>
+
+  <rect class="node warn" x="790" y="30" width="160" height="76" rx="8" />
+  <text class="t" x="870" y="54">Test exposed</text>
+  <text class="t" x="870" y="71">affected keys</text>
+  <text class="t" x="870" y="88">separately</text>
+
+  <line class="edge" x1="700" y1="214" x2="850" y2="276" marker-end="url(#arr-ts)" />
+  <text class="el" x="790" y="238" text-anchor="middle">no</text>
+
+  <rect class="node" x="790" y="280" width="160" height="88" rx="8" />
+  <text class="t" x="870" y="304">Search keys as part</text>
+  <text class="t" x="870" y="321">of complete script</text>
+  <text class="t" x="870" y="338">reconstruction</text>
+
+  <!-- SEP to SCRIPT, routed left of the JOINT box -->
+  <path class="edge" d="M 810 106 L 762 106 L 762 316 L 746 316" marker-end="url(#arr-ts)" />
+
+  <rect class="node ask" x="520" y="280" width="220" height="72" rx="8" />
+  <text class="t" x="630" y="304">Complete script or</text>
+  <text class="t" x="630" y="321">construction data</text>
+  <text class="t" x="630" y="338">also available?</text>
+
+  <line class="edge" x1="520" y1="316" x2="476" y2="316" marker-end="url(#arr-ts)" />
+  <text class="el" x="498" y="302" text-anchor="middle">yes</text>
+
+  <rect class="node bad" x="250" y="280" width="220" height="72" rx="8" />
+  <text class="t" x="360" y="306">Recovered threshold</text>
+  <text class="t" x="360" y="323">may satisfy path</text>
+
+  <path class="edge" d="M 570 352 L 570 388 L 115 388 L 115 356" marker-end="url(#arr-ts)" />
+  <text class="el" x="582" y="374">no</text>
+
+  <rect class="node info" x="20" y="280" width="190" height="72" rx="8" />
+  <text class="t" x="115" y="302">Recovered keys alone</text>
+  <text class="t" x="115" y="319">do not reproduce output</text>
+  <text class="t" x="115" y="336">commitment</text>
+
+  <path class="edge" d="M 870 368 L 870 456 L 746 456" marker-end="url(#arr-ts)" />
+
+  <rect class="node warn" x="520" y="420" width="220" height="72" rx="8" />
+  <text class="t" x="630" y="444">First spend reveals</text>
+  <text class="t" x="630" y="461">complete script:</text>
+  <text class="t" x="630" y="478">plan migration route</text>
+
+  <style>
+    .node {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .node.ask {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+    }
+    .node.info {
+      fill: var(--info-soft);
+      stroke: var(--info);
+    }
+    .node.warn {
+      fill: var(--warn-soft);
+      stroke: var(--warn);
+    }
+    .node.bad {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+    }
+    .t {
+      font: 600 12.5px var(--font-ui);
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .el {
+      font: 10.5px var(--font-mono);
+      fill: var(--ink-3);
+      paint-order: stroke;
+      stroke: var(--surface);
+      stroke-width: 4px;
+    }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

@@ -68,21 +68,23 @@ const navCurrent = (n: NavItem) => {
  * and needs no per-page wiring. Sections with a single page have no entry and
  * render no second bar.
  */
+// The affected journey is one section spanning three URL prefixes
+// (/affected/, /risk/, /safety/): the hub is meant to make the boundary
+// invisible, so all three keys share one entry list with one set of labels.
+const AFFECTED_SUBNAV = [
+  { href: '/affected/', label: 'Overview' },
+  { href: '/risk/', label: 'Check: your risk' },
+  { href: '/risk/estimator/', label: 'Check: estimator' },
+  { href: '/risk/mitigations/', label: 'Check: dice, passphrase, multisig' },
+  { href: '/risk/moving-funds/', label: 'Act: moving funds' },
+  { href: '/safety/scams/', label: 'Avoid: scams' },
+  { href: '/safety/seed-words/', label: 'Avoid: seed-word safety' },
+];
+
 const SUBNAV: Record<string, { href: string; label: string }[]> = {
-  '/affected/': [
-    { href: '/affected/', label: 'Overview' },
-    { href: '/risk/', label: 'Check: your risk' },
-    { href: '/risk/mitigations/', label: 'Check: dice, passphrase, multisig' },
-    { href: '/risk/moving-funds/', label: 'Act: moving funds' },
-    { href: '/safety/scams/', label: 'Avoid: scams' },
-    { href: '/safety/seed-words/', label: 'Avoid: seed-word safety' },
-  ],
-  '/risk/': [
-    { href: '/risk/', label: 'Overview' },
-    { href: '/risk/estimator/', label: 'Estimator' },
-    { href: '/risk/mitigations/', label: 'Dice, passphrases, multisig' },
-    { href: '/risk/moving-funds/', label: 'Moving funds' },
-  ],
+  '/affected/': AFFECTED_SUBNAV,
+  '/risk/': AFFECTED_SUBNAV,
+  '/safety/': AFFECTED_SUBNAV,
   '/how-it-broke/': [
     { href: '/how-it-broke/', label: 'Generator path' },
     { href: '/how-it-broke/entropy/', label: 'Attack-cost estimates' },
@@ -103,10 +105,6 @@ const SUBNAV: Record<string, { href: string; label: string }[]> = {
     { href: '/record/funds/', label: 'Funds accounting' },
     { href: '/record/firmware/', label: 'Firmware releases' },
     { href: '/record/changes/', label: 'Source changes' },
-  ],
-  '/safety/': [
-    { href: '/safety/seed-words/', label: 'Seed words' },
-    { href: '/safety/scams/', label: 'Scams' },
   ],
 };
 

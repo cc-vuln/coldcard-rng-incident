@@ -1,0 +1,124 @@
+---
+import Fig from './Fig.astro';
+
+const caption = `Direct submission can narrow pre-confirmation disclosure. It does not make a transaction private after it is mined and does not guarantee confirmation.`;
+---
+
+<Fig
+  id="fig-race-window"
+  viewBox="0 0 990 438"
+  minWidth={720}
+  title="The pre-confirmation race window"
+  desc="A signed migration transaction submitted by public relay enters public mempools with its script visible before confirmation, opening a window for key-recovery and conflicting-spend attempts that closes at confirmation. Direct miner submission can limit disclosure to the service and participating miners until the transaction is mined or otherwise relayed. A Taproot key-path spend does not reveal a script leaf."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-rw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <rect class="node" x="20" y="120" width="190" height="64" rx="8" />
+  <text class="t" x="115" y="146">Signed migration</text>
+  <text class="t" x="115" y="163">transaction</text>
+
+  <line class="edge" x1="210" y1="152" x2="266" y2="152" marker-end="url(#arr-rw)" />
+
+  <rect class="node ask" x="270" y="124" width="180" height="56" rx="8" />
+  <text class="t" x="360" y="158">Submission route</text>
+
+  <!-- public relay chain -->
+  <line class="edge" x1="450" y1="140" x2="526" y2="62" marker-end="url(#arr-rw)" />
+  <text class="el" x="474" y="90" text-anchor="middle">public relay</text>
+
+  <rect class="node bad" x="530" y="16" width="220" height="72" rx="8" />
+  <text class="t" x="640" y="40">Transaction enters</text>
+  <text class="t" x="640" y="57">public mempools</text>
+  <text class="s" x="640" y="76">script visible before confirmation</text>
+
+  <line class="edge" x1="750" y1="52" x2="786" y2="52" marker-end="url(#arr-rw)" />
+
+  <rect class="node bad" x="790" y="16" width="190" height="84" rx="8" />
+  <text class="t" x="885" y="40">Any viable key-recovery</text>
+  <text class="t" x="885" y="57">and conflicting-spend</text>
+  <text class="t" x="885" y="74">attempt can begin</text>
+
+  <line class="edge" x1="885" y1="100" x2="885" y2="126" marker-end="url(#arr-rw)" />
+
+  <rect class="node" x="790" y="130" width="190" height="72" rx="8" />
+  <text class="t" x="885" y="154">Confirmation closes the</text>
+  <text class="t" x="885" y="171">unconfirmed race window</text>
+
+  <!-- direct submission chain -->
+  <line class="edge" x1="450" y1="165" x2="526" y2="272" marker-end="url(#arr-rw)" />
+  <text class="el" x="482" y="228" text-anchor="middle">direct miner submission</text>
+
+  <rect class="node info" x="530" y="240" width="220" height="88" rx="8" />
+  <text class="t" x="640" y="264">Disclosure can be limited</text>
+  <text class="t" x="640" y="281">to service and participating</text>
+  <text class="t" x="640" y="298">miner systems</text>
+
+  <line class="edge" x1="750" y1="284" x2="786" y2="284" marker-end="url(#arr-rw)" />
+
+  <rect class="node" x="790" y="240" width="190" height="96" rx="8" />
+  <text class="t" x="885" y="264">Script becomes public</text>
+  <text class="t" x="885" y="281">when mined or if the</text>
+  <text class="t" x="885" y="298">transaction is otherwise</text>
+  <text class="t" x="885" y="315">relayed</text>
+
+  <!-- taproot note -->
+  <rect class="node ok" x="790" y="366" width="190" height="56" rx="8" />
+  <text class="t" x="885" y="390">Available Taproot</text>
+  <text class="t" x="885" y="407">key-path spend</text>
+
+  <line class="edge dashed" x1="885" y1="366" x2="885" y2="340" marker-end="url(#arr-rw)" />
+  <text class="el" x="873" y="354" text-anchor="end">does not reveal script leaf</text>
+
+  <style>
+    .node {
+      fill: var(--surface-2);
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .node.ask {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+    }
+    .node.bad {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+    }
+    .node.info {
+      fill: var(--info-soft);
+      stroke: var(--info);
+    }
+    .node.ok {
+      fill: var(--safe-soft);
+      stroke: var(--safe);
+    }
+    .t {
+      font: 600 12.5px var(--font-ui);
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+    .s {
+      font: 10.5px var(--font-ui);
+      fill: var(--ink-3);
+      text-anchor: middle;
+    }
+    .edge {
+      stroke: var(--ink-3);
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .edge.dashed { stroke-dasharray: 5 4; }
+    .el {
+      font: 10.5px var(--font-mono);
+      fill: var(--ink-3);
+      paint-order: stroke;
+      stroke: var(--surface);
+      stroke-width: 4px;
+    }
+    .ah { fill: var(--ink-3); }
+  </style>
+</Fig>

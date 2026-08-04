@@ -1,0 +1,204 @@
+---
+import Fig from './Fig.astro';
+
+// Every number below restates a row of the estimates table on this page.
+// Placement is computed here rather than in the template: conditional
+// markup in .astro templates breaks the expression parser.
+const X = (b: number) => 150 + (b * 740) / 88;
+
+interface Point { cx: number; cy: number; hollow: boolean; }
+interface Ceil { cx: number; cy: number; x1: number; hollow: boolean; }
+interface Range { x: number; y: number; w: number; derived: boolean; }
+interface Label { x: number; y: number; text: string; anchor: 'start' | 'middle'; }
+interface Row { x: number; y: number; text: string; }
+
+const points: Point[] = [];
+const ceils: Ceil[] = [];
+const ranges: Range[] = [];
+const labels: Label[] = [];
+const rows: Row[] = [];
+
+const addPoint = (b: number, y: number, text: string, opts: { hollow?: boolean; side?: boolean } = {}) => {
+  points.push({ cx: X(b), cy: y, hollow: opts.hollow ?? false });
+  if (opts.side) labels.push({ x: X(b) + 10, y: y + 4, text, anchor: 'start' });
+  else labels.push({ x: X(b), y: y - 11, text, anchor: 'middle' });
+};
+const addCeil = (b: number, y: number, text: string, opts: { hollow?: boolean } = {}) => {
+  ceils.push({ cx: X(b), cy: y, x1: X(b) - 18, hollow: opts.hollow ?? false });
+  labels.push({ x: X(b), y: y - 11, text, anchor: 'middle' });
+};
+const addRange = (lo: number, hi: number, y: number, text: string, derived = false) => {
+  ranges.push({ x: X(lo), y: y - 3.5, w: X(hi) - X(lo), derived });
+  labels.push({ x: (X(lo) + X(hi)) / 2, y: y - 11, text, anchor: 'middle' });
+};
+const addRow = (label: string, y: number) => rows.push({ x: 140, y: y + 4, text: label });
+
+// Mk2 / Mk3 lane
+addRow('Block', 58);
+addPoint(0, 58, '2^0', { side: true });
+addPoint(16.3, 58, '2^16.3');
+addCeil(32, 58, '<2^32');
+addCeil(40.7, 58, '<2^40.7');
+addRow('Coinkite', 92);
+addPoint(40, 92, '~2^40 (Mk3)');
+addRow('LLFOURN', 126);
+addPoint(40.3, 126, '~2^40.3 (Mk3)');
+
+// Mk4 / Mk5 / Q lane
+addRow('Block', 190);
+addCeil(32, 190, '≤2^32');
+addCeil(73.3, 190, '<2^73.3');
+addRow('Block, no-reseed path', 224);
+addPoint(0, 224, '2^0', { side: true, hollow: true });
+addCeil(41.3, 224, '<2^41.3', { hollow: true });
+addRow('Coinkite', 258);
+addPoint(72, 258, '~2^72');
+addRow('LLFOURN', 292);
+addPoint(32, 292, '2^32, UID known');
+addRange(58.3, 62.3, 292, '58.3-62.3, derived', true);
+addPoint(72.3, 292, '~2^72.3');
+addRow('otaliptus, tentative', 326);
+addRange(52, 63, 326, '52-63 if RTC problematic');
+addPoint(75, 326, '75');
+addRange(77, 88, 326, '77-88 otherwise');
+
+const ticks = [0, 16, 32, 48, 64, 80, 88].map((b) => ({ b, x: X(b) }));
+
+const caption = `The published scenarios from the table below on one axis, in bits of candidate space. Dots are single scenarios, bars are stated ranges, a left tick marks a ceiling, and the dashed bar is the 58.3 to 62.3-bit subtraction derived from LLFOURN's follow-up. Hollow marks are Block's conditional no-reseed path. Every figure carries the assumptions in its table row; none is a measured per-device value.`;
+---
+
+<Fig
+  id="fig-candidate-space"
+  viewBox="0 0 920 398"
+  minWidth={700}
+  title="Published candidate-space estimates on one axis"
+  desc="Bits of candidate space from 0 to 88. For Mk2 and Mk3: Block gives 2^0 with timers known, 2^16.3 with stable RTC, and ceilings of 2^32 and 2^40.7; Coinkite and LLFOURN give about 2^40. For Mk4, Mk5 and Q: Block gives ceilings of 2^32 and 2^73.3, with a conditional no-reseed path at 2^0 and below 2^41.3; Coinkite about 2^72; LLFOURN 2^72.3, a derived 58.3 to 62.3 range, and 2^32 with a known UID; otaliptus tentatively gives 52 to 63 or 77 to 88."
+  caption={caption}
+>
+  <defs>
+    <marker id="arr-cs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="ah" />
+    </marker>
+  </defs>
+
+  <!-- gridlines -->
+  {ticks.map((t) => (
+    <line class="grid" x1={t.x} y1="44" x2={t.x} y2="340" />
+  ))}
+
+  <!-- lane headers -->
+  <text class="lane" x="16" y="32">MK2 / MK3</text>
+  <text class="lane" x="16" y="164">MK4 / MK5 / Q</text>
+
+  <!-- key -->
+  <text class="key" x="900" y="20">dot: scenario &#183; bar: stated range &#183; &lt;: ceiling &#183; dashes: derived here</text>
+
+  <!-- row labels -->
+  {rows.map((r) => (
+    <text class="rowlbl" x={r.x} y={r.y} text-anchor="end">{r.text}</text>
+  ))}
+
+  <!-- ranges -->
+  {ranges.map((r) => (
+    <rect class={r.derived ? 'range derived' : 'range'} x={r.x} y={r.y} width={r.w} height="7" rx="3.5" />
+  ))}
+
+  <!-- ceilings: open dot with a left arrow -->
+  {ceils.map((c) => (
+    <g>
+      <line class={c.hollow ? 'ceil-line hollow' : 'ceil-line'} x1={c.cx - 4} y1={c.cy} x2={c.x1} y2={c.cy} marker-end="url(#arr-cs)" />
+      <circle class={c.hollow ? 'ceil hollow' : 'ceil'} cx={c.cx} cy={c.cy} r="5" />
+    </g>
+  ))}
+
+  <!-- points -->
+  {points.map((p) => (
+    <circle class={p.hollow ? 'pt hollow' : 'pt'} cx={p.cx} cy={p.cy} r="5" />
+  ))}
+
+  <!-- value labels -->
+  {labels.map((l) => (
+    <text class="v" x={l.x} y={l.y} text-anchor={l.anchor}>{l.text}</text>
+  ))}
+
+  <!-- axis -->
+  <line class="axis" x1="150" y1="352" x2="890" y2="352" />
+  {ticks.map((t) => (
+    <g>
+      <line class="axis-tick" x1={t.x} y1="348" x2={t.x} y2="356" />
+      <text class="ticklbl" x={t.x} y="370">{t.b}</text>
+    </g>
+  ))}
+  <text class="axis-title" x="520" y="392">bits of candidate space (log2)</text>
+
+  <style>
+    .grid {
+      stroke: var(--rule);
+      stroke-width: 1;
+    }
+    .lane {
+      font: 600 11px var(--font-ui);
+      letter-spacing: 0.12em;
+      fill: var(--ink);
+    }
+    .key {
+      font: 10px var(--font-ui);
+      fill: var(--ink-3);
+      text-anchor: end;
+    }
+    .rowlbl {
+      font: 11px var(--font-ui);
+      fill: var(--ink-2);
+    }
+    .range {
+      fill: var(--accent);
+      fill-opacity: 0.35;
+      stroke: var(--accent);
+      stroke-width: 1;
+    }
+    .range.derived {
+      fill-opacity: 0.12;
+      stroke-dasharray: 4 3;
+    }
+    .pt {
+      fill: var(--accent);
+    }
+    .pt.hollow {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+    .ceil {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+    .ceil-line {
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+    .v {
+      font: 10px var(--font-mono);
+      fill: var(--ink-2);
+    }
+    .axis {
+      stroke: var(--rule-2);
+      stroke-width: 1.25;
+    }
+    .axis-tick {
+      stroke: var(--rule-2);
+      stroke-width: 1;
+    }
+    .ticklbl {
+      font: 10px var(--font-mono);
+      fill: var(--ink-3);
+      text-anchor: middle;
+    }
+    .axis-title {
+      font: 10.5px var(--font-ui);
+      fill: var(--ink-3);
+      text-anchor: middle;
+    }
+    .ah { fill: var(--accent); }
+  </style>
+</Fig>

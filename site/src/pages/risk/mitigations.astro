@@ -4,6 +4,9 @@ import Answer from '../../components/Answer.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import SeedWarning from '../../components/SeedWarning.astro';
+import FigureDiceWorkflows from '../../components/figures/FigureDiceWorkflows.astro';
+import FigurePassphraseDerivation from '../../components/figures/FigurePassphraseDerivation.astro';
+import FigureThresholdSearch from '../../components/figures/FigureThresholdSearch.astro';
 import { BITFIG } from '../../lib/entropy-models';
 
 /**
@@ -66,16 +69,6 @@ const PASSPHRASE_ROWS = CONSTRUCTIONS.map((construction) => {
   };
 });
 
-const thresholdFlow = `flowchart TB
-  Q["Affected keys on spending path"] --> BELOW{"Fewer than threshold?"}
-  BELOW -->|"yes"| INSUFF["Affected keys alone\\ncannot satisfy path"]
-  BELOW -->|"no"| TARGET{"Affected key targets exposed?"}
-  TARGET -->|"yes"| SEP["Test exposed affected keys\\nseparately"]
-  TARGET -->|"no"| JOINT["Search keys as part of complete\\nscript reconstruction"]
-  SEP --> SCRIPT{"Complete script or construction\\ndata also available?"}
-  SCRIPT -->|"yes"| SPEND["Recovered threshold may satisfy path"]
-  SCRIPT -->|"no"| BARRIER["Recovered keys alone do not\\nreproduce output commitment"]
-  JOINT --> MOVE["First spend reveals complete script\\nplan migration route"]`;
 ---
 
 <Article
@@ -145,25 +138,7 @@ const thresholdFlow = `flowchart TB
     title="Dice rolls"
     note="the two workflows, roll thresholds, and the screen that shows the answer"
   >
-    <div class="mermaid-wrap">
-      <pre class="mermaid">
-flowchart TB
-  subgraph PURE["Pure dice: New Seed Words, Advanced, Dice Roll"]
-    A1["empty starting value"] --> A2["SHA-256 over roll symbols"]
-    A2 --> A3["12- or 24-word result"]
-  end
-  subgraph MIX["Mixed dice: add rolls on the word screen"]
-    B1["device-generated seed prefix"] --> B2["SHA-256 over prefix and roll symbols"]
-    B2 --> B3["updated seed"]
-  end
-      </pre>
-    </div>
-    <p class="cap">
-      Both workflows call the same function; they differ only in the prefix fed
-      to it. Pure dice starts from an empty byte string, so the affected
-      <code>ngu.random</code> output is absent, and the result can be reproduced
-      offline from the roll string with an independently reviewed implementation.
-    </p>
+    <FigureDiceWorkflows />
 
     <h3>Roll counts and output size</h3>
 
@@ -521,20 +496,7 @@ flowchart TB
       an appropriate backup policy.
     </div>
 
-    <div class="mermaid-wrap">
-      <pre class="mermaid">
-flowchart TB
-  WORDS["BIP39 mnemonic"] --> BASE["PBKDF2 with empty passphrase\nbase wallet"]
-  WORDS --> WITH["PBKDF2 with chosen passphrase\ndifferent wallet"]
-  KNOWN["known target address or xpub"] --> TEST["offline candidate comparison"]
-  WITH --> TEST
-  PIN["device PIN"] -. "protects device access,\nnot key derivation" .-> WORDS
-      </pre>
-    </div>
-    <p class="cap">
-      The optional BIP39 passphrase is part of key derivation. The device PIN is a
-      separate access-control mechanism and does not enter BIP39 derivation.
-    </p>
+    <FigurePassphraseDerivation />
 
     <h3>What a passphrase does not change</h3>
 
@@ -619,13 +581,7 @@ flowchart TB
       the other keys or the complete script.
     </div>
 
-    <div class="mermaid-wrap">
-      <pre class="mermaid" set:text={thresholdFlow}></pre>
-    </div>
-    <p class="cap">
-      This flow describes conventional P2WSH. Taproot and miniscript policies can
-      expose different information on different spending paths.
-    </p>
+    <FigureThresholdSearch />
 
     <h3>Illustrative lower-scenario arithmetic</h3>
 

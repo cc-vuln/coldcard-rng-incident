@@ -184,126 +184,6 @@ const moreLinks = [
       });
     });
   </script>
-
-  <script>
-    // Mermaid is bundled by Astro and served from this site, so the diagrams
-    // work under the production Content Security Policy. Keep their original
-    // source in memory so a colour-scheme change can render a fresh SVG.
-    const diagramPageHeading = document.querySelector('.art__title');
-    const diagrams = Array.from(document.querySelectorAll<HTMLElement>('.mermaid'));
-    const sources = new Map(diagrams.map((diagram) => [diagram, diagram.textContent?.trim() || '']));
-    let mermaidModule: typeof import('mermaid') | null = null;
-    let renderSerial = 0;
-    let renderQueue: Promise<void> = Promise.resolve();
-
-    const labelDiagram = (diagram: HTMLElement, index: number) => {
-      const wrapper = diagram.closest<HTMLElement>('.mermaid-wrap');
-      if (!wrapper) return null;
-
-      let caption = wrapper.querySelector<HTMLElement>('.cap');
-      if (!caption && wrapper.nextElementSibling?.classList.contains('cap')) {
-        caption = wrapper.nextElementSibling as HTMLElement;
-      }
-
-      if (!caption) {
-        const localLabel = wrapper.parentElement?.querySelector<HTMLElement>(':scope > .lbl');
-        const precedingHeadings = Array.from(document.querySelectorAll<HTMLElement>('.art__body h2, .art__body h3'))
-          .filter((heading) => heading.compareDocumentPosition(wrapper) & Node.DOCUMENT_POSITION_FOLLOWING);
-        const context = localLabel?.textContent?.trim()
-          || precedingHeadings.at(-1)?.textContent?.trim()
-          || diagramPageHeading?.textContent?.trim()
-          || 'Incident diagram';
-        caption = document.createElement('span');
-        caption.className = 'visually-hidden';
-        caption.textContent = `Diagram: ${context}`;
-        wrapper.append(caption);
-      }
-
-      if (!caption.id) caption.id = `diagram-caption-${index + 1}`;
-      wrapper.setAttribute('role', 'figure');
-      wrapper.setAttribute('aria-labelledby', caption.id);
-      wrapper.tabIndex = 0;
-      return wrapper;
-    };
-
-    const wrappers = diagrams.map(labelDiagram);
-
-    const renderDiagrams = async (theme: 'light' | 'dark') => {
-      if (diagrams.length === 0) return;
-      mermaidModule ||= await import('mermaid');
-      const mermaid = mermaidModule.default;
-      const dark = theme === 'dark';
-      const ink = dark ? '#ece9e1' : '#16150f';
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        look: 'classic',
-        securityLevel: 'strict',
-        flowchart: {
-          curve: 'basis',
-          padding: 14,
-          nodeSpacing: 46,
-          rankSpacing: 56,
-          useMaxWidth: false,
-          htmlLabels: true,
-          wrappingWidth: 260,
-        },
-        themeVariables: {
-          primaryColor: dark ? '#22221d' : '#f2f0ec',
-          primaryBorderColor: dark ? '#7fabee' : '#2160b8',
-          primaryTextColor: ink,
-          secondaryColor: dark ? '#16301f' : '#e2f3e9',
-          secondaryBorderColor: dark ? '#63c79b' : '#196245',
-          secondaryTextColor: ink,
-          tertiaryColor: dark ? '#332612' : '#fbf0d9',
-          tertiaryBorderColor: dark ? '#e0b44e' : '#8a6206',
-          tertiaryTextColor: ink,
-          lineColor: dark ? '#928c81' : '#6f6b61',
-          fontFamily: "'Sora', system-ui, sans-serif",
-          fontSize: '15px',
-          clusterBkg: dark ? '#12120f' : '#f2f0ec',
-          clusterBorder: dark ? '#2b3444' : '#d6dae2',
-        },
-      });
-
-      for (const [index, diagram] of diagrams.entries()) {
-        const wrapper = wrappers[index];
-        const source = sources.get(diagram) || '';
-        if (!source || !wrapper) continue;
-        wrapper.setAttribute('aria-busy', 'true');
-        try {
-          const id = `cc-mermaid-${++renderSerial}`;
-          const result = await mermaid.render(id, source);
-          diagram.innerHTML = result.svg;
-          result.bindFunctions?.(diagram);
-          const svg = diagram.querySelector<SVGSVGElement>('svg');
-          if (svg) {
-            const viewBoxWidth = svg.viewBox.baseVal.width;
-            const readableWidth = Math.min(1200, Math.max(360, Math.ceil(viewBoxWidth * 0.8)));
-            svg.style.setProperty('--diagram-readable-width', `${readableWidth}px`);
-            svg.removeAttribute('aria-roledescription');
-            svg.removeAttribute('role');
-            svg.setAttribute('aria-hidden', 'true');
-            svg.setAttribute('focusable', 'false');
-          }
-        } catch (error) {
-          diagram.textContent = source;
-          console.error('Could not render diagram', error);
-        } finally {
-          wrapper.removeAttribute('aria-busy');
-        }
-      }
-    };
-
-    const requestRender = (theme: 'light' | 'dark') => {
-      renderQueue = renderQueue.then(() => renderDiagrams(theme));
-    };
-
-    requestRender(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
-    window.addEventListener('cc-theme-change', () => {
-      requestRender(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
-    });
-  </script>
 </Base>
 
 <style>
@@ -360,10 +240,8 @@ const moreLinks = [
   .art__body :global(.table-scroll),
   .art__body :global(.kpi-row),
   .art__body :global(.comparison),
-  .art__body :global(.mermaid-wrap),
-  .art__body :global(.mermaid-figure),
   .art__body :global(figure:not(.shot)),
-  .art__body :global(pre:not(.mermaid)) {
+  .art__body :global(pre) {
     /* 100cqi is the inline size of .art, which carries .wrap, so the breakout
        can never exceed the page grid. It replaces 100vw, which was measured
        against the viewport: that ignored the scrollbar (making the breakout
@@ -389,8 +267,7 @@ const moreLinks = [
   .art__body :global(:is(.rung__body, .collapsible__body, .comparison,
                          .card, .ve-card, .callout, .ch, .kpi-card)
                      :is(.table-wrap, .table-scroll, .kpi-row, .comparison,
-                         .mermaid-wrap, .mermaid-figure, figure,
-                         pre:not(.mermaid))) {
+                         figure, pre)) {
     width: 100%;
     max-width: 100%;
   }

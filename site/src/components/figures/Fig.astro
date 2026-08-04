@@ -1,0 +1,26 @@
+---
+// Shared frame for the hand-built SVG figures. Renders the bordered figure
+// box, wires the caption and the SVG text alternative for assistive
+// technology, and leaves the drawing itself to the default slot. Captions
+// are verbatim editorial text passed by the page and may carry inline
+// markup. Figure-scoped styles live in each figure component; this wrapper
+// only frames the result.
+interface Props {
+  id: string;
+  viewBox: string;
+  title: string;
+  desc: string;
+  caption: string;
+  minWidth?: number;
+}
+const { id, viewBox, title, desc, caption, minWidth = 560 } = Astro.props;
+---
+
+<figure class="fig" style={`--fig-min-width: ${minWidth}px`} tabindex="0">
+  <svg role="img" aria-labelledby={`${id}-t ${id}-d`} viewBox={viewBox}>
+    <title id={`${id}-t`}>{title}</title>
+    <desc id={`${id}-d`}>{desc}</desc>
+    <slot />
+  </svg>
+  <figcaption class="cap"><span set:html={caption} /><slot name="caption" /></figcaption>
+</figure>

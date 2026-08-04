@@ -6,6 +6,7 @@ import {
   xArtifacts, reviewForRevision, withholdsCapturedText, withholdsCapturedMedia,
 } from '../../../lib/archive';
 import { xMedia } from '../../../lib/xmedia';
+import { annotateHeldDeletionsText } from '../../../lib/reddit-deletions';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
@@ -163,7 +164,16 @@ const rows = [...snaps].reverse().map((sn, i) => {
     waybackUrl: ((meta.wayback_url as string) || waybackHistory).replace(/^http:/, 'https:'),
     body: (() => {
       if (withholdCapturedText) return '';
-      const full = snapshotText(sid, sn.ts);
+      let full = snapshotText(sid, sn.ts);
+      if (sn.method === 'reddit-json') {
+        // A [deleted] marker is the event; what the comment said while it
+        // was public is held in the earlier captures. Show both, marked.
+        const earlier = oldestFirst
+          .slice(0, idx)
+          .reverse()
+          .map((x) => ({ ts: x.ts, text: snapshotText(sid, x.ts) }));
+        full = annotateHeldDeletionsText(full, earlier);
+      }
       if (FULL_TEXT) return full;
       const lines = full.split('\n');
       return lines.length <= EXCERPT_LINES

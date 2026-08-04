@@ -228,51 +228,35 @@ details.collapsible .collapsible__body > * + * { margin-top: .75em; }
   max-width: 74ch;
 }
 
-/* Build-time Mermaid output in Markdown pages */
+/* Build-time diagram output in Markdown pages */
 .prose svg[id^='mermaid'],
 .prose svg[aria-roledescription]:not([aria-hidden='true']) {
   max-width: 100%; height: auto; display: block;
   margin: 1.5rem auto; background: transparent;
 }
 
-/* Client-rendered diagrams */
-.mermaid-wrap {
+/* Hand-built SVG figures (components/figures/).
+ *
+ * The SVG carries its own scoped styles for nodes and edges; these rules
+ * only frame it and stop it exceeding the reading measure. */
+.fig {
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  padding: 1.4rem var(--inset-box);
+  padding: 1.2rem var(--inset-box) 1rem;
   margin-block: 1.5rem;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
 }
-.mermaid-wrap .mermaid {
+.fig > svg {
   display: block;
-  width: 100%; max-width: none; min-height: 60px;
-  margin: 0; padding: 0; border: 0; background: transparent;
+  width: 100%;
+  min-width: var(--fig-min-width, 560px);
+  height: auto;
+  margin-inline: auto;
 }
-.mermaid-wrap .mermaid svg {
-  display: block;
-  width: 100%; min-width: var(--diagram-readable-width, 100%);
-  max-width: none; height: auto; margin-inline: auto;
-}
-.mermaid .nodeLabel, .mermaid .nodeLabel p { color: var(--ink) !important; line-height: 1.45 !important; }
-
-/* Semantic node colouring for decision diagrams.
- *
- * Mermaid's classDef only takes literal colours, so it cannot follow the theme.
- * Hardcoding a light green fill produced invisible labels in dark mode, because
- * the rule above forces label colour to var(--ink) and light-on-light is
- * nothing. The diagram declares the class, and the colours are applied here
- * where var() works and both themes are handled. */
-.mermaid g.n-safe > rect, .mermaid g.n-safe > polygon, .mermaid g.n-safe > path {
-  fill: var(--safe-soft) !important; stroke: var(--safe) !important;
-}
-.mermaid g.n-act > rect, .mermaid g.n-act > polygon, .mermaid g.n-act > path {
-  fill: var(--danger-soft) !important; stroke: var(--danger) !important;
-}
-.mermaid .edgeLabel, .mermaid .edgeLabel p { color: var(--ink-3) !important; background: var(--surface) !important; }
-.mermaid .edgeLabel rect { fill: var(--surface) !important; }
+.fig > .cap { margin-bottom: .35rem; }
 
 /* Evidence-label key on the About page. It mirrors the Claim component roles so
    the legend looks like the labels readers encounter elsewhere. */
