@@ -48,7 +48,12 @@ const navCurrent = (n: NavItem) => {
   return isActive(n) ? 'location' : undefined;
 };
 
-type SubnavItem = { href: string; label: string; match?: string[] };
+type SubnavItem = {
+  href: string;
+  label: string;
+  match?: string[];
+  childPrefixes?: string[];
+};
 
 const SUBNAV: Record<string, SubnavItem[]> = {
   '/how-it-broke/': [
@@ -70,8 +75,13 @@ const SUBNAV: Record<string, SubnavItem[]> = {
   '/record/': [
     { href: '/record/timeline/', label: 'Timeline' },
     { href: '/record/funds/', label: 'Funds accounting' },
-    { href: '/record/', label: 'Sources' },
+    {
+      href: '/record/',
+      label: 'Sources',
+      childPrefixes: ['/record/sources/'],
+    },
     { href: '/record/changes/', label: 'Source changes' },
+    { href: '/record/firmware/', label: 'Firmware releases' },
     { href: '/record/reference/', label: 'Reference' },
   ],
 };
@@ -82,9 +92,9 @@ const subnav = subKey ? SUBNAV[subKey] : [];
 // startsWith test would light up the overview link on all of them.
 const subMatches = (n: SubnavItem) => n.match ?? [n.href];
 const subExact = (n: SubnavItem) => path === n.href || path === n.href.replace(/\/$/, '');
-const subActive = (n: SubnavItem) => subMatches(n).some(
-  (href) => path === href || path === href.replace(/\/$/, ''),
-);
+const subActive = (n: SubnavItem) =>
+  subMatches(n).some((href) => path === href || path === href.replace(/\/$/, ''))
+  || (n.childPrefixes ?? []).some((prefix) => path.startsWith(prefix));
 const subCurrent = (n: SubnavItem) => subExact(n)
   ? 'page'
   : subActive(n) ? 'location' : undefined;

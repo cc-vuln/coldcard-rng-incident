@@ -9,14 +9,15 @@
  * the page.
  *
  * Values are checked against the firmware release histories, release commits
- * and the signed-release record; see /record/reference/#firmware for the evidence and
+ * and the signed-release record; see /record/firmware/ for the evidence and
  * per-row sourcing notes.
  *
  * Where a range here is wider than the one the vendor currently publishes, the
- * divergence is carried as data (`vendorAffectedFrom`, `vendorNote` and
- * `vendorCorroboration`) rather than as prose on one page, so every table that
- * prints a range can also print the disagreement and the outside evidence
- * bearing on it, with the same limits attached each time.
+ * divergence is carried as data (`vendorAffectedFrom`, `vendorNote`,
+ * `vendorReason` and `vendorCorroboration`) rather than as prose on one page,
+ * so every table that prints a range can also print the disagreement, the
+ * vendor's own stated reason for it and the outside evidence bearing on it,
+ * with the same limits attached each time.
  */
 
 export interface ModelRange {
@@ -53,21 +54,34 @@ export interface ModelRange {
    */
   vendorNote: string | null;
   /**
+   * The vendor's own published reason for its narrower boundary, where it has
+   * given one. This is carried separately from `vendorNote` because the two do
+   * different work: the note is this site's justification, the reason is the
+   * other party's. A divergence with an unexplained vendor boundary and one
+   * with a stated vendor boundary are different things to put in front of a
+   * reader, and only the second can be reported rather than merely recorded.
+   * Null until the vendor states a reason.
+   */
+  vendorReason: string | null;
+  /**
    * Independent third-party evidence bearing on the same lower bound, stated
    * once and with its own limits attached, so that no page can print the
    * corroboration without also printing what it does not establish. The
    * expanded treatment, including the verbatim wording and the analyst's own
    * scope disclaimer, lives in the #vendor-lower-bound callout on
-   * /record/reference/. Set together with `vendorAffectedFrom`.
+   * /record/firmware/. Set together with `vendorAffectedFrom`.
    */
   vendorCorroboration: string | null;
 }
 
 /**
- * Date pin for the vendor-stated boundaries recorded above. Vendor advisories
- * are mutable during an incident, and this one has already been revised once.
+ * Date pin for the vendor-stated boundaries recorded above: the newest held
+ * capture in which the vendor still publishes this range. Vendor advisories are
+ * mutable during an incident, and this one has already been revised once. The
+ * advisory's last held state is 1 August 2026 at 18:44 UTC and the
+ * backgrounder's is 4 August 2026; both give 4.0.1 through 4.1.9.
  */
-export const VENDOR_RANGE_AS_OF = '1 August 2026';
+export const VENDOR_RANGE_AS_OF = '4 August 2026';
 
 /**
  * The Mk2 and Mk3 lower-bound divergence, stated once. Neither boundary is a
@@ -81,6 +95,24 @@ const VENDOR_RANGE_NOTE =
   'Coinkite lists the 17 March 2021 image. What the record does not settle ' +
   'is how widely v4.0.0 was installed during the twelve days before v4.0.1 on ' +
   '29 March 2021.';
+
+/**
+ * Coinkite's own published reason for starting at 4.0.1, added after its
+ * disclosure history of 4 August 2026 gave one. Before that page the narrower
+ * boundary was unexplained, and this site could only record the disagreement;
+ * it can now report both positions and say what they actually differ over,
+ * which is whether the 17 March 2021 build reached the public, not what the
+ * build contained. Both sides agree on the code.
+ */
+const VENDOR_RANGE_REASON =
+  'Coinkite gave its reason in the security disclosure history it published on ' +
+  '4 August 2026: v4.0.0 was "built, signed, and tested internally, but its ' +
+  'binary was never released publicly", making v4.0.1 the first public 4.x ' +
+  'binary, so "the affected-user range therefore begins at v4.0.1". Block, ' +
+  'whose range is v4.0.0 to v4.1.9, instead describes the affected path as ' +
+  'first appearing "in released firmware v4.0.0 on March 17, 2021". The two ' +
+  'accounts differ over whether that build reached the public rather than over ' +
+  'what it contained.';
 
 /**
  * Third-party chain analysis bearing on the same lower bound, summarised in one
@@ -108,6 +140,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'not applicable',
     vendorAffectedFrom: null,
     vendorNote: null,
+    vendorReason: null,
     vendorCorroboration: null,
   },
   {
@@ -120,6 +153,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'named by the vendor for Mk2 and Mk3; binary not independently checked here',
     vendorAffectedFrom: 'v4.0.1',
     vendorNote: VENDOR_RANGE_NOTE,
+    vendorReason: VENDOR_RANGE_REASON,
     vendorCorroboration: VENDOR_RANGE_CORROBORATION,
   },
   {
@@ -132,6 +166,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'published binary not independently checked here',
     vendorAffectedFrom: 'v4.0.1',
     vendorNote: VENDOR_RANGE_NOTE,
+    vendorReason: VENDOR_RANGE_REASON,
     vendorCorroboration: VENDOR_RANGE_CORROBORATION,
   },
   {
@@ -144,6 +179,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'published binary not independently checked here',
     vendorAffectedFrom: null,
     vendorNote: null,
+    vendorReason: null,
     vendorCorroboration: null,
   },
   {
@@ -156,6 +192,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'published binary not independently checked here',
     vendorAffectedFrom: null,
     vendorNote: null,
+    vendorReason: null,
     vendorCorroboration: null,
   },
   {
@@ -168,6 +205,7 @@ export const MODEL_RANGES: ModelRange[] = [
     fixCaveat: 'published binary not independently checked here',
     vendorAffectedFrom: null,
     vendorNote: null,
+    vendorReason: null,
     vendorCorroboration: null,
   },
 ];
@@ -191,6 +229,12 @@ export interface VendorDivergence {
   /** Why this site classifies the wider range, and what remains unestablished. */
   note: string;
   /**
+   * The vendor's own published reason for its narrower boundary. Null where the
+   * vendor has not given one, which is the case a page must render differently:
+   * an unexplained boundary is a disagreement, a stated one is two positions.
+   */
+  reason: string | null;
+  /**
    * Independent evidence bearing on the same boundary, with its own limit
    * attached. Null where no third-party corroboration is recorded.
    */
@@ -213,7 +257,7 @@ export function vendorDivergences(): VendorDivergence[] {
     if (!m.vendorAffectedFrom || !m.vendorNote || !m.affectedFrom || !m.affectedTo) continue;
     const key =
       `${m.affectedFrom}|${m.vendorAffectedFrom}|${m.affectedTo}|` +
-      `${m.vendorNote}|${m.vendorCorroboration}`;
+      `${m.vendorNote}|${m.vendorReason}|${m.vendorCorroboration}`;
     const found = groups.get(key);
     if (found) {
       found.models.push(m.model);
@@ -227,6 +271,7 @@ export function vendorDivergences(): VendorDivergence[] {
       vendorAffectedFrom: m.vendorAffectedFrom,
       affectedTo: m.affectedTo,
       note: m.vendorNote,
+      reason: m.vendorReason,
       corroboration: m.vendorCorroboration,
     });
   }

@@ -20,7 +20,8 @@ Overview | The record | How it broke | Responses | About
 - Overview introduces the incident and demonstrates the archive through current
   statistics, recent entries and named paths into the record.
 - The record contains the timeline, funds accounting, source register, source
-  changes, reference index and individual evidence records.
+  changes, reference index, firmware release record and individual evidence
+  records.
   Its primary navigation link opens the timeline; the source register remains
   available at `/record/`.
 - How it broke contains the source-level reconstruction, published candidate
@@ -42,6 +43,7 @@ Overview | The record | How it broke | Responses | About
       funds/
       changes/
       reference/
+      firmware/
       sources/[id]/
       evidence/*
     /how-it-broke/
@@ -83,7 +85,7 @@ shown.
 Facts have one canonical home:
 
 - Source states and changes belong to the source record and change feed.
-- Firmware release boundaries belong to the reference.
+- Firmware release boundaries belong to the firmware record.
 - Candidate-space models belong to the entropy page.
 - Dice, passphrase and threshold mechanics belong to technical conditions.
 - Transaction totals and attribution differences belong to funds accounting.
@@ -111,5 +113,7 @@ change feed rather than by swapping the site's mission.
 - Every retired published route resolves through site/public/_redirects.
 - Navigation and section kickers use the names above.
 - Every static editorial route in a section has a direct entry in that
-  section's navigation. Response Next links follow the same route order.
+  section's navigation. Individual source records mark Sources as their parent
+  location. Every section page has a Next link that follows the visible
+  section-navigation order and wraps from the final item to the first.
 - just check-claims, just check-links and just build-site pass.

@@ -1,0 +1,443 @@
+---
+/*
+ * The firmware release record.
+ *
+ * This was the third section of /record/reference/ until the reference page had
+ * grown into three unrelated registers behind one local nav. Fourteen links
+ * from the timeline, the explainers, the funds page and the migration record
+ * pointed at its anchor rather than at the page, which is what a destination
+ * looks like. /record/reference/ keeps a pointer at the old #firmware anchor.
+ */
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import Claim from '../../components/Claim.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import { modelRange, VENDOR_RANGE_AS_OF, vendorDivergences } from '../../lib/firmware';
+import { BITFIG } from '../../lib/entropy-models';
+
+/* --- Firmware releases --------------------------------------------------- */
+
+// Checked against the firmware release histories, release commits and signed
+// signed-release record. Search-space figures remain attributed estimates.
+// Version boundaries interpolate from src/lib/firmware.ts, the same module the
+// risk overview table renders from, so the two cannot drift apart.
+const mk2 = modelRange('Mk2');
+const mk3 = modelRange('Mk3');
+const mk4 = modelRange('Mk4');
+const mk5 = modelRange('Mk5');
+const q = modelRange('Q');
+
+// Where the vendor publishes a narrower range than this site classifies, the
+// same module carries the divergence, so the model table, the release-boundary
+// table and the risk overview all state one set of boundaries.
+const divergence = vendorDivergences().find((d) => d.models.includes('Mk3')) ?? null;
+const vendorRangeCell = divergence
+  ? `<small><a href="#vendor-lower-bound">Coinkite states <code>${divergence.vendorAffectedFrom}</code> to <code>${divergence.affectedTo}</code></a></small>`
+  : '';
+const vendorStartMark = divergence
+  ? `<small><a href="#vendor-lower-bound">Coinkite starts at <code>${divergence.vendorAffectedFrom}</code></a></small>`
+  : '';
+/*
+ * The divergence used to be spelled out as a full sentence inside three table
+ * cells as well as in the callout below, which is four statements of one fact
+ * and made the widest cells harder to read than the disagreement warranted.
+ * The compact cell markers above carry it now: they state both boundaries and
+ * link to the callout, which is the canonical treatment and the only place
+ * that has room for both parties' reasons.
+ */
+// The one-sentence summary of the chain-analysis corroboration travels with the
+// range in src/lib/firmware.ts, so the risk overview footnote and this callout
+// cannot end up stating it differently. What belongs here rather than in the
+// module is the verbatim wording. The three limits that bound it are a rung of
+// their own below, so the callout states the corroboration once.
+const corroborationBlock = divergence?.corroboration
+  ? `
+<br /><br />
+One piece of outside evidence bears on the same boundary from a different direction. ${divergence.corroboration} Galaxy's wording is "The vulnerable Coldcard firmware shipped on March 17, 2021 around block 674,951. Not one of the coins we have identified in Waves 1-3 taken was created before that block." <a href="#galaxy-boundary-limits">Three limits belong with that.</a>`
+  : '';
+// Coinkite published its reason for the narrower boundary on 4 August 2026, in
+// the disclosure history captured here on 5 August. Until then this callout
+// could only record an unexplained difference. Now that both sides have stated
+// a position, the callout reports both and names what they actually differ
+// over, which is distribution rather than the contents of the build.
+const vendorReasonBlock = divergence?.reason
+  ? `
+<br /><br />
+<strong>Coinkite has since stated its reason.</strong> ${divergence.reason} That narrows the disagreement considerably. Both parties place the affected generation path in the 17 March 2021 build; what they disagree about is whether that build was distributed. This archive holds no evidence either way on distribution, having already recorded that the signed-release record shows 4.0.0 was built and signed but not how many devices ran it. Coinkite's account rests on records only it holds, its own signing manifest among them, and Block's wording that the path "first appeared in released firmware v4.0.0" is not accompanied by distribution evidence either. Both are reported here; neither is adjudicated.`
+  : '';
+const body = `<div class="table-wrap">
+<div class="table-scroll">
+<table class="data-table sortable">
+<caption>Firmware generation status by model and release range</caption>
+<thead><tr>
+  <th scope="col" class="nw">Model</th><th scope="col" class="nw">Firmware at generation</th>
+  <th scope="col" class="nw">Status</th><th scope="col" class="nw">Candidate-space note</th>
+</tr></thead>
+<tbody>
+<tr class="row-safe">
+  <td class="nw"><strong>Mk1</strong></td><td class="nw"><code>&le; v3.0.6</code><small>final Mk1 build, 19 Dec 2019</small></td>
+  <td><span class="status status--ok">Not affected</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits</td>
+</tr>
+<tr class="row-detail row-safe">
+  <td colspan="4" class="detail">Predates the libngu migration.</td>
+</tr>
+<tr class="row-safe">
+  <td class="nw"><strong>Mk2 / Mk3</strong></td><td class="nw"><code>&le; ${mk3.lastSafe}</code><small>up to 14 Jan 2021</small></td>
+  <td><span class="status status--ok">Not affected</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits</td>
+</tr>
+<tr class="row-detail row-safe">
+  <td colspan="4" class="detail">Seed generation used <code>ckcc.rng_bytes()</code>, which reaches the STM32 TRNG directly. The next published release, v4.0.0, is the first one containing the affected path.</td>
+</tr>
+<tr class="row-gone">
+  <td class="nw"><strong>Mk2</strong></td><td class="nw"><code>${mk2.affectedFrom}</code> to <code>${mk2.affectedTo}</code><small>17 Mar 2021 to 26 Jun 2023</small>${vendorRangeCell}</td>
+  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="40">Block: <code>2^0</code> fixed state;<br><code>&lt;${BITFIG.mk23LooseCeiling}</code> loose ceiling</td>
+</tr>
+<tr class="row-detail row-gone">
+  <td colspan="4" class="detail">Generation moved to <code>ngu.random</code>, and this hardware has no secure-element reseed at all. Mk2 never received a v5.x release. Coinkite's advisory names this model directly, stating that the issue "is present on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive"; that wording dates from its revision of 1 August 2026 at 18:35 UTC, before which the advisory named only the Mk3. <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
+</tr>
+<tr class="row-gone">
+  <td class="nw"><strong>Mk3</strong></td><td class="nw"><code>${mk3.affectedFrom}</code> to <code>${mk3.affectedTo}</code><small>17 Mar 2021 to 26 Jun 2023</small>${vendorRangeCell}</td>
+  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="40">Block: <code>2^0</code> fixed state;<br><code>&lt;${BITFIG.mk23LooseCeiling}</code> loose ceiling</td>
+</tr>
+<tr class="row-detail row-gone">
+  <td colspan="4" class="detail"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite described the entropy as approximately 40 bits</a>; LLFOURN published a separate <code>~${BITFIG.llfournMk3}</code> model. Firmware v4.1.9 remained the last published Mk3 release until v4.2.0 was published on 31 July 2026. <a href="/how-it-broke/entropy/">The model register states each assumption.</a></td>
+</tr>
+<tr class="row-gone">
+  <td class="nw"><strong>Mk4</strong></td><td class="nw"><code>${mk4.affectedFrom}</code> to <code>${mk4.affectedTo}</code><small>14 Mar 2022 to 1 Jul 2026</small></td>
+  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
+</tr>
+<tr class="row-detail row-gone">
+  <td colspan="4" class="detail">On the normal successful boot path, <code>rng_seeding()</code> derives a value from secure-element output but carries at most 32 bits into libngu. <a href="/how-it-broke/entropy/">Coinkite, LLFOURN and Talip publish different broader models.</a></td>
+</tr>
+<tr class="row-gone">
+  <td class="nw"><strong>Mk5</strong></td><td class="nw"><code>${mk5.affectedFrom}</code> to <code>${mk5.affectedTo}</code><small>5 Mar to 1 Jul 2026</small></td>
+  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
+</tr>
+<tr class="row-detail row-gone">
+  <td colspan="4" class="detail">The first repository release explicitly supporting Mk5 is v5.5.0. Both published pre-hotfix Mk5 releases are affected. <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
+</tr>
+<tr class="row-gone">
+  <td class="nw"><strong>Q</strong></td><td class="nw"><code>${q.affectedFrom}</code> to <code>${q.affectedTo}</code><small>8 Feb 2024 to 1 Jul 2026</small></td>
+  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
+</tr>
+<tr class="row-detail row-gone">
+  <td colspan="4" class="detail">All Q builds recorded in the published release history before v1.5.0Q are affected, including the v1.0.0Q production release of 10 Mar 2024. <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
+</tr>
+<tr>
+  <td class="nw"><strong>Mk2 / Mk3</strong></td><td class="nw"><code>${mk3.fix}</code><small>official Mk3 X update: 31 Jul 2026, 13:43 UTC</small></td>
+  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail">The release history describes a hotfix that corrects the entropy bug and allows new seed generation. Coinkite's advisory lists the fixed release as "Mk2/Mk3: version 4.2.0 or later" and describes "Fixed Mk2/Mk3 firmware version 4.2.0" as released. Before the advisory's revision of 1 August 2026 at 18:35 UTC it named only the Mk3, and the vendor downloads-page listing of 4.2.0 for "COLDCARD Mk3 and Mk2" was the only vendor evidence covering the Mk2. The source contains the hardware-RNG fix; this archive has not reproduced the vendor build, installed it on either model or independently inspected the signed binary.</td>
+</tr>
+<tr>
+  <td class="nw"><strong>Mk4 / Mk5</strong></td><td class="nw"><code>${mk4.fix}</code><small>signed release: 31 Jul 2026, 05:18 UTC</small></td>
+  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail">The signed-release record precedes source release commit <code>3238f6f</code> at 05:19 UTC. That commit contains the source-level fix. The advisory separately names Edge <code>v6.6.0X</code>; neither published binary has been independently checked here.</td>
+</tr>
+<tr>
+  <td class="nw"><strong>Q</strong></td><td class="nw"><code>${q.fix}</code><small>signed release: 31 Jul 2026, 05:17 UTC</small></td>
+  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail">The signed-release record precedes source release commit <code>3238f6f</code> at 05:19 UTC. That commit contains the source-level fix. The advisory separately names Edge <code>v6.6.0QX</code>; neither published binary has been independently checked here.</td>
+</tr>
+<tr>
+  <td class="nw"><strong>OPENDIME</strong></td><td class="nw">V3.0 r.A<small>firmware 2.2.0</small></td>
+  <td><span class="status status--info">One-device test reported</span></td><td class="nw">user entropy incorporation reported for one unit</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail"><a href="/record/sources/zherbert-opendime-entropy-test/">Foundation Devices co-founder and CEO Zach Herbert reports reconstructing the final private key from the exact user-provided test vector, USB serial and revealed nonce.</a> Foundation sells competing hardware-wallet products. The test covers one unit, does not assess internal-nonce quality and was not independently reproduced here.</td>
+</tr>
+<tr>
+  <td class="nw"><strong>TAPSIGNER</strong></td><td class="nw">All</td>
+  <td><span class="status status--info">Vendor-reported</span></td><td class="nw">not independently assessed here</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite reports that TAPSIGNER is not affected because it uses a different codebase.</a> <a href="/record/sources/robhamilton-opendime-tapsigner-scope/">Rob Hamilton notes that its closed source prevents first-hand verification</a> and reports only preliminary evidence that it does not use the affected libngu path.</td>
+</tr>
+<tr>
+  <td class="nw"><strong>SATSCARD</strong></td><td class="nw">All</td>
+  <td><span class="status status--info">Vendor-reported</span></td><td class="nw">not independently assessed here</td>
+</tr>
+<tr class="row-detail">
+  <td colspan="4" class="detail"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite reports that SATSCARD is not affected because it uses a different codebase.</a> This archive has not independently reviewed that codebase.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<p class="cap">For the named 31 July hotfixes, the source-level change is verified. The signed release files are vendor-published, but this archive has not reproduced the builds or independently inspected the binaries.</p>
+
+<h2>Release boundary record</h2>
+
+<p>Purchase date does not determine exposure; the published build in use at generation does. The selected releases below identify the relevant boundaries from the per-model history files.</p>
+
+<div class="table-wrap">
+<div class="table-scroll">
+<table class="data-table sortable">
+<caption>Selected firmware and source release boundaries</caption>
+<thead><tr>
+  <th scope="col" class="nw">Version</th><th scope="col" class="nw">Released</th><th scope="col" class="nw">Line</th><th scope="col" class="nw">Status</th>
+</tr></thead>
+<tbody>
+<tr class="row-safe"><td class="nw"><code>3.2.2</code></td><td class="nw" data-sort="20210114">14 Jan 2021</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--ok">Last pre-regression release</span></td></tr>
+<tr class="row-detail row-safe"><td colspan="4" class="detail">Seeds generated on this or an earlier release used <code>ckcc.rng_bytes()</code> and are not affected by this generator substitution.</td></tr>
+<tr><td class="hash"><code>b18723dddb6d751c39978e4364b56b2414f68b47</code><small>verified in the firmware repository</small></td><td class="nw" data-sort="20210301">1 Mar 2021</td><td class="nw">commit</td><td class="nw"><span class="status status--warn">Migration commit</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">Not a release. This commit moved wallet generation from <code>ckcc.rng_bytes()</code> to <code>ngu.random.bytes()</code>, combining with the pre-existing guard defect to create the affected path.</td></tr>
+<tr class="row-gone"><td class="nw"><code>4.0.0</code></td><td class="nw" data-sort="20210317">17 Mar 2021</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--bad">First affected</span>${vendorStartMark}</td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">Release commit <code class="hash">910e306e79f7eb6e99d16e253075de42f055124c</code> contains the affected path, and the signed-release record lists the 17 Mar 2021 DFU image.</td></tr>
+<tr class="row-gone"><td class="nw"><code>5.0.0</code></td><td class="nw" data-sort="20220314">14 Mar 2022</td><td class="nw">Mk4</td><td class="nw"><span class="status status--bad">Affected</span></td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">First Mk4 production firmware and the first to call <code>rng_seeding()</code> at boot, which is the 32-bit reseed.</td></tr>
+<tr class="row-gone"><td class="nw"><code>4.1.9</code></td><td class="nw" data-sort="20230626">26 Jun 2023</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--bad">Affected</span></td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">The last Mk3 firmware for three years, and affected. Superseded by 4.2.0 on 31 Jul 2026.</td></tr>
+<tr class="row-gone"><td class="nw"><code>0.0.3Q</code></td><td class="nw" data-sort="20240208">8 Feb 2024</td><td class="nw">Q</td><td class="nw"><span class="status status--bad">Affected</span></td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">Earliest public Q build. Production <code>1.0.0Q</code> follows 10 Mar 2024.</td></tr>
+<tr class="row-gone"><td class="nw"><code>5.5.0</code> / <code>1.4.0Q</code></td><td class="nw" data-sort="20260305">5 Mar 2026</td><td class="nw">Mk4 / Mk5 / Q</td><td class="nw"><span class="status status--bad">Affected</span></td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">The build the Mk5 shipped on when that hardware launched five days later.</td></tr>
+<tr class="row-gone"><td class="nw"><code>5.5.1</code> / <code>1.4.1Q</code></td><td class="nw" data-sort="20260701">1 Jul 2026</td><td class="nw">Mk4 / Mk5 / Q</td><td class="nw"><span class="status status--bad">Last affected release</span></td></tr>
+<tr class="row-detail row-gone"><td colspan="4" class="detail">The last published affected release before disclosure.</td></tr>
+<tr><td class="nw"><code>4.2.0</code></td><td class="nw" data-sort="202607311343">31 Jul 2026<small><a href="/record/sources/coldcard-mk3-hotfix-update/">13:43 UTC official Mk3 update</a></small></td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--info">Published fix</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">The release history says this corrects the entropy bug and allows new seed generation. Coinkite's advisory names it for both models as "Mk2/Mk3: version 4.2.0 or later", wording it adopted on 1 August 2026 at 18:35 UTC, and the vendor downloads page lists it for Mk2 and Mk3. The reviewed source contains the fix, while installation on either model and the signed binary remain unexamined by this project.</td></tr>
+<tr><td class="nw"><code>1.5.0Q</code></td><td class="nw" data-sort="202607310517">31 Jul 2026<small>05:17 UTC, signed release</small></td><td class="nw">Q</td><td class="nw"><span class="status status--info">Published fix</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">The signed-release record identifies this Q hotfix. Source release commit <code>3238f6f</code> follows at 05:19 UTC and contains the source-level fix. No local build or disassembly of the shipped image was attempted.</td></tr>
+<tr><td class="nw"><code>5.6.0</code></td><td class="nw" data-sort="202607310518">31 Jul 2026<small>05:18 UTC, signed release</small></td><td class="nw">Mk4 / Mk5</td><td class="nw"><span class="status status--info">Published fix</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">The signed-release record identifies this Mk4/Mk5 hotfix. Source release commit <code>3238f6f</code> follows at 05:19 UTC and contains the source-level fix. The shipped image was not reproduced against that source here.</td></tr>
+<tr><td class="hash"><code>3238f6fd9977eed786012d0034a04d888c3263bb</code><small>verified in the firmware repository</small></td><td class="nw" data-sort="202607310519">31 Jul 2026<small>05:19 UTC</small></td><td class="nw">Mk4 / Mk5 / Q source</td><td class="nw"><span class="status status--ok">Source fix verified</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">The release commit states that it will generate entropy correctly and contains the source-level fix. This verifies the source change, not the contents of the earlier signed release files.</td></tr>
+<tr><td class="nw"><code>6.6.0X</code> / <code>6.6.0QX</code></td><td class="nw" data-sort="202607311654">31 Jul 2026<small><a href="/record/sources/coldcard-edge-hotfix-update/">16:54 UTC official X update</a></small></td><td class="nw">Mk4 / Mk5 / Q Edge</td><td class="nw"><span class="status status--info">Vendor-reported fix</span></td></tr>
+<tr class="row-detail"><td colspan="4" class="detail">Coinkite names these exact Edge releases in its advisory and official update. Their binaries fall outside what this archive has examined.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi-card" style="--i:0">
+    <div class="kpi-card__value" style="color:var(--red)"><span>5 yr 4 mo</span></div>
+    <div class="kpi-card__label">Mk3 affected interval</div>
+    <div class="kpi-card__note">v4.0.0 on 17 Mar 2021 to the Mk2/Mk3 fix the vendor names on 31 Jul 2026.</div>
+  </div>
+  <div class="kpi-card" style="--i:1">
+    <div class="kpi-card__value" style="color:var(--amber)"><span>4 yr 4 mo</span></div>
+    <div class="kpi-card__label">Mk4 exposure</div>
+    <div class="kpi-card__note">v5.0.0 on 14 Mar 2022 to the Mk4 fix on 31 Jul 2026, covering every release through v5.5.1.</div>
+  </div>
+  <div class="kpi-card" style="--i:2">
+    <div class="kpi-card__value" style="color:var(--amber)"><span>2 yr 5 mo</span></div>
+    <div class="kpi-card__label">Q exposure</div>
+    <div class="kpi-card__note">v0.0.3Q on 8 Feb 2024 to the Q fix on 31 Jul 2026, covering every recorded Q build through v1.4.1Q.</div>
+  </div>
+  <div class="kpi-card" style="--i:3">
+    <div class="kpi-card__value" style="color:var(--red)"><span>3 yr 1 mo</span></div>
+    <div class="kpi-card__label">Mk3 release interval</div>
+    <div class="kpi-card__note">Time between v4.1.9 and the 4.2.0 hotfix.</div>
+  </div>
+</div>
+
+<div class="callout callout--red" id="vendor-lower-bound">
+<span class="callout__title">The vendor's range starts at v4.0.1; this site's starts at v4.0.0</span>
+Both the <a href="/record/sources/coinkite-mk3-advisory/">Mk3 advisory</a> and the <a href="/record/sources/coinkite-backgrounder/">technical backgrounder</a>, in the newest states held here as of ${VENDOR_RANGE_AS_OF}, give the affected range as <strong>"4.0.1 (March 2021) thru 4.1.9 (inclusive)"</strong>. <a href="/record/sources/optech-416/">Bitcoin Optech repeated it</a>, citing the advisory. The upper bound agrees with the repository record; the lower one does not. Neither boundary is a slip: the advisory states 4.0.1 twice, and this site states 4.0.0 from the repository record. Coinkite has already revised this range once, from a first advisory state that ran the issue "through firmware version 5.0.3".
+<br /><br />
+The release history in the vendor's own repository puts <code>4.0.0</code> on <strong>17 March 2021</strong> and describes it as "Major internal changes... all crypto and BIP39 related code replaced", which is the migration that introduced the bug. <code>4.0.1</code> did not arrive until <strong>29 March</strong>, and its changelog entry is about a different defect: "Fixes security issue in v4.0.0." The vendor's <a href="/record/sources/coinkite-historical-disclosures/">disclosure history</a> identifies that one as a USB serial REPL left enabled in 4.0.0, unrelated to seed generation.
+<br /><br />
+The 17 March release commit contains <code>random.bytes(32)</code>, the defined-zero board macro, the vulnerable libngu revision and the MicroPython fallback revision. The signed-release record also lists the 4.0.0 image. Block's range starts at 4.0.0.
+<br /><br />
+The evidence therefore supports classifying a seed generated on Mk2 or Mk3 v4.0.0 as affected, notwithstanding the <a href="/record/sources/coinkite-mk3-advisory/">narrower Coinkite wording</a>. What it does not establish is distribution: the record shows that 4.0.0 was built and signed, not how many devices ran it during the twelve days before 4.0.1 superseded it.${vendorReasonBlock}${corroborationBlock}
+</div>
+
+<div class="callout callout--amber">
+<span class="callout__title">A correction to the original advisory</span>
+The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> described the affected range as running "through version 5.0.3, the final release that supported Mk3". That wording survives only in the 01:56 UTC state of 31 July recovered from the Internet Archive; this project's own capture of the advisory began on 1 August, by which point the sentence was gone. <code>History-Mk3.md</code> contains no 5.x release at all. Its highest entry before the incident is v4.1.9, and the held capture now ends at the 4.2.0 hotfix, while <code>v5.0.3</code> appears in the Mk4 history. <a href="/record/sources/block-disclosure/">Block's stated range of v4.0.0 to v4.1.9</a> matches the repository record. This does not change which published Mk3 builds are classified as affected, but v4.1.9 is the highest Mk3 version in that history.
+</div>`;
+---
+
+<Article
+  title="Firmware releases"
+  description="Affected firmware ranges by COLDCARD model, the releases and commits that bound them, and what the held vendor sources say about updating."
+  depth="deep"
+  kicker="The record / firmware releases"
+  standfirst="Which firmware, on which model, generated an affected seed. Exposure is fixed by the build that was running when the seed was created, not by what is installed today."
+  next={{
+    href: '/record/reference/',
+    label: 'Reference',
+    note: 'Who did the primary analysis, and the code published around the incident.',
+  }}
+>
+  <p>
+    Exposure is bounded by the firmware that was running when the seed was
+    generated, not by the device in front of you today. A COLDCARD updated to a
+    hotfix release can still hold a seed created on an affected build, and a
+    device left on an affected build matters only if a seed was generated on it.
+    The first table gives the affected ranges by model; the second identifies
+    the individual releases and commits that mark each boundary.
+    <Claim
+      basis="reported"
+      captured="1 Aug 2026"
+      scope="Coinkite's not-affected statements for OPENDIME, TAPSIGNER and SATSCARD, plus the reported one-device OPENDIME entropy-incorporation test"
+      source="Coinkite backgrounder and Zach Herbert's captured OPENDIME test report; one unit tested and no independent reproduction here"
+      href="/record/sources/zherbert-opendime-entropy-test/"
+      compact
+    />
+    <Claim
+      basis="unverified"
+      scope="The entropy implementation and runtime behaviour of TAPSIGNER and SATSCARD"
+      source="Coinkite reports separate codebases; those implementations are not independently available or reviewed here"
+      href="/record/sources/robhamilton-opendime-tapsigner-scope/"
+      compact
+    />
+    The <a href="#check-your-device">device and update record</a> below
+    preserves what the held sources say about version display, downloads and
+    what a firmware update does and does not change.
+  </p>
+  <Answer>
+  <p>
+    Whether a seed is exposed depends on the firmware the device was running when
+    that seed was generated, not on what is installed today. On Mk2 and Mk3 every
+    published release from v4.0.0 in March 2021 to v4.1.9 in June 2023 contains
+    the affected path; on Mk4, Mk5 and Q every published release before the
+    31 July 2026 hotfixes does.
+    <Claim
+      basis="verified"
+      contested
+      scope="The affected release ranges and source-level fixes in the named hotfix commits, including the Mk2 and Mk3 range starting at v4.0.0"
+      source="Vendor release histories and source commits, the v4.0.0 release commit 910e306e with its pinned libngu revision and defined-zero board macro, and the signed-release record listing the 17 March 2021 image"
+      href="/record/sources/cc-changelog/"
+      compact
+    />
+    Coinkite's advisory starts the Mk2 and Mk3 range
+    one release later, at v4.0.1, on the stated ground that v4.0.0 was built
+    and signed but never released publicly as a binary. Block, whose range
+    begins at v4.0.0, calls the same build released firmware. Both positions
+    are recorded here rather than resolved: they differ over whether that
+    build reached the public, not over what it contained.
+    <Claim
+      basis="reported"
+      captured="4 Aug 2026"
+      scope="Coinkite's currently published Mk2 and Mk3 lower bound of v4.0.1, recorded alongside the ranges above rather than adopted as this site's boundary"
+      source="Captured Mk3 advisory and entropy technical backgrounder, both stating 4.0.1 through 4.1.9; the earlier advisory state instead ran the issue through 5.0.3, so this wording has already been revised once"
+      href="/record/sources/coinkite-mk3-advisory/"
+      compact
+    />
+    <Claim
+      basis="reported"
+      contested
+      captured="5 Aug 2026"
+      scope="Coinkite's stated reason for the v4.0.1 lower bound, that v4.0.0 was built, signed and tested internally but never publicly released as a binary, and Block's contrary description of v4.0.0 as released firmware"
+      source="Coinkite's security disclosure history of 4 August 2026, which sources the account to its own historical signing manifest and public binary archive, read against Block's engineering disclosure, which publishes v4.0.0 to v4.1.9 and dates the path to released firmware v4.0.0. Neither party publishes distribution figures, and this archive holds no independent evidence of how widely v4.0.0 was installed"
+      href="/record/sources/coinkite-historical-disclosures/"
+      compact
+    />
+    <Claim
+      basis="verified"
+      scope="Coinkite's advisory naming the Mk2 directly, in both the affected firmware range and the fixed 4.2.0 release, from its revision of 1 August 2026 at 18:35 UTC onward"
+      source="Held captures of the Coinkite Mk3 advisory and entropy technical backgrounder taken at 18:44 UTC on 1 August 2026, diffed against the states held at 14:02 UTC the same day, in which the equivalent sentences named only the Mk3; earlier, the vendor downloads-page listing was the only vendor evidence covering the Mk2, and the published lower bound remains v4.0.1 for both models"
+      href="/record/sources/coinkite-mk3-advisory/"
+      compact
+    />
+    The source-level fixes are verified; the signed binaries have
+    not been reproduced or disassembled here.
+    <Claim
+      basis="unverified"
+      scope="Whether the vendor-published 4.2.0, 5.6.0, 1.5.0Q and Edge binaries exactly reproduce the reviewed source fixes and provide the intended entropy at runtime"
+      source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 5 August 2026 recheck"
+      compact
+    />
+  </p>
+  </Answer>
+
+  <div class="ported" set:html={body} />
+
+  <Disclosure
+    id="galaxy-boundary-limits"
+    title="Three limits on the Galaxy block-boundary corroboration"
+    note="an approximate height, coin-creation dates, and a twelve-day interval"
+  >
+    <p>
+      The block height is Galaxy's own approximation. The finding is about when
+      coins were first received rather than about which firmware generated any
+      particular seed, and Galaxy separately records that it has "not utilized
+      compute to test whether the addresses we have identified as possible
+      victims were indeed generated with low entropy". And twelve days is too
+      narrow an interval for coin creation dates to separate <code>4.0.0</code>
+      from <code>4.0.1</code>, so an absence of earlier victim coins is
+      consistent with the <code>4.0.0</code> boundary rather than decisive
+      between the two. The classification above rests on the release commit, the
+      pinned libngu revision, the defined-but-zero board macro and the signed
+      <code>4.0.0</code> image; this is corroboration of a March 2021 onset set
+      beside that evidence, not a replacement for it.
+      <Claim
+        basis="reported"
+        scope="Galaxy Research's statement that the vulnerable firmware shipped on 17 March 2021 around block 674,951 and that no coin drained in its first three waves was created before that block, carried as corroboration of a March 2021 onset and not as a finding about which release generated any seed"
+        source="Galaxy Research's captured 1 August 2026 thread, in which the block height is its own approximation and which states that it has not tested whether the identified addresses were generated with low entropy; coin creation dates cannot separate releases twelve days apart"
+        href="/record/sources/glxyresearch-firmware-block-boundary/"
+        compact
+      />
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="check-your-device"
+    title="Published device and update documentation"
+    note="what the held captures state, and what they do not establish"
+  >
+    <p>
+      The held captures support a record of version display and update
+      documentation, not a model-by-model operating procedure.
+    </p>
+
+    <p>
+      The COLDCARD shows its firmware version in the device's own settings and
+      upgrade menus; the published release history records a "show firmware
+      version" display added to the Advanced/Tools menu and an
+      <code>Upgrade Firmware</code> item on the same branch. Menu labels differ
+      between models and firmware generations, and this archive holds no capture
+      of a per-model menu walkthrough and no screenshots of any device.
+    </p>
+
+    <p>
+      Coinkite publishes builds on its own downloads page, and this archive holds
+      a <a href="/record/sources/coldcard-downloads/">capture of that page</a>. At
+      the 1 August 2026 capture it listed 4.2.0 for Mk3 and Mk2, 5.6.0 for Mk4 and
+      Mk5, 1.5.0Q for Q, and 6.6.0X and 6.6.0QX for the Edge line. The vendor's
+      documentation describes the upgrade itself as copying the firmware file onto
+      a MicroSD card. On verification the record is thinner still: the release
+      history documents on-device verification of detached Bitcoin signature files
+      under Advanced/Tools, which is a check for files the device exports rather
+      than a published procedure for the firmware image, and no captured source
+      held here sets out a step-by-step firmware-signature check, so this page
+      does not print one.
+    </p>
+
+    <div class="callout callout--red">
+      <span class="callout__title">An update does not repair a seed</span>
+      Installing a hotfix changes what the device will generate next. It does not
+      alter a seed that already exists. The 31 July advisory state put it directly:
+      "An update cannot repair a seed that was already generated by affected
+      firmware." A device on 4.2.0, 5.6.0 or 1.5.0Q with funds still controlled
+      by a seed generated on an affected build therefore remains controlled by
+      the same seed after the update.
+      <Claim
+        basis="reported"
+        scope="The vendor-published firmware versions, upgrade and verification descriptions, and the statement that an update cannot repair an existing seed"
+        source="Held captures of the COLDCARD downloads page and entropy FAQ, the vendor release histories, and the 31 July Mk3 advisory state recovered from the Internet Archive; no device menu path or firmware-signature procedure was independently exercised here"
+        href="/record/sources/coldcard-downloads/"
+      />
+    </div>
+  </Disclosure>
+</Article>
+
+<style>
+  /*
+   * The ported firmware markup rendered inside a <section> on the reference
+   * page, which broke .prose's direct-child rhythm and needed it restated. As
+   * the page body it is a direct child of .prose again, so only the injected
+   * block needs its own spacing.
+   */
+  .ported > :global(* + *) { margin-top: 1.05em; }
+  .ported > :global(h2) { margin-top: 1.9em; }
+  .ported > :global(h2 + *) { margin-top: .65em; }
+</style>

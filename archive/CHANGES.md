@@ -1218,3 +1218,70 @@
 ## 20260805T104732Z
 
 - coldcard-hack-tracker  +5 -5
+
+## 20260805T134800Z
+
+- coldcard-store-firmware-notice  +18 -18
+
+## 20260805T141811Z
+
+- libngu-random-c  +63 -29
+- libngu-pr-61  +11 -5
+- coldcard-firmware-pr-692  +1 -1
+- casa-blog-index  +3 -3
+- reddit-ai-discovery-thread  +47 -45
+- karmax-post-hotfix-disclosure  +2 -2
+- stackernews-first-drain-report  +7 -0
+- reddit-dice-wallets-at-risk  +8 -0
+- reddit-still-using-coldcard  +14 -0
+- reddit-still-use-the-cc  +8 -0
+- reddit-mk4-bricked-hotfix  +8 -0
+- reddit-wallet-drained-mk3  +8 -0
+- reddit-0-7-btc-drained  +18 -10
+- reddit-hacker-address-message-board  +8 -0
+- reddit-trezor-community-audit-call  +14 -0
+- reddit-1400-btc-hacked-report  +2 -26
+- reddit-trezor-user-alert-email  +6 -26
+- reddit-liability-blame-debate  +8 -0
+- reddit-ledger-article-relay  +0 -30
+- reddit-cash-out-forensics-question  +16 -0
+- reddit-fourth-wave-389-btc  +4 -14
+- reddit-passphrase-vulnerable-question  +12 -62
+- reddit-hardware-wallet-comparison  +12 -48
+- reddit-same-address-collision-question  +2 -10
+- reddit-coinkite-email-data-retention  +0 -8
+- reddit-bought-last-week  +4 -26
+- reddit-secure-btc-after-incident  +57 -0
+- reddit-entropy-bug-commits-review  +0 -8
+- reddit-wild-west-sentiment  +6 -16
+- reddit-best-way-keep-safe  +4 -6
+- reddit-lost-one-bitcoin-victim  +10 -12
+- reddit-self-custody-to-etf  +16 -0
+- reddit-future-of-bitcoin-debate  +35 -33
+- reddit-coinkite-options-after-disclosure  +2 -10
+- reddit-passphrase-extra-security  +0 -8
+- reddit-dice-seed-generation  +18 -0
+- bitcointalk-large-scale-compromise-thread  +91 -1
+- reddit-im-out  +49 -0
+- reddit-entropy-explainer-question  +4 -4
+- reddit-hacker-still-progressing  +192 -176
+- reddit-not-your-keys-not-your-coins  +122 -0
+- cryptonews-build-error-38m  +366 -1
+- newsbitcom-who-lost-who-at-risk  +0 -11
+- checkonchain-coldcard-psa  +2 -2
+- ncfacanada-self-custody-commentary  +5 -5
+- reddit-q-repurpose  +23 -0
+- reddit-bricked-mid-transfer  +18 -0
+- reddit-ccq-multisig-safety  +8 -0
+- reddit-attack-timing-speculation  +18 -0
+- reddit-ceo-anthropic-hack-challenge  +0 -16
+- reddit-retirement-attack-resurfaced  +8 -0
+- reddit-self-custody-risk-doubt  +8 -0
+- reddit-coldtruth-opinion  +8 -0
+- reddit-jade-passphrase-safety  +8 -0
+- reddit-multisig-only-way  +21 -0
+- newsbitcom-class-action-threat  +30 -30
+
+## 20260805T144814Z
+
+- coldcard-hack-tracker  +14 -1

@@ -3,232 +3,281 @@ import Article from '../../layouts/Article.astro';
 import Answer from '../../components/Answer.astro';
 import CaptureThumb from '../../components/CaptureThumb.astro';
 import Claim from '../../components/Claim.astro';
-import Disclosure from '../../components/Disclosure.astro';
 import Timestamp from '../../components/Timestamp.astro';
 import {
   xPosts, xPostById, sourceById, displayTitle, isoToHuman,
 } from '../../lib/archive';
 import { fig } from '../../lib/figures';
-import { modelRange, VENDOR_RANGE_AS_OF, vendorDivergences } from '../../lib/firmware';
-import { BITFIG } from '../../lib/entropy-models';
 
 /* --- Primary analysis ---------------------------------------------------- */
 
-// Register original analyses separately from reporting that restates them.
-const PRIMARY = [
+/*
+ * Register original analyses separately from reporting that restates them.
+ *
+ * Two structural rules, both of which the flat list this replaced could not
+ * express:
+ *
+ *   1. Entries are grouped by the kind of finding, using the same five-way
+ *      split the section intro already names. A reader comparing two
+ *      candidate-space models should not have to find them among two dozen
+ *      cards that look identical, and the grouping puts the comparison the
+ *      page keeps asking for side by side.
+ *   2. One contributor gets one card per kind of finding, carrying every piece
+ *      of evidence for it. Galaxy revised its top line three times and Kelbie
+ *      published a postmortem and then a tracker built on it; as separate
+ *      cards those read as independent contributions rather than as one body
+ *      of work that moved. Where the same person did genuinely different work,
+ *      the groups keep it apart, which is why Rob Hamilton appears under both
+ *      chain analysis and demonstrations.
+ *
+ * Evidence links are dated from the registry, never typed here, and an entry's
+ * displayed date is its earliest. Within a group, entries sort by that date, so
+ * the ordering is chronological by first contribution rather than arbitrary.
+ */
+
+interface Evidence {
+  /** Local source-record path, or an external URL for contextual material. */
+  href: string;
+  /** What this particular artefact is, when an entry carries more than one. */
+  label: string;
+}
+
+interface PrimaryEntry {
+  who: string;
+  what: string;
+  detail: string;
+  status: string;
+  scope: string;
+  evidence: Evidence[];
+}
+
+interface PrimaryGroup {
+  id: string;
+  title: string;
+  blurb: string;
+  entries: PrimaryEntry[];
+}
+
+const PRIMARY_GROUPS: PrimaryGroup[] = [
   {
-    who: 'Block engineering, with anonymous collaborators',
-    what: 'The technical disclosure',
-    url: '/record/sources/block-disclosure/',
-    detail: 'Identified the migration commit, showed that the Mk4-class reseed carries at most 32 bits into one libngu state word, and published lower candidate-space scenarios. Bitcoin Optech reports that anonymous researchers participated and that disclosure was coordinated with Coinkite.',
-    status: 'Verified against the report and source repositories.',
-    scope: 'The candidate-space figures are scenarios with stated attacker-knowledge assumptions, not per-device measurements.',
+    id: 'readings',
+    title: 'Source and binary readings',
+    blurb:
+      'Work that reads the firmware, the libngu source or the compiled images and reports what the code does. These are the entries a reader can most directly recheck, because the artefacts are public.',
+    entries: [
+      {
+        who: 'Block engineering, with anonymous collaborators',
+        what: 'The technical disclosure',
+        evidence: [{ href: '/record/sources/block-disclosure/', label: 'The disclosure report' }],
+        detail: 'Identified the migration commit, showed that the Mk4-class reseed carries at most 32 bits into one libngu state word, and published lower candidate-space scenarios. Bitcoin Optech reports that anonymous researchers participated and that disclosure was coordinated with Coinkite.',
+        status: 'Verified against the report and source repositories.',
+        scope: 'The candidate-space figures are scenarios with stated attacker-knowledge assumptions, not per-device measurements.',
+      },
+      {
+        who: '3z',
+        what: 'Mk3 binary reversal and bounded synthetic proof of concept',
+        evidence: [{ href: '/record/sources/threez-mk3-rng-disclosure/', label: 'Repository README' }],
+        detail: 'Reports reproducible builds of Mk3 4.1.9 and 4.2.0, compares the resolved RNG symbols in both binaries, and models the vulnerable path with fixed synthetic register inputs. The repository says it contains no enumeration, wallet-recovery or fund-targeting capability.',
+        status: 'Reported independent binary analysis; the README is captured for revision tracking.',
+        scope: 'This archive has not independently reproduced the builds or endorsed the author\'s candidate-state calculation. The synthetic proof establishes determinism for its inputs, not a measured remote-search cost for a wallet population.',
+      },
+      {
+        who: 'Álvaro P.',
+        what: 'Reproducible firmware and chain investigation',
+        evidence: [{ href: '/record/sources/alvap-weak-rng-research/', label: 'Repository README' }],
+        detail: 'Reports independent checks of the fix commits, a chain reconstruction from a public consolidation point, and compiled vulnerable and patched firmware symbol comparisons. The repository separates completed evidence from planned synthetic and regtest demonstrations.',
+        status: 'Reported independent reproduction; the public README is captured for revision tracking.',
+        scope: 'The repository has not been audited in full by this archive. Deeper files contain public transaction identifiers, so only the address-free README is mirrored publicly here.',
+      },
+      {
+        who: 'Kevin Loaec, Wizardsardine',
+        what: 'An early hypothesis, then the post-mortem and the derived-material argument',
+        evidence: [
+          { href: '/record/sources/kloaec-early-hypothesis/', label: 'The early hypothesis' },
+          { href: '/record/sources/wizardsardine-postmortem/', label: 'The post-mortem' },
+          { href: '/record/sources/kloaec-derived-feature-exposure/', label: 'Companion feature list' },
+        ],
+        detail: 'Before the full technical account was public, Loaec proposed a low-entropy generator as the cause and pointed to BIP84-only searching, limited derivation depth and partial sweeps, presenting AI-assisted script generation and the operator\'s limited Bitcoin knowledge as a hypothesis rather than a demonstrated attribution. The later Wizardsardine post-mortem reconstructs the flaw at length and argues its reach goes past seed generation: on affected devices, features that draw on the same generator are reported broken even where the seed itself was imported or created with dice. That post opens with configuration-specific guidance for Liana, Miniscript and multisig users before turning to the incident, and a companion post enumerates the features in an attached graphic that did not render in the held capture.',
+        status: 'Reported early analysis, later confirmed in direction, followed by reported independent analysis; the mutable post is captured for revision tracking.',
+        scope: 'The derivation-pattern observations do not establish that the operator used AI or identify who discovered the defect. Wizardsardine sells Liana, a competing wallet product, and the post-mortem\'s first section is written as guidance to its own users. The authors describe it as written quickly under stress and invite corrections. The feature-exposure claims are their reading until checked against source, and nothing in the post has been reproduced here.',
+      },
+      {
+        who: 'Dustin Dettmer',
+        what: 'The commit-history reading of how the defect entered',
+        evidence: [
+          { href: '/record/sources/btcpp-dettmer-commit-history/', label: 'The analysis' },
+          { href: '/record/sources/btcpp-dettmer-analysis-announcement/', label: 'Announcement' },
+        ],
+        detail: 'Traces the firmware commit history behind the disabled hardware generator: a commit whose entire message is "runs" sets <code>MICROPY_HW_ENABLE_RNG</code> to zero next to a duplicate symbol definition that would not otherwise have compiled, and the overridden functions turn out not to be the ones seed generation reaches. Published on bitcoin++ Insider Edition.',
+        status: 'Reported independent source reading; the commit-level claims are checkable against the pinned repository clones held here.',
+        scope: 'The account of what the original author intended, and of the frustration inferred from it, is the writer\'s reading of commit messages and diffs rather than established fact. This archive has not rechecked every commit cited.',
+      },
+    ],
   },
   {
-    who: '3z',
-    what: 'Mk3 binary reversal and bounded synthetic proof of concept',
-    url: '/record/sources/threez-mk3-rng-disclosure/',
-    detail: 'Reports reproducible builds of Mk3 4.1.9 and 4.2.0, compares the resolved RNG symbols in both binaries, and models the vulnerable path with fixed synthetic register inputs. The repository says it contains no enumeration, wallet-recovery or fund-targeting capability.',
-    status: 'Reported independent binary analysis; the README is captured for revision tracking.',
-    scope: 'This archive has not independently reproduced the builds or endorsed the author\'s candidate-state calculation. The synthetic proof establishes determinism for its inputs, not a measured remote-search cost for a wallet population.',
+    id: 'models',
+    title: 'Candidate-space models',
+    blurb:
+      'Estimates of how much an attacker must search. They disagree because they assume different attacker knowledge, not because one is arithmetically wrong. Each assumption is written out beside its number on the attack-cost page, and none is a measured population-wide search cost.',
+    entries: [
+      {
+        who: 'LLFOURN',
+        what: 'The attack-cost model',
+        evidence: [{ href: '/record/sources/llfourn-model/', label: 'The model' }],
+        detail: 'Published a model using about 2^20 MCU identifiers, 80,000 timing states and 16 button-press variants. This gives about 2^40.3 for Mk3 and 2^72.3 for Mk4-class devices. The source does not decompose the 16 variants further. A follow-up said clock assumptions might reduce the latter by 10 to 14 bits, and another reply described a 2^32 lower scenario when UID, button-press variation and clock behaviour are known.',
+        status: 'Reported model; arithmetic checked against the stated inputs.',
+        scope: 'The 2^20 UID range and practical timing distribution have not been independently measured here.',
+      },
+      {
+        who: 'Talip (@otaliptus)',
+        what: 'Independent technical analysis',
+        evidence: [{ href: '/record/sources/otaliptus-technical/', label: 'The analysis' }],
+        detail: 'Published a separate, deliberately tentative Mk4 model. It assumes a remote attacker does not know the UID, estimates about 20 to 21 bits from the wafer-coordinate word, narrows the practical SysTick positions, and makes the unresolved RTC term visible. The post reports roughly 52 to 63 bits if RTC behaviour is problematic and roughly 75 to 88 bits if it is not. The author labels the work brainstorming and lists assumptions that may be wrong. <a href="https://x.com/otaliptus" rel="noopener nofollow">Profile</a>.',
+        status: 'Unverified working hypothesis.',
+        scope: 'The author calls it brainstorming, says details may be wrong and credits GPT-5.6 Pro with document checking. It is retained as commentary, not a settled estimate.',
+      },
+    ],
   },
   {
-    who: 'Kelbie',
-    what: 'A chain-derived and rapidly updated postmortem',
-    url: '/record/sources/kelbie-rng-postmortem/',
-    detail: 'Publishes frozen chain data, explicit rules for deriving collectors and waves, source recovery notes and reconciliation checks. The project distinguishes victim-named evidence, publisher attribution and its own pattern matches.',
-    status: 'Reported independent chain analysis; its mutable README is captured for revision tracking.',
-    scope: 'The chain can verify transactions and amounts. Wave grouping, common-control attribution, tool fingerprints and counterfactual claims remain the author\'s derivations and may change as new reports appear.',
+    id: 'reproductions',
+    title: 'Reproductions and live demonstrations',
+    blurb:
+      'Independent attempts to make the defect do something observable. Each states what it targeted, and none of them measures the cost of discovering unknown funded wallets.',
+    entries: [
+      {
+        who: 'Gregory Sanders (instagibbs)',
+        what: 'Independent public confirmation',
+        evidence: [
+          { href: '/record/sources/instagibbs-reproduction/', label: 'The confirmation' },
+          { href: '/record/sources/instagibbs-reproduction-followup/', label: 'Elapsed-time follow-up' },
+        ],
+        detail: 'Published the statement: "Confirmed. Mk2/3 vuln, I don\'t think mk4 is but can\'t be certain." A later captured post says it took about one hour and 50 minutes from deciding to investigate to an on-device proof on Mk3.',
+        status: 'Reported confirmation.',
+        scope: 'The follow-up identifies Mk3 and the full investigation-to-proof interval. Neither post identifies firmware, method, candidate inputs, brute-force runtime or scripts. The elapsed interval is not an attack benchmark.',
+      },
+      {
+        who: 'Praveen Perera',
+        what: 'Independent recovery against the known stolen set',
+        evidence: [{ href: '/record/sources/praveenperera-reproduction-cost/', label: 'The report' }],
+        detail: 'Reported scanning index-zero addresses against the known first-wave address set and recovering two private keys associated with approximately 34 BTC. Perera reported that the run took about five minutes and less than US$5 of GPU time.',
+        status: 'Reported independent reproduction.',
+        scope: 'The code, candidate inputs and recovered keys are not public. The run targeted known stolen addresses and does not measure discovery of unknown still-funded wallets.',
+      },
+      {
+        who: 'JStefanop1',
+        what: 'A collision-search demonstration under the 40-bit model',
+        evidence: [{ href: '/record/sources/jstefanop-collision-program/', label: 'The demonstration' }],
+        detail: 'Reports a program built on the 40-bit effective-state model, stating that a duplicate wallet appears on average about every 1.3 million seed generations, and that a collision was found in 4.7 seconds on an M1 Max at roughly 268,000 evaluated states per second. The attached screenshot shows the reported duplicate-seed run.',
+        status: 'Reported independent demonstration.',
+        scope: 'The code and inputs are not audited here and the rates are the author\'s own measurements. A collision inside the modelled state space demonstrates duplicate generation under that model; it is not a measured cost of finding unknown funded wallets.',
+      },
+      {
+        who: 'Rob Hamilton and CKTRIPWIRE',
+        what: 'A live honeypot experiment',
+        evidence: [{ href: '/record/sources/cktripwire-honeypot-monitor/', label: 'Live scoreboard' }],
+        detail: 'Publishes live states for eight honeypots across a control and stepped added-entropy bands. At the first capture, the control was reported swept after 1 hour 18 minutes while the seven other cases remained live.',
+        status: 'Reported live experiment; revision-captured by this archive.',
+        scope: 'The experiment is ongoing. One swept control and seven then-live cases do not establish a safe entropy threshold or a general attack-time distribution.',
+      },
+    ],
   },
   {
-    who: 'Kevin Kelbie',
-    what: 'The 2 August tracker update',
-    url: '/record/sources/kevinkelbie-tracker-update/',
-    detail: `Announced a major update to the tracker built on that dataset: ${fig('kelbieTrackerBtc')} stated as tracked across ${fig('kelbieTrackerAddresses')}, coins followed from victim addresses to their current position, a timeline running from the 2021 bug to the July 2026 sweeps, and a searchable ledger, then at coldcard-hack.up.railway.app and <a href="/record/sources/kevinkelbie-tracker-move/">moved to coldcard.rip on 3 August</a>. The total is numerically close to Galaxy's revised ${fig('galaxyRevisedTotalBtc')} across ${fig('galaxyRevisedAddresses')}, but neither source states that the two sets are the same, so the <a href="/record/funds/">funds page</a> registers them as separate reported figures.`,
-    status: 'Reported tracker totals.',
-    scope: 'The post does not itemise which waves its set counts or restate the attribution rules behind the new total.',
+    id: 'chain',
+    title: 'Chain derivations and attribution',
+    blurb:
+      'Work reconstructing what moved, when, and who might have controlled it. The chain establishes transactions and amounts; wave grouping, common control and cause are derivations on top of it, and the funds page keeps the competing totals apart rather than reconciling them.',
+    entries: [
+      {
+        who: 'Rob Hamilton, AnchorWatch',
+        what: 'On-chain forensics, and the front-running warning',
+        evidence: [
+          { href: '/record/sources/robhamilton-preliminary-sweep/', label: 'Preliminary sweep analysis' },
+          { href: '/record/sources/robhamilton-multisig-psa/', label: 'Migration PSA' },
+        ],
+        detail: 'Reported 1,324 UTXOs across 500 transactions, approximately 594.48 BTC and a later 562 BTC consolidation. The transactions occupy four block heights, not the "3 block window" in the post. Hamilton separately described the first-spend script-reveal risk for threshold wallets in a captured migration PSA.',
+        status: 'Reported primary analysis.',
+        scope: 'The post labels the entropy attribution preliminary. The chain establishes movements, not the COLDCARD cause by itself.',
+      },
+      {
+        who: 'Kevin Kelbie',
+        what: 'A chain-derived postmortem, and the tracker built on it',
+        evidence: [
+          { href: '/record/sources/kelbie-rng-postmortem/', label: 'The postmortem dataset' },
+          { href: '/record/sources/kevinkelbie-tracker-update/', label: 'Tracker update' },
+          { href: '/record/sources/kevinkelbie-tracker-move/', label: 'Move to coldcard.rip' },
+        ],
+        detail: `Publishes frozen chain data, explicit rules for deriving collectors and waves, source recovery notes and reconciliation checks, distinguishing victim-named evidence, publisher attribution and its own pattern matches. The tracker built on that dataset was announced on 2 August with ${fig('kelbieTrackerBtc')} stated as tracked across ${fig('kelbieTrackerAddresses')}, coins followed from victim addresses to their current position, a timeline running from the 2021 bug to the July 2026 sweeps, and a searchable ledger, then moved from coldcard-hack.up.railway.app to coldcard.rip on 3 August. That total is numerically close to Galaxy's revised ${fig('galaxyRevisedTotalBtc')} across ${fig('galaxyRevisedAddresses')}, but neither source states that the two sets are the same, so the <a href="/record/funds/">funds page</a> registers them as separate reported figures.`,
+        status: 'Reported independent chain analysis; the mutable README and the tracker announcements are captured for revision tracking.',
+        scope: 'The chain can verify transactions and amounts. Wave grouping, common-control attribution, tool fingerprints and counterfactual claims remain the author\'s derivations and may change as new reports appear. The tracker posts do not itemise which waves the total counts or restate the attribution rules behind it.',
+      },
+      {
+        who: 'Clay Garrett, Block',
+        what: 'The earlier-wave scan, and the attribution finding',
+        evidence: [
+          { href: '/record/sources/clay-earlier-waves-thread/', label: 'Earlier-wave scan' },
+          { href: '/record/sources/clay-attribution/', label: 'Attribution finding' },
+        ],
+        detail: `Reported ${fig('earlierTxs')} earlier transactions with the same stated fingerprint as the known wave: 204 sweeps in block 960,183 and 491 in block 960,185, with ${fig('earlierBtc')} reaching three first collectors, from a described scan of 888,661 transactions. Separately reported that the operator queried the source addresses through a paid account at a blockchain-services provider during the sweeps, and that the provider's logs matched the suspected workflow "with extraordinary specificity, including the number, timing and sequence of requests".`,
+        status: 'Reported primary chain analysis, and an attribution finding reported by Block that is not independently verifiable from public data.',
+        scope: 'Block explicitly said it had not confirmed that the earlier waves were related to the drain; the shared fingerprint and arithmetic do not establish common control or cause by themselves. The provider remains unnamed at its request, and Block says it found no evidence that the provider knowingly participated.',
+      },
+      {
+        who: 'Galaxy Research',
+        what: 'The flow-of-funds mapping, revised three times',
+        evidence: [
+          { href: '/record/sources/glxyresearch-flow-map/', label: 'The 30 July attributed set' },
+          { href: '/record/sources/glxyresearch-third-wave-revision/', label: 'Third wave and first revision' },
+          { href: '/record/sources/glxyresearch-methodology-disclaimer/', label: 'Stated method limit' },
+          { href: '/record/sources/glxyresearch-victim-outreach-update/', label: 'Wave provenance and outreach' },
+          { href: '/record/sources/glxy-losses-exceed-100m/', label: 'The 3 August confirmed total' },
+        ],
+        detail: `The first attributed set ran from 01:10:20 to 01:51:26 UTC across blocks 960,183 to 960,191, for a ${fig('galaxyGrossBtc')} gross total and four consolidation holdings. On 1 August Galaxy identified a third sweep wave of ${fig('thirdWaveBtc')}, revised the observed size to ${fig('galaxyRevisedTotalBtc')} across ${fig('galaxyRevisedAddresses')}, reported ${fig('attackerHoldingsBtc')} under attacker control with <a href="/record/sources/glxyresearch-attacker-holdings/">every endpoint address unspent</a>, and placed the vulnerable firmware at <a href="/record/sources/glxyresearch-firmware-block-boundary/">block 674,951</a> on 17 March 2021 with no identified coin created before it. A 2 August update gave the provenance of the wave identifications: wave 1 came from Block engineers, waves 2 and 3 from victims coming forward, with findings stated as shared with US authorities, SEAL, exchanges and cyber investigators. On 3 August it stated a high-confidence ${fig('galaxyConfirmedBtc')} from ${fig('galaxyConfirmedAddresses')} across three confirmed waves plus 14 smaller incidents, superseding the 1 August figure; including a suspected fourth wave would reach ${fig('galaxyInclWave4Btc')}, which Galaxy does not promote without victim confirmation. What each figure measures, and why the later totals are not alternative measurements of the 30 July set, is set out on <a href="/record/funds/#galaxy-revision">the funds page</a>. The block-boundary finding bears on the firmware range, where <a href="/record/firmware/#galaxy-boundary-limits">three limits belong with it</a>.`,
+        status: 'Reported attributed estimates, revised three times; the underlying transaction and address lists are not published.',
+        scope: 'Galaxy\'s own stated method limit bounds every figure: the work derives solely from Bitcoin block data and the unspent-output set, it has not used compute to test whether the addresses it identifies as possible victims were generated with low entropy, and it should not be treated as complete or definitive. Galaxy does not publish its address-counting method, and victim-supplied addresses are reports to Galaxy rather than verified attributions.',
+      },
+      {
+        who: 'profedustream',
+        what: 'A published mapping export and a two-actor hypothesis',
+        evidence: [{ href: '/record/sources/profedustream-mapping-export/', label: 'The JSON export' }],
+        detail: 'Published the JSON export of a multi-day on-chain mapping. It describes a scripted first wave whose consolidations remain untouched; a noisier, more erratic pattern whose movements reach clusters the author links to Chivo Wallet and Binance, six ChangeNOW transactions, and one CoinJoin service whose outputs were later connected to Binance; and further script-like waves that also remain unmoved. On that split the author offers a working hypothesis of two actors.',
+        status: 'Reported independent mapping; the export and its cluster attributions have not been rechecked here.',
+        scope: 'The exchange and service cluster labels are the author\'s attributions, and the two-actor reading is stated as a working hypothesis rather than a finding. Behavioural differences between waves do not by themselves establish separate operators.',
+      },
+      {
+        who: 'Chainalysis',
+        what: 'A geographic distribution estimate',
+        evidence: [{ href: '/record/sources/chainalysis-2084734055858282986/', label: 'The estimate' }],
+        detail: 'Reports that Canada accounts for 25 percent of losses it could attribute geographically, with Australia, the United States and Thailand also prominent.',
+        status: 'Reported company analysis.',
+        scope: 'The post does not publish the attributed address set, victim set, geographic method or denominator. It cannot be reproduced from the post alone.',
+      },
+    ],
   },
   {
-    who: 'Álvaro P.',
-    what: 'Reproducible firmware and chain investigation',
-    url: '/record/sources/alvap-weak-rng-research/',
-    detail: 'Reports independent checks of the fix commits, a chain reconstruction from a public consolidation point, and compiled vulnerable and patched firmware symbol comparisons. The repository separates completed evidence from planned synthetic and regtest demonstrations.',
-    status: 'Reported independent reproduction; the public README is captured for revision tracking.',
-    scope: 'The repository has not been audited in full by this archive. Deeper files contain public transaction identifiers, so only the address-free README is mirrored publicly here.',
-  },
-  {
-    who: 'Rob Hamilton, AnchorWatch',
-    what: 'On-chain forensics, and the front-running warning',
-    url: '/record/sources/robhamilton-preliminary-sweep/',
-    detail: 'Reported 1,324 UTXOs across 500 transactions, approximately 594.48 BTC and a later 562 BTC consolidation. The transactions occupy four block heights, not the "3 block window" in the post. Hamilton separately described the first-spend script-reveal risk for threshold wallets in a <a href="/record/sources/robhamilton-multisig-psa/">captured migration PSA</a>.',
-    status: 'Reported primary analysis.',
-    scope: 'The post labels the entropy attribution preliminary. The chain establishes movements, not the COLDCARD cause by itself.',
-  },
-  {
-    who: 'Clay Garrett and Block engineering',
-    what: 'The preliminary earlier-wave scan',
-    url: '/record/sources/clay-earlier-waves-thread/',
-    detail: `Reported ${fig('earlierTxs')} earlier transactions with the same stated fingerprint as the known wave: 204 sweeps in block 960,183 and 491 in block 960,185, with ${fig('earlierBtc')} reaching three first collectors. The thread describes a scan of 888,661 transactions and lists the matching properties.`,
-    status: 'Reported primary chain analysis.',
-    scope: 'Block explicitly said it had not confirmed that the earlier waves were related to the drain. The shared fingerprint and arithmetic do not establish common control or cause by themselves.',
-  },
-  {
-    who: 'LLFOURN',
-    what: 'The attack-cost model',
-    url: '/record/sources/llfourn-model/',
-    detail: 'Published a model using about 2^20 MCU identifiers, 80,000 timing states and 16 button-press variants. This gives about 2^40.3 for Mk3 and 2^72.3 for Mk4-class devices. The source does not decompose the 16 variants further. A follow-up said clock assumptions might reduce the latter by 10 to 14 bits, and another reply described a 2^32 lower scenario when UID, button-press variation and clock behaviour are known.',
-    status: 'Reported model; arithmetic checked against the stated inputs.',
-    scope: 'The 2^20 UID range and practical timing distribution have not been independently measured here.',
-  },
-  {
-    who: 'Kevin Loaec',
-    what: 'An early hypothesis from the observed sweep pattern',
-    url: '/record/sources/kloaec-early-hypothesis/',
-    detail: 'Before the full technical account was public, Loaec proposed a low-entropy generator as the cause and pointed to BIP84-only searching, limited derivation depth and partial sweeps. The post presented AI-assisted script generation and the operator\'s limited Bitcoin knowledge as a hypothesis, not a demonstrated attribution.',
-    status: 'Reported early analysis; the low-entropy direction was later confirmed.',
-    scope: 'The derivation-pattern observations do not establish that the operator used AI or identify who discovered the defect.',
-  },
-  {
-    who: 'Gregory Sanders (instagibbs)',
-    what: 'Independent public confirmation',
-    url: '/record/sources/instagibbs-reproduction/',
-    detail: 'Published the statement: "Confirmed. Mk2/3 vuln, I don\'t think mk4 is but can\'t be certain." A <a href="/record/sources/instagibbs-reproduction-followup/">later captured post</a> says it took about one hour and 50 minutes from deciding to investigate to an on-device proof on Mk3.',
-    status: 'Reported confirmation.',
-    scope: 'The follow-up identifies Mk3 and the full investigation-to-proof interval. Neither post identifies firmware, method, candidate inputs, brute-force runtime or scripts. The elapsed interval is not an attack benchmark.',
-  },
-  {
-    who: 'Praveen Perera',
-    what: 'Independent recovery against the known stolen set',
-    url: '/record/sources/praveenperera-reproduction-cost/',
-    detail: 'Reported scanning index-zero addresses against the known first-wave address set and recovering two private keys associated with approximately 34 BTC. Perera reported that the run took about five minutes and less than US$5 of GPU time.',
-    status: 'Reported independent reproduction.',
-    scope: 'The code, candidate inputs and recovered keys are not public. The run targeted known stolen addresses and does not measure discovery of unknown still-funded wallets.',
-  },
-  {
-    who: 'JStefanop1',
-    what: 'A collision-search demonstration under the 40-bit model',
-    url: '/record/sources/jstefanop-collision-program/',
-    detail: 'Reports a program built on the 40-bit effective-state model, stating that a duplicate wallet appears on average about every 1.3 million seed generations, and that a collision was found in 4.7 seconds on an M1 Max at roughly 268,000 evaluated states per second. The attached screenshot shows the reported duplicate-seed run.',
-    status: 'Reported independent demonstration.',
-    scope: 'The code and inputs are not audited here and the rates are the author\'s own measurements. A collision inside the modelled state space demonstrates duplicate generation under that model; it is not a measured cost of finding unknown funded wallets.',
-  },
-  {
-    who: 'Galaxy Research',
-    what: 'The wider flow-of-funds mapping',
-    url: '/record/sources/glxyresearch-flow-map/',
-    detail: `Published a wider attributed set from 01:10:20 to 01:51:26 UTC across blocks 960,183 to 960,191, a ${fig('galaxyGrossBtc')} gross total and four consolidation holdings. The <a href="/record/funds/">funds page</a> keeps it as Galaxy's figure for the 30 July waves. Galaxy has since <a href="/record/sources/glxyresearch-third-wave-revision/">revised the total upward</a> over a wider scope, recorded as a separate entry below.`,
-    status: 'Reported attribution.',
-    scope: 'Galaxy does not publish its address-counting method. The chain does not establish common control or cause by itself.',
-  },
-  {
-    who: 'Galaxy Research',
-    what: 'The third-wave revision, and the method limit stated with it',
-    url: '/record/sources/glxyresearch-third-wave-revision/',
-    detail: `Identified a third sweep wave of ${fig('thirdWaveBtc')} and revised the estimated observed size of the incident to ${fig('galaxyRevisedTotalBtc')}, given as approximately US$88.6m, across ${fig('galaxyRevisedAddresses')}. The same thread reports ${fig('attackerHoldingsBtc')} under attacker control with <a href="/record/sources/glxyresearch-attacker-holdings/">every endpoint attacker address fully unspent</a>, and states that the vulnerable firmware shipped on 17 March 2021 around <a href="/record/sources/glxyresearch-firmware-block-boundary/">block 674,951</a> with no identified coin created before it. What that boundary means for published version ranges is kept in the <a href="#firmware">firmware section</a> below. Galaxy sets out its <a href="/record/sources/glxyresearch-methodology-disclaimer/">own method limit</a> in the same thread, which bounds every figure in it. Why that revised total is not an alternative measurement of the 30 July set is set out on <a href="/record/funds/#galaxy-revision">the funds page</a>.`,
-    status: 'Reported attributed estimate; the underlying transaction and address lists are not published.',
-    scope: 'Galaxy states that the work derives solely from Bitcoin block data and the unspent-output set, that it has not used compute to test whether the addresses it identifies as possible victims were generated with low entropy, and that the analysis should not be treated as complete or definitive.',
-  },
-  {
-    who: 'Galaxy Research',
-    what: 'How the waves were identified, and where findings go',
-    url: '/record/sources/glxyresearch-victim-outreach-update/',
-    detail: 'A 2 August status update on the provenance of the wave identifications: the wave-1 pattern came from Block engineers, while waves 2 and 3 were identified because victims came forward. The update asks victims to share affected addresses and transaction IDs with @intangiblecoins without personal identifying information, states that findings are being shared with US authorities, SEAL, exchanges and cyber investigators, and promises a substantive update.',
-    status: 'Reported status update; the stated sharing and escalation are not observable from here.',
-    scope: 'The update describes process and provenance rather than new totals. Victim-supplied addresses are reports to Galaxy, not verified attributions, a limit Galaxy\'s own methodology disclaimer also states.',
-  },
-  {
-    who: 'Galaxy Research',
-    what: 'The 3 August confirmed total, and the wave-4 caveat',
-    url: '/record/sources/glxy-losses-exceed-100m/',
-    detail: `Revised the top line to a high-confidence ${fig('galaxyConfirmedBtc')} stolen from ${fig('galaxyConfirmedAddresses')} across three confirmed waves plus 14 smaller incidents, stated as exceeding US$100M and superseding the 1 August figure. The confirmation basis changed with the number: wave 1, first observed by Block engineers, is now fully confirmed through victim reports, waves 2 and 3 were discovered through victim reports, and 73 individual victims have contacted @intangiblecoins for tracing help. The 14 smaller footprints could be many different attackers individually exploiting the now-known vulnerability. Including a suspected fourth wave would bring the total to ${fig('galaxyInclWave4Btc')}, but Galaxy does not promote it without victim confirmation. The same thread states that 90 percent of stolen coins have not moved and 100 percent of waves 1 to 3 coins are unmoved, that confirmed attacker and victim addresses have been provided to US federal law enforcement, exchanges and compliance firms, and that the attack is ongoing.`,
-    status: 'Reported victim-confirmed estimate; the underlying transaction and address lists are not published.',
-    scope: 'Galaxy\'s 1 August method limit still bounds these figures: the work derives from block data and the unspent-output set, without testing whether identified addresses were generated with low entropy, and should not be treated as complete or definitive.',
-  },
-  {
-    who: 'profedustream',
-    what: 'A published mapping export and a two-actor hypothesis',
-    url: '/record/sources/profedustream-mapping-export/',
-    detail: 'Published the JSON export of a multi-day on-chain mapping. It describes a scripted first wave whose consolidations remain untouched; a noisier, more erratic pattern whose movements reach clusters the author links to Chivo Wallet and Binance, six ChangeNOW transactions, and one CoinJoin service whose outputs were later connected to Binance; and further script-like waves that also remain unmoved. On that split the author offers a working hypothesis of two actors.',
-    status: 'Reported independent mapping; the export and its cluster attributions have not been rechecked here.',
-    scope: 'The exchange and service cluster labels are the author\'s attributions, and the two-actor reading is stated as a working hypothesis rather than a finding. Behavioural differences between waves do not by themselves establish separate operators.',
-  },
-  {
-    who: 'Clay Garrett, Block',
-    what: 'The attribution finding',
-    url: '/record/sources/clay-attribution/',
-    detail: 'Reported that the operator queried the source addresses through a paid account at a blockchain-services provider during the sweeps, and that the provider\'s logs matched the suspected workflow "with extraordinary specificity, including the number, timing and sequence of requests".',
-    status: 'Reported by Block; not independently verifiable from public data.',
-    scope: 'The provider remains unnamed at its request. Block says it found no evidence that the provider knowingly participated.',
-  },
-  {
-    who: 'Talip (@otaliptus)',
-    what: 'Independent technical analysis',
-    url: '/record/sources/otaliptus-technical/',
-    detail: 'Published a separate, deliberately tentative Mk4 model. It assumes a remote attacker does not know the UID, estimates about 20 to 21 bits from the wafer-coordinate word, narrows the practical SysTick positions, and makes the unresolved RTC term visible. The post reports roughly 52 to 63 bits if RTC behaviour is problematic and roughly 75 to 88 bits if it is not. The author labels the work brainstorming and lists assumptions that may be wrong. <a href="https://x.com/otaliptus" rel="noopener nofollow">Profile</a>.',
-    status: 'Unverified working hypothesis.',
-    scope: 'The author calls it brainstorming, says details may be wrong and credits GPT-5.6 Pro with document checking. It is retained as commentary, not a settled estimate.',
-  },
-  {
-    who: 'Kevin Loaec, Wizardsardine',
-    what: 'The post-mortem and the derived-material argument',
-    url: '/record/sources/wizardsardine-postmortem/',
-    detail: 'Reconstructs the flaw at length and argues its reach goes past seed generation: on affected devices, features that draw on the same generator are reported broken even where the seed itself was imported or created with dice. The post opens with configuration-specific guidance for Liana, Miniscript and multisig users before turning to the incident. A <a href="/record/sources/kloaec-derived-feature-exposure/">companion post</a> enumerates the features in an attached graphic that did not render in the held capture.',
-    status: 'Reported independent analysis; the mutable post is captured for revision tracking.',
-    scope: 'Wizardsardine sells Liana, a competing wallet product, and the first section is written as guidance to its own users. The authors describe the post as written quickly under stress and invite corrections. The feature-exposure claims are their reading until checked against source, and nothing in the post has been reproduced here.',
-  },
-  {
-    who: 'Dustin Dettmer',
-    what: 'The commit-history reading of how the defect entered',
-    url: '/record/sources/btcpp-dettmer-commit-history/',
-    detail: 'Traces the firmware commit history behind the disabled hardware generator: a commit whose entire message is "runs" sets <code>MICROPY_HW_ENABLE_RNG</code> to zero next to a duplicate symbol definition that would not otherwise have compiled, and the overridden functions turn out not to be the ones seed generation reaches. Published on bitcoin++ Insider Edition and <a href="/record/sources/btcpp-dettmer-analysis-announcement/">announced there</a>.',
-    status: 'Reported independent source reading; the commit-level claims are checkable against the pinned repository clones held here.',
-    scope: 'The account of what the original author intended, and of the frustration inferred from it, is the writer\'s reading of commit messages and diffs rather than established fact. This archive has not rechecked every commit cited.',
-  },
-  {
-    who: 'James O\'Beirne',
-    what: 'A reported May 2025 audit warning',
-    url: '/record/sources/jamesob-2084624605969350915/',
-    detail: 'Says that a May 2025 audit identified a potential concern around COLDCARD randomness and libngu, that he reported it to the team, and that he was told they would know if the concern was valid.',
-    status: 'Reported first-person prior-warning account.',
-    scope: 'No contemporary report, correspondence or exact finding is attached to the post. It does not establish that the later defect was identified before disclosure.',
-  },
-  {
-    who: 'Blockchain Unmasked',
-    what: 'A reported 2024 victim investigation and warning',
-    url: '/record/sources/blockchainunmasked-prior-warning/',
-    detail: 'Says the authors investigated victim losses in 2024, traced them to weak entropy and reported the finding to Coinkite and several authorities before the public disclosure.',
-    status: 'Reported prior-warning account and retrospective investigation.',
-    scope: 'The article does not publish the contemporary reports, underlying victim set or complete chain method. Its broader conclusions remain the authors\' analysis.',
-  },
-  {
-    who: 'Rob Hamilton and CKTRIPWIRE',
-    what: 'A live honeypot experiment',
-    url: '/record/sources/cktripwire-honeypot-monitor/',
-    detail: 'Publishes live states for eight honeypots across a control and stepped added-entropy bands. At the first capture, the control was reported swept after 1 hour 18 minutes while the seven other cases remained live.',
-    status: 'Reported live experiment; revision-captured by this archive.',
-    scope: 'The experiment is ongoing. One swept control and seven then-live cases do not establish a safe entropy threshold or a general attack-time distribution.',
-  },
-  {
-    who: 'Chainalysis',
-    what: 'A geographic distribution estimate',
-    url: '/record/sources/chainalysis-2084734055858282986/',
-    detail: 'Reports that Canada accounts for 25 percent of losses it could attribute geographically, with Australia, the United States and Thailand also prominent.',
-    status: 'Reported company analysis.',
-    scope: 'The post does not publish the attributed address set, victim set, geographic method or denominator. It cannot be reproduced from the post alone.',
-  },
-  {
-    who: 'Milk Sad researchers',
-    what: 'Contextual weak-key precedent',
-    url: 'https://milksad.info/disclosure.html',
-    detail: 'A separate weak-key incident with a public disclosure and an attempt to account for affected funds. It is retained here as contextual precedent, not as evidence about COLDCARD.',
-    status: 'Verified contextual source.',
-    scope: 'Different generator, affected population and disclosure process.',
+    id: 'prior-warnings',
+    title: 'Prior-warning accounts',
+    blurb:
+      'First-person accounts of having raised the defect, or something near it, before the public disclosure. Each is attributed and dated; none attaches the contemporary report it describes, and the vendor\'s own chronology does not record them.',
+    entries: [
+      {
+        who: 'James O\'Beirne',
+        what: 'A reported May 2025 audit warning',
+        evidence: [{ href: '/record/sources/jamesob-2084624605969350915/', label: 'The account' }],
+        detail: 'Says that a May 2025 audit identified a potential concern around COLDCARD randomness and libngu, that he reported it to the team, and that he was told they would know if the concern was valid. Coinkite\'s <a href="/record/sources/coinkite-historical-disclosures/">published disclosure history</a> carries no May 2025 entry, an absence <a href="/response/disclosure-history/#not-in-the-chronology">set out on the disclosure-history page</a>.',
+        status: 'Reported first-person prior-warning account, unreconciled with the vendor chronology.',
+        scope: 'No contemporary report, correspondence or exact finding is attached to the post. It does not establish that the later defect was identified before disclosure, and the vendor selects what its own chronology contains, so the absence is not evidence that no report was made.',
+      },
+      {
+        who: 'Blockchain Unmasked',
+        what: 'A reported 2024 victim investigation and warning',
+        evidence: [{ href: '/record/sources/blockchainunmasked-prior-warning/', label: 'The article' }],
+        detail: 'Says the authors investigated victim losses in 2024, traced them to weak entropy and reported the finding to Coinkite and several authorities before the public disclosure.',
+        status: 'Reported prior-warning account and retrospective investigation.',
+        scope: 'The article does not publish the contemporary reports, underlying victim set or complete chain method. Its broader conclusions remain the authors\' analysis.',
+      },
+    ],
   },
 ];
-
-const trackers = ['coldcard-watch', 'coldcard-hack-tracker', 'coldcard-rip-tracker', 'cktripwire-honeypot-monitor']
-  .map((id) => sourceById(id))
-  .filter(Boolean);
 
 /*
  * Dates come from the source registry rather than being typed here, so a
@@ -237,33 +286,55 @@ const trackers = ['coldcard-watch', 'coldcard-hack-tracker', 'coldcard-rip-track
  * README it is when the work was first published, not when the held state was
  * captured. Where neither is established the entry says so rather than guessing.
  */
-function publishedMetadata(url: string): { label: string; iso: string } {
-  const id = /^\/record\/sources\/([^/]+)\//.exec(url)?.[1];
-  if (!id) return { label: 'publication date not established here', iso: '' };
+function evidenceMetadata(href: string): { id: string; label: string; iso: string } {
+  const id = /^\/record\/sources\/([^/]+)\//.exec(href)?.[1] ?? '';
+  if (!id) return { id: '', label: 'publication date not established here', iso: '' };
   const iso = sourceById(id)?.published ?? xPostById(id)?.posted;
   return {
+    id,
     label: iso ? isoToHuman(iso) : 'publication date not established',
     iso: iso ?? '',
   };
 }
 
-const primaryWithLinkMetadata = PRIMARY.map((entry) => {
-  const published = publishedMetadata(entry.url);
-  return {
-    ...entry,
-    when: published.label,
-    whenIso: published.iso,
-    evidenceRel: entry.url.startsWith('http') ? 'noopener nofollow' : undefined,
-  /*
-   * Registry id behind a local evidence link, handed to CaptureThumb below.
-   * The component applies both publication gates (staged via the x-media
-   * manifest, and not withheld) and renders nothing for entries whose evidence
-   * is a web page rather than a captured post, so this page keeps exactly its
-   * text-only rendering when nothing is staged.
-   */
-    thumbId: /^\/record\/sources\/([^/]+)\//.exec(entry.url)?.[1] ?? '',
-  };
-});
+/*
+ * An entry's own date is the earliest of its artefacts, so a contributor sorts
+ * by when they first published rather than by when they last revised. Entries
+ * whose evidence carries no established date sort last rather than being
+ * silently treated as ancient.
+ */
+const primaryGroups = PRIMARY_GROUPS.map((group) => ({
+  ...group,
+  entries: group.entries
+    .map((entry) => {
+      const links = entry.evidence.map((e) => ({
+        ...e,
+        ...evidenceMetadata(e.href),
+        rel: e.href.startsWith('http') ? 'noopener nofollow' : undefined,
+      }));
+      const dated = links.filter((l) => l.iso).sort((a, b) => a.iso.localeCompare(b.iso));
+      return {
+        ...entry,
+        links,
+        /* One artefact needs no list; its date and link already sit in the head. */
+        multi: links.length > 1,
+        whenIso: dated[0]?.iso ?? '',
+        when: dated[0]?.label ?? 'publication date not established',
+        /*
+         * Registry id behind the earliest local evidence link, handed to
+         * CaptureThumb below. The component applies both publication gates
+         * (staged via the x-media manifest, and not withheld) and renders
+         * nothing for entries whose evidence is a web page rather than a
+         * captured post, so this page keeps exactly its text-only rendering
+         * when nothing is staged.
+         */
+        thumbId: (dated[0] ?? links[0])?.id ?? '',
+      };
+    })
+    .sort((a, b) => (a.whenIso || '9999').localeCompare(b.whenIso || '9999')),
+}));
+
+const primaryCount = primaryGroups.reduce((n, g) => n + g.entries.length, 0);
 
 const posts = xPosts();
 
@@ -408,217 +479,28 @@ const held = HELD.map((e) => ({
     : 'publication date not established',
 }));
 
-/* --- Firmware releases --------------------------------------------------- */
-
-// Checked against the firmware release histories, release commits and signed
-// signed-release record. Search-space figures remain attributed estimates.
-// Version boundaries interpolate from src/lib/firmware.ts, the same module the
-// risk overview table renders from, so the two cannot drift apart.
-const mk2 = modelRange('Mk2');
-const mk3 = modelRange('Mk3');
-const mk4 = modelRange('Mk4');
-const mk5 = modelRange('Mk5');
-const q = modelRange('Q');
-
-// Where the vendor publishes a narrower range than this site classifies, the
-// same module carries the divergence, so the model table, the release-boundary
-// table and the risk overview all state one set of boundaries.
-const divergence = vendorDivergences().find((d) => d.models.includes('Mk3')) ?? null;
-const vendorRangeCell = divergence
-  ? `<small><a href="#vendor-lower-bound">Coinkite states <code>${divergence.vendorAffectedFrom}</code> to <code>${divergence.affectedTo}</code></a></small>`
-  : '';
-const vendorStartMark = divergence
-  ? `<small><a href="#vendor-lower-bound">Coinkite starts at <code>${divergence.vendorAffectedFrom}</code></a></small>`
-  : '';
-const vendorRangeSentence = divergence
-  ? ` Coinkite's advisory starts this range at <code>${divergence.vendorAffectedFrom}</code>, ` +
-    `while <a href="#vendor-lower-bound">this site includes <code>${divergence.affectedFrom}</code></a> ` +
-    `on the release-commit and signed-release evidence, which does not itself establish ` +
-    `how widely that build was installed before <code>${divergence.vendorAffectedFrom}</code> ` +
-    `arrived twelve days later.`
-  : '';
-// The one-sentence summary of the chain-analysis corroboration travels with the
-// range in src/lib/firmware.ts, so the risk overview footnote and this callout
-// cannot end up stating it differently. What belongs here rather than in the
-// module is the verbatim wording. The three limits that bound it are a rung of
-// their own below, so the callout states the corroboration once.
-const corroborationBlock = divergence?.corroboration
-  ? `
-<br /><br />
-One piece of outside evidence bears on the same boundary from a different direction. ${divergence.corroboration} Galaxy's wording is "The vulnerable Coldcard firmware shipped on March 17, 2021 around block 674,951. Not one of the coins we have identified in Waves 1-3 taken was created before that block." <a href="#galaxy-boundary-limits">Three limits belong with that.</a>`
-  : '';
-const body = `<div class="table-wrap">
-<div class="table-scroll">
-<table class="data-table sortable">
-<caption>Firmware generation status by model and release range</caption>
-<thead><tr>
-  <th scope="col" class="nw">Model</th><th scope="col" class="nw">Firmware at generation</th>
-  <th scope="col" class="nw">Status</th><th scope="col" class="nw">Candidate-space note</th><th scope="col" class="wide">Notes</th>
-</tr></thead>
-<tbody>
-<tr class="row-safe">
-  <td class="nw"><strong>Mk1</strong></td><td class="nw"><code>&le; v3.0.6</code><small>final Mk1 build, 19 Dec 2019</small></td>
-  <td><span class="status status--ok">Not affected</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits</td>
-  <td class="wide">Predates the libngu migration.</td>
-</tr>
-<tr class="row-safe">
-  <td class="nw"><strong>Mk2 / Mk3</strong></td><td class="nw"><code>&le; ${mk3.lastSafe}</code><small>up to 14 Jan 2021</small></td>
-  <td><span class="status status--ok">Not affected</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits</td>
-  <td class="wide">Seed generation used <code>ckcc.rng_bytes()</code>, which reaches the STM32 TRNG directly. The next published release, v4.0.0, is the first one containing the affected path.</td>
-</tr>
-<tr class="row-gone">
-  <td class="nw"><strong>Mk2</strong></td><td class="nw"><code>${mk2.affectedFrom}</code> to <code>${mk2.affectedTo}</code><small>17 Mar 2021 to 26 Jun 2023</small>${vendorRangeCell}</td>
-  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="40">Block: <code>2^0</code> fixed state;<br><code>&lt;${BITFIG.mk23LooseCeiling}</code> loose ceiling</td>
-  <td class="wide">Generation moved to <code>ngu.random</code>, and this hardware has no secure-element reseed at all. Mk2 never received a v5.x release. Coinkite's advisory names this model directly, stating that the issue "is present on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive"; that wording dates from its revision of 1 August 2026 at 18:35 UTC, before which the advisory named only the Mk3.${vendorRangeSentence} <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
-</tr>
-<tr class="row-gone">
-  <td class="nw"><strong>Mk3</strong></td><td class="nw"><code>${mk3.affectedFrom}</code> to <code>${mk3.affectedTo}</code><small>17 Mar 2021 to 26 Jun 2023</small>${vendorRangeCell}</td>
-  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="40">Block: <code>2^0</code> fixed state;<br><code>&lt;${BITFIG.mk23LooseCeiling}</code> loose ceiling</td>
-  <td class="wide"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite described the entropy as approximately 40 bits</a>; LLFOURN published a separate <code>~${BITFIG.llfournMk3}</code> model. Firmware v4.1.9 remained the last published Mk3 release until v4.2.0 was published on 31 July 2026.${vendorRangeSentence} <a href="/how-it-broke/entropy/">The model register states each assumption.</a></td>
-</tr>
-<tr class="row-gone">
-  <td class="nw"><strong>Mk4</strong></td><td class="nw"><code>${mk4.affectedFrom}</code> to <code>${mk4.affectedTo}</code><small>14 Mar 2022 to 1 Jul 2026</small></td>
-  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
-  <td class="wide">On the normal successful boot path, <code>rng_seeding()</code> derives a value from secure-element output but carries at most 32 bits into libngu. <a href="/how-it-broke/entropy/">Coinkite, LLFOURN and Talip publish different broader models.</a></td>
-</tr>
-<tr class="row-gone">
-  <td class="nw"><strong>Mk5</strong></td><td class="nw"><code>${mk5.affectedFrom}</code> to <code>${mk5.affectedTo}</code><small>5 Mar to 1 Jul 2026</small></td>
-  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
-  <td class="wide">The first repository release explicitly supporting Mk5 is v5.5.0. Both published pre-hotfix Mk5 releases are affected. <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
-</tr>
-<tr class="row-gone">
-  <td class="nw"><strong>Q</strong></td><td class="nw"><code>${q.affectedFrom}</code> to <code>${q.affectedTo}</code><small>8 Feb 2024 to 1 Jul 2026</small></td>
-  <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
-  <td class="wide">All Q builds recorded in the published release history before v1.5.0Q are affected, including the v1.0.0Q production release of 10 Mar 2024. <a href="/how-it-broke/entropy/">Other models use different assumptions.</a></td>
-</tr>
-<tr>
-  <td class="nw"><strong>Mk2 / Mk3</strong></td><td class="nw"><code>${mk3.fix}</code><small>official Mk3 X update: 31 Jul 2026, 13:43 UTC</small></td>
-  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
-  <td class="wide">The release history describes a hotfix that corrects the entropy bug and allows new seed generation. Coinkite's advisory lists the fixed release as "Mk2/Mk3: version 4.2.0 or later" and describes "Fixed Mk2/Mk3 firmware version 4.2.0" as released. Before the advisory's revision of 1 August 2026 at 18:35 UTC it named only the Mk3, and the vendor downloads-page listing of 4.2.0 for "COLDCARD Mk3 and Mk2" was the only vendor evidence covering the Mk2. The source contains the hardware-RNG fix; this archive has not reproduced the vendor build, installed it on either model or independently inspected the signed binary.</td>
-</tr>
-<tr>
-  <td class="nw"><strong>Mk4 / Mk5</strong></td><td class="nw"><code>${mk4.fix}</code><small>signed release: 31 Jul 2026, 05:18 UTC</small></td>
-  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
-  <td class="wide">The signed-release record precedes source release commit <code>3238f6f</code> at 05:19 UTC. That commit contains the source-level fix. The advisory separately names Edge <code>v6.6.0X</code>; neither published binary has been independently checked here.</td>
-</tr>
-<tr>
-  <td class="nw"><strong>Q</strong></td><td class="nw"><code>${q.fix}</code><small>signed release: 31 Jul 2026, 05:17 UTC</small></td>
-  <td><span class="status status--info">Published fix</span></td><td class="nw" data-sort="256">nominal 128 or 256 bits in the reviewed source</td>
-  <td class="wide">The signed-release record precedes source release commit <code>3238f6f</code> at 05:19 UTC. That commit contains the source-level fix. The advisory separately names Edge <code>v6.6.0QX</code>; neither published binary has been independently checked here.</td>
-</tr>
-<tr>
-  <td class="nw"><strong>OPENDIME</strong></td><td class="nw">V3.0 r.A<small>firmware 2.2.0</small></td>
-  <td><span class="status status--info">One-device test reported</span></td><td class="nw">user entropy incorporation reported for one unit</td>
-  <td class="wide"><a href="/record/sources/zherbert-opendime-entropy-test/">Foundation Devices co-founder and CEO Zach Herbert reports reconstructing the final private key from the exact user-provided test vector, USB serial and revealed nonce.</a> Foundation sells competing hardware-wallet products. The test covers one unit, does not assess internal-nonce quality and was not independently reproduced here.</td>
-</tr>
-<tr>
-  <td class="nw"><strong>TAPSIGNER</strong></td><td class="nw">All</td>
-  <td><span class="status status--info">Vendor-reported</span></td><td class="nw">not independently assessed here</td>
-  <td class="wide"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite reports that TAPSIGNER is not affected because it uses a different codebase.</a> <a href="/record/sources/robhamilton-opendime-tapsigner-scope/">Rob Hamilton notes that its closed source prevents first-hand verification</a> and reports only preliminary evidence that it does not use the affected libngu path.</td>
-</tr>
-<tr>
-  <td class="nw"><strong>SATSCARD</strong></td><td class="nw">All</td>
-  <td><span class="status status--info">Vendor-reported</span></td><td class="nw">not independently assessed here</td>
-  <td class="wide"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite reports that SATSCARD is not affected because it uses a different codebase.</a> This archive has not independently reviewed that codebase.</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<p class="cap">For the named 31 July hotfixes, the source-level change is verified. The signed release files are vendor-published, but this archive has not reproduced the builds or independently inspected the binaries.</p>
-
-<h3>Release boundary record</h3>
-
-<p>Purchase date does not determine exposure; the published build in use at generation does. The selected releases below identify the relevant boundaries from the per-model history files.</p>
-
-<div class="table-wrap">
-<div class="table-scroll">
-<table class="data-table sortable">
-<caption>Selected firmware and source release boundaries</caption>
-<thead><tr>
-  <th scope="col" class="nw">Version</th><th scope="col" class="nw">Released</th><th scope="col" class="nw">Line</th><th scope="col" class="nw">Status</th><th scope="col" class="wide">Why it matters</th>
-</tr></thead>
-<tbody>
-<tr class="row-safe"><td class="nw"><code>3.2.2</code></td><td class="nw" data-sort="20210114">14 Jan 2021</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--ok">Last pre-regression release</span></td><td class="wide">Seeds generated on this or an earlier release used <code>ckcc.rng_bytes()</code> and are not affected by this generator substitution.</td></tr>
-<tr><td class="nw"><code>b18723dddb6d751c39978e4364b56b2414f68b47</code><small>verified in the firmware repository</small></td><td class="nw" data-sort="20210301">1 Mar 2021</td><td class="nw">commit</td><td class="nw"><span class="status status--warn">Migration commit</span></td><td class="wide">Not a release. This commit moved wallet generation from <code>ckcc.rng_bytes()</code> to <code>ngu.random.bytes()</code>, combining with the pre-existing guard defect to create the affected path.</td></tr>
-<tr class="row-gone"><td class="nw"><code>4.0.0</code></td><td class="nw" data-sort="20210317">17 Mar 2021</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--bad">First affected</span>${vendorStartMark}</td><td class="wide">Release commit <code>910e306e79f7eb6e99d16e253075de42f055124c</code> contains the affected path, and the signed-release record lists the 17 Mar 2021 DFU image.${vendorRangeSentence}</td></tr>
-<tr class="row-gone"><td class="nw"><code>5.0.0</code></td><td class="nw" data-sort="20220314">14 Mar 2022</td><td class="nw">Mk4</td><td class="nw"><span class="status status--bad">Affected</span></td><td class="wide">First Mk4 production firmware and the first to call <code>rng_seeding()</code> at boot, which is the 32-bit reseed.</td></tr>
-<tr class="row-gone"><td class="nw"><code>4.1.9</code></td><td class="nw" data-sort="20230626">26 Jun 2023</td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--bad">Affected</span></td><td class="wide">The last Mk3 firmware for three years, and affected. Superseded by 4.2.0 on 31 Jul 2026.</td></tr>
-<tr class="row-gone"><td class="nw"><code>0.0.3Q</code></td><td class="nw" data-sort="20240208">8 Feb 2024</td><td class="nw">Q</td><td class="nw"><span class="status status--bad">Affected</span></td><td class="wide">Earliest public Q build. Production <code>1.0.0Q</code> follows 10 Mar 2024.</td></tr>
-<tr class="row-gone"><td class="nw"><code>5.5.0</code> / <code>1.4.0Q</code></td><td class="nw" data-sort="20260305">5 Mar 2026</td><td class="nw">Mk4 / Mk5 / Q</td><td class="nw"><span class="status status--bad">Affected</span></td><td class="wide">The build the Mk5 shipped on when that hardware launched five days later.</td></tr>
-<tr class="row-gone"><td class="nw"><code>5.5.1</code> / <code>1.4.1Q</code></td><td class="nw" data-sort="20260701">1 Jul 2026</td><td class="nw">Mk4 / Mk5 / Q</td><td class="nw"><span class="status status--bad">Last affected release</span></td><td class="wide">The last published affected release before disclosure.</td></tr>
-<tr><td class="nw"><code>4.2.0</code></td><td class="nw" data-sort="202607311343">31 Jul 2026<small><a href="/record/sources/coldcard-mk3-hotfix-update/">13:43 UTC official Mk3 update</a></small></td><td class="nw">Mk2 / Mk3</td><td class="nw"><span class="status status--info">Published fix</span></td><td class="wide">The release history says this corrects the entropy bug and allows new seed generation. Coinkite's advisory names it for both models as "Mk2/Mk3: version 4.2.0 or later", wording it adopted on 1 August 2026 at 18:35 UTC, and the vendor downloads page lists it for Mk2 and Mk3. The reviewed source contains the fix, while installation on either model and the signed binary remain unexamined by this project.</td></tr>
-<tr><td class="nw"><code>1.5.0Q</code></td><td class="nw" data-sort="202607310517">31 Jul 2026<small>05:17 UTC, signed release</small></td><td class="nw">Q</td><td class="nw"><span class="status status--info">Published fix</span></td><td class="wide">The signed-release record identifies this Q hotfix. Source release commit <code>3238f6f</code> follows at 05:19 UTC and contains the source-level fix. No local build or disassembly of the shipped image was attempted.</td></tr>
-<tr><td class="nw"><code>5.6.0</code></td><td class="nw" data-sort="202607310518">31 Jul 2026<small>05:18 UTC, signed release</small></td><td class="nw">Mk4 / Mk5</td><td class="nw"><span class="status status--info">Published fix</span></td><td class="wide">The signed-release record identifies this Mk4/Mk5 hotfix. Source release commit <code>3238f6f</code> follows at 05:19 UTC and contains the source-level fix. The shipped image was not reproduced against that source here.</td></tr>
-<tr><td class="nw"><code>3238f6fd9977eed786012d0034a04d888c3263bb</code><small>verified in the firmware repository</small></td><td class="nw" data-sort="202607310519">31 Jul 2026<small>05:19 UTC</small></td><td class="nw">Mk4 / Mk5 / Q source</td><td class="nw"><span class="status status--ok">Source fix verified</span></td><td class="wide">The release commit states that it will generate entropy correctly and contains the source-level fix. This verifies the source change, not the contents of the earlier signed release files.</td></tr>
-<tr><td class="nw"><code>6.6.0X</code> / <code>6.6.0QX</code></td><td class="nw" data-sort="202607311654">31 Jul 2026<small><a href="/record/sources/coldcard-edge-hotfix-update/">16:54 UTC official X update</a></small></td><td class="nw">Mk4 / Mk5 / Q Edge</td><td class="nw"><span class="status status--info">Vendor-reported fix</span></td><td class="wide">Coinkite names these exact Edge releases in its advisory and official update. Their binaries fall outside what this archive has examined.</td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<div class="kpi-row">
-  <div class="kpi-card" style="--i:0">
-    <div class="kpi-card__value" style="color:var(--red)"><span>5 yr 4 mo</span></div>
-    <div class="kpi-card__label">Mk3 affected interval</div>
-    <div class="kpi-card__note">v4.0.0 on 17 Mar 2021 to the Mk2/Mk3 fix the vendor names on 31 Jul 2026.</div>
-  </div>
-  <div class="kpi-card" style="--i:1">
-    <div class="kpi-card__value" style="color:var(--amber)"><span>4 yr 4 mo</span></div>
-    <div class="kpi-card__label">Mk4 exposure</div>
-    <div class="kpi-card__note">v5.0.0 on 14 Mar 2022 to the Mk4 fix on 31 Jul 2026, covering every release through v5.5.1.</div>
-  </div>
-  <div class="kpi-card" style="--i:2">
-    <div class="kpi-card__value" style="color:var(--amber)"><span>2 yr 5 mo</span></div>
-    <div class="kpi-card__label">Q exposure</div>
-    <div class="kpi-card__note">v0.0.3Q on 8 Feb 2024 to the Q fix on 31 Jul 2026, covering every recorded Q build through v1.4.1Q.</div>
-  </div>
-  <div class="kpi-card" style="--i:3">
-    <div class="kpi-card__value" style="color:var(--red)"><span>3 yr 1 mo</span></div>
-    <div class="kpi-card__label">Mk3 release interval</div>
-    <div class="kpi-card__note">Time between v4.1.9 and the 4.2.0 hotfix.</div>
-  </div>
-</div>
-
-<div class="callout callout--red" id="vendor-lower-bound">
-<span class="callout__title">The vendor advisory starts at v4.0.1; source evidence includes v4.0.0</span>
-Both the <a href="/record/sources/coinkite-mk3-advisory/">Mk3 advisory</a> and the <a href="/record/sources/coinkite-backgrounder/">technical backgrounder</a>, in the versions held here as of ${VENDOR_RANGE_AS_OF}, give the affected range as <strong>"4.0.1 (March 2021) thru 4.1.9 (inclusive)"</strong>. <a href="/record/sources/optech-416/">Bitcoin Optech repeated it</a>, citing the advisory. The upper bound agrees with the repository record; the lower one does not, and does not look like a typographical slip: the advisory states 4.0.1 twice, while this site states 4.0.0 from the repository record. Coinkite has already revised this range once, from a first advisory state that ran the issue "through firmware version 5.0.3".
-<br /><br />
-The release history in the vendor's own repository puts <code>4.0.0</code> on <strong>17 March 2021</strong> and describes it as "Major internal changes... all crypto and BIP39 related code replaced", which is the migration that introduced the bug. <code>4.0.1</code> did not arrive until <strong>29 March</strong>, and its changelog entry is about something else entirely: "Fixes security issue in v4.0.0."
-<br /><br />
-The 17 March release commit contains <code>random.bytes(32)</code>, the defined-zero board macro, the vulnerable libngu revision and the MicroPython fallback revision. The signed-release record also lists the 4.0.0 image. Block's range starts at 4.0.0.
-<br /><br />
-The evidence therefore supports classifying a seed generated on Mk2 or Mk3 v4.0.0 as affected, notwithstanding the <a href="/record/sources/coinkite-mk3-advisory/">narrower Coinkite wording</a>. What it does not establish is distribution: the record shows that 4.0.0 was built and signed, not how many devices ran it during the twelve days before 4.0.1 superseded it.${corroborationBlock}
-</div>
-
-<div class="callout callout--amber">
-<span class="callout__title">A correction to the original advisory</span>
-The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> described the affected range as running "through version 5.0.3, the final release that supported Mk3". That wording survives only in the 01:56 UTC state of 31 July recovered from the Internet Archive; this project's own capture of the advisory began on 1 August, by which point the sentence was gone. <code>History-Mk3.md</code> contains no 5.x release at all. Its highest entry before the incident is v4.1.9, and the held capture now ends at the 4.2.0 hotfix, while <code>v5.0.3</code> appears in the Mk4 history. <a href="/record/sources/block-disclosure/">Block's stated range of v4.0.0 to v4.1.9</a> matches the repository record. This does not change which published Mk3 builds are classified as affected, but v4.1.9 is the highest Mk3 version in that history.
-</div>`;
 ---
 
 <Article
   title="Reference"
-  description="Primary analysis, published code and firmware release records for the COLDCARD incident."
-  standfirst="The record behind this site's claims, kept in one place: the original research each finding rests on, the code published around the incident, and the firmware releases that bound its documented scope."
+  description="Who did the primary analysis of the COLDCARD incident, and what code was published around it."
+  standfirst="The research behind this site's claims: who found what, grouped by the kind of finding they made, and the code published around the incident, classified by what it asks a reader to supply."
   depth="plain"
   kicker="The record / reference"
-  next={{ href: '/response/scams/', label: 'Incident-related scams and warnings', note: 'documented artefacts, attributed reports and vendor warnings kept separate' }}
+  next={{
+    href: '/record/timeline/',
+    label: 'Timeline',
+    note: 'Return to the incident chronology and its dated evidence.',
+  }}
 >
-  <nav class="refnav" aria-label="On this page">
-    <a href="#analysis">Primary analysis</a>
-    <a href="#code">Published code</a>
-    <a href="#firmware">Firmware releases</a>
-  </nav>
-
   <section id="analysis">
     <h2>Primary analysis</h2>
 
     <Answer>
     <p>
       Original analysis and reporting that restates it are different things, and
-      this register covers only the first. Each entry names who published it,
+      this register covers only the first: {primaryCount} contributions, grouped
+      by the kind of finding they made. Each entry names who published it,
       what it added to the public record, what has been checked here, and what
       remains that source's assumption. The candidate-space estimates below
       differ because their authors assume different attacker knowledge; none is
@@ -627,12 +509,16 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     </Answer>
 
     <p>
-      An entry is listed here when it introduced something no earlier source had:
-      a firmware or binary reading, a chain derivation, a candidate-space model, a
-      reproduction, or an attribution finding. Restatement belongs on the
-      <a href="/record/">source list</a> instead. Inclusion records provenance
-      rather than endorsement, and each date is the registered first publication,
-      not the capture.
+      An entry is listed here when it introduced something no earlier source had,
+      and the {primaryGroups.length} groups below are the kinds of thing it could
+      introduce: a source or binary reading, a candidate-space model, a
+      reproduction, a chain derivation or attribution, or a prior-warning
+      account. Restatement belongs on the <a href="/record/">source list</a>
+      instead. One contributor holds one entry per group, carrying every artefact
+      behind that contribution, so a body of work that was revised reads as a
+      revision rather than as several independent findings. Inclusion records
+      provenance rather than endorsement; each date is the registered first
+      publication, not the capture, and entries run oldest first within a group.
       <Claim
         basis="reported"
         scope="The attributed contributions, models and evidentiary limits in the primary-analysis register below"
@@ -640,114 +526,130 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
         href="/record/"
         compact
       />
+      <Claim
+        basis="derived"
+        scope="The grouping of the register entries below by kind of finding, and the merging of one contributor's artefacts into a single entry per kind"
+        source="This project's editorial arrangement of the register. It sorts and consolidates the entries below; it does not alter what any source published, and every artefact remains separately linked and dated from its entry"
+        href="/record/"
+        compact
+      />
     </p>
 
     <p>
-      The candidate-space estimates in this register apply different assumptions
+      The candidate-space estimates grouped below apply different assumptions
       about what a remote attacker knows at the moment of generation. Each
       assumption is written out beside its number on the
       <a href="/how-it-broke/entropy/">attack-cost page</a>, and they should not be
       combined without carrying those assumptions with them.
       <Claim
         basis="reported"
-        scope="The differing Mk4-class candidate-space figures attributed above to Coinkite, LLFOURN, Talip and Block"
+        scope="The differing Mk4-class candidate-space figures attributed below to Coinkite, LLFOURN, Talip and Block"
         source="Each publisher's own stated estimate and assumptions, as captured; no independent measurement of a device is made here"
         href="/how-it-broke/entropy/"
       />
     </p>
 
-    <div class="reg">
-      {primaryWithLinkMetadata.map((p) => (
-        <article class="reg__item">
-          <div class="reg__head">
-            <h3 class="reg__who">{p.who}</h3>
-            <a class="reg__link" href={p.url} rel={p.evidenceRel}>evidence &rarr;</a>
-          </div>
-          <p class="reg__what">{p.what}</p>
-          <p class="reg__when">
-            <Timestamp iso={p.whenIso} hidden={!p.whenIso} />
-            <span hidden={Boolean(p.whenIso)}>{p.when}</span>
-          </p>
-          <p class="reg__detail" set:html={p.detail} />
-          <CaptureThumb id={p.thumbId} />
-          <p class="reg__status">{p.status}</p>
-          <p class="reg__scope">{p.scope}</p>
-        </article>
-      ))}
-    </div>
+    {primaryGroups.map((group) => (
+      <div class="reg-group" id={`analysis-${group.id}`}>
+        <h3 class="reg-group__title">{group.title}</h3>
+        <p class="reg-group__blurb">{group.blurb}</p>
 
-    <h3>Community trackers</h3>
+        <div class="reg">
+          {group.entries.map((p) => (
+            <article class="reg__item">
+              <div class="reg__head">
+                <h4 class="reg__who">{p.who}</h4>
+                <a class="reg__link" href={p.links[0].href} rel={p.links[0].rel} hidden={p.multi}>evidence &rarr;</a>
+              </div>
+              <p class="reg__what">{p.what}</p>
+              <p class="reg__when">
+                <Timestamp iso={p.whenIso} hidden={!p.whenIso} />
+                <span hidden={Boolean(p.whenIso)}>{p.when}</span>
+              </p>
+              <p class="reg__detail" set:html={p.detail} />
+              <CaptureThumb id={p.thumbId} />
+              <ul class="reg__ev" hidden={!p.multi}>
+                {p.links.map((l) => (
+                  <li>
+                    <a href={l.href} rel={l.rel}>{l.label}</a>
+                    <span class="reg__ev-when">
+                      <Timestamp iso={l.iso} hidden={!l.iso} />
+                      <span hidden={Boolean(l.iso)}>{l.label === '' ? '' : 'date not established'}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p class="reg__status">{p.status}</p>
+              <p class="reg__scope">{p.scope}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))}
 
     <p>
-      Four community projects publish views of the attributed transaction set or
-      the live honeypot experiment. They
-      are independent of this archive. Their figures and methodology can change,
-      and entering an address into any third-party site discloses that query to the
-      operator and network intermediaries.
+      One further weak-key incident is kept beside this register as context
+      rather than inside it. The
+      <a href="https://milksad.info/disclosure.html" rel="noopener nofollow">Milk Sad disclosure</a>
+      records a separate weak-key failure with a public disclosure and an attempt
+      to account for affected funds. It is a different generator, a different
+      affected population and a different disclosure process, so it is precedent
+      for how such an incident is handled, not evidence about COLDCARD.
+      <Claim
+        basis="verified"
+        scope="That the Milk Sad disclosure is a separate published weak-key incident with its own disclosure and funds accounting, retained here as context"
+        source="The Milk Sad disclosure itself; no claim about COLDCARD is drawn from it"
+        href="https://milksad.info/disclosure.html"
+        compact
+      />
     </p>
 
-    <ul class="node-list">
-      {trackers.map((t) => (
-        <li>
-          <a href={`/record/sources/${t.id}/`}>{displayTitle(t)}</a>
-          {' '}&middot;{' '}
-          <a href={t.url} rel="noopener nofollow">{t.url}</a>
-          <br /><span class="dim">{t.note}</span>
-        </li>
-      ))}
-    </ul>
+    {/*
+      Three subsections stood here and none of them earned the space.
 
-    <h3>Who is, and is not, investigating</h3>
+      "Community trackers" hand-listed four registry entries. Three are chain
+      monitors whose headline totals /record/funds/ reads live out of the
+      archive, with the capture they came from and whether the source still
+      answers; the fourth is the honeypot experiment, which now has its own
+      register card above. A typed list of the same four is a second, staler
+      copy of both. What was worth keeping is the query-disclosure warning,
+      which appears nowhere else, so it survives as the sentence below.
+
+      "Who is, and is not, investigating" opened by restating Galaxy's sharing
+      statement, which the merged Galaxy card now carries a few hundred pixels
+      above it. Only the ZachXBT declination was unique, and it does not need
+      a heading of its own.
+
+      "Registered posts" and the corrections card were both pointers to other
+      pages wearing the costume of content. They are one clause each now.
+    */}
+    <p>
+      Beyond this register, {posts.length} social posts are registered with
+      their own evidence records, on
+      <a href="/record/#registered-posts">the registered-post wall</a>, and the
+      chain monitors' current totals are read live out of the archive on
+      <a href="/record/funds/">the funds page</a>. Those trackers are
+      independent of this archive, their figures and methods can change, and
+      entering an address into any third-party site discloses that query to its
+      operator and to network intermediaries. Registry descriptions do not
+      convert a reported claim into a verified one, and where this register has
+      been wrong the <a href="/about/#editorial-standards">corrections
+      process</a> records the change: one entry was corrected after timestamps
+      showed private-submission advice attributed to the wrong person.
+    </p>
 
     <p>
-      The register above records who is doing the analysis. Two captured
-      statements mark the edges of what else was reported. Galaxy's 2 August status update
-      names the parties its findings are being shared with: US authorities,
-      SEAL, exchanges and cyber investigators, alongside the victim outreach
-      described in its register entry.
-      <Claim
-        basis="reported"
-        scope="Galaxy's statement that its findings are being shared with US authorities, SEAL, exchanges and cyber investigators"
-        source="Galaxy Research's captured 2 August status update; none of the stated sharing is observable from here"
-        href="/record/sources/glxyresearch-victim-outreach-update/"
-      />
-      In the other direction, ZachXBT stated
-      that he has no plans to monitor or trace the incident, citing where his
-      donor support comes from.
+      One absence belongs beside the register. ZachXBT stated that he has no
+      plans to monitor or trace the incident, citing where his donor support
+      comes from. It is recorded as made and not adjudicated here.
       <Claim
         basis="reported"
         scope="ZachXBT's statement that he has no plans to monitor or trace the incident, and his stated reason"
         source="ZachXBT's captured post of 2 Aug 2026"
         href="/record/sources/zachxbt-declines-tracing/"
+        compact
       />
-      Both statements are recorded as made; neither
-      the sharing nor the declination is adjudicated here.
     </p>
-
-    {/*
-      This was a second copy of the card wall on /record/: the same registry
-      `why` field for the same {posts.length} posts, rendered in full, without
-      the wall's facets, search or held-capture status. 2,624 nine-word
-      sequences of this page were shared with /record/ because of it.
-    */}
-    <h3>Registered posts</h3>
-
-    <p>
-      {posts.length} social posts are registered, each with a local evidence
-      record stating why it is retained and whether a capture is held:
-      <a href="/record/#registered-posts">the registered-post wall</a>.
-      Registry descriptions do not convert a reported claim into a verified one.
-    </p>
-
-    <div class="ve-card ve-card--blue">
-      <div class="ve-card__label lbl-blue">Attribution corrections</div>
-      <p>
-        This register was corrected after timestamps showed that
-        private-submission advice had been attributed to the wrong person. The
-        <a href="/about/#editorial-standards">corrections process</a> accepts
-        attributable evidence and records substantive changes.
-      </p>
-    </div>
   </section>
 
   <section id="code">
@@ -755,33 +657,24 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
 
     <Answer>
     <p>
-      Three repositories are held here with their READMEs captured, and each is
+      {held.length} repositories are held here with their READMEs captured, and each is
       classified by what it asks the reader to supply rather than by who wrote it.
       Two accept no wallet material at all; the third reads a firmware source tree.
       Upstream files and the pull requests filed in response are listed separately,
-      as source and patches rather than tools a reader runs. As of 2 August 2026 no
+      as source and patches rather than tools a reader runs. As of 5 August 2026 no
       malicious seed-checker was found in public code indexes, which is a dated
       observation and not an all-clear.
     </p>
     </Answer>
 
-    <h3>How the repositories are classified</h3>
-
-    <p>
-      Each entry leads with the input its README asks for. That keeps a repository
-      which accepts no wallet material distinct from one whose stated operation
-      would require recovery material, without treating authorship or technical
-      quality as a substitute for examining the interface. Vendor warnings about
-      checker tools are preserved on the
-      <a href="/response/scams/">scams and warnings page</a>.
-    </p>
-
     <h3>Held in this archive</h3>
 
     <p>
-      Three repositories are held here with their READMEs captured. All three were
-      read before being described, and each was checked against the same question:
-      what does it require the reader to supply.
+      Each entry leads with the input its README asks for, which keeps a
+      repository that accepts no wallet material distinct from one whose stated
+      operation would require it, without treating authorship or technical
+      quality as a substitute for examining the interface. All {held.length} were
+      read before being described.
       <Claim
         basis="verified"
         scope="The stated inputs, licences and described behaviour of the three repositories held here"
@@ -913,173 +806,9 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     </div>
   </section>
 
-  <section id="firmware">
-    <h2>Firmware releases</h2>
-
-    <p>
-      Exposure is bounded by the firmware that was running when the seed was
-      generated, not by the device in front of you today. A COLDCARD updated to a
-      hotfix release can still hold a seed created on an affected build, and a
-      device left on an affected build matters only if a seed was generated on it.
-      The first table gives the affected ranges by model; the second identifies
-      the individual releases and commits that mark each boundary.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Coinkite's not-affected statements for OPENDIME, TAPSIGNER and SATSCARD, plus the reported one-device OPENDIME entropy-incorporation test"
-        source="Coinkite backgrounder and Zach Herbert's captured OPENDIME test report; one unit tested and no independent reproduction here"
-        href="/record/sources/zherbert-opendime-entropy-test/"
-        compact
-      />
-      <Claim
-        basis="unverified"
-        scope="The entropy implementation and runtime behaviour of TAPSIGNER and SATSCARD"
-        source="Coinkite reports separate codebases; those implementations are not independently available or reviewed here"
-        href="/record/sources/robhamilton-opendime-tapsigner-scope/"
-        compact
-      />
-      The <a href="#check-your-device">device and update record</a> below
-      preserves what the held sources say about version display, downloads and
-      what a firmware update does and does not change.
-    </p>
-    <Answer>
-    <p>
-      Whether a seed is exposed depends on the firmware the device was running when
-      that seed was generated, not on what is installed today. On Mk2 and Mk3 every
-      published release from v4.0.0 in March 2021 to v4.1.9 in June 2023 contains
-      the affected path; on Mk4, Mk5 and Q every published release before the
-      31 July 2026 hotfixes does.
-      <Claim
-        basis="verified"
-        contested
-        scope="The affected release ranges and source-level fixes in the named hotfix commits, including the Mk2 and Mk3 range starting at v4.0.0"
-        source="Vendor release histories and source commits, the v4.0.0 release commit 910e306e with its pinned libngu revision and defined-zero board macro, and the signed-release record listing the 17 March 2021 image"
-        href="/record/sources/cc-changelog/"
-        compact
-      />
-      Coinkite's advisory starts the Mk2 and Mk3 range
-      one release later, at v4.0.1, and that difference is recorded here rather
-      than resolved.
-      <Claim
-        basis="reported"
-        captured="31 Jul 2026"
-        scope="Coinkite's currently published Mk2 and Mk3 lower bound of v4.0.1, recorded alongside the ranges above rather than adopted as this site's boundary"
-        source="Captured Mk3 advisory and entropy technical backgrounder, both stating 4.0.1 through 4.1.9; the earlier advisory state instead ran the issue through 5.0.3, so this wording has already been revised once"
-        href="/record/sources/coinkite-mk3-advisory/"
-        compact
-      />
-      <Claim
-        basis="verified"
-        scope="Coinkite's advisory naming the Mk2 directly, in both the affected firmware range and the fixed 4.2.0 release, from its revision of 1 August 2026 at 18:35 UTC onward"
-        source="Held captures of the Coinkite Mk3 advisory and entropy technical backgrounder taken at 18:44 UTC on 1 August 2026, diffed against the states held at 14:02 UTC the same day, in which the equivalent sentences named only the Mk3; earlier, the vendor downloads-page listing was the only vendor evidence covering the Mk2, and the published lower bound remains v4.0.1 for both models"
-        href="/record/sources/coinkite-mk3-advisory/"
-        compact
-      />
-      The source-level fixes are verified; the signed binaries have
-      not been reproduced or disassembled here.
-      <Claim
-        basis="unverified"
-        scope="Whether the vendor-published 4.2.0, 5.6.0, 1.5.0Q and Edge binaries exactly reproduce the reviewed source fixes and provide the intended entropy at runtime"
-        source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 5 August 2026 recheck"
-        compact
-      />
-    </p>
-    </Answer>
-
-    <div class="ported" set:html={body} />
-
-    <Disclosure
-      id="galaxy-boundary-limits"
-      title="Three limits on the Galaxy block-boundary corroboration"
-      note="an approximate height, coin-creation dates, and a twelve-day interval"
-    >
-      <p>
-        The block height is Galaxy's own approximation. The finding is about when
-        coins were first received rather than about which firmware generated any
-        particular seed, and Galaxy separately records that it has "not utilized
-        compute to test whether the addresses we have identified as possible
-        victims were indeed generated with low entropy". And twelve days is too
-        narrow an interval for coin creation dates to separate <code>4.0.0</code>
-        from <code>4.0.1</code>, so an absence of earlier victim coins is
-        consistent with the <code>4.0.0</code> boundary rather than decisive
-        between the two. The classification above rests on the release commit, the
-        pinned libngu revision, the defined-but-zero board macro and the signed
-        <code>4.0.0</code> image; this is corroboration of a March 2021 onset set
-        beside that evidence, not a replacement for it.
-        <Claim
-          basis="reported"
-          scope="Galaxy Research's statement that the vulnerable firmware shipped on 17 March 2021 around block 674,951 and that no coin drained in its first three waves was created before that block, carried as corroboration of a March 2021 onset and not as a finding about which release generated any seed"
-          source="Galaxy Research's captured 1 August 2026 thread, in which the block height is its own approximation and which states that it has not tested whether the identified addresses were generated with low entropy; coin creation dates cannot separate releases twelve days apart"
-          href="/record/sources/glxyresearch-firmware-block-boundary/"
-          compact
-        />
-      </p>
-    </Disclosure>
-
-    <Disclosure
-      id="check-your-device"
-      title="Published device and update documentation"
-      note="what the held captures state, and what they do not establish"
-    >
-      <p>
-        The held captures support a record of version display and update
-        documentation, not a model-by-model operating procedure.
-      </p>
-
-      <p>
-        The COLDCARD shows its firmware version in the device's own settings and
-        upgrade menus; the published release history records a "show firmware
-        version" display added to the Advanced/Tools menu and an
-        <code>Upgrade Firmware</code> item on the same branch. Menu labels differ
-        between models and firmware generations, and this archive holds no capture
-        of a per-model menu walkthrough and no screenshots of any device.
-      </p>
-
-      <p>
-        Coinkite publishes builds on its own downloads page, and this archive holds
-        a <a href="/record/sources/coldcard-downloads/">capture of that page</a>. At
-        the 1 August 2026 capture it listed 4.2.0 for Mk3 and Mk2, 5.6.0 for Mk4 and
-        Mk5, 1.5.0Q for Q, and 6.6.0X and 6.6.0QX for the Edge line. The vendor's
-        documentation describes the upgrade itself as copying the firmware file onto
-        a MicroSD card. On verification the record is thinner still: the release
-        history documents on-device verification of detached Bitcoin signature files
-        under Advanced/Tools, which is a check for files the device exports rather
-        than a published procedure for the firmware image, and no captured source
-        held here sets out a step-by-step firmware-signature check, so this page
-        does not print one.
-      </p>
-
-      <div class="callout callout--red">
-        <span class="callout__title">An update does not repair a seed</span>
-        Installing a hotfix changes what the device will generate next. It does not
-        alter a seed that already exists. The 31 July advisory state put it directly:
-        "An update cannot repair a seed that was already generated by affected
-        firmware." A device on 4.2.0, 5.6.0 or 1.5.0Q with funds still controlled
-        by a seed generated on an affected build therefore remains controlled by
-        the same seed after the update.
-        <Claim
-          basis="reported"
-          scope="The vendor-published firmware versions, upgrade and verification descriptions, and the statement that an update cannot repair an existing seed"
-          source="Held captures of the COLDCARD downloads page and entropy FAQ, the vendor release histories, and the 31 July Mk3 advisory state recovered from the Internet Archive; no device menu path or firmware-signature procedure was independently exercised here"
-          href="/record/sources/coldcard-downloads/"
-        />
-      </div>
-    </Disclosure>
-  </section>
 </Article>
 
 <style>
-  /* Local nav: jumps between the three sections on this one page. */
-  .refnav {
-    display: flex; flex-wrap: wrap; gap: .5rem 1.6rem;
-    font-family: var(--font-mono); font-size: .68rem; font-weight: 600;
-    letter-spacing: .12em; text-transform: uppercase;
-    margin-bottom: 2.6rem; padding-bottom: 1.1rem;
-    border-bottom: 1px solid var(--rule);
-  }
-  .refnav a { color: var(--ink-3); text-decoration: none; }
-  .refnav a:hover { color: var(--accent); text-decoration: underline; }
-
   /*
    * The three source pages rendered directly under .prose, so .prose > * + *
    * gave their paragraphs their rhythm and Article.astro's ported rules gave
@@ -1100,6 +829,18 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
   section > :global(.ported) > :global(h3 + *) { margin-top: .65em; }
 
   /* Primary analysis. */
+
+  /*
+   * Group headings sit between the section's h2 and the card h4s. They carry
+   * the same weight as the other h3s on the page, so the rule that restates
+   * .prose spacing one level deeper has to reach them too.
+   */
+  .reg-group { margin-top: 2.4rem; }
+  .reg-group__title { margin: 0; font-size: 1.1rem; }
+  .reg-group__blurb {
+    margin-top: .5rem; font-size: .88rem; line-height: 1.6; color: var(--ink-3);
+    max-width: 44em;
+  }
   .reg { display: grid; gap: 1rem; margin-block: 1.8rem; }
   .reg__item {
     background: var(--surface);
@@ -1125,6 +866,25 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     letter-spacing: .04em; color: var(--ink-3); margin-top: .3rem;
   }
   .reg__detail { font-size: .89rem; line-height: 1.65; color: var(--ink-2); margin-top: .7rem; }
+
+  /*
+   * The artefact list for a contributor whose work spans several publications.
+   * A single-artefact entry keeps the "evidence ->" link in its head instead,
+   * so this list never renders with one item in it.
+   */
+  .reg__ev { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .3rem; }
+  .reg__ev li {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .7rem;
+    font-size: .82rem;
+  }
+  .reg__ev li::before {
+    content: "\2192"; color: var(--accent);
+    font-family: var(--font-mono); font-size: .74rem;
+  }
+  .reg__ev-when {
+    font-family: var(--font-mono); font-size: .68rem;
+    letter-spacing: .04em; color: var(--ink-3);
+  }
   .reg__status, .reg__scope {
     font-size: .82rem; line-height: 1.6; margin-top: .7rem;
     padding-top: .6rem; border-top: 1px solid var(--rule); color: var(--ink-3);

@@ -269,7 +269,11 @@ const fixRest = `<div class="callout callout--amber">
   standfirst="A compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path from 2021 to 2026. This section reconstructs that path from the published code."
   depth="deep"
   kicker="How it broke"
-  next={{ href: '/how-it-broke/blast-radius/', label: 'What else a compromised seed touches', note: 'every randomness call site in the firmware, from BIP85 children and Secure Notes to the 2FA nonces and seed-XOR shares' }}
+  next={{
+    href: '/how-it-broke/entropy/',
+    label: 'Attack-cost estimates',
+    note: 'The published search-space models and the assumptions attached to them.',
+  }}
 >
   <Answer>
     <p>
@@ -287,10 +291,10 @@ const fixRest = `<div class="callout callout--amber">
         basis="verified"
         scope="The symbol-resolution path, generator substitution and 32-bit reseed behaviour documented on this page"
         source="COLDCARD firmware, switck/libngu and COLDCARD MicroPython source at the cited revisions"
-        href="/record/reference/#firmware"
+        href="/record/firmware/"
         compact
       /> The model and release boundaries for that path are preserved in
-      <a href="/record/reference/#firmware">the firmware reference</a>.
+      <a href="/record/firmware/">the firmware reference</a>.
     </p>
   </Answer>
 

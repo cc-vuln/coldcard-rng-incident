@@ -4,6 +4,7 @@ import EvidenceCard from '../../components/EvidenceCard.astro';
 import RecordSearch from '../../components/RecordSearch.astro';
 import Contribute from '../../components/Contribute.astro';
 import Timestamp from '../../components/Timestamp.astro';
+import PageNext from '../../components/PageNext.astro';
 import {
   sources, snapshots, stats, tsToIso, xPosts, groupOf,
   lastPolled, revisions, displayTitle, kindLabel, xArtifacts, lastCaptureError,
@@ -296,6 +297,13 @@ const FACETS = [
     </section>
 
     <Contribute context="Every source here was registered because somebody pointed at it, and the register is still missing things." />
+    <PageNext
+      next={{
+        href: '/record/changes/',
+        label: 'Source changes',
+        note: 'See what entered the archive and how tracked pages changed.',
+      }}
+    />
   </div>
 </Base>
 <style>

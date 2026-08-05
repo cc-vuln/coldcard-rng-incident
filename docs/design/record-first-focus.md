@@ -39,7 +39,7 @@ Retained material moved according to what it documents:
 - Documented scam artefacts, attributed reports, vendor warnings, the earlier
   paper campaign, vendor absence and legitimate lookalikes moved to
   /response/scams/.
-- Affected firmware ranges remain canonical at /record/reference/#firmware.
+- Affected firmware ranges remain canonical at /record/firmware/.
 
 The source registry, snapshots, differences and review classifications were not
 removed or rewritten.

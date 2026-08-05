@@ -209,7 +209,7 @@ import Disclosure from '../../components/Disclosure.astro';
   <Disclosure
     id="version-boundary"
     title="The version boundary the chronology draws twice"
-    note="Why the affected range is stated to begin at 4.0.1, not 4.0.0"
+    note="The vendor's stated reason for beginning at 4.0.1, and where it differs from this record"
   >
     <p>
       Two separate entries do the same work. A 2021 vendor note records that
@@ -231,17 +231,30 @@ import Disclosure from '../../components/Disclosure.astro';
     </p>
 
     <p>
-      The boundary itself is not in dispute here: it matches the affected
-      range this archive already records, and Block's own disclosure traces
-      the lineage the same way.
+      That boundary is not the one this archive records. The firmware record
+      classifies Mk2 and Mk3 v4.0.0 as affected, on the release commit, the
+      pinned libngu revision, the defined-zero board macro and the signed
+      v4.0.0 image, and Block publishes the same range, describing the path as
+      first appearing in "released firmware v4.0.0". The chronology's own
+      wording keeps the two accounts distinguishable: it grants that Block
+      traces the implementation to the v4.0.0 lineage, and rests the narrower
+      figure on distribution rather than on the contents of the build. The
+      disagreement is therefore about whether that build reached the public.
       <Claim
         basis="verified"
-        scope="That the 4.0.1 lower bound stated in the chronology matches the affected range recorded elsewhere in this archive"
-        source="Block's engineering disclosure, held as a captured source, read alongside the firmware record"
-        href="/record/sources/block-disclosure/"
+        contested
+        scope="That the chronology's 4.0.1 lower bound is narrower than the v4.0.0 boundary recorded by this archive and published by Block, and that the difference turns on distribution rather than on the contents of the 17 March 2021 build"
+        source="Block's engineering disclosure, which tabulates Mk2 and Mk3 v4.0.0 to v4.1.9 and dates the path to released firmware v4.0.0 on 17 March 2021, read against the captured chronology and the firmware record's release-commit evidence"
+        href="/record/firmware/#vendor-lower-bound"
         compact
       />
-      What is worth noticing is structural rather than factual. A disclosure
+      Neither party publishes distribution figures, and this archive holds
+      none, so the difference is recorded on both pages rather than settled on
+      either.
+    </p>
+
+    <p>
+      What is worth noticing beyond that is structural rather than factual. A disclosure
       history is a document about process, and this one is also doing scope
       work: two of its entries establish a version boundary that sets the
       outer edge of who was affected. That does not make the boundary wrong.

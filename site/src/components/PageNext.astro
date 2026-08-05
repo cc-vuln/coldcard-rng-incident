@@ -1,0 +1,65 @@
+---
+interface Props {
+  next?: { href: string; label: string; note?: string };
+}
+
+const { next } = Astro.props;
+const norm = (p: string) => p.replace(/\/$/, '');
+const stripHash = (h: string) => h.split('#')[0];
+const moreLinks = [
+  { href: '/record/', label: 'The evidence record' },
+  { href: '/about/', label: 'About this archive' },
+  { href: '/about/#editorial-standards', label: 'Method and corrections' },
+].filter((link) => norm(stripHash(link.href)) !== norm(Astro.url.pathname));
+---
+
+<nav class="artnav" aria-label="Where to go next">
+  {next && (
+    <a class="artnav__next" href={next.href}>
+      <span class="artnav__kicker">Next</span>
+      <span class="artnav__label">{next.label}</span>
+      {next.note && <span class="artnav__note">{next.note}</span>}
+    </a>
+  )}
+  <p class="artnav__links">
+    {moreLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+  </p>
+</nav>
+
+<style>
+  .artnav {
+    margin-top: 3.5rem; padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+    max-width: var(--w-text);
+  }
+  .artnav__next {
+    display: block;
+    padding: 1.05rem 1.25rem;
+    border: 1px solid var(--rule-2);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .artnav__next:hover, .artnav__next:focus-visible {
+    border-color: var(--accent);
+    background: var(--surface-2);
+  }
+  .artnav__kicker {
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  }
+  .artnav__label {
+    display: block; margin-top: .35rem;
+    font-size: 1.06rem; font-weight: 600; line-height: 1.35; color: var(--ink);
+  }
+  .artnav__label::after { content: ' →'; color: var(--accent); }
+  .artnav__note {
+    display: block; margin-top: .35rem;
+    font-size: .85rem; line-height: 1.55; color: var(--ink-3);
+  }
+  .artnav__links {
+    display: flex; flex-wrap: wrap; gap: .35rem 1.4rem;
+    margin: 1rem 0 0;
+    font-size: .9rem;
+  }
+</style>

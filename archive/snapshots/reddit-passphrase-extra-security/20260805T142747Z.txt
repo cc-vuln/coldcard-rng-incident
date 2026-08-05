@@ -1,0 +1,115 @@
+post: 1ve8xf0
+author: Crypto-Moony
+created_utc: 1785750577
+title: How Much Extra Security from a Passphrase
+body:
+Are the entropy bits from a passphrase added to the entropy bits of the 12 words?
+
+For example: Suppose he Mk5 gives you 40 bits of entropy in the 12 words it selects for you. You add a passphrase of 2 words selected by dice rolls using a diceware list of 1024 (2\^10) words. Each word has an entropy of 10 bits. So your total entropy is 40+10+10=60 bits.
+
+Is this how it works, or have I misunderstood?
+
+comment: p1f1ym3
+parent: t3_1ve8xf0
+author: SubstantialNinja
+created_utc: 1785751340
+edited: 1785752773
+body:
+it's going to be relying only on the password in this case. 40 bits for the keys (but it's already solved so effectively 1 or to be exact n=1 trillion total affected keys) \* however many bits of entropy in the password.  they'll be checking all affected keys + potential passwords iteratively.
+
+comment: p1f30vc
+parent: t3_1ve8xf0
+author: Oxymorix
+created_utc: 1785751829
+edited: false
+body:
+Using your hypothetical numbers, the rough brute-force work factors do multiply:
+
+(2\^{40}) possible mnemonics × (2\^{20}) possible passphrases = (2\^{60}) mnemonic/passphrase combinations.
+
+So, expressed logarithmically, you could describe the combined search as roughly 60 bits—provided the mnemonic and passphrase were independently and uniformly generated and the attacker must search both.
+
+However, the passphrase does not literally add entropy to the original 12-word mnemonic. BIP39 uses the mnemonic and passphrase together through PBKDF2-HMAC-SHA512 to create a completely different wallet. Every possible passphrase produces a valid wallet.
+
+The existing comment saying that security would rely “only on the password” is therefore too absolute. That becomes true only if the attacker has already identified the exact underlying mnemonic. If the attacker merely knows that the mnemonic lies somewhere within a (2\^{40}) vulnerable space, they generally still need to test the Cartesian product of mnemonic and passphrase candidates.
+
+There are two important qualifications:
+
+1. Two randomly selected words from a 1,024-word list provide only 20 bits. That is a very weak passphrase if the mnemonic is ever identified. A million possibilities can be searched very quickly.
+2. The current Coinkite estimate is not 40 bits for the Mk5. Coinkite presently estimates approximately 40 bits for affected Mk2/Mk3 seeds and approximately 72 bits for Mk4, Q and Mk5 under its current assumptions. Those estimates are preliminary and may change.
+
+Therefore, using Coinkite’s current Mk5 estimate and your hypothetical 20-bit diceware passphrase, the naïve combined ceiling would be approximately (72 + 20 = 92) bits—not 60 bits. But I would not recommend relying on only two diceware words, because any future discovery that narrows or reveals the mnemonic would leave only 20 bits protecting the wallet.
+
+So the basic “bits add” intuition is broadly correct for the combined independent search space, but it should not be interpreted as the passphrase strengthening the mnemonic itself, and the result is only as reliable as the assumptions behind both entropy estimates.
+
+comment: p1fbwwj
+parent: t3_1ve8xf0
+author: yldf
+created_utc: 1785755683
+edited: false
+body:
+A passphrase doesn’t need to be words…
+
+comment: p1fgu9a
+parent: t3_1ve8xf0
+author: xpresstuning
+created_utc: 1785757598
+edited: false
+body:
+A passphrase is a password on top of your seed-phrase. It can be anything, words (either separated by space or not), character strings, whatever. 
+
+It'll make a brand new wallet which will be your seed-phrase + your passphrase. 
+
+How much extra security depends on you. If you make it simple like a date pattern (ex. 080493) or two - three names (Bob Jill Sarah) then that shit gets hacked in seconds. 
+
+If it's 26 full random characters (ex. 4#f5q$*2P@![/1iv0$3'7:Az?) then this shit is literally impregnable. Stronger than a standard BIP39 12 word seed-phrase. 
+
+comment: p1fm0dp
+parent: t3_1ve8xf0
+author: Keefryan
+created_utc: 1785759450
+edited: false
+body:
+OP.   Try this.   https://diceware.rempe.us/
+
+comment: p1fo5fz
+parent: t3_1ve8xf0
+author: n8dahwgg
+created_utc: 1785760175
+edited: false
+body:
+Make it longer than 12 letters and use numbers and letters and symbols. Thats pretty anti brute. The more the exponentially better
+
+comment: p1fp75a
+parent: t3_1ve8xf0
+author: FunnyAtmosphere9941
+created_utc: 1785760519
+edited: false
+body:
+2 words with just few gpus would br craced in minutes. With more gpus in seconda. If u base it on worlds only you need 6+ words for proper entropy. 
+
+comment: p1fptg4
+parent: t1_p1f1ym3
+author: na3than
+created_utc: 1785760721
+edited: false
+body:
+Password is not the same as passphrase. Please don't use the terms interchangeably. We have enough misinformation and confusion in this space as it is.
+
+comment: p1fuo4i
+parent: t1_p1f30vc
+author: NiagaraBTC
+created_utc: 1785762261
+edited: false
+body:
+I suggest we don't take any of Coinkite's estimates as worth much at all. 
+
+But others do agree with 72 bits for Mk4+. Still others think it could be less. 
+
+comment: p1g0s2t
+parent: t1_p1fgu9a
+author: fabb24
+created_utc: 1785764086
+edited: false
+body:
+There are 96 usable characters (such as aA123@&./…), representing approximately 6.58 bits per character. The BIP39 dictionary contains 2,048 words, each worth 11 bits—meaning a single word carries about 1.67 times the information of a character. Consequently, a standard string of 39 characters is required to match the 256 bits of entropy found in a 24-word BIP39 seed phrase.

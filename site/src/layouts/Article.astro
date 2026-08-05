@@ -1,6 +1,7 @@
 ---
 import Base from './Base.astro';
 import EvidenceRegister from '../components/EvidenceRegister.astro';
+import PageNext from '../components/PageNext.astro';
 import '../styles/content.css';
 import { lastUpdated, humanDate } from '../lib/updated';
 
@@ -39,18 +40,6 @@ const DEPTH = {
   deep: { label: 'Technical' },
 };
 const d = DEPTH[depth];
-// The bottom-of-page navigation is identical on every article page: a
-// prominent Next card when the page names a follow-on step, then the same
-// three links everywhere. Links that would point at the page the reader is
-// already on are dropped (a hash link to a section of the current page is
-// kept: it jumps rather than reloads).
-const norm = (p: string) => p.replace(/\/$/, '');
-const stripHash = (h: string) => h.split('#')[0];
-const moreLinks = [
-  { href: '/record/', label: 'The evidence record' },
-  { href: '/about/', label: 'About this archive' },
-  { href: '/about/#editorial-standards', label: 'Method and corrections' },
-].filter((l) => norm(stripHash(l.href)) !== norm(Astro.url.pathname));
 ---
 
 <Base title={title} description={description} kicker={kicker}>
@@ -70,18 +59,7 @@ const moreLinks = [
       <slot />
     </div>
 
-    <nav class="artnav" aria-label="Where to go next">
-      {next && (
-        <a class="artnav__next" href={next.href}>
-          <span class="artnav__kicker">Next</span>
-          <span class="artnav__label">{next.label}</span>
-          {next.note && <span class="artnav__note">{next.note}</span>}
-        </a>
-      )}
-      <p class="artnav__links">
-        {moreLinks.map((l) => <a href={l.href}>{l.label}</a>)}
-      </p>
-    </nav>
+    <PageNext next={next} />
 
     <EvidenceRegister />
   </article>
@@ -138,7 +116,21 @@ const moreLinks = [
     document.querySelectorAll('table.sortable').forEach((table) => {
       const tbody = table.tBodies[0];
       if (!tbody || !table.tHead) return;
-      const rows = Array.from(tbody.rows);
+      // A wide prose column forces a table to scroll sideways however narrow
+      // the other columns are, so the firmware tables put that prose in a
+      // full-width row beneath its own data row. Those detail rows are not
+      // sortable records: they belong to the row above and have to travel
+      // with it, or a sort silently reattaches every note to the wrong model.
+      const detailOf = new Map();
+      let owner = null;
+      for (const row of Array.from(tbody.rows)) {
+        if (row.classList.contains('row-detail')) {
+          if (owner) detailOf.set(owner, row);
+        } else {
+          owner = row;
+        }
+      }
+      const rows = Array.from(tbody.rows).filter((r) => !r.classList.contains('row-detail'));
       rows.forEach((row, i) => { row.dataset.orig = String(i); });
       const heads = Array.from(table.tHead.rows[0].cells);
 
@@ -179,7 +171,11 @@ const moreLinks = [
           } else {
             sorted.sort((a, b) => Number(a.dataset.orig) - Number(b.dataset.orig));
           }
-          sorted.forEach((row) => tbody.appendChild(row));
+          sorted.forEach((row) => {
+            tbody.appendChild(row);
+            const detail = detailOf.get(row);
+            if (detail) tbody.appendChild(detail);
+          });
         });
       });
     });
@@ -304,43 +300,4 @@ const moreLinks = [
     letter-spacing: .05em; color: var(--ink-3);
   }
 
-  /* Bottom-of-page navigation. One block on every article page, sitting
-     between the article body and the collapsed evidence register: the Next
-     card is the prominent primary action, the link row the constant
-     secondary one. */
-  .artnav {
-    margin-top: 3.5rem; padding-top: 1.6rem;
-    border-top: 1px solid var(--rule);
-    max-width: var(--w-text);
-  }
-  .artnav__next {
-    display: block;
-    padding: 1.05rem 1.25rem;
-    border: 1px solid var(--rule-2);
-    border-radius: var(--radius);
-    background: var(--surface);
-    text-decoration: none;
-  }
-  .artnav__next:hover, .artnav__next:focus-visible {
-    border-color: var(--accent);
-    background: var(--surface-2);
-  }
-  .artnav__kicker {
-    font-family: var(--font-mono); font-size: .64rem; font-weight: 600;
-    letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
-  }
-  .artnav__label {
-    display: block; margin-top: .35rem;
-    font-size: 1.06rem; font-weight: 600; line-height: 1.35; color: var(--ink);
-  }
-  .artnav__label::after { content: ' →'; color: var(--accent); }
-  .artnav__note {
-    display: block; margin-top: .35rem;
-    font-size: .85rem; line-height: 1.55; color: var(--ink-3);
-  }
-  .artnav__links {
-    display: flex; flex-wrap: wrap; gap: .35rem 1.4rem;
-    margin: 1rem 0 0;
-    font-size: .9rem;
-  }
 </style>

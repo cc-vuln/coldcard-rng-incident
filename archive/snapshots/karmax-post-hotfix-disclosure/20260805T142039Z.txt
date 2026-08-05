@@ -1,0 +1,391 @@
+Karma-X
+Company
+Karma-X Inc.
+Main
+About Us
+Contact Us
+Karma-X Inc.
+Main
+About Us
+Contact Us
+Products
+Get Karma-X Endpoint
+Upgrade your security with Karma-X
+Get Karma-X TimeCapsule
+Secure passphrases to Digital Assets with TimeCapsule
+Get Vitamin-K for Free
+Stop advanced actors with a daily vitamin!
+Get Karma Browser
+Add Karma protection to your browser!
+Get KarmaVPN
+Browse the Internet with Privacy!
+Free Karma Internet Tools
+Check out our free Internet tools!
+Get Karma-X Endpoint
+Upgrade your security with Karma-X
+Get Karma-X TimeCapsule
+Secure passphrases to Digital Assets with TimeCapsule
+Get Vitamin-K for Free
+Stop advanced actors with a daily vitamin!
+Get Karma Browser
+Add Karma protection to your browser!
+Get KarmaVPN
+Browse the Internet with Privacy!
+Free Karma Internet Tools
+Check out our free Internet tools!
+Blog
+News
+Top Ten Threats
+Login
+Download
+Stay Informed with Karma-X
+×
+Subscribe to our newsletter to hear more about Karma-X products!
+Email address
+Subscribe
+By submitting this form, you agree to our Terms of Service and Privacy Policy, and agree to receive emails from Karma-X.
+Your browser does not support the video tag.
+Karma-X Blog
+Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings
+Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings
+Aug. 3, 2026 | Categories:
+Research
+,
+Threats
+,
+Vulnerabilities
+On July 31, 2026, Coinkite released Coldcard firmware v5.6.0 as an urgent hotfix for a "limited entropy bug" that produced roughly $90M in user losses. This post presents a technical analysis of what that hotfix actually addresses, what it does not, and additional security findings that users need to know about when deciding how to proceed.
+Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings
+The recent $90M-loss vector is closed for new seeds. The class of bug that produced it is still architecturally present. Plus additional high-severity findings not addressed by the hotfix.
+Date: August 2, 2026 · Author: Karma-X Security Research Team
+Severity: Multiple High/Critical (5 Critical, ~20 High still open) · Status: Comprehensive disclosure delivered to Coinkite in parallel with publication · Affected Versions: Mk3 (all), Mk4/Mk5 ≤ v5.6.0, Q ≤ v1.5.0Q
+References:
+Coldcard Firmware Repository
+·
+Coinkite v5.6.0 Hotfix Announcement
+·
+Karma-X
+⚠️ DUAL DISCLOSURE: A comprehensive private disclosure covering every finding referenced in this post — with full reproduction detail and specific fix recommendations — is being delivered to Coinkite in parallel with the publication of this article. Detailed exploit mechanics for the kleptography channel (KLP-C-1) remain private under a standard 90-day coordinated-disclosure window. All other findings are described at a level sufficient for users to make informed decisions about their own devices.
+Why I'm publishing this now
+On July 31, 2026 Coinkite released Coldcard firmware v5.6.0 as an "urgent hotfix to correct a limited entropy bug." The bug the hotfix addresses caused catastrophically low seed entropy on Mk3 (~40 bits, versus a 256-bit target) and on Mk4/Mk5/Q (~72 bits, versus a 128-bit minimum). Public reporting has attributed roughly ~$90M in user losses to this vulnerability.
+Users are already migrating off Coldcards. Everyone I've spoken with in the Bitcoin community over the last 48 hours has one of two questions: "Am I safe?" and "Should I still trust this device?"
+The public narrative is that Coinkite has "fixed the entropy bug." That claim is technically true for the specific bug that caused this incident. It is misleading for users trying to assess whether the underlying architecture has been strengthened enough to prevent a recurrence.
+I'm publishing this now because:
+Users are making migration decisions this week and deserve accurate technical information about what the hotfix does and does not fix.
+There are two additional high-severity findings — one of them (Delta-mode message signing) with immediate user-facing implications — not addressed by the hotfix that users need to know about.
+The July 2026 incident is a specific instance of a bug class that remains architecturally present in the code. Users evaluating whether to keep using their device should understand the difference between "this specific vector is closed" and "this class of bug can't recur."
+Threat-landscape consideration: In 2026, no security researcher should assume findings they've analyzed in AI-assisted workflows, cloud-hosted development environments, or any tool with third-party service integration are held solely by them. Conversation transcripts, telemetry, logs, and adjacent data flows exist; researcher goodwill is not the only barrier between a finding and a well-resourced adversary. The "I'll sit on this and it stays quiet" assumption is weaker than it was even a few years ago. State actors and well-funded criminal groups have both the resources and the infrastructure to independently discover — or independently observe — the same class of findings researchers work on. Public disclosure of a class-of-bug finding after a public incident does not meaningfully help attackers who already have access to equivalent capability; it does help users whose only source of accurate information is what vendors and independent researchers publish.
+I want to be transparent about my own history with these findings, because it matters for interpreting what follows.
+A note on my own disclosure history
+In September 2025 I completed a broad audit of Coldcard firmware. One finding — VULN-023, a Delta PIN key-recovery issue — I submitted to Coinkite privately. They responded technically and shipped a fix within hours (commit fcd848d8 "deltamode timing fix," dated the same day, September 29, 2025). Credit where it's due: their engineering turnaround was fast.
+But no CVE was filed. No security advisory was published. No public acknowledgment of the vulnerability was issued. Users had no way to know a vulnerability had existed in their device, that a fix was in the firmware they should update to, or that other researchers had found the vulnerability worth reporting through their channel. Coinkite is under no obligation to publicly credit external researchers — that's a matter of good ecosystem practice, not a strict duty — but the absence of CVE and advisory is a broader problem than credit. Users lose visibility into their own device's security state. Other researchers lose a signal about whether reporting through the channel produces public benefit. Regulators and downstream integrators lose an audit trail.
+Reading the lack of any public trail as a signal that further submissions would land the same way, I did not send the rest of my findings — including VULN-109, which flagged the exact class of bug that would later cause the July 2026 catastrophic loss: single-source RNG in critical paths, with the Secure Element's independent TRNG disabled at the source (#if 0) in the bootloader. That finding sat in my private research notes for ten months without being fully analyzed.
+Due to the circumstances, I lost interest in providing further free and unacknowledged analysis and research. Vendors and researchers each hold half of the disclosure feedback loop; when either side stops participating in good faith, users pay the price. My half is that I lost interest in the side-project and moved on to other priorities. Coinkite's half is that the interaction produced no public artifact that would have told me — or any other researcher — the channel was working as intended.
+Two things follow, and both are happening in parallel with this post:
+The full comprehensive September 2025 audit — including all 28 findings never previously submitted — is being sent to Coinkite today, alongside the new August 2026 kleptography findings and my cross-check of which items remain in the current v5.6.0 code. They will have every detail I have, with reproduction context, in a form they can act on.
+This post publishes the high-level shape publicly, because users need actionable information now, and because in the current threat landscape the assumption that private research remains solely private is untenable regardless.
+Vendor disclosure and public disclosure at the same time, both delivered honestly. Coinkite gets what they need to fix. Users get what they need to decide.
+What the v5.6.0 hotfix actually fixes
+Give Coinkite credit where it's due: the fix, as far as it goes, is defensively engineered.
+Coldcard's crypto operations route through libngu, Coinkite's low-level binding library. libngu expects the host build system to provide a rng_get() function. In v5.5.1's build, the linker resolved rng_get() against a symbol in MicroPython's stock stm32/rng.c — which implements a fallback Marsaglia "yasmarang" PRNG intended for platforms without a hardware RNG. Byte-level randomness in libngu (including seed generation, ephemeral keypairs, session keys) drew from this Marsaglia PRNG rather than the STM32 hardware TRNG. Result: catastrophically weak entropy.
+The v5.6.0 fix does two things:
+Forces MicroPython's stm32/rng.o object file to be empty (via a Makefile trick that compiles /dev/null with a poison macro), removing the yasmarang symbol from the linker's search path.
+Adds a build-time nm-based verifier in stm32/shared.mk:57-74 that inspects the compiled objects and fails the build if rng.o defines any symbols or if the board-specific rng.o fails to define T rng_get.
+✅ CREDIT WHERE DUE: The linker workaround plus the build-time verifier is genuine defensive engineering for the specific bug. It prevents that exact class of silent symbol-resolution accident from recurring. For users generating new seeds on v5.6.0 or later, the specific catastrophic-entropy vector that caused the July 2026 disclosure is closed.
+What the v5.6.0 hotfix does NOT fix
+Two things worth understanding.
+1. The libngu library itself was not updated.
+The libngu submodule pointer in v5.6.0 is identical to v5.5.1 (537519a8...). Later commits on other Coinkite branches (b987de50 "Use hardware RNG for Mk and Q libngu", 76f6b9d0 "bump to fixed libngu") contain the actual library-level fix that resolves the issue at the source rather than at the link stage. Those commits are not in v5.6.0.
+The current fix relies on the specific way libngu references rng_get() staying stable across future updates. If libngu's ABI changes — for example, adds a rng_bytes symbol not covered by the nm verifier — the workaround can silently break in a future firmware version.
+2. Seed generation is still single-source.
+This is the important one.
+shared/seed.py:602-609:
+def generate_seed():
+seed = ngu.random.bytes(32)
+assert len(set(seed)) > 4 # TRNG failure heuristic
+return ngu.hash.sha256d(seed)
+ngu.random.bytes(32) now correctly draws from the STM32 hardware RNG. But that is the only source. Coldcard has two additional TRNGs available and unused at this critical moment:
+SE1 (ATECC secure element). callgate.read_rng(1) returns 32 bytes of authenticated randomness via ae_secure_random in stm32/mk4-bootloader/ae.c:694-714. The authentication is MitM-resistant via ae_gendig_slot(KEYNUM_pairing) + ae_is_correct_tempkey.
+SE2. callgate.read_rng(2) returns 8 bytes of additional randomness from the second secure element.
+Neither is mixed into generate_seed(). Both are used at boot in shared/mk4.py:rng_seeding() to reseed the ngu PRNG, but not at seed-generation time.
+The class fix is a single-file, three-line change:
+def generate_seed():
+import callgate
+a = ngu.random.bytes(32) # STM32 HW RNG
+b = callgate.read_rng(1) # SE1 authenticated
+c = callgate.read_rng(2) # SE2
+return ngu.hash.sha256(a + b + c)
+Added latency: milliseconds. Imperceptible to users. Defensive benefit: substantial. Any future STM32 RNG issue (silicon errata, another linker accident, supply-chain compromise of the STM32 sourcing) no longer produces catastrophic seed compromise, because two independent authenticated sources would need to fail simultaneously.
+⚠️ CLASS-OF-BUG PERSISTS: The recent hotfix corrected the specific linker accident that caused the incident. It did not add the cross-source mixing that would have prevented the class of bug the linker accident manifested. A future STM32 RNG anomaly reproduces the exact same class of catastrophic loss.
+Additional finding: Delta-mode message signing leaks a valid signature
+A separate finding, not part of the entropy story but user-facing enough to warrant urgent attention.
+Delta mode is Coldcard's duress-signing feature: a user coerced into unlocking their wallet can enter the Delta PIN (a variant of their real PIN) instead of the real PIN. The device unlocks visibly but internally corrupts transaction signatures so they don't confirm on-chain. The intent is plausible deniability: the coercer sees a working wallet and signs a transaction; only later discovers it never went through.
+The mechanism at shared/psbt.py:2244-2248 double-hashes the digest under sv.deltamode so the resulting signature is invalid for the intended transaction. This works for transaction signing.
+It does not exist for message signing.
+At shared/msgsign.py:395, there is no sv.deltamode check. A coerced user who enters the Delta PIN and is then asked to sign a message — via BIP-137, BIP-322 proof-of-reserves, NFC message signing, QR message signing, sign_export_contents, sign_with_own_address, or any other message-signing entry point — produces a real, cryptographically-verifiable signature over the requested message using the real master seed's derived key.
+⚠️ DELTAMODE DENIABILITY BREAK: The coercer now has ground truth: this address is real, and the user really controls it. All plausible deniability collapses. Message signing under duress is a common coercion vector — exchange KYC requests, "prove ownership of this Bitcoin address for our AML process," proof-of-reserves attestations. Any user relying on Delta mode's protection needs to understand this gap is present today.
+The fix is a single line matching the existing PSBT guard. Or, more conservatively, refuse to sign messages at all under Delta mode.
+This finding has been submitted privately to Coinkite today alongside publication of this post. It's included here at a high level because the mitigation ("don't use message signing under Delta mode") is knowable now and requires no vendor cooperation to act on.
+Additional finding: Kleptography channel via R-value grinding
+This one requires a compromised firmware image to exploit — it is not exploitable by an accidental bug. But because it explains why RNG bugs alone aren't the whole story, and because neither Coinkite nor any other production hardware wallet vendor has deployed the structural defenses that would neutralize this class, it is worth understanding.
+Every ECDSA signature contains a nonce that must be truly random. If the nonce is predictable or reused, the private key is recoverable. But the nonce is not observable to any on-chain observer — only the resulting signature (r, s) is.
+That gap is a covert channel. A malicious signer can pick specific "random" nonces that secretly encode information — for example, bits of the seed. The resulting signature verifies normally on-chain and appears statistically random to any observer without the leak function. But an attacker who wrote the firmware, watching the blockchain, can read bits out of every signature the victim produces.
+This is called kleptography (Young & Yung, 1997) or in the modern Bitcoin-specific instantiation, Dark Skippy (Fournier, Farrow, Linus, August 2024).
+RFC-6979 deterministic nonces — used by Coldcard, Passport, and virtually every modern hardware wallet — protects against accidental biased nonces. It does not protect against a malicious signer, because a malicious signer just ignores RFC-6979 and picks whatever nonce leaks the most information. The victim cannot tell — nonces are not observable, only signatures are.
+The Coldcard-specific channel
+Coldcard's ecdsa_grind_sign at shared/psbt.py:2098-2126 is a low-R-grinding routine. It iterates n = 0, 1, 2, ... and stops at the first n for which the resulting signature has R[0] < 0x80 (low-R produces a signature that serializes one byte shorter in DER encoding).
+The honest firmware always stops at the first low-R hit. A malicious firmware image could grind further and select a specific higher-n low-R candidate whose R-value bit pattern encodes seed bits. Every signature is still an RFC-6979 signature (libsecp256k1 produced it), verifies normally on-chain, and appears statistically random without the leak function.
+⚠️ EXFILTRATION THROUGHPUT: Approximately 4-6 bits per input signature (bounded by grinding cost). A 10-input consolidation transaction produces 40-60 bits per transaction. Full 256-bit master seed exfiltration in approximately 5-6 transactions. In HSM mode this becomes vastly worse: attacker-supplied challenges — including the BIP-322 message signing challenges added in v5.5.1 — drive automated signature production over attacker-chosen inputs. Exfiltration is limited only by attacker patience and network latency.
+What this requires to exploit
+A malicious Coldcard firmware image. Getting one installed requires: Coinkite's signing keys being compromised (theft, insider, coerced release under legal process), interdiction of a physical device between Coinkite and the user, or exploitation of a firmware-update-flow bug.
+On the victim side: at least one PSBT signing operation (5-6 for full exfiltration). HSM mode reduces this to minutes.
+Detailed exploit mechanics remain private under coordinated disclosure with Coinkite (a 90-day window). This high-level description is sufficient for users to understand the risk and make decisions. It is also public enough that any competent security researcher can independently verify the class of issue from the referenced source.
+Why this needs a structural fix, not a spot fix
+The one-line workaround (always emit n = 0, accepting slightly larger DER signatures) closes this specific channel. But any signer with control over any non-fully-deterministic aspect of signature output has a covert channel — multi-input signing order, DER encoding variance, low-s vs high-s selection, and so on all offer bits per signature under a compromised firmware. Playing whack-a-mole with individual channels is not a durable defense.
+The durable defense is anti-exfil (sign-to-contract): the host-side coordinator supplies a random challenge that the signer must incorporate into the nonce and prove it did so. The signer loses unilateral control over the nonce, and nonce-choice covert channels stop working. Trezor has partially deployed this. Coldcard has not. Passport has not.
+The cheaper immediate defense is host-side reproducibility tooling: a standalone Python tool that takes the user's exported seed and recomputes the expected RFC-6979 signatures, comparing against what the device produced. Any deviation is evidence of firmware tampering. Roughly 100-200 lines of Python. Neither Coinkite nor any other production hardware wallet vendor ships this.
+The full list: 39 additional unfixed findings in the current v5.6.0 code
+My September 2025 audit produced 28 numbered findings plus a critical addendum. Only one (VULN-023) was submitted to Coinkite at that time. In preparing this post I cross-checked every finding from that audit against the current v5.6.0 source tree to determine which remain in the code today.
+Status
+Count and description
+FIXED / AS-DESIGNED
+4 items — mostly dev-mode features never intended for production (VULN-001/101 USB EVAL/EXEC only in DEBUG_BUILD, VULN-019 false positive on further review, VULN-021 already mitigated at time of reporting)
+PARTIALLY FIXED
+6 items — VULN-023 (Delta PIN key recovery, missing message-signing path), VULN-011 (USB command length: consistency check but no upper bound), VULN-013 (notes JSON: key-presence check and size cap added but no schema validation), VULN-018 (Duress-mode sig corruption, superseded by VULN-023 partial fix), VULN-121 (VDisk path traversal: basename strip on one caller only), VULN-122 (backup restore: some keys handled specially, others still applied verbatim)
+UNFIXED
+39 items
+UNCLEAR
+2 items — required source in a submodule not vendored in the tree
+Delivered to vendor in parallel: None of the following findings were previously reported to Coinkite. They are being reported to Coinkite in parallel with the publication of this post — the vendor is receiving the full comprehensive audit with reproduction detail as this goes live. Each finding is present in the current v5.6.0 source and could be independently identified by any competent security review. Every entry has a file:line reference to the current firmware — the code is the code, verifiable by any reader with the source tree at hand.
+CRITICAL (5 items, all still open)
+1. VULN-024 / VULN-106 — Multisig disable_checks global bypass, user-exposed via menu
+File: shared/multisig.py:130 (class variable), 1403 ("Skip Checks?" menu item), consumed at 336, 536, 828, 842, 851, 1041.
+What it does: sets MultisigWallet.disable_checks = True, disabling every multisig validation until power cycle. Menu-exposed. A user talked through "toggle this and try again" flips a global that silently permits everything a compromised or misconfigured multisig PSBT could ask for.
+Fix: remove the menu, or gate the toggle behind a warning that actually explains what it does.
+2. VULN-025 / VULN-123 — Stack VLA in bootloader SE path
+File: stm32/bootloader/ae.c:539 — uint8_t tmp[1+len+2];
+What it does: len is a value from the SE bus. Physical MitM on the SE bus can drive stack allocation of arbitrary size. Stack overflow at bootloader privilege is theoretically possible.
+Fix: replace with fixed-size stack buffer sized to the maximum protocol payload, add explicit len bound check.
+3. VULN-026 — SIGHASH_NONE allowed with sighshchk setting
+File: shared/psbt.py:1745-1759
+What it does: SIGHASH_NONE (signature covers no outputs) is a well-known output-substitution vector. Coldcard shows only a "Danger" warning if the sighshchk setting is on. Sophisticated users can enable the setting; less sophisticated users can be talked through it. Not blocked unconditionally.
+Fix: reject SIGHASH_NONE outright, or require an unmistakable confirmation with a specific security warning.
+4. VULN-027 / VULN-105 — Change-address validation bypass
+File: shared/psbt.py:1766-1792 (consider_dangerous_change)
+What it does: three early-exit conditions bypass the change-validation logic — if inp.fully_signed: continue (line 1775), if not in_paths: return (line 1782), if shortest != longest or shortest <= 2: return (line 1789). In multisig, an attacker co-signer can fabricate part_sigs fields to flip fully_signed = True on the victim's device, causing change-output derivation-path validation to be skipped entirely. Attacker's "change" address is silently accepted.
+Fix: remove fully_signed bypass; validate change paths regardless of signature completeness.
+5. VULN-102 / VULN-028 — Fee-calc integer overflow
+File: shared/psbt.py:1973-1977 (calculate_fee); accumulation at 1641, 1920.
+What it does: return self.total_value_in - self.total_value_out with no MAX_MONEY bound on accumulation. Python's arbitrary-precision integers mitigate memory-level overflow, but the fee_limit percentage check is applied post-computation. Crafted PSBTs with unusually large or negative-effective fees can pass sanity checks that assume bounded values.
+Fix: enforce MAX_MONEY (21e14 sats) at each accumulation step; reject any partial sum exceeding it.
+HIGH (approximately 20 items still open)
+Directly relevant to the July 2026 disclosure:
+VULN-109 — Secure Element TRNG disabled. stm32/bootloader/ae.c:666-687 — ae_random() wrapped in #if 0 on Mk3. Fix on Mk4 (ae_secure_random at stm32/mk4-bootloader/ae.c:694-714) exists but is not consumed by shared/seed.py:602-609 generate_seed(). Class-of-bug finding covered in depth earlier in the post.
+VULN-005 — Weak RNG validation. stm32/bootloader/rng.c:27-38 — same two-sample stuck-at check, no statistical validation (no NIST SP 800-90B startup/continuous health tests, no chi-square, no min-entropy estimator). A silently degraded TRNG passing the two-sample check would still be accepted. Directly relevant to the class of concern that produced the July 2026 disclosure.
+VULN-110 — Nonce reuse in SE operations. stm32/bootloader/ae.c:798-830 — ae_pick_nonce unchanged. 32-byte "random" values still transmitted cleartext on the single-wire SE bus with no authentication or integrity protection. A physical MitM could observe, log, or in some SE command modes influence these nonces. In ECDSA-adjacent SE operations, nonce reuse is catastrophic.
+VULN-111 — Integer overflow in dispatch bounds check. stm32/mk4-bootloader/dispatch.c:48 — if ((x >= SRAM1_BASE) && ((x+len) <= BL_SRAM_BASE)) allows x + len to wrap and pass the upper bound.
+Signing and PSBT surface:
+VULN-002 — Fault-injection bypass of signature verify. stm32/bootloader/verify.c:233 — single if (!verify_signature(...)) goto fail; with no redundant checks. A single glitched branch decision defeats bootloader signature enforcement.
+VULN-010 — Integer overflow in PSBT deser_string. shared/serializations.py:72-74 — return f.read(nit) with no upper bound on nit.
+VULN-014 — Missing PSBT input/output count limits. shared/psbt.py:2017-2020 — no MAX_INPUTS/MAX_OUTPUTS constants.
+VULN-015 — Insufficient multisig path validation. shared/multisig.py:1032 — xfp, *path = ustruct.unpack_from('<%dI' % (len(k)//4), k, 0) with no MAX_PATH_DEPTH check.
+VULN-107 — Delta-mode stores real PIN digits in SE2 slot. shared/trick_pins.py:63-72 — real BCD digits packed into tc_arg and stored in SE2 slot. The record written to settings is masked to 0xffff, but the SE2 slot content itself is not masked. Anyone able to read SE2 slot content (physical SE compromise) recovers the real PIN prefix.
+Authentication / login / PIN surface:
+VULN-104 — HMAC token comparison timing attack. shared/users.py:206-208 — if expect != token: return 'mismatch', not hmac.compare_digest.
+VULN-116 — Non-constant-time TOTP compare. shared/users.py:245 — if expect == token: — same class as VULN-104.
+VULN-118 — TOTP replay window. shared/users.py:226-238 — replay-window logic allows re-use of TOTP codes within the acceptance window under certain race conditions.
+VULN-016 — PIN prefix info disclosure without rate limiting. shared/pincodes.py:275-308 — prefix_words can be probed without rate limiting.
+VULN-117 — Insufficient PIN rate-limiting UX. shared/pincodes.py:338-351 — relies on SE hardware counter only, no progressive UX delays.
+Bootloader and low-level:
+VULN-006 — Timing attack in version compare. stm32/bootloader/verify.c:163 — return (memcmp(timestamp, min, 8) < 0); — non-constant-time compare.
+VULN-007 — Integer overflow in version parsing. stm32/bootloader/verify.c:152 — version-parsing shortcut mishandles unusual version strings.
+VULN-008 — Sensitive data not wiped on error paths. stm32/bootloader/pins.c:757-761 — returns EPIN_AUTH_FAIL without zeroing digest or mid_digest.
+VULN-009 — Weak XOR encryption for PIN cache. stm32/bootloader/pins.c:220 — xor_mixin(value, digest, 32) uses XOR-based obfuscation, not a proper cipher.
+VULN-012 — Race condition in secret cache. shared/stash.py:265-272 — save_to_cache has no lock.
+File and interface surface:
+VULN-003 / VULN-103 — Calculator eval blacklist bypass. shared/calc.py:23-24, 90-93 — blacklist-based sandbox on eval(ln, state.copy()). Historically-bypassable pattern. Pre-login toy calculator, only reachable when calc=1 setting is on for Q.
+VULN-004 — Path traversal in files.py abs_path. shared/files.py:350-351 — return self.mountpt + "/" + fname with no sanitization.
+MEDIUM (14 items, comprehensive listing)
+VULN-ID
+Title
+File:line
+Notes
+VULN-011
+USB command length validation
+shared/usb.py:453-454
+Partial — consistency check only, no upper bound
+VULN-013
+Notes JSON deserialization
+shared/notes.py:855-857
+Partial — key presence + size cap added, no schema validation
+VULN-112
+Weak 7z KDF (rounds_pow=13 = 8192 iters)
+shared/compat7z.py:214,328
+Standard 7z uses 19 (524288)
+VULN-114
+AES-CTR without authentication
+stm32/mk4-bootloader/aes.c:56-69
+CTR without HMAC or GCM
+VULN-115
+CHECKMAC MITM vulnerability
+stm32/bootloader/ae.c:917-926
+Vendor-documented but unfixed
+VULN-119
+SIGHASH_SINGLE edge cases
+shared/psbt.py:1761-1764
+Proceeds with "Caution" warning when sighshchk set
+VULN-120
+PSBTv2 amount validation
+shared/psbt.py:365-366
+PSBT_OUT_AMOUNT read with no bounds check
+VULN-121
+VDisk path traversal
+shared/vdisk.py:108
+Partial — basename strip on import_file only
+VULN-122
+Backup restore validation
+shared/backups.py:175-256
+Partial — some keys applied verbatim
+VULN-124
+VLA in se2.c
+stm32/mk4-bootloader/se2.c:132
+Same class as VULN-025
+VULN-125
+Zero-XFP auto-replace
+shared/psbt.py:306-310
+Only warning added
+VULN-126
+RNG entropy display on factory init
+stm32/bootloader/storage.c:257-276
+Factory-only path
+VULN-128
+Information disclosure in error strings
+shared/users.py:192-251
+Specific messages leak state
+VULN-129
+Directory listing filtering
+shared/actions.py:1738-1786
+Basic character-blocking on rename only
+LOW / INFORMATIONAL
+Available in the full audit; nothing security-critical individually, but adds to the picture: VULN-017 (7ZIP variable-length decoding str/bytes bug), VULN-020 (system module imports advisory), VULN-022 (7ZIP password stretching documentation), VULN-127 (aggregation of non-constant-time comparisons across the codebase).
+Two items marked UNCLEAR
+VULN-108 (Trick PIN management missing auth) — the original audit was vague; no specific missing-auth code path is obvious in the current tree.
+VULN-113 (Insufficient PBKDF2 iterations) — shared/users.py:58 uses PBKDF2_ITER_COUNT from public_constants.py, which is a symlink to the external ckcc-protocol submodule (not populated in this tree). Historical value was 2048.
+Note on pattern: The one item that landed a fix (VULN-023 Delta PIN) is the one item that was disclosed privately, and Coinkite did fix it same-day. Everything else remains in the code, ten months on. This is not a claim of vendor negligence — none of the other findings were reported to them until today, and much of this list should ideally be caught by the vendor's own internal review process. But it is a data point about the current security state of shipping firmware, and users making decisions about whether to keep using their device deserve to know what's actually in the code they're running.
+As noted above, the full comprehensive audit with detailed reproduction steps for each finding is being delivered to Coinkite in parallel with the publication of this post. I hope this time it goes somewhere that produces both fixes and public advisories, so that users get both a safer device and visibility into the security state of the device they own.
+What you should do
+⚠️ IMMEDIATE ACTION (all users):
+Coldcard Mk3: regenerate your seed immediately following Coinkite's blog post instructions. Coinkite has stated Mk3 will not receive further firmware updates; if you keep using it, add a BIP-39 passphrase as a stopgap and plan for migration.
+Coldcard Mk4/Mk5/Q: update to v5.6.0 (Mk4/Mk5) or v1.5.0Q (Q). Regenerate any seeds created on pre-v5.6.0 firmware. Regenerate any long-lived derived material — backup files, USB session keys, teleport pairings, web2fa keys, multisig receive-key derivation indices. All of these used the affected RNG on pre-v5.6.0 firmware.
+If you use Delta mode as part of your security model: do not use Coldcard's message-signing feature until the Delta-mode message-signing gap is patched. If a coercer asks you to sign a message, the signature is real. Avoid workflows that require message signatures for authentication (some exchange KYC processes, proof-of-reserves attestations) if you rely on Delta-mode plausible deniability.
+If you use HSM mode: understand that HSM mode maximizes exposure to the kleptography channel described above. In HSM mode, a compromised firmware exfiltrates faster and more thoroughly than a user-driven scenario. This is a consideration even setting aside kleptography — HSM mode inherently trades security for convenience.
+If you're evaluating whether to keep using Coldcard
+The honest picture:
+The immediate entropy vector is closed for new seeds generated on v5.6.0.
+The class of bug that produced the disclosure is architecturally still present in seed generation.
+Additional findings above are not addressed and Delta-mode message signing has real user-facing impact today.
+The vendor's public response has been narrow.
+Any of the following is a defensible decision: keep using Coldcard while watching for further fixes, migrate to a different single-vendor solution (Trezor, Passport), or move to multi-vendor multisig.
+✅ THE STRONGEST PRACTICAL DEFENSE: If you have significant value on any single-vendor hardware wallet — Coldcard, Passport, Trezor, Ledger, or anything else — multi-vendor multisig is the strongest practical defense against any single vendor being compromised via any of the classes of bug discussed here. A 2-of-3 multisig across three different vendors requires simultaneous compromise of all three, which raises the attacker's cost to effectively infinite.
+Protect your seed phrase: For additional protection of your seed phrase and recovery information, consider using secure time-locked encryption solutions that can protect your backup from both theft and loss.
+Learn more: https://karma-x.io/timecapsule/
+What Coinkite needs to do
+For the immediate incident:
+Fix the class of bug that caused the entropy loss, not just the specific vector. The three-line change above (mixing SE1 + SE2 + STM32 entropy in generate_seed()) closes the class.
+Bump libngu to the version containing the source-level fix (already exists on other branches) rather than relying on the linker workaround.
+Fix the Delta-mode message-signing gap in shared/msgsign.py. One line, matches the existing PSBT pattern.
+Structurally:
+Publish a public security disclosure page with a proper contact address, acknowledgment expectations, and coordination process. Currently there is no obvious channel for security submissions.
+Establish a written coordinated-disclosure policy: acknowledgment time, expected triage response, timeline expectations, credit norms. Credit norms matter more than the industry often acknowledges — the whole disclosure economy runs on researcher trust that findings will be handled seriously and researchers will be credited for their work. When a vendor treats researchers as if they are invisible, they stop hearing from those researchers, and users pay the price.
+Ship a host-side signature reproducibility tool. It would be roughly 100-200 lines of Python. It would detect kleptography-channel exploitation in the field within one transaction. It's a defense you can ship faster than a firmware update.
+Consider anti-exfil / sign-to-contract for signing. This is the structural defense that stops the entire kleptographic-channel class. Requires coordinator-side cooperation. Would be industry-leading.
+None of the above is punitive. All of it is what a hardware wallet vendor's engineering process should already do. If Coinkite delivers on this list, they earn a serious portion of the trust they've lost. If they don't, users have the information they need to route around them.
+The broader lesson
+The July 2026 disclosure would not have caused $90M in losses if the SE-mixing fix had shipped a year earlier. That fix would have been an obvious response to the class of concern raised by anyone auditing the seed-generation path. Multiple researchers have independently observed this class of issue in hardware wallet firmware over the last five years; the pattern is not obscure.
+Why didn't a fix ship? Some combination of:
+Coinkite's own engineering process not surfacing it internally.
+External researchers (myself included) who noticed it in independent review not communicating it through channels where it would land.
+The disclosure ecosystem's dependence on volunteer researcher goodwill, which vendors deplete faster than they replenish it.
+I want to be direct about the second point: my choice not to submit the class-of-RNG finding after Coinkite did not publicly acknowledge the Delta PIN disclosure was mine to make, and users bore the cost. The lesson I take from that is not "always submit no matter what" — vendors who won't engage don't magically become better with more submissions — but rather that when a vendor is unresponsive to the point of leaving no public trail, publishing publicly and early serves users better than sitting on findings. That's the model I'm using now. Others in the research community should feel encouraged to do the same when a vendor has demonstrated it won't engage constructively.
+The Bitcoin community, for its part, would benefit from clearer public signals about which vendors have healthy security-research relationships and which don't. When users pick a hardware wallet, they are picking not only the hardware but the engineering culture behind it — and that culture is much more predictive of future safety than any particular version's audit score.
+Disclosure Timeline
+Date
+Event
+September 29, 2025
+Comprehensive private security audit of Coldcard firmware completed by Karma-X Research Team. 28 numbered findings plus critical addendum. Only VULN-023 (Delta PIN key recovery) submitted to Coinkite; fix commit fcd848d8 shipped same-day. No CVE filed; no security advisory published.
+September 30, 2025 — July 30, 2026
+Remaining 27+ findings held in private research notes.
+July 31, 2026
+Coinkite releases v5.6.0 (Mk4/Mk5) and v1.5.0Q (Q) as "urgent hotfix" for a "limited entropy bug." Public reporting attributes ~$90M in losses.
+August 2, 2026
+Independent cross-check confirms 39 of ~40 distinct findings from the September 2025 audit remain unfixed in v5.6.0. Two additional high-severity findings (kleptographic exfiltration channel; Delta-mode message signing gap) identified.
+August 2, 2026
+Comprehensive private disclosure — including all previously-unreported findings from September 2025 audit plus the new August 2026 findings — delivered to Coinkite.
+August 2, 2026
+Public disclosure of high-level findings (this document). Detailed exploit mechanics for KLP-C-1 (kleptography channel) held back under 90-day coordinated-disclosure window.
+Q&A anticipated
+"Why publish now instead of coordinating disclosure with Coinkite first?"
+The full comprehensive audit — including all previously-unreported findings and the new August 2026 kleptography findings — is being delivered to Coinkite in parallel with this post going live. Both disclosures happen together. The rationale for simultaneous release rather than a private-first-then-public sequence:
+For the VULN-109 class finding, ten months have passed and users have already lost ~$90M to the class of bug; publishing now serves users making migration decisions this week.
+For the Delta-mode message signing gap, the user-actionable mitigation ("avoid Delta-mode message signing") is knowable now and requires no vendor cooperation to act on.
+Detailed exploit mechanics for the kleptography channel remain private under a 90-day window even in the public post.
+When a vendor has demonstrated a pattern of accepting bugs privately without producing public advisories or CVE filings, coordinated silence disserves users by delaying the moment they can make informed decisions about their own devices.
+"You said above you never submitted VULN-109 to Coinkite. Isn't that on you?"
+Yes. I own it. Users would have been better served if I'd pushed through and submitted anyway. My assessment at the time was that a channel producing no CVE and no public advisory was not a channel serving users; that assessment was defensible but the cost fell on users, not on me or Coinkite. The lesson I take is that a private-only channel — even one that produces engineering fixes — is not sufficient when it produces no public artifact. Vendors who want a working research feedback loop need to complete the loop with public advisories and CVE filings so that researchers can see the channel is working as intended. That's what I hope changes going forward; today's dual disclosure (full vendor package + this public post) is my attempt to model it.
+"Isn't publishing exploit details irresponsible?"
+Detailed exploit mechanics for the kleptography channel remain under coordinated disclosure with Coinkite on a 90-day timeline. This post describes the mechanism at a level sufficient for users to make risk decisions and for other researchers to verify the class of issue independently. It does not publish a copy-paste malicious firmware patch. Any competent security researcher can independently derive the details from what is here; users cannot exploit anything from what is here. Additionally, in the modern threat landscape it is not safe to assume that findings a researcher has analyzed in AI-assisted workflows or other cloud-connected tools are held solely by that researcher — well-resourced adversaries have equivalent capability. Public disclosure raises defenders' awareness without meaningfully raising attackers'.
+"Are you saying Coldcard is unsafe to use?"
+No. I'm saying the technical picture is more complex than "the entropy bug is fixed," and users deserve to see the actual picture before deciding whether to keep using their device, migrate to a different vendor, or restructure to multi-vendor multisig. Coldcard has real strengths — no Schnorr code path (which structurally closes an important class of kleptography channel), a sound Delta mode design intent, well-engineered RDP2 lockdown. The critique is about specific unfixed findings and a specific need for structural improvements, not about the device being fundamentally unusable.
+"Would you use a Coldcard?"
+For small amounts, yes. For significant value on a single device, no — but that's true for any single-vendor hardware wallet at any threat level involving nation-state or supply-chain adversaries. Multi-vendor multisig is the answer at every serious threat level regardless of which single-vendor devices are involved.
+"Are you paid by [competitor / short seller / etc.]?"
+No. This is independent research. If the question is asked in good faith, "About the author" below is the honest answer; if it's asked in bad faith, no answer will satisfy. The claims in this post are verifiable from public sources — every file:line reference points to code you can check yourself.
+Prior work and credentials
+Comprehensive private security audit of Coldcard firmware, September 2025. 28 findings numbered VULN-101 through VULN-129 plus critical addendum, plus a deep-dive on VULN-023 (Delta PIN key recovery). VULN-023 was submitted to Coinkite and partially fixed (commit fcd848d8). The remaining findings — including VULN-109 (Secure Element TRNG disabled) — were not submitted; this post is their effective public disclosure. Full audit available on request.
+Coordinated disclosure to Foundation Devices (Passport) covering a parallel kleptography finding in Passport's Schnorr signing path (sign_schnorr_with_rng in extmod/foundation-rust/src/secp256k1.rs:78), submitted this week. Foundation's initial engagement has been professional; the fix is a one-line change; disclosure timeline is standard 90 days.
+Comprehensive security audit of Foundation Passport v2.3.11, August 2, 2026. 683-line report covering firmware update path, PSBT signing, PIN/SE integration, entropy/RNG (including analog concerns in Passport's factory bootloader that mirror the Coldcard class), input parsers, native module boundaries, physical I/O, and third-party libraries.
+References
+Fournier, Farrow, Linus, "Dark Skippy: Exfiltrating BIP32 seeds through Schnorr signatures" (August 2024).
+Young & Yung, "Kleptography: Using Cryptography Against Cryptography" (1997) — original SETUP attack theory.
+Turkel & Poelstra, "Anti-Klepto" (2020) — sign-to-contract protocol details.
+RFC-6979 — deterministic ECDSA nonce derivation.
+BIP-340 — Schnorr signatures for secp256k1.
+Coinkite blog post announcing the v5.6.0 hotfix.
+Coldcard firmware source.
+© 2026 Karma-X Security Research Team
+Contact: For questions about this research, contact:
+security@karma-x.io
+Disclosure Model: This is a full public disclosure delivered in parallel with a comprehensive private disclosure to Coinkite. High-level findings are published for user safety; detailed exploit mechanics for KLP-C-1 (kleptography channel) remain under coordinated 90-day disclosure. All other findings are described with file:line references sufficient for independent verification but not exploit reproduction.
+Disclaimer: This research is provided for educational and defensive purposes only. Karma-X is committed to improving the security of Bitcoin infrastructure through responsible vulnerability disclosure. Nothing in this document constitutes financial or legal advice. Every file:line reference points to publicly-available source code that any reader can verify independently.
+Corrections and updates: This post will be updated if any technical claim is shown to be inaccurate. Please contact security@karma-x.io with corrections. If you're a Coinkite team member reading this with additional context, please reach out — the post will be updated to reflect anything factually incorrect.
+Learn more about Karma-X: https://karma-x.io/
+Easy Install
+From small business to enterprise, Karma-X installs simply and immediately adds peace of mind
+Integration Ready
+Karma-X doesn't interfere with other software, only malware and exploits, due to its unique design.
+Reduce Risk
+Whether adversary nation or criminal actors, Karma-X significantly reduces exploitation risk of any organization
+Updated Regularly
+Update to deploy new defensive techniques to suit your organization's needs as they are offered
+Deploy
+Karma-X
+Get Karma-X!
+💬 Ask our AI Assistant Kali
+Kali - Karma-X AI Assistant
+×
+Send
+Karma-X
+Social
+Company
+About Us
+Blog
+News
+RSS Feed
+Help & Support
+Contact Us
+Password Reset
+Password Change
+Legal
+Terms & Conditions
+Privacy Policy
+© Karma-X - Protection > Detection

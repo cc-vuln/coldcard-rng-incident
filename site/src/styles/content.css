@@ -128,6 +128,27 @@
 .row-gone { background: var(--danger-soft); }
 .row-safe { background: var(--safe-soft); }
 
+/* A 40-character commit hash in a nowrap cell sets the table's minimum width
+   by itself, which is most of why the firmware tables scrolled sideways even
+   after their prose column moved out. Hashes may break anywhere: they are
+   looked up by copying, not read across. */
+.data-table .hash { overflow-wrap: anywhere; }
+.data-table code.hash { overflow-wrap: anywhere; }
+
+/* The full-width continuation of the row above it. A prose column cannot be
+   narrowed enough to stop a wide table scrolling, so the firmware tables put
+   the note in its own row spanning every column. The pair has to read as one
+   record: the data row drops its bottom rule, and the note is indented under
+   it rather than presented as a peer row. */
+.data-table .row-detail > .detail {
+  padding-top: 0;
+  font-size: .8rem;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+}
+.data-table tbody tr:has(+ .row-detail) > td { border-bottom: 0; }
+.data-table tbody tr.row-detail:last-child > td { border-bottom: 0; }
+
 /* Sortable tables: the header padding moves onto the button so the whole
    header cell is the click target. */
 table.sortable th { padding: 0; }

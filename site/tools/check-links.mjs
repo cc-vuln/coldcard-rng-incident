@@ -40,9 +40,19 @@ const ids = (route) => {
 };
 
 const failures = [];
+const SECTION_ROOTS = ['/response/', '/how-it-broke/', '/record/'];
 
 const sectionNavItems = (html) => {
   const navBlock = html.match(/<nav\b(?=[^>]*\baria-label="Section")[^>]*>([\s\S]*?)<\/nav>/);
+  if (!navBlock) return [];
+  return [...navBlock[1].matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
+    href: m[1],
+    label: m[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+  }));
+};
+
+const primaryNavItems = (html) => {
+  const navBlock = html.match(/<nav\b(?=[^>]*\baria-label="Primary")[^>]*>([\s\S]*?)<\/nav>/);
   if (!navBlock) return [];
   return [...navBlock[1].matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
     href: m[1],
@@ -54,8 +64,10 @@ const sectionNavItems = (html) => {
 // link for discovery. Every such route gets its own section-navigation entry.
 // Individual source records are collection items, so /record/ is their direct
 // navigation home rather than hundreds of links in the section bar.
-for (const section of ['/response/', '/how-it-broke/', '/record/']) {
+const sectionItemsByRoot = new Map();
+for (const section of SECTION_ROOTS) {
   const sectionItems = sectionNavItems(pages.get(section) ?? '');
+  sectionItemsByRoot.set(section, sectionItems);
   const sectionHrefs = new Set(sectionItems.map((item) => item.href));
   const editorialRoutes = [...pages.keys()].filter((route) =>
     route.startsWith(section)
@@ -68,28 +80,39 @@ for (const section of ['/response/', '/how-it-broke/', '/record/']) {
   }
 }
 
-// The response section is deliberately a reading sequence. Keep the Next card
-// on every page in the same order as the visible navigation, including the
-// final return to the overview, and use the same label in both places.
-const responseItems = sectionNavItems(pages.get('/response/') ?? '');
-for (let i = 0; i < responseItems.length; i += 1) {
-  const current = responseItems[i];
-  const expected = responseItems[(i + 1) % responseItems.length];
-  const html = pages.get(current.href) ?? '';
-  const next = html.match(/<a\b(?=[^>]*\bclass="[^"]*\bartnav__next\b[^"]*")(?=[^>]*\bhref="([^"]+)")[^>]*>([\s\S]*?)<\/a>/);
-  if (!next) {
-    failures.push(`response sequence: ${current.href} has no Next link`);
-    continue;
+for (const route of pages.keys()) {
+  if (!route.startsWith('/record/sources/')) continue;
+  const html = pages.get(route) ?? '';
+  const sourcesLocation = /<a\b(?=[^>]*\bclass="[^"]*\bsubnav__link\b[^"]*")(?=[^>]*\bhref="\/record\/")(?=[^>]*\baria-current="location")[^>]*>/;
+  if (!sourcesLocation.test(html)) {
+    failures.push(`section navigation: ${route} is not located under Sources`);
   }
-  const nextLabel = next[2].match(/<span\b[^>]*\bclass="[^"]*\bartnav__label\b[^"]*"[^>]*>([\s\S]*?)<\/span>/);
-  const label = nextLabel
-    ? nextLabel[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
-    : '';
-  if (next[1] !== expected.href) {
-    failures.push(`response sequence: ${current.href} Next points to ${next[1]}, expected ${expected.href}`);
-  }
-  if (label !== expected.label) {
-    failures.push(`response sequence: ${current.href} Next label is "${label}", expected "${expected.label}"`);
+}
+
+// Every section is one visible reading sequence. Each page's Next card must
+// follow the sub-navigation order, use the same label, and wrap from the final
+// item to the first. This is deliberately checked from built HTML so custom
+// layouts and ordinary Article pages are held to the same contract.
+for (const [section, sectionItems] of sectionItemsByRoot) {
+  for (let i = 0; i < sectionItems.length; i += 1) {
+    const current = sectionItems[i];
+    const expected = sectionItems[(i + 1) % sectionItems.length];
+    const html = pages.get(current.href) ?? '';
+    const next = html.match(/<a\b(?=[^>]*\bclass="[^"]*\bartnav__next\b[^"]*")(?=[^>]*\bhref="([^"]+)")[^>]*>([\s\S]*?)<\/a>/);
+    if (!next) {
+      failures.push(`section sequence: ${current.href} has no Next link under ${section}`);
+      continue;
+    }
+    const nextLabel = next[2].match(/<span\b[^>]*\bclass="[^"]*\bartnav__label\b[^"]*"[^>]*>([\s\S]*?)<\/span>/);
+    const label = nextLabel
+      ? nextLabel[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+      : '';
+    if (next[1] !== expected.href) {
+      failures.push(`section sequence: ${current.href} Next points to ${next[1]}, expected ${expected.href}`);
+    }
+    if (label !== expected.label) {
+      failures.push(`section sequence: ${current.href} Next label is "${label}", expected "${expected.label}"`);
+    }
   }
 }
 
@@ -101,6 +124,21 @@ const overview = pages.get('/') ?? '';
 const recordNav = /<a\b(?=[^>]*\bclass="[^"]*nav__link[^"]*")(?=[^>]*\bhref="\/record\/timeline\/")[^>]*>\s*The record\s*<\/a>/;
 if (!recordNav.test(overview)) {
   failures.push('primary navigation: The record must link to /record/timeline/');
+}
+
+// Every reader-facing HTML page must be visible in primary or section
+// navigation. The 404 page is a recovery surface, and individual source pages
+// are collection items located under the Sources entry rather than peers in a
+// navigation row.
+const directNavHrefs = new Set(primaryNavItems(overview).map((item) => item.href));
+for (const sectionItems of sectionItemsByRoot.values()) {
+  for (const item of sectionItems) directNavHrefs.add(item.href);
+}
+for (const route of pages.keys()) {
+  if (route === '/404.html' || route.startsWith('/record/sources/')) continue;
+  if (!directNavHrefs.has(route)) {
+    failures.push(`navigation coverage: ${route} has no direct primary or section entry`);
+  }
 }
 
 for (const [route, html] of pages) {

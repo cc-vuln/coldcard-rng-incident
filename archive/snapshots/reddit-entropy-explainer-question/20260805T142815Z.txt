@@ -1,0 +1,366 @@
+post: 1vf4hdx
+author: Psychological-Hawk80
+created_utc: 1785832374
+title: Is it only about entropy? I don't get it.
+body:
+I don't get it. Is it all about bad entropy? If I choose by myself without any dice 24 word from Bip39 (ok 23 and do the calculation for the 24th) then it shoul be a rather good seed and nobody will be able to "crack" it just by bruteforce? There must something else in the recent incidence which allows hacker at least to predict some of the generated seeds especially in MK3 devices? Can somebody please explain it to me ? Was only a subset of the bip39 words choosen by the algorithm?
+
+comment: p1m2suw
+parent: t3_1vf4hdx
+author: megagram
+created_utc: 1785833094
+edited: false
+body:
+To dumb it down… think about having a million cups on a table facing down. Under one of those cups a gold piece is randomly placed. In true randomness it would be next to impossible for you to correctly choose which cup had the gold ball. 
+
+However if you knew the person placing the  gold piece only ever chose to place the piece in one of three cups your chances of selecting the cup with the gold would be much higher. 
+
+That is the difference between good entropy and bad.
+
+What happened with coldcard was instead of truly randomly choosing one of the million cups, it only chose 100. Attackers figured this out and stayed peeking under those 100 cups.
+
+comment: p1m34mj
+parent: t3_1vf4hdx
+author: Interesting-Gear-992
+created_utc: 1785833259
+edited: false
+body:
+https://youtu.be/IwrKWdxt0YM?is=fT9JuJc4bn8bdMIZ
+
+comment: p1m6stt
+parent: t1_p1m34mj
+author: Psychological-Hawk80
+created_utc: 1785835076
+edited: false
+body:
+Thanks  - a very good explanation. It is about prediction and a limmited set of possible generated seeds. As soon as the weakness was revealed, should not have some good guys or Coldcard itself tried to transfer BTC from the  affected seeds to save it at a good place for affected customers?  In order to compete witht the bad guys?
+
+comment: p1m7gkf
+parent: t1_p1m6stt
+author: Interesting-Gear-992
+created_utc: 1785835407
+edited: false
+body:
+If coldcard had done this, I think that would also be a crime, although it is indeed explainable.
+
+comment: p1m7owr
+parent: t1_p1m6stt
+author: Psychological-Hawk80
+created_utc: 1785835521
+edited: 1785835742
+body:
+Is there is a possibility that Coldcard knew about this bug before? As long nobody else got aware of this "weakness"  those seeds were pretty safe.
+
+comment: p1mdrha
+parent: t1_p1m7owr
+author: Charming-Designer944
+created_utc: 1785838413
+edited: false
+body:
+Nothing is impossible. But it is extremely unlikely that the coldcard developers knew about the flaw before alerted by customers seeing their wallets drained.
+
+It can be argued that they should have had QA practices in place that should have detected the flaw before it made it into production firmware, but it did and went unnoticed for years.
+
+comment: p1mdrve
+parent: t1_p1m6stt
+author: Quirky-Reveal-1669
+created_utc: 1785838418
+edited: false
+body:
+That is an interesting take. 
+
+comment: p1mj2w8
+parent: t1_p1m6stt
+author: charonme
+created_utc: 1785840694
+edited: false
+body:
+if they did, how would they then figure out who were the original holders so they could return the funds to them?
+
+comment: p1mjdb5
+parent: t3_1vf4hdx
+author: PrinceWhoPromes
+created_utc: 1785840813
+edited: false
+body:
+What I don’t understand is, if my 2002 MacBook terminal can generate a random seed, why can’t Coinkite? Lol. 
+
+comment: p1mlgqk
+parent: t1_p1mj2w8
+author: Psychological-Hawk80
+created_utc: 1785841658
+edited: false
+body:
+normlay you buy your BTCs on an exchange. So your generated BTC adresses have a transfer history. You need a "proof of funds" that the BTC on an affeceted adress were purchased by you. 
+
+comment: p1mp2n9
+parent: t3_1vf4hdx
+author: Oxymorix
+created_utc: 1785843055
+edited: false
+body:
+The problem was essentially entropy—but not because Coldcard used only a small subset of the BIP39 word list.
+
+The device still produced normal-looking 24-word BIP39 mnemonics using words from the full list. The problem was that the underlying random input came from a much smaller and more predictable set of possibilities than users believed. Once attackers understood the defective generator, they did not need to brute-force every possible 24-word mnemonic. They only needed to reproduce the limited set of mnemonics that the flawed firmware was capable of generating.
+
+Your idea of generating 23 words yourself and calculating the checksum can be secure only if those 23 words are selected by a genuinely random, unbiased process. Simply choosing words that seem random is not enough, because humans unconsciously favor familiar words, patterns and combinations. Dice or another independently verifiable entropy source would be much safer. The 24th checksum word does not add meaningful entropy; it only validates the preceding entropy.
+
+As for Coldcard or “good guys” sweeping the vulnerable wallets first, that would create enormous legal and ownership problems. They would still be spending other people’s coins without authorization. Returning them would also be extremely difficult. Exchange withdrawal records do not necessarily prove current ownership, and anyone who reconstructed the weak seed could sign messages from the affected addresses just as the original owner could.
+
+Regarding whether Coinkite knew beforehand: it is possible in theory, but there is currently no evidence of that. The stronger and more supportable criticism is that their development, code-review and testing procedures should have detected the problem long before it remained in production for years.
+
+comment: p1ms8sf
+parent: t1_p1m7owr
+author: comp21
+created_utc: 1785844203
+edited: false
+body:
+They've been blocking people from talking about it since 2022 and random cc wallets have been drained since then. This is just the big blow out where everyone got hit. 
+
+That ego centric prick has ignored the problem for years.
+
+comment: p1msk9t
+parent: t1_p1mlgqk
+author: comp21
+created_utc: 1785844319
+edited: false
+body:
+So you're saying they should have taken everyone's Bitcoin then moved it back to them when they proved they owned it? 
+
+And now, if they didn't buy it on a cex, would they prove they own it? Prior to CC and their negligent and lazy code implementation, ownership was proven by possession. 
+
+Now I can make your wallet seed in about 15 mins.
+
+comment: p1muj8w
+parent: t1_p1mp2n9
+author: Psychological-Hawk80
+created_utc: 1785845012
+edited: false
+body:
+I think the human bias is difficult to describe in an alogorithm. At least there is some noise in human behaviour. Would be intresting to compare a "well done" 12 word random seed with a human self picked 24 word seed.  Which is more secure? Or to put the question another way "How many words shoud a seed comprise of in order to tolerate some bad practice in choosing the words"?
+
+comment: p1mv7ir
+parent: t1_p1mj2w8
+author: NiagaraBTC
+created_utc: 1785845247
+edited: false
+body:
+It's possible to do if the original owner still has their actual device it was generated on.  
+
+There have definitely been some white hats taking funds. Will be a while before everything settles and we know how much. 
+
+comment: p1myi4d
+parent: t1_p1ms8sf
+author: davidcwilliams
+created_utc: 1785846343
+edited: false
+body:
+Egocentric or not... it's easy assume that the people claiming that they had lost everything had simply been careless.
+
+comment: p1myrx0
+parent: t1_p1myi4d
+author: comp21
+created_utc: 1785846431
+edited: false
+body:
+Sure. Easy to assume... Easier to block them and never look in to it because you know your special code is the bestest code.
+
+comment: p1n40my
+parent: t1_p1muj8w
+author: Oxymorix
+created_utc: 1785848087
+edited: false
+body:
+That is the key distinction: “some noise” is not the same as measurable cryptographic entropy.
+
+A correctly generated 12-word BIP39 mnemonic contains 128 bits of random entropy. That is already beyond practical brute force.
+
+A human-selected 24-word mnemonic has an unknown amount of entropy. It might have more than 128 bits, but it could also have dramatically less. The problem is not that an attacker must perfectly describe human behavior with one algorithm. They can test likely choices first: familiar words, related words, themes, sentences, alphabetical patterns, words with personal meaning, avoidance of repeated words, and combinations produced by language models. They only need their guesses to be ranked better than random.
+
+There is therefore no universal answer such as “18 human-picked words are enough” or “24 words tolerate a certain amount of bias.” Human bias can be arbitrarily strong. Someone could choose 24 words from a favorite quotation, and adding more words would not necessarily add much security at all.
+
+Mathematically, if you choose 23 words and calculate the final BIP39 word, you would need an average of roughly 5.6 bits of genuine conditional entropy per chosen word to reach 128 bits overall. That sounds like choosing uniformly from at least about 48 equally likely possibilities at every position—but only if every choice is independent and unpredictable after seeing all previous choices. Human choices generally do not satisfy those assumptions.
+
+So the comparison is:
+
+• Properly random 12 words: known security of approximately 128 bits.  
+• Human-picked 24 words: unknown security, potentially far below 128 bits.
+
+The safe method is not to compensate for human bias by adding more words. It is to remove human choice from the entropy-generation process by using dice, coin flips, or a properly verified cryptographic random-number generator.
+
+comment: p1n4dy8
+parent: t1_p1mjdb5
+author: dolkiiish
+created_utc: 1785848199
+edited: false
+body:
+They can, and they did, its just their software that had a bug that made it fail and generated a seed that wasnt really random/as secure. It all comes down to a issue in their code for the software
+
+
+comment: p1n5uda
+parent: t3_1vf4hdx
+author: d3arleader
+created_utc: 1785848639
+edited: false
+body:
+Yeah, science!
+
+comment: p1n60hq
+parent: t3_1vf4hdx
+author: DramaticWealth5985
+created_utc: 1785848690
+edited: false
+body:
+A bip39 wallet is supposed to be a random number between 0 .. 2^256 (24 word) or 2^128 (12 word). 
+
+The actual mnemonic words are just a human readable representation of that single random number. To understand: take the binary representation of that number, its a list of 128 zero and ones. Split it into 11bit chunks, a 00000000000 chunk is by definition represented by the word ABANDON, 01110111110 is JELLY, 11111111111 is ZOO 
+
+So the wallet doesn't pick random words but just a single number and translates that number into words for you to write down safely without messing up zeroes and ones. 
+
+The bad RNG picked a subset of 2^40 addresses out of the 2^128 it was supposed to. That doesn't neccessarily lead to a specific ordered address space (maybe it did, i don't know that) and doesn't result in a subset of words. 
+
+However 40bit could be considered equivalently safe as a mnemonic with 4 Words. If you know which possible wallets it  generates, with 40bit it's just as easy as trying all combinations of 4 words.
+
+comment: p1nb7i4
+parent: t1_p1myrx0
+author: davidcwilliams
+created_utc: 1785850209
+edited: 1785853546
+body:
+Easy to never look into it because the best explanation for such a report is exactly what they would assume.
+
+comment: p1nbihz
+parent: t3_1vf4hdx
+author: SubstantialWeb3666
+created_utc: 1785850297
+edited: false
+body:
+only a subset of BIP-39 combinations, not subset of words
+
+comment: p1neopt
+parent: t3_1vf4hdx
+author: Shimster
+created_utc: 1785851193
+edited: false
+body:
+Just wait until Shor’s algorithm is broken by Chinese quantum computers and say bye bye  to about 30% of bitcoin wallet funds.
+
+comment: p1nhl4k
+parent: t1_p1nb7i4
+author: comp21
+created_utc: 1785851993
+edited: false
+body:
+He wouldn't have had to assume had he not removed the gpl foundation code in the beginning and not gone closed source.
+
+comment: p1nlqsn
+parent: t1_p1nhl4k
+author: davidcwilliams
+created_utc: 1785853127
+edited: false
+body:
+https://old.reddit.com/r/ledgerwallet/search?q=drained&restrict_sr=on&sort=relevance&t=all
+
+https://old.reddit.com/r/trezor/search?q=drained&restrict_sr=on&sort=relevance&t=all
+
+This is not exclusive to Coldcard.
+
+comment: p1nmdos
+parent: t1_p1nlqsn
+author: comp21
+created_utc: 1785853298
+edited: false
+body:
+No but the REASON is exclusive to coldcard. You can defend them all you want (what??) but he closed his code, he took out code that was tested and known, he talked shit about other cards and all this money was stolen because of his ego.
+
+He even blocked people on the forums who had money stolen and CHOSE not to look in to the issues...
+
+There is no defending this guy or this company. Their job is literally keeping people's money secure.
+
+comment: p1nr1d2
+parent: t3_1vf4hdx
+author: opossum_cz
+created_utc: 1785854534
+edited: false
+body:
+Yes, it is just entropy problem.
+
+If you use coin, dices etc. to choose your seed, you are safe.
+
+But I would not trust seed chosen by a human. I would think entropy is weak even though there may not be systematic approach to break it now. Do not choose seed words yourself under any conditions.
+
+comment: p1nrjlc
+parent: t3_1vf4hdx
+author: Linkamus
+created_utc: 1785854668
+edited: false
+body:
+In this particular case, had you "randomly" chose them yourself, it would have been MUCH MORE secure than what CC's pseudo-random generator was choosing. In practice, choosing them yourself involves subconscious human bias (example: The tendency to avoid picking 2 of the same words in a mnemonic), and so is not recommended. Using unbiased dice is a simple great way to go.
+
+comment: p1ns3h2
+parent: t1_p1nrjlc
+author: opossum_cz
+created_utc: 1785854813
+edited: false
+body:
+\> had you "randomly" chose them yourself, it would have been MUCH MORE secure than what CC's pseudo-random generator
+
+I have great objections. I would think human chosen seed has much lower entropy then 40bit. It is interesting research path, to predict what seed words would a human mind chose and brute force these options.
+
+comment: p1ns7p1
+parent: t1_p1mjdb5
+author: opossum_cz
+created_utc: 1785854844
+edited: false
+body:
+They, can the HW RNG was disabled by retarded dev.
+
+comment: p1nv8bp
+parent: t1_p1ns3h2
+author: Linkamus
+created_utc: 1785855632
+edited: false
+body:
+Would be a fun experiment. I consciously choose 11 words, no passphrase, put x amount of btc in the wallet. If I go 1 year without the funds being swept, I get bragging rights. If they get swept, I lose x btc.
+
+comment: p1nwlhp
+parent: t3_1vf4hdx
+author: notthediz
+created_utc: 1785855994
+edited: false
+body:
+From my understanding since the coldcard firmware wasn't using the true random generator, it was using a psuedo random number generator. That's a problem because a pseudo random number generator can be replicated.  
+I haven't read too far into how the pseudo random generator works, but basically it uses things like the computer clock speed, pseudo random number generator algorithm, etc. So there's instead of having 2048 words to choose from, the list would be something like 1024 words.
+
+comment: p1o4qe9
+parent: t3_1vf4hdx
+author: SpareEconomy1849
+created_utc: 1785858106
+edited: false
+body:
+The random number generator essentially only ever produced a subset of those seed phrases. Attacker knows the subset and tries them all with lots of computing power 
+
+comment: p1qy26b
+parent: t3_1vf4hdx
+author: blurred_rabbit
+created_utc: 1785884716
+edited: 1785885257
+body:
+I’m pretty sure the code’s fallback path that was used had a few pre-determined variables (such as date/time and a few other things) that went into generating the seeds to make the hackers job a little bit easier.
+
+In addition to the core issue of the entropy not being nearly enough for modern day computers (estimated 1-3 hours to brute force the level of entropy).
+
+Watch this video to answer your question: [https://x.com/TFTC21/status/2084342383274283023/video/1?s=46](https://x.com/TFTC21/status/2084342383274283023/video/1?s=46)
+
+comment: p1sm79v
+parent: t3_1vf4hdx
+author: Ok-Pea4148
+created_utc: 1785905295
+edited: 1785921310
+body:
+If they are chosen truly randomly, 23 words give you 253 bits of entropy. But human brains  
+are poor random number generator, so instead of 253 bits, you might only get say 200 bits.
+
+That is still secure enough, unlike 40 bits as was the case with the coldcard flaw
+
+more-stub: parent t1_p1nmdos count 0

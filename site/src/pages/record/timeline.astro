@@ -311,6 +311,11 @@ const FACET_SETS = [
   standfirst="How a software flaw reached COLDCARD wallets, when funds were stolen, and what happened afterward."
   depth="plain"
   kicker="The record"
+  next={{
+    href: '/record/funds/',
+    label: 'Funds accounting',
+    note: 'The competing totals, methods and current tracker readings.',
+  }}
 >
   <div class="tl-controls">
     <RecordSearch
@@ -337,7 +342,7 @@ const FACET_SETS = [
               <div class="tl__title">The build-time guard exists in libngu</div>
               <div class="tl-body">
                 The <code>#ifndef MICROPY_HW_ENABLE_RNG</code> guard exists in <code>libngu</code>. Its defined-zero defect is already present, but COLDCARD seed generation does not yet use this path.
-                <Claim basis="verified" scope="The presence and defined-zero defect of the MICROPY_HW_ENABLE_RNG guard in libngu at this date" source="libngu source and COLDCARD firmware repository history" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The presence and defined-zero defect of the MICROPY_HW_ENABLE_RNG guard in libngu at this date" source="libngu source and COLDCARD firmware repository history" href="/record/firmware/" compact />
               </div>
             </div>
           </div>
@@ -352,14 +357,14 @@ const FACET_SETS = [
               <div class="tl__title">Seed generation migrates to ngu.random.bytes()</div>
               <div class="tl-body">
                 Commit <code>b18723dddb6d751c39978e4364b56b2414f68b47</code> migrates wallet generation from <code>ckcc.rng_bytes()</code> to <code>ngu.random.bytes()</code>. Combined with the existing defined-zero guard defect, the migration activates the affected path.
-                <Claim basis="verified" scope="The 1 March 2021 migration commit and its activation of the affected seed-generation path" source="COLDCARD firmware repository commit b18723dddb6d751c39978e4364b56b2414f68b47; release histories and signed-release records" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The 1 March 2021 migration commit and its activation of the affected seed-generation path" source="COLDCARD firmware repository commit b18723dddb6d751c39978e4364b56b2414f68b47; release histories and signed-release records" href="/record/firmware/" compact />
               </div>
             </div>
             <div class="tl-item tle tle--lm is-bad" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2021-03-17T00:00:00Z') ? '' : undefined} hidden={lmBeyond('2021-03-17T00:00:00Z')}>
               <div class="tl-date">17 Mar 2021</div>
               <div class="tl__title">Firmware v4.0.0 opens the first exposure window</div>
               <div class="tl-body">
-                Firmware v4.0.0 ships for Mk2 and Mk3, opening the first exposure window. Its normal seed-generation path XORs output from the MicroPython and libngu Yasmarang generators before hashing. The vendor's later disclosure history states that v4.0.0 was built, signed and tested internally but never released publicly as a binary, making v4.0.1 the first public 4.x release; the source and release evidence behind the v4.0.0 boundary is set out on <a href="/record/reference/#firmware">the firmware page</a>.
+                Firmware v4.0.0 ships for Mk2 and Mk3, opening the first exposure window. Its normal seed-generation path XORs output from the MicroPython and libngu Yasmarang generators before hashing. The vendor's later disclosure history states that v4.0.0 was built, signed and tested internally but never released publicly as a binary, making v4.0.1 the first public 4.x release; the source and release evidence behind the v4.0.0 boundary is set out on <a href="/record/firmware/">the firmware page</a>.
                 <Claim basis="verified" contested scope="The v4.0.0 source and release record and its seed-generation path; the vendor states the v4.0.0 binary was never publicly released" source="COLDCARD firmware repository and signed-release records; Coinkite security disclosure history, held capture of 5 Aug 2026" href="/record/sources/coinkite-historical-disclosures/" compact />
               </div>
             </div>
@@ -375,7 +380,7 @@ const FACET_SETS = [
               <div class="tl__title">The reseed API, a paid pre-release review, and Mk4 v5.0.0</div>
               <div class="tl-body">
                 The <code>reseed()</code> API is added to <code>libngu</code>, and Mk4 v5.0.0 ships as the first production firmware calling <code>rng_seeding()</code> on the normal boot path. A secure-element-derived value overwrites one libngu state word, contributing at most 32 bits; other UID and timing terms remain in published models. The vendor's disclosure history records a paid private review in the same window (1 to 14 March 2022) that examined PIN derivation, rate limiting and random-number generation, and under which the runtime generator was seeded with authenticated entropy from both secure elements; it cites private correspondence this archive cannot inspect.
-                <Claim basis="verified" scope="The addition of the reseed() API and the Mk4 v5.0.0 release record" source="COLDCARD firmware repository and signed-release records" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The addition of the reseed() API and the Mk4 v5.0.0 release record" source="COLDCARD firmware repository and signed-release records" href="/record/firmware/" compact />
                 <Claim basis="reported" scope="The March 2022 paid private review and its RNG work, as recorded by the vendor; the underlying correspondence is not inspectable here" source="Coinkite security disclosure history, held capture of 5 Aug 2026" href="/record/sources/coinkite-historical-disclosures/" compact />
               </div>
             </div>
@@ -391,7 +396,7 @@ const FACET_SETS = [
               <div class="tl__title">v4.1.9, the last Mk3 release for three years</div>
               <div class="tl-body">
                 Firmware v4.1.9 ships. For the next three years it remains the latest published Mk3 release, and it contains the affected path.
-                <Claim basis="verified" scope="The v4.1.9 release record and its status as the latest published Mk3 release until 2026" source="COLDCARD firmware repository release history and signed-release records" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The v4.1.9 release record and its status as the latest published Mk3 release until 2026" source="COLDCARD firmware repository release history and signed-release records" href="/record/firmware/" compact />
               </div>
             </div>
           </div>
@@ -421,7 +426,7 @@ const FACET_SETS = [
               <div class="tl__title">First public Q firmware</div>
               <div class="tl-body">
                 First public Q firmware, v0.0.3Q, with production v1.0.0Q on 10 March 2024. Every Q build in the published release history before v1.5.0Q contains the affected path.
-                <Claim basis="verified" scope="The Q release history from v0.0.3Q onward and the affected path in every published Q build before v1.5.0Q" source="COLDCARD firmware repository release history and signed-release records" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The Q release history from v0.0.3Q onward and the affected path in every published Q build before v1.5.0Q" source="COLDCARD firmware repository release history and signed-release records" href="/record/firmware/" compact />
               </div>
             </div>
           </div>
@@ -436,7 +441,7 @@ const FACET_SETS = [
               <div class="tl__title">COLDCARD Mk5 launches</div>
               <div class="tl-body">
                 COLDCARD Mk5 launches on firmware v5.5.0 and uses the Mk4-class generation path. Its pre-hotfix releases are affected under the same published candidate-space models.
-                <Claim basis="verified" scope="The Mk5 launch release and its place in the Mk4-class generation path" source="COLDCARD firmware repository release history and signed-release records" href="/record/reference/#firmware" compact />
+                <Claim basis="verified" scope="The Mk5 launch release and its place in the Mk4-class generation path" source="COLDCARD firmware repository release history and signed-release records" href="/record/firmware/" compact />
               </div>
             </div>
           </div>
@@ -512,7 +517,7 @@ const FACET_SETS = [
               <div class="tl__title">Hotfix releases signed for Q, Mk4 and Mk5</div>
               <div class="tl-body">
                 The signed-release record timestamps Q hotfix v1.5.0Q at 05:17 UTC and Mk4/Mk5 hotfix v5.6.0 at 05:18 UTC. Source release commit <code>3238f6fd9977eed786012d0034a04d888c3263bb</code> followed at 05:19:10 UTC with the note: "No new features but will generate entropy correctly." The wording is about what the device will generate next; it does not repair already generated seeds. This project verified the source and release records, not the contents of the distributed binaries.
-                <Claim basis="verified" scope="The vendor-published Mk4/Mk5/Q release-record and source-commit timestamps, not binary contents" source="COLDCARD firmware repository and signed release metadata" href="/record/reference/#firmware" />
+                <Claim basis="verified" scope="The vendor-published Mk4/Mk5/Q release-record and source-commit timestamps, not binary contents" source="COLDCARD firmware repository and signed release metadata" href="/record/firmware/" />
               </div>
             </div>
             <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={3} data-beyond={lmBeyond('2026-07-31T05:20:00Z') ? '' : undefined} hidden={lmBeyond('2026-07-31T05:20:00Z')}>
@@ -545,7 +550,7 @@ const FACET_SETS = [
               <div class="tl__title">Mk3 firmware 4.2.0 announced</div>
               <div class="tl-body">
                 The <a href="/record/sources/coldcard-mk3-hotfix-update/">official Mk3 update</a> announces firmware <strong>4.2.0</strong> as available. The 07:30 UTC advisory state had described a final Mk3 release as under evaluation rather than committed, contingent on validating a sufficiently safe upgrade path, and told users not to wait for it. The vendor downloads page checked on 1 August lists 4.2.0 as current for "COLDCARD Mk3 and Mk2". This archive has not installed the release on either model or independently checked the binary.
-                <Claim basis="reported" scope="The vendor's availability announcement for Mk3 4.2.0 and downloads-page listing for Mk2 and Mk3" source="Captured official COLDCARD X update and vendor downloads page; source-level fix and binary limitations are documented separately" href="/record/reference/#firmware" />
+                <Claim basis="reported" scope="The vendor's availability announcement for Mk3 4.2.0 and downloads-page listing for Mk2 and Mk3" source="Captured official COLDCARD X update and vendor downloads page; source-level fix and binary limitations are documented separately" href="/record/firmware/" />
                 <CaptureThumb id="coldcard-mk3-hotfix-update" />
               </div>
             </div>
@@ -562,7 +567,7 @@ const FACET_SETS = [
               <div class="tl__title">Edge hotfixes announced</div>
               <div class="tl-body">
                 The <a href="/record/sources/coldcard-edge-hotfix-update/">official Edge update</a> announces 6.6.0X for Mk4/Mk5 and 6.6.0QX for Q. Mk3, Mk4, Mk5 and Q then have named vendor fix releases. The binaries have not been independently checked here.
-                <Claim basis="reported" scope="The official availability announcement for Edge 6.6.0X and 6.6.0QX" source="Captured official COLDCARD X update; binary limitations are documented separately" href="/record/reference/#firmware" />
+                <Claim basis="reported" scope="The official availability announcement for Edge 6.6.0X and 6.6.0QX" source="Captured official COLDCARD X update; binary limitations are documented separately" href="/record/firmware/" />
                 <CaptureThumb id="coldcard-edge-hotfix-update" />
               </div>
             </div>
@@ -679,7 +684,7 @@ const FACET_SETS = [
               </div>
               <div class="tl__title">A fourth revision brings the Mk2 inside the advisory</div>
               <div class="tl-body">
-                A fourth dated update brings the Mk2 inside the advisory's own text. Every Mk3-only statement about the defect and about its fix is rewritten to name both models. The affected range becomes "The issue is present on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive"; the at-risk sentence becomes "a seed generated on Mk2 or Mk3 version 4.0.1 (March 2021) through 4.1.9"; the fixed-firmware list gives "Mk2/Mk3: version 4.2.0 or later"; and the release is described as "Fixed Mk2/Mk3 firmware version 4.2.0", to be installed from the "official Mk2/Mk3 download page". The one-device migration section, the optional dice-only section and the closing migration steps are rewritten the same way, so the procedures the advisory sets out now address an Mk2 owner directly. The <a href="/record/sources/coinkite-backgrounder/">entropy backgrounder</a> carries the same dated update and the same substitution, including that the active PRNG on "Mk2 and Mk3" was seeded primarily from device and timing state, and "Version 4.2.0 for Mk2 and Mk3" among the released hotfixes. Until this revision the vendor downloads-page listing was the only vendor evidence placing the Mk2 in either the affected range or the hotfix. The published lower bound is unchanged at 4.0.1 for both models, so the <a href="/record/reference/#firmware">v4.0.0 boundary difference</a> stands.
+                A fourth dated update brings the Mk2 inside the advisory's own text. Every Mk3-only statement about the defect and about its fix is rewritten to name both models. The affected range becomes "The issue is present on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9 inclusive"; the at-risk sentence becomes "a seed generated on Mk2 or Mk3 version 4.0.1 (March 2021) through 4.1.9"; the fixed-firmware list gives "Mk2/Mk3: version 4.2.0 or later"; and the release is described as "Fixed Mk2/Mk3 firmware version 4.2.0", to be installed from the "official Mk2/Mk3 download page". The one-device migration section, the optional dice-only section and the closing migration steps are rewritten the same way, so the procedures the advisory sets out now address an Mk2 owner directly. The <a href="/record/sources/coinkite-backgrounder/">entropy backgrounder</a> carries the same dated update and the same substitution, including that the active PRNG on "Mk2 and Mk3" was seeded primarily from device and timing state, and "Version 4.2.0 for Mk2 and Mk3" among the released hotfixes. Until this revision the vendor downloads-page listing was the only vendor evidence placing the Mk2 in either the affected range or the hotfix. The published lower bound is unchanged at 4.0.1 for both models, so the <a href="/record/firmware/">v4.0.0 boundary difference</a> stands.
                 <Claim basis="verified" scope="The fourth revision's substitution of Mk2 and Mk3 for Mk3 throughout the affected range, the fixed release and the migration sections of both the advisory and the backgrounder" source="Held captures of the Coinkite Mk3 advisory and entropy technical backgrounder taken at 18:44 UTC on 1 August 2026, with diffs against the states held at 14:02 UTC the same day" href="/record/sources/coinkite-mk3-advisory/" />
               </div>
             </div>
@@ -687,7 +692,7 @@ const FACET_SETS = [
               <div class="tl-date"><Timestamp iso="2026-08-01T18:38:00Z" /></div>
               <div class="tl__title">Galaxy identifies a third wave and revises its total</div>
               <div class="tl-body">
-                Galaxy Research <a href="/record/sources/glxyresearch-third-wave-revision/">identify a third sweep wave</a> of <strong>{fig('thirdWaveBtc')}</strong> and revise their estimated observed size of the incident to <strong>{fig('galaxyRevisedTotalBtc')}</strong> across {fig('galaxyRevisedAddresses')}, superseding the roughly 1,083 BTC total they published on 31 July. The same thread reports <strong>{fig('attackerHoldingsBtc')}</strong> under attacker control with all endpoint attacker addresses fully unspent on chain, and carries Galaxy's <a href="/record/sources/glxyresearch-methodology-disclaimer/">own method limit</a>: the work derives solely from block data and the unspent-output set, and Galaxy has not tested whether the addresses it identifies as possible victims were in fact generated with low entropy. Galaxy also <a href="/record/sources/glxyresearch-firmware-block-boundary/">states</a> that the vulnerable firmware shipped on 17 March 2021 around block 674,951 and that no coin identified in waves 1 to 3 was created before that block; what that means for the published version ranges is on <a href="/record/reference/#firmware">the firmware page</a>. Galaxy's scope is wider than the 30 July set its 31 July figure covered; <a href="/record/funds/">the funds-accounting page</a> keeps both as dated figures.
+                Galaxy Research <a href="/record/sources/glxyresearch-third-wave-revision/">identify a third sweep wave</a> of <strong>{fig('thirdWaveBtc')}</strong> and revise their estimated observed size of the incident to <strong>{fig('galaxyRevisedTotalBtc')}</strong> across {fig('galaxyRevisedAddresses')}, superseding the roughly 1,083 BTC total they published on 31 July. The same thread reports <strong>{fig('attackerHoldingsBtc')}</strong> under attacker control with all endpoint attacker addresses fully unspent on chain, and carries Galaxy's <a href="/record/sources/glxyresearch-methodology-disclaimer/">own method limit</a>: the work derives solely from block data and the unspent-output set, and Galaxy has not tested whether the addresses it identifies as possible victims were in fact generated with low entropy. Galaxy also <a href="/record/sources/glxyresearch-firmware-block-boundary/">states</a> that the vulnerable firmware shipped on 17 March 2021 around block 674,951 and that no coin identified in waves 1 to 3 was created before that block; what that means for the published version ranges is on <a href="/record/firmware/">the firmware page</a>. Galaxy's scope is wider than the 30 July set its 31 July figure covered; <a href="/record/funds/">the funds-accounting page</a> keeps both as dated figures.
                 <Claim basis="reported" scope="Galaxy's 1 August third wave, revised total, attacker-holdings figure and stated method limit, and its statement about the firmware ship block" source="Galaxy Research's captured 1 August thread; its scope is wider than the 30 July set and the underlying transaction and address lists are not published" href="/record/sources/glxyresearch-third-wave-revision/" compact />
                 <CaptureThumb id="glxyresearch-third-wave-revision" />
               </div>
@@ -966,7 +971,7 @@ const FACET_SETS = [
     Mk4, Mk5 and Q, the announcement of fixed firmware, the replacement of a
     blanket warning with two published conditions, and the addition of the Mk2.
     None of them moves the published lower bound, which stays at 4.0.1 and so
-    leaves the <a href="/record/reference/#vendor-lower-bound">difference with the
+    leaves the <a href="/record/firmware/#vendor-lower-bound">difference with the
     v4.0.0 source and release evidence</a> as it was.
   </p>
 

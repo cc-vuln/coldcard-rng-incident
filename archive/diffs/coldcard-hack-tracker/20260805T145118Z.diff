@@ -1,0 +1,27 @@
+--- coldcard-hack-tracker@20260805T105032Z
++++ coldcard-hack-tracker@20260805T145118Z
+@@ -634,10 +634,23 @@
+ 04:03 UTC Aug 2
+ PATTERN
+ multi-path → one P2WPKH
++
++AUG 4–5 MIX · WASABI-STYLE CASCADE
++
++1 · Empty
++Aug 2 vault→Taproot hop · ~64.90 BTC · blk 961065 · ~5 sat/vB · e3274a1b…2b3ddf
++2 · CJ1
++residual ~54.32 @ bc1qajcrhj…vp2d3t · plus 20× ~1.2914 · blk 961069 · ~2 sat/vB · 324→382 · f3ee6e61…c37b24
++3 · CJ2
++residual ~47.12 @ bc1qq6s7ws…4jy2fr · equal denoms · blk 961082 · ~2 sat/vB · 320→374 · 3bdac8ed…cdf935
++4 · CJ3
++residual ends · 7× ~7.7484 (anonymity set) · 2 still live: bc1qf35ycf…puad8k, bc1qs3lj4x…y9v9ze · also 2× ~3.8742 · blk 961093 · ~1 sat/vB · 454→502 · 80f11c77…8cbf90
++5 · Remix
++other large outs remixed in further CJs (blks 961102–961160) · no labeled exchange/bridge on the residual path
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Aug 2 vault
+-Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… (e3274a1b…2b3ddf). Hop emptied same day in Wasabi-style CoinJoin (block 961069, ~2 sat/vB, 324→382; f3ee6e61…7b24): equal ~1.2914 BTC outs ×20 + residual ~54.32 BTC at bc1qajcr…. Residual re-entered a second CJ (~2 sat/vB, 320→374; 3bdac8ed…cdf935): equal denoms (1 / 0.3355 / 0.2 / …) + new residual ~47.12 BTC at bc1qq6s7…. No labeled exchange/bridge deposit on the hop path we followed — trail lost in CoinJoin.
++Emptied Aug 4 → Taproot hop → Wasabi CJ cascade (trail above).
+ 	bc1q0rvn88…jf5q6m	0.00 BTC
+ <live-fiat-value>
+ 	64.90373764 BTC	0	EMPTIED
