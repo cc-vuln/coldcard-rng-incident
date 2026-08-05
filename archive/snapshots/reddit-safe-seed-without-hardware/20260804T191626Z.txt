@@ -1,0 +1,768 @@
+post: 1vekcn5
+author: unshak3n
+created_utc: 1785778844
+title: How to create a safe seed without hardware wallet?
+body:
+After the recent Coldcard  issue, simply buying a hardware wallet and trusting your life savings is not enough. Eventually, every trusted third party will fail or be compromised, whether it's a hardware wallet vendor, firmware, the supply chain, an RNG implementation, AI, or just a bug.
+
+If the goal is simply create a single 256-bit seed, write it down once, and keep DCA'ing into it for years, what is the best possible way to generate that seed without relying on third parties and hardware wallets?
+
+I'm genuinely curious what the current consensus is.
+
+Until a truly secure, third-party-proof solution exists, I'll stick with ETF.
+
+comment: p1hmrex
+parent: t3_1vekcn5
+author: Similar_Scar7089
+created_utc: 1785779081
+edited: false
+body:
+Seedsigner.
+
+comment: p1hn24n
+parent: t3_1vekcn5
+author: sing2nite
+created_utc: 1785779154
+edited: false
+body:
+Ian Coleman offline tool
+
+comment: p1holq8
+parent: t3_1vekcn5
+author: doctrgiggles
+created_utc: 1785779536
+edited: false
+body:
+Hey so I've been in this space a long time and seeing all this discussion about Coldcard and generating seeds has made me want to ask: why is nobody just booting up a livedisk of a reputable distro on a machine without network connectivity and using basic software to generate wallets? 256 bits of high-quality total entropy is easy to achieve on a modern machine, especially one that can pull entropy from mouse movements.
+
+It seems obvious to me that the best way to do anything in this space is by relying not on small, commercial operators but extremely large and old communities that are well-audited. Why not use a Debian live environment with no network connectivity, let it run for a while to collect entropy bits, and use it for this purpose? Is the answer that this community doesn't know how to work these tools?
+
+comment: p1hotbh
+parent: t3_1vekcn5
+author: GodsMoney_Ape
+created_utc: 1785779588
+edited: false
+body:
+Why not dice? Roll 100 D6, write the string down, do SHA256, compute checksum and append to hash, get 264 bits. Derive the 24 words by 11 bit-splits (264 / 11) 
+
+
+
+comment: p1housw
+parent: t1_p1hmrex
+author: unshak3n
+created_utc: 1785779597
+edited: false
+body:
+This is third party. I'll not trust no one.
+
+comment: p1hovkv
+parent: t1_p1hn24n
+author: unshak3n
+created_utc: 1785779603
+edited: false
+body:
+This is third party. I'll not trust no one.
+
+comment: p1hp62l
+parent: t1_p1housw
+author: Similar_Scar7089
+created_utc: 1785779674
+edited: false
+body:
+Then whip out a calculator, pen and paper and get to it. 
+
+comment: p1hqkuf
+parent: t3_1vekcn5
+author: Porcellanidae
+created_utc: 1785780027
+edited: false
+body:
+Or just take a random key from keys.lol
+
+(obviously dont do that)
+
+comment: p1htifr
+parent: t1_p1hovkv
+author: HicEstLeoSuperbus
+created_utc: 1785780769
+edited: false
+body:
+Air gapped computer plus his tool. 100% safe as long as done in an environment where no one is recording you or your dice rolls
+
+comment: p1htziy
+parent: t3_1vekcn5
+author: Firm_Yogurtcloset835
+created_utc: 1785780892
+edited: false
+body:
+Wouldn't anyone include you?
+
+comment: p1hx8gr
+parent: t3_1vekcn5
+author: The_Bitcoin_Act
+created_utc: 1785781724
+edited: false
+body:
+I actually understand where you’re coming from. If your threat model is “assume every vendor, firmware, supply chain, RNG, and manufacturer will eventually fail,” then buying a hardware wallet isn’t the end of the trust chain.
+
+That said, I’d separate seed generation from key storage. A hardware wallet is mostly there to protect your private key during signing. It doesn’t have to be the thing that creates your entropy.
+
+A pretty trust-minimized approach is to generate your own entropy with physical randomness.
+
+The bigger point, though, is that Bitcoin is designed to minimize trust, not eliminate it completely. At some point you’re trusting the laws of physics, your own operational security, and the cryptography itself.
+
+comment: p1hz8md
+parent: t3_1vekcn5
+author: Over_Regular_6897
+created_utc: 1785782250
+edited: false
+body:
+We need a smashmycoldcard dot com
+
+comment: p1i0hn9
+parent: t1_p1hx8gr
+author: unshak3n
+created_utc: 1785782574
+edited: false
+body:
+No problem trusting the laws of physics and cryptography. Otherwise, Bitcoin itself wouldn't have any value.
+
+My concern is trusting third parties.
+
+comment: p1i0x13
+parent: t1_p1hotbh
+author: Javanaut018
+created_utc: 1785782684
+edited: false
+body:
+It's as easy as this :)
+
+comment: p1i1dkv
+parent: t3_1vekcn5
+author: DRAGULA85
+created_utc: 1785782803
+edited: false
+body:
+The only option is to use the air gapped flux capacitor entropy on a seed phrase dungeons and dragon dice that were created by naked virgin nuns… duhhh
+
+comment: p1i1o8m
+parent: t1_p1holq8
+author: DavidKens
+created_utc: 1785782880
+edited: false
+body:
+This is obviously sarcasm, but I’ll respond anyhow:
+
+No, the population of people interested in generating keys do not generally know how to program them.
+
+Yes, it’s a mistake to encourage people to generate their own keys when they don’t know what they’re doing.
+
+No, this problem is not solvable. Any mass produced single solution to this problem can contain vulnerabilities. The only mitigation is to have the human key maker be a participant that understands the system well enough to contribute some of their own entropy.
+
+comment: p1i28k1
+parent: t3_1vekcn5
+author: LuckySage77
+created_utc: 1785783025
+edited: 1785860306
+body:
+Disclaimer: I'm no expert, please DYOR. However, from my own research/digging on the topic: you could potentially create a seed using a software wallet on a well-trusted air-gapped computer/laptop (*disconnected from the internet/LAN*). Bitcoin core or Sparrow wallet for example should be able to do this. The seed generation uses the OS's cryptographic libs "under the hood". On linux, entropy would be generated at the kernel level (i.e via /dev/random).
+
+In addition, you should probably add a passphrase to the seed. Offline PW generator, 7+ words. If the seed is compromised, you're basically covered against brute-force with at least 7 words.
+
+Otherwise, you gotta DIY your own entropy using dice rolling I think? (I'm sure you've seen all the posts in this subreddit by now talking about dice rolls). _Either way_... you gotta place your trust _somewhere_ for generating entropy. Either in some software of your choice or in yourself via dice rolling. That's why multi-sig / extra redundancy is really the best solution atm. Don't just trust one seed from one vendor/software.
+
+comment: p1i2sc9
+parent: t1_p1holq8
+author: LuckySage77
+created_utc: 1785783164
+edited: 1785784148
+body:
+Google/lookup OpenSSL Debian 2008 entropy disaster.
+
+Trusting an OS is no different than trusting a hardware wallet vendor. Sure, it'll be more battle tested. But there was still a big issue with cryptographic entropy in Debian not even 20 years ago.
+
+comment: p1i44in
+parent: t1_p1i1dkv
+author: 77sleeper
+created_utc: 1785783508
+edited: false
+body:
+100 different dice, by 100 different nuns, and then the nuns need to be sacrificed by 50 blind rabbis and 50 deaf imams.
+
+comment: p1i4xoe
+parent: t1_p1i0x13
+author: GodsMoney_Ape
+created_utc: 1785783715
+edited: false
+body:
+Absolutely literally lol
+
+comment: p1i52st
+parent: t1_p1i1o8m
+author: doctrgiggles
+created_utc: 1785783752
+edited: false
+body:
+It's not really sarcasm. I understand that many or even most people here have never worked with a Linux environment, but presumably none of them have worked with hardware wallets before either. 
+
+comment: p1i5f22
+parent: t3_1vekcn5
+author: Crafty-Detail-3788
+created_utc: 1785783839
+edited: false
+body:
+Coinflip or roll a dice
+
+comment: p1i5o45
+parent: t1_p1housw
+author: ptrnyc
+created_utc: 1785783905
+edited: false
+body:
+This is exactly why I made my own js code that generates seeds using the OS CSPRNG combined with 256 user-controlled ‘dice rolls’. 
+
+comment: p1i5upc
+parent: t1_p1i52st
+author: DavidKens
+created_utc: 1785783953
+edited: false
+body:
+I don’t really see this as being a problem with hardware wallets, except insofar as smaller computers that typically run in hardware wallets might be resource constrained differently, but this is a problem with seed generation no matter what computer system generates it.
+
+The overwhelming majority of people affected by this wouldn’t even understand what your comment above meant, let alone be able to safely implement your suggestion.
+
+comment: p1i6kum
+parent: t1_p1i2sc9
+author: doctrgiggles
+created_utc: 1785784143
+edited: false
+body:
+That's a fair point and it's funny that I happened to pick Debian then but I think the landscape is significantly different now. 
+
+comment: p1i79am
+parent: t1_p1i2sc9
+author: marius_siuram
+created_utc: 1785784322
+edited: false
+body:
+Happy to find some fellow "seniors" here! I have been reminiscing for a few days that debacle. Reading somebody say "just boot an airgapped OS and rely on *that* RNG" feels like sarcasm, but I am not sure what is the Venn diagram of "Bitcoin subreddit users" and "Linux sysadmins active during 2008".
+
+comment: p1i7bkh
+parent: t3_1vekcn5
+author: OrangePillar
+created_utc: 1785784338
+edited: false
+body:
+https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/
+
+comment: p1i82ct
+parent: t3_1vekcn5
+author: fmcexc
+created_utc: 1785784530
+edited: false
+body:
+I used this one:
+[https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/](https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/)
+
+But i also found this:
+[https://github.com/veebch/Bip39-Dice](https://github.com/veebch/Bip39-Dice)
+
+comment: p1i8dyx
+parent: t1_p1hotbh
+author: jaapi
+created_utc: 1785784614
+edited: false
+body:
+Annnnnnnd don't tell ANYONE used this method lol
+
+comment: p1i8gnm
+parent: t3_1vekcn5
+author: id-ltd
+created_utc: 1785784634
+edited: false
+body:
+I can do an offline browser app if you like... Foss... Anyone can audit the code, and nothing leaves your machine.
+
+Install the PWA, go offline, generate keys, remove PWA. Go back online (there is no trace of what you did key wise).
+
+It isn't a difficult technical.challenge.
+
+
+
+comment: p1ibsji
+parent: t3_1vekcn5
+author: magma_lakes
+created_utc: 1785785509
+edited: 1785788257
+body:
+Flip a coin and use the von Neumann method to generate random bits where 0 and 1 have a 50/50 chance of appearing, even if your coin is biased:
+
+HT -> 0 bit  
+TH -> 1 bit  
+HH -> reject  
+TT -> reject
+
+The reason this is unbiased even if the coin is biased is simple. If P(H) = p, then it must be that P(T) = 1 - p. So, the probability of getting HT is P(HT) = p(1 - p), and the probability of getting TH is P(TH) = (1 - p)p, which are both clearly the same, P(HT) = P(TH) = p - p\^2.
+
+Given that 2 coin flips are needed for a single bit, and that half of all flips end up getting rejected - on average - the expected total number of coin flips to get a random 256-bit string is 1024.
+
+The von Neumann method can also be applied to dice.
+
+comment: p1idrs9
+parent: t3_1vekcn5
+author: quintavious_danilo
+created_utc: 1785786035
+edited: false
+body:
+Maybe don’t put all of your life savings into BTC. Just an idea. 
+
+comment: p1iehfj
+parent: t1_p1holq8
+author: na3than
+created_utc: 1785786223
+edited: false
+body:
+1. Because 95% of the general population doesn't have the technical skill to boot up a livedisk of a reputable distro on a machine without network connectivity and use basic software to generate 256 bits of high-quality entropy. Hardware wallets were supposed to make that both easy and foolproof for technical and non-technical users alike.
+
+2. Because even if someone with moderate technical skill knows how to boot up a livedisk of a reputable distro on a machine without network connectivity and use basic software to generate 256 bits of high-quality entropy, they still need to import those 256 bits of high-quality entropy into their nascent wallet *without corrupting it, truncating it or leaking it outside of the secure setup*. There are several ways to do it well. There are even more ways to do it *badly*.
+
+comment: p1igml5
+parent: t1_p1hotbh
+author: na3than
+created_utc: 1785786786
+edited: false
+body:
+do SHA256 <- do that safely, securely, privately, and with zero risk that malware has corrupted your tools or captured the output 
+
+compute checksum <- do that safely, securely, privately, and with zero risk that malware has corrupted your tools or captured the output 
+
+Easy peasy, right?
+
+
+comment: p1ihltk
+parent: t1_p1hotbh
+author: boddankajovanovic
+created_utc: 1785787043
+edited: false
+body:
+Bad advice as written. Some newbies will try this on an Internet connected PC exposing their quasi private key directly to potential malware. 
+
+Never do this on an Internet connected device. 
+
+comment: p1ip5vd
+parent: t3_1vekcn5
+author: whodkne
+created_utc: 1785789025
+edited: false
+body:
+Is a virtual machine without a NIC air gapped enough?
+
+comment: p1iqgtu
+parent: t1_p1igml5
+author: GodsMoney_Ape
+created_utc: 1785789371
+edited: false
+body:
+Come on. It's not so difficult as you make it sound. It's pretty basic. 
+
+Also: You can do it on a hardware wallet, use what I said to the compare the output of the hardware wallet (seed phrase) against one you computed on a pc. 
+
+So you know the correct seed is derived. Then do 100 rolls again of course, and use this on the hardware wallet. It's not fucking magic. 
+
+comment: p1ir21r
+parent: t1_p1ihltk
+author: GodsMoney_Ape
+created_utc: 1785789527
+edited: false
+body:
+I don't assume the OP is a "newbie" who would do something like this. 
+
+comment: p1is5l7
+parent: t1_p1ibsji
+author: GodsMoney_Ape
+created_utc: 1785789816
+edited: 1785790182
+body:
+Yeah but brother....use a dice. Why take a fucking coin lol
+
+You must be trolling haha. You said it correctly, that's 1024 coin flips. That you must note, and then enter to hash. I would cry.
+
+comment: p1it2ef
+parent: t1_p1igml5
+author: hybridsole
+created_utc: 1785790056
+edited: false
+body:
+I just made this tool https://entropy.notablespends.com
+
+comment: p1iuv13
+parent: t1_p1it2ef
+author: GodsMoney_Ape
+created_utc: 1785790534
+edited: 1785791154
+body:
+I lol'd.
+
+Assuming you are just a scammer, you ALSO simulate dice rolls. Do you understand that the whole point is to NOT simulate them lol.
+
+I advise everybody to NOT use this.
+
+comment: p1ixv5y
+parent: t3_1vekcn5
+author: JumpProfessional3372
+created_utc: 1785791348
+edited: false
+body:
+I followed their paranoid guide, this one doesn't use their RNG as far as I remember:  
+
+https://coldcard.com/docs/paranoid/
+
+Seed is generated by rolling 100+ dices with your hand.
+
+Besides this, a passphrase is recommended in case somebody gets access to the seed.
+
+comment: p1iynjw
+parent: t1_p1iuv13
+author: hybridsole
+created_utc: 1785791563
+edited: false
+body:
+You are right to be skeptical.  It's a tool for tinkerers, the site has heavy warnings to go to github and use only a local version.  It's mostly meant to work alongside Iancoleman's site and/or Bitaddress.org.  But, I did just add another disclaimer that it is "Educational & Informational Tool Only".
+
+comment: p1iyzyr
+parent: t1_p1holq8
+author: JumpProfessional3372
+created_utc: 1785791658
+edited: false
+body:
+I actually did this. live Linux USB with no internet, I didn't used this to generate the wallet. But I used it to verify that that the scripts that converts the 100+ dice rolls into a seed phrase was giving me the same results as the coldcard MK4. 
+
+After verifying that the MK4 was not doing something different than the small python script, I proceeded with that seed and slowly formatted the live Linux USB. 
+
+I didn't trust RNG anywhere, not in coldcard (luckily) not in any other OS, so I went with rolling the dices by hand.
+
+The thing is, we are more nerds than the average. Most people just want to buy a Hardware wallet and with one button get the seed. I think that is OK but not   for big amounts.
+
+comment: p1iz3uh
+parent: t1_p1iynjw
+author: GodsMoney_Ape
+created_utc: 1785791688
+edited: false
+body:
+Point is: Simulating entropy is like drawing a triangle with 4 sides.
+
+If anybody reads this: Don't do this. Generate entropy with real world observations, not RNG.
+
+comment: p1izysv
+parent: t1_p1iz3uh
+author: hybridsole
+created_utc: 1785791926
+edited: false
+body:
+Fair point I will remove the simulated flip. That was more just for testing.
+
+comment: p1j1hme
+parent: t1_p1htifr
+author: na3than
+created_utc: 1785792344
+edited: 1785795057
+body:
+You can increase your security posture simply by not saying "100% safe" ever again.
+
+comment: p1j2krd
+parent: t1_p1is5l7
+author: magma_lakes
+created_utc: 1785792647
+edited: false
+body:
+I almost *did* cry 😜 but I didn't have a die around!
+
+Using the von Neumann method with a die would result in only \~614.4 throws, on average. So, yes, it's substantially less!
+
+If you have a die, throw it twice to extract a single bit:
+
+num1 < num2 -> bit 0  
+num2 > num1 -> bit 1  
+num1 = num2 -> reject
+
+Like with the coin, this method cancels out any inherent bias the die may have, assuming the bias stays constant across your set of throws.
+
+comment: p1j2u3v
+parent: t1_p1j1hme
+author: HicEstLeoSuperbus
+created_utc: 1785792720
+edited: false
+body:
+Can you really think of a risk to generating your seed phrase with dice rolls on a new air-gapped device in a room with no other technology or other people?
+
+comment: p1j4xiv
+parent: t1_p1j2krd
+author: GodsMoney_Ape
+created_utc: 1785793305
+edited: false
+body:
+But brother....I admire the purity, I do. But why insist on the bias correction? Sure, you get the perfect entropy 256 bit, but it's 600 + fucking dice throws lol . Assume a slight bias of, say, 0.18 chance for a 5 or something. That would not really kill your entropy? You can get away with 100 throws easily. 
+
+comment: p1j5vwb
+parent: t1_p1j4xiv
+author: magma_lakes
+created_utc: 1785793571
+edited: false
+body:
+I agree man, realistically speaking, for any normal die, the bias would likely be so small that it wouldn't matter.
+
+I just explained the von Neumann method for those that are ultra-paranoid (like me 😜).
+
+comment: p1j64av
+parent: t3_1vekcn5
+author: edweeen
+created_utc: 1785793636
+edited: false
+body:
+I think it’s come to a point that if you’re not rolling dice, creating a passphrase, and/or using multi-sig, you’re better off using something like Fidelity or Coinbase to custody your stack. 
+
+comment: p1j6k7z
+parent: t1_p1j5vwb
+author: GodsMoney_Ape
+created_utc: 1785793761
+edited: false
+body:
+I assumed as much lol 
+
+But yes, if someone is ultra paranoid, this is the only way lol
+
+comment: p1j7z5w
+parent: t3_1vekcn5
+author: Future_Truck1126
+created_utc: 1785794162
+edited: false
+body:
+What are you people, daft?
+
+No normie is going to do any of that, they dont even understand any second word you are saying!
+
+And yes , that includes me! So, f off
+
+comment: p1j9hb2
+parent: t1_p1is5l7
+author: Hanzieoo
+created_utc: 1785794594
+edited: false
+body:
+More coins??
+
+comment: p1jbeeo
+parent: t3_1vekcn5
+author: Obvious_Solid4341
+created_utc: 1785795147
+edited: false
+body:
+I’m leaning towards Bitkey
+
+comment: p1jz3fx
+parent: t1_p1iqgtu
+author: Sadderdaze214
+created_utc: 1785802537
+edited: false
+body:
+Why would you do a second set of dice rolls? What do you do with the first seed phrase generated?
+
+comment: p1kkl9j
+parent: t1_p1j2u3v
+author: migueliiito
+created_utc: 1785809624
+edited: false
+body:
+Sure: the 3rd party tool could ignore or misuse your dice rolls and generate a low entropy seed.
+
+comment: p1kzy11
+parent: t1_p1j64av
+author: unshak3n
+created_utc: 1785815137
+edited: false
+body:
+I would add ETF as better than self custody nowadays.
+
+comment: p1l0hqj
+parent: t1_p1jbeeo
+author: unshak3n
+created_utc: 1785815349
+edited: false
+body:
+Thats another third party that you'll have to trust.
+
+Coldcard showed that you can't trust anyone.
+
+comment: p1l0oba
+parent: t1_p1j2u3v
+author: unshak3n
+created_utc: 1785815420
+edited: false
+body:
+You'll have to input the dice rolls in some hardware and trust that that hardware is doing the right thing with your dice data.
+
+comment: p1l0rjf
+parent: t1_p1l0hqj
+author: Obvious_Solid4341
+created_utc: 1785815454
+edited: false
+body:
+Yes and no. Since it’s multisig even if they got access to blocks servers they would still need either your hardware wallet or phone. 
+
+I would look into it further 
+
+comment: p1ltpdq
+parent: t1_p1j4xiv
+author: Javanaut018
+created_utc: 1785828504
+edited: false
+body:
+Only 1024 coin tosses or \~614 dice throws for bias free random?
+
+If I was some obscure bitcoin billionaire I surely would invest that extra hour ;)
+
+comment: p1mc2ri
+parent: t1_p1iyzyr
+author: [deleted]
+created_utc: 1785837641
+edited: false
+body:
+[deleted]
+
+comment: p1mfmd9
+parent: t3_1vekcn5
+author: tchjntr
+created_utc: 1785839231
+edited: false
+body:
+>If the goal is simply create a single 256-bit seed, write it down once, and keep DCA'ing into it for years, what is the best possible way to generate that seed without relying on third parties and hardware wallets?
+
+As tedious as it might seem, this is what I did to generate a seed phrase: [https://armantheparman.com/dicev2/](https://armantheparman.com/dicev2/)
+
+I put a passphrase on top of it as well which I store in my password manager (just the passphrase, not the seed of course). I don't even own a so called "hardware wallet". I have a watch only wallet but I sign transactions with another device that never connects to any network. No need to trust any third party.
+
+comment: p1mq6qg
+parent: t1_p1mc2ri
+author: JumpProfessional3372
+created_utc: 1785843466
+edited: false
+body:
+Yes but the entropy wasn't generated by MK4. It was generated by me rolling the dice. MK4 only converted the 100+ numbers into a seed phrase. But I also used a python script to do the same to ensure the MK4 was converting to the same seed phrase as the script.
+
+comment: p1mqbxg
+parent: t1_p1mq6qg
+author: Fluid-Scientist9912
+created_utc: 1785843518
+edited: false
+body:
+And are you still using it ? Do you think is safe to keep using it ? 
+
+comment: p1mqwze
+parent: t1_p1mqbxg
+author: JumpProfessional3372
+created_utc: 1785843728
+edited: false
+body:
+This is the script i used to verify ( on a linux live usb ) that the  MK4 was giving me the same seed phrase of the 100+ manual dice rolls
+
+[https://coldcard.com/docs/rolls.py](https://coldcard.com/docs/rolls.py)
+
+Yes. Many are still using it. The tremendous bug found, so far, seems to be only impacting the seeds that were generated with a Random Number Generator from coldcard wallet. The paranoid guide from cold card suggest the user to manually roll the dices in case they do not trust the Random Number generator from the hardware wallet (and doing this was the right choice because, look, that RNG functionality was bugged).
+
+TLDR: If you have a coldcard and you followed their paranoid guide, you should not be affected by this mess. At least not as per the current knowledge.
+
+comment: p1mr32n
+parent: t1_p1mqwze
+author: [deleted]
+created_utc: 1785843788
+edited: false
+body:
+[deleted]
+
+comment: p1mss4h
+parent: t1_p1mr32n
+author: JumpProfessional3372
+created_utc: 1785844395
+edited: 1785844615
+body:
+If you have a CC... Just be completely sure that you used the manual dice roll method, if you let the CC generate your entropy, then move asap to a new btc wallet.
+
+If you are paranoid and you still do not trust that the CC will correctly convert 100+ numbers into the right seed (and not a pre-made seed or something like that). Well in that case you can run the same numbers with that [rolls.py](http://rolls.py) which is supposed to be a simple script and used by the CC wallet. Of course, by doing this, you will expose your seed to a new device (the device running the live linux OS). But this should be extremely low risk if it is done by an experience person, with no internet, no bt, fully formatting the live linux usb, etc. At least you will sleep knowing MK4 converted 100 manual rolls to a seed using a std approach.
+
+I THINK if you put the same 100+ numbers into other methods (**SeedSigner**, **Sparrow Wallet's dice input**, and **Ian Coleman's BIP39 tool in Coldcard mode)** you will get the exact same seed phrase. I quickly asked the AI and according to it, they all seem to be using the same code to convert random numbers into a seed phrase.
+
+\---
+
+One more thing, do not use a seed without a passphrase, adding a pasphrase is a must, you never know if tomorrow your seed will be leaked (e.g. you had a backup and was lost/stolen). Then a passphrase will add a second layer of security.
+
+comment: p1mtpg9
+parent: t1_p1mss4h
+author: [deleted]
+created_utc: 1785844720
+edited: false
+body:
+[deleted]
+
+comment: p1mwrvl
+parent: t1_p1mtpg9
+author: JumpProfessional3372
+created_utc: 1785845770
+edited: 1785846016
+body:
+You can, but the result will become a new wallet with 0 funds.
+
+Old wallet = private key made out of a seed-phrase.
+
+New wallet = private key made out of combination of seed-phrase + passphrase.
+
+comment: p1mxyeo
+parent: t1_p1mtpg9
+author: JumpProfessional3372
+created_utc: 1785846163
+edited: false
+body:
+If you have a seed and you add a passphrase simple like just one letter "a", then that would be very easy to guess by anyone who has your seed. If you share your seed but your passphrase is "‚hioH7 8OBNT&15465)(8973/&%T$!\[\]añ" then it is a lot harder to guess and that will give you extra time to move your funds into a new wallet. 
+
+BUT, it will also complicate your operation with the wallet, as you have to type the passphrase to use it
+
+comment: p1njmoq
+parent: t1_p1ir21r
+author: doctrgiggles
+created_utc: 1785852557
+edited: false
+body:
+Almost the opposite. I'm far enough into these spaces that I'm confident in my ability to create and operate secure machines. I'm obviously cautious about key management, but there are plenty of people out there using encryption technologies similar to Bitcoin with higher stakes and without the luxury of hardware wallets to keep them safe. Dissidents and reporters in plenty of places are targeted by state-level actors and still they need to be able to keep their machines secure while still actively using them. 
+
+comment: p1o42n9
+parent: t1_p1j7z5w
+author: Bryght7
+created_utc: 1785857937
+edited: false
+body:
+Ikr, global adoption my ass
+
+comment: p1p7o5y
+parent: t1_p1jz3fx
+author: Porcellanidae
+created_utc: 1785867798
+edited: false
+body:
+Throw away, as you checked your formula for that one on your computer 
+
+comment: p1p7y56
+parent: t1_p1i1dkv
+author: Porcellanidae
+created_utc: 1785867866
+edited: false
+body:
+Where can i order ?
+
+comment: p1pf8c5
+parent: t1_p1p7y56
+author: DRAGULA85
+created_utc: 1785869691
+edited: false
+body:
+[https://coldcard.com/](https://coldcard.com/)
+
+more-stub: parent t1_p1mxyeo count 0

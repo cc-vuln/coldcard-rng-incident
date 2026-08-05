@@ -1,0 +1,1389 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>COLDCARD Security Disclosure History – Coinkite</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="format-detection" content="telephone=no">
+    <link rel="canonical" href="https://coinkite.com/historical-disclosures">
+
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+    <link rel="shortcut icon" href="/static/img/favicon.png">
+
+    <link rel="logo" type="image/svg" href="/static/img/coinkite-logo.svg">
+
+
+    <meta property="og:image" content="https://coinkite.com/static/img/coinkite-hero.png">
+    <meta property="og:url" content="https://coinkite.com/historical-disclosures">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:site" content="@Coinkite">
+    <meta name="twitter:creator" content="@Coinkite">
+
+    <meta property="og:title" content="COLDCARD Security Disclosure History – Coinkite">
+    <meta name="twitter:title" content="COLDCARD Security Disclosure History – Coinkite">
+
+    <meta name="description" content="History of security research, coordinated disclosures, professional reviews, internal findings, and advisories affecting COLDCARD.">
+    <meta property="og:description" content="History of security research, coordinated disclosures, professional reviews, internal findings, and advisories affecting COLDCARD.">
+    <meta name="twitter:description" content="History of security research, coordinated disclosures, professional reviews, internal findings, and advisories affecting COLDCARD.">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://coinkite.com/#organization",
+          "name": "Coinkite Inc.",
+          "url": "https://coinkite.com/",
+          "logo": "https://coinkite.com/static/img/coinkite-hero.png",
+          "description": "History of security research, coordinated disclosures, professional reviews, internal findings, and advisories affecting COLDCARD.",
+          "foundingDate": "2012",
+          "slogan": "Don't Trust–Verify",
+          "knowsAbout": [
+            "Bitcoin hardware wallets",
+            "Bitcoin security",
+            "Air-gapped signing",
+            "Seed phrase backup",
+            "Physical Bitcoin",
+            "NFC Bitcoin signing"
+          ],
+          "sameAs": ["https://x.com/Coinkite", "https://github.com/coinkite"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://coinkite.com/#website",
+          "name": "Coinkite",
+          "url": "https://coinkite.com/",
+          "publisher": {"@id": "https://coinkite.com/#organization"}
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://coinkite.com/historical-disclosures#webpage",
+          "url": "https://coinkite.com/historical-disclosures",
+          "name": "COLDCARD Security Disclosure History \u2013 Coinkite",
+          "description": "History of security research, coordinated disclosures, professional reviews, internal findings, and advisories affecting COLDCARD.",
+          "isPartOf": {"@id": "https://coinkite.com/#website"},
+          "about": {"@id": "https://coinkite.com/#organization"}
+        }
+      ]
+    }
+    </script>
+    
+    
+
+    
+    
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/style.css?ts=2026080101">
+
+    <link
+        href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,300,400,600,700,800&amp;subset=latin,cyrillic"
+        rel="stylesheet" type="text/css">
+
+    
+<style>
+    .history-page {
+        padding-bottom: 80px;
+    }
+
+    .history-title {
+        padding-bottom: 28px;
+    }
+
+    .history-intro {
+        max-width: 900px;
+        font-size: 20px;
+        line-height: 1.55;
+    }
+
+    .history-intro p {
+        margin: 0 0 18px;
+    }
+
+    .history-intro a,
+    .history-entry a,
+    .history-footer-note a {
+        text-decoration: underline;
+        text-decoration-color: #f16421;
+        text-underline-offset: 3px;
+    }
+
+    .history-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 34px 0;
+    }
+
+    .history-summary-item {
+        min-height: 108px;
+        padding: 22px;
+        background: #fff;
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .history-summary-item strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #000;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-size: 30px;
+        line-height: 1.15;
+    }
+
+    .history-summary-item span {
+        color: #5b5b5b;
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .history-reading-note {
+        margin: 0 0 46px;
+        padding: 22px 24px;
+        color: #303030;
+        background: #eef5fb;
+        border: 1px solid #bdd3e6;
+        border-radius: 4px;
+        line-height: 1.55;
+    }
+
+    .history-reading-note h2 {
+        margin: 0 0 10px;
+        color: #000;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-size: 20px;
+    }
+
+    .history-reading-note p {
+        margin: 0;
+    }
+
+    .history-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .history-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .025em;
+        line-height: 1.2;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .history-badge-coordinated {
+        color: #17406c;
+        background: #e4f0fc;
+    }
+
+    .history-badge-credited {
+        color: #484848;
+        background: #ececec;
+    }
+
+    .history-badge-vendor {
+        color: #6f3500;
+        background: #fff0df;
+    }
+
+    .history-badge-cross-wallet {
+        color: #4e3471;
+        background: #efe8f8;
+    }
+
+    .history-badge-overlap {
+        color: #14554b;
+        background: #e0f3ef;
+    }
+
+    .history-badge-incident {
+        color: #7a1515;
+        background: #fde8e8;
+    }
+
+    .history-badge-ai {
+        color: #102000;
+        background: #39ff14;
+    }
+
+    .history-year {
+        margin-top: 52px;
+    }
+
+    .history-year > h2 {
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        color: #000;
+        border-bottom: 3px solid #f16421;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-size: 34px;
+        line-height: 1.2;
+    }
+
+    .history-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .history-entry {
+        padding: 24px;
+        background: #fff;
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+    }
+
+    .history-entry-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .history-entry-head time {
+        color: #6a6a6a;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        text-transform: uppercase;
+    }
+
+    .history-entry h3 {
+        margin: 10px 0 12px;
+        color: #000;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-size: 24px;
+        line-height: 1.25;
+    }
+
+    .history-entry-copy {
+        max-width: 960px;
+        font-size: 17px;
+        line-height: 1.55;
+    }
+
+    .history-entry-copy p {
+        margin: 0 0 12px;
+    }
+
+    .history-entry-copy p:last-child {
+        margin-bottom: 0;
+    }
+
+    .history-sources {
+        color: #555;
+        font-size: 15px;
+    }
+
+    .history-entry-facts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 20px 0 0;
+        padding-top: 18px;
+        border-top: 1px solid #e1e1e1;
+    }
+
+    .history-entry-facts div {
+        min-width: 0;
+    }
+
+    .history-entry-facts dt {
+        margin-bottom: 4px;
+        color: #767676;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        text-transform: uppercase;
+    }
+
+    .history-entry-facts dd {
+        margin: 0;
+        color: #222;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .history-footer-note {
+        margin-top: 52px;
+        padding-top: 26px;
+        border-top: 1px solid #cecece;
+        font-size: 16px;
+        line-height: 1.55;
+    }
+
+    .history-footer-note h2 {
+        margin: 0 0 12px;
+        color: #000;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-size: 25px;
+    }
+
+    .history-footer-note p {
+        max-width: 900px;
+        margin: 0 0 14px;
+    }
+
+    @media (max-width: 767px) {
+        .history-page {
+            padding-bottom: 52px;
+        }
+
+        .history-intro {
+            font-size: 18px;
+        }
+
+        .history-summary,
+        .history-entry-facts {
+            grid-template-columns: 1fr;
+        }
+
+        .history-summary-item {
+            min-height: 0;
+        }
+
+        .history-reading-note,
+        .history-entry {
+            padding: 18px;
+        }
+
+        .history-year {
+            margin-top: 38px;
+        }
+
+        .history-year > h2 {
+            font-size: 29px;
+        }
+
+        .history-entry h3 {
+            font-size: 21px;
+        }
+    }
+</style>
+
+
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="++RuA1NFy65CNPVkFuqegg" async></script>
+
+</head>
+
+<body style="position: relative; min-height: 100vh; top: 0; ">
+
+    <header class="header">
+        <a class="security-advisory-banner" href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/">
+            <strong>COLDCARD Security Advisory</strong>
+            <span class="security-advisory-detail">Seeds generated on firmware 4.0.1 (2021 or later) are at risk.</span>
+            <span>Read advisory <span aria-hidden="true">&rarr;</span></span>
+        </a>
+        <div class="container-fluid">
+            <div class="logo">
+                <a href="/">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="132px" height="24.831px" viewBox="0 0 132 24.831" enable-background="new 0 0 132 24.831" xml:space="preserve">
+<g>
+  <g>
+    <path fill="#F16422" d="M0,12.557C0,5.229,5.514,0.284,12.664,0.284c5.193,0,8.217,2.811,9.889,5.799l-4.339,2.135
+      c-0.996-1.921-3.131-3.45-5.549-3.45c-4.34,0-7.471,3.309-7.471,7.79c0,4.482,3.131,7.79,7.471,7.79
+      c2.419,0,4.553-1.529,5.549-3.45l4.339,2.1c-1.672,2.952-4.696,5.834-9.889,5.834C5.514,24.83,0,19.849,0,12.557z"></path>
+    <path fill="#F16422" d="M24.366,15.794c0-4.873,3.414-9,9.071-9c5.692,0,9.107,4.126,9.107,9c0,4.874-3.414,9.037-9.107,9.037
+      C27.781,24.83,24.366,20.668,24.366,15.794z M37.848,15.794c0-2.667-1.565-4.98-4.411-4.98c-2.811,0-4.375,2.312-4.375,4.98
+      c0,2.704,1.565,5.016,4.375,5.016C36.282,20.81,37.848,18.498,37.848,15.794z"></path>
+    <path fill="#F16422" d="M45.493,2.668C45.493,1.174,46.703,0,48.162,0c1.494,0,2.703,1.174,2.703,2.668
+      c0,1.494-1.209,2.703-2.703,2.703C46.703,5.371,45.493,4.162,45.493,2.668z M45.92,24.403V7.221h4.517v17.182H45.92z"></path>
+    <path fill="#F16422" d="M66.516,24.403V14.016c0-2.383-1.245-3.201-3.166-3.201c-1.778,0-3.131,0.996-3.913,1.992v11.597h-4.518
+      V7.221h4.518v2.205c1.104-1.281,3.237-2.633,6.013-2.633c3.805,0,5.619,2.134,5.619,5.479v12.13L66.516,24.403L66.516,24.403z"></path>
+    <path fill="#F16422" d="M86.648,24.403l-4.554-6.617l-2.063,2.206v4.412h-4.517V0.675h4.517v14.193l6.511-7.648h5.548l-6.795,7.79
+      l7.008,9.391L86.648,24.403L86.648,24.403z"></path>
+    <path fill="#F16422" d="M94.151,2.668c0-1.494,1.21-2.668,2.668-2.668c1.494,0,2.704,1.174,2.704,2.668
+      c0,1.494-1.209,2.703-2.704,2.703C95.361,5.371,94.151,4.162,94.151,2.668z M94.579,24.403V7.221h4.518v17.182H94.579z"></path>
+    <path fill="#F16422" d="M104.501,20.099v-8.928h-2.845v-3.95h2.845V2.524h4.519v4.697h3.485v3.95h-3.485v7.718
+      c0,1.103,0.57,1.921,1.565,1.921c0.676,0,1.317-0.249,1.566-0.533l0.96,3.45c-0.676,0.605-1.885,1.103-3.77,1.103
+      C106.173,24.83,104.501,23.194,104.501,20.099z"></path>
+    <path fill="#F16422" d="M114.497,15.794c0-4.98,3.699-9,8.893-9c5.158,0,8.61,3.842,8.61,9.427v1.068h-12.772
+      c0.321,2.098,2.028,3.842,4.945,3.842c1.459,0,3.451-0.605,4.553-1.672l2.028,2.988c-1.708,1.566-4.412,2.383-7.079,2.383
+      C118.445,24.83,114.497,21.308,114.497,15.794z M123.39,10.494c-2.811,0-4.02,1.957-4.197,3.664h8.466
+      C127.517,12.522,126.379,10.494,123.39,10.494z"></path>
+  </g>
+</g>
+</svg>
+
+                </a>
+            </div>
+            <div>
+                <a href="https://newsletter.coinkite.com/subscribe?utm_source=coinkite-site&utm_medium=website&utm_campaign=newsletter">Newsletter</a>
+                <a href="https://blog.coinkite.com">Blog</a>
+                <a href="/opresearch" class="">OpResearch</a>
+                <a href="/careers" class="">Careers</a>
+                <a href="/resellers" class="">Resellers</a>
+                <a role="button" class="js-open-zd-widget">Contact</a>
+                <a href="https://store.coinkite.com/store" class="btn btn-store">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 1em; aspect-ratio: 1; fill:currentColor;">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+                    Store
+                </a>
+                <div class="mobile-menu-btn" onclick="openNav()">
+                    <svg width="18px" height="11px" viewBox="0 0 18 11" version="1.1"
+                        xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+                        <g id="Actions--Navigation--menu--24">
+                            <path
+                                d="M0 9L18 9L18 10.5L0 10.5L0 9ZM0 0L18 0L18 1.5L0 1.5L0 0ZM0 4.5L18 4.5L18 6L0 6L0 4.5Z"
+                                id="Fill" fill="#000000" fill-rule="evenodd" stroke="none" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero-overlay">
+        
+<main class="container history-page">
+    <section class="title-part titlepart-new history-title">
+        <div>
+            <h1 class="title">Security Disclosure History</h1>
+        </div>
+    </section>
+
+    <div class="history-intro">
+        <p>
+            This page records public security research, coordinated disclosures,
+            professional reviews, internal findings, and security advisories affecting
+            COLDCARD. It is a chronology, not a count of independent vulnerabilities
+            or a product score.
+        </p>
+        <p>
+            To report a new security issue, follow our
+            <a href="/responsible-disclosure">responsible disclosure process</a>.
+            Do not publish sensitive findings before we have had a reasonable opportunity
+            to investigate and protect users.
+        </p>
+    </div>
+
+    <section class="history-summary" aria-label="History summary">
+        <div class="history-summary-item">
+            <strong>23</strong>
+            <span>security-relevant events in this chronology</span>
+        </div>
+        <div class="history-summary-item">
+            <strong>12</strong>
+            <span>records with public evidence of coordinated disclosure</span>
+        </div>
+        <div class="history-summary-item">
+            <strong>2019–2026</strong>
+            <span>coverage through August 4, 2026</span>
+        </div>
+    </section>
+
+    <aside class="history-reading-note">
+        <h2>How to read this history</h2>
+        <p>
+            “Coordinated” means the public record shows advance private reporting,
+            an embargo, or explicit coordination. “Professional audit” identifies a
+            paid private review. “Credited fix” means a release note names a reporter
+            but does not establish the disclosure process. Later physical research may
+            overlap earlier work. “No public evidence” means none was found in the cited
+            record; it does not prove that something never happened privately. “AI”
+            identifies an AI-generated check that was reviewed privately by Coinkite.
+        </p>
+        <div class="history-legend" aria-label="Disclosure classifications">
+            <span class="history-badge history-badge-coordinated">Coordinated</span>
+            <span class="history-badge history-badge-credited">Credited fix</span>
+            <span class="history-badge history-badge-vendor">Vendor/internal</span>
+            <span class="history-badge history-badge-cross-wallet">Cross-wallet</span>
+            <span class="history-badge history-badge-overlap">Overlap</span>
+            <span class="history-badge history-badge-incident">Incident/advisory</span>
+            <span class="history-badge history-badge-ai">AI</span>
+        </div>
+    </aside>
+
+    <section class="history-year" aria-labelledby="history-2019">
+        <h2 id="history-2019">2019</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>January 28, 2019</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Short-PIN MitM and rate-limit bypass</h3>
+    <div class="history-entry-copy">
+        
+                <p>An invasive interposer could falsify selected secure-element responses and bypass normal PIN-attempt delays, making short PINs brute-forceable. Bootrom 1.1.0 changed the success check to depend on a cryptographic response; Mk2 also hid the relevant signal under chips.</p>
+                <p class="history-sources">Source: <a href="https://blog.coinkite.com/use-long-pins/">Coinkite advisory</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk1 security design; Mk2 added hardening</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Hardened in bootrom 1.1.0 and the Mk2 PCB</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Lazy Ninja</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>August 7, 2019</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>OLED power side channel</h3>
+    <div class="history-entry-copy">
+        
+                <p>OLED row power consumption might reveal partial display contents through measurements on the device power supply. Firmware 2.1.2 masked PIN entry and added per-line noise while displaying seed words. No public theft evidence was found.</p>
+                <p class="history-sources">Sources: <a href="https://blog.coinkite.com/noise-troll/">Coinkite response</a> and <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-14356">CVE-2019-14356</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk1/Mk2 before firmware 2.1.2</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Mitigated in 2.1.2; practicality and severity disputed</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Christian Reitter</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>November 1, 2019</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Change-path ransom</h3>
+    <div class="history-entry-copy">
+        
+                <p>A malicious coordinator could send wallet-controlled change to an unrestricted, deeply derived path that the owner could not practically reconstruct. Firmware 3.0.2 constrained and validated derivation paths. This was finding 1 of 2 in one coordinated report.</p>
+                <p class="history-sources">Sources: <a href="https://thecharlatan.ch/Ransom-Coldcard/">researcher report</a>, <a href="https://blog.coinkite.com/troublesome-change/">Coinkite response</a>, and <a href="https://coldcard.com/docs/version-history/">release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Firmware before 3.0.2</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.0.2</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>sedited / TheCharlatan</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>November 1, 2019</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Receive-path display manipulation</h3>
+    <div class="history-entry-copy">
+        
+                <p>Integer parsing accepted whitespace and newlines while the original derivation-path string was displayed, allowing the true path tail to be hidden off-screen. Firmware 3.0.2 corrected the parsing and display path. This was finding 2 of 2 in the same coordinated report.</p>
+                <p class="history-sources">Sources: <a href="https://thecharlatan.ch/Ransom-Coldcard/">researcher report</a> and <a href="https://coldcard.com/docs/version-history/">release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Firmware before 3.0.2</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.0.2</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>sedited / TheCharlatan</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>December 19, 2019</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Multisig change-script parser confusion</h3>
+    <div class="history-entry-copy">
+        
+                <p>Appended script operations could make an attacker-controlled multisig output pass as wallet change. Firmware 3.0.6 simplified parsing and displayed all change outputs. Coinkite reported no evidence of exploitation.</p>
+                <p class="history-sources">Sources: <a href="https://blog.coinkite.com/version-3.0.6-released/">Coinkite advisory</a>, <a href="https://gist.github.com/dgpv/c580080cd6984fb0121b61f1e1b5db51/">proof of concept</a>, and <a href="https://github.com/Coldcard/firmware/commit/55f7cfd8ff6223a8f2a119519de2ee3c969bc06f">patch</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Multisig signing before firmware 3.0.6</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.0.6</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Dmitry Petukhov</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2020">
+        <h2 id="history-2020">2020</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>February 27, 2020</time>
+        <span class="history-badge history-badge-credited">Credited fix</span>
+    </div>
+    <h3>“Trust PSBT” setting ignored</h3>
+    <div class="history-entry-copy">
+        
+                <p>The “Trust PSBT” setting for multisig wallets was ignored. The public release history records the fix and reporter, but does not provide a technical report, impact analysis, or public coordination timeline.</p>
+                <p class="history-sources">Source: <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk3.md">Mk3 release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Multisig workflow before firmware 3.1.2</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.1.2</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>CasaHODL, as credited in release history</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>May 12, 2020</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Factory-reset supply-chain path</h3>
+    <div class="history-entry-copy">
+        
+                <p>Modified firmware could clear the main PIN and restore the visible virgin-device flow while retaining the bag number, allowing a tampered unit to appear unused. Coinkite emphasized firmware verification and first-use checks. The researcher says Coinkite acknowledged the report and allowed publication.</p>
+                <p class="history-sources">Source: <a href="https://thecharlatan.ch/COLDCARD-Supply-Chain/">researcher report</a>. The historical vendor-response permalink is no longer available.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Then-current Mk2/Mk3 bootloader and first-use state</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Mitigation disputed; no retrofit to the immutable bootloader</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>sedited / TheCharlatan</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>May 18, 2020</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Mk2 ATECC508A laser fault and PIN recovery</h3>
+    <div class="history-entry-copy">
+        
+                <p>Invasive laser fault injection could read a protected ATECC508A slot. Combined with MCU-held material, it enabled PIN recovery. The attack was demonstrated in a specialist lab; no public theft evidence was found.</p>
+                <p class="history-sources">Sources: <a href="https://www.ledger.com/improving-the-ecosystem-disclosing-coldcards-pin-vulnerability">Ledger disclosure</a>, <a href="https://www.ledger.com/blog/coldcard-pin-code">technical report</a>, and <a href="https://blog.coinkite.com/laser-fault-injection/">Coinkite response</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk1/Mk2; the exact attack did not carry over unchanged to Mk3</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>No Mk1/Mk2 retrofit; Mk3 had already changed secure element</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Ledger Donjon</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>June 3–12, 2020</time>
+        <span class="history-badge history-badge-cross-wallet">Cross-wallet</span>
+    </div>
+    <h3>BIP-143 input-amount and replay class</h3>
+    <div class="history-entry-copy">
+        
+                <p>A malicious PSBT and signing sequence could present misleading input amounts and redirect value to miner fees. Coinkite says it received no advance notice. No public COLDCARD loss evidence was found.</p>
+                <p class="history-sources">Sources: <a href="https://blog.coinkite.com/bip143-issues/">Coinkite analysis</a> and <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk3.md">Mk3 release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Cross-wallet SegWit signing flows</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Reported attack class blocked in firmware 3.1.4</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Public cross-wallet research; no advance notice to Coinkite documented</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>July 3, 2020</time>
+        <span class="history-badge history-badge-credited">Credited fix</span>
+    </div>
+    <h3>Scrambled keypad not re-scrambled after login delay</h3>
+    <div class="history-entry-copy">
+        
+                <p>The PIN-entry sequence was not re-scrambled after the forced delay completed. Firmware 3.1.4 fixed the issue and also changed scrambling between the PIN prefix and suffix. No public proof of concept or exploitation evidence was found.</p>
+                <p class="history-sources">Source: <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk3.md">Mk3 release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Firmware before 3.1.4 with scrambled keypad and login delay</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.1.4</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Anonymous customer</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>November 24, 2020</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Testnet/mainnet isolation bypass</h3>
+    <div class="history-entry-copy">
+        
+                <p>A real mainnet spend could be shown and signed while the device was operating in testnet mode. The issue was reported privately on August 4, followed by an agreed 90-day embargo. Firmware 3.2.1 moved testnet into the Danger Zone with an explicit warning.</p>
+                <p class="history-sources">Sources: <a href="https://blog.bitbox.swiss/en/coldcard-isolation-bypass/">researcher report and timeline</a> and <a href="https://blog.coinkite.com/testnet-considered-useful/">Coinkite response</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Firmware through 3.1.9</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.2.1</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Marko Bencun / Shift Crypto</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2021">
+        <h2 id="history-2021">2021</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>February 9, 2021</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Multisig xpub substitution</h3>
+    <div class="history-entry-copy">
+        
+                <p>COLDCARD did not require one registered xpub to belong to itself, so a compromised coordinator could substitute attacker-controlled xpubs while presenting a seemingly verified wallet. The issue was reported privately on November 7, 2020 and fixed before publication.</p>
+                <p class="history-sources">Sources: <a href="https://blog.bitbox.swiss/en/remote-multisig-theft-attack-on-the-coldcard-hardware-wallet/">researcher report</a> and <a href="https://blog.coinkite.com/multisig-security-upgrade/">Coinkite advisory</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Multisig registration through firmware 3.1.9</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 3.2.1</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Hugo Nguyen and Marko Bencun / Shift Crypto</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>March 17–29, 2021</time>
+        <span class="history-badge history-badge-vendor">Vendor note</span>
+    </div>
+    <h3>USB serial REPL enabled in unreleased v4.0.0</h3>
+    <div class="history-entry-copy">
+        
+                <p>Firmware 4.0.0 initialized the USB virtual serial-port gate, <code>ckcc_vcp_enabled</code>, to true. After a successful login enabled the normal VCP+HID USB stack, a connected test host could send Control-C, interrupt the user interface, and enter the MicroPython REPL. That provided firmware-level Python access and could expose secrets available to the running firmware. The same incorrect debug-state flag could make the fatal-error handler treat a production session as a debug session and skip its normal secure logout.</p>
+                <p>Firmware 4.0.1 moved the flag to zero-initialized storage, making the serial REPL disabled by default and available only after an explicit developer action. The fatal-error function was relocated without a material logic change; the rest of the source delta was release metadata and minor cleanup.</p>
+                <p>Version 4.0.0 was built, signed, and tested internally, but its binary was never released publicly. The contemporaneous signing manifest records that internal build and does not indicate public distribution. Firmware 4.0.1 was the first public 4.x binary, so public users were not exposed to this regression.</p>
+                <p class="history-sources">Sources: <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk3.md">Mk3 release history</a>, <a href="https://github.com/Coldcard/firmware/compare/75addaefcb5b1861e1c8986195a448ac3f94a303...dac940cc893ace370738c0c4ce3f763036089a8f">4.0.0–4.0.1 source comparison</a>, <a href="https://github.com/Coldcard/firmware/commit/dac940cc893ace370738c0c4ce3f763036089a8f">4.0.1 fix commit</a>, <a href="https://github.com/Coldcard/firmware/blob/75addaefcb5b1861e1c8986195a448ac3f94a303/releases/signatures.txt">historical signing manifest</a>, and <a href="https://coldcard.com/downloads/all">public binary archive</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Internally built and tested Mk2/Mk3 firmware 4.0.0; 3.x unaffected</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Corrected in 4.0.1, the first publicly released 4.x binary</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Coinkite internal review; individual not publicly identified</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>2021</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Mk3 ATECC608A double-laser plus MCU extraction chain</h3>
+    <div class="history-entry-copy">
+        
+                <p>Two laser faults could read protected ATECC608A slot material. Recovering the wallet seed also required a separate successful attack on the STM32 MCU secret. The work was a specialist laboratory demonstration and was disclosed to Coinkite and Microchip with a long lead time.</p>
+                <p class="history-sources">Sources: <a href="https://www.sstic.org/media/SSTIC2021/SSTIC-actes/defeating_a_secure_element_with_multiple_laser_fau/SSTIC2021-Article-defeating_a_secure_element_with_multiple_laser_fault_injections-heriveaux.pdf">SSTIC paper</a> and <a href="https://hardwear.io/wp-content/uploads/2026/04/triple-exploit-chain-with-laser-fault-injection-on-a-secure-element.pdf">research retrospective</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk3 using ATECC608A and STM32L496</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>No Mk3 retrofit; Mk4 later split material across three chips</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Olivier Hériveaux / Ledger Donjon</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2022">
+        <h2 id="history-2022">2022</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>March 1–14, 2022</time>
+        <span class="history-badge history-badge-coordinated">Professional audit</span>
+    </div>
+    <h3>Mk4 pre-release PIN and entropy hardening review</h3>
+    <div class="history-entry-copy">
+        
+                <p>A paid private review examined SE2-backed PIN derivation, PIN-attempt rate limiting, MCU firewall coverage, and random-number generation. During the review, the PIN derivation was tied to an SE2 secret and its secure-element work was iterated to impose about one second of delay per full PIN attempt.</p>
+                <p>The runtime random-number generator was also seeded with authenticated entropy from both secure elements. The team tested the MCU flash aliases and concluded that the configured firewall covered both mappings. Further suggestions—including a persistent MCU-side failed-attempt counter, asymmetric secure-element keys in PIN derivation, and additional bootloader RNG conditioning and reseed hooks—were recorded as defense in depth; the public firmware history does not show that all were adopted.</p>
+                <p class="history-sources">Sources: private paid review correspondence, corroborated by the public firmware commits for <a href="https://github.com/Coldcard/firmware/commit/e4ad63097c86b473c7be245f31a945f25a3a9399">SE2 PIN hashing</a>, <a href="https://github.com/Coldcard/firmware/commit/44aa6669fffe5e0fb351bc78ac6a0fa5698edbaa">one-second key stretching</a>, and <a href="https://github.com/Coldcard/firmware/commit/01cb43f7e87cc806963a74cbe0fcb4155f23a2a3">secure-element RNG seeding</a>; first shipped in <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk.md#500---2022-03-14">Mk4 firmware 5.0.0</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk4 bootloader and firmware before the first public Mk4 release</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Key recommendations adopted before firmware 5.0.0; other defense-in-depth suggestions remained advisory</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Lazy Ninja</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>July 29, 2022</time>
+        <span class="history-badge history-badge-vendor">Vendor/internal</span>
+    </div>
+    <h3>Virtual Disk PSRAM wraparound</h3>
+    <div class="history-entry-copy">
+        
+                <p>An 8196-byte boundary was used where 8192 bytes was intended, exposing four extra 512-byte blocks that wrapped to the bottom of PSRAM, where a PSBT could be stored. Coinkite found no exploit and left Virtual Disk disabled by default.</p>
+                <p class="history-sources">Source: <a href="https://blog.coinkite.com/5.0.6-released/">Coinkite release and analysis</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk4 Virtual Disk before firmware 5.0.6; older devices unaffected</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed and hardened in 5.0.6; no exploit found</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Coinkite internal review</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2023">
+        <h2 id="history-2023">2023</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>2023</time>
+        <span class="history-badge history-badge-overlap">Coordinated / overlap</span>
+    </div>
+    <h3>Practical full Mk3 laser chain</h3>
+    <div class="history-entry-copy">
+        
+                <p>Ledger Donjon applied the secure-element and MCU attack chain to complete devices. This is a later practical result from the 2021 research line, not a wholly independent vulnerability. Mk4's two-vendor, three-chip architecture changed the relevant trust model but did not retrofit Mk3.</p>
+                <p class="history-sources">Source: <a href="https://hardwear.io/wp-content/uploads/2026/04/triple-exploit-chain-with-laser-fault-injection-on-a-secure-element.pdf">Hardwear.io presentation</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Complete Mk3 challenge units</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>One of three challenge-wallet seeds recovered in a specialist lab</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Ledger Donjon</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>September 2023</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Mk4 SE2 DS28C36 double-laser readout</h3>
+    <div class="history-entry-copy">
+        
+                <p>Double laser faults bypassed read protection for part of the chip's EEPROM, exposing some SE2-held material. A complete master-seed compromise was not demonstrated because Mk4 requires material from SE1, SE2, and the MCU. The work was coordinated with Coinkite and the chip vendor.</p>
+                <p class="history-sources">Sources: <a href="https://eprint.iacr.org/2023/1375">IACR paper</a> and <a href="https://blog.coinkite.com/donjon-faults-2023/">Coinkite response</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>DS28C36 used as SE2 in Mk4</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Partial material exposed; no complete seed recovery demonstrated</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Karim M. Abdellatif and Olivier Hériveaux / Ledger Donjon</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2024">
+        <h2 id="history-2024">2024</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>December 18, 2024</time>
+        <span class="history-badge history-badge-credited">Credited fix</span>
+    </div>
+    <h3>Edge policy deserialization availability bug</h3>
+    <div class="history-entry-copy">
+        
+                <p>A policy with key placeholders not strictly ascending could be serialized into a form that failed to deserialize, preventing later use of the affected Miniscript wallet. Coinkite said backups remained correct, but the failure could block wallet use until corrected.</p>
+                <p class="history-sources">Source: <a href="https://blog.coinkite.com/edge-634/">Coinkite advisory</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Edge 6.2.2X, 6.3.3X, and 6.3.3QX</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in 6.3.4X and 6.3.4QX; funds not endangered</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>pythcoiner and the Liana team</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2025">
+        <h2 id="history-2025">2025</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>September 29–30, 2025</time>
+        <span class="history-badge history-badge-coordinated">Coordinated</span>
+    </div>
+    <h3>Delta PIN private-key recovery from two signatures</h3>
+    <div class="history-entry-copy">
+        
+                <p>Nathan Landon reported that the Delta PIN implementation allowed full private-key recovery from two transaction signatures because it repeatedly signed a fixed digest. Coinkite reviewed the report and published a patch later that day, making the intentionally corrupted digest transaction-dependent; Landon confirmed that the change significantly reduced the reported risk. The fix shipped in releases published the following day. A complete public affected-model and version matrix was not found.</p>
+                <p class="history-sources">Sources: private disclosure correspondence dated September 29, 2025; <a href="https://www.karma-x.io/blog/post/41/">initial researcher advisory</a>, <a href="https://karma-x.io/blog/post/42/">updated disclosure</a>, and <a href="https://github.com/Coldcard/firmware/commit/fcd848d821eefff95cd7bce31d421c17a43dd4bc">same-day firmware patch</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Publicly confirmed patch in Mk4/Mk5 and Q release families</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Patched in firmware 5.4.4 and 1.3.4Q</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Nathan Landon / Karma-X</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-year" aria-labelledby="history-2026">
+        <h2 id="history-2026">2026</h2>
+        <div class="history-list">
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>May 1–June 26, 2026</time>
+        <span class="history-badge history-badge-ai">AI</span>
+    </div>
+    <h3>AI-assisted firmware review</h3>
+    <div class="history-entry-copy">
+        
+                <p>An enterprise AI review produced 85 candidate findings: 8 high, 37 medium, 20 low, and 20 informational. Coinkite manually reviewed each result. The high group was mostly false positives, intended behavior, documented trade-offs, or unreachable paths, but it also identified an overstated CCC velocity edge case that received a defensive floor fix and a real Delta Mode path that could expose a Seed Vault value through Seed XOR; guards were added across the affected flows.</p>
+                <p>The hobbled-mode WIF export claim recorded separately at the start of the review was finding 5 in the same high-severity set, not a second study. It was closed as a false positive: when the SSSP related-keys option is enabled, hobbled mode intentionally permits read-only viewing, export, and signing with previously stored WIFs while blocking import, deletion, and clearing. Stored WIFs are independent of the master seed, and the policy can exclude related-key access.</p>
+                <p>The medium and low groups yielded numerous crash, validation, state-handling, display, and defensive-hardening fixes across CCC/SSSP, signing, Seed XOR, Key Teleport, PSBT handling, QR, USB, NFC, and WIF Store. The internal review did not classify those groups as security vulnerabilities. By June 26, all generated items had been fixed, rejected, accepted as design choices, or tracked elsewhere, and the review was closed.</p>
+                <p class="history-sources">Sources: private internal review conducted May 1–June 26, 2026, and firmware commit <code>9b131b2</code>. The private issues, AI finding links, internal pull requests, and reviewer identities are not publicly linked.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Firmware around commit 9b131b2, including CCC/SSSP, Delta Mode, WIF Store, signing, QR, USB, and NFC flows</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>85 findings triaged; confirmed issues fixed or tracked; review closed June 26</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>AI-generated check, reviewed internally by Coinkite</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>July 1, 2026</time>
+        <span class="history-badge history-badge-credited">Credited fix</span>
+    </div>
+    <h3>Legacy input-amount spoofing</h3>
+    <div class="history-entry-copy">
+        
+                <p>Witness-UTXO-only PSBT data could be used where COLDCARD expected to sign a non-SegWit input, creating an input-amount spoofing boundary. No public proof of concept, loss report, or coordination timeline was found.</p>
+                <p class="history-sources">Sources: <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Mk.md">Mk4/Mk5 release history</a> and <a href="https://github.com/Coldcard/firmware/blob/master/releases/History-Q.md">Q release history</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk4/Mk5 before 5.5.1 and Q before 1.4.1Q, based on fix placement</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in firmware 5.5.1 and 1.4.1Q</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Damir, as credited in release notes</dd>
+        </div>
+    </dl>
+</article>
+
+
+            
+<article class="history-entry">
+    <div class="history-entry-head">
+        <time>July 30, 2026</time>
+        <span class="history-badge history-badge-incident">Incident/advisory</span>
+    </div>
+    <h3>Seed-generation RNG weakness and theft incident</h3>
+    <div class="history-entry-copy">
+        
+                <p>A random-byte fallback introduced during a library migration provided very weak entropy for device-generated seeds. Updating corrects future seed generation but does not repair an existing affected seed.</p>
+                <p>Block traces the implementation to the v4.0.0 source lineage. Coinkite did not release v4.0.0 publicly as a signed firmware binary; the first public signed release in that series was v4.0.1. The affected-user range therefore begins at v4.0.1.</p>
+                <p class="history-sources">Sources: <a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/">Coinkite advisory</a>, <a href="https://blog.coinkite.com/entropy-technical-backgrounder/">technical backgrounder</a>, <a href="https://block.xyz/">Block</a>, and <a href="https://coldcard.com/downloads/all">public binary archive</a>.</p>
+            
+    </div>
+    <dl class="history-entry-facts">
+        <div>
+            <dt>Product or scope</dt>
+            <dd>Mk2/Mk3 4.0.1–4.1.9; Mk4/Mk5 before 5.6.0 or Edge 6.6.0X; Q before 1.5.0Q or Edge 6.6.0QX</dd>
+        </div>
+        <div>
+            <dt>Public status</dt>
+            <dd>Fixed in Mk2/Mk3 4.2.0, Mk4/Mk5 5.6.0 or Edge 6.6.0X, and Q 1.5.0Q or Edge 6.6.0QX; existing affected seeds require migration</dd>
+        </div>
+        <div>
+            <dt>Reporter or discoverer</dt>
+            <dd>Public incident investigation</dd>
+        </div>
+    </dl>
+</article>
+
+        </div>
+    </section>
+
+    <section class="history-footer-note">
+        <h2>What these counts mean</h2>
+        <p>
+            The 23 entries include coordinated reports, a paid professional review, internal findings, an internally reviewed AI check, cross-wallet
+            research, release-note fixes, an overlapping physical-research result, and
+            an incident. The 12 coordinated disclosure records use the narrower test of
+            public evidence for advance reporting, an embargo, or explicit coordination.
+            Two findings share one 2019 report.
+        </p>
+        <p>
+            Raw event counts should not be used to compare hardware wallets. Older,
+            open, and heavily researched products tend to accumulate more public findings.
+            Impact, affected versions, exploit prerequisites, remediation, disclosure
+            quality, and architecture changes matter more.
+        </p>
+        <p><em>Last updated: August 4, 2026.</em></p>
+    </section>
+</main>
+
+    </div>
+
+    <footer class="footer">
+        
+        
+        <div class="container">
+            <div class="main-part">
+                <div>
+                    <div class="dev-brand">
+                        Made with <img src="/static/img/heart.png" alt="Made with heart by Coinkite" /> by Coinkite
+                    </div>
+                    <a class="btn btn-store black-btn" href="https://store.coinkite.com/store" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 1em; aspect-ratio: 1; fill:currentColor;">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+                        View store
+                    </a>
+                </div>
+                <div>
+                    <div>
+                        <h3 class="title">Products</h3>
+                        <div>
+                            <a href="https://opendime.com" target="_blank"><span class="medium-txt">Opendime</span></a>
+                            <a href="https://bitcoinseedbackup.com/"><span class="medium-txt">Seedplate</span></a>
+                            <a href="https://getblockclock.com"><span class="medium-txt">Blockclock</span></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="title">Support</h3>
+                        <div>
+                            <a href="/responsible-disclosure"><span class="medium-txt">Responsible Disclosure</span></a>
+                            <a href="/terms"><span class="medium-txt">Terms of Sale</span></a>
+                            <a href="/terms-of-use"><span class="medium-txt">Terms of Use</span></a>
+                            <a href="/privacy"><span class="medium-txt">Privacy Policy</span></a>
+                            <a href="/media-kit"><span class="medium-txt">Media Kit</span></a>
+                            <a href="/static/bitcoin.pdf"><span class="medium-txt">White Paper</span></a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="copyright-part">
+                <span>Copyright © 2026 Coinkite Inc. All rights reserved.</span>
+                <div>
+                    <a href="mailto:support@coinkite.com"><span class="medium-txt">support@coinkite.com</span></a>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="/">Home</a>
+        <a href="https://blog.coinkite.com">Blog</a>
+        <a href="/opresearch">OpResearch</a>
+        <a href="/careers">Careers</a>
+        <a role="button" class="js-open-zd-widget">Contact</a>
+        <a href="https://store.coinkite.com/store" class="btn btn-store">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width: 1em; aspect-ratio: 1; fill:currentColor;">
+  <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20h44v44c0 11 9 20 20 20s20-9 20-20V180h44c11 0 20-9 20-20s-9-20-20-20H356V96c0-11-9-20-20-20s-20 9-20 20v44H272c-11 0-20 9-20 20z" />
+</svg>
+            Store
+        </a>
+    </div>
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidenav").style.width = "100%";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+        }
+    </script>
+
+    
+    
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-276JRVF7JV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-276JRVF7JV');
+    </script>
+    <script>
+        // make footer stick to bottom
+        (function () {
+            const footer = document.querySelector('footer.footer');
+            const heroOverlay = document.querySelector('.hero-overlay');
+            const paddingTop = window.getComputedStyle(document.querySelector('body')).getPropertyValue('padding-top');
+            heroOverlay.style.minHeight = `calc(100vh - ${footer.offsetHeight}px - ${paddingTop})`;
+        })();
+    </script>
+
+    
+    <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=38eb7667-a56f-4c01-acd1-7af23e3fff71"></script>
+    <script>
+        
+        document.querySelectorAll('.js-open-zd-widget').forEach((el) => {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.zE('webWidget', 'close');
+                window.zE('webWidget', 'open');
+            });
+        })
+
+        if (new URL(window.location.href).searchParams.get('contact_open') === '1') {
+            
+            window.zE('webWidget', 'open');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a262900faf983e18',t:'MTc4NTg5ODk0Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>

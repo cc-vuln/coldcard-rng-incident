@@ -21,7 +21,7 @@ const REPO = process.env.ARCHIVE_ROOT
 /** Map of route path -> ISO 8601 commit date. */
 let cache: Map<string, string> | null = null;
 
-/** src/pages/risk/estimator.astro -> /risk/estimator/ , src/pages/index.astro -> / */
+/** src/pages/how-it-broke/entropy.astro -> /how-it-broke/entropy/ , src/pages/index.astro -> / */
 function fileToRoute(file: string): string | null {
   const m = file.match(/^site\/src\/pages\/(.*)\.astro$/);
   if (!m) return null;
@@ -91,4 +91,3 @@ export function humanDate(iso: string): string {
     day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
   });
 }
-

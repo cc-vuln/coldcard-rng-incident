@@ -1,0 +1,261 @@
+Hacker Newsnew | past | comments | ask | show | jobs | submitlogin
+When random.bytes() runs but doesn't work (btcpp.dev)
+94 points by Funes- 2 days ago | hide | past | favorite | 56 comments
+help
+londons_explore 2 days ago | next [–]
+I am getting suspicious of "random number generator not actually returning random numbers" bugs....
+They are the perfect bug for someone trying to "accidentally" make a secure system insecure.
+I wonder if bribe money was involved or three letter agencies...
+reply
+dist-epoch 2 days ago | parent | next [–]
+And they waited 5 years to exploit it?
+And do you think the NSA desperately needed $90 mil (the amount stolen so far), so they created this elaborate backdoor? Or were they waiting until Satoshi or Binance decided to deposit a billion dollars into this wallet?
+All the employees which touched the code will be on watch lists now anyway. And sudden new house or yacht will be immediately flagged.
+reply
+londons_explore 2 days ago | root | parent | next [–]
+Need not be the NSA. Might just be some regular thief.
+The longer they wait, the more they get to steal after all.
+reply
+josephg 2 days ago | root | parent | prev | next [–]
+> And do you think the NSA desperately needed $90 mil (the amount stolen so far)
+If this was done as part of an operation, we would have no idea what it was actually used for. It’s very unlikely that the crypto wallet thefts we know about were the intended target.
+reply
+anonymousiam 2 days ago | prev | next [–]
+This post assumed that the author of the "runs" commit was not acting maliciously. Has that been established? It's not mentioned in this article.
+reply
+karamanolev 2 days ago | parent | next [–]
+Per the article, not my opinion.
+It has been established that "I didn't do it on purpose" is not enough in some cases. You have to _not do it_ _on purpose_. That "fake it till you make it", in this case, understanding what your code does, is perfectly fine in some contexts, not in others, like this one.
+reply
+silvestrov 2 days ago | parent | prev | next [–]
+When looking through all the other commits the user has made: they all lack a good commit message.
+This is systematic for that user. Either the user needs to improve or let go.
+The organization needs to learn that good commit messages are a requirement for anything to do with crypto and payment systems.
+reply
+inigyou 2 days ago | root | parent | next [–]
+The commit message is just a surface level manifestation of a deeper issue. Fixing the commit message does not fix the issue.
+reply
+anonymars 2 days ago | parent | prev | next [–]
+Ironic:
+> NEW POLICY If I don't know you, I don't merge you! Thanks XZ!
+https://github.com/switck/libngu
+reply
+Sharlin 2 days ago | parent | prev | next [–]
+Hanlon’s razor.
+reply
+eru 2 days ago | parent | prev | next [–]
+Also: writing this stuff in C just begs for bugs.
+LLM agents are cheap and good enough that you can write in eg Lean or whatever. Or at least write it in Rust.
+reply
+thin_carapace 2 days ago | root | parent | next [–]
+I get the feeling that the bugs found in this instance can be more directly attributed to the author having zero experience operating a microcontroller
+reply
+scott_w 1 day ago | root | parent | next [–]
+Honestly, I'm going to be a bit harsher: I think they're either:
+1. A novice who doesn't know how to debug issues.
+2. Totally incompetent and copying code from Stack Overflow.
+I don't think it's specific to microcontrollers, either, the error from the C compiler is something that a competent programmer would be able to interpret, or at least see it as a signal to get someone more experienced in the domain to learn about.
+reply
+Scoundreller 10 hours ago | root | parent | next [–]
+Hey now, I'm totally incompetent, so my code writes entries in a log file for virtually everything because otherwise I have no idea if it's doing what I expect. Would've caught some critical function not being called at all.
+reply
+eru 1 day ago | root | parent | prev | next [–]
+Of course, being a total novice and claiming to produce a super secure gadget are not to things you want to go together.
+reply
+nullc 1 day ago | root | parent | prev | next [–]
+> the error from the C compiler is something that a competent programmer would be able to interpret,
+contrary to the post, this was almost certainly not an issue of compilers throwing errors.
+Reduced familarity with C could have played a role, but given the number of C experts that looked at this knowing there was an error and still misidentified the cause I don't think we need to reach for that powerful an explanation.
+Confusion of definedness vs value check would make for a fine underhanded C entry. The flaw was not particularly clear from the source... and most common QA procedures could not distinguish a PRNG from TRNG once the error happened.
+reply
+scott_w 1 day ago | root | parent | next [–]
+Fair point: I was using the information in the article to form my opinion. I still think that, if the developer in question ignored a compiler error as described, that’s a serious competence issue. It’s harder to spot after the fact because any reviewers wouldn’t have had a chance to see the compiler output.
+The article makes the fair point of the size of the change and the complete lack of information in the commit message, which should have set off alarm bells…
+reply
+jgilias 2 days ago | root | parent | prev | next [–]
+The bug has been up since before the LLM shift.
+reply
+jki275 1 day ago | root | parent | prev | next [–]
+C isn't the problem here. one might argue that the combination of micro python and C and the person writing it having no understanding of how either one works is the problem.
+Also running python on a microcontroller to do cryptography is fucking insane.
+reply
+nullc 1 day ago | root | parent | next [–]
+> Also running python on a microcontroller to do cryptography is fucking insane.
+I feel like I should confess to snubbing this (and some other) hardware wallet projects for the fact it used micropython. I think it's hard to draw the line between systems programmer snobbery and good advice... and I feel a little like a cop guilty of stop-and-frisk on the basis of skin color.
+Because in general the ideas necessary to produce reliable software aren't well understood or agreed on there is a risk of letting style preferences which are only correlated with good engineering but aren't causative of good engineering get mistaken-- and this can cause errors in both directions, both mistaking stuff as good because it uses the "right" tools, or mistaking something as bad because it doesn't.
+reply
+PunchyHamster 2 days ago | prev | next [–]
+> The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235/15 = ~16.
+the commit message is not 235 character long, the commit message is this
+> splice-script: Test for msat chan balances
+> splice-script: Round channel balances down
+author mistakes commit message for PR which doesn't get persisted into code's history and don't even contain the ID of bug being fixed.
+So yeah it is better but nothing to actually brag about
+reply
+dmitrygr 2 days ago | prev | next [–]
+>Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.
+Amen.
+reply
+hypeatei 2 days ago | prev | next [–]
+> You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.
+Or, you could realize that using a financial technology which relies on no software bugs ever is probably flawed at its core. "Not your keys, not your coins" was (is?) the zeitgeist but even people who did the "right thing" and used a cold wallet still got screwed. I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+reply
+DJBunnies 1 day ago | parent | next [–]
+The "right thing" here is subjective.
+If one uses a good source of entropy (e.g. dice rolls) then one will not "get screwed."
+> I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+It's not for everybody, for sure.
+reply
+hypeatei 1 day ago | root | parent | next [–]
+> If one uses a good source of entropy then one will not "get screwed."
+How many users were told to verify the source code to make sure it was using good entropy? How many would actually do that even if told? Obviously not even the most hardline bitcoiners were looking at it.
+> dice rolls
+Yes, the new cope I've seen is that you should've been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I'm sure.
+1: https://old.reddit.com/r/Bitcoin/comments/1vcr4r4/dice_rolls...
+reply
+inigyou 2 days ago | parent | prev | next [–]
+I take it you get your paycheck in cash?
+reply
+hypeatei 2 days ago | root | parent | next [–]
+No, via direct deposit. I had a co-worker once who miskeyed his routing+account numbers and guess what? He still got his money a few days later and it wasn't lost to the void.
+There is no blockchain, seed phrases, nor cold wallets required for this amazing feat of money transfer/remediation to take place.
+reply
+inigyou 1 day ago | root | parent | next [–]
+Great! Maybe the government should stop over regulating the banking system so the same protection will also be available to someone who buys drugs.
+reply
+anonymars 1 day ago | root | parent | next [–]
+Wait, is the argument now that cryptocurrency only exists and is useful for buying drugs? It's tough to keep track of what point you're trying to make
+reply
+hypeatei 1 day ago | root | parent | prev | next [–]
+If your argument is that Bitcoin is only good for illicit purchases, then I sort of agree with you but there are better alternatives like Monero. Regardless, you would agree that current valuations are insane given that's the only real use-case, right?
+Also infrequent purchases != storing wealth in Bitcoin.
+reply
+anonymars 2 days ago | root | parent | prev | next [–]
+Banking-related errors have recourse
+reply
+nullc 2 days ago | prev | next [–]
+This writeup isn't very good and misses/misunderstands the programming error that leads to the flaw.
+I'm commenting because I think it's important to understand the issue.
+The article would have you think that the change in question was a tiny change to a flag to make it compile, but in reality the commit in question is a 1533 line addition of the entire RNG infrastructure.
+The fundamental cause is a mixup between a value test and a definedness test.
+Coldcard attempted to replace the micropython wrapper on the hardware TRNG, apparently in order to provide a more aggressive handling of fault/error conditions.
+The micropython hwrng code is gated by an #if check, the replacement HWRNG code is gated by an ifndef. So "#define MICROPY_HW_ENABLE_RNG (0)" deactivated the micropython implementation but failed to activate the internal one (which was #ifndef MICROPY_HW_ENABLE_RNG ... which didn't fire because MICROPY_HW_ENABLE_RNG was _defined_).
+This was easier to miss because the usages weren't only in different files-- they were in different repositories.
+There is a more abstract point to make that in cryptographic software the absence of a secure randomness source (the STM32 TRNG) should never fall back to an insecure source (a trivial PRNG which might have only had on the order of 20-bits of uncertainty in its input). But the code that had the fallback was micropython which was not authored by the coldcard creators and is presumably not intended for cryptographic applications...
+In later code (for MK4+ devices) the issue was further masked without being corrected by xor-ing in another insecure PRNG seeded by 32-bits from another TRNG. ... itself acting like an additional insecure fallback. (Why it first hashes 64-bits of TRNG output then throws away half the entropy is a mystery...)
+RNG failures can be difficult to detect because the real randomness and a PRNG are indistinguishable by any simple tests of the output. I understand the coldcard developers ran extensive tests on the randomness generated by these devices-- they may well have been just testing the PRNG. It's something of a "color of your bits" issue ( https://ansuz.sooke.bc.ca/entry/23 ).
+The same sort of issue happens at multiple levels of the stack, e.g. IIRC the STM32 TRNG itself does some kind of whitening that could have the same effect of concealing an RNG failure.
+The existence of insecure fake randomness in the code at all was a red flag that had been noted previously -- though the really bad one was hidden away in the micropython code and not even obviously at play. I think this is a rare case of a bug that would be more easily found from binary analysis than review of the source code (e.g. no access to the STM32 TRNG at all).
+Without these fallbacks the failure to use the TRNG would have been immediately detected by the developers (e.g. when every attempt generated the same seed), and a review could be validated by fault injection (NOP out the hwrng and verify that the test fails).
+reply
+egwor 2 days ago | parent | next [–]
+Although I might disagree with the style of the write up, I think it is right that there are weak engineering practices applied:
+- not enough information provided in commit message.
+- this change ought to have been split into smaller chunks (e.g. introduce indirection whilst code continues to use hardware)
+- limited (automated) testing
+- potential confusion by the author over C concepts
+- additional complexity which could have been hidden behind a cleaner interface rather than using defines
+I agree about your points about:
+- defines over multiple repo's made this more complicated that was necessary.
+- fault injections would have been the appropriate way to test this (or maybe mocks)
+- testing of randomness needs careful design, e.g. RNG seeding can be a good way
+Taking a step back, we as a community of excellence need to emphasise that this isn't a criticism about the person/author. There needs to be a clear analysis of what went wrong whilst being kind to the person/people involved.
+reply
+inigyou 2 days ago | parent | prev | next [–]
+At no point did I ever think that setting "enable HW RNG" to 0 "provided a more aggressive handling of fault/error conditions". I always assumed it disabled the HW RNG.
+reply
+nullc 1 day ago | root | parent | next [–]
+https://github.com/switck/libngu/blob/537519a829259622ea6b03...
+vs
+https://github.com/Coldcard/micropython/blob/4107246f8a08080...
+reply
+dale_glass 1 day ago | root | parent | next [–]
+The my_random_bytes implementation doesn't look good at all at first glance. Let's see:
+1. I believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
+2. "here" is a terrible name for a length
+3. It does a memcpy of a minimum of 4 bytes to the destination, even if count is lower. It'll also overflow longer buffers with a length not divisible by 4.
+reply
+nullc 1 day ago | root | parent | next [–]
+I have absolutely no interest in defending this code-- and already considered it untrusthworthy before any of this. But in the interest of accuracy:
+> It does a memcpy of a minimum of 4 bytes
+This is a common misreading of MIN(). MIN(4,x) is a number that is a MAXIMUM of 4, not a minimum.
+Count is the number of bytes remaining in the buffer. The input to the copy is a 4-byte word. min(4,count) will produce a number 0-4 which is always equal to or less than count. The copy will not overflow the buffer or overrun the input: If count is 3, for example, then here will be 3 and it will copy 3 bytes.
+> believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
+It's been a while since I looked but I believe the STM32 manual advises you to throw away data when this happens, because the rng is updated async with the processor and reads that are too fast will produce 0s or duplicate values. Entropy loss from doing so is generally negligible. Were it me I'd read enough into a cryptographic hash to render the output cryptographically close to uniform and not have to worry about it further. (particularly since some uses of cryptographic numbers are extremely sensitive to even small biases)
+I do wonder how fatal MP_EFAULT actually is...-- on a device like this being jumpy at failing the RNG is reasonable, but if it bricks the device (for example) that would be too much for a condition that (IIRC) the datasheet says can happen. If that error is worse than causing a reboot then it might be the case that their emergency fix deployment might have the effect of causing problems by deploying never-actually-tested code into the wild. When I initially looked at this code before finding the flaw I was somewhat surprised that this test didn't produce spurious failures.
+[Maybe someone who isn't traveling and on vacation might want to trace out that error condition, -- and check my vague recollection of the STM32 datasheets, as I could be remembering some other part]
+reply
+inigyou 1 day ago | root | parent | next [–]
+There have been cases where a small statistical bias like avoiding duplicate bytes can be amplified to a full break. I don't think this problem is applicable to a bitcoin private key though.
+reply
+nullc 1 day ago | root | parent | next [–]
+Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
+reply
+killerstorm 1 day ago | parent | prev | next [–]
+Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+reply
+nullc 2 days ago | parent | prev | next [–]
+Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+reply
+RustyRussell 2 days ago | root | parent | next [–]
+Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
+reply
+dist-epoch 2 days ago | parent | prev | next [–]
+I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
+Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
+reply
+smithcoin 2 days ago | parent | prev | next [–]
+Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+reply
+nullc 1 day ago | root | parent | next [–]
+Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+reply
+mlcrypto 1 day ago | parent | prev | next [–]
+The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+reply
+koolba 2 days ago | prev | next [–]
+> A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
+No! Blanket statements like this is how you end up with 40 pages of slop AI comments in PRs that nobody reads.
+Comments should be terse and meaningful. They should document surprising behavior or choices. The less comments you have, the more meaningful each one becomes because your time and eyeballs are limited as well.
+reply
+coldbrewed 1 day ago | parent | next [–]
+We shouldn't tolerate slop in any form, especially not in commit comments. What we should care about is communicating design decisions, intent, and especially we should explain concerns that can't be intuited from reading the code. A longer, more detailed comment that explains some significant detail can be especially valuable but it should earn the weight that it carries.
+I think we're all in agreement that a one word "runs" commit and a 6 paragraph slop commit both fail to communicate effectively.
+reply
+nonfamous 2 days ago | prev | next [–]
+From the Twitter advisory on the issue being referenced here [1]:
+>>> To every other developer: we believe this is a sober reality of the new AI paradigm. AI-assisted code review can now find latent bugs at a speed that is outpacing even the industry’s most seasoned experts. If your firmware is open-source or has ever been public, assume it's already being read by attackers and defenders alike.
+Kinda turns the “many eyes” principle of OSS on its head, eh?
+[1] https://x.com/nvk/status/2083216713693151552?s=61
+reply
+abecedarius 2 days ago | parent | next [–]
+If your source is not open that's barely a speedbump, given a binary. At least that's my impression of the current state.
+reply
+nullc 1 day ago | root | parent | next [–]
+This flaw would probably be easier to find from the binary: the source itself was misleading, but if you analyized the binary you'd find that there was no access to the hwrng at all (assuming the dead code got eliminated by the compiler) or that the only function that accessed it was never called.
+One lesson out of this is that now that AI has made a certain grade of review cheap is that it would be useful to perform security review both against the source code and against the resulting binary.
+reply
+dist-epoch 2 days ago | parent | prev | next [–]
+If the industry most seasoned experts are not using LLMs right now to front-run the discovery of vulnerabilities in the code they are responsible for, they are not experts, but clowns.
+reply
+catlifeonmars 1 day ago | root | parent | next [–]
+A lot of the vulnerabilities being discovered are low hanging fruit. An LLM could discover them, but so could a human.
+Let me amend your statement:
+If the industry most seasoned experts are not engaging in regular security reviews of their firmware, they are not experts, but clowns.
+LLMs are useful for this but not absolutely necessary to address the core issue.
+reply
+systemsweird 2 days ago | prev | next [–]
+Very good writeup and an astonishing level of negligence for an extremely security critical piece of code. The losses are going to surpass 100 million, these guys should be thrown in jail.
+reply
+jonathanlydall 2 days ago | parent | next [–]
+This does not seem to be a good write up at all, see nullc’s explanation in this discussion of (what seems to me) the actual root cause whereas this article spent a lot of words making the argument that bad commit messages must mean bad code, later using the assertion to try “prove” what the technical problem was.
+I agree that a bad commit message combined with a big commit is a huge smell, but as it’s just metadata for the code and not the code itself, it is not in itself evidence in any form.
+That being said, probably okay after explaining the technical code issues for the author add a couple of a sentences about how all this was was part of 1000s of a lines of code changed in commits with useless messages which demonstrates generally bad code hygiene.
+reply
+smithcoin 2 days ago | root | parent | next [–]
+I think what is the author is getting at is that if you are cavalier in your commit messages when the stakes are low, chances are you aren’t taking writing code that handles money seriously. Made me think of some merges I could have taken more seriously.
+reply
+Consider applying for YC's Fall 2026 batch! Applications are open till July 27.
+Guidelines | FAQ | Lists | API | Security | Legal | Apply to YC | Contact
+Search:

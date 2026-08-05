@@ -1,0 +1,311 @@
+--- coldcard-hack-tracker@20260804T213906Z
++++ coldcard-hack-tracker@20260804T220914Z
+@@ -83,9 +83,9 @@
+ 
+ LAST MOVEMENT
+ 
+-Block 961,069
+-
+-64.90373154 BTC from Hop 1 from Aug 2 vault
++Block 961,075
++
++0.00544006 BTC from Hop 1 from P2TR vault
+ 
+ Watched holdings
+ 
+@@ -637,7 +637,7 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Aug 2 vault
+-Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… (e3274a1b…2b3ddf). Hop emptied same day in Wasabi-style CoinJoin (block 961069, ~2 sat/vB, 324→382, base-3 denoms; likely Wasabi 2 — f3ee6e61…7b24): equal ~1.2914 BTC outs ×20 + residual ~54.32 BTC still at bc1qajcr…. No Arkham entity / exchange label; not added to KNOWN_ADDRESS_LABELS.
++Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… (e3274a1b…2b3ddf). Hop emptied same day in Wasabi-style CoinJoin (block 961069, ~2 sat/vB, 324→382, base-3 denoms; likely Wasabi 2 — f3ee6e61…7b24): equal ~1.2914 BTC outs ×20 + residual ~54.32 BTC still at bc1qajcr….
+ 	bc1q0rvn88…jf5q6m	0.00 BTC
+ <live-fiat-value>
+ 	64.90373764 BTC	0	EMPTIED
+@@ -772,6 +772,14 @@
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Later surplus that passes through a vault while its reported balance remains is ignored.
+ 
+ HOP 1
++5d54d965…b1a28a
++−0.00544006 BTC
++From Hop 1 from P2TR vault bc1qqa7p…36pr
++Block 961,075
++
++To bc1q829y…dsqn
++
++HOP 1
+ f3ee6e61…c37b24
+ −64.90373154 BTC
+ From Hop 1 from Aug 2 vault bc1pynd6…7h92
+@@ -807,13 +815,6 @@
+ 
+ To 334iKwmh…J6gB
+ 
+-f02164a9…0db281
+-−0.96227191 BTC
+-From Wave 4 park 34nHYNnc…4qDQ
+-Block 961,064
+-
+-To 334iKwmh…J6gB
+-
+ HOP 1
+ 1e96c88b…91ab3a
+ −0.33330008 BTC
+@@ -839,14 +840,6 @@
+ To bc1qkzvm…7h6s
+ 
+ HOP 1
+-995b19ad…8ebed0
+-−0.00251659 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,058
+-
+-To bc1qp75g…xkdv
+-
+-HOP 1
+ bebfb05f…710826
+ −1.12722763 BTC
+ From Hop 1 from P2TR vault bc1qqa7p…36pr
+@@ -894,110 +887,6 @@
+ 
+ To OP_RETURN messenger hub bc1qesrv…d78w
+ 
+-HOP 1
+-156e7ebd…f58a90
+-−0.00309444 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,053
+-
+-To bc1qtmx2…a6mw
+-
+-HOP 1
+-00b19966…6bd9e8
+-−0.02053703 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1pmmdj…mc5l
+-
+-HOP 1
+-05f6c636…a8914d
+-−0.00103649 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1q7ynw…wu87
+-
+-HOP 1
+-1ced4a91…aec1ed
+-−0.00004363 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1qrznn…hpsn
+-
+-HOP 1
+-2eb81dde…e952f0
+-−0.00887704 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1qk5jr…gwsy
+-
+-HOP 1
+-459f4a50…4d5c22
+-−0.00650228 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1qff77…pwq3
+-
+-HOP 1
+-e36fd520…cf0737
+-−0.00154315 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1qemv6…72jc
+-
+-HOP 1
+-f051363a…4c2b43
+-−0.03543438 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,052
+-
+-To bc1q2ckk…6gam
+-
+-HOP 1
+-d89884fa…b6242a
+-−0.1683704 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,051
+-
+-To bc1qjwsu…60sm
+-
+-HOP 1
+-dcd0a3c4…3bfc27
+-−0.00231655 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,051
+-
+-To bc1qss8u…g8de
+-
+-HOP 1
+-1d357178…1a7861
+-−0.00220154 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,050
+-
+-To bc1qj4ap…f0dq
+-
+-HOP 1
+-36579618…2397a5
+-−0.00235884 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,050
+-
+-To bc1qtnuk…0ml8
+-
+-HOP 1
+-5f8c69df…a29fe8
+-−0.00008608 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,050
+-
+-To bc1qg69q…gwzf
+-
+ d969fd1c…7e16ef
+ −4.43721266 BTC
+ From P2TR vault bc1p0l0x…lk0h
+@@ -1006,30 +895,6 @@
+ To bc1prjnv…prpr
+ 
+ HOP 1
+-01dddbcc…1ada41
+-−0.00741923 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,048
+-
+-To bc1qkyer…y336
+-
+-HOP 1
+-44caa445…48f3ee
+-−0.03848897 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,048
+-
+-To bc1qmxc0…4ne6
+-
+-HOP 1
+-d6c15cd4…b280cc
+-−0.0070087 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,048
+-
+-To bc1q67pj…3drp
+-
+-HOP 1
+ cecd3aa5…b4f0e2
+ −0.00048106 BTC
+ From Hop 1 from P2TR vault bc1qqa7p…36pr
+@@ -1042,7 +907,7 @@
+ From P2TR vault bc1p0l0x…lk0h
+ Block 961,037
+ 
+-To bc1q2nfx…kyyq
++To OP_RETURN messenger hub bc1q2nfx…kyyq
+ 
+ 2c7075a3…5012cc
+ −1.00017899 BTC
+@@ -1056,7 +921,7 @@
+ From P2TR vault bc1p0l0x…lk0h
+ Block 961,026
+ 
+-To bc1q2nfx…kyyq
++To OP_RETURN messenger hub bc1q2nfx…kyyq
+ 
+ 064eb61d…7ddd4f
+ −1.00017823 BTC
+@@ -1079,6 +944,82 @@
+ Block 960,822
+ 
+ To bc1qq0j5…vfz9, bc1qhcpk…c3tl, 38maz2s8…erUH +13 more
++
++23a84f33…bc709c
++−2.81971503 BTC
++From Wave 4 park 1N8knQCf…qfDo
++Block 960,818
++
++To Coinbase Prime Custody bc1qdj58…60ms, bc1qa2xv…c3y9
++
++HOP 2
++24ed08ad…a7f583
++−4.27762101 BTC
++From Hop 2 from Hop 1 from Wave 4 park bc1qhfdz…3wcx
++Block 960,797
++
++To P2WPKH service hub bc1qactq…80gh, bc1qm26v…3q52, bc1qemas…ahmt +27 more
++
++HOP 1
++6c85668e…d30bbb
++−0.02374887 BTC
++From Hop 1 from Wave 4 park 3EkYzYXT…DWeF
++Block 960,794
++
++To bc1qhfdz…3wcx
++
++HOP 1
++6c85668e…d30bbb
++−0.06990788 BTC
++From Hop 1 from Wave 4 park bc1qw79v…83ha
++Block 960,794
++
++To bc1qhfdz…3wcx
++
++6f19b1b9…fdd235
++−2.79332251 BTC
++From Wave 4 park 1N8knQCf…qfDo
++Block 960,793
++
++To Bullish.com deposit 3CTpBmp8…2hBH, bc1qw79v…83ha, bc1q72k7…aamt +31 more
++
++HOP 1
++61c0ddac…98c095
++−0.509799 BTC
++From Hop 1 from Evening vault bc1qu2uq…6srw
++Block 960,668
++
++To bc1qt8ca…5y4k, bc1qzkap…6e4z
++
++ff327937…abc133
++−0.50980268 BTC
++From Evening vault bc1q7rms…rcgf
++Block 960,666
++
++To bc1qu2uq…6srw
++
++HOP 1
++a7bf30f0…92fdec
++−0.45 BTC
++From Hop 1 from Aug 1 hop vault bc1qsd9t…jah8
++Block 960,663
++
++To 3P3K2MQw…Lfgy
++
++5ecc3052…a8bf87
++−0.69135523 BTC
++From Aug 1 hop vault bc1qayw8…2u0s
++Block 960,658
++
++To bc1qsd9t…jah8, bc1qvrpc…cddc
++
++HOP 1
++135d4c2c…2d4ce9
++−0.241352 BTC
++From Hop 1 from Aug 1 hop vault bc1qvrpc…cddc
++Block 960,658
++
++To 36c8aprK…QW35
+ 
+ Am I at risk?
+ 

@@ -1,0 +1,20 @@
+--- reddit-verify-code-on-device@20260804T095546Z
++++ reddit-verify-code-on-device@20260804T162741Z
+@@ -110,3 +110,17 @@
+ edited: false
+ body:
+ You are still trusting that the device allowed you to flash the firmware correctly. It could come preloaded with stuff that makes you think you did but still has nefarious code on there.
++
++comment: p1od513
++parent: t1_p1lhz03
++author: riscten
++created_utc: 1785860231
++edited: false
++body:
++This aspect stands on a spectrum. 
++
++On something like a Ledger, you are given a blackbox device and a binary. You know nothing about either. It's all trust and they could be doing anything. 
++
++On the other end you have Jade DIY, which runs on an off-the-shelf ESP32 chip. You can literally design your own PCB (or use a pre-existing design), get it fabricated (or even fabricate it yourself), source all components from various vendors, pretty much all of which will have no idea you're even trying to build a hardware wallet, solder all components, then you have the code that's fully open source, that you'll build yourself and then flash. 
++
++Even farther on that end of the spectrum would be you building your own design from scratch. In the end a hardware wallet's most tedious job is to perform hashes. The rest is largely trivial.

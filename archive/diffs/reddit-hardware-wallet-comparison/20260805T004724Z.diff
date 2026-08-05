@@ -1,0 +1,83 @@
+--- reddit-hardware-wallet-comparison@20260804T232248Z
++++ reddit-hardware-wallet-comparison@20260805T004724Z
+@@ -1,78 +1,9 @@
+ post: 1vehzv8
+-author: TrueRead1435
++author: [deleted]
+ created_utc: 1785773802
+ title: I compared every major Bitcoin hardware wallet after the Coldcard entropy bug
+ body:
+-https://preview.redd.it/a38ylnfzp6hh1.png?width=1789&format=png&auto=webp&s=70406b55bd6c2049608753830456ebe98b45feae
+-
+-people who stored their btc on coldcard got drained because of entropy.  
+-  
+-the seed generation was reproducible, anyone could recompute their keys.  
+-  
+-so i went through every other hardware wallet to see how they make your seed, and whether the same thing can happen again.  
+-  
+-
+-
+-[u/Trezor](https://x.com/Trezor) : mixes the device's randomness with randomness from your computer, and the device has to prove it used both. even if its chip is fully broken, you're still fine. the best design here by far.  
+-  
+-
+-
+-[u/BitBoxSwiss](https://x.com/BitBoxSwiss) : 5 separate sources of randomness combined. one bad source can't sink you. open source, reproducible builds, dice supported.  
+-  
+-
+-
+-[u/FoundationHQ](https://x.com/FoundationHQ) : built their own randomness circuit out of plain resistors and capacitors, open source, on top of two other sources. no black-box chip to trust. supports dice.  
+-  
+-
+-
+-[u/KeystoneWallet](https://x.com/KeystoneWallet) : 2 secure chips from 2 different manufacturers, combined. also lets you roll 99 dice and publishes how to check the result yourself.  
+-  
+-
+-
+-[u/Blockstream](https://x.com/Blockstream) : jade pulls from 7 things: radio noise, cpu counters, battery, temperature, camera, your input, the app. very hard to break all of them.  
+-  
+-
+-
+-[u/SeedSigner](https://x.com/SeedSigner) : your dice are the only source. no chip to trust at all. and they ship a guide teaching you to verify their own math. weakest hardware, strongest proof.  
+-  
+-
+-
+-[u/OneKey](https://x.com/OneKey) : secure element plus mcu combined on device, open source firmware. solid, but you can't add your own randomness.  
+-  
+-
+-
+-[u/Ledger](https://x.com/Ledger) : one certified chip (AIS-31, EAL5+). good randomness. but it's a single source, closed source, and you cannot verify any of it. you're trusting them completely.  
+-  
+-
+-
+-[u/Tangem](https://x.com/Tangem) : key is born inside the chip and never comes out. audited by three firms. same trade: strong, and impossible for you to check by design.  
+-  
+-
+-
+-[u/ngrave\_official](https://x.com/ngrave_official) : mixes chip randomness with your fingerprint and room light. clever. but the "EAL7" badge covers one software component, not the whole device.  
+-  
+-
+-
+-[u/ELLIPAL](https://x.com/ELLIPAL) : single certified chip, no software fallback, fails closed instead of guessing. closed source, so take it on faith.  
+-  
+-
+-
+-[u/SafePal](https://x.com/SafePal) : 2 chips mixed. they've never published the details.  
+-  
+-
+-
+-[u/COLDCARDwallet](https://x.com/COLDCARDwallet) : patched now, and dice on coldcard were always verifiable. but every seed made between 2021 and 2026 is permanently burned.  
+-  
+-one source = ledger, tangem, ellipal. that one source fails, everything fails. their answer is to make it excellent and certified. that's exactly the bet coldcard lost.  
+-  
+-many sources = trezor, bitbox, passport, jade, keystone. one broken source never reaches your key.  
+-  
+-and every one of these claims 128 or 256 bits.  
+-  
+-coldcard did too. certification doesn't help either, coldcard's chip was fine, the code just stopped calling it.  
+-  
+-the only thing that saves you is being able to check.  
+-roll your own dice. verify the words yourself.
++[deleted]
+ 
+ comment: p1kb4ny
+ parent: t3_1vehzv8

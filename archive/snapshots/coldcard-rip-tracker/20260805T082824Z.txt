@@ -1,0 +1,50 @@
+Skip to content
+coldcard.rip
+AI-compiledNot affiliated with Coinkite / COLDCARD
+Snapshot 2026-08-03 22:59:15ZReport an error ↗
+Likely attacker funds, inferred from victim reports and on-chain heuristics. Tentative, not confirmed — check the linked sources.
+COLDCARD’s random numbers weren’t.
+A build guard checked whether the hardware RNG macro existed, not whether it was enabled. From March 2021, affected devices could generate wallet seeds from predictable inputs. From 30 Jul to 2 Aug 2026, tracked sweeps took 1,433.13 BTC from 5,477 addresses; destinations received 1,432.48 BTC after miner fees.
+BTC swept
+1,432.48BTC
+2,896 confirmed transactions
+Swept addresses
+5,477
+distinct addresses spent by those transactions
+UTXOs swept
+7,346
+outputs spent by those transactions
+BTCAddressesUTXOs
+WaveAllW960183W960185W960188W960345W960352W960359W960395W960518W960668W960737
+The plates
+01
+The sweep
+7,346 UTXOs · 2,896 sweeps · 1,432.48 BTC
+02
+Flow chart
+5,477 swept addresses · 613 destinations
+03
+Routes
+1,432.46 BTC still at tracked destinations
+04
+Address ledger
+bc1qxz7s2u…gqgf2451.07
+bc1qhrgyed…w57uvw49.79
+bc1qe85jr4…a2ahlr29.89
+5,477 addresses · 7,346 UTXOs
+05
+Evidence
+25 public sources across 10 waves
+06
+The bug
+#ifndef HAS_RNG
+#error "no hardware RNG"
+#endif
+#define HAS_RNG 0 satisfies it
+128 bits intended · 73.3 at best · 0 at worst
+07
+How it shipped
+4 commits · 2 direct pushes · 0 reviews
+08
+Timeline
+five years, first commit to first sweep

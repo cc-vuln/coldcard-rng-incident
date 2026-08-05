@@ -82,7 +82,7 @@
    * thresholds look distinct when they were the same number.
    *
    *   520px  narrow-screen adaptations: multi-column widgets go single-column
-   *          (.status-legend__item, the estimator's choice grid, Triage's
+   *          (.status-legend__item, the model explorer's result grid,
    *          feature padding stepping down to --inset-box)
    *   640px  the phone break: masthead goes static, nav goes full width,
    *          the claim panel stops floating
@@ -154,6 +154,10 @@ html {
   scroll-behavior: smooth;
   color-scheme: light dark;
 }
+
+/* Keep linked sections below the two sticky navigation rows. */
+:where(main [id]) { scroll-margin-top: 7.5rem; }
+
 :root[data-theme='light'] { color-scheme: light; }
 :root[data-theme='dark'] { color-scheme: dark; }
 @media (prefers-reduced-motion: reduce) {
@@ -162,6 +166,10 @@ html {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
   }
+}
+
+@media (max-width: 640px) {
+  :where(main [id]) { scroll-margin-top: 4.25rem; }
 }
 
 body {
@@ -232,7 +240,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
   letter-spacing: -0.01em;
 }
 
-/* Verdict colour roles, used by triage and risk cards */
+/* Evidence and callout colour roles */
 .is-warn   { --role: var(--warn);   --role-soft: var(--warn-soft); }
 .is-safe   { --role: var(--safe);   --role-soft: var(--safe-soft); }
 .is-info   { --role: var(--info);   --role-soft: var(--info-soft); }

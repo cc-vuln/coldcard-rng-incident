@@ -1,0 +1,305 @@
+From 20fb8082338a4e313f1f817729ceea078c87eb31 Mon Sep 17 00:00:00 2001
+From: Silexperience <Silexperience210@users.noreply.github.com>
+Date: Mon, 3 Aug 2026 09:04:49 +0000
+Subject: [PATCH] rng: recover the TRNG after a seed/clock error instead of
+ failing forever
+Since the 2026-07-31 hotfix (ca724637) rng_get() reads the hardware TRNG
+and raises OSError(EFAULT) on a 10ms timeout, replacing a software PRNG
+that could not fail. rng_init() only re-enables the peripheral when
+RNGEN is clear, but per RM0432 25.3.7 (RM0351 for the L4) a seed error
+latches SEIS and stops DRDY while leaving RNGEN set. Recovery requires
+clearing SEIS and then toggling RNGEN off->on, so rng_init() is a no-op
+in exactly the state where it is needed: one transient glitch makes
+every later call time out permanently.
+That is not survivable by the user, because rng_get() is now reached
+from the keypad scan-order shuffle in _start_scan(), which runs from a
+Pin.irq callback before login. The OSError reaches IMPT.handle_exc ->
+die_with_debug -> show_logout(), so the device lands on a fatal-error
+screen with no way to enter a PIN and therefore no way to reach the
+upgrade menu.
+  rng_reset()     clear the clock, drop RNGEN, clear SEIS/CEIS, re-enable,
+                  and discard the first word as the reference manual asks
+                  (the old "TODO: throw out some samples?" case)
+  rng_init()      reset when RNGEN is clear *or* any error flag is set
+  rng_try_once()  non-throwing single attempt; rejects the word if an
+                  error latched while waiting for DRDY
+  rng_get_or_fault()
+                  up to RNG_MAX_ATTEMPTS with a reset between each, then
+                  raise as before
+The throw-on-persistent-failure contract is unchanged and there is no
+fallback to software entropy: a genuine hardware failure still raises.
+mempad.py / keyboard.py: wrap shuffle(self.scan_order) in try/except.
+Scan-order randomisation is anti-Tempest hygiene, not a secret, and must
+never be able to take the keypad down before login.
+COLDCARD_Q1/rng.c is a symlink to the Mk4 file, so Mk4/Mk5/Q are all
+covered by the one change.
+---
+ shared/keyboard.py       |  9 +++-
+ shared/mempad.py         |  9 +++-
+ stm32/COLDCARD/rng.c     | 92 ++++++++++++++++++++++++++++++++--------
+ stm32/COLDCARD_MK4/rng.c | 92 ++++++++++++++++++++++++++++++++--------
+ 4 files changed, 166 insertions(+), 36 deletions(-)
+diff --git a/shared/keyboard.py b/shared/keyboard.py
+index b9296e98f..b90390300 100644
+--- a/shared/keyboard.py
++++ b/shared/keyboard.py
+@@ -97,7 +97,14 @@ def _wait_any(self):
+     def _start_scan(self):
+         # reset and re-start scanning keys
+         self.lp_time = utime.ticks_ms()
+-        shuffle(self.scan_order)
++        # Scan order randomization is anti-Tempest hygiene, not a secret: it must
++        # never be able to take down the keypad. Since the RNG became fallible
++        # (it now reads the hardware TRNG and can raise OSError), a single glitch
++        # here would kill the scan task -- before login, so unrecoverable.
++        try:
++            shuffle(self.scan_order)
++        except Exception:
++            pass
+         self._scan_count = 0
+         self.waiting_for_any = False
+diff --git a/shared/mempad.py b/shared/mempad.py
+index 661a0e5c9..d1c80e4f8 100644
+--- a/shared/mempad.py
++++ b/shared/mempad.py
+@@ -81,7 +81,14 @@ def _start_scan(self):
+         # reset and re-start scanning keys
+         self.waiting_for_any = False
+         self.lp_time = utime.ticks_ms()
+-        shuffle(self.scan_order)
++        # Scan order randomization is anti-Tempest hygiene, not a secret: it must
++        # never be able to take down the keypad. Since the RNG became fallible
++        # (it now reads the hardware TRNG and can raise OSError), a single glitch
++        # here would kill the scan task -- before login, so unrecoverable.
++        try:
++            shuffle(self.scan_order)
++        except Exception:
++            pass
+         self._scan_count = 0
+         self._history = bytearray(NUM_ROWS * NUM_COLS)
+diff --git a/stm32/COLDCARD/rng.c b/stm32/COLDCARD/rng.c
+index 00e3d203a..c72b38b41 100644
+--- a/stm32/COLDCARD/rng.c
++++ b/stm32/COLDCARD/rng.c
+@@ -31,6 +31,7 @@
+  */
+ #include <string.h>
++#include <stdbool.h>
+ #include "py/obj.h"
+ #include "py/runtime.h"
+@@ -43,38 +44,95 @@
+ void random_buffer(uint8_t *p, size_t count);
+-static void rng_init(void) {
+-    if (!(RNG->CR & RNG_CR_RNGEN)) {
+-        __HAL_RCC_RNG_CLK_ENABLE();
++#define RNG_TIMEOUT_MS      (10)
++#define RNG_MAX_ATTEMPTS    (3)
++
++// Bits we must be able to see and clear. Same names/positions on L4 and L4+.
++#ifndef RNG_SR_SEIS
++# define RNG_SR_SEIS    (1u << 6)
++#endif
++#ifndef RNG_SR_CEIS
++# define RNG_SR_CEIS    (1u << 5)
++#endif
++#ifndef RNG_SR_SECS
++# define RNG_SR_SECS    (1u << 2)
++#endif
++#ifndef RNG_SR_CECS
++# define RNG_SR_CECS    (1u << 1)
++#endif
+-        RNG->CR |= RNG_CR_RNGEN;
++#define RNG_SR_ERRORS   (RNG_SR_SEIS | RNG_SR_CEIS | RNG_SR_SECS | RNG_SR_CECS)
+-        // TODO: throw out some samples?
++// rng_reset()
++//
++// Full re-init of the peripheral. Required after any seed or clock error:
++// per RM0432 (and RM0351) the SEIS flag must be cleared *and* RNGEN toggled
++// off->on, otherwise DRDY never asserts again and every later read times out
++// forever. Simply testing RNGEN (as the previous code did) is a no-op in that
++// state, which turned a transient glitch into a permanently dead device.
++static void rng_reset(void) {
++    __HAL_RCC_RNG_CLK_ENABLE();
++
++    RNG->CR &= ~RNG_CR_RNGEN;
++    RNG->SR &= ~(RNG_SR_SEIS | RNG_SR_CEIS);    // rc_w0: write 0 to clear
++    RNG->CR |= RNG_CR_RNGEN;
++
++    // RM: the first word produced after enabling may be invalid; discard it.
++    uint32_t start = HAL_GetTick();
++    while (!(RNG->SR & RNG_SR_DRDY)) {
++        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) return;
+     }
++    (void)RNG->DR;
+ }
+-
+-#define RNG_TIMEOUT_MS (10)
++static void rng_init(void) {
++    if (!(RNG->CR & RNG_CR_RNGEN) || (RNG->SR & RNG_SR_ERRORS)) {
++        rng_reset();
++    }
++}
+ static uint32_t last_value;
+-static uint32_t rng_get_or_fault(void)
++// rng_try_once()
++//
++// One attempt. Returns true and stores the word on success. Never throws.
++static bool rng_try_once(uint32_t *out)
+ {
+-    // Enable the RNG peripheral if it's not already enabled
+-    rng_init();
+-
+-    // Wait for a new random number to be ready, takes on the order of 10us
+     uint32_t start = HAL_GetTick();
+     while (!(RNG->SR & RNG_SR_DRDY)) {
+-        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) {
+-            // hardware failure... do not return anything!
+-            mp_raise_OSError(MP_EFAULT);
++        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) return false;
++    }
++
++    // Data is only trustworthy if no error latched while we were waiting.
++    if (RNG->SR & RNG_SR_ERRORS) {
++        (void)RNG->DR;              // drain the suspect word
++        return false;
++    }
++
++    *out = RNG->DR;
++
++    return true;
++}
++
++static uint32_t rng_get_or_fault(void)
++{
++    uint32_t value = 0;
++
++    for (int attempt = 0; attempt < RNG_MAX_ATTEMPTS; attempt++) {
++        rng_init();
++
++        if (rng_try_once(&value)) {
++            last_value = value;
++            return last_value;
+         }
++
++        // Transient fault: recover the peripheral properly and try again.
++        rng_reset();
+     }
+-    // Get and return the new random number
+-    last_value = RNG->DR;
++    // Persistent hardware failure... do not return anything!
++    mp_raise_OSError(MP_EFAULT);
+     return last_value;
+ }
+diff --git a/stm32/COLDCARD_MK4/rng.c b/stm32/COLDCARD_MK4/rng.c
+index 00e3d203a..c72b38b41 100644
+--- a/stm32/COLDCARD_MK4/rng.c
++++ b/stm32/COLDCARD_MK4/rng.c
+@@ -31,6 +31,7 @@
+  */
+ #include <string.h>
++#include <stdbool.h>
+ #include "py/obj.h"
+ #include "py/runtime.h"
+@@ -43,38 +44,95 @@
+ void random_buffer(uint8_t *p, size_t count);
+-static void rng_init(void) {
+-    if (!(RNG->CR & RNG_CR_RNGEN)) {
+-        __HAL_RCC_RNG_CLK_ENABLE();
++#define RNG_TIMEOUT_MS      (10)
++#define RNG_MAX_ATTEMPTS    (3)
++
++// Bits we must be able to see and clear. Same names/positions on L4 and L4+.
++#ifndef RNG_SR_SEIS
++# define RNG_SR_SEIS    (1u << 6)
++#endif
++#ifndef RNG_SR_CEIS
++# define RNG_SR_CEIS    (1u << 5)
++#endif
++#ifndef RNG_SR_SECS
++# define RNG_SR_SECS    (1u << 2)
++#endif
++#ifndef RNG_SR_CECS
++# define RNG_SR_CECS    (1u << 1)
++#endif
+-        RNG->CR |= RNG_CR_RNGEN;
++#define RNG_SR_ERRORS   (RNG_SR_SEIS | RNG_SR_CEIS | RNG_SR_SECS | RNG_SR_CECS)
+-        // TODO: throw out some samples?
++// rng_reset()
++//
++// Full re-init of the peripheral. Required after any seed or clock error:
++// per RM0432 (and RM0351) the SEIS flag must be cleared *and* RNGEN toggled
++// off->on, otherwise DRDY never asserts again and every later read times out
++// forever. Simply testing RNGEN (as the previous code did) is a no-op in that
++// state, which turned a transient glitch into a permanently dead device.
++static void rng_reset(void) {
++    __HAL_RCC_RNG_CLK_ENABLE();
++
++    RNG->CR &= ~RNG_CR_RNGEN;
++    RNG->SR &= ~(RNG_SR_SEIS | RNG_SR_CEIS);    // rc_w0: write 0 to clear
++    RNG->CR |= RNG_CR_RNGEN;
++
++    // RM: the first word produced after enabling may be invalid; discard it.
++    uint32_t start = HAL_GetTick();
++    while (!(RNG->SR & RNG_SR_DRDY)) {
++        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) return;
+     }
++    (void)RNG->DR;
+ }
+-
+-#define RNG_TIMEOUT_MS (10)
++static void rng_init(void) {
++    if (!(RNG->CR & RNG_CR_RNGEN) || (RNG->SR & RNG_SR_ERRORS)) {
++        rng_reset();
++    }
++}
+ static uint32_t last_value;
+-static uint32_t rng_get_or_fault(void)
++// rng_try_once()
++//
++// One attempt. Returns true and stores the word on success. Never throws.
++static bool rng_try_once(uint32_t *out)
+ {
+-    // Enable the RNG peripheral if it's not already enabled
+-    rng_init();
+-
+-    // Wait for a new random number to be ready, takes on the order of 10us
+     uint32_t start = HAL_GetTick();
+     while (!(RNG->SR & RNG_SR_DRDY)) {
+-        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) {
+-            // hardware failure... do not return anything!
+-            mp_raise_OSError(MP_EFAULT);
++        if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) return false;
++    }
++
++    // Data is only trustworthy if no error latched while we were waiting.
++    if (RNG->SR & RNG_SR_ERRORS) {
++        (void)RNG->DR;              // drain the suspect word
++        return false;
++    }
++
++    *out = RNG->DR;
++
++    return true;
++}
++
++static uint32_t rng_get_or_fault(void)
++{
++    uint32_t value = 0;
++
++    for (int attempt = 0; attempt < RNG_MAX_ATTEMPTS; attempt++) {
++        rng_init();
++
++        if (rng_try_once(&value)) {
++            last_value = value;
++            return last_value;
+         }
++
++        // Transient fault: recover the peripheral properly and try again.
++        rng_reset();
+     }
+-    // Get and return the new random number
+-    last_value = RNG->DR;
++    // Persistent hardware failure... do not return anything!
++    mp_raise_OSError(MP_EFAULT);
+     return last_value;
+ }

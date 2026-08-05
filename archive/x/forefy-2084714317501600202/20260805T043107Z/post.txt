@@ -1,0 +1,64 @@
+url:      https://x.com/forefy/status/2084714317501600202
+author:   forefy
+handle:   @forefy
+posted:   2026-08-04T18:53:20.000Z (from the page's <time> element)
+captured: 20260805T043107Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    2 attached image(s)
+media-1: https://pbs.twimg.com/media/HO5gUpCWcAApCVK?format=jpg&name=small (680 x 673 pixels)
+media-2: https://pbs.twimg.com/amplify_video_thumb/2084649221391867904/img/_ydqdcpqsjSYFUq8.jpg (1200 x 627 pixels)
+videos:   1 attached video(s), poster URL below;
+          the video itself is not captured by this tool
+video-1: poster https://pbs.twimg.com/amplify_video_thumb/2084649221391867904/img/_ydqdcpqsjSYFUq8.jpg
+
+--- post text (verbatim) ---
+
+Share this with your Junior dev next time the phrase "AI replaced us" is used.
+
+ REAL LIFE STUDY of vibe coding an enterprise app in 10-hour loops (opus 4.8 and 5), as a veteran security tool builder and security researcher
+
+The task was: on-demand k8 (kubernetes) research labs, to train cloud security researchers from zero to hero, taking from basic cluster knowledge to all the common known attack vectors.
+
+Although this is entirely built with AI - the expertise that took to drive the agents the right direction was built over YEARS.
+
+an unexperienced individual can only go as far on research, without missing the building blocks for a successful app that don't break.
+
+it can re-prompt claude for ages how sure it is the plan is right, but it's the simple stuff that it can get horribly wrong, and the entire codebase will slowly rot by relying on the previous agent's slop as future guidance
+
+Here are some building blocks AI would have missed for this project:
+
+ Knowing the Consumer
+> what level of practicality does a security researcher look for when studying
+> what does it want to see e.g. real life ebpf instrumenting the elevation, real-life topology of the lab mid-solve for architectural visualization, commands mixed with the training materials you can actually run and inspect on a real lab
+> to know what to define as good end result I had to live the end result, solve hackthebox labs 10 years ago, build CTF's for new hires as well as my senior coworkers and seeing what works for them, what discourages them (or me) while learning-by-doing
+
+ Hidden AI workarounds
+> AI would lean in to the much simpler architectural solution of spinning fake labs, giving the researcher access to a container when the attacker really needs complex in-cluster lateral movement
+> All security shortcuts are tried before the user notices. providing users with escalation labs is a scary business, and AI is no help. it will chose the easy way around, or compromise security self-justifying that this is MVP phase.
+> The implications for these workarounds hurt more the later they are found. all the reliance, challenging, and research must be done right to get the hour-long flights rolling.
+
+ Controlling the security mess
+> during a deployment the agent tried opening all possible ports to the internet, expose admin dashboards, and had no control over the anonymous external attack surface it creates
+> secrets encryption and control (the more the lab builds app the more secrets to manage, AI shouldn't get access to those as well)
+
+ Compelling infrastructure
+Stuff AI could not guess but had to come from experience:
+> Specifically use cloudflare as a free CDN and WAF
+> Use posthog for visitor analytics
+> Use hetzner
+> Database choices, developer setup and environmental drift, knowing how local/staging/prod cycle just makes the entire thing feel different
+
+ Cost control
+> AI made reasonable but 3x price estimations for a monthly cost per the entire setup, than what I managed to get at the end.
+> Use hetzner cloud and hetzner robot for killer architecture pricing
+> Avoid cloud sales pitches (which polluted AI completely) - a full auto scalable infrastructure can be achieved with k8 on a simple compute unit, but it will cost SIGNIFICANTLY less and be way simpler
+
+It built the app, wrote most of the code, did in hours what would have taken a team weeks back then if not months.
+
+And at every single one of those decision points above, it would have shipped something insecure, over-engineered, three times too expensive, or subtly useless to the exact people it was built for "confidently", and without ever flagging it.
+
+The AI didn't replace the expertise here - it ran on top of it.
+
+That's our job now. And it's a job that still takes years to be any good at.
+
+This brings my trust back in our mission, not trusting AI sloppers to develop what I know can be built better. Not feeling bad for letting AI run loose for hours - but know that the time I can let it go off-leash increases the more I care about the input I give it.

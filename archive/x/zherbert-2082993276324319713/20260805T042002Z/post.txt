@@ -1,0 +1,58 @@
+url:      https://x.com/zherbert/status/2082993276324319713
+author:   Zach Herbert
+handle:   @zherbert
+posted:   2026-07-31T00:54:31.000Z (from the page's <time> element)
+captured: 20260805T042002Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Regarding the Coldcard entropy bug – many folks are explaining what happened but I wanted to take a minute to explain why it may have happened.
+
+It's a disastrous situation and our heart goes out to all the Bitcoiners affected.
+
+Here's a timeline of events:
+
+On July 28 2020: 
+@FoundationHQ
+ announced our first Passport hardware wallet and noted that we were building on Coldcard firmware which at the time was GPLv3 licensed (FOSS license).
+
+On July 30 2020: NVK publicly said he regretted choosing GPL because Coldcard now had a “clone” and that they would change things in future updates. 
+https://
+x.com/nvk/status/128
+8860345864527874
+…
+
+On November 18 2020: Coldcard added its MIT + Commons Clause license, prohibiting commercial products substantially derived from the software. 
+https://
+github.com/Coldcard/firmw
+are/commit/b6b9191145d37fbb6d754597350653141596dd12
+…
+
+On January 8, 2021: Coldcard firmware 3.2.1 formally announced, “License changed from GPL to MIT+CC on files for which the GPL doesn’t apply.” CC is the "Commons Clause" license addendum which is "source available" instead of FOSS.
+
+On March 1, 2021: The “First pass w/ libNgU” commit removed the GPL 
+@Trezor
+-derived crypto libraries and replaced them with libNgU. That same 120-file commit changed seed generation code. libNgU was licensed with a novel “Licensed for Bitcoin Only” license.
+
+On March 17, 2021: Version 4.0.0 announced that all crypto and BIP39 code had been replaced and that the “last remaining GPL code” was removed. 
+https://
+blog.coinkite.com/version-4.0.0-
+released/
+…
+
+https://
+github.com/Coldcard/firmw
+are/blob/b18723dddb6d751c39978e4364b56b2414f68b47/releases/ChangeLog.md#L12
+…
+
+Our best understanding right now is that the entropy bug was collateral damage from this major overhaul of the codebase.
+
+To be clear, this overhaul was not solely about licensing. Coldcard also cited technical goals including adopting Bitcoin Core’s libsecp256k1, faster AES and SHA implementations, and reproducible builds.
+
+But the timeline establishes two things: 
+(1) Foundation’s launch was the obvious impetus for Coldcard’s licensing change, and 
+(2) removing the remaining GPL code was an explicit goal of the subsequent v4 rewrite.
+
+We don't know by how much the licensing pressure affected the scope or timeline of the rewrite. All we can determine is that the entropy bug was introduced inside the same 120-file commit that removed the old GPL code dependencies.

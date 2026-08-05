@@ -70,6 +70,40 @@
   color: var(--ink-3); margin-top: .55rem; line-height: 1.5;
 }
 .kpi-card__note { font-size: .8rem; color: var(--ink-3); margin-top: .55rem; line-height: 1.55; }
+/*
+ * Provenance as fields, not prose. A card that has to say which capture its
+ * figure came from, when the figure last moved and whether the source is still
+ * answering says four things at once, and as a sentence they have to be read
+ * in full to find the one that matters. As rows they are scanned.
+ *
+ * data-flag marks a row the reader should not skip: a degraded reading, or a
+ * source that has stopped answering.
+ *
+ * One grid for the whole list, not one per row: the rows exist only to carry
+ * that flag, and with a grid each they size their own term column, so no two
+ * values start at the same x and the list stops being scannable.
+ * `display: contents` hands the dt/dd straight to the list's two columns.
+ */
+.kpi-meta {
+  margin: .7rem 0 0; display: grid; grid-template-columns: auto 1fr;
+  gap: .25rem .5rem; align-items: baseline;
+  font-size: .75rem; line-height: 1.4;
+}
+.kpi-meta__row { display: contents; }
+/* The liveness tag rides on the label line, so it inherits the label's
+   uppercase and tracking and only needs its own size and spacing. */
+.kpi-live { margin-left: .4rem; font-size: .55rem; letter-spacing: .08em; vertical-align: .05em; }
+.kpi-meta dt {
+  font-family: var(--font-mono); font-size: .58rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  white-space: nowrap; padding-top: .1em;
+}
+.kpi-meta dd {
+  margin: 0; color: var(--ink-2); font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
+}
+.kpi-meta__row[data-flag='true'] > dd { color: var(--warn); }
+.kpi-meta__row[data-flag='true'] > dt { color: var(--warn); opacity: .85; }
 
 /* --- tables -------------------------------------------------------------- */
 .table-wrap {

@@ -1,0 +1,38 @@
+url:      https://x.com/hosseeb/status/2084327870961508408
+author:   Haseeb ＞|＜
+handle:   @hosseeb
+posted:   2026-08-03T17:17:44.000Z (from the page's <time> element)
+captured: 20260805T021337Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOuDYU7aIAA3Mj2?format=jpg&name=small (680 x 462 pixels)
+
+--- post text (verbatim) ---
+
+People are not appreciating one of the biggest takeaways from the COLDCARD hack.
+
+Cybersecurity is now all about spend. Once AIs are doing all of the attacking, the simple question is how much money are you spending with frontier AIs scanning for vulnerabilities, compared to what attackers are spending?
+
+The fact that Claude was able to find this in 8 minutes (and GLM in 20 minutes) tells you that these guys were doing basically nothing. Absolutely 0 AI hardening happening on releases.
+
+COLDCARD is a minority vendor. They have probably ~2% market share within Bitcoin hardware wallets. The lesson: security-sensitive products (crypto wallets especially) are going to consolidate toward larger, better-funded players who can afford to do the security hardening, and small companies without meaningful funding are simply NGMI.
+
+Second: we can now start standardizing reporting on the cost of discovering an attack, in order to understand how bad it was. Call it Cost of Discovery (CoD): how much it would cost a frontier model to discover the same vulnerability.
+
+The linked Claude Code claim is a little suspect (it may have been contaminated by web search), so another poster turned off web access to GLM 5.2 and was able to rediscover the attack in 20 minutes.
+
+Taking the 
+@ZhipuAI
+ API numbers ($1.40/M in, $4.40/M out, 35tps), given the kind of workload here (read-heavy agentic workload), Opus estimates the total Cost of Discovery on this bug was around $2.
+
+$2 of AI hardening would've caught this bug.
+
+There is no excuse for this.
+
+In the future we should start reporting Cost of Discovery on these when vulnerabilities are independently replicated. (Companies should not necessarily publish the amount of money they are spending on AI-hardening, as that would imply to an attacker: if you spend more than X, you may find something.)
+
+If you are a startup and building anything, you should be running AI-hardening on EVERY release. You should be spending AT LEAST in the thousands of dollars using a frontier-level model searching for crits, especially when the endpoint (recovering the key, or draining money out of a smart contract) is easily verifiable.
+
+My heart goes out to anyone who lost money from this. AI is genuinely changing the game and many have not been able to adapt in time. But I do believe in the long run, AI is going to make us all better off security-wise than before.
+
+We have no choice but to adapt.

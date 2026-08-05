@@ -1,0 +1,39 @@
+---
+/**
+ * One exact instant in the archive UI.
+ *
+ * The server-rendered UTC text is the no-JavaScript fallback. Base.astro
+ * upgrades timestamps carrying `data-cc-time` to the reader's browser time
+ * zone, or keeps them in UTC when that preference is selected. Date-only
+ * source metadata deliberately stays date-only: without a publication time,
+ * moving it across a time-zone boundary would invent precision.
+ */
+import { isoToHuman } from '../lib/archive';
+
+interface Props {
+  iso: string;
+  class?: string;
+  hidden?: boolean;
+  /** Preserve second-level precision when the source establishes it. */
+  seconds?: boolean;
+}
+
+const { iso, class: className, hidden = false, seconds = false } = Astro.props;
+const exact = /^\d{4}-\d{2}-\d{2}T/.test(iso);
+const instant = new Date(iso);
+const display = seconds && exact && !Number.isNaN(instant.getTime())
+  ? instant.toLocaleString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      timeZoneName: 'short', timeZone: 'UTC',
+    })
+  : isoToHuman(iso);
+---
+
+<time
+  class={className}
+  datetime={iso || undefined}
+  data-cc-time={exact ? '' : undefined}
+  data-cc-seconds={seconds && exact ? '' : undefined}
+  hidden={hidden}
+>{display}</time>

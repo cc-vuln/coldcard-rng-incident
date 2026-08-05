@@ -1,0 +1,379 @@
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+satsigner
+/
+satsigner
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+22
+Star
+52
+Code
+Issues
+22
+Pull requests
+9
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+Audit and Harden seed phrase entropy generation - #468
+#468
+Merged
+Psycarlo merged 9 commits into
+mastersatsigner/satsigner:masterfrom
+fix/entropysatsigner/satsigner:fix/entropyCopy head branch name to clipboard
+Aug 3, 2026
+ConversationCommits9 (9)ChecksFiles changed
+Merged
+Audit and Harden seed phrase entropy generation#468
+Psycarlo merged 9 commits into
+mastersatsigner/satsigner:masterfrom
+fix/entropysatsigner/satsigner:fix/entropyCopy head branch name to clipboard
+Conversation
+Psycarlo
+commented
+Jul 31, 2026
+•
+edited by pedromvpg
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Collaborator
+Fixes & closes #465
+Summary
+Audit of all randomness feeding BIP39 seed generation in apps/mobile, prompted by the Coldcard Mk3 entropy disclosure. Nine original findings fixed, plus follow-up hardening for weak manual input, seededRandom, and a large-N statistical audit suite.
+The default path was already sound. Native bdk_ffi → ThreadRng → OsRng → getrandom(2), confirmed by disassembling the shipped .so. No Math.random in any key path.
+The optional dice and coin paths were broken. One hard-blocked users; the other silently under-delivered entropy. They now use SHA-512 conditioning with optional device mixing (default on).
+Findings (original audit)
+#
+Severity
+Finding
+1
+Critical
+Dice softlocked forever on face "1". Buttons emitted the array index (0–5), so while every roll was 0 the accumulator stayed 0n → 8 bits, never reaching 128. Counter climbed, bar never filled, no error. Every leading "1" was silently discarded.
+2
+Medium
+Dice lost 6.19 bits (12-word) / 5.84 bits (24-word). Termination on bit length confined the value to [2^120, 6·2^120), so the leading byte took 5 of 256 values. Residual 2^121.8 — not brute-forceable, but a real defect in an entropy-assurance feature.
+3
+Medium
+Roll-count collision: [1, 4×47] and [4×47] gave byte-identical entropy. 48 rolls = same seed as 47, so the paper log couldn't reproduce the seed.
+4
+High
+Coin had no debiasing, and both buttons were identical gray circles inviting one-sided tapping. At p=0.8 → 184.8 bits for a "256-bit" seed. Unbounded shortfall, reported as full strength.
+5
+Medium
+Manual entropy replaced the CSPRNG entirely — seed strength was a pure function of user input quality.
+6
+Medium
+drawing was selectable but its handler was case 'drawing': { break }. Tap generate, nothing happens.
+7
+Low
+randomNum() divided by 2^32-1, so a maximal draw returned exactly 1.0 → index past end → undefined word on the seed-confirmation screen.
+8
+Low
+AES-CBC IV came from uuid.v4(): 122 bits, 6 fixed at known positions.
+9
+Low
+No distribution tests. Existing coverage used '0'.repeat(128) — uniform inputs can't catch a distribution bug, which is why 1–3 shipped.
+Figures derived analytically and cross-validated by Monte Carlo (200k–300k trials).
+Changes (original)
+New utils/entropy.ts — SHA-512 conditioning, CSPRNG mixing, rejection-sampled randomIndex, bias detection. Findings 2–5 shared one root cause (conditioning implemented ad hoc inside React components) and are fixed together.
+entropy/dice.tsx — terminates on roll count; buttons pass the printed face; undo; bias warning; mix toggle
+entropy/coin.tsx — hashed conditioning; visually distinct 0/1 faces; undo; bias warning; mix toggle
+utils/crypto.ts — randomNum divides by 2^32; randomIv uses randomBytes(16)
+config/entropy.ts — drawing removed, dead case blocks deleted from both flows
+locales/en.json — new keys; dice/coin descriptions corrected
+__mocks__/react-native-quick-crypto.ts — createHash/randomBytes delegate to node:crypto
+Follow-up hardening
+Additional review findings addressed on top of the original audit:
+Severity
+Change
+High
+Weak / patterned input (not only first-order bias) is detected; unmixed continue requires an explicit confirmation. Copy no longer claims hashing "rescues" entropy when mix is off.
+High
+Preview uses the real bit width and is labeled so it is not mistaken for the final seed (especially when mix is on).
+Medium
+Helpers enforce minimum roll/flip counts (allowPartial only for live preview).
+Medium
+Recorded dice/coin log is shown for the paper-trail path; undo remains available after completion.
+Medium
+seededRandom uses the same [0, 1) contract as randomNum (divide by 2^32) to avoid Fisher–Yates holes in coin selection.
+Medium
+Mix folds crypto.getRandomValues (same CSPRNG surface as randomIndex / randomNum).
+Low
+Frozen hash KATs, mix byte-count coverage, pattern/weak helper tests.
+Low
+Multisig generate passes 'english' explicitly; generateMnemonic documents the English (BDK native) vs non-English (getRandomValues) split.
+Large-N entropy audit
+New opt-in suite under apps/mobile/tests/entropy-audit/:
+Sources: CSPRNG, dice, biased dice, coin, biased coin, mix, and a deliberately broken restricted-byte canary
+Checks: byte χ², bit balance, serial correlation, collisions (skipped for biased input generators)
+Commands: pnpm test:entropy · pnpm entropy:audit (ENTROPY_AUDIT_SAMPLES, default 5k for the audit script)
+Default path note: English new Mnemonic() still uses native BDK RNG (Jest mocks BDK, so CI does not exercise that .so path). Non-English and mix paths are covered by the JS CSPRNG samplers.
+Design decisions
+Hashing over arithmetic conditioning. Lossless base-6 → base-2 needs rejection sampling, which discards user rolls. SHA-512 is uniform by construction and matches Coldcard and Sparrow. Hashing does not add entropy — unmixed seeds are only as strong as the user's input.
+Dice buttons pass the printed face (1–6), not the index. Digit conversion happens inside entropyFromDiceRolls, so the sequence the user writes down is the sequence hashed. Offline format: SHA-512("dice:" + rolls.join(","))[0 .. bits/8] (and "coin:" + concatenated flips).
+Device mixing defaults on, but is a visible toggle. Mixing means the seed can't be reproduced from the paper log. Some users pick dice for exactly that verifiability, so the trade-off is surfaced rather than decided silently. Weak unmixed input now requires confirmation.
+Beyond audit scope
+Locale roll counts were wrong. 18 words needs 75 rolls (said 74), 24 needs 100 (said 99) — ceil(256 / log2(6)) = 100. Strings now derive from the same arithmetic as the code.
+The quick-crypto mock returned a fake 32-byte digest. Conditioning tests are meaningless against a stub hash, and 32 bytes can't cover 256-bit output.
+Test plan
+Generate 12/24-word seed with entropy none (English and another wordlist)
+Dice: complete required rolls, confirm recorded log, continue with mix on
+Dice: turn mix off, enter patterned/biased input, confirm Alert, verify warning copy
+Coin: same as dice for mix on/off and weak input
+Undo after completion still works
+pnpm --filter @satsigner/mobile typecheck
+pnpm run check
+pnpm --filter @satsigner/mobile test:unit
+pnpm --filter @satsigner/mobile test:entropy
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+fix: audit and harden seed phrase entropy generation
+1de5403
+Psycarlo
+requested review from
+pedromvpg and
+v4v2
+July 31, 2026 10:20
+Psycarlo
+changed the title
+Aaudit and Harden seed phrase entropy generation
+Audit and Harden seed phrase entropy generation
+Jul 31, 2026
+pedromvpg
+and others
+added 8 commits
+August 3, 2026 13:44
+Merge branch 'master' into fix/entropy
+4b7824f
+fix: harden entropy helpers against weak and short input
+…
+c931e1e
+Enforce minimum roll/flip counts, detect patterned sequences, document
+the hash construction, and add KATs plus mix-strength coverage.
+fix: keep seededRandom in [0, 1) like randomNum
+…
+b631b55
+Divide by 2^32 so a maximal uint32 draw cannot return 1.0 and create
+holes in Fisher-Yates shuffles used by coin selection.
+docs: clarify mnemonic RNG paths and multisig wordlist
+…
+5b92473
+Document the English BDK native vs getRandomValues split, and pass
+english explicitly on multisig generate.
+fix: warn and confirm on weak unmixed dice/coin input
+…
+f54013d
+Surface patterned or biased input, require confirmation when mix is off,
+show the recorded log, and label the preview so it is not mistaken for
+the final seed.
+test: add large-N entropy audit suite
+…
+9299478
+Opt-in Jest harness for chi-square, bit balance, serial correlation,
+and a restricted-byte canary across CSPRNG, dice, coin, and mix paths.
+fix: fixes
+f30e648
+fix: lint
+7cdd96f
+pedromvpg
+approved these changes
+Aug 3, 2026
+View reviewed changes
+Hide details
+View details
+Psycarlo
+merged commit 5a8b186
+into
+master
+Aug 3, 2026
+1 check passed
+Uh oh!
+There was an error while loading. Please reload this page.
+Psycarlo
+deleted the
+fix/entropy
+branch
+August 3, 2026 18:41
+pedromvpg
+added a commit
+that referenced
+this pull request
+Aug 4, 2026
+Merge remote-tracking branch 'upstream/master' into explorer-phase2
+…
+2f94e6f
+Resolve en.json conflicts by taking the union of both sides' i18n keys:
+- Dedupe the ark section that both branches added independently
+- Adopt master's newer entropy coin/dice descriptions (PR #468)
+- Keep our explorer.block.title ("Block") for sibling-title consistency
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+pedromvpg
+pedromvpg approved these changes
+v4v2
+Awaiting requested review from v4v2
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Investigate Entropy
+Uh oh!
+There was an error while loading. Please reload this page.
+2 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

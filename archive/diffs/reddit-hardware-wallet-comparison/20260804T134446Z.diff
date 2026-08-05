@@ -1,0 +1,401 @@
+--- reddit-hardware-wallet-comparison@20260804T093454Z
++++ reddit-hardware-wallet-comparison@20260804T134446Z
+@@ -881,3 +881,398 @@
+ edited: false
+ body:
+ Modern computers have multiple entropy sources that include variables from the physical world. Stealing the computer won't help an attacker
++
++comment: p1m951r
++parent: t1_p1m2fm2
++author: slvbtc
++created_utc: 1785836231
++edited: false
++body:
++AI will eventually leak all closed source code, if the only thing keeping a hardware wallet secure is closed source code then it will get hacked eventually. 
++
++Having all code open source means security comes from competence not from hiding your code.
++
++Right now all HW wallets with open source code are getting reviewed and attacked and that process will end up in robust security, meanwhile ledger isnt getting reviewed or attacked so if there is a fault people wont know about it and will keep generating low entropy seeds until AI leaks their secure element code in the future and the seeds are all hacked then.
++
++If closed source code will eventually be leaked by AI anyway then its far better to be open source from the beginning.
++
++comment: p1m99ra
++parent: t3_1vehzv8
++author: pcvcolin
++created_utc: 1785836296
++edited: false
++body:
++Good post - but check out this security advisory here in full and don't forget to review the multi-sig notes at the end.  https://wizardsardine.com/blog/coldcard-rng-vulnerability/
++
++If there is one thing this should teach anyone it's that multi-device, multi-vendor multi-sig is needed in your setup as part of critical guard against things like this.
++
++comment: p1m9pa6
++parent: t3_1vehzv8
++author: TheDuhbb
++created_utc: 1785836505
++edited: false
++body:
++fuck the randomness of hardware devices.
++Just roll your dice and use physical real world entropy to generate your seed phrase.
++
++comment: p1m9sgl
++parent: t1_p1ltmgl
++author: pcvcolin
++created_utc: 1785836549
++edited: false
++body:
++You hit the nail on the head. 
++
++comment: p1m9u9z
++parent: t1_p1m57to
++author: pcvcolin
++created_utc: 1785836574
++edited: false
++body:
++That's right. 
++
++comment: p1ma634
++parent: t1_p1kh82v
++author: TrueRead1435
++created_utc: 1785836734
++edited: false
++body:
++bitbox is definitely up there too. i gave trezor the edge because even if the device entropy completely failed, the host entropy is committed and verifiable. but i think both are excellent designs.
++
++comment: p1ma7x4
++parent: t1_p1m6uqs
++author: TrueRead1435
++created_utc: 1785836757
++edited: false
++body:
++i wouldn't say it's unsafe. i'd say it's not independently verifiable. those are two different things.
++
++comment: p1ma9aw
++parent: t1_p1kohml
++author: TrueRead1435
++created_utc: 1785836776
++edited: false
++body:
++haven't looked at bitkey in enough detail yet. i'll probably add it in a future revision.
++
++comment: p1maabh
++parent: t1_p1l9rh0
++author: TrueRead1435
++created_utc: 1785836790
++edited: false
++body:
++understandable... just don't let "for now" turn into "for the next 5 years" 😂
++
++comment: p1mab4e
++parent: t1_p1ldhio
++author: TrueRead1435
++created_utc: 1785836800
++edited: false
++body:
++definitely one of the strongest designs i found. i was genuinely impressed while researching it.
++
++comment: p1mac52
++parent: t1_p1lb90a
++author: TrueRead1435
++created_utc: 1785836813
++edited: false
++body:
++i actually agree with most of this. my point wasn't that ledger is insecure, only that users can't independently verify the entropy generation. that's a different trust model than wallets that combine multiple sources and publish how to verify them.
++
++comment: p1maeci
++parent: t1_p1lrp2d
++author: TrueRead1435
++created_utc: 1785836842
++edited: false
++body:
++good catch. i was specifically referring to the dice workflow, but you're right that seedsigner also supports camera entropy. i'll make that clearer.
++
++comment: p1mag92
++parent: t1_p1kb4ny
++author: TrueRead1435
++created_utc: 1785836868
++edited: false
++body:
++thanks, that's a useful distinction. i was focusing on the default card-generated key flow, but i'll add that option if i update the comparison.
++
++comment: p1mah21
++parent: t1_p1lnnzk
++author: TrueRead1435
++created_utc: 1785836878
++edited: false
++body:
++i skipped keepkey because it's much less common today, but it's a fair suggestion. i may include it in a future version.
++
++comment: p1majjt
++parent: t1_p1lysw1
++author: TrueRead1435
++created_utc: 1785836910
++edited: false
++body:
++i don't see any reason to stop. just keep in mind it also offers camera entropy, the dice workflow was simply the one i was focusing on.
++
++comment: p1maojj
++parent: t1_p1lu9vs
++author: extraepicc
++created_utc: 1785836976
++edited: false
++body:
++I mean do I need to keep the trezor and also the computer to be able to retrieve the bitcoin later? How about when I change computers? 
++
++comment: p1mcihv
++parent: t1_p1m8620
++author: sciencetaco
++created_utc: 1785837845
++edited: false
++body:
++It doesn’t. But Coldcard’s entropy issue was a result of terrible engineering practices.
++
++comment: p1mcws9
++parent: t1_p1klmu6
++author: ThunderBurrn
++created_utc: 1785838030
++edited: 1785838234
++body:
++Only for long term HOLDERS using ledger... If folks generate 25th Passphrase via rolling dice and keep that completely safe and secure elsewhere, engraved in a steel plate, and totally stay disconnected off ledger live or any software app, basically use seed phrase as cold paper wallet and view btc holdings on sparrow wallet should probably be a good approach? 
++
++comment: p1md6v4
++parent: t3_1vehzv8
++author: petitcurieux77
++created_utc: 1785838159
++edited: false
++body:
++As long as the seed phrase  is encrypted by our password were are fine no, on Ledger for instance 
++
++comment: p1mdom3
++parent: t1_p1mcihv
++author: slvbtc
++created_utc: 1785838378
++edited: false
++body:
++Are you saying you know without a doubt that ledger has perfect and infallible engineering practices?
++
++comment: p1me3z1
++parent: t1_p1l6urw
++author: iLLuSion_xGen
++created_utc: 1785838570
++edited: false
++body:
++This scares me and I think I’m switching to Trezor because of this
++
++comment: p1mgbyb
++parent: t1_p1m3b5t
++author: Btcyoda
++created_utc: 1785839535
++edited: false
++body:
++Waiting for the next fuckups, making people say the same about wallet software, operating systems, moving to better jurisdictions, living lonely on Mars, etc.....
++
++comment: p1mhm5c
++parent: t3_1vehzv8
++author: Xeruli
++created_utc: 1785840083
++edited: false
++body:
++No Krux ?
++
++comment: p1mj9fa
++parent: t1_p1maojj
++author: masterof7
++created_utc: 1785840770
++edited: false
++body:
++Computer entropy is only used in the time of creating seedphrase (wallet). To retrieve it you need the seedphrase and passphrase (if you add this). After you create your wallet the computer is not important. 
++
++comment: p1mjxtc
++parent: t3_1vehzv8
++author: brdoc
++created_utc: 1785841044
++edited: false
++body:
++Guys at this point f em all and just roll dices?
++
++comment: p1mk0fj
++parent: t3_1vehzv8
++author: PDubsinTF-NEW
++created_utc: 1785841073
++edited: false
++body:
++I hope that really smart crypto, security, quantum, and coding people can see this and weigh in. One can hope…
++
++comment: p1mmo0g
++parent: t1_p1klmu6
++author: duper12677
++created_utc: 1785842134
++edited: false
++body:
++Would having the added pasephrase be enough to calm nerves with a ledger, or is it best to look for a replacement?
++
++comment: p1mqgtd
++parent: t1_p1mmo0g
++author: VulpesVulpe5
++created_utc: 1785843568
++edited: false
++body:
++Im running pretty low on trust this week so rather than trust ledger, it can be one part of a multisig 
++
++comment: p1mqxx9
++parent: t1_p1l2hip
++author: WoodpeckerCapital167
++created_utc: 1785843737
++edited: false
++body:
++This.
++
++Internal hacks, back doors and data breaching are all eventually an issue when $ is involved. 
++
++Everything is hackable with enough power, time, money and luck
++
++comment: p1msdsk
++parent: t1_p1m7kk5
++author: Objective-Run-9104
++created_utc: 1785844254
++edited: false
++body:
++To me this felt like either a trezor shill post or OP not doing the correct analysis. To be fair Trezor still has good security though, but saying it is better than bitbox02 is debatable.
++
++comment: p1mviqt
++parent: t1_p1maeci
++author: DavidssonA
++created_utc: 1785845352
++edited: false
++body:
++Honest Question.... What would you have said about coldcard 3 months ago had you run this experiment? 
++
++Because coldcard felt exactly like you all are pushing trezor... Its the best by far blah blah blah...
++
++I have a ledger, and a safepal. Both worked very well for years and years. At this point.... Bitkey or Trezor are sparking my curiosity but coldcard scares me away from change. 
++
++comment: p1mvyqk
++parent: t1_p1mcws9
++author: locustsandhoney
++created_utc: 1785845500
++edited: false
++body:
++I would absolutely avoid using ledger live and add a passphrase. Also, build and run your own node so you’re not doxxing yourself to Ledger or any other company when you look up your own addresses. Using Ledger Live means Ledger can associate your IP addresses with all your wallet addresses and activity. True of any wallet software that doesn’t point to your own node.
++
++comment: p1mw7dr
++parent: t3_1vehzv8
++author: RetroGaming4
++created_utc: 1785845581
++edited: false
++body:
++Only the paranoid will survive still rings true.  
++
++comment: p1mxdxo
++parent: t3_1vehzv8
++author: pwinne
++created_utc: 1785845976
++edited: false
++body:
++So off the shelf Trezor is best? I’m confused by the roll your own dice thing 
++
++comment: p1mxlj5
++parent: t1_p1ma7x4
++author: JTHM8008
++created_utc: 1785846045
++edited: false
++body:
++As they say, “Don’t Trust, Verify.” I ditched ledger after they came out with that backdoor BS… I moved to Trezor. 
++
++I’m very sorry to hear about what happened and my heart goes out to anyone that lost BTC. I hope Coinkite gets sued to oblivion. 
++
++comment: p1mxuop
++parent: t3_1vehzv8
++author: 00-SilverShot
++created_utc: 1785846129
++edited: false
++body:
++Thank you so much for taking the time to do this.
++
++So glad I switch from Ledger to Trezor a few years ago.  That was an accidentally good move.  Also, I checked the RNG on BlueWallet for my iPhone.  They use the crypto-graphically secured RNG on your smartphone to generate the seed phrase.  [https://x.com/bluewalletio/status/2083597423050461312](https://x.com/bluewalletio/status/2083597423050461312)
++
++In the year of our Lord 2026, Bluewallet on smartphone is proven to be much safer than Coldcard.  I didn't have this on my 2026 bingo card.  Regardless, I plan on making a new wallet and doing coin flips or dice rolls for manual entropy, just in case the RNG on iPhone or Android gets hacked.
++
++comment: p1mz2qc
++parent: t1_p1klmu6
++author: MillerBlade2
++created_utc: 1785846528
++edited: false
++body:
++Time to move my shit coins off ledger
++
++comment: p1n2joh
++parent: t3_1vehzv8
++author: Livid_Fox_1811
++created_utc: 1785847633
++edited: false
++body:
++Yes evaluating that the wallets have multiple sources of entropy is a strong starting point but you also rely on their code too. Trezor is open source which is a strong point but you’ll need to evaluate the code for every upgrade. The best strategy would be to roll a good pair of dice to create your own entropy or mix yours and theirs. 
++
++comment: p1n92xm
++parent: t1_p1m2o01
++author: seblz432
++created_utc: 1785849596
++edited: false
++body:
++You should look up the definition of open-source. It was source-available not open-source.
++
++The main difference is that no one is actually allowed to use the code in anything. If no one is using it/messing with it/developing on top of it/etc, issues are far less likely to be found. A lot of people consider being open-source incredibly important.
++
++comment: p1n9bhx
++parent: t1_p1m5v7a
++author: seblz432
++created_utc: 1785849665
++edited: false
++body:
++See my other comment: https://www.reddit.com/r/Bitcoin/s/Ynud4sP8tp
++
++comment: p1n9qci
++parent: t1_p1ltmgl
++author: seblz432
++created_utc: 1785849784
++edited: false
++body:
++Imo the problem is simply that Coldcard isn't open-source, and I'm not sure why people trust a wallet from a small company without much resources to audit it when it's not open-source.
++
++At least Ledger basically has their own security firm.
++
++comment: p1n9yf3
++parent: t3_1vehzv8
++author: ChiefMetcalfe
++created_utc: 1785849849
++edited: false
++body:
++Trezor gang rise up
++
++comment: p1nahe2
++parent: t3_1vehzv8
++author: Endlesslearner55
++created_utc: 1785850001
++edited: false
++body:
++How about hot wallets?
++
++comment: p1nao6g
++parent: t1_p1mviqt
++author: Thin_Needleworker795
++created_utc: 1785850055
++edited: false
++body:
++Avoid the companies in general. Consider building your own SeedSigner.
++
++comment: p1naxka
++parent: t3_1vehzv8
++author: Enduringfate
++created_utc: 1785850130
++edited: false
++body:
++Bitkey ?
++
++comment: p1nbgfs
++parent: t1_p1mviqt
++author: tradingunlimited
++created_utc: 1785850281
++edited: 1785850711
++body:
++This. The coldcard exploit wasn’t a hardware or engineering failure.  I wouldn’t even call it a software bug.  This was a problem with their build process.  This is where the argument about open source vs. verifiable source falls down.  Unless you were building for the same hardware and using the same build process, you would never find this bug.  Therefore it very unlikely any open source implementation would have flagged this.  This kind of problem is easy to miss and could very well be in any competing implementation.  If I were on the engineering team, I would be a fruitcake about ensuring the RNG was running because it’s the one thing you can’t really unit test.  My first thought would be to get rid of any software PRNGs to reduce the risk of them being used.  After that, I would probably test on a board with the RNG chip removed to ensure its output is necessary and being used.  I would test it many different ways because I have experienced similar surprises where I was confident something was solid when it reality it was subtly broken.

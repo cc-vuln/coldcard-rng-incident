@@ -95,6 +95,51 @@ class RegistryTests(unittest.TestCase):
             ):
                 capture.validate_sources({"source": [source]})
 
+    def test_watch_state_is_bounded(self) -> None:
+        capture.validate_sources({"source": [self.source(watch="frozen")]})
+        for watch in ("cooling", "weekly", "", True):
+            with self.subTest(watch=watch), self.assertRaisesRegex(
+                capture.SourceConfigError, "watch must be 'active' or 'frozen'"
+            ):
+                capture.validate_sources({"source": [self.source(watch=watch)]})
+
+    def test_watch_until_is_bounded_and_exclusive_with_frozen(self) -> None:
+        capture.validate_sources({"source": [self.source(
+            watch_until="20260812T000000Z"
+        )]})
+        with self.assertRaisesRegex(capture.SourceConfigError, "watch_until"):
+            capture.validate_sources({"source": [self.source(
+                watch_until="12 August"
+            )]})
+        with self.assertRaisesRegex(capture.SourceConfigError, "choose watch"):
+            capture.validate_sources({"source": [self.source(
+                watch="frozen", watch_until="20260812T000000Z"
+            )]})
+
+    def test_community_default_window_depends_on_tier(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = self.source(id="thread", kind="community-discussion")
+            snapshots = root / "thread"
+            snapshots.mkdir()
+            (snapshots / "20260801T120000Z.txt").write_text("first")
+            self.assertFalse(capture.watch_window_elapsed(
+                source, "20260808T115959Z", root
+            ))
+            self.assertTrue(capture.watch_window_elapsed(
+                source, "20260808T120000Z", root
+            ))
+            self.assertFalse(capture.watch_window_elapsed(
+                {**source, "watch": "active"}, "20260820T120000Z", root
+            ))
+            tier3 = {**source, "tier": 3}
+            self.assertFalse(capture.watch_window_elapsed(
+                tier3, "20260804T115959Z", root
+            ))
+            self.assertTrue(capture.watch_window_elapsed(
+                tier3, "20260804T120000Z", root
+            ))
+
     def test_kind_is_required_and_non_empty(self) -> None:
         for kind in (None, "", "   ", 1):
             source = self.source(kind=kind)
@@ -265,6 +310,19 @@ class NormalizerTests(unittest.TestCase):
             self.canonical(edited, "rolling-last-update"),
         )
 
+    def test_cktripwire_live_age_does_not_hide_sweep_events(self) -> None:
+        before = "HP-7B35\nLIVE\nlive 1h14m\nHP-3146\nSWEPT ->\nswept in 1h18m"
+        after = before.replace("live 1h14m", "live 1d2h30m")
+        edited = after.replace("swept in 1h18m", "swept in 1h19m")
+        self.assertEqual(
+            self.canonical(before, "cktripwire-live-state"),
+            self.canonical(after, "cktripwire-live-state"),
+        )
+        self.assertNotEqual(
+            self.canonical(before, "cktripwire-live-state"),
+            self.canonical(edited, "cktripwire-live-state"),
+        )
+
     def test_reddit_engagement_does_not_hide_comment_edits(self) -> None:
         a = "user\n<relative-time>\ncomment\n46\n7 more replies"
         b = "user\n<relative-time>\ncomment\n47\n8 more replies"
@@ -272,6 +330,19 @@ class NormalizerTests(unittest.TestCase):
         rules = ("relative-time", "reddit-engagement")
         self.assertEqual(self.canonical(a, *rules), self.canonical(b, *rules))
         self.assertNotEqual(self.canonical(a, *rules), self.canonical(c, *rules))
+
+    def test_reddit_more_stub_counts_are_live_engagement(self) -> None:
+        before = "more-stub: parent t1_abc count 19\ncomment body"
+        after = "more-stub: parent t1_abc count 20\ncomment body"
+        edited = after.replace("comment body", "edited comment body")
+        self.assertEqual(
+            self.canonical(before, "reddit-more-stub-counts"),
+            self.canonical(after, "reddit-more-stub-counts"),
+        )
+        self.assertNotEqual(
+            self.canonical(before, "reddit-more-stub-counts"),
+            self.canonical(edited, "reddit-more-stub-counts"),
+        )
 
     def test_slipstream_live_values_do_not_hide_wording_changes(self) -> None:
         before = (
@@ -291,6 +362,45 @@ class NormalizerTests(unittest.TestCase):
             self.canonical(before, "slipstream-live-state"),
             self.canonical(edited, "slipstream-live-state"),
         )
+
+    def test_coindesk_article_ignores_localised_chrome_and_news_rail(self) -> None:
+        before = (
+            "Search\nTech\nHeadline\nStandfirst\nBy Author\nShare\n"
+            "Summary\nShow\nSummary text\nArticle text\nLatest Crypto News\n"
+            "Old card\nCryptoCD20$1,700"
+        )
+        after = before.replace("By Author\nShare", "Par Auteur\nPartager").replace(
+            "Old card\nCryptoCD20$1,700", "New card\nCryptoCD20$1,800"
+        )
+        edited = after.replace("Article text", "Revised article text")
+        self.assertEqual(self.canonical(before, "coindesk-article"),
+                         self.canonical(after, "coindesk-article"))
+        self.assertNotEqual(self.canonical(before, "coindesk-article"),
+                            self.canonical(edited, "coindesk-article"))
+
+    def test_chaincatcher_article_ignores_tickers_and_related_reading(self) -> None:
+        title = "Nunchuk responds to Coldcard vulnerability: platform keys will not be used directly"
+        before = (
+            "Home\nBTC $63,000 +1.00%\n" + title + "\n2026-08-01\n"
+            "Article text\nRisk warning\nRelated tags\nNunchuk\nRelated reading\nOld"
+        )
+        after = before.replace("BTC $63,000 +1.00%", "BTC $64,000 +2.00%").replace(
+            "Related reading\nOld", "Related reading\nNew"
+        )
+        edited = after.replace("Article text", "Revised article text")
+        self.assertEqual(self.canonical(before, "chaincatcher-article"),
+                         self.canonical(after, "chaincatcher-article"))
+        self.assertNotEqual(self.canonical(before, "chaincatcher-article"),
+                            self.canonical(edited, "chaincatcher-article"))
+
+    def test_newsbtc_article_ignores_related_news_chrome(self) -> None:
+        before = "Headline\nArticle body\nDisclaimer\nRelated News\nOld card\n2 hours ago"
+        after = before.replace("Old card\n2 hours ago", "New card\n3 hours ago")
+        edited = after.replace("Article body", "Revised article body")
+        self.assertEqual(self.canonical(before, "newsbtc-article"),
+                         self.canonical(after, "newsbtc-article"))
+        self.assertNotEqual(self.canonical(before, "newsbtc-article"),
+                            self.canonical(edited, "newsbtc-article"))
 
 
 class ExitCodeTests(unittest.TestCase):
@@ -415,6 +525,10 @@ class CaptureSelectionTests(unittest.TestCase):
         {"id": "chain", "url": "https://example.test/2", "kind": "chain-monitor", "tier": 1},
         {"id": "repo", "url": "https://example.test/3", "kind": "repo-pr", "tier": 2},
         {"id": "report", "url": "https://example.test/4", "kind": "reporting", "tier": 3},
+        {"id": "frozen", "url": "https://example.test/5", "kind": "reporting", "tier": 3,
+         "watch": "frozen"},
+        {"id": "elapsed", "url": "https://example.test/6", "kind": "community-discussion",
+         "tier": 3, "watch_until": "20200101T000000Z"},
     ]
 
     def run_selection(self, **overrides):
@@ -459,6 +573,28 @@ class CaptureSelectionTests(unittest.TestCase):
         code, seen, _ = self.run_selection(tier=1, exclude_kind="chain-monitor")
         self.assertEqual(code, 0)
         self.assertEqual(seen, ["urgent"])
+
+    def test_broad_selection_skips_frozen_sources(self) -> None:
+        code, seen, output = self.run_selection(tier=3)
+        self.assertEqual(code, 0)
+        self.assertEqual(seen, ["report"])
+        self.assertIn("1 frozen source(s)", output)
+
+    def test_explicit_id_can_recheck_a_frozen_source(self) -> None:
+        code, seen, _ = self.run_selection(id="frozen")
+        self.assertEqual(code, 0)
+        self.assertEqual(seen, ["frozen"])
+
+    def test_broad_selection_skips_elapsed_watch_window(self) -> None:
+        code, seen, output = self.run_selection(tier=3)
+        self.assertEqual(code, 0)
+        self.assertEqual(seen, ["report"])
+        self.assertIn("1 source watch window(s) elapsed", output)
+
+    def test_explicit_id_can_recheck_an_elapsed_source(self) -> None:
+        code, seen, _ = self.run_selection(id="elapsed")
+        self.assertEqual(code, 0)
+        self.assertEqual(seen, ["elapsed"])
 
     def test_empty_selection_is_a_configuration_error(self) -> None:
         code, seen, output = self.run_selection(tier=9)
@@ -533,10 +669,13 @@ class FlattenRedditThreadTests(unittest.TestCase):
 
 
 class RedditJsonBindingTests(unittest.TestCase):
-    def test_reddit_normalizers_not_bound_for_json_captures(self) -> None:
+    def test_only_json_safe_reddit_normalizer_is_bound_for_json_captures(self) -> None:
         names = capture.source_normalizers(
             {"id": "reddit-ai-discovery-thread", "capture": "reddit-json"})
-        self.assertEqual([n for n in names if n.startswith("reddit-")], [])
+        self.assertEqual(
+            [n for n in names if n.startswith("reddit-")],
+            ["reddit-more-stub-counts"],
+        )
 
     def test_reddit_normalizers_bound_for_browser_captures(self) -> None:
         names = capture.source_normalizers(

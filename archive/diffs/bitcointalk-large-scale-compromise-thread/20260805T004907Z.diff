@@ -1,0 +1,26 @@
+--- bitcointalk-large-scale-compromise-thread@20260805T001905Z
++++ bitcointalk-large-scale-compromise-thread@20260805T004907Z
+@@ -3187,5 +3187,23 @@
+ I can only recommend storing coins safely at MtGox, BTC-e or FTX at this time
+ you jest but at least mtgox people got ~20% of their btc/bcash back
+ Yep and a long solid hodl so good they made nice money in fiat terms.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: DanWalker on August 05, 2026, 12:34:00 AM
++Quote from: Cookdata on August 04, 2026, 01:49:35 PM
++I have seen some creepy tweets of old posts from Coldcard but I don't think this company is worth defending.
++https://talkimg.com/images/2026/08/04/UoJbgc.jpeg
++https://x.com/coldcardwallet/status/1447213375398846473
++I don't think I'm overreacting right!
++wtf, it seems a retirement attack? ???
++is it when a developer intentionally inserts a bug into the entropy generation process so that it can later be used to steal user's wallet?
++Ironically, that old tweet almost exactly describes the type of vulnerability that now appeared in ColdCard's firmware, so sad.
++It seems they know everything, and made us fools.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: NotFuzzyWarm on August 05, 2026, 12:46:18 AM
++.....
++Gmaxwell detailed exactly what the ColdCard programmer(s) did wrong (https://bitcointalk.org/index.php?topic=5589927.msg66996519#msg66996519)
++Letting such an amateur bug slip through into production software is beyond inexcusable. So they wrote a critical function selection process but never added a followup state check flag? When debugging the software they made no allowances to actually see what RNG was being used? They should be and probably will be massively sued.
++When I used to write CNC code that used #define and #if/#ifndif to setup key functions I always followed it with 2 lines of code to act as a handshake to verify what I intended to run actually has been the one chosen and is the one running, if it wasn't it would throw a error about it. It just was common sense to do that and I'm not even a 'real' programmer as writing code was just part of what I did designing the systems we used to build. For someone who writes code for a living, not checking the state of critical functions is pure slop.
++Worse, others have pointed out that Coinkite was aware of something wrong long ago. They buried the reports. They also have a history of not paying any bug bounties which of course discourages knowledgeable folks from reviewing their code. Their code maybe 'Open View' but they made no effort to respond to any possible issues reported by anyone They never paid any 3rd party security org to certify their code & hardware. The list goes on and on for the probable grounds of lawsuits.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

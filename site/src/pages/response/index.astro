@@ -1,661 +1,258 @@
 ---
 import Article from '../../layouts/Article.astro';
-import CaptureThumb from '../../components/CaptureThumb.astro';
-import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
-import Disclosure from '../../components/Disclosure.astro';
-import FigureProviderKeys from '../../components/figures/FigureProviderKeys.astro';
+import Claim from '../../components/Claim.astro';
 ---
 
 <Article
-  title="The wider response"
-  description="Published guidance from custody providers, the independent technical analyses, the vendor's weekend statements, the community response and the main positions reported during the COLDCARD entropy incident."
-  standfirst="What custody providers, vendors and researchers published, separated from commentary about what the incident means, with each publisher's commercial interest stated. The statements themselves are preserved in the record."
+  title="Published responses"
+  description="A guide to the statements, technical work, published guidance, warnings, disclosure disputes and legal documents preserved after the COLDCARD entropy incident."
+  standfirst="A guide to what organisations and individuals published after the disclosure. Statements, code proposals, guidance, warnings and disputed accounts are kept in separate parts of the record so that one does not stand in for another."
   depth="plain"
-  kicker="The response"
+  kicker="Responses"
   next={{
-    href: '/risk/',
-    label: 'Your risk, by configuration',
-    note: 'for action that depends on your own setup rather than on a general position about custody.',
+    href: '/response/statements/',
+    label: 'Public statements',
+    note: 'What Coinkite, custody providers, wallet vendors and community organisations published.',
   }}
 >
   <Answer>
     <p>
-      Unchained and Casa published guidance on 31 July: rotate every
-      COLDCARD-generated key to one generated on another device, and treat
-      multi-vendor custody as a way to keep a single manufacturer's failure
-      below the spending threshold. In collaborative custody that count
-      includes provider-held keys, so the practical check is to ask the
-      provider which device and firmware generated each key it controls. Two
-      long-form analyses, from Wizardsardine and Dustin Dettmer, make checkable
-      technical assertions and are adjudicated claim by claim on the pages
-      where the underlying evidence lives. Wider arguments about custody models
-      were also made, and the incident evidence relevant to each is set out in
-      the table below. Over the following weekend Coinkite said it had stopped
-      shipping devices and destroyed remaining stock carrying the affected
-      firmware, and closed Sunday with a statement acknowledging lasting
-      damage; those statements, the community help effort, a board departure at
-      OpenSats and three unverified claims that warnings came earlier are
-      <a href="#vendor-operations">collected further down</a>. Coinkite's
-      published terms, and the Ontario consumer
-      statutes that bear on their arbitration and class-waiver clauses, are
-      registered separately on <a href="/response/legal/">the legal page</a>.
+      The public response was not one story. It included statements from
+      Coinkite and other vendors, proposed code changes, migration guidance,
+      scam warnings, competing accounts of earlier disclosures and public legal
+      organising. This section separates those records by what was published
+      and links each summary to the captured material. It does not turn them
+      into a verdict or a procedure from this site.
+      <Claim
+        basis="verified"
+        scope="That every destination in the response map below is backed by registered sources and held captures"
+        source="The source register and individual evidence records maintained by this archive"
+        href="/record/"
+        compact
+      />
     </p>
   </Answer>
 
-  <h2>Published operational guidance</h2>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="https://x.com/unchained/status/2083036112449163618" rel="noopener nofollow">Unchained</a>, 31 July 2026
-    </div>
-    <p>
-      Unchained recommended rotating every COLDCARD-generated key to one
-      generated on another device. It identified two COLDCARD-generated keys in
-      its 2-of-3 vault as the most severe case. It also said that one compromised
-      key is normally below threshold, while recommending that clients replace it
-      as soon as practical.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Unchained's incident guidance and its assessment of 2-of-3 vault exposure"
-        source="Unchained's public guidance, preserved as an X capture"
-        href="/record/sources/unchained-guidance/"
-        compact
-      />
-    </p>
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/casa-incident-guidance/">Casa</a> and
-      <a href="/record/sources/nneuman-casa-migration-video/">Nick Neuman</a>, 31 July 2026
-    </div>
-    <p>
-      Casa presented multi-key, multi-vendor custody as a way to remove a single
-      manufacturer's failure from the spending threshold. Nick Neuman published
-      a migration video that starts with the user's current COLDCARD as one key
-      in a new Casa multisig, and said moving the assets there eliminates loss
-      risk from this vulnerability. That statement depends on the resulting
-      policy, the provenance of every other key and whether the affected key is
-      below threshold. Casa and Neuman have a commercial interest in the service
-      being recommended.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Casa's multi-vendor-custody position and Neuman's migration-process and risk claim"
-        source="Casa and Nick Neuman, captured primary X posts; policy conditions and commercial interest stated above"
-        href="/record/sources/nneuman-casa-migration-video/"
-        compact
-      />
-    </p>
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/ledger-not-affected-response/">Ledger</a>, 31 July 2026
-    </div>
-    <p>
-      Ledger reported that its devices are not affected. It attributed that
-      conclusion to a certified true-random-number generator inside its Secure
-      Element and said each 24-word recovery phrase receives 256 bits of entropy.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Ledger's not-affected statement and its description of its entropy architecture"
-        source="Ledger, captured primary X post; implementation not independently assessed here"
-        href="/record/sources/ledger-not-affected-response/"
-        compact
-      />
-      This archive has captured the vendor statement but has not independently
-      reviewed the relevant Ledger implementation or runtime output. Ledger is a
-      competing hardware-wallet vendor.
-    </p>
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="https://x.com/Rob1Ham/status/2082896614218203616" rel="noopener nofollow">Rob Hamilton</a>, AnchorWatch
-    </div>
-    <p>
-      Hamilton published preliminary on-chain accounting for the first observed
-      wave: 500 transactions, 1,324 inputs and approximately 594.48 BTC over about
-      15 minutes.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Hamilton's preliminary transaction, input, value and duration figures"
-        source="Hamilton's captured preliminary X post; the block span is re-checkable on any public block explorer"
-        href="/record/sources/robhamilton-preliminary-sweep/"
-        compact
-      />
-      The transactions in fact confirmed across four blocks, 960,188 through
-      960,191, while his original post described a three-block window, so the
-      archive preserves both the preliminary statement and the block-span
-      correction.
-    </p>
-  </div>
-
-  <h2 id="analyses">Independent technical analyses</h2>
+  <h2 id="map">Four parts of the response record</h2>
 
   <p>
-    Two long-form analyses published on 1 August 2026 go beyond guidance and
-    make checkable technical assertions. Both are recorded here with the
-    interest of their publisher stated, and both have been adjudicated claim by
-    claim on the pages where the underlying evidence lives.
+    Start with the kind of publication you want to inspect. Each destination
+    opens with a short answer, then gives the claims, limits and source links
+    needed to check it.
   </p>
 
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/wizardsardine-postmortem/">Wizardsardine</a>, 1 August 2026
-    </div>
-    <p>
-      Kevin Loaec published a post-mortem whose central contribution to this
-      record is its enumeration of COLDCARD features that drew their own
-      randomness from the affected generator without consulting the user's
-      mnemonic. Its consequence, stated in the accompanying
-      <a href="/record/sources/kloaec-derived-feature-exposure/">X post</a>, is
-      that a user who imported a seed or generated one with sufficient dice can
-      still be exposed through those features.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        scope="Wizardsardine's post-mortem and its assertion that imported and dice-generated seeds remain exposed through device features"
-        source="Kevin Loaec, captured post-mortem and primary X post; competing interest and the author's own caveat disclosed on the blast-radius page"
-        href="/record/sources/wizardsardine-postmortem/"
-        compact
-      />
-      Each asserted feature was checked
-      against the pinned firmware and libngu clones; the
-      <a href="/how-it-broke/blast-radius/#wizardsardine">per-claim adjudication
-      is on the blast-radius page</a>.
-      <Claim
-        basis="verified"
-        scope="That the asserted feature call sites resolve to the affected generator, and the narrowing of the HSM claim"
-        source="Call-site review of the pinned COLDCARD firmware and libngu clones, set out row by row on the blast-radius page"
-        href="/how-it-broke/blast-radius/#wizardsardine"
-        compact
-      />
-    </p>
-    <p>
-      Wizardsardine sells Liana, a competing wallet product. That interest and
-      the author's own caveat about how the post was written are disclosed
-      beside <a href="/how-it-broke/blast-radius/#wizardsardine">the same
-      adjudication</a>.
-    </p>
+  <div class="response-map">
+    <section class="response-map__card" id="vendor-operations">
+      <p class="response-map__kicker">Statements</p>
+      <h3><a href="/response/statements/">What organisations said and did</a></h3>
+      <p>
+        Coinkite's operational statements, custody-provider guidance, competing
+        wallet vendors' responses, and community or organisational actions.
+        These remain attributed statements unless the action is independently
+        observable in the record.
+      </p>
+      <p class="response-map__links">
+        <a href="/response/statements/#providers">Providers and wallet vendors</a>
+        <a href="/response/statements/#coinkite">Coinkite's statements</a>
+        <a id="community-response" href="/response/statements/#community">Community actions</a>
+        <a id="data-retention" href="/response/statements/#outreach">Outreach and data retention</a>
+      </p>
+    </section>
+
+    <section class="response-map__card" id="analyses">
+      <p class="response-map__kicker">Technical work</p>
+      <h3><a href="/response/developers/">What researchers and developers published</a></h3>
+      <p>
+        Pull requests, commit-history reconstruction and post-disclosure tests
+        are kept apart from shipped fixes. The AI page separately records what
+        is known, and not known, about the original discovery method.
+      </p>
+      <p class="response-map__links">
+        <a href="/response/developers/">Developer proposals</a>
+        <a href="/response/ai/">AI and discovery claims</a>
+        <a href="/how-it-broke/blast-radius/#wizardsardine">Independent code analysis</a>
+        <a href="/record/reference/#code">Published code register</a>
+      </p>
+    </section>
+
+    <section class="response-map__card" id="provider-keys">
+      <p class="response-map__kicker">Guidance and warnings</p>
+      <h3><a href="/response/migration/">What publishers told readers</a></h3>
+      <p>
+        Migration recommendations and claimed outcomes are recorded as
+        published guidance, not instructions from this archive. Documented scam
+        artefacts are separated from warnings about what might happen.
+      </p>
+      <p class="response-map__links">
+        <a href="/response/migration/">Migration guidance</a>
+        <a href="/response/scams/">Scams and warnings</a>
+        <a href="/how-it-broke/conditions/#multisig">Threshold-wallet conditions</a>
+      </p>
+    </section>
+
+    <section class="response-map__card" id="prior-warnings">
+      <p class="response-map__kicker">Accountability</p>
+      <h3><a href="/response/disclosure-history/">What the competing records say</a></h3>
+      <p>
+        Coinkite's disclosure chronology is read alongside first-person and
+        community accounts that do not fully agree with it. Terms, statutes,
+        claimant organising and public legal disagreement are kept in a
+        separate document register.
+      </p>
+      <p class="response-map__links">
+        <a href="/response/disclosure-history/">Disclosure history and earlier-warning claims</a>
+        <a href="/response/legal/">Terms and legal record</a>
+      </p>
+    </section>
   </div>
 
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/btcpp-dettmer-commit-history/">Dustin Dettmer</a>, bitcoin++ Insider Edition, 1 August 2026
-    </div>
-    <p>
-      A commit-history reconstruction of how the predictable path entered the
-      tree. Its commit hashes, line counts and quoted source largely reproduce
-      against the clones held here; its dating of the defect's introduction does
-      not.
-      <Claim
-        basis="reported"
-        captured="1 Aug 2026"
-        contested
-        scope="Dettmer's account of which commit introduced the defect"
-        source="Dettmer's captured analysis; the archive's own commit check gives a different date and is set out on the developer-response page"
-        href="/record/sources/btcpp-dettmer-commit-history/"
-        compact
-      />
-      The <a href="/response/developers/#commit-history">adjudication and
-      the commit reconciliation are on the developer-response page</a>, and the
-      piece also bears on <a href="/response/ai/">the question of how the defect
-      was found</a>.
-    </p>
-  </div>
-
-  <h2 id="provider-keys">Provider-held keys in the threshold count</h2>
+  <h2 id="chronology">A short publication chronology</h2>
 
   <p>
-    In collaborative custody, the relevant count includes every key that can
-    satisfy the spending policy, including keys held by a provider. The public
-    record held here does not establish how any particular provider generated
-    its own key. The appropriate check is therefore factual: ask the provider
-    which device and firmware generated each key it controls, and when.
-  </p>
-
-  <FigureProviderKeys>
-    <Fragment slot="caption">
-      An example only. Actual exposure depends on the wallet policy, which keys
-      were generated by affected firmware, and any independent passphrase or dice
-      entropy.
-      <Claim
-        basis="derived"
-        scope="The threshold outcomes in the hypothetical 2-of-3 policy diagram above"
-        source="Threshold arithmetic applied to a hypothetical 2-of-3 policy; no claim about a named provider's key origin"
-        compact
-      />
-    </Fragment>
-  </FigureProviderKeys>
-
-  <h2>Reported positions about the incident</h2>
-
-  <p>
-    Secondary coverage quoted several broader interpretations. They are listed
-    here as attributed positions, with the incident evidence that is relevant to
-    each one. The incident itself cannot determine which custody model a reader
-    should prefer, because the alternatives carry risks that are not measured by
-    this theft.
-  </p>
-
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table class="data-table">
-        <caption>
-          Attributed positions and incident-specific evidence
-          <Claim
-            basis="reported"
-            scope="The attributed custody and dice-policy interpretations in the first two rows below"
-            source="Public statements by custody providers and researchers, cross-referenced in the evidence record"
-            href="/record/analysis/"
-            compact
-          />
-          <Claim
-            basis="reported"
-            contested
-            scope="The open-source-security framing in the third row below"
-            source="Contrasting public interpretations of source availability in the incident response"
-            href="/record/analysis/"
-            compact
-          />
-          <Claim
-            basis="derived"
-            scope="The conditional first-spend scenario in the final row below"
-            source="Threshold arithmetic and transaction-reveal mechanics documented in the migration analysis"
-            href="/risk/moving-funds/#threshold-wallets"
-            compact
-          />
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col" class="wide">Attributed position</th>
-            <th scope="col" class="wide">What this incident establishes</th>
-            <th scope="col" class="nw">Basis / dispute</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="wide">Some commentators cited the incident as evidence against single-signature hardware-wallet custody.</td>
-            <td class="wide">The first-wave transactions are reported, and this archive's own chain check observed them spending single-signature outputs, which describes the spent scripts rather than each owner's wallet configuration. It does not measure the independent operational risks of multisig or third-party custody.</td>
-            <td class="nw"><span class="status status--info">Reported</span></td>
-          </tr>
-          <tr>
-            <td class="wide">Casa CEO Nick Neuman said that asking most users to roll dice is not a workable default.</td>
-            <td class="wide">Pure dice generation and mixed dice input are separate paths. Sufficient pure dice entropy avoided dependence on the faulty generator; the archive does not have adoption data.</td>
-            <td class="nw"><span class="status status--info">Reported</span></td>
-          </tr>
-          <tr>
-            <td class="wide">Some coverage presented open-source firmware as creating attacker access to latent bugs.</td>
-            <td class="wide">The source was public. The same availability also allowed Block and independent researchers to inspect the path. The discovery method remains unknown.</td>
-            <td class="nw"><span class="status status--info">Reported</span> <span class="status status--warn">Contested</span></td>
-          </tr>
-          <tr>
-            <td class="wide">Some researchers warned that urgent multisig migration can reveal a previously hidden script and enable a competing spend.</td>
-            <td class="wide">That condition is technically possible when the attacker controls enough affected keys but lacks the script or descriptor needed to construct the spend.</td>
-            <td class="nw"><span class="status status--accent">Derived</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h2 id="vendor-operations">The vendor's operational statements, 2 August</h2>
-
-  <p>
-    Beyond the advisory revisions tracked on
-    <a href="/record/timeline/">the timeline</a>, Coinkite published a series of
-    operational statements over the weekend of 2 August. They are the vendor's
-    own accounts of its actions, held as captures; none of the described
-    operations is observable from here.
-  </p>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/coldcard-shipments-halted/">Coinkite</a>, 2 August 2026, 18:04 UTC
-    </div>
-    <p>
-      Coinkite said it halted shipments as soon as the vulnerability was
-      confirmed and destroyed the remaining units carrying affected firmware,
-      and that customers whose devices had already shipped were emailed the
-      advisory and migration steps. The same post states that SATSCARD,
-      OPENDIME and TAPSIGNER use different codebases and are not affected.
-      <a href="/record/sources/tftc-shipments-halted/">TFTC repeated the same facts</a>
-      later that evening; the vendor post is the primary statement. In a
-      <a href="/record/sources/coldcard-disclaimer-clarification/">separate reply</a>
-      the same day, Coinkite said the disclaimer added to its store exists so
-      previous buyers are aware of the incident.
-      <Claim
-        basis="reported"
-        scope="The vendor's shipments-halted, inventory-destruction and customer-email statements, its not-affected statement for SATSCARD, OPENDIME and TAPSIGNER, and its stated purpose for the store disclaimer"
-        source="Coinkite, captured official X posts of 2 Aug 2026; TFTC's secondary report is held separately"
-        href="/record/sources/coldcard-shipments-halted/"
-        compact
-      />
-    </p>
-    <CaptureThumb id="coldcard-shipments-halted" />
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/coldcard-update-sunday/">Coinkite, "Update, Sunday"</a>, 2 August 2026, 23:00 UTC
-    </div>
-    <p>
-      The vendor closed the weekend with a statement acknowledging that the
-      damage done is permanent and that there are hard questions about the
-      company. It described direct customer outreach and migration help since
-      Friday, thanked community members who helped unpaid through the weekend,
-      and committed to continued work with the wider self-custody community.
-      <Claim
-        basis="reported"
-        scope="The Sunday statement's damage acknowledgement, outreach description, community thanks and forward commitment"
-        source="Coinkite, captured official X post, 2 Aug 2026"
-        href="/record/sources/coldcard-update-sunday/"
-        compact
-      />
-    </p>
-    <CaptureThumb id="coldcard-update-sunday" />
-  </div>
-
-  <h3 id="data-retention">The outreach and data-retention exchange</h3>
-
-  <p>
-    During its email outreach, Coinkite
-    <a href="/record/sources/coldcard-pii-policy/">said</a> that phone numbers
-    and customer personal data are deleted, that many customers were therefore
-    unreachable by email, and that an earlier post could have been worded
-    better.
+    This is a route into the material, not a replacement for the full
+    <a href="/record/timeline/">incident timeline</a>. Dates below identify when
+    the selected responses were published; each link opens the held source
+    record.
     <Claim
       basis="reported"
-      scope="The vendor's statement on outreach data handling and PII deletion"
-      source="Coinkite, captured official X reply, 2 Aug 2026"
-      href="/record/sources/coldcard-pii-policy/"
-      compact
-    />
-    Satochip, a competing hardware-wallet vendor,
-    <a href="/record/sources/satochip-data-retention-question/">publicly asked</a>
-    how customers received store emails if Coinkite deletes customer data after
-    90 days, and requested a plain explanation.
-    <Claim
-      basis="reported"
-      scope="Satochip's data-retention question and its 90-day premise"
-      source="Satochip, captured X post, 2 Aug 2026; Satochip is a competing hardware-wallet vendor"
-      href="/record/sources/satochip-data-retention-question/"
-      compact
-    />
-    Both statements are held as
-    captures; no source held here reconciles them, and the 90-day period is the
-    question's own premise rather than an established fact. Coinkite's own
-    published figure, in its June 2026
-    <a href="/record/sources/coinkite-paper-spam/">"Paper spam attempts"</a>
-    statement, is deletion of customer data including physical addresses after
-    120 days.
-  </p>
-
-  <h2 id="community-response">Community response and governance</h2>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/martybent-endorsement-apology/">Marty Bent</a>, 2 August 2026
-    </div>
-    <p>
-      Marty Bent, whose media work had endorsed the COLDCARD, apologised to
-      anyone who bought one on his recommendation and described spending the
-      weekend helping people move funds to safety.
-      <Claim
-        basis="reported"
-        scope="Bent's apology to buyers who followed his endorsement and his account of helping people migrate"
-        source="Marty Bent, captured X post, 2 Aug 2026"
-        href="/record/sources/martybent-endorsement-apology/"
-        compact
-      />
-    </p>
-    <CaptureThumb id="martybent-endorsement-apology" />
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/pledditor-owner-outreach/">Pledditor</a>, 2 August 2026
-    </div>
-    <p>
-      One individual described searching X for posts from 2021 to 2025 that
-      mentioned buying a COLDCARD and replying to each with an alert about the
-      exploit, accepting a possible shadow ban as the cost of reaching owners
-      who might otherwise never hear of it.
-      <Claim
-        basis="reported"
-        scope="The described individual owner-outreach effort and its accepted moderation risk"
-        source="Pledditor, captured X post, 2 Aug 2026"
-        href="/record/sources/pledditor-owner-outreach/"
-        compact
-      />
-    </p>
-    <CaptureThumb id="pledditor-owner-outreach" />
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/opensats-nvk-board-departure/">OpenSats</a>, 2 August 2026, 20:44 UTC
-    </div>
-    <p>
-      OpenSats announced that NVK is stepping down from its board, effective
-      immediately, with the board continuing at eight members until a
-      replacement is made. The post gives no reason for the departure. Its
-      timing places it inside the incident weekend; the post itself does not
-      connect the two.
-      <Claim
-        basis="reported"
-        scope="The OpenSats board departure and interim board size; the post states no reason and this record draws no causal link"
-        source="OpenSats, captured X statement, 2 Aug 2026"
-        href="/record/sources/opensats-nvk-board-departure/"
-        compact
-      />
-    </p>
-    <CaptureThumb id="opensats-nvk-board-departure" />
-  </div>
-
-  <h2 id="prior-warnings">Claims of earlier warnings</h2>
-
-  <p>
-    Three separate posts assert that warning signs predate the incident.
-    <Claim
-      basis="reported"
-      captured="3 Aug 2026"
-      scope="That each of the three prior-warning claims below was made, by whom and when"
-      source="thebtctherapist, a Stacker News thread and Vlad Costea, each preserved as a capture and linked on its card"
-      href="/record/sources/btctherapist-prior-drain-report/"
-      compact
-    />
-    Each
-    is held as an attributed claim, and inclusion is not endorsement: the
-    underlying material is respectively a screenshot, a video this archive has
-    not captured, and the authors' own characterisations. None of the claimed
-    prior warnings has been verified here.
-    <Claim
-      basis="unverified"
-      scope="The underlying prior warnings, the claimed blocks by the vendor account and the asserted disclosure-handling pattern themselves"
-      source="No underlying report, video capture or independent confirmation is held; the claims remain attributed and unchecked"
+      scope="The publication dates and attributed response summaries in the four chronology entries below"
+      source="The publishers' captured statements, articles and repository records, linked in each entry"
+      href="/record/timeline/"
       compact
     />
   </p>
 
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/btctherapist-prior-drain-report/">thebtctherapist</a>, 2 August 2026
-    </div>
-    <p>
-      Claims that four years earlier someone reported a COLDCARD wallet drained
-      after a seed was generated without dice rolls, and that the reporter was then
-      blocked by the vendor account, crediting @Zenul_Abidin. The underlying
-      report appears only as a screenshot attached to the post, so neither the
-      original report nor the claimed block is established from what is held
-      here.
-    </p>
-    <CaptureThumb id="btctherapist-prior-drain-report" />
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/stackernews-prior-warning-video/">Stacker News thread</a>, 2 August 2026
-    </div>
-    <p>
-      A thread claims that the maintainer of BTCRecover warned about COLDCARD
-      entropy two years before the incident in a YouTube video, and that NVK
-      had blocked him on X. Both claims are the thread author's; the video
-      itself is not captured by this archive, and neither the warning's content
-      nor the claimed block is verified here.
-    </p>
-  </div>
-
-  <div class="ve-card ve-card--blue">
-    <div class="ve-card__label lbl-blue">
-      <a href="/record/sources/vladcostea-disclosure-history/">Vlad Costea</a>, 31 July 2026
-    </div>
-    <p>
-      A thread asserting a pattern in Coinkite's handling of past security
-      disclosures, including the 2019 researcher disclosure it describes as
-      rewarded with merchandise, and a claim that a later researcher disclosed
-      a finding to other vendors but not to Coinkite. The characterisations are
-      the author's own and are not verified here.
-    </p>
-    <CaptureThumb id="vladcostea-disclosure-history" />
-  </div>
-
-  <Disclosure
-    id="precedent"
-    title="Earlier predictable-key incidents"
-    note="Debian OpenSSL, Android, Randstorm, Milk Sad and Trust Wallet, compared row by row"
-  >
-    <p>
-      Predictable key generation has documented precedents. They help identify
-      recurring failure patterns but do not establish this incident's attack
-      cost or outcome, and unlike them this defect also reaches
-      <a href="/how-it-broke/blast-radius/#wizardsardine">device features that
-      never touch the user's seed</a>.
-    </p>
-
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="data-table sortable">
-          <caption>
-            Comparison of earlier predictable-key incidents
-            <Claim
-              basis="reported"
-              captured="1 Aug 2026"
-              scope="The dates, failure modes and impact summaries in the precedent table below"
-              source="Primary or project disclosure pages for Debian, Android, Randstorm and Milk Sad; Trust Wallet's captured first thread post plus NVD and Milk Sad for the Trust Wallet row; COLDCARD row checked against the source repository clones held here"
-              href="/record/sources/milksad-disclosure/"
-              compact
-            />
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" class="nw">Incident</th>
-              <th scope="col" class="nw">Affected period</th>
-              <th scope="col" class="wide">Established mechanism</th>
-              <th scope="col" class="wide">Relevant comparison and limit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="nw"><strong><a href="/record/sources/debian-openssl-dsa-1571/">Debian OpenSSL</a></strong><small>CVE-2008-0166</small></td>
-              <td class="nw" data-sort="20060901">Sep 2006 to May 2008</td>
-              <td class="wide">A Debian-specific change made OpenSSL's generator predictable. Debian advised recreating affected cryptographic key material from scratch.</td>
-              <td class="wide">Like COLDCARD, a code change reduced the key-generation space without changing the caller's expectation of cryptographic randomness. The exact Debian key spaces depended on key type, size and architecture, so a single universal bit count is misleading.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong><a href="/record/sources/android-securerandom-2013/">Android PRNG</a></strong></td>
-              <td class="nw" data-sort="20130801">Disclosed Aug 2013</td>
-              <td class="wide">Android reported improper initialization of the underlying PRNG for some Java Cryptography Architecture and OpenSSL uses. Bitcoin applications were among the affected software.</td>
-              <td class="wide">Both incidents involved a cryptographic-looking interface backed by insufficient initialization. Android's issue also affected per-signature randomness, so it is not a direct model for COLDCARD's seed generation.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong><a href="/record/sources/unciphered-randstorm-disclosure/">Randstorm</a></strong><small>BitcoinJS and derivatives</small></td>
-              <td class="nw" data-sort="20110101">Wallets observed from 2011 to 2015</td>
-              <td class="wide">Unciphered attributes vulnerable browser-generated wallets to BitcoinJS's use of JSBN <code>SecureRandom()</code> combined with weaknesses in browser <code>Math.random()</code> implementations.</td>
-              <td class="wide">Both cases concern long-lived wallet key material generated through a weak random path. Randstorm's attack work varies substantially by browser and date, unlike a single fixed entropy estimate.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong><a href="/record/sources/milksad-disclosure/">Milk Sad</a></strong><small>CVE-2023-39910</small></td>
-              <td class="nw" data-sort="20230701">Libbitcoin Explorer 3.x</td>
-              <td class="wide"><code>bx seed</code> used MT19937 with at most 32 bits of initial seeding input while allowing callers to request longer output.</td>
-              <td class="wide">This is a direct example of long output not adding entropy beyond a small seed space. Researchers attributed approximately 29.65 BTC in one July 2023 cluster and described their wider loss estimate as a lower bound with attribution caveats.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong><a href="/record/sources/trustwallet-wasm-update/">Trust Wallet</a></strong><small><a href="/record/sources/nvd-cve-2023-31290/">CVE-2023-31290</a></small></td>
-              <td class="nw" data-sort="20221114">Addresses created 14 to 23 Nov 2022</td>
-              <td class="wide">The vulnerable wallet-generation code used MT19937 with a 32-bit seed. The NVD record reports exploitation in December 2022 and March 2023. A Trust Wallet postmortem quoted in the Milk Sad disclosure reported two exploits totalling approximately US$170,000.</td>
-              <td class="wide">The 32-bit generator resembles Milk Sad, but its output-consumption pattern produced a different key space. It is separate from Trust Wallet's unrelated 2025 browser-extension supply-chain incident.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong>COLDCARD</strong></td>
-              <td class="nw" data-sort="20210301">Mar 2021 to Jul 2026</td>
-              <td class="wide">A <code>#ifndef</code> guard treated a macro defined as <code>(0)</code> as present, allowing the linked software generator. Mk4-class boot reseeding then reduced 40 secure-element bytes to one 32-bit value. The affected period starts from the March 2021 change that routed seed generation through that library; the board configuration itself is older, as <a href="/response/developers/#commit-history">the commit reconciliation</a> sets out.</td>
-              <td class="wide">Published attack models differ by device class and assumptions. See <a href="/how-it-broke/entropy/">the entropy model register</a>; there is no single verified <code>2^n</code> figure for all affected devices.</td>
-            </tr>
-          </tbody>
-        </table>
+  <ol class="response-chronology">
+    <li>
+      <time datetime="2026-07-31">31 July</time>
+      <div>
+        <h3><a href="/record/sources/unchained-guidance/">Custody providers publish migration guidance</a></h3>
+        <p>Unchained and Casa describe key rotation and multi-vendor threshold policies; competing wallet vendors publish their own scope statements.</p>
       </div>
-    </div>
+    </li>
+    <li>
+      <time datetime="2026-08-01">1 August</time>
+      <div>
+        <h3><a href="/response/developers/">Technical proposals and reconstructions appear</a></h3>
+        <p>Upstream pull requests, independent commit reading and code-path analyses become part of the public record.</p>
+      </div>
+    </li>
+    <li>
+      <time datetime="2026-08-02">2 August</time>
+      <div>
+        <h3><a href="/record/sources/coldcard-update-sunday/">Coinkite publishes operational updates</a></h3>
+        <p>The vendor reports shipment, stock, customer-outreach and migration-support actions, then acknowledges lasting damage.</p>
+      </div>
+    </li>
+    <li>
+      <time datetime="2026-08-04">4 August</time>
+      <div>
+        <h3><a href="/record/sources/coinkite-historical-disclosures/">The vendor publishes a disclosure chronology</a></h3>
+        <p>The chronology adds a new primary document to earlier-warning and AI-review disputes already in circulation.</p>
+      </div>
+    </li>
+  </ol>
 
+  <section class="response-boundary" id="precedent">
+    <h2>What is not filed as a response</h2>
     <p>
-      Remediation evidence is incomplete on both sides of the comparison. The
-      Milk Sad team reported no substantial remaining Bitcoin balances above
-      US$5,000 in the <code>bx</code> 3.x ranges it analysed, while stating that
-      its search was partial. No published denominator exists for COLDCARD
-      either, so neither the fraction already attacked nor the fraction already
-      migrated could be calculated from public sources captured through 1 August
-      2026.
-      <Claim
-        basis="unverified"
-        scope="The proportion of affected COLDCARD seeds already attacked or migrated"
-        source="No published denominator for affected COLDCARD-generated seeds has been captured"
-        compact
-      />
+      Earlier predictable-key incidents are background, not responses to this
+      incident. They remain in the <a href="/record/reference/#analysis">reference
+      register</a>. A Bitkey weakness published by Block on the same day was a
+      different product and defect, so it is held only as an
+      <a id="adjacent" href="/record/sources/bitkey-relationship-enrollment-report/">adjacent source record</a>.
     </p>
-  </Disclosure>
-
-  <h2 id="adjacent">An adjacent event that is not this incident</h2>
-
-  <p>
-    Block published
-    <a href="/record/sources/claygarrett-bitkey-initial-findings/">unrelated
-    initial findings on Bitkey</a>, its own hardware wallet, the same day: a
-    different product and a different defect, sharing only the date and the
-    company. The vendor's full report followed on 3 August 2026.
-    <Claim
-      basis="reported"
-      captured="1 Aug 2026"
-      scope="Block's initial severity assessment of the separately reported Bitkey vulnerability and its stated remediation timing, held as a capture rather than restated here"
-      source="Clay Garrett, captured primary X post; vendor statement about its own product, not independently reviewed here"
-      href="/record/sources/claygarrett-bitkey-initial-findings/"
-      compact
-    />
-    <Claim
-      basis="reported"
-      captured="3 Aug 2026"
-      scope="The vendor's published account of the relationship-enrollment bug: a non-cryptographic random generator produced SPAKE2 enrollment secrets and 2nd-generation action-proof nonces, the stated exploitation preconditions, and the vendor's no-evidence-of-impact assessment"
-      source="Block's published Bitkey report, held as a capture; vendor statement about its own product, not independently reviewed here"
-      href="/record/sources/bitkey-relationship-enrollment-report/"
-      compact
-    />
-    <Claim
-      basis="unverified"
-      scope="Whether the submitted mobile-app patch resolves the enrollment-secret weakness"
-      source="The vendor report says the patch was submitted to the app stores but had not shipped at capture time; a 4 August 2026 recheck of both store listings still showed pre-patch builds (iOS version 2026.11.0 of 14 July, Android updated 12 July), and no independent patch review has been captured"
-      compact
-    />
-    Block's Mk4-class entropy model for this incident is on
-    <a href="/how-it-broke/entropy/">the entropy page</a>.
-  </p>
+  </section>
 </Article>
 
 <style>
-  blockquote.q { margin-bottom: .8rem; }
-  .data-table small { display: block; color: var(--ink-3); font-size: .7rem; margin-top: .2rem; }
+  .response-map {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    width: min(100cqi, 1000px);
+    max-width: none;
+    margin-top: 1.2rem;
+  }
+  .response-map__card {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    padding: 1.25rem 1.3rem;
+    scroll-margin-top: 9rem;
+  }
+  .response-map__card h3 { margin-top: .35rem; font-size: 1.08rem; }
+  .response-map__card > p:not(.response-map__kicker, .response-map__links) {
+    margin-top: .55rem;
+    color: var(--ink-2);
+    font-size: .91rem;
+    line-height: 1.6;
+  }
+  .response-map__kicker {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: .64rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .response-map__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .8rem;
+    margin-top: .9rem;
+    padding-top: .75rem;
+    border-top: 1px solid var(--rule);
+    font-size: .8rem;
+    line-height: 1.45;
+  }
+  .response-chronology {
+    list-style: none;
+    margin: 1.2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: .15rem;
+    max-width: var(--w-text);
+  }
+  .response-chronology li {
+    display: grid;
+    grid-template-columns: 6.2rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .response-chronology li:last-child { border-bottom: 1px solid var(--rule); }
+  .response-chronology time {
+    padding-top: .15rem;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .response-chronology h3 { margin: 0; font-size: 1rem; }
+  .response-chronology p {
+    margin-top: .35rem;
+    color: var(--ink-2);
+    font-size: .88rem;
+    line-height: 1.55;
+  }
+  .response-boundary {
+    margin-top: 2.5rem;
+    padding: 1.1rem 1.2rem;
+    border-left: 3px solid var(--rule-2);
+    background: var(--surface-2);
+    max-width: var(--w-text);
+    scroll-margin-top: 9rem;
+  }
+  .response-boundary h2 { margin-top: 0; font-size: 1.15rem; }
+  .response-boundary p { margin-top: .55rem; font-size: .9rem; color: var(--ink-2); }
+  @media (max-width: 760px) {
+    .response-map { grid-template-columns: 1fr; width: 100%; }
+  }
+  @media (max-width: 520px) {
+    .response-chronology li { grid-template-columns: 1fr; gap: .35rem; }
+  }
 </style>

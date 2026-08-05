@@ -266,7 +266,7 @@ const fixRest = `<div class="callout callout--amber">
 <Article
   title="How it broke"
   description="How a compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path."
-  standfirst="A compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path from 2021 to 2026. This section explains how that happened; whether it includes you is answered under Am I affected?"
+  standfirst="A compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path from 2021 to 2026. This section reconstructs that path from the published code."
   depth="deep"
   kicker="How it broke"
   next={{ href: '/how-it-broke/blast-radius/', label: 'What else a compromised seed touches', note: 'every randomness call site in the firmware, from BIP85 children and Secure Notes to the 2FA nonces and seed-XOR shares' }}
@@ -287,10 +287,10 @@ const fixRest = `<div class="callout callout--amber">
         basis="verified"
         scope="The symbol-resolution path, generator substitution and 32-bit reseed behaviour documented on this page"
         source="COLDCARD firmware, switck/libngu and COLDCARD MicroPython source at the cited revisions"
-        href="/record/firmware/"
+        href="/record/reference/#firmware"
         compact
-      /> Whether your own wallet is affected is answered under
-      <a href="/affected/">Am I affected?</a>
+      /> The model and release boundaries for that path are preserved in
+      <a href="/record/reference/#firmware">the firmware reference</a>.
     </p>
   </Answer>
 
@@ -320,7 +320,7 @@ const fixRest = `<div class="callout callout--amber">
     affected generator; in mixed mode the affected value remains a prefix and
     the rolls add a separate source of uncertainty. The dice code hashes roll
     symbols directly rather than feeding them through the 32-bit reseed path,
-    and the <a href="/risk/mitigations/#dice">dice page</a> distinguishes the
+    and the <a href="/how-it-broke/conditions/#dice">dice record</a> distinguishes the
     two workflows.</p>
   </div>
 
@@ -384,7 +384,7 @@ const fixRest = `<div class="callout callout--amber">
       /><Claim
         basis="unverified"
         scope="Whether the signed firmware images contain exactly the source-level fix described here"
-        source="The released binary images have not been independently disassembled or compared in this archive"
+        source="The released binary images had not been independently disassembled or compared in this archive as of a 5 August 2026 recheck"
         compact
       /> What changed is the link. COLDCARD's own board <code>rng.c</code> now
       exports <code>rng_get()</code> itself, backed by the real peripheral:</p>

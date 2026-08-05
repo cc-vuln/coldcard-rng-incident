@@ -1,0 +1,38 @@
+--- reddit-hardware-wallet-comparison@20260804T144443Z
++++ reddit-hardware-wallet-comparison@20260804T154721Z
+@@ -1310,3 +1310,35 @@
+ End of ColdCard -shrugs-
+ 
+ End of Ledger -real shit???-
++
++comment: p1o2ltu
++parent: t1_p1njgd5
++author: striata
++created_utc: 1785857561
++edited: false
++body:
++You're a bit wrong though. Technically the term "open source" as defined by OSI has a somewhat strict definition which requires an open license together with the source.
++
++However, it's completely irrelevant in this case. We'd be in the exact same situation if it was truly open source. Some people do argue that the project would have more eyes if the source was free, but I doubt it
++
++comment: p1o42ri
++parent: t1_p1m6z0z
++author: pako-bitbox
++created_utc: 1785857938
++edited: false
++body:
++Hi thanks for the tag! We reviewed the audit and the claim of 3 entropy sources seem to just be a mistake by the LLM.
++
++As you can see in section **2.5 Seed Generation** it shows a block of code, more specifically this our seed entropy generation code which you can find in our Github here: [keystore.rs # Line 557](https://github.com/BitBoxSwiss/bitbox02-firmware/blob/c838d7fd80190a02531ba30e4a904240e4485e1f/src/rust/bitbox02-rust/src/keystore.rs#L577)
++
++There are more entropy source than just this, one our engineers explains it:
++
++1. This function queries the secure chip for entropy and calls another function: [ random.rs # Line 32 - Line 41](https://github.com/BitBoxSwiss/bitbox02-firmware/blob/master/src/rust/bitbox-core-utils/src/random.rs#L32-L41) (total entropy sources: 1)
++
++that other function queries the MCU trng for entropy, and mixes with the secure chip entropy and factory randomness: [random.rs # Line 9 - Line 30](https://github.com/BitBoxSwiss/bitbox02-firmware/blob/master/src/rust/bitbox-core-utils/src/random.rs#L9-L30) (total entropy sources: 3)
++
++and the above function is called here, where host entropy and user password are finally mixed in as well: [keystore.rs # Line 577 - Line 608](https://github.com/BitBoxSwiss/bitbox02-firmware/blob/c838d7fd80190a02531ba30e4a904240e4485e1f/src/rust/bitbox02-rust/src/keystore.rs#L577-L608) (total entropy sources: 5)
++
++So it's SHA-256( secure chip TRNG xor MCU TRNG xor factory entropy) xor host entropy xor user password entropy
++
++Hope this helped, we will be adding comments to the code to prevent this confusions in the future!

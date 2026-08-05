@@ -8,9 +8,9 @@ export const prerender = true;
  * The Telegram impersonation screenshot Jameson Lopp published on 1 August 2026.
  *
  * Served from the held artefact rather than a copy under site/public, so the
- * bytes a reader sees on /safety/scams/ are the bytes recorded in the archive
- * and hashed on the source's evidence record. Copying it would create a second
- * original that could drift from the first.
+ * bytes a reader sees on /response/scams/ come directly from the held archive
+ * file. Copying it would create a second version that could drift from the
+ * first.
  */
 export const GET: APIRoute = () => {
   const repo = process.env.ARCHIVE_ROOT

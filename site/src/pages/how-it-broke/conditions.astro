@@ -1,0 +1,575 @@
+---
+import Article from '../../layouts/Article.astro';
+import Answer from '../../components/Answer.astro';
+import Claim from '../../components/Claim.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import FigureDiceWorkflows from '../../components/figures/FigureDiceWorkflows.astro';
+import FigurePassphraseDerivation from '../../components/figures/FigurePassphraseDerivation.astro';
+import FigureThresholdSearch from '../../components/figures/FigureThresholdSearch.astro';
+import { BITFIG } from '../../lib/entropy-models';
+
+---
+
+<Article
+  title="Conditions that changed the published assessments"
+  description="How published analysis treated dice input, BIP39 passphrases and threshold wallets in the COLDCARD predictable-RNG incident."
+  standfirst="Dice input, passphrases and threshold policies act at different points in wallet construction. This page preserves the code findings, calculations and changing public guidance about each one."
+  depth="plain"
+  kicker="How it broke"
+>
+  <Answer>
+    <p>
+      The record supports three distinct technical propositions. Pure dice used
+      a different seed path, mixed dice added a separate input, a BIP39
+      passphrase added another search rather than repairing the mnemonic, and a
+      threshold policy changed how many recovered keys were required. Public
+      statements attached qualifications to every proposition, and some of that
+      guidance changed during the incident.
+    </p>
+  </Answer>
+
+  <h2>Where each condition acts</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Where each condition acts
+          <Claim
+            basis="derived"
+            scope="The feature-level risk classifications in the table above"
+            source="Dice and reseed paths verified in firmware source; threshold and passphrase consequences are derived with assumptions stated in the rungs below"
+            href="/how-it-broke/"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="nw">Condition</th>
+            <th scope="col" class="nw">Where it acts</th>
+            <th scope="col" class="wide">Qualification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="nw"><a href="#dice">Pure dice</a></td><td class="nw">instead of device RNG</td><td class="wide">The pure path starts from the roll string and bypasses the affected generator. Its strength depends on enough fair, independent and secret rolls. A 12-word result caps usable entropy at 128 bits.</td></tr>
+          <tr><td class="nw"><a href="#dice">Mixed dice</a></td><td class="nw">after device RNG output</td><td class="wide">The affected output is still a prefix. Unpredictable rolls add a separate search term, but the mixed path enforces no roll minimum.</td></tr>
+          <tr><td class="nw"><a href="#passphrase">BIP39 passphrase</a></td><td class="nw">after mnemonic generation</td><td class="wide">Adds an offline search whose strength depends on the generation method and on whether the mnemonic is already known. It does not repair the mnemonic.</td></tr>
+          <tr><td class="nw"><a href="#multisig">Threshold wallet</a></td><td class="nw">at authorisation</td><td class="wide">Affected keys below threshold are insufficient by themselves. At or above threshold, script and public-key exposure determine whether keys can be tested independently.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Disclosure
+    id="dice"
+    title="Dice rolls"
+    note="the two workflows, roll thresholds, and the screen that shows the answer"
+  >
+    <FigureDiceWorkflows />
+
+    <h3>Roll counts and output size</h3>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption>
+            Entropy in fair independent six-sided-die rolls
+            <Claim
+              basis="derived"
+              scope="The entropy values and output-size limits in the roll-count table above"
+              source="Each fair independent D6 roll contributes log2(6) bits; output sizes and thresholds verified in shared/seed.py"
+              compact
+            />
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" class="nw">Rolls</th>
+              <th scope="col" class="nw">Roll entropy</th>
+              <th scope="col" class="wide">Relevant output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="nw">50</td><td class="nw">about 129.25 bits</td><td class="wide">The enforced minimum for a standard 12-word pure-dice seed in the firmware state checked on 1 August 2026. The BIP39 entropy portion is 128 bits, so the output caps the result at 128 bits.</td></tr>
+            <tr><td class="nw">99</td><td class="nw">about 255.91 bits</td><td class="wide">The enforced minimum for a standard 24-word pure-dice seed in the firmware state checked on 1 August 2026, just below the 256-bit output size.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout--red">
+      <span class="callout__title">The screen shows the answer while you roll</span>
+      Every roll threshold here assumes the rolls were never recorded or exposed,
+      and the device itself is one of the ways that condition can fail. While
+      rolls are being entered, COLDCARD redraws the running SHA-256 digest on
+      each pass of the input loop as 64 hexadecimal characters across two lines.
+      Because both dice paths finish by assigning that same digest as the seed,
+      <strong>the last value displayed on that screen is the resulting seed
+      entropy</strong>, in the mixed workflow as well as the pure one. A
+      24-word result encodes that digest in full; a 12-word result encodes
+      its first half, which is the 128-bit ceiling given in the table above.
+      <Claim
+        basis="verified"
+        scope="The running-digest display during roll entry, and its equality with the resulting seed in both the pure and mixed workflows"
+        source="coldcard-firmware shared/seed.py add_dice_rolls (running digest passed to the screen updater on each loop, full digest assigned back as the seed) with the two-line hex rendering in shared/ux_mk4.py and shared/ux_q1.py, at commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745 and at the v4.0.0 release commit, checked 2 Aug 2026"
+        href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
+        compact
+      />
+      A
+      photograph, a screen recording or a shoulder-surfer at the final roll
+      therefore compromises the wallet even when no individual roll was ever
+      written down. The roll string is itself secret seed material, so entering
+      it into a website or a connected computer discloses the seed input. This is a handling
+      hazard around the display, not a defect in dice mode: the construction is
+      sound, and rolls kept private retain the entropy calculated above.
+    </div>
+
+    <h3>Warning and enforcement changed by workflow</h3>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption>
+            Roll-count behaviour verified in affected firmware and the state checked on 1 August 2026
+            <Claim
+              basis="verified"
+              scope="The warning and enforcement behaviour for each dice workflow"
+              source="coldcard-firmware shared/seed.py at v4.0.0 and commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 1 Aug 2026"
+              href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
+              compact
+            />
+          </caption>
+          <thead>
+            <tr><th scope="col" class="wide">Workflow</th><th scope="col" class="wide">Behaviour</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="wide">v4.0.0 pure dice, 24 words</td><td class="wide">Warned below 99 rolls, but allowed the user to confirm and continue.</td></tr>
+            <tr><td class="wide">Standard pure-dice seed, state checked 1 Aug 2026</td><td class="wide"><code>new_from_dice()</code> enforces 50 rolls for 12 words and 99 for 24 words.</td></tr>
+            <tr><td class="wide">Ephemeral pure-dice seed, state checked 1 Aug 2026</td><td class="wide">Warns below the same thresholds but still allows an override because it does not set <code>enforce=True</code>.</td></tr>
+            <tr><td class="wide">Dice mixed on the word screen</td><td class="wide">Does not enforce the pure-dice thresholds. Security depends on the number and quality of rolls actually entered.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <h3>The vendor's dice exception, and how it maps to the code</h3>
+
+    <p>
+      The <a href="/record/sources/coinkite-mk3-advisory/">Coinkite Mk3
+      advisory</a>, under the heading "If You Added Dice When Creating the Seed"
+      and in the capture held from 1 August 2026 marked as updated at 9:35 a.m.
+      EDT, says that on affected firmware COLDCARD "hashed the device-generated
+      seed together with every dice roll entered through Add Dice Rolls", that 50
+      to 98 independent private rolls contributed at least 128 bits and 99 or
+      more approximately 256 bits, and that where at least 50 fair and
+      independent rolls were entered and "the rolls were not recorded or
+      exposed", it does not consider the seed at risk from this RNG issue alone.
+      Two limits are attached: the exception applies to the final seed words
+      shown after the dice were added, and anyone uncertain which words they
+      used, how many rolls they entered or whether the rolls were private is told
+      to migrate.
+      <Claim
+        basis="reported"
+        scope="Coinkite's dice exception: the mixed-dice hashing description, the 50-to-98 and 99-plus bit figures, the not-recorded-or-exposed condition and the final-words limit"
+        source="Coinkite Mk3 Security Advisory, section added on 31 July 2026 and present in the capture held from 1 August 2026"
+        href="/record/sources/coinkite-mk3-advisory/"
+        compact
+      />
+    </p>
+
+    <p>
+      The firmware matches that description. <code>add_dice_rolls()</code> builds
+      a SHA-256 context from the seed it is given, updates it with each roll
+      symbol as the symbol is pressed, and assigns the complete 32-byte digest
+      back as the seed. Nothing on that path truncates the digest, so the vendor's
+      statement rests on a construction this archive has read in the source at
+      the affected v4.0.0 release commit and at commit <code>9a88e1a5</code>,
+      rather than on the advisory alone.
+      <Claim
+        basis="verified"
+        scope="That add_dice_rolls seeds a SHA-256 context with the existing seed, updates it per roll symbol and assigns the full digest back, with no truncation on this path"
+        source="coldcard-firmware shared/seed.py at the v4.0.0 release commit and at commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 2 Aug 2026"
+        href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
+        compact
+      />
+      The roll-count arithmetic still depends
+      on the output size: 50 rolls fill the 128-bit entropy input of a 12-word
+      mnemonic, and a 24-word result needs 99.
+    </p>
+
+    <details class="collapsible">
+      <summary>Why the 32-bit reseed truncation does not truncate the dice</summary>
+      <div class="collapsible__body">
+        <p style="margin-bottom:11px">
+          <code>add_dice_rolls()</code> does not call
+          <code>ngu.random.reseed()</code>, so the separate 32-bit truncation in
+          <code>shared/mk4.py</code> never touches the roll string. Pure dice
+          starts from an empty value, mixed dice from the already generated seed;
+          both are verified in the affected implementation and in commit
+          <code>9a88e1a5c32c69ba7ace7f22c26da90f8442b745</code>, checked on 1
+          August 2026.
+          <Claim
+            basis="verified"
+            scope="The pure-dice and mixed-dice code paths, including the absence of reseed truncation"
+            source="coldcard-firmware shared/seed.py at the v4.0.0 release commit and commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 1 Aug 2026"
+            href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
+            compact
+          />
+        </p>
+        <p style="margin-bottom:0">
+          This is what allows the vendor's dice exception to reach the mixed
+          workflow at all. If the roll string were folded through the truncating
+          reseed rather than through this digest, added rolls could not carry the
+          128 or 256 bits the advisory credits them with.
+        </p>
+      </div>
+    </details>
+
+    <h3>The 50-roll and 99-roll figures in public guidance</h3>
+
+    <p>
+      The 50-roll figure reached the public before the vendor published it.
+      <a href="https://x.com/darosior/status/2083228876558290979" rel="noopener nofollow">Antoine Poinsot</a>
+      and
+      <a href="https://x.com/PraveenPerera/status/2082995029467942947" rel="noopener nofollow">Praveen Perera</a>
+      both gave that threshold on 31 July 2026, Perera while recommending
+      migration after an independent recovery attempt.
+      <Claim
+        basis="reported"
+        scope="Poinsot's and Perera's 50-roll guidance on 31 July 2026, quoted here for chronology rather than as the source of the threshold"
+        source="Antoine Poinsot and Praveen Perera, 31 Jul 2026"
+        href="https://x.com/darosior/status/2083228876558290979"
+        compact
+      />
+      The advisory's added-dice
+      guidance, and the 50-roll threshold with it, is absent from the earliest
+      held state, timestamped 01:56 UTC on 31 July and recovered from the
+      Internet Archive, and present in every held state from 07:30 UTC onward.
+      A dice-only section was already there at 01:56; what arrives later is the
+      guidance for owners who added dice to a device-generated seed.
+      <Claim
+        basis="verified"
+        scope="That the advisory's added-dice guidance and its 50-roll threshold are absent from the 01:56 UTC state of 31 July 2026 and present from the 07:30 UTC state onward, while a dice-only section is present in both"
+        source="Held states of the Coinkite Mk3 advisory; both 31 July states were recovered from the Internet Archive and carry wayback provenance"
+        href="/record/sources/coinkite-mk3-advisory/"
+        compact
+      />
+      Those posts are retained as the earlier signal
+      in time, not as the basis for the rule.
+    </p>
+
+    <p>
+      <a href="/record/sources/jamesob-dice-roll-guidance/">James O'Beirne recommended migration</a>
+      for coins spendable by one affected COLDCARD key, or by an affected-key
+      quorum, when the device had been initialised with fewer than 99 dice rolls,
+      adding that a strong passphrase could mitigate the risk while warning that
+      most users cannot reliably judge passphrase strength.
+      <Claim
+        basis="reported"
+        contested
+        scope="O'Beirne's 99-roll migration recommendation for the affected-key cases described above, and his passphrase qualification"
+        source="James O'Beirne, captured primary X post, 31 Jul 2026; the firmware uses workflow- and output-specific thresholds"
+        href="/record/sources/jamesob-dice-roll-guidance/"
+        compact
+      />
+      That is stricter than
+      the public 50-roll exception, and it does not distinguish pure-dice
+      generation from dice mixed into a device-generated seed: in the firmware,
+      99 rolls is the pure-dice threshold for a 24-word output and 50 the
+      enforced threshold for a 12-word output.
+    </p>
+
+    <p>
+      A live CKTRIPWIRE experiment adds an early observation, not a threshold.
+      At this archive's first capture, its control honeypot was reported swept
+      after 1 hour 18 minutes while seven cases spanning stepped added-entropy
+      bands were still live.
+      <Claim
+        basis="reported"
+        scope="The CKTRIPWIRE states visible at the first held capture"
+        source="CKTRIPWIRE live monitor, captured 5 Aug 2026; the experiment is ongoing and the source's elapsed-age fields are normalised for revision tracking"
+        href="/record/sources/cktripwire-honeypot-monitor/"
+        compact
+      />
+      A single control outcome and seven then-live cases cannot establish a safe
+      number of added bits or a general time-to-sweep distribution.
+    </p>
+
+    <div class="callout callout--amber">
+      <span class="callout__title">Conditions attached to the dice conclusion</span>
+      The calculation assumes a fair die, independent rolls, an accurately entered
+      sequence and no disclosure of that sequence. Fewer rolls can still add
+      useful uncertainty: the defensible bound is the smaller of the roll entropy
+      and the output's entropy size, rather than a binary safe or unsafe label.
+      Dice do not protect a seed whose roll sequence was photographed, backed up
+      online, generated predictably or read off the running-digest screen.
+    </div>
+  </Disclosure>
+
+  <Disclosure
+    id="passphrase"
+    title="BIP39 passphrases"
+    note="what a passphrase buys, and only for uniformly generated ones"
+  >
+    <p>
+      <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite recommends a strong BIP39 passphrase as a temporary mitigation</a>
+      for an affected mnemonic. It does not alter the mnemonic or repair the
+      generator; it changes the wallet produced by BIP39's key-stretching step.
+    </p>
+
+    <div class="callout callout--amber">
+      <span class="callout__title">What the vendor revised on 1 August</span>
+      The advisory's passphrase section was rewritten on 1 August 2026 and moves
+      in two directions at once: reduced seed entropy alone is not enough to
+      reach the funds a passphrase wallet controls, because the attacker must also discover
+      the passphrase, but passphrase users should still migrate as soon as
+      practical, and anyone whose passphrase is short, common, patterned, quoted,
+      reused or of uncertain strength should treat the funds as at risk and
+      migrate immediately. Both states are held in
+      <a href="/record/sources/coinkite-mk3-advisory/">the advisory record</a>.
+    </div>
+
+    <p>
+      The public guidance did not establish a universal passphrase threshold.
+      <a href="https://x.com/PraveenPerera/status/2082995029467942947" rel="noopener nofollow">Praveen Perera recommended more than seven BIP39 words as a passphrase</a>
+      while still advising migration, but did not state how those words were
+      selected.
+      <Claim
+        basis="reported"
+        scope="Perera's incident-response passphrase recommendation, with its unstated generation assumptions"
+        source="Praveen Perera, independent recovery report, 31 Jul 2026"
+        href="https://x.com/PraveenPerera/status/2082995029467942947"
+        compact
+      />
+      Eight words chosen independently and uniformly from the 2,048-word BIP39
+      English list give <code>2,048^8 = 2^88</code> possible phrases. Human
+      selection does not inherit that ideal value, and the time needed to test a
+      candidate also depends on PBKDF2 throughput, wallet derivation work and
+      whether the mnemonic has already been isolated.
+      <Claim
+        basis="derived"
+        scope="The 2^88 ideal candidate count for eight independent uniformly selected BIP39-list words and the qualifications attached to it"
+        source="2,048 possible words raised to eight independent selections; BIP39 specifies 2,048-round PBKDF2-HMAC-SHA512 before wallet derivation"
+        href="https://github.com/bitcoin/bips/blob/9783d61f1b9c81231581fee026c8e8cb9499d265/bip-0039.mediawiki#from-mnemonic-to-seed"
+        compact
+      />
+    </p>
+
+    <FigurePassphraseDerivation />
+
+    <h3>What a passphrase does not change</h3>
+
+    <ul class="node-list">
+      <li><strong>The no-passphrase wallet remains derived from the same mnemonic.</strong> Funds previously received there do not gain passphrase protection.</li>
+      <li><strong>Reuse remains reuse.</strong> A phrase present in breach corpora or otherwise known should be treated as known, regardless of length.</li>
+    </ul>
+  </Disclosure>
+
+  <Disclosure
+    id="multisig"
+    title="Multisig and miniscript"
+    note="threshold first, then whether the script or descriptor is exposed"
+  >
+    <p>
+      Affected keys do not automatically defeat a threshold wallet: an attacker
+      must recover enough signing keys to satisfy a spending path, so the count
+      that matters is affected keys on that path against its threshold. Below the
+      threshold, those keys alone cannot sign. At or above it, the wallet may be
+      spendable once enough individual keys are recovered. Other key compromises
+      and alternate miniscript paths must be assessed separately.
+      <a href="https://x.com/LLFOURN/status/2083298061250666721" rel="noopener nofollow">LLFOURN published an explicit correction to earlier guidance</a>
+      on 31 July: Mk4, Mk5 and Q setups in which affected COLDCARDs meet the
+      signing threshold, without another mitigating factor such as dice rolls,
+      need to move.
+      <Claim
+        basis="reported"
+        scope="The corrected multisig guidance and urgency attributed to LLFOURN above"
+        source="LLFOURN's corrected multisig guidance, published 31 Jul 2026"
+        href="https://x.com/LLFOURN/status/2083298061250666721"
+        compact
+      />
+      The assumptions behind its urgency are set out in
+      <a href="/how-it-broke/entropy/">the entropy maths</a>.
+    </p>
+
+    <h3>Why public-key exposure changes the search</h3>
+
+    <p>
+      A native SegWit P2WSH output commits to the complete witness script. Before
+      that script or an equivalent descriptor is known, a candidate key cannot
+      normally be checked in isolation against the address: under an independence
+      assumption an attacker must find the complete set of public keys needed to
+      reproduce the script commitment, so candidate spaces multiply. A spend
+      reveals the witness script and all child public keys used in it. A leaked
+      affected signer's child public key or xpub can expose a target for testing
+      that signer before any spend, without necessarily disclosing the complete
+      script. Once the relevant affected key targets are known, those keys can be
+      tested separately and the work needed for a threshold number adds rather
+      than multiplies.
+    </p>
+
+    <p>
+      <a href="/record/sources/alwaysaimbig-multisig-webinar-question/">Zach's
+      captured post includes a slide headed "An Unchained vault with 2
+      Coldcard-generated keys: Group A"</a>. The slide says that an attacker with
+      two compromised private keys still needs all three public keys associated
+      with an address, and that the wallet configuration file contains those
+      keys.
+      <Claim
+        basis="reported"
+        scope="The wording visible in the multisig slide attached to Zach's post and Zach's description of its webinar context"
+        source="Zach (@alwaysaimbig), captured X post and attached slide; the complete webinar is not held and the slide's authorship and context have not been independently authenticated"
+        href="/record/sources/alwaysaimbig-multisig-webinar-question/"
+        compact
+      />
+      That can describe a previously unspent P2WSH output when the attacker
+      lacks the third public key and the construction data needed to reproduce its
+      script commitment. It is not a general rule: an exposed descriptor, script
+      or individual affected-key target changes the search, and only a threshold
+      number of private keys is needed to sign once the target and script are
+      known. The archive has not independently authenticated the slide's
+      authorship, webinar context or the complete presentation.
+    </p>
+
+    <div class="callout callout--amber">
+      <span class="callout__title">Address reuse is not script publication</span>
+      Receiving more than once to a P2WSH address does not by itself reveal the
+      witness script. A previous spend or disclosure of the complete descriptor or
+      script removes the construction barrier. An exposed individual co-signer
+      xpub can remove the target-hiding benefit for that signer without revealing
+      the other keys or the complete script.
+    </div>
+
+    <FigureThresholdSearch />
+
+    <h3>Illustrative lower-scenario arithmetic</h3>
+
+    <p>
+      These examples use <a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block's conditional low-search scenarios</a>, <code>{BITFIG.mk4Reseed}</code> candidates per
+      Mk4-class key and <code>{BITFIG.mk23SysTick}</code> per Mk2/Mk3 key, assuming independent
+      per-device candidate spaces and complete knowledge of the relevant derivation
+      paths.
+    </p>
+
+    <div class="table-wrap">
+      <p class="table-caption">
+        Illustrative search spaces under Block's conditional scenarios
+        <Claim
+          basis="derived"
+          scope="The full candidate-space products, sums and separately labelled average-work values in the table above"
+          source="Products and sums of Block's published conditional per-key scenarios; uniform-position, independence and target-knowledge assumptions are stated above, and neither assumption has been measured across a population of wallets"
+          href="/how-it-broke/entropy/"
+          compact
+        />
+      </p>
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption class="visually-hidden">Illustrative search spaces under Block's conditional scenarios</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="wide">Arrangement</th>
+              <th scope="col" class="nw">Target information</th>
+              <th scope="col" class="nw">Full candidate-space expression</th>
+              <th scope="col" class="wide">Interpretation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="wide">2-of-3, three Mk4-class keys</td><td class="nw">complete script hidden</td><td class="nw"><code>2^96</code></td><td class="wide">Product of three <code>2^32</code> spaces to reproduce the complete three-key script, if the spaces are independent.</td></tr>
+            <tr><td class="wide">2-of-3, three Mk4-class keys</td><td class="nw">complete script and affected key targets known</td><td class="nw"><code>2 × 2^32 = 2^33</code></td><td class="wide">Full upper bound for exhaustively searching two designated keys. Expected average work under uniform candidate positions is approximately <code>2^32</code>.</td></tr>
+            <tr><td class="wide">2-of-3, three Mk2/Mk3 keys</td><td class="nw">complete script hidden</td><td class="nw"><code>~2^48.9</code></td><td class="wide">Product of three <code>2^16.3</code> spaces under the same independence assumption.</td></tr>
+            <tr><td class="wide">2-of-3, three Mk2/Mk3 keys</td><td class="nw">complete script and affected key targets known</td><td class="nw"><code>2 × 2^16.3 = 2^17.3</code></td><td class="wide">Full upper bound for two designated key searches. Expected average work is approximately <code>2^16.3</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p>
+      <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite's upper scenarios</a>
+      and <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's published model</a>
+      produce much larger values. Device model, timing knowledge, descriptor
+      custody, derivation paths and possible correlation all affect the result, so
+      no time-to-recovery follows from a threshold alone.
+    </p>
+
+    <h3>Descriptor and correlation assumptions</h3>
+
+    <ul class="node-list">
+      <li><strong>Descriptor custody matters.</strong> Coordinators and backups commonly store what is needed to reconstruct a multisig wallet; whether an attacker can obtain it is an operational question, not an on-chain fact.</li>
+      <li><strong>Per-device independence is an assumption.</strong> The Mk4-class boot path derives a reseed value from each device's secure elements, but the source does not prove statistical independence across devices, and Mk2/Mk3 UID and timing inputs may be correlated for devices initialised under similar conditions.</li>
+      <li><strong>Miniscript exposure is path-specific.</strong> Recovering enough keys for a primary path may or may not satisfy timelocked or recovery paths. The policy, not the product label, determines the threshold.</li>
+      <li><strong>Taproot key-path spends differ from script-path spends.</strong> A key-path spend does not publish the underlying script tree; a script-path spend reveals the selected leaf and control block.</li>
+    </ul>
+    <p>
+      <a href="https://x.com/KLoaec/status/2083301216050700780" rel="noopener nofollow">Kevin Loaec</a>
+      and <a href="https://x.com/Rob1Ham/status/2082896614218203616" rel="noopener nofollow">Rob Hamilton</a>
+      published the threshold and migration-risk positions summarised here.
+      <Claim
+        basis="reported"
+        scope="The threshold and migration-risk positions attributed to Kevin Loaec and Rob Hamilton above"
+        source="Kevin Loaec and Rob Hamilton described threshold and migration risks; this page narrows those statements to the wallet structures above"
+        href="https://x.com/KLoaec/status/2083301216050700780"
+        compact
+      />
+    </p>
+
+    <h3>Reported guidance and questions on particular multisig setups</h3>
+
+    <p>
+      <a href="/record/sources/tshodl-two-coldcard-guidance/">ts_hodl published guidance on 2 August</a>
+      for multisigs whose keys are two COLDCARDs: at rest they are safe if the
+      wallet configuration file is also secure, but in the mempool they are
+      vulnerable to replace-by-fee sniping, so keys should be rotated by
+      submitting the transaction directly to a miner via Slipstream rather
+      than through public relay.
+      <Claim
+        basis="reported"
+        scope="ts_hodl's statement that two-COLDCARD multisigs are safe at rest with a secure wallet configuration but vulnerable to RBF sniping in the mempool, and the direct-to-miner rotation recommendation"
+        source="ts_hodl, captured X post, 2 Aug 2026; the Slipstream provenance disclosures on the moving-funds page apply to this recommendation too"
+        href="/record/sources/tshodl-two-coldcard-guidance/"
+        compact
+      />
+      The at-rest half of that statement is the
+      hidden-script condition described above, stated as one author's
+      conclusion; the Slipstream half shares the mechanism, and the disclosed
+      provenance, set out on
+      <a href="/response/migration/#threshold-wallets">the published migration
+      guidance record</a>.
+    </p>
+
+    <p>
+      Collaborative custody puts one key of a threshold in a provider's hands,
+      and one captured post asks what this incident means for that key.
+      <a href="/record/sources/colourorange-nunchuk-platform-key/">A community post of 3 August</a>
+      noted Nunchuk's disclosure that the platform key in its 2-of-4
+      collaborative custody was generated with a COLDCARD Mk4 using a custom
+      derivation path, and asked whether sweeps of such setups were beginning.
+      <Claim
+        basis="reported"
+        scope="The report that Nunchuk disclosed its 2-of-4 platform key was generated with a COLDCARD Mk4 on a custom derivation path, and the accompanying question about sweeps"
+        source="_colourorange, captured X post, 3 Aug 2026; a community question, and no drain of such a setup is recorded in the sources held here"
+        href="/record/sources/colourorange-nunchuk-platform-key/"
+        compact
+      />
+      That is a question, not a confirmation of any loss: by the threshold
+      logic above, one affected key in a 2-of-4 cannot sign on its own, and no
+      drain of such a setup is recorded in the sources held here.
+    </p>
+
+    <p>
+      For a wallet whose security depends on an unpublished script, the first
+      public spend removes that protection before confirmation. That does not mean
+      the funds are lost; it opens a period in which public keys are available and
+      any viable weak-key search can run against them. The submission routes and
+      their limits are in
+      <a href="/response/migration/#threshold-wallets">the published migration
+      guidance record</a>.
+    </p>
+  </Disclosure>
+</Article>
+
+<style>
+  .table-caption {
+    margin: 0;
+    padding: .8rem .9rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+</style>

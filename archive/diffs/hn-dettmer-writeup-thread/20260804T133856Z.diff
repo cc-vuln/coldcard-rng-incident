@@ -1,0 +1,188 @@
+--- hn-dettmer-writeup-thread@20260803T154547Z
++++ hn-dettmer-writeup-thread@20260804T133856Z
+@@ -1,6 +1,6 @@
+ Hacker Newsnew | past | comments | ask | show | jobs | submitlogin
+ When random.bytes() runs but doesn't work (btcpp.dev)
+-94 points by Funes- <relative-time> | hide | past | favorite | 55 comments
++94 points by Funes- <relative-time> | hide | past | favorite | 56 comments
+ help
+ londons_explore <relative-time> | next [–]
+ I am getting suspicious of "random number generator not actually returning random numbers" bugs....
+@@ -47,10 +47,7 @@
+ Also: writing this stuff in C just begs for bugs.
+ LLM agents are cheap and good enough that you can write in eg Lean or whatever. Or at least write it in Rust.
+ reply
+-jgilias <relative-time> | root | parent | next [–]
+-The bug has been up since before the LLM shift.
+-reply
+-thin_carapace <relative-time> | root | parent | prev | next [–]
++thin_carapace <relative-time> | root | parent | next [–]
+ I get the feeling that the bugs found in this instance can be more directly attributed to the author having zero experience operating a microcontroller
+ reply
+ scott_w <relative-time> | root | parent | next [–]
+@@ -59,7 +56,10 @@
+ 2. Totally incompetent and copying code from Stack Overflow.
+ I don't think it's specific to microcontrollers, either, the error from the C compiler is something that a competent programmer would be able to interpret, or at least see it as a signal to get someone more experienced in the domain to learn about.
+ reply
+-eru <relative-time> | root | parent | next [–]
++Scoundreller <relative-time> | root | parent | next [–]
++Hey now, I'm totally incompetent, so my code writes entries in a log file for virtually everything because otherwise I have no idea if it's doing what I expect. Would've caught some critical function not being called at all.
++reply
++eru <relative-time> | root | parent | prev | next [–]
+ Of course, being a total novice and claiming to produce a super secure gadget are not to things you want to go together.
+ reply
+ nullc <relative-time> | root | parent | prev | next [–]
+@@ -72,6 +72,9 @@
+ Fair point: I was using the information in the article to form my opinion. I still think that, if the developer in question ignored a compiler error as described, that’s a serious competence issue. It’s harder to spot after the fact because any reviewers wouldn’t have had a chance to see the compiler output.
+ The article makes the fair point of the size of the change and the complete lack of information in the commit message, which should have set off alarm bells…
+ reply
++jgilias <relative-time> | root | parent | prev | next [–]
++The bug has been up since before the LLM shift.
++reply
+ jki275 <relative-time> | root | parent | prev | next [–]
+ C isn't the problem here. one might argue that the combination of micro python and C and the person writing it having no understanding of how either one works is the problem.
+ Also running python on a microcontroller to do cryptography is fucking insane.
+@@ -80,6 +83,55 @@
+ > Also running python on a microcontroller to do cryptography is fucking insane.
+ I feel like I should confess to snubbing this (and some other) hardware wallet projects for the fact it used micropython. I think it's hard to draw the line between systems programmer snobbery and good advice... and I feel a little like a cop guilty of stop-and-frisk on the basis of skin color.
+ Because in general the ideas necessary to produce reliable software aren't well understood or agreed on there is a risk of letting style preferences which are only correlated with good engineering but aren't causative of good engineering get mistaken-- and this can cause errors in both directions, both mistaking stuff as good because it uses the "right" tools, or mistaking something as bad because it doesn't.
++reply
++PunchyHamster <relative-time> | prev | next [–]
++> The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235/15 = ~16.
++the commit message is not 235 character long, the commit message is this
++> splice-script: Test for msat chan balances
++> splice-script: Round channel balances down
++author mistakes commit message for PR which doesn't get persisted into code's history and don't even contain the ID of bug being fixed.
++So yeah it is better but nothing to actually brag about
++reply
++dmitrygr <relative-time> | prev | next [–]
++>Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.
++Amen.
++reply
++hypeatei <relative-time> | prev | next [–]
++> You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.
++Or, you could realize that using a financial technology which relies on no software bugs ever is probably flawed at its core. "Not your keys, not your coins" was (is?) the zeitgeist but even people who did the "right thing" and used a cold wallet still got screwed. I don't know why anyone would keep their wealth in something that requires so much technical excellence.
++reply
++DJBunnies <relative-time> | parent | next [–]
++The "right thing" here is subjective.
++If one uses a good source of entropy (e.g. dice rolls) then one will not "get screwed."
++> I don't know why anyone would keep their wealth in something that requires so much technical excellence.
++It's not for everybody, for sure.
++reply
++hypeatei <relative-time> | root | parent | next [–]
++> If one uses a good source of entropy then one will not "get screwed."
++How many users were told to verify the source code to make sure it was using good entropy? How many would actually do that even if told? Obviously not even the most hardline bitcoiners were looking at it.
++> dice rolls
++Yes, the new cope I've seen is that you should've been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I'm sure.
++1: https://old.reddit.com/r/Bitcoin/comments/1vcr4r4/dice_rolls...
++reply
++inigyou <relative-time> | parent | prev | next [–]
++I take it you get your paycheck in cash?
++reply
++hypeatei <relative-time> | root | parent | next [–]
++No, via direct deposit. I had a co-worker once who miskeyed his routing+account numbers and guess what? He still got his money a few days later and it wasn't lost to the void.
++There is no blockchain, seed phrases, nor cold wallets required for this amazing feat of money transfer/remediation to take place.
++reply
++inigyou <relative-time> | root | parent | next [–]
++Great! Maybe the government should stop over regulating the banking system so the same protection will also be available to someone who buys drugs.
++reply
++anonymars <relative-time> | root | parent | next [–]
++Wait, is the argument now that cryptocurrency only exists and is useful for buying drugs? It's tough to keep track of what point you're trying to make
++reply
++hypeatei <relative-time> | root | parent | prev | next [–]
++If your argument is that Bitcoin is only good for illicit purchases, then I sort of agree with you but there are better alternatives like Monero. Regardless, you would agree that current valuations are insane given that's the only real use-case, right?
++Also infrequent purchases != storing wealth in Bitcoin.
++reply
++anonymars <relative-time> | root | parent | prev | next [–]
++Banking-related errors have recourse
+ reply
+ nullc <relative-time> | prev | next [–]
+ This writeup isn't very good and misses/misunderstands the programming error that leads to the flaw.
+@@ -143,15 +195,6 @@
+ Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+ So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+ reply
+-smithcoin <relative-time> | parent | prev | next [–]
+-Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+-reply
+-nullc <relative-time> | root | parent | next [–]
+-Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+-reply
+-mlcrypto <relative-time> | parent | prev | next [–]
+-The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+-reply
+ nullc <relative-time> | parent | prev | next [–]
+ Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+ reply
+@@ -161,6 +204,15 @@
+ dist-epoch <relative-time> | parent | prev | next [–]
+ I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
+ Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
++reply
++smithcoin <relative-time> | parent | prev | next [–]
++Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
++reply
++nullc <relative-time> | root | parent | next [–]
++Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
++reply
++mlcrypto <relative-time> | parent | prev | next [–]
++The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+ reply
+ koolba <relative-time> | prev | next [–]
+ > A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
+@@ -193,55 +245,6 @@
+ If the industry most seasoned experts are not engaging in regular security reviews of their firmware, they are not experts, but clowns.
+ LLMs are useful for this but not absolutely necessary to address the core issue.
+ reply
+-dmitrygr <relative-time> | prev | next [–]
+->Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.
+-Amen.
+-reply
+-PunchyHamster <relative-time> | prev | next [–]
+-> The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235/15 = ~16.
+-the commit message is not 235 character long, the commit message is this
+-> splice-script: Test for msat chan balances
+-> splice-script: Round channel balances down
+-author mistakes commit message for PR which doesn't get persisted into code's history and don't even contain the ID of bug being fixed.
+-So yeah it is better but nothing to actually brag about
+-reply
+-hypeatei <relative-time> | prev | next [–]
+-> You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.
+-Or, you could realize that using a financial technology which relies on no software bugs ever is probably flawed at its core. "Not your keys, not your coins" was (is?) the zeitgeist but even people who did the "right thing" and used a cold wallet still got screwed. I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+-reply
+-DJBunnies <relative-time> | parent | next [–]
+-The "right thing" here is subjective.
+-If one uses a good source of entropy (e.g. dice rolls) then one will not "get screwed."
+-> I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+-It's not for everybody, for sure.
+-reply
+-hypeatei <relative-time> | root | parent | next [–]
+-> If one uses a good source of entropy then one will not "get screwed."
+-How many users were told to verify the source code to make sure it was using good entropy? How many would actually do that even if told? Obviously not even the most hardline bitcoiners were looking at it.
+-> dice rolls
+-Yes, the new cope I've seen is that you should've been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I'm sure.
+-1: https://old.reddit.com/r/Bitcoin/comments/1vcr4r4/dice_rolls...
+-reply
+-inigyou <relative-time> | parent | prev | next [–]
+-I take it you get your paycheck in cash?
+-reply
+-anonymars <relative-time> | root | parent | next [–]
+-Banking-related errors have recourse
+-reply
+-hypeatei <relative-time> | root | parent | prev | next [–]
+-No, via direct deposit. I had a co-worker once who miskeyed his routing+account numbers and guess what? He still got his money a few days later and it wasn't lost to the void.
+-There is no blockchain, seed phrases, nor cold wallets required for this amazing feat of money transfer/remediation to take place.
+-reply
+-inigyou <relative-time> | root | parent | next [–]
+-Great! Maybe the government should stop over regulating the banking system so the same protection will also be available to someone who buys drugs.
+-reply
+-anonymars <relative-time> | root | parent | next [–]
+-Wait, is the argument now that cryptocurrency only exists and is useful for buying drugs? It's tough to keep track of what point you're trying to make
+-reply
+-hypeatei <relative-time> | root | parent | prev | next [–]
+-If your argument is that Bitcoin is only good for illicit purchases, then I sort of agree with you but there are better alternatives like Monero. Regardless, you would agree that current valuations are insane given that's the only real use-case, right?
+-Also infrequent purchases != storing wealth in Bitcoin.
+-reply
+ systemsweird <relative-time> | prev | next [–]
+ Very good writeup and an astonishing level of negligence for an extremely security critical piece of code. The losses are going to surpass 100 million, these guys should be thrown in jail.
+ reply

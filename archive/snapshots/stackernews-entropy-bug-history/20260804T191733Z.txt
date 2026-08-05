@@ -1,0 +1,51 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-08-04T13:40:15.806Z",
+            "text": "So... using Trezor software good, rolling your own, not good? Rolling your own is always risky. \n\nI'm still not sure why this context makes it looks bad or could have made it look better in the end. The thing that was deemed needed was to get off GPLv3, for commercial reasons. This caused the change in libs which caused the bug.\n\nWhat it does do is highlight that a lot of people make money off of open source software. It always sucks when you see someone pull in a couple million in VC rounds by using your effort - though I think that it hurts more when you were not selling anything to anyone. Also happens in other parts of FOSS, think... wordpress.\n\nRegardless, can you explain \"how bad it is\"?",
+            "user": {
+              "name": "optimism"
+            }
+          },
+          {
+            "createdAt": "2026-08-04T17:54:45.626Z",
+            "text": "He has a weird obsession with \"doing the hard stuff\". He mentioned the words over and over again over the years.\n\nIt's very weird tbh. Linkedin startup bros are weirdos, they're so full of themselves.",
+            "user": {
+              "name": "tomlaies"
+            }
+          },
+          {
+            "createdAt": "2026-08-04T13:39:08.347Z",
+            "text": "Good writeup. Thanks.",
+            "user": {
+              "name": "siggy47"
+            }
+          },
+          {
+            "createdAt": "2026-08-04T13:54:18.496Z",
+            "text": "Good work here @SimpleStacker. I was not aware of the Trezor copying thing. That really is rich for NVK. Yet another example of his ego canceling out his intelligence.",
+            "user": {
+              "name": "kepford"
+            }
+          },
+          {
+            "createdAt": "2026-08-04T14:01:57.092Z",
+            "text": "\"The feeling that this whole chain of events was triggered by NVK, who wanted to get out of GPLv3 because he felt someone had unfairly cloned his code, something he himself had been accused of just two years earlier.\"\n\nI agree with this; pure revenge.",
+            "user": {
+              "name": "Akg10s3"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-08-04T13:29:54.048Z",
+      "text": "**An investigative history into the ColdCard entropy bug**\n\n{:toc}\n\nIn comment https://stacker.news/items/1539078/r/SimpleStacker?commentId=1539121, I remarked that the more I looked into the ColdCard situation, the worse it seemed.  @optimism asked me what I was referring to, but I didn't want to divulge at the time, because I wasn't entirely sure if what I was thinking was accurate. I wanted to get my facts and timelines straight. But I investigated, and now I am ready to discuss what I found.\n\n# Background\n\nThe core question is when, how, and why the entropy bug entered into ColdCard's firmware.  In CoinKite's own [post-mortem](https://blog.coinkite.com/entropy-technical-backgrounder/), they confirmed that the bug was introduced when they migrated away from Trezor-based libraries to `libNgU` for their cryptographic operations.[^1]\n\n![](https://m.stacker.news/150793)\n\nThis happened on **March 1st, 2021**, with commit [b18723d](https://github.com/Coldcard/firmware/commit/b18723dddb6d751c39978e4364b56b2414f68b47) in ColdCard's firmware repo.\n\nThe bigger question is, *why did they migrate to `libNgU`*?\n\n# Personality conflicts and accusations of copying\n\nDue to all the posts that were surfacing on Stacker News about NVK and ColdCard's past, I came across https://stacker.news/items/172265, where I learned that NVK had gotten into multiple online scraps about proper attribution in FOSS.\n\nIn **July 2018**, NVK got into a bit of a scrape with Pavol Rusnak (cofounder of Trezor) about how ColdCard copied Trezor code but renamed it something else.  Rusnak thought they weren't giving proper attribution:[^2]\n\n![](https://cdn-images-1.medium.com/max/1600/1*c0coZp-aiJnDGIPj3W-tGQ@2x.png)\n\n![](https://cdn-images-1.medium.com/max/1600/1*7eb3_4FsfG-sX4nppy9IXw@2x.png)\n\nThis by itself isn't really that big of a deal. CoinKite was within its rights to copy Trezor's code, because it was distributed under the GNU GPLv3 license, meaning you can copy the code as long you also distribute your code under the same license.  Rusnak was simply upset about the naming conventions they chose, which removed the word \"trezor\" from filenames.  But as we'll see, the requirement to distribute under GNU GPLv3 will later play a central role in CoinKite's decision to move away from Trezor-based code.\n\n# Moving off GNU GPLv3\n\nFast forward two years to **July 2020**.  Foundation Devices forks ColdCard's firmware to make its own *Passport* hardware wallet. This upsets NVK, who accuses them of affinity scamming:\n\n![](https://cdn-images-1.medium.com/max/1600/1*12PhVcEHi9EoEO_TaUzp1Q@2x.png)\n\n![](https://cdn-images-1.medium.com/max/1600/1*4NUnJFW77jCjd8Aolm05TQ@2x.png)\n\nUnhappy that other companies are forking ColdCard's code, he starts thinking about moving to a new license:\n\n![](https://cdn-images-1.medium.com/max/1600/1*Td7uAJ6nQhleDgN8nRCd2w@2x.png)\n\n![](https://cdn-images-1.medium.com/max/1600/1*hNlDtv2_Roi8SZ6JvFUTlg@2x.png)\n\n# The fateful day\n\nOn **March 1st, 2021**, commit [b18723d](https://github.com/Coldcard/firmware/commit/b18723dddb6d751c39978e4364b56b2414f68b47) was pushed to ColdCard's firmware library.\n\nThe commit message reads `\"First pass w/ libNgU\"`, and the change log is as follows:\n\n```markdown\n## 4.0.0 - , 2021\n- Major internal changes! Minimal external change...\n    - now using Bitcoin Core's \"libsecp256k1\" for EC crypto operations\n    - super fast pure-assembly AES256-CTR code makes USB communications faster\n    - new optimized SHA256 and SHA256(SHA256()) code in use\n- HSM/CKBunker mode:\n    - users with passwords will have to be recreated as hash used has changed \n- Bugfix: CSV of addresses explorer export via Address Explorere, when account number\n  was used, did not reflect the (non-zero) account number.\n- Enhancement: Show a progress bar during slow parts of the login process.\n- Enhancement: Paper wallet features restored as they were previously. Same cautions apply.\n- Last remaining GPL code removed, so licence is now MIT+CC on everything.\n```\n\nSo this commit, which wired up the entropy bug, was done (at least in part), so they could move off the GNU GPLv3 license, and move instead to MIT+Commons Clause (which prohibits downstream users from selling the software).\n\n# CoinKite's defense\n\nIn CoinKite's defense, they argue that the primary reason for migrating to `libNgU` was to use its `libsecp256k1` implementation.\n\n![](https://m.stacker.news/150794)\n\nWhether you find this a plausible explanation or not is up to you. None of us can read the minds and intentions of another. However, I was wondering how defensible the claim was that the move to `libNgU` was motivated primarily by `libsecp256k1`, so I asked Claude.  I won't spoil the response, but if you want you can use the same prompt that I did:\n\n```markdown\nConsider this commit in ColdCard's firmware repo: https://github.com/Coldcard/firmware/commit/b18723dddb6d751c39978e4364b56b2414f68b47\n\nThe commit message says \"First pass w/ libNgU\".\n\nThe patch notes say both:\n\n- \"now using Bitcoin Core's \"libsecp256k1\" for EC crypto operations\"\n- \"Last remaining GPL code removed, so licence is now MIT+CC on everything\"\n\nI know moving to libNgU was partly due to them no longer wanting to use the Trezor libraries so they can move off GPL.  They claim the move was to use libsecp256k1.  \n\nTo what extent was moving to libNgU necessary for libsecp256k1?\n```\n\n# Conclusion\n\nThe reason I said that \"the more I look into this, the worse it seems\" is because I started to get the feeling that this whole chain of events was set off by NVK wanting to move off of GPLv3, because he felt that someone had unfairly cloned his code, something that he himself had been accused of just 2 years earlier.\n\nWhether or not you think that was the primary trigger is up to you.  I present it only as a possibility.  But by CoinKite's own admission, it was the migration to `libNgU` that wired up the bug on that fateful day of March 1st, 2021.\n\nIf anything, it's a good reminder that if you're going to rewire your entire codebase to a new library, you had better do a lot of extra testing before pushing it into production.  And you can't just assume that just because it compiles and runs, that all the same assumptions you made with your previous library would hold.\n\n[^1]: It should be noted that the failure wasn't with `libNgU` itself, but rather with how certain preprocessor directives ColdCard already had in place interacted badly with `libNgU`. You can read more about it all here: [https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware)\n\n[^2]: Most of the referenced images in this post come from: [https://www.zherbert.com/an-open-letter-to-nvk-and-coldcard/](https://www.zherbert.com/an-open-letter-to-nvk-and-coldcard/). Note that this article was posted in 2023, long before anyone knew about the entropy bug.",
+      "title": "ColdCard Entropy Bug: An Investigative History",
+      "user": {
+        "name": "SimpleStacker"
+      }
+    }
+  }
+}

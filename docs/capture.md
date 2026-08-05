@@ -169,8 +169,23 @@ when recovering from stale daemon tab state.
 
 Registered posts are first-class public evidence records under
 `/record/sources/<id>/`. Each record reports whether attributable local
-artefacts are held and publishes their filename, format, size and SHA-256 hash
-prefix without republishing the full screenshot or text capture.
+capture material is held. When a screenshot passes the publication gates, the
+record displays it with its capture time and a link to the original post.
+
+### Finding X posts before capture
+
+`scripts/discover_x.py` watches the small `[[x_watch]]` registry for new
+permalinks. It uses documented read-only endpoints in the official X API,
+writes no capture and cannot register a post by itself. ID-only candidate
+metadata stays under `.work/`; hydrated API text is not retained. The tracked
+`DISCOVERY.md` queue receives a relation label and permalink. During explicit
+X triage, one official post lookup supplies text transiently to the assessment
+agent. Accepted candidates return to the `ingest-x.py` path above.
+
+The command is manual and opt-in while its account-health outcomes are being
+proved. See `docs/design/discovery-and-x-watch.md` for the safety model and
+`docs/operations.md` for the exact probation commands. Do not add it to the
+community timer merely because the manual command returns successfully once.
 
 ## Reviewing detected differences
 

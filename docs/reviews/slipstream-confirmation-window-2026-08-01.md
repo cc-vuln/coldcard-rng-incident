@@ -1,7 +1,7 @@
 # Slipstream confirmation-window measurement
 
 Checked 1 Aug 2026. This note preserves the inputs behind the dated estimate on
-`/risk/migrating/` (now `/risk/moving-funds/`). It is a retrospective pool-share calculation, not a service
+`/risk/migrating/` (now `/response/migration/`). It is a retrospective pool-share calculation, not a service
 guarantee or a forecast for an individual transaction.
 
 ## Source observation

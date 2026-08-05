@@ -1,0 +1,27 @@
+--- reddit-am-i-affected-dice@20260804T224338Z
++++ reddit-am-i-affected-dice@20260805T075345Z
+@@ -265,3 +265,24 @@
+ edited: false
+ body:
+ I don’t think that’s true. If you did 100 rolls you did not used the flawed random generator on the device. That doesn’t mean that the device is safe from other vulnerabilities though…
++
++comment: p1runuq
++parent: t1_p1qrgcs
++author: kenorb
++created_utc: 1785895191
++edited: 1785896129
++body:
++I think there is confusion around the rolls.  
++"Dice rolls" are just virtual ('punching numbers, not rolling dice') which you press some keys on the screen. See this [video on X](https://x.com/SteveSimple/status/2084635670572573155).  
++So it's another variable to take into the account stored somewhere in memory, so I think it doesn't help in overall to secure the broken low entropy key and it's most likely part of the broken process.  
++Here is some good [technical article](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware), so I think once attacker can brutal force UID and similar, then potentially it's easier to brutal force other variables (including dice rolls).
++
++comment: p1szxc1
++parent: t1_p1runuq
++author: Individual_Gate9375
++created_utc: 1785911487
++edited: false
++body:
++There are two ways to roll dice. One where you add dice rolls to the generated seed, and one where you determine the seed with only dice rolls and bypass the rng entirely. I did the second method. I basically booted up the device and went through the setup. Then went into the settings and made a seed completely with dice rolls only and sha256 and wrote it down. Wiped the device and imported that seed I generated only with dicerolls. What I did bypassed all of the on device rng generation entirely.   
++  
++My point though in my last comment was apparently I wasn't affected by any of this at all because the broken firmware that introduced this rng bug came out in march 2021, and I generated my seed in January of 2021. So none of the precautions I took really mattered in this case. I would have been unaffected regardless of if I did the dice rolls or put the passphrase on the wallet.

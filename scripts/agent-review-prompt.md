@@ -7,17 +7,27 @@ explain, in one or two sentences, what actually changed.
 
 ## Scope of this run
 
-Review only diff files under `archive/diffs/<source>/` with a timestamp later
-than {SINCE}. The candidate list for this run:
+Review exactly this bounded candidate list:
 
 {CANDIDATES}
 
-If a candidate turns out to be already classified in `revision-reviews.toml`
-(same source and timestamp), skip it. Never classify the same diff twice.
+Candidate selection has already excluded completed classifications. Still
+check the source and timestamp before appending, because a concurrent human
+review may have landed after selection. Never classify the same diff twice.
+
+## Evidence packets
+
+The packet below contains the source context and up to 120 added or removed
+lines for every candidate. Use it as the evidence for classification.
+
+{PACKETS}
 
 ## What you may do
 
-1. Read the diff, the surrounding snapshot if needed
+1. Classify from the evidence packet. Do not reopen a diff whose packet says
+   `Packet truncated: no`. When a packet is truncated or genuinely ambiguous,
+   read that candidate diff only; read a surrounding snapshot only if the full
+   diff still does not establish what changed
    (`archive/snapshots/<source>/`), and `sources.toml` for context on what the
    source is.
 2. Append one `[[revision]]` entry per reviewed diff to
@@ -41,10 +51,12 @@ If a candidate turns out to be already classified in `revision-reviews.toml`
      method, not the source. Explain what changed in the capture.
 3. If you see the same capture-noise pattern recur in three or more diffs for
    a source, draft a normalizer proposal in
-   `.work/normalizer-proposals/<source>-<date>.md`: the pattern, example diff
+   `.work/normalizer-proposals/<source>.md`: the pattern, example diff
    lines, and a sketch of the normalizer following the existing normalizers
-   in `scripts/capture.py`. You draft proposals only; you never edit
-   `scripts/capture.py` yourself.
+   in `scripts/capture.py`. Before drafting, check for either that path or a
+   legacy `.work/normalizer-proposals/<source>-*.md` path. If any exists, do
+   not create another proposal for the same source. You draft proposals only;
+   you never edit `scripts/capture.py` yourself.
 
 ## What you must never do
 
@@ -53,6 +65,8 @@ If a candidate turns out to be already classified in `revision-reviews.toml`
 - Never edit existing entries in `revision-reviews.toml`; only append.
 - Never edit `scripts/capture.py`, `sources.toml`, or any site file.
 - Never commit to git or run destructive commands.
+- Do not inspect site files or general documentation. They are outside this
+  classification task and consume context without helping the decision.
 - Do not use em-dashes in summaries. Commas, colons, parentheses, or full
   stops.
 - UTC timestamps only, format `YYYYMMDDTHHMMSSZ`, matching the diff filename.

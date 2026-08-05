@@ -3,9 +3,8 @@
  *
  * Everything the site says about "what changed when" is derived from files the
  * capture tool wrote, not from prose someone typed. That is the whole point: a
- * claim on a page should be traceable to a snapshot with a hash.
+ * claim on a page should be traceable to a held snapshot.
  */
-import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse as parseToml } from 'smol-toml';
@@ -71,21 +70,25 @@ export function goneSources(): Source[] {
  * Grouping is derived from `kind`, which already records what a thing is.
  */
 export type SourceGroup =
-  | 'vendor' | 'legal' | 'public-record' | 'research' | 'repo' | 'analysis' | 'reporting' | 'monitor' | 'firsthand';
+  | 'vendor' | 'legal' | 'public-record' | 'research' | 'analysis' | 'community' | 'repo' | 'reporting' | 'monitor' | 'firsthand';
 
 const KIND_GROUP: Record<string, SourceGroup> = {
   'vendor-advisory': 'vendor',
   'vendor-statement': 'vendor',
+  'vendor-response': 'vendor',
   'vendor-docs': 'vendor',
   'vendor-legal': 'vendor',
   'vendor-terms': 'vendor',
   'vendor-index': 'vendor',
   'vendor-releases': 'vendor',
+  'custody-guidance': 'vendor',
   'government-legal': 'legal',
   'government-record': 'public-record',
   'research': 'research',
   'independent-analysis': 'research',
+  'independent-technical-analysis': 'research',
   'analysis': 'analysis',
+  'community-discussion': 'community',
   'repo-file': 'repo',
   'repo-pr': 'repo',
   'repo-patch': 'repo',
@@ -150,16 +153,20 @@ export function displayTitle(item: Source | XPost): string {
 const KIND_LABELS: Record<string, string> = {
   'vendor-advisory': 'Vendor advisory',
   'vendor-statement': 'Vendor statement',
+  'vendor-response': 'Vendor response',
   'vendor-docs': 'Vendor documentation',
   'vendor-legal': 'Legal terms',
   'vendor-terms': 'Legal terms',
   'vendor-index': 'Vendor publication index',
   'vendor-releases': 'Firmware release index',
+  'custody-guidance': 'Custody guidance',
   'government-legal': 'Government legislation',
   'government-record': 'Government vulnerability record',
   'research': 'Primary technical research',
   'independent-analysis': 'Independent primary analysis',
+  'independent-technical-analysis': 'Independent technical analysis',
   'analysis': 'Secondary analysis',
+  'community-discussion': 'Community discussion',
   'repo-file': 'Repository file',
   'repo-pr': 'Repository pull request',
   'repo-patch': 'Repository patch',
@@ -180,7 +187,6 @@ export interface XArtifact {
   name: string;
   format: string;
   bytes: number;
-  sha256: string;
 }
 
 let _xFiles: string[] | null = null;
@@ -214,13 +220,11 @@ export function xArtifacts(post: XPost): XArtifact[] {
     for (const entry of readdirSync(captureDir, { withFileTypes: true })) {
       if (!entry.isFile()) continue;
       const path = join(captureDir, entry.name);
-      const data = readFileSync(path);
       out.push({
         path: `archive/x/${post.id}/${capture.name}/${entry.name}`,
         name: entry.name,
         format: entry.name.split('.').pop()?.toUpperCase() ?? 'FILE',
         bytes: statSync(path).size,
-        sha256: createHash('sha256').update(data).digest('hex'),
       });
     }
   }
@@ -232,7 +236,7 @@ export function xArtifacts(post: XPost): XArtifact[] {
  *
  * Set `withhold_text = true` on a source in sources.toml to hold its captured
  * bodies back: the site then shows that the source is held, when it was
- * captured, that it changed and the hashes proving it, but not the text.
+ * captured and that it changed, but not the text.
  * Diffs and excerpts count as reproduction; two added lines are still two
  * lines of the thing.
  *
@@ -463,6 +467,97 @@ export function lastPolled(sourceId: string): string | null {
     } catch { /* ignore */ }
   }
   return last;
+}
+
+/**
+ * Whether a source is currently readable, and since when it has not been.
+ *
+ * `lastPolled` answers "when did we last look" and treats a challenge page as
+ * a look; `lastCaptureError` answers "did the most recent look fail" and only
+ * counts hard errors. Neither answers the question a page asks when it puts a
+ * source's own current number in front of a reader: is this figure still being
+ * refreshed, and if not, since when. A challenge or a vanished domain leaves
+ * the last good capture in place and everything downstream looks healthy,
+ * which is exactly when a reader is most likely to be misled.
+ *
+ * `state` names the newest poll's outcome, so a page can say "unreachable
+ * since" rather than print a collector's own error text at a reader.
+ */
+export interface PollHealth {
+  /** Newest poll that produced usable text: first, changed or unchanged. */
+  lastGood: string | null;
+  /** Newest poll of any outcome. */
+  lastAttempt: string | null;
+  state: 'ok' | 'unreachable' | 'challenged' | 'guard-miss' | 'skipped' | 'never-polled';
+  /** Oldest poll in the unbroken run of failures at the tail, when failing. */
+  failingSince: string | null;
+}
+
+const SUCCESS_EVENTS = new Set(['first', 'changed', 'unchanged']);
+
+const FAILURE_STATES: Record<string, PollHealth['state']> = {
+  error: 'unreachable',
+  blocked: 'challenged',
+  skipped: 'skipped',
+};
+
+/**
+ * A blocked poll means one of two very different things.
+ *
+ * capture.py records `blocked` with `failure: challenged` both when a
+ * publisher interposes a challenge page and when the response simply no
+ * longer contains this registry's own guard strings. The second is our
+ * problem, not theirs: coldcard.rip rebuilt its page on 5 August 2026 and
+ * every poll from then read as "challenged" while the site was serving 200s
+ * to anyone who asked. Telling a reader a source is blocking us when the
+ * source is fine is the worse error of the two, so they are separated here.
+ */
+function blockedState(e: any): PollHealth['state'] {
+  const guard = Array.isArray(e.missing_required_text) && e.missing_required_text.length > 0;
+  return guard || typeof e.min_chars === 'number' ? 'guard-miss' : 'challenged';
+}
+
+export function pollHealth(sourceId: string): PollHealth {
+  const p = join(ARCHIVE, 'index.jsonl');
+  const polls: { ts: string; event: string; entry: any }[] = [];
+  if (existsSync(p)) {
+    for (const line of readFileSync(p, 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      try {
+        const e = JSON.parse(line);
+        if (e.id === sourceId && typeof e.ts === 'string') {
+          polls.push({ ts: e.ts, event: String(e.event ?? ''), entry: e });
+        }
+      } catch { /* a malformed line is not worth failing a build over */ }
+    }
+  }
+  // By timestamp, not file order: Wayback backfill appends older observations
+  // to the end of the log, and the tail is what this function reasons about.
+  polls.sort((a, b) => a.ts.localeCompare(b.ts));
+  if (!polls.length) {
+    return { lastGood: null, lastAttempt: null, state: 'never-polled', failingSince: null };
+  }
+
+  const lastAttempt = polls[polls.length - 1].ts;
+  let lastGood: string | null = null;
+  let failingSince: string | null = null;
+  for (let i = polls.length - 1; i >= 0; i -= 1) {
+    if (SUCCESS_EVENTS.has(polls[i].event)) { lastGood = polls[i].ts; break; }
+    failingSince = polls[i].ts;
+  }
+
+  const newest = polls[polls.length - 1];
+  const state = SUCCESS_EVENTS.has(newest.event)
+    ? 'ok'
+    : newest.event === 'blocked'
+      ? blockedState(newest.entry)
+      : FAILURE_STATES[newest.event] ?? 'unreachable';
+  return {
+    lastGood,
+    lastAttempt,
+    state,
+    failingSince: state === 'ok' ? null : failingSince,
+  };
 }
 
 /**

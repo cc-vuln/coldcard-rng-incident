@@ -1,8 +1,9 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import Timestamp from '../../../components/Timestamp.astro';
 import {
   sources, xPosts, sourceById, xPostById, snapshots, diffText, parseDiff,
-  snapshotText, tsToHuman, isoToHuman, lastPolled, displayTitle, kindLabel,
+  snapshotText, tsToIso, isoToHuman, lastPolled, displayTitle, kindLabel,
   xArtifacts, reviewForRevision, withholdsCapturedText, withholdsCapturedMedia,
 } from '../../../lib/archive';
 import { xMedia } from '../../../lib/xmedia';
@@ -21,10 +22,10 @@ const REVIEW_LABEL: Record<string, string> = {
   'unreviewed': 'unreviewed',
 };
 
-// Published builds show diffs, an excerpt and the hash. The complete captured
-// body stays local, where it still backs every claim and can be produced if a
-// quotation is ever disputed. Diffs and short quotations are transformative;
-// a full-text mirror of someone else's article is a different proposition.
+// Published builds show diffs and an excerpt. The complete captured body stays
+// local, where it still backs every claim and can be produced if a quotation is
+// ever disputed. Diffs and short quotations are transformative; a full-text
+// mirror of someone else's article is a different proposition.
 const FULL_TEXT = import.meta.env.PUBLIC_FULL_TEXT === 'true';
 const EXCERPT_LINES = 40;
 
@@ -52,14 +53,7 @@ const artifacts = socialPost ? xArtifacts(socialPost) : [];
 // evidence archive, but never reproduce their raw text or diffs on the public
 // site.
 const withholdCapturedText = withholdsCapturedText(src);
-const privacyBoundaryText = 'Snapshot and diff bodies for this chain monitor are held in the local evidence archive but withheld from the public site because they can contain the addresses of people who published nothing themselves. Integrity hashes, capture times and reviewed change summaries remain available below.';
-const artifactRows = artifacts.map((artifact) => ({
-  ...artifact,
-  size: artifact.bytes < 1024
-    ? `${artifact.bytes} B`
-    : `${(artifact.bytes / 1024).toFixed(1)} KiB`,
-  shortSha: artifact.sha256.slice(0, 24),
-}));
+const privacyBoundaryText = 'Snapshot and diff bodies for this chain monitor are held in the local evidence archive but withheld from the public site because they can contain the addresses of people who published nothing themselves. Capture times and reviewed change summaries remain available below.';
 
 // A repository file, a downloads page or a live chain monitor has no
 // publication date, and reporting one as "not established" implies a gap in the
@@ -87,13 +81,8 @@ const shotView = shot ? {
   src: shot.src,
   author: '@' + socialPost!.author,
   alt: `Captured screenshot of the post by @${socialPost!.author}, posted ${publishedLabel}`,
-  capturedHuman: tsToHuman(shot.name.replace(/\.\w+$/, '')),
+  capturedIso: tsToIso(shot.name.replace(/\.\w+$/, '')),
 } : null;
-const socialHeading = shotView ? 'Integrity record' : 'Capture held by this project';
-const socialHeldLede = shotView
-  ? 'These are the integrity records for the held artefacts, including the screenshot shown above: name, format, size and SHA-256 prefix, so the displayed image can be checked against the archive.'
-  : 'These are integrity records for the local text and image artefacts. The public site does not republish full social-media captures.';
-
 // An archive that asks to be taken on trust is not much of an archive. Every
 // source links out to its full Internet Archive history so a reader can check
 // our captures against a third party who has no stake in this incident.
@@ -115,9 +104,9 @@ function provenance(ts: string): Record<string, any> {
 //
 // A row is labelled by what it is in the source's history (the state as first
 // held, or a revision landing in a bounded window), not by when we fetched it.
-// The fetch time is real and worth keeping, but it belongs in the evidence line
-// with the hash, not as the headline: it describes this project's schedule
-// rather than the publisher's behaviour.
+// The fetch time is real and worth keeping, but it belongs in the metadata, not
+// as the headline: it describes this project's schedule rather than the
+// publisher's behaviour.
 const oldestFirst = [...snaps];
 const revCount = oldestFirst.filter(
   (sn, n) => n > 0 && sn.textSha256 !== oldestFirst[n - 1].textSha256,
@@ -141,10 +130,11 @@ const rows = [...snaps].reverse().map((sn, i) => {
   const rawLines = raw ? raw.split('\n') : [];
   return {
     ts: sn.ts,
-    human: tsToHuman(sn.ts),
+    iso: sn.iso,
+    previousIso: prev?.iso ?? '',
     // What this row is in the page's own history.
     heading: isRevision
-      ? `${REVIEW_LABEL[review!.status]} difference between ${tsToHuman(prev!.ts)} and ${tsToHuman(sn.ts)}`
+      ? ''
       : prev
         ? 'Checked again, unchanged'
         : 'Earliest copy held',
@@ -153,7 +143,6 @@ const rows = [...snaps].reverse().map((sn, i) => {
     reviewLabel: review ? REVIEW_LABEL[review.status] : '',
     reviewClass: review ? `pill review review--${review.status}` : 'pill review',
     reviewSummary: review?.summary ?? '',
-    sha: sn.textSha256.slice(0, 24),
     chars: sn.chars.toLocaleString(),
     isCurrent: i === 0,
     origin: meta.provenance === 'wayback' ? 'Internet Archive' : 'Captured here',
@@ -195,9 +184,9 @@ const rows = [...snaps].reverse().map((sn, i) => {
 
 // Presentation churn classified as capture-noise is part of the record but
 // not part of the story the timeline tells, so it leaves the main timeline
-// for a collapsed block below it. The rows, hashes and anchors all still
-// render; only their placement changes. Everything else, including
-// unreviewed rows, stays in the main timeline exactly as captured.
+// for a collapsed block below it. The rows and anchors still render; only their
+// placement changes. Everything else, including unreviewed rows, stays in the
+// main timeline exactly as captured.
 const noiseRows = rows.filter(
   (r) => r.isRevision && r.reviewStatus === 'capture-noise',
 );
@@ -221,7 +210,9 @@ const latestChange = rows.find(
 ) ?? null;
 const changeLead = latestChange ? {
   ts: latestChange.ts,
-  heading: latestChange.heading,
+  reviewLabel: latestChange.reviewLabel,
+  previousIso: latestChange.previousIso,
+  iso: latestChange.iso,
   summary: latestChange.reviewSummary,
   human: latestChange.human,
   added: latestChange.added,
@@ -231,25 +222,35 @@ const changeLead = latestChange ? {
 } : null;
 
 const facts = isSocial ? [
-  ['Author', '@' + socialPost!.author],
-  ['Organisation', socialPost!.org || 'independent'],
-  ['Evidence role', socialPost!.tag || 'social statement'],
-  ['Posted', publishedLabel],
-  ['Capture status', artifacts.length ? 'capture held' : 'registered only'],
-  ['Artefacts held', String(artifacts.length)],
+  { label: 'Author', value: '@' + socialPost!.author },
+  { label: 'Organisation', value: socialPost!.org || 'independent' },
+  { label: 'Evidence role', value: socialPost!.tag || 'social statement' },
+  { label: 'Posted', value: publishedLabel, iso: socialPost!.posted ?? '' },
+  { label: 'Capture status', value: artifacts.length ? 'capture held' : 'registered only' },
 ] : [
-  ['Organisation', src.org || 'unknown'],
-  ['Evidence role', kindLabel(src.kind)],
-  ['Published', publishedLabel],
-  ['Source changes', String(reviewedSourceChanges)],
-  ['Detected differences', String(revCount)],
-  ['Unreviewed', String(unreviewedCount)],
-  ['Copies held', String(snaps.length)],
+  { label: 'Organisation', value: src.org || 'unknown' },
+  { label: 'Evidence role', value: kindLabel(src.kind) },
+  { label: 'Published', value: publishedLabel },
+  { label: 'Source changes', value: String(reviewedSourceChanges) },
+  { label: 'Detected differences', value: String(revCount) },
+  { label: 'Unreviewed', value: String(unreviewedCount) },
+  { label: 'Copies held', value: String(snaps.length) },
 ];
+
+// Registry notes are authored as prose and several run to multiple paragraphs.
+// Rendered into one <p> they collapsed into a single wall, because the blank
+// lines that separate them in sources.toml are just whitespace to HTML. Split
+// on blank lines here rather than in the template: precomputed display data is
+// the house rule for .astro, and a conditional returning markup breaks the
+// expression parser with an error reported inside the <style> block.
+const noteParagraphs = (src.note ?? '')
+  .split(/\n{2,}/)
+  .map((para) => para.trim())
+  .filter(Boolean);
 
 const methodologyText = isSocial
   ? artifacts.length
-    ? 'This post is registered as evidence and has locally held capture artefacts. The original remains the canonical publication; hashes below identify the files held by this project.'
+    ? 'This post is registered as evidence and has a locally held capture. The original remains the canonical publication.'
     : 'This post is registered because it shaped the research or response, but no attributable local capture is currently held. The original link remains available while capture is pursued.'
   : 'Every check is recorded, including checks that found no text change. A detected edit is therefore bounded between two checks. The publisher\'s exact save time is not observable from this record.';
 ---
@@ -257,7 +258,7 @@ const methodologyText = isSocial
 <Base
   title={title + ': source'}
   description={'What this page said over time, and what changed: ' + src.url}
-  kicker="Evidence / sources"
+  kicker="The record / sources"
 >
   <div class="wrap">
     <header class="src__head">
@@ -278,7 +279,7 @@ const methodologyText = isSocial
         <p class="gone__detail">{(src as any).gone_note}</p>
         <p class="gone__meta">
           Stopped resolving {(src as any).gone_status ? `with HTTP ${(src as any).gone_status}` : ''}
-          on {tsToHuman((src as any).gone_since)}. The archive no longer polls it;
+          on <Timestamp iso={tsToIso((src as any).gone_since)} />. The archive no longer polls it;
           everything held from before that date is unchanged.
         </p>
       </aside>
@@ -291,8 +292,8 @@ const methodologyText = isSocial
         </a>
         <figcaption class="shot__cap">
           <span>{shotView.author}</span>
-          <span>posted {publishedLabel}</span>
-          <span>captured {shotView.capturedHuman}</span>
+          <span>posted <Timestamp iso={socialPost?.posted ?? ''} /></span>
+          <span>captured <Timestamp iso={shotView.capturedIso} /></span>
           <a href={shotView.src} rel="noopener">full-size capture &rarr;</a>
           <a href={src.url} rel="noopener nofollow">original post &rarr;</a>
         </figcaption>
@@ -302,10 +303,13 @@ const methodologyText = isSocial
     {changeLead && (
       <section class="lead">
         <p class="lead__tag">Latest reviewed change</p>
-        <p class="lead__heading">{changeLead.heading}</p>
+        <p class="lead__heading">
+          {changeLead.reviewLabel} difference between
+          <Timestamp iso={changeLead.previousIso} /> and <Timestamp iso={changeLead.iso} />
+        </p>
         <p class="lead__summary">{changeLead.summary}</p>
         <div class="lead__meta">
-          <span class="hash">seen {changeLead.human}</span>
+          <span class="hash">seen <Timestamp iso={changeLead.iso} /></span>
           <span class="lead__delta">
             <span class="add">+{changeLead.added}</span>
             <span class="del">-{changeLead.removed}</span>
@@ -322,16 +326,24 @@ const methodologyText = isSocial
     )}
 
     <dl class="src__facts">
-      {facts.map(([label, value]) => (
-        <div><dt>{label}</dt><dd>{value}</dd></div>
+      {facts.map((fact) => (
+        <div>
+          <dt>{fact.label}</dt>
+          <dd>
+            <Timestamp iso={fact.iso ?? ''} hidden={!fact.iso} />
+            <span hidden={Boolean(fact.iso)}>{fact.value}</span>
+          </dd>
+        </div>
       ))}
     </dl>
 
-    <p class="src__note">{src.note}</p>
+    <div class="src__note" hidden={!noteParagraphs.length}>
+      {noteParagraphs.map((para) => <p>{para}</p>)}
+    </div>
 
     <p class="src__polled">
       {methodologyText}
-      <span hidden={!polled}> Last checked {polled ? tsToHuman(polled) : ''}.</span>
+      <span hidden={!polled}> Last checked <Timestamp iso={polled ? tsToIso(polled) : ''} />.</span>
     </p>
 
     <div class="callout is-info src__privacy" hidden={!withholdCapturedText}>
@@ -339,44 +351,15 @@ const methodologyText = isSocial
       <p>{privacyBoundaryText}</p>
     </div>
 
-    <section class="social" hidden={!isSocial}>
-      <h2>{socialHeading}</h2>
-      <p class="social__lede" hidden={artifactRows.length > 0}>
-        No attributable local capture is held yet. Registration preserves why
-        the post matters, but is not evidence that the original will remain
-        available.
-      </p>
-      <p class="social__lede" hidden={artifactRows.length === 0}>{socialHeldLede}</p>
-      <div class="table-scroll" hidden={artifactRows.length === 0}>
-        <table class="artifact-table">
-          <caption>Held social-media capture artefacts</caption>
-          <thead>
-            <tr>
-              <th scope="col">Artefact</th>
-              <th scope="col">Format</th>
-              <th scope="col">Size</th>
-              <th scope="col">SHA-256 prefix</th>
-            </tr>
-          </thead>
-          <tbody>
-            {artifactRows.map((artifact) => (
-              <tr>
-                <td><code>{artifact.name}</code></td>
-                <td>{artifact.format}</td>
-                <td>{artifact.size}</td>
-                <td><code>{artifact.shortSha}</code></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <ol class="timeline" hidden={isSocial}>
       {mainRows.map((r) => (
         <li class="snap" id={'snap-' + r.ts}>
           <div class="snap__bar">
-            <span class="snap__ts">{r.heading}</span>
+            <span class="snap__ts" hidden={r.isRevision}>{r.heading}</span>
+            <span class="snap__ts" hidden={!r.isRevision}>
+              {r.reviewLabel} difference between
+              <Timestamp iso={r.previousIso} /> and <Timestamp iso={r.iso} />
+            </span>
             <span class="pill is-info snap__cur" hidden={!r.isCurrent}>Current</span>
             <span class={r.reviewClass} hidden={!r.isRevision}>{r.reviewLabel}</span>
             <span class="snap__delta" hidden={!r.hasDiff}>
@@ -388,8 +371,7 @@ const methodologyText = isSocial
           <p class="snap__review" hidden={!r.isRevision}>{r.reviewSummary}</p>
 
           <div class="snap__meta">
-            <span class="hash">seen {r.human} &middot; {r.origin}</span>
-            <span class="hash">text sha256 {r.sha}</span>
+            <span class="hash">seen <Timestamp iso={r.iso} /> &middot; {r.origin}</span>
             <span class="hash">{r.chars} chars</span>
             <a class="hash" href={r.waybackUrl} rel="noopener nofollow" hidden={!r.isWayback}>replay</a>
           </div>
@@ -428,7 +410,7 @@ const methodologyText = isSocial
       <ul class="noise__list">
         {noiseRows.map((r) => (
           <li class="noise__row" id={'snap-' + r.ts}>
-            <span class="noise__ts">{r.human}</span>
+            <Timestamp class="noise__ts" iso={r.iso} />
             <span class="noise__delta">
               <span class="add">+{r.added}</span>
               <span class="del">-{r.removed}</span>
@@ -460,9 +442,8 @@ const methodologyText = isSocial
     <div class="callout is-info src__foot" hidden={isSocial}>
       <span class="callout__title">How to check this yourself</span>
       <p>
-        Each copy above is identified by the SHA-256 of its extracted text, shown
-        beside it, and the diffs are plain unified diffs. To verify a quotation,
-        compare it against
+        The excerpts and plain unified diffs above show the text this project
+        held and how it changed. To verify a quotation, compare it against
         <a href={src.url} rel="noopener nofollow">the page itself</a> or against
         <a href={waybackHistory} rel="noopener nofollow">the Internet Archive's
         copies</a>, which are independent of this project.
@@ -477,11 +458,9 @@ const methodologyText = isSocial
     <div class="callout is-info src__foot" hidden={!isSocial}>
       <span class="callout__title">How to check this yourself</span>
       <p>
-        The SHA-256 prefixes above identify each held copy without turning this
-        page into a mirror of somebody else's post. Compare a quotation against
-        <a href={src.url} rel="noopener nofollow">the original</a>. If the post
-        has since been edited or deleted, <a href="/about/">ask</a> and the held
-        copy can be produced.
+        Compare the screenshot or a quotation against
+        <a href={src.url} rel="noopener nofollow">the original</a> while it is
+        available.
       </p>
     </div>
   </div>
@@ -532,7 +511,11 @@ const methodologyText = isSocial
     font-size: .88rem; color: var(--ink-3); margin-top: .9rem; max-width: 70ch; line-height: 1.62;
   }
   .src__note { color: var(--ink-2); }
-  .src__note:empty { display: none; }
+  /* Paragraphs inside the note carry the rhythm the single <p> used to lack.
+     The wrapper keeps the margin-top above; only the gaps between siblings
+     are added here, so a one-paragraph note renders exactly as before. */
+  .src__note p { margin: 0; }
+  .src__note p + p { margin-top: .7em; }
 
   .verify {
     margin-top: 1.6rem;
@@ -611,14 +594,6 @@ const methodologyText = isSocial
     font-size: .78rem; color: var(--ink-3); margin-top: .5rem; line-height: 1.58;
   }
   .lead__clip[hidden] { display: none; }
-
-  .social { margin-top: 2rem; }
-  .social h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
-  .social__lede { color: var(--ink-3); font-size: .86rem; max-width: 70ch; margin-top: .45rem; }
-  .artifact-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .76rem; }
-  .artifact-table th, .artifact-table td { text-align: left; border-bottom: 1px solid var(--rule); padding: .65rem .5rem; vertical-align: top; }
-  .artifact-table th { font-family: var(--font-mono); color: var(--ink-3); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
-  .artifact-table code { overflow-wrap: anywhere; }
 
   .timeline { list-style: none; padding: 0; margin-top: 2.2rem; display: grid; gap: 1.1rem; }
   .timeline[hidden] { display: none; }

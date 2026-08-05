@@ -3,8 +3,9 @@ import Base from '../../layouts/Base.astro';
 import EvidenceCard from '../../components/EvidenceCard.astro';
 import RecordSearch from '../../components/RecordSearch.astro';
 import Contribute from '../../components/Contribute.astro';
+import Timestamp from '../../components/Timestamp.astro';
 import {
-  sources, snapshots, stats, tsToHuman, tsToIso, isoToHuman, xPosts, groupOf,
+  sources, snapshots, stats, tsToIso, xPosts, groupOf,
   lastPolled, revisions, displayTitle, kindLabel, xArtifacts, lastCaptureError,
   summary, goneSources, withholdsCapturedMedia,
 } from '../../lib/archive';
@@ -31,9 +32,7 @@ const agoLabel = hoursAgo === null ? ''
   : hoursAgo === 1 ? 'an hour ago'
   : hoursAgo < 48 ? `${hoursAgo} hours ago`
   : `${Math.floor(hoursAgo / 24)} days ago`;
-const freshness = s.lastCapture
-  ? `Last capture: ${agoLabel} (${tsToHuman(s.lastCapture)}, as of this build)`
-  : '';
+const hasFreshness = Boolean(lastIso);
 
 /*
  * The capture wall strip: the most recently captured post screenshots, shown
@@ -52,7 +51,8 @@ const wall = xPosts()
     href: `/record/sources/${p.id}/`,
     title: displayTitle(p),
     by: `@${p.author}`,
-    when: p.posted ? isoToHuman(p.posted) : 'posting time not established',
+    whenIso: p.posted ?? '',
+    whenFallback: 'posting time not established',
     src: shot!.src,
     // The staged file is named for its capture timestamp, so "most recent"
     // means most recently captured, not most recently posted.
@@ -80,6 +80,8 @@ const GROUPS = [
    'Original analysis by people who read the code or the chain themselves, rather than reporting on somebody who did. Credited individually on the analysis page.'],
   ['analysis', 'Secondary analysis',
    'Technical interpretation and guidance built from primary disclosures or other researchers. Useful, but one step removed from the original finding.'],
+  ['community', 'Community discussion',
+   'Reddit, Stacker News and BitcoinTalk threads where owners, researchers and onlookers discuss the incident. High-volume and conversational; inclusion records what was said, not that any of it is reliable.'],
   ['repo', 'Repository files and pull requests',
    'Release notes, source files and the upstream fixes proposed after disclosure. Mostly append-only sources preserved for source-level context.'],
   ['reporting', 'Reporting',
@@ -95,9 +97,6 @@ const grouped = GROUPS
     items: sources().filter((x) => groupOf(x) === key).map((src) => {
       const snaps = snapshots(src.id);
       const checked = lastPolled(src.id);
-      const changed = revisions().find((r) =>
-        r.sourceId === src.id && r.review.status === 'source-content'
-      );
       const revCount = revisions().filter((r) =>
         r.sourceId === src.id && r.review.status === 'source-content'
       ).length;
@@ -113,8 +112,8 @@ const grouped = GROUPS
         blocked: Boolean(lastCaptureError(src.id)),
         gone: Boolean(src.gone),
         captures: `${snaps.length} snapshot${snaps.length === 1 ? '' : 's'}`,
-        lastChecked: checked ? `checked ${tsToHuman(checked)}` : 'not yet checked',
-        lastChanged: changed ? `source change ${tsToHuman(changed.windowEnd)}` : 'no reviewed source change',
+        lastChecked: checked ? '' : 'not yet checked',
+        lastCheckedIso: checked ? tsToIso(checked) : '',
       };
     }),
   }))
@@ -132,7 +131,8 @@ const posts = xPosts().map((post) => {
     excerpt: summary(post.why),
     search: post.why ?? '',
     byLine: `@${post.author}${post.org ? ` \u00b7 ${post.org}` : ''}`,
-    postedLabel: post.posted ? isoToHuman(post.posted) : 'posting time not established',
+    postedLabel: 'posting time not established',
+    postedIso: post.posted ?? '',
     captureLabel: artifacts.length
       ? `${artifacts.length} capture artefact${artifacts.length === 1 ? '' : 's'} held`
       : 'registered, capture not yet held',
@@ -145,13 +145,14 @@ const FACETS = [
   { value: 'x', label: 'X posts' },
   { value: 'research', label: 'Research' },
   { value: 'analysis', label: 'Analysis' },
+  { value: 'community', label: 'Community' },
   { value: 'reporting', label: 'Reporting' },
   { value: 'repo', label: 'Repos' },
   { value: 'monitor', label: 'Monitors' },
   { value: 'firsthand', label: 'First-hand' },
 ];
 ---
-<Base title="Evidence" description="Tracked sources, held captures and reviewed source revisions." kicker="Evidence">
+<Base title="The record" description="Tracked sources, held captures and reviewed source revisions." kicker="The record">
   <div class="wrap">
     <h1 class="rec__h1">Evidence</h1>
     <p class="rec__lede">
@@ -162,7 +163,7 @@ const FACETS = [
       Substantive claims elsewhere on the site link to these evidence records.
       This section preserves what was said and how it changed. It does not
       judge who is right: how the parties responded lives under
-      <a href="/response/">The aftermath</a>.
+      <a href="/response/">Responses</a>.
     </p>
 
     <div class="rec__stats">
@@ -172,14 +173,16 @@ const FACETS = [
       <div><strong>{s.xPosts}</strong><span>posts captured</span></div>
     </div>
 
-    <p class="rec__fresh" hidden={!freshness}>{freshness}</p>
+    <p class="rec__fresh" hidden={!hasFreshness}>
+      Last capture: {agoLabel} (<Timestamp iso={lastIso ?? ''} />, as of this build)
+    </p>
 
     <section class="wall" aria-labelledby="wall-h" hidden={wall.length === 0}>
       <div class="wall__head">
-        <h2 id="wall-h">Latest captured posts</h2>
+        <h2 id="wall-h">Recently added captures</h2>
         <div class="wall__nav">
           <a href="#registered-posts">See all captured posts &darr;</a>
-          <a href="/record/feed/">Chronological feed &rarr;</a>
+          <a href="/record/changes/">Change record &rarr;</a>
         </div>
       </div>
       <div class="wall__strip">
@@ -189,7 +192,11 @@ const FACETS = [
               <img src={w.src} alt={`Captured screenshot: ${w.title}`} loading="lazy" />
             </span>
             <span class="wall__title">{w.title}</span>
-            <span class="wall__by">{w.by} &middot; {w.when}</span>
+            <span class="wall__by">
+              {w.by} &middot; posted
+              <Timestamp iso={w.whenIso} hidden={!w.whenIso} />
+              <span hidden={Boolean(w.whenIso)}>{w.whenFallback}</span>
+            </span>
           </a>
         ))}
       </div>
@@ -206,8 +213,7 @@ const FACETS = [
       <a href="/record/changes/">Reviewed source changes &rarr;</a>
       <a href="/record/funds/">Theft accounting: what moved and where it went &rarr;</a>
       <a href="/record/timeline/">Incident timeline, and what was known when &rarr;</a>
-      <a href="/record/firmware/">Firmware timeline: which builds are affected &rarr;</a>
-      <a href="/record/analysis/">Primary-analysis register &rarr;</a>
+      <a href="/record/reference/">Reference: primary analysis, published code, firmware releases &rarr;</a>
       <a href="/record/sources.json">Source register as JSON &rarr;</a>
       <a href="/record/changes.json">Change feed as JSON &rarr;</a>
     </div>
@@ -226,7 +232,7 @@ const FACETS = [
 
     <div class="rec__viewswitch">
       <span class="rec__viewcur">Register</span>
-      <a href="/record/feed/">Chronological feed &rarr;</a>
+      <a href="/record/changes/">Change record &rarr;</a>
     </div>
 
     <RecordSearch
@@ -250,6 +256,8 @@ const FACETS = [
               id={src.id}
               by={src.org ?? ''}
               when={src.lastChecked}
+              whenIso={src.lastCheckedIso}
+              whenPrefix="checked "
               excerpt={src.excerpt}
               search={src.search}
               captures={src.snapCount}
@@ -278,6 +286,7 @@ const FACETS = [
             id={p.id}
             by={p.byLine}
             when={p.postedLabel}
+            whenIso={p.postedIso}
             excerpt={p.excerpt}
             search={p.search}
             captures={p.captured ? 1 : 0}

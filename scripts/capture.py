@@ -61,6 +61,7 @@ SNAPSHOTS = ROOT / "archive" / "snapshots"
 DIFFS = ROOT / "archive" / "diffs"
 INDEX = ROOT / "archive" / "index.jsonl"
 RUNS = ROOT / "archive" / "runs"
+COMMUNITY_WATCH_DAYS = {2: 7, 3: 3}
 
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -93,6 +94,28 @@ WAYBACK_AFTER_REFUSALS = 3
 
 class SourceConfigError(ValueError):
     """The source registry is ambiguous or requests an unknown operation."""
+
+
+def watch_window_elapsed(
+    source: dict, started: str, snapshot_root: Path = SNAPSHOTS
+) -> bool:
+    """Whether a broad poll should stop watching this source."""
+
+    explicit = source.get("watch_until")
+    if explicit:
+        return explicit <= started
+    if source.get("kind") != "community-discussion" or "watch" in source:
+        return False
+    directory = snapshot_root / source["id"]
+    snapshots = sorted(directory.glob("*.txt")) if directory.is_dir() else []
+    if not snapshots:
+        return False
+    first = dt.datetime.strptime(
+        snapshots[0].stem, "%Y%m%dT%H%M%SZ"
+    ).replace(tzinfo=dt.timezone.utc)
+    days = COMMUNITY_WATCH_DAYS.get(source.get("tier"), 7)
+    deadline = first + dt.timedelta(days=days)
+    return deadline.strftime("%Y%m%dT%H%M%SZ") <= started
 
 
 def now() -> str:
@@ -342,6 +365,16 @@ def _normalise_reddit_chrome(text: str) -> str:
     return re.sub(r"(?m)^Reply\nShare\n", "", text)
 
 
+def _normalise_reddit_more_stub_counts(text: str) -> str:
+    """Suppress counts for comment branches Reddit did not inline."""
+
+    return re.sub(
+        r"(?m)^(more-stub: parent \S+) count \d+$",
+        r"\1 count <live-count>",
+        text,
+    )
+
+
 def _normalise_slipstream_live_state(text: str) -> str:
     """Suppress live chain and fee values without hiding portal wording."""
 
@@ -391,6 +424,19 @@ def _normalise_tracker_footer_live_state(text: str) -> str:
     )
 
 
+def _normalise_cktripwire_live_state(text: str) -> str:
+    """Suppress only the advancing age of unswept CKTRIPWIRE honeypots."""
+
+    # A live row advances from, for example, "live 1h14m" to "live 1h44m"
+    # without a source event. Preserve "swept in 1h18m": that fixed latency is
+    # experimental evidence, and any edit to it must remain visible.
+    return re.sub(
+        r"(?m)^live (?=\d)(?:\d+[dhms])+$",
+        "live <elapsed>",
+        text,
+    )
+
+
 def _normalise_cryptonews_chrome(text: str) -> str:
     """Compare the crypto.news article body, not ticker or sidebar chrome."""
 
@@ -426,6 +472,13 @@ def _normalise_newsbitcom_sidebar(text: str) -> str:
     return text[:match.start()].rstrip() if match else text
 
 
+def _normalise_newsbtc_article(text: str) -> str:
+    """Drop NewsBTC recommendations and site chrome after the article."""
+
+    marker = "\nRelated News\n"
+    return text.split(marker, 1)[0].rstrip() if marker in text else text
+
+
 def _normalise_substack_engagement(text: str) -> str:
     """Suppress Substack counters and comment age stamps, keep post text."""
 
@@ -436,6 +489,33 @@ def _normalise_substack_engagement(text: str) -> str:
     )
     # Comment ages in Substack short form, a bare line under the author name.
     return re.sub(r"(?m)^\d{1,3}[smhd]$", "<comment-age>", text)
+
+
+def _normalise_coindesk_article(text: str) -> str:
+    """Compare the headline, standfirst, summary and article body only."""
+
+    # CoinDesk localises and rotates the byline controls, news rail, footer
+    # and market widget independently of the article. The stable editorial
+    # surface starts at the section label and resumes at Summary after those
+    # controls. Keep both parts so headline and standfirst edits stay loud.
+    start = text.find("\nTech\n")
+    summary = text.find("\nSummary\n", start if start >= 0 else 0)
+    end = text.find("\nLatest Crypto News\n", summary if summary >= 0 else 0)
+    if start >= 0 and summary > start and end > summary:
+        lead = "\n".join(text[start + 1:summary].splitlines()[:3])
+        return f"{lead}\n{text[summary + 1:end]}".rstrip()
+    return text
+
+
+def _normalise_chaincatcher_article(text: str) -> str:
+    """Compare ChainCatcher's Nunchuk article rather than live page chrome."""
+
+    title = "Nunchuk responds to Coldcard vulnerability: platform keys will not be used directly"
+    start = text.find(title)
+    end = text.find("\nRelated tags\n", start if start >= 0 else 0)
+    if start >= 0 and end > start:
+        return text[start:end].rstrip()
+    return text
 
 
 NORMALISERS = {
@@ -450,13 +530,18 @@ NORMALISERS = {
     "reddit-engagement": _normalise_reddit_engagement,
     "reddit-achievement-badges": _normalise_reddit_achievement_badges,
     "reddit-chrome": _normalise_reddit_chrome,
+    "reddit-more-stub-counts": _normalise_reddit_more_stub_counts,
     "slipstream-live-state": _normalise_slipstream_live_state,
     "android-article": _normalise_android_article,
     "unciphered-article": _normalise_unciphered_article,
     "tracker-footer-live-state": _normalise_tracker_footer_live_state,
+    "cktripwire-live-state": _normalise_cktripwire_live_state,
     "cryptonews-chrome": _normalise_cryptonews_chrome,
     "newsbitcom-sidebar": _normalise_newsbitcom_sidebar,
+    "newsbtc-article": _normalise_newsbtc_article,
     "substack-engagement": _normalise_substack_engagement,
+    "coindesk-article": _normalise_coindesk_article,
+    "chaincatcher-article": _normalise_chaincatcher_article,
 }
 
 
@@ -468,9 +553,12 @@ NORMALISERS = {
 # its comparison source from held meta.json, and auto-merging there would
 # recompute old change hashes with filters that did not exist at capture time.
 SOURCE_NORMALISERS: dict[str, list[str]] = {
+    "coindesk-25-minute-sweep": ["coindesk-article"],
+    "chaincatcher-nunchuk-response": ["chaincatcher-article"],
     "coldcard-hack-tracker": ["tracker-footer-live-state"],
     "cryptonews-build-error-38m": ["cryptonews-chrome"],
     "newsbitcom-who-lost-who-at-risk": ["newsbitcom-sidebar"],
+    "newsbtc-entropy-risk-focus": ["newsbtc-article"],
     "reddit-drained-timeline": ["reddit-achievement-badges", "reddit-chrome"],
     "reddit-ai-discovery-thread": ["reddit-achievement-badges", "reddit-chrome"],
     "reddit-coldcard-letter-db-leak": ["reddit-chrome"],
@@ -489,6 +577,8 @@ def source_normalizers(src: dict) -> list[str]:
         # JSON payload does not contain; binding them to a JSON capture
         # would filter nothing and misrecord the capture's normalizer list.
         bound = [n for n in bound if not n.startswith("reddit-")]
+    if src.get("capture") == "reddit-json":
+        bound = [*bound, "reddit-more-stub-counts"]
     for name in bound:
         if name not in names:
             names.append(name)
@@ -578,6 +668,24 @@ def validate_sources(cfg: dict) -> None:
                 if type(tier) is not int or tier not in (1, 2, 3):
                     raise SourceConfigError(
                         f"source {sid!r}: tier must be an integer from 1 to 3"
+                    )
+                watch = item.get("watch", "active")
+                if watch not in ("active", "frozen"):
+                    raise SourceConfigError(
+                        f"source {sid!r}: watch must be 'active' or 'frozen'"
+                    )
+                watch_until = item.get("watch_until")
+                if watch_until is not None and (
+                    not isinstance(watch_until, str)
+                    or not TS_RE.fullmatch(watch_until)
+                ):
+                    raise SourceConfigError(
+                        f"source {sid!r}: watch_until must be a UTC timestamp "
+                        "like 20260812T000000Z"
+                    )
+                if watch == "frozen" and watch_until is not None:
+                    raise SourceConfigError(
+                        f"source {sid!r}: choose watch = 'frozen' or watch_until"
                     )
                 kind = item.get("kind")
                 if not isinstance(kind, str) or not kind.strip():
@@ -1470,6 +1578,24 @@ def cmd_capture(args) -> int:
             print(f"  {s['id']}  GONE{status}  since {s['gone_since']}")
         print()
 
+    # Frozen sources remain registered and explicitly capturable for a
+    # provenance recheck, but broad and scheduled selections do not poll them.
+    frozen = [] if args.id else [s for s in srcs if s.get("watch") == "frozen"]
+    if frozen:
+        frozen_ids = {s["id"] for s in frozen}
+        srcs = [s for s in srcs if s["id"] not in frozen_ids]
+        print(f"{len(frozen)} frozen source(s), not polled")
+        print()
+
+    expired = [] if args.id else [
+        s for s in srcs if watch_window_elapsed(s, started)
+    ]
+    if expired:
+        expired_ids = {s["id"] for s in expired}
+        srcs = [s for s in srcs if s["id"] not in expired_ids]
+        print(f"{len(expired)} source watch window(s) elapsed, not polled")
+        print()
+
     print(f"capture {started}  ({len(srcs)} sources)")
     results: list[dict] = []
     changed = []
@@ -1533,6 +1659,10 @@ def cmd_capture(args) -> int:
     counts: dict[str, int] = {}
     if retired:
         counts["gone"] = len(retired)
+    if frozen:
+        counts["frozen"] = len(frozen)
+    if expired:
+        counts["watch_elapsed"] = len(expired)
     for result in results:
         event = result["event"]
         counts[event] = counts.get(event, 0) + 1
@@ -1569,6 +1699,8 @@ def cmd_capture(args) -> int:
             }
             for s in retired
         ],
+        "frozen": [s["id"] for s in frozen],
+        "watch_elapsed": [s["id"] for s in expired],
     }
     if result_path:
         _write_json_atomic(result_path, payload)
@@ -1691,13 +1823,18 @@ def cmd_audit(args) -> int:
 
 def cmd_status(args) -> int:
     cfg = load_sources()
-    print(f"{'ID':<24} {'TIER':<5} {'SNAPS':<6} {'LAST CHANGE':<18} ORG")
-    print("-" * 78)
+    print(f"{'ID':<24} {'TIER':<5} {'WATCH':<7} {'SNAPS':<6} {'LAST CHANGE':<18} ORG")
+    print("-" * 86)
     for s in cfg.get("source", []):
         d = snap_dir(s["id"])
         snaps = sorted(d.glob("*.txt")) if d.is_dir() else []
         last = snaps[-1].stem if snaps else "never"
-        print(f"{s['id']:<24} {s.get('tier','-'):<5} {len(snaps):<6} {last:<18} {s.get('org','')}")
+        watch = s.get("watch", "active")
+        if s.get("watch_until"):
+            watch = "until"
+        print(f"{s['id']:<24} {s.get('tier','-'):<5} "
+              f"{watch:<7} {len(snaps):<6} "
+              f"{last:<18} {s.get('org','')}")
     xs = cfg.get("x_post", [])
     if xs:
         print(f"\n{len(xs)} X posts registered (capture via scripts/capture-x.sh)")

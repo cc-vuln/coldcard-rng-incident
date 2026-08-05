@@ -1,22 +1,29 @@
 # Design: capture display policy
 
 **Status:** adopted; staging gate, withhold flag on both registry block types
-and renderer consultation built; two presentation duties outstanding (see
-section 8)
-**Date:** 3 Aug 2026
+and renderer consultation built; public hash presentation retired 5 Aug 2026;
+two presentation duties outstanding (see section 8)
+**Date:** 3 Aug 2026, revised 5 Aug 2026
 
 The question this answers: when may a capture held in this archive be
-*displayed* on a public page, rather than only proven by its hash?
+*displayed* on a public page, rather than represented only by metadata?
 
 The site's standing posture is excerpts, not mirrors: `PUBLIC_FULL_TEXT`
-defaults to false, source pages show diffs, a 40-line excerpt, hashes and a
-link, and the complete captured bodies stay local where they still back every
+defaults to false, source pages show diffs, a 40-line excerpt and a link, and
+the complete captured bodies stay local where they still back every
 claim. Displaying captured X post screenshots diverges from that posture, so
 this policy had to be written before that display ships broadly. The site
-renders held post screenshots on `/record/` and `/record/feed/`, and this
+renders held post screenshots on `/record/` and `/record/changes/`, and this
 document is the revision that makes that display defensible rather than
 accidental. It revises the display rule only. Nothing here changes what is captured, how the archive is written, or
 the append-only rule.
+
+The 5 August revision separates internal archive checks from public evidence.
+Snapshot hashes remain in sidecars. The archive audit recomputes the
+extracted-text hash to detect later mutation of that text; the raw-byte hash
+remains capture metadata. They do not authenticate who made a browser capture
+or make that capture independently reproducible, so source pages and the public
+source register do not publish them as provenance or tamper-resistance claims.
 
 ## 1. Scope of display
 
@@ -28,7 +35,7 @@ showing the statement is showing the evidence.
 
 Everything longer keeps the excerpt-only treatment. Full articles, forum
 threads, blog posts, advisories and any other long-form work continue to
-appear as diffs, a bounded excerpt and hashes, never as full mirrors.
+appear as diffs and a bounded excerpt, never as full mirrors.
 `PUBLIC_FULL_TEXT` semantics are unchanged and the flag stays false in every
 public build. A screenshot of an article page is a mirror with extra steps
 and is not covered by this grant.
@@ -48,8 +55,8 @@ A short attributed post is displayed as quotation and record, on four legs:
   X. The display serves readers checking the record, not readers seeking the
   author's content.
 - **Commentary and provenance context.** Posts render inside the record:
-  beside capture metadata, hashes, revision history and the registry note
-  saying why the post matters. They are never presented bare as content.
+  beside capture metadata, revision history and the registry note saying why
+  the post matters. They are never presented bare as content.
 
 This reasoning is also stated publicly on `/about/`, so a displayed author can
 inspect the rationale rather than having to ask for it.
@@ -124,8 +131,8 @@ Every rendered screenshot carries:
 - **Alt text** describing what it is a capture of.
 - **The capture timestamp**, so a reader knows when this project observed the
   post, which is not the same fact as when the author posted it.
-- **A link to the source page**, where the SHA-256 hashes, the full artefact
-  record and the capture history live.
+- **A link to the source page**, where the capture time, original link,
+  registry note and any revision history live.
 
 And one prohibition: wayback-recovered material is never presented as a
 capture this project took. `provenance: wayback` is displayed as inherited
@@ -151,7 +158,7 @@ observed.
 
 ## 8. What is implemented today, and what is not
 
-Accurate as of 3 Aug 2026, checked against this tree.
+Accurate as of 5 Aug 2026, checked against this tree.
 
 Implemented:
 
@@ -162,10 +169,12 @@ Implemented:
 - `withholdsCapturedMedia()` exists in `src/lib/archive.ts`, delegates to
   `withholdsCapturedText()`, and is consulted beside the staging gate by
   every renderer that shows staged media: `EvidenceCard.astro`,
-  `CaptureThumb.astro`, `record/index`, `record/feed` and the source page.
+  `CaptureThumb.astro`, `record/index`, `record/changes/index.astro` and the
+  source page.
 - `withhold_text` is honoured on both registry block types: `[[source]]`
   and `[[x_post]]`.
-- The source page renders held media alongside the artefact record.
+- The source page renders held media alongside its capture time, original link,
+  registry context and any revision history.
 - Rendered screenshots carry alt text and link to the source page (two of
   the three duties in section 6).
 

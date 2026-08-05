@@ -40,6 +40,69 @@ const ids = (route) => {
 };
 
 const failures = [];
+
+const sectionNavItems = (html) => {
+  const navBlock = html.match(/<nav\b(?=[^>]*\baria-label="Section")[^>]*>([\s\S]*?)<\/nav>/);
+  if (!navBlock) return [];
+  return [...navBlock[1].matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
+    href: m[1],
+    label: m[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+  }));
+};
+
+// A static editorial page should never depend on an index card or a footer
+// link for discovery. Every such route gets its own section-navigation entry.
+// Individual source records are collection items, so /record/ is their direct
+// navigation home rather than hundreds of links in the section bar.
+for (const section of ['/response/', '/how-it-broke/', '/record/']) {
+  const sectionItems = sectionNavItems(pages.get(section) ?? '');
+  const sectionHrefs = new Set(sectionItems.map((item) => item.href));
+  const editorialRoutes = [...pages.keys()].filter((route) =>
+    route.startsWith(section)
+    && !route.startsWith('/record/sources/')
+  );
+  for (const route of editorialRoutes) {
+    if (!sectionHrefs.has(route)) {
+      failures.push(`section navigation: ${route} has no direct entry under ${section}`);
+    }
+  }
+}
+
+// The response section is deliberately a reading sequence. Keep the Next card
+// on every page in the same order as the visible navigation, including the
+// final return to the overview, and use the same label in both places.
+const responseItems = sectionNavItems(pages.get('/response/') ?? '');
+for (let i = 0; i < responseItems.length; i += 1) {
+  const current = responseItems[i];
+  const expected = responseItems[(i + 1) % responseItems.length];
+  const html = pages.get(current.href) ?? '';
+  const next = html.match(/<a\b(?=[^>]*\bclass="[^"]*\bartnav__next\b[^"]*")(?=[^>]*\bhref="([^"]+)")[^>]*>([\s\S]*?)<\/a>/);
+  if (!next) {
+    failures.push(`response sequence: ${current.href} has no Next link`);
+    continue;
+  }
+  const nextLabel = next[2].match(/<span\b[^>]*\bclass="[^"]*\bartnav__label\b[^"]*"[^>]*>([\s\S]*?)<\/span>/);
+  const label = nextLabel
+    ? nextLabel[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+    : '';
+  if (next[1] !== expected.href) {
+    failures.push(`response sequence: ${current.href} Next points to ${next[1]}, expected ${expected.href}`);
+  }
+  if (label !== expected.label) {
+    failures.push(`response sequence: ${current.href} Next label is "${label}", expected "${expected.label}"`);
+  }
+}
+
+// The timeline is the record section's front door. The source register keeps
+// /record/, but a later navigation refit once silently pointed the primary
+// "The record" link back there. Treat the chosen default as a route contract,
+// just like the retired-route contracts below.
+const overview = pages.get('/') ?? '';
+const recordNav = /<a\b(?=[^>]*\bclass="[^"]*nav__link[^"]*")(?=[^>]*\bhref="\/record\/timeline\/")[^>]*>\s*The record\s*<\/a>/;
+if (!recordNav.test(overview)) {
+  failures.push('primary navigation: The record must link to /record/timeline/');
+}
+
 for (const [route, html] of pages) {
   const body = html.replace(/<!--[\s\S]*?-->/g, '');
   for (const m of body.matchAll(/(?:href|src)="(\/[^"]*)"/g)) {

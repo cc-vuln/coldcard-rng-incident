@@ -1,0 +1,24 @@
+url:      https://x.com/BitcoinNewsCom/status/2083715303087673392
+author:   Bitcoin News
+handle:   @BitcoinNewsCom
+posted:   2026-08-02T00:43:36.000Z (from the page's <time> element)
+captured: 20260805T042505Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOrYBoWXMAAMIUV?format=jpg&name=small (622 x 680 pixels)
+
+--- post text (verbatim) ---
+
+COLDCARD BUG MAY HAVE BEEN CAUSED BY A COMPILER WORKAROUND
+
+A new technical analysis by Core-Lightning dev ddustin suggests the 2021 COLDCARD vulnerability may have started while a developer was trying to connect three layers of the firmware: the wallet’s Python code, MicroPython’s C code, and the STM32 hardware random number generator.
+
+The custom code appears to have conflicted with MicroPython’s existing implementation, likely triggering a compiler error.
+
+The evidence suggests the developer then disabled the hardware RNG by setting MICROPY_HW_ENABLE_RNG to 0, allowing the firmware to compile.
+
+That change had an unintended consequence. When users created new wallets, the firmware no longer used the hardware random number generator. Instead, it fell back to MicroPython’s much weaker Yasmarang software random number generator.
+
+The commit message left by the dev was just the word “runs.”
+
+The analysis argues this is a reminder that developers should never ship security-critical code they don’t fully understand, especially when it protects billions of dollars in Bitcoin.

@@ -1,0 +1,376 @@
+Skip to content
+Navigation Menu
+Sign inAppearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Type / to search
+Sign in
+Sign upAppearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+Coldcard
+/
+firmware
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+206
+Star
+754
+Code
+Pull requests
+13
+Actions
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Pull requests
+Actions
+Security and quality
+Insights
+rng: recover the TRNG after a seed/clock error instead of failing forever - #692
+#692
+Closed
+Silexperience210 wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+Silexperience210:fix/rng-fault-recoverySilexperience210/firmware:fix/rng-fault-recoveryCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Closed
+rng: recover the TRNG after a seed/clock error instead of failing forever#692
+Silexperience210 wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+Silexperience210:fix/rng-fault-recoverySilexperience210/firmware:fix/rng-fault-recoveryCopy head branch name to clipboard
+Conversation
+Silexperience210
+commented
+Aug 3, 2026
+Copy link
+Copy Markdown
+Affects: stm32/COLDCARD_MK4/rng.c, stm32/COLDCARD/rng.c (COLDCARD_Q1/rng.c is a symlink to the Mk4 file), as shipped in the 2026-07-31 hotfix (commit ca724637, "fixes rng").
+Summary: the entropy fix is correct — rng_get() now resolves to the board TRNG accessor instead of MicroPython's software fallback. But rng_get_or_fault() has no recovery path for the STM32 RNG error flags, so a single seed error latches the peripheral into a state the code can never clear. Every subsequent call times out and raises OSError(EFAULT), forever. Because rng_get() is now on the keypad scan path, which runs from an IRQ callback before login, that exception is not survivable by the user.
+1. What changed
+Before the hotfix, with MICROPY_HW_ENABLE_RNG (0), rng_get() linked to the #else branch of ports/stm32/rng.c — a pure software Yasmarang PRNG. It touched no hardware and could not fail.
+After the hotfix, stm32/rng.o is compiled from /dev/null and rng_get() resolves to:
+uint32_t rng_get(void) { return rng_get_or_fault(); }
+which reads the hardware TRNG and calls mp_raise_OSError(MP_EFAULT) on a 10 ms timeout.
+This is the right direction. The problem is what happens when the TRNG hiccups.
+2. The peripheral is never recovered
+static void rng_init(void) {
+if (!(RNG->CR & RNG_CR_RNGEN)) {
+__HAL_RCC_RNG_CLK_ENABLE();
+RNG->CR |= RNG_CR_RNGEN;
+// TODO: throw out some samples?
+}
+}
+Per RM0432 §25.3.7 (and RM0351 for the Mk3's L4):
+On a seed error, SECS is set and SEIS latches. DRDY stops asserting.
+RNGEN stays set. Recovery requires clearing SEIS and then toggling RNGEN off→on.
+rng_init() only tests RNGEN, so in the faulted state it is a no-op. rng_get_or_fault() then busy-waits 10 ms and throws — on every call, indefinitely, across reboots of the Python layer.
+Two secondary issues in the same function:
+The reference manual says the first word after enabling may be invalid; the // TODO: throw out some samples? was never done.
+RNG->DR is read without checking whether SEIS/CEIS latched while waiting, so a suspect word can be returned as good.
+3. Why this is not survivable
+rng_get() is now reached from the keypad scan-order shuffle:
+mempad.py / keyboard.py :: _start_scan()
+-> shuffle(self.scan_order) # "We scan in random order, because Tempest."
+-> random.randbelow -> ngu.random.uniform
+-> _rand_below() -> CHIP_TRNG_32() -> rng_get()
+_start_scan() is called from anypress_irq, a Pin.irq callback, at up to 60 Hz, and it runs before login. Three or more TRNG reads per keypress, each with a 10 ms worst case, in IRQ context.
+An OSError there reaches IMPT.handle_exc → die_with_debug → ux.show_fatal_error + callgate.show_logout(1). The user gets an error screen and cannot enter a PIN — so they cannot reach the upgrade menu either. That matches the "stuck on error screen / won't boot" reports following the hotfix.
+Note that scan-order randomisation is anti-Tempest hygiene, not a secret. It does not need cryptographic quality and should never be able to take the device down.
+4. Reproduction
+rng-testbench.c (attached) mocks RNG_CR / RNG_SR / RNG_DR with the documented flag semantics (SEIS/CEIS sticky until software clears them; SECS/CECS read-only, cleared by hardware when the condition ends) and runs both the shipped and the patched rng_get().
+$ gcc -O1 -o rng-testbench rng-testbench.c && ./rng-testbench
+== A. nominal hardware ==
+shipped : ok (1000 calls)
+PATCHED : ok (1000 calls)
+== B. transient seed error, then back to normal ==
+shipped (during glitch) : RAISED OSError_EFAULT
+shipped (after glitch) : RAISED OSError_EFAULT
+RNGEN=1 SEIS=1
+PATCHED (during glitch) : RAISED OSError_EFAULT
+PATCHED (after glitch) : ok (50 calls)
+RNGEN=1 SEIS=0
+== C. hard failure (48MHz PLLSAI1 clock absent) ==
+PATCHED (must still raise) : RAISED OSError_EFAULT
+== D. glitch 1-in-5, 5000 reads ==
+PATCHED : 1000 exceptions / 5000
+shipped : 5000 exceptions / 5000
+Case B is the bug: the shipped code stays dead after the fault condition is gone. Case C confirms the patch does not trade robustness for degraded entropy — a genuine hardware failure still raises rather than silently falling back.
+5. Proposed fix
+coldcard-rng-antibrick.patch (attached, applies cleanly to master), 4 files:
+stm32/COLDCARD_MK4/rng.c and stm32/COLDCARD/rng.c
+rng_reset(): enable clock, clear RNGEN, clear SEIS/CEIS, set RNGEN, discard the first word.
+rng_init(): trigger a reset when RNGEN is clear or any error flag is set.
+rng_try_once(): non-throwing single attempt; refuses the word if an error latched during the wait.
+rng_get_or_fault(): up to RNG_MAX_ATTEMPTS (3), resetting between attempts, then raise as before.
+No change to the throw-on-persistent-failure contract, and no fallback to software entropy.
+shared/mempad.py and shared/keyboard.py
+Wrap shuffle(self.scan_order) in try/except. Defence in depth: an RNG fault should degrade the Tempest mitigation, not brick the device at the login screen.
+6. Caveats
+Register behaviour was validated against a mock built from RM0432/RM0351, not against silicon. The SEIS-sticky recovery sequence is documented, but the patch should be confirmed on a real Mk4/Q before merging.
+This is preventive only. It does not recover devices that are already stuck.
+I have not been able to confirm the field reports independently; the causal chain above is derived from the source, not from a device I bricked.
+7. Notes on this PR
+Issues are disabled on this repo, so this is filed as a PR — but treat it as a
+report first and a patch second. The diff is 4 files, +166/-36, and I have not
+been able to test it on silicon, so please do not merge on my word alone.
+Supporting material is kept off this branch so the change stays surgical:
+rng-fault-analysis carries the writeup, the standalone testbench and the
+diff under docs/rng-fault-analysis/ —
+https://github.com/Silexperience210/firmware/tree/rng-fault-analysis
+If you would rather handle this privately given the timing, say so and I will
+close this and resend to your security contact.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+👍
+2
+arkfile and hsjoberg reacted with thumbs up emoji
+😄
+3
+MontejoJorge, weak4, and douglaz reacted with laugh emoji
+All reactions
+👍
+2 reactions
+😄
+3 reactions
+rng: recover the TRNG after a seed/clock error instead of failing for…
+…
+20fb808
+…ever
+Since the 2026-07-31 hotfix (ca72463) rng_get() reads the hardware TRNG
+and raises OSError(EFAULT) on a 10ms timeout, replacing a software PRNG
+that could not fail. rng_init() only re-enables the peripheral when
+RNGEN is clear, but per RM0432 25.3.7 (RM0351 for the L4) a seed error
+latches SEIS and stops DRDY while leaving RNGEN set. Recovery requires
+clearing SEIS and then toggling RNGEN off->on, so rng_init() is a no-op
+in exactly the state where it is needed: one transient glitch makes
+every later call time out permanently.
+That is not survivable by the user, because rng_get() is now reached
+from the keypad scan-order shuffle in _start_scan(), which runs from a
+Pin.irq callback before login. The OSError reaches IMPT.handle_exc ->
+die_with_debug -> show_logout(), so the device lands on a fatal-error
+screen with no way to enter a PIN and therefore no way to reach the
+upgrade menu.
+rng_reset() clear the clock, drop RNGEN, clear SEIS/CEIS, re-enable,
+and discard the first word as the reference manual asks
+(the old "TODO: throw out some samples?" case)
+rng_init() reset when RNGEN is clear *or* any error flag is set
+rng_try_once() non-throwing single attempt; rejects the word if an
+error latched while waiting for DRDY
+rng_get_or_fault()
+up to RNG_MAX_ATTEMPTS with a reset between each, then
+raise as before
+The throw-on-persistent-failure contract is unchanged and there is no
+fallback to software entropy: a genuine hardware failure still raises.
+mempad.py / keyboard.py: wrap shuffle(self.scan_order) in try/except.
+Scan-order randomisation is anti-Tempest hygiene, not a secret, and must
+never be able to take the keypad down before login.
+COLDCARD_Q1/rng.c is a symlink to the Mk4 file, so Mk4/Mk5/Q are all
+covered by the one change.
+geldot
+commented
+Aug 3, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Hardware entropy on this class of device is expensive, potentially blocks IO, stalls, introduces latency and interacts unpredictably with other parts of the SoC.
+The better fix would be to restore the software prng (which was fully disabled in the vendor's recent hot-fix ca72463) for UI cases like shuffling the login keypad, and then use the hardware trng explicitly where required, in a controlled and auditable manner that has fewer layers of abstraction.
+prng and trng have fundamentally different signatures, operational modalities, and both need to be exposed and used based on the caller's requirements. Shoehorning the two into one entry point isn't going to fly.
+👍
+2
+douglaz and kravens reacted with thumbs up emoji
+All reactions
+👍
+2 reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+scgbckbone
+mentioned this pull request
+Aug 3, 2026
+bugfix: detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail cl…
+#693
+Open
+scgbckbone
+reviewed
+Aug 3, 2026
+View reviewed changes
+scgbckbone
+left a comment
+Copy link
+Copy Markdown
+Collaborator
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others. Learn more.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide comment
+hey, thanks for a contribution. I think I have something better here #693
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+Silexperience210
+commented
+Aug 4, 2026
+Copy link
+Copy Markdown
+Author
+Agreed, #693 is better. Closing this in favour of it. Three things where you're right and I was wrong, one correction to my own writeup, and two review notes.
+Where #693 is right:
+Ignoring CEIS/CECS. My error mask included them, so on a part where CECS is set my version rejects valid data, burns all three attempts and raises — the exact failure I was trying to prevent. Independently confirmed: the Linux stm32-rng driver takes the same position ("a clock error does not compromise the hardware block and data can still be read from RNG_DR"). Academic on this hardware — CECS trips below AHB/32, i.e. 3.75 MHz against a 48 MHz RNG_CLK on the 120 MHz L4S5 — but the mask is wrong regardless.
+12 words, not 1. Confirmed as the documented sequence (clear SEIS → discard 12 words to flush the pipeline → confirm SEIS still clear). I discarded one.
+Checking the flags while polling, and re-reading SR after DR. A seed error suppresses DRDY, so my version just ate the 10 ms timeout instead of bailing immediately, and I checked before the read rather than after.
+Correction to my own description above: I wrote "permanent" and "forever". That is wrong and I should not have put it in the title. RNG_SR resets to zero, so SEIS does not survive a power cycle. The accurate statement is that the fault is unrecoverable for the rest of the boot session — which is still enough to lock a user out, since the failure lands before login and the only exit is a power cycle. A device that stays unusable therefore needs the seed error to recur on each boot, not a single latched event. That narrows the population this explains, and I'd rather say so than leave the stronger claim standing.
+Two review notes on #693:
+Worst-case latency on the keypad path. rng_recover() can spend 12 × RNG_TIMEOUT_MS if DRDY never arrives without a seed error flag, and it runs up to twice per rng_get_or_fault(), so ~250 ms worst case — inside a Pin.irq callback via _start_scan(). The except OSError catches the failure but not the stall. This is the same thing @geldot is pointing at from the other direction: the recovery is correct, but the TRNG arguably shouldn't be on the UI path at all.
+The bootloader hunk can't reach existing units. docs/pin-entry.md says the bootloader "cannot be changed in the field", so stm32/mk4-bootloader/rng.c only helps units built from here on. Worth fixing, but it isn't part of the current problem either — that code is unchanged from what shipped years ago, so it can't be implicated in anything the hotfix introduced.
+Left behind: a standalone testbench that mocks RNG_CR/SR/DR with the documented flag semantics and runs a driver against four fault scenarios (nominal, transient seed error, dead 48 MHz clock, 1-in-5 glitch over 5000 reads). It reproduces the "stays dead after the condition clears" case without hardware and #693 passes it. docs/rng-fault-analysis/ on https://github.com/Silexperience210/firmware/tree/rng-fault-analysis — take it, adapt it, or ignore it.
+Mk3 follow-up opened as #698, built on your design rather than mine. Thanks for the quick turnaround.
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+Silexperience210
+closed this
+Aug 4, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+1 more reviewer
+scgbckbone
+scgbckbone left review comments
+Reviewers whose approvals may not affect merge requirements
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+3 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

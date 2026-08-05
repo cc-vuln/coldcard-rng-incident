@@ -1,0 +1,227 @@
+--- reddit-hacker-still-progressing@20260804T191752Z
++++ reddit-hacker-still-progressing@20260804T194834Z
+@@ -3121,4 +3121,224 @@
+ body:
+ There will no longer be a CoinKite after this event. 
+ 
++comment: p1pkl7h
++parent: t3_1vfagz9
++author: Just_Bluebird_5268
++created_utc: 1785871068
++edited: false
++body:
++It's the future of money
++
++comment: p1pkmp4
++parent: t1_p1op2i0
++author: FlipFlopFanatic
++created_utc: 1785871079
++edited: false
++body:
++I did not hit her. I did not. Oh, hi Mark.
++
++comment: p1pmplu
++parent: t1_p1nswm6
++author: Fuck_wagon
++created_utc: 1785871617
++edited: false
++body:
++How?
++
++comment: p1pmtaj
++parent: t1_p1nia36
++author: UnitededConflict
++created_utc: 1785871645
++edited: false
++body:
++What even is this? A public access to your receiving address that people can send requests to?
++
++comment: p1pn0r0
++parent: t1_p1nz8zy
++author: KusanagiZerg
++created_utc: 1785871699
++edited: false
++body:
++Many more people have lost their money/life savings/etc cause of banks failing.
++
++comment: p1po07n
++parent: t3_1vfagz9
++author: uhooooook
++created_utc: 1785871959
++edited: false
++body:
++Remember when most folks on Reddit were just shitting on you for recommending anything else but Coldcard? Where are they now?
++
++comment: p1pohfl
++parent: t3_1vfagz9
++author: NOS4NANOL1FE
++created_utc: 1785872085
++edited: false
++body:
++Is it possible to even track who the person/group  is? 
++
++comment: p1pon92
++parent: t1_p1o2v5x
++author: KusanagiZerg
++created_utc: 1785872128
++edited: false
++body:
++Probably you cannot know. You would have to verify that all the code is correct, then you'd have to verify that that code is actually what was running on your device when you generated the seed.
++
++Even if you add a passphrase or dice rolls etc you have to verify that the code properly takes that all into account and generates a seed with that in mind. If you don't check for all you know it could ignore all those variables.
++
++In short there is some level of risk that you have to accept. Probably the best way to protect yourself is to split your stack among different vendors and generate new addresses occasionally and move the funds.
++
++comment: p1ppfq1
++parent: t1_p1ndkdk
++author: SkunkMonkey
++created_utc: 1785872337
++edited: false
++body:
++https://www.youtube.com/watch?v=BKHoMi-U8g4
++
++comment: p1ppl7i
++parent: t1_p1pjrgq
++author: Emergency-Warthog-56
++created_utc: 1785872378
++edited: false
++body:
++I think most weren't aware of that discussion. That story was kind of swept under the rug. Silenced. Forgotten about. Some probably didn't believe it was a issue. I myself didn't know about it until this happened and then started researching. 
++
++comment: p1ppnax
++parent: t1_p1p9geb
++author: BitCoiner905
++created_utc: 1785872393
++edited: false
++body:
++Go ahead and verify for yourself.   
++  
++\#!/usr/bin/env python3
++
++"""
++
++Run this OFFLINE on an air-gapped machine only.
++
++Do not run in any cloud notebook, browser, or shared environment.
++
++"""
++
++
++
++SECP256K1\_N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
++
++
++
++def rolls\_to\_private\_key(rolls):
++
++if len(rolls) != 99:
++
++raise ValueError(f"Need exactly 99 rolls, got {len(rolls)}")
++
++if any(r < 1 or r > 6 for r in rolls):
++
++raise ValueError("Each roll must be 1-6")
++
++
++
++\# Base-6 digits (0-5)
++
++digits = \[r - 1 for r in rolls\]
++
++
++
++value = 0
++
++for d in digits:
++
++value = value \* 6 + d
++
++
++
++if value == 0 or value >= SECP256K1\_N:
++
++raise ValueError("Out of valid range — re-roll all 99 dice, don't reuse any rolls")
++
++
++
++return value.to\_bytes(32, byteorder='big')
++
++
++
++if \_\_name\_\_ == "\_\_main\_\_":
++
++print("Enter your 99 dice rolls one at a time (1-6).")
++
++rolls = \[\]
++
++while len(rolls) < 99:
++
++try:
++
++r = int(input(f"Roll {len(rolls)+1}/99: "))
++
++if 1 <= r <= 6:
++
++rolls.append(r)
++
++else:
++
++print("Must be 1-6, try again.")
++
++except ValueError:
++
++print("Enter a number 1-6.")
++
++
++
++key\_bytes = rolls\_to\_private\_key(rolls)
++
++print("\\nPrivate key (hex):", key\_bytes.hex())
++
++print("\\n⚠️  Clear your terminal history / scrollback after use.")
++
++print("⚠️  Never save this output to a file that touches the internet.")
++
++comment: p1ppolh
++parent: t3_1vfagz9
++author: ComfortableGas5223
++created_utc: 1785872402
++edited: false
++body:
++You ever notice that right towards the end of a bear cycle, there’s a sudden attack or exchange collapse causing sudden FUD and price drop? Then major governments start buying at the bottom… Maybe all anecdotal but interesting timing nonetheless. 
++
++comment: p1pq8d6
++parent: t3_1vfagz9
++author: PI-E0423
++created_utc: 1785872546
++edited: false
++body:
++It will destroy trust in Bitcoin. No matter if waranted
++
++comment: p1pqs5s
++parent: t1_p1o5tj4
++author: Professional_Golf393
++created_utc: 1785872689
++edited: false
++body:
++You mean like a conspiracy for planned market manipulation?  Like an inside job? Perhaps to either drive people to choose etf or storing on exchanges over self custody. Although it hasn’t affected price that much as of yet.
++
++I mean I guess it would be plausible, they were a small enough company to influence if you’re a big player in the space. 1 rogue developer planted in the company probably would’ve been enough.
++
++comment: p1pr72a
++parent: t1_p1ndkdk
++author: caploves1019
++created_utc: 1785872799
++edited: false
++body:
++No, these are op_return messages, not stolen funds. These last 24 hours of activity all have comments in the transactions and are small because they're just burning SATs to send the message. There aren't any new active thefts happening on that address.
++
++comment: p1prfj2
++parent: t1_p1orctk
++author: Parking-Knowledge-63
++created_utc: 1785872861
++edited: false
++body:
++Maybe some ex dev that worked on this project early on intentionally left this and is now draining it all 🤷‍♀️
++
+ more-stub: parent t1_p1o590j count 0

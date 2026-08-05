@@ -1,0 +1,136 @@
+post: 1vehj5c
+author: seolein
+created_utc: 1785772816
+title: If the Code of a hardware wallet is truly open source, how can i verify the exact same code I can check online is on the hardware device?
+body:
+since the weekend i am questioning **everything**
+
+comment: p1gy0fm
+parent: t3_1vehj5c
+author: rtublin
+created_utc: 1785772960
+edited: false
+body:
+I think there is generally not a way to do this except to build the code yourself and insert a custom build string, then push it to the device and verify your string. But even then there could be some weirdness like artifacts on the device. I just don't really trust these dedicated hardware devices. Most of this stuff should just be done in software on an old laptop.
+
+comment: p1gyfuh
+parent: t1_p1gy0fm
+author: seolein
+created_utc: 1785773071
+edited: false
+body:
+i more and more come to think the  term "**don\`t trust - verify**" is an complete illusion
+
+comment: p1h0je2
+parent: t3_1vehj5c
+author: riscten
+created_utc: 1785773602
+edited: false
+body:
+With wallets that are entirely open source, you compile and flash your own firmware.
+
+A lot of vendors have what's called a reproducible build. It's a method to compile the firmware package from source to get the exact same file as they publish. You start with their code on Github, follow the build process, and end up with a file that you can then compare to their prebuilt binaries.
+
+With devices like Jade DIY and Seedsigner, you literally start with off-the-shelf hardware. An ESP32 for Jade, and a Raspberry Pi for Seedsigner. And then you flash your hardware wallet firmware on them. You can literally have anything you want running on these.
+
+comment: p1h1cyi
+parent: t1_p1gyfuh
+author: Suspicious-Holiday42
+created_utc: 1785773808
+edited: false
+body:
+how can you be sure that what your eyes are showing your brain is true and not a hack
+
+comment: p1h22u1
+parent: t3_1vehj5c
+author: RetiredAvocado
+created_utc: 1785773990
+edited: false
+body:
+Audit the code and compile it yourself and flash the firmware with the bin you made.
+
+comment: p1h3x1f
+parent: t1_p1gyfuh
+author: bunky_bunk
+created_utc: 1785774446
+edited: false
+body:
+You need technical expertise to verify. Not everyone can do it. Experts can.
+
+Without the capability to do it yourself, your best second line of defense is that experts exist who have an incentive to publicize the results of their verification. In other words: their interests and your interest align.
+
+comment: p1h4nf5
+parent: t1_p1gyfuh
+author: Porcellanidae
+created_utc: 1785774629
+edited: false
+body:
+I think you went for trust in the first place!
+
+Your trust is in a hardware wallet provider, instead of verifying what it actually is and does. 
+
+Dont trust, verify - is still the motto. 
+
+Be verifying.
+
+When loading firmware or installing a client, you should be able to verify the release tags or version binary
+
+comment: p1l73nr
+parent: t1_p1h0je2
+author: Zaytion_
+created_utc: 1785818008
+edited: false
+body:
+If you buy the hardware from them, they could have custom stuff on there that ruins this. When you buy hardware you are trusting there is no funny business on there from the start.
+
+comment: p1l79nf
+parent: t3_1vehj5c
+author: Zaytion_
+created_utc: 1785818079
+edited: false
+body:
+You can't really. 
+
+You can jump through hoops to try and verify, but you have to accept that they could put things on the hardware device before you get it that make everything you try look clean, but still be hiding something dirty.
+
+comment: p1lbeuz
+parent: t1_p1l73nr
+author: riscten
+created_utc: 1785819864
+edited: false
+body:
+You shouldn't rely on trust to pick a wallet, that's the whole "don't trust, verify" thing.
+
+By being able to build and flash your own firmware, you eliminate the need for trust. 
+
+comment: p1lhz03
+parent: t1_p1lbeuz
+author: Zaytion_
+created_utc: 1785822897
+edited: false
+body:
+You are still trusting that the device allowed you to flash the firmware correctly. It could come preloaded with stuff that makes you think you did but still has nefarious code on there.
+
+comment: p1od513
+parent: t1_p1lhz03
+author: riscten
+created_utc: 1785860231
+edited: false
+body:
+This aspect stands on a spectrum. 
+
+On something like a Ledger, you are given a blackbox device and a binary. You know nothing about either. It's all trust and they could be doing anything. 
+
+On the other end you have Jade DIY, which runs on an off-the-shelf ESP32 chip. You can literally design your own PCB (or use a pre-existing design), get it fabricated (or even fabricate it yourself), source all components from various vendors, pretty much all of which will have no idea you're even trying to build a hardware wallet, solder all components, then you have the code that's fully open source, that you'll build yourself and then flash. 
+
+Even farther on that end of the spectrum would be you building your own design from scratch. In the end a hardware wallet's most tedious job is to perform hashes. The rest is largely trivial.
+
+comment: p1on76u
+parent: t1_p1od513
+author: Zaytion_
+created_utc: 1785862744
+edited: false
+body:
+Yeah Jade DIY is fine. You aren't buying the hardware from a crypto company to do it. 
+
+I'm only talking about buying hardware wallet devices and thinking just because it lets you flash the firmware means you are OK.

@@ -341,6 +341,11 @@ def _validate_jobs(jobs: Sequence[Job]) -> tuple[Job, ...]:
 
 
 def _next_due(record: dict, job: Job) -> datetime | None:
+    retained = _parse_time(
+        record.get("next_due_at"), f"jobs.{job.name}.next_due_at"
+    )
+    if retained is not None:
+        return retained
     last_success = _parse_time(
         record["last_success_at"], f"jobs.{job.name}.last_success_at"
     )
@@ -1028,6 +1033,7 @@ def run_tick(
 
                 record["last_attempt_at"] = _format_time(completed_at)
                 record["last_exit_code"] = effective_exit
+                completed_attempt = child_payload is not None and not result_error
                 if effective_exit in HEALTHY_EXIT_CODES:
                     record["last_success_at"] = _format_time(completed_at)
                     record["next_due_at"] = _format_time(
@@ -1036,7 +1042,16 @@ def run_tick(
                     record["consecutive_failures"] = 0
                     result["counts"]["jobs_succeeded"] += 1
                 else:
-                    next_due = _next_due(record, job)
+                    # Exit 20 carries a complete per-source result even though
+                    # one or more sources were incomplete. Keep that failure
+                    # visible without retrying every healthy source in this
+                    # tier on each 30-minute timer tick. A missing/malformed
+                    # result, launch failure or lock contention remains due.
+                    next_due = (
+                        completed_at + timedelta(seconds=job.interval_seconds)
+                        if completed_attempt and effective_exit == INCOMPLETE_EXIT
+                        else _next_due(record, job)
+                    )
                     record["next_due_at"] = _format_time(
                         next_due if next_due is not None else evaluated_at
                     )

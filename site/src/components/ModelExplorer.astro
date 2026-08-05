@@ -1,0 +1,360 @@
+---
+import {
+  SYSTICK_STATES,
+  FULL_UNKNOWN_BITS,
+  RESEED_BITS,
+  LLFOURN_MK3_BITS,
+  LLFOURN_MK4_BITS,
+} from '../lib/entropy-models';
+
+const MODELS = [
+  {
+    group: 'Mk2 / Mk3',
+    id: 'block-mk23-rtc',
+    label: 'Block: stable-RTC scenario',
+    minBits: Math.log2(SYSTICK_STATES),
+    maxBits: Math.log2(SYSTICK_STATES),
+    relation: 'approximate',
+    source: 'Block',
+    href: '/record/sources/block-disclosure/',
+    note: '80,000 SysTick possibilities when the real-time clock is stable and the other state is known.',
+  },
+  {
+    group: 'Mk2 / Mk3',
+    id: 'block-mk23-uid',
+    label: 'Block: effective UID and timer word unknown',
+    minBits: FULL_UNKNOWN_BITS,
+    maxBits: FULL_UNKNOWN_BITS,
+    relation: 'at-most',
+    source: 'Block',
+    href: '/record/sources/block-disclosure/',
+    note: 'A 2^32 ceiling when the effective 32-bit UID-low-word XOR SysTick value is entirely unknown.',
+  },
+  {
+    group: 'Mk2 / Mk3',
+    id: 'coinkite-mk3',
+    label: 'Coinkite: Mk3 estimate',
+    minBits: 40,
+    maxBits: 40,
+    relation: 'approximate',
+    source: 'Coinkite',
+    href: '/record/sources/coinkite-backgrounder/',
+    note: 'An estimate retaining uncertainty from the MCU identifier and timing inputs.',
+  },
+  {
+    group: 'Mk2 / Mk3',
+    id: 'llfourn-mk3',
+    label: 'LLFOURN: Mk3 model',
+    minBits: LLFOURN_MK3_BITS,
+    maxBits: LLFOURN_MK3_BITS,
+    relation: 'approximate',
+    source: 'LLFOURN',
+    href: '/record/sources/llfourn-model/',
+    note: 'About 2^20 MCU identifiers, 80,000 timing states and 16 button-press variants.',
+  },
+  {
+    group: 'Mk2 / Mk3',
+    id: 'block-mk23-ceiling',
+    label: 'Block: loose enumeration ceiling',
+    minBits: Math.log2(SYSTICK_STATES * 86_400 * 256),
+    maxBits: Math.log2(SYSTICK_STATES * 86_400 * 256),
+    relation: 'below',
+    source: 'Block',
+    href: '/record/sources/block-disclosure/',
+    note: 'A strict loose ceiling, not a lower bound or a measurement of entropy.',
+  },
+  {
+    group: 'Mk4 / Mk5 / Q',
+    id: 'block-mk4-reseed',
+    label: 'Block: successful-reseed boundary',
+    minBits: RESEED_BITS,
+    maxBits: RESEED_BITS,
+    relation: 'at-most',
+    source: 'Block',
+    href: '/record/sources/block-disclosure/',
+    note: 'A successful reseed overwrites one 32-bit libngu state word.',
+  },
+  {
+    group: 'Mk4 / Mk5 / Q',
+    id: 'llfourn-mk4-revised',
+    label: 'LLFOURN: revised follow-up range',
+    minBits: LLFOURN_MK4_BITS - 14,
+    maxBits: LLFOURN_MK4_BITS - 10,
+    relation: 'approximate',
+    source: 'LLFOURN',
+    href: '/record/sources/llfourn-followup/',
+    note: 'Derived by subtracting the reported 10-to-14-bit revision from LLFOURN\'s earlier model.',
+  },
+  {
+    group: 'Mk4 / Mk5 / Q',
+    id: 'coinkite-mk4',
+    label: 'Coinkite: Mk4-class estimate',
+    minBits: 72,
+    maxBits: 72,
+    relation: 'approximate',
+    source: 'Coinkite',
+    href: '/record/sources/coinkite-backgrounder/',
+    note: 'An estimate retaining uncertainty from the MCU identifier, timing inputs and the 32-bit reseed.',
+  },
+  {
+    group: 'Mk4 / Mk5 / Q',
+    id: 'llfourn-mk4-initial',
+    label: 'LLFOURN: initial model',
+    minBits: LLFOURN_MK4_BITS,
+    maxBits: LLFOURN_MK4_BITS,
+    relation: 'approximate',
+    source: 'LLFOURN',
+    href: '/record/sources/llfourn-model/',
+    note: 'The original Mk4-class model, later narrowed by 10 to 14 bits.',
+  },
+  {
+    group: 'Mk4 / Mk5 / Q',
+    id: 'block-mk4-ceiling',
+    label: 'Block: loose enumeration ceiling',
+    minBits: Math.log2(120_000 * 86_400 * 256) + RESEED_BITS,
+    maxBits: Math.log2(120_000 * 86_400 * 256) + RESEED_BITS,
+    relation: 'below',
+    source: 'Block',
+    href: '/record/sources/block-disclosure/',
+    note: 'A strict loose ceiling that treats the timer terms independently.',
+  },
+  {
+    group: 'Mk4, tentative RTC models',
+    id: 'otaliptus-rtc-problematic',
+    label: 'otaliptus: RTC problematic',
+    minBits: 52,
+    maxBits: 63,
+    relation: 'approximate',
+    source: 'otaliptus',
+    href: '/record/sources/otaliptus-technical/',
+    note: 'A brainstorming range whose author says details may be wrong.',
+  },
+  {
+    group: 'Mk4, tentative RTC models',
+    id: 'otaliptus-rtc-working',
+    label: 'otaliptus: RTC contributes',
+    minBits: 75,
+    maxBits: 88,
+    relation: 'approximate',
+    source: 'otaliptus',
+    href: '/record/sources/otaliptus-technical/',
+    note: 'A brainstorming range that leaves the Mk4 RTC contribution unresolved.',
+  },
+];
+
+const groups = [...new Set(MODELS.map(({ group }) => group))]
+  .map((group) => [group, MODELS.filter((model) => model.group === group)] as const);
+---
+
+<section class="explorer" id="model-explorer" data-model-explorer aria-labelledby="model-explorer-title">
+  <div class="explorer__intro">
+    <p class="mono-label">Interactive source comparison</p>
+    <h2 id="model-explorer-title">Published model explorer</h2>
+    <p>
+      Select one published candidate-space scenario and vary only the
+      candidate-check rate. This does not accept wallet details, dice rolls or
+      passphrase constructions.
+    </p>
+  </div>
+
+  <form class="explorer__form" data-form>
+    <label class="field">
+      <span>Published scenario</span>
+      <select name="model" data-model>
+        <option value="">Choose a source-labelled model</option>
+        {groups.map(([group, models]) => (
+          <optgroup label={group}>
+            {models.map((model) => (
+              <option
+                value={model.id}
+                data-min-bits={model.minBits}
+                data-max-bits={model.maxBits}
+                data-relation={model.relation}
+                data-source={model.source}
+                data-href={model.href}
+                data-note={model.note}
+              >
+                {model.label}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Illustrative checks per second</span>
+      <select name="rate" data-rate>
+        <option value="4000">4,000</option>
+        <option value="2000000" selected>2 million</option>
+        <option value="16000000">16 million</option>
+        <option value="1000000000">1 billion</option>
+      </select>
+    </label>
+  </form>
+
+  <section class="result" aria-live="polite" aria-atomic="true">
+    <p data-empty>Choose a model to compare its published boundary.</p>
+    <div data-values hidden>
+      <div class="result__grid">
+        <div><span>Candidate-space boundary</span><strong data-space></strong></div>
+        <div><span>Half-space time</span><strong data-half></strong></div>
+        <div><span>Full-space time</span><strong data-full></strong></div>
+      </div>
+      <p data-note></p>
+      <p><a data-source-link href="/how-it-broke/entropy/">Open the source record</a></p>
+    </div>
+  </section>
+
+  <p class="explorer__limit">
+    The rate is a sensitivity input, not a benchmark. A complete candidate check
+    includes enough derivation work to compare against the available wallet data.
+    The selected sources use different attacker-knowledge assumptions, so their
+    outputs are not measurements of one shared population.
+  </p>
+</section>
+
+<script is:inline>
+(() => {
+  const root = document.querySelector('[data-model-explorer]');
+  if (!root) return;
+  const form = root.querySelector('[data-form]');
+  const model = root.querySelector('[data-model]');
+  const rate = root.querySelector('[data-rate]');
+  const empty = root.querySelector('[data-empty]');
+  const values = root.querySelector('[data-values]');
+  const space = root.querySelector('[data-space]');
+  const half = root.querySelector('[data-half]');
+  const full = root.querySelector('[data-full]');
+  const note = root.querySelector('[data-note]');
+  const sourceLink = root.querySelector('[data-source-link]');
+  const number = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
+  const bits = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  const secondsPerYear = 365.25 * 86_400;
+
+  const symbol = (relation) => ({
+    approximate: '≈',
+    'at-most': '≤',
+    below: '<',
+  }[relation] || '≈');
+
+  const duration = (seconds) => {
+    if (!Number.isFinite(seconds)) return 'beyond numeric range';
+    if (seconds < 60) return number.format(seconds) + ' seconds';
+    if (seconds < 3_600) return number.format(seconds / 60) + ' minutes';
+    if (seconds < 86_400) return number.format(seconds / 3_600) + ' hours';
+    if (seconds < 63_115_200) return number.format(seconds / 86_400) + ' days';
+    const years = seconds / secondsPerYear;
+    if (years >= 1e33) return years.toExponential(2) + ' years';
+    const magnitudes = [
+      [1e30, 'nonillion'], [1e27, 'octillion'], [1e24, 'septillion'],
+      [1e21, 'sextillion'], [1e18, 'quintillion'], [1e15, 'quadrillion'],
+      [1e12, 'trillion'], [1e9, 'billion'], [1e6, 'million'],
+    ];
+    const magnitude = magnitudes.find((entry) => years >= entry[0]);
+    if (magnitude) return number.format(years / magnitude[0]) + ' ' + magnitude[1] + ' years';
+    return number.format(years) + ' years';
+  };
+
+  const range = (low, high, formatter) => {
+    const first = formatter(low);
+    const second = formatter(high);
+    return Math.abs(low - high) < 1e-9 ? first : first + ' to ' + second;
+  };
+
+  const update = () => {
+    const selected = model.selectedOptions[0];
+    const hasModel = Boolean(selected && selected.value);
+    empty.hidden = hasModel;
+    values.hidden = !hasModel;
+    if (!hasModel) return;
+
+    const minBits = Number(selected.dataset.minBits);
+    const maxBits = Number(selected.dataset.maxBits);
+    const checks = Number(rate.value);
+    const relation = selected.dataset.relation;
+    const prefix = symbol(relation) + ' ';
+    space.textContent = prefix + range(minBits, maxBits, (value) => '2^' + bits.format(value));
+    half.textContent = prefix + range(2 ** Math.max(0, minBits - 1) / checks, 2 ** Math.max(0, maxBits - 1) / checks, duration);
+    full.textContent = prefix + range(2 ** minBits / checks, 2 ** maxBits / checks, duration);
+    note.textContent = selected.dataset.note;
+    sourceLink.textContent = 'Open ' + selected.dataset.source + ' source record';
+    sourceLink.href = selected.dataset.href;
+  };
+
+  form.addEventListener('input', update);
+  update();
+})();
+</script>
+
+<style>
+  .explorer {
+    margin-block: 2rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .explorer__intro,
+  .explorer__form,
+  .result,
+  .explorer__limit { padding: 1.2rem 1.35rem; }
+  .explorer__intro { border-bottom: 1px solid var(--rule); }
+  .explorer__intro h2 { margin: .25rem 0 .45rem; }
+  .explorer__intro p:last-child,
+  .explorer__limit { margin-bottom: 0; }
+  .explorer__form {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(13rem, 1fr);
+    gap: 1rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .field { display: grid; gap: .45rem; }
+  .field > span {
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .field select {
+    width: 100%;
+    min-height: 2.8rem;
+    padding: .55rem .7rem;
+    border: 1px solid var(--rule);
+    border-radius: .35rem;
+    color: var(--ink);
+    background: var(--bg);
+    font: inherit;
+  }
+  .result__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .8rem;
+  }
+  .result__grid div {
+    display: grid;
+    gap: .35rem;
+    padding: .85rem;
+    background: var(--surface-2);
+    border-radius: .35rem;
+  }
+  .result__grid span {
+    font-family: var(--font-mono);
+    font-size: .65rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .result__grid strong { font-size: 1rem; overflow-wrap: anywhere; }
+  .explorer__limit {
+    border-top: 1px solid var(--rule);
+    color: var(--ink-2);
+    font-size: .88rem;
+  }
+  @media (max-width: 700px) {
+    .explorer__form,
+    .result__grid { grid-template-columns: 1fr; }
+  }
+</style>

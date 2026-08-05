@@ -78,12 +78,7 @@ export const GET: APIRoute = () => {
         why_registered: post.why ?? null,
         capture: {
           status: artifacts.length ? 'held' : 'registered-only',
-          artefacts: artifacts.map((artifact) => ({
-            name: artifact.name,
-            format: artifact.format,
-            bytes: artifact.bytes,
-            sha256: artifact.sha256,
-          })),
+          artefact_count: artifacts.length,
         },
       };
     }),

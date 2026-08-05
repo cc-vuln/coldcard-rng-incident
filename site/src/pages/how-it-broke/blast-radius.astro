@@ -53,7 +53,7 @@ const rest = `<div class="table-wrap">
 
 <div class="callout callout--amber">
 <span class="callout__title">What this establishes for an encrypted backup</span>
-Restoring the backup restores the same mnemonic. If that mnemonic used affected firmware, installing the hotfix or retaining a correctly generated backup password does not change its generation history. A migration plan should account for both the live wallet and retained backup copies.
+Restoring the backup restores the same mnemonic. If that mnemonic used affected firmware, installing the hotfix or retaining a correctly generated backup password does not change its generation history. Retained copies therefore preserve the same generation history as the live wallet.
 </div>`;
 ---
 
@@ -63,12 +63,12 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
   standfirst="A sound mnemonic does not make the device sound. Beyond seed generation, a set of COLDCARD features drew their own secrets from the affected generator, so dice-only and imported seeds are outside only the first of the two failure families below."
   depth="deep"
   kicker="How it broke"
-  next={{ href: '/risk/', label: 'What to do about a particular device or wallet', note: 'the risk guide decides actions; this page is a register of call sites' }}
+  next={{ href: '/record/reference/#firmware', label: 'Firmware release record', note: 'published release boundaries, source commits and vendor revisions' }}
 >
   <Answer>
     <p>
-      How your mnemonic was produced decides whether the wallet keys themselves
-      are enumerable, and that is the urgent question, but it is not the whole
+      How a mnemonic was produced decides whether the wallet keys themselves
+      are enumerable, but that is not the whole
       defect. A second family of COLDCARD features asks the same generator for
       its own bytes and never consults the mnemonic at all, so the answer to
       "where did my seed come from" does not reach them. The register below
@@ -99,7 +99,7 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
       separately rather than presenting the list as uniform risk.<Claim
         basis="unverified"
         scope="Feature-level exploitability beyond master-seed and device-generated paper-wallet key creation"
-        source="The affected calls are verified, but no incident-specific exploit has been established here for each downstream feature"
+        source="The affected calls are verified, but no incident-specific exploit had been established here for each downstream feature as of a 5 August 2026 recheck"
         compact
       />
     </p>
@@ -125,7 +125,7 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
     checked here, and several of its specific numbers are quotable from the
     source comments. This archive discloses the company's competing interest for
     the same reason it discloses
-    <a href="/record/firmware/">Foundation Devices' competing interest</a> around
+    <a href="/record/reference/#firmware">Foundation Devices' competing interest</a> around
     the OPENDIME test: a vendor's analysis of a rival's product is evidence of
     what the vendor asserts, and is checked before it is repeated. Three things
     follow that the enumeration itself does not say.
@@ -176,7 +176,7 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
     keys.<Claim
       basis="unverified"
       scope="Whether any listed feature exposure has been exploited against a real device in this incident"
-      source="No captured source demonstrates exploitation of a non-seed feature path; the incident evidence held here concerns wallet keys"
+      source="No captured source demonstrates exploitation of a non-seed feature path as of a 5 August 2026 recheck; the incident evidence held here concerns wallet keys"
     />
   </p>
 
@@ -209,9 +209,9 @@ Restoring the backup restores the same mnemonic. If that mnemonic used affected 
       href="/record/sources/btcsessions-passphrase-loss-report/"
     /> The two posts describe the same arithmetic from
     opposite ends: once an affected seed is recovered, a short passphrase is a
-    small offline search on top of it. The passphrase tables on
-    <a href="/risk/mitigations/#passphrase">the passphrase rung</a> put
-    numbers to that, and only for passphrases generated uniformly at random.
+    small offline search on top of it. The
+    <a href="/how-it-broke/conditions/#passphrase">passphrase record</a>
+    preserves the source assumptions and the attributed guidance.
   </p>
 
   <h2 id="privacy">A reported privacy dimension</h2>

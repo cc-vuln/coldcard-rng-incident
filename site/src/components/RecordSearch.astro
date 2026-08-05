@@ -8,26 +8,61 @@
  * filtered) and keeps the site free of a search library, consistent with the
  * project's dependency posture.
  *
- * Cards opt in by carrying data-group; the matcher reads their text content,
- * so titles, authors, excerpts and badges are all searchable.
+ * Cards opt in by carrying a data attribute; the matcher reads their text
+ * content plus data-search, so titles, authors, excerpts and badges are all
+ * searchable.
  *
- * A facet is either a data-group equality (`value`) or, with `attr`, presence
- * of a boolean data attribute on the card (e.g. `attr: 'data-has-shot'`).
+ * Facets come in sets. `facets` is the single unlabelled set the component has
+ * always had; `facetSets` renders several labelled rows instead. Rows are
+ * single-select unless they opt into `multiple`; selections within a
+ * multi-select row are ORed, and separate rows are ANDed (e.g. entry kind in
+ * one row, source group in another). A facet is either an equality match (`value`
+ * against `matchAttr`, default `data-group`) or, with `attr`, presence of a
+ * boolean data attribute on the card (e.g. `attr: 'data-has-shot'`). A facet
+ * with `default` starts active and its filter applies on load: a JS-only
+ * enhancement, since nothing is pre-hidden in the markup and a scriptless
+ * reader sees the whole list.
  */
+interface Facet {
+  value?: string;
+  label: string;
+  /** Presence-match this boolean data attribute instead of an equality. */
+  attr?: string;
+  /** Attribute to equality-match; defaults to data-group. */
+  matchAttr?: string;
+  /** Start active. Nothing is hidden in the markup on its account. */
+  default?: boolean;
+}
+interface FacetSet {
+  label: string;
+  facets: Facet[];
+  /** Allow more than one facet in this row to be active. */
+  multiple?: boolean;
+  /** Place the All reset at the far edge of the row. */
+  allLast?: boolean;
+}
 interface Props {
   /** CSS selector for the searchable cards. */
   target: string;
   /** Selector for group wrappers hidden when they end up empty. */
   section?: string;
   placeholder?: string;
-  facets?: { value?: string; label: string; attr?: string }[];
+  facets?: Facet[];
+  facetSets?: FacetSet[];
 }
 const {
   target,
   section = '',
   placeholder = 'Search the record',
   facets = [],
+  facetSets = [],
 } = Astro.props;
+// Normalise to labelled sets: the explicit list, or the single unlabelled set
+// the `facets` prop has always described.
+const sets = (facetSets.length ? facetSets : [{ label: '', facets }]).map((set) => ({
+  ...set,
+  hasDefault: set.facets.some((facet) => facet.default),
+}));
 ---
 
 <div class="rs" data-target={target} data-section={section}>
@@ -42,12 +77,33 @@ const {
     />
     <span class="rs__count" role="status" aria-live="polite"></span>
   </div>
-  <div class="rs__facets" hidden={facets.length === 0}>
-    <button class="rs__facet is-on" data-facet="">All</button>
-    {facets.map((f) => (
-      <button class="rs__facet" data-facet={f.value ?? ''} data-facet-attr={f.attr}>{f.label}</button>
-    ))}
-  </div>
+  {sets.map((set) => (
+    <div
+      class="rs__facets"
+      data-multiple={set.multiple ? '' : undefined}
+      data-all-last={set.allLast ? '' : undefined}
+      hidden={set.facets.length === 0}
+    >
+      <span class="rs__setlabel" hidden={!set.label}>{set.label}</span>
+      <button
+        type="button"
+        class:list={['rs__facet', 'rs__facet--all', { 'is-on': !set.hasDefault }]}
+        data-facet-all
+        aria-pressed={set.hasDefault ? 'false' : 'true'}
+      >All</button>
+      {set.facets.map((f) => (
+        <button
+          type="button"
+          class:list={['rs__facet', { 'is-on': f.default }]}
+          data-facet={f.value ?? ''}
+          data-facet-attr={f.attr}
+          data-facet-match={f.matchAttr}
+          data-default={f.default ? '' : undefined}
+          aria-pressed={f.default ? 'true' : 'false'}
+        >{f.label}</button>
+      ))}
+    </div>
+  ))}
 </div>
 
 <script>
@@ -66,7 +122,6 @@ const {
     const sectionSel = rs.getAttribute('data-section') || '';
     const input = rs.querySelector('.rs__input');
     const count = rs.querySelector('.rs__count');
-    const facets = [...rs.querySelectorAll('.rs__facet')];
     const cards = [...document.querySelectorAll(targetSel)];
     const sections = sectionSel ? [...document.querySelectorAll(sectionSel)] : [];
     // Text is read once: these cards are static, and re-reading textContent on
@@ -78,55 +133,97 @@ const {
       c,
       ((c.textContent || '') + ' ' + (c.getAttribute('data-search') || '')).toLowerCase(),
     ]));
-    let facet = '';
-    let facetAttr = '';
+    // One state per facet row. A row contributes nothing while its All button
+    // is active. Multi-select choices are ORed within their row; active rows
+    // are ANDed with each other.
+    const sets = [...rs.querySelectorAll('.rs__facets')].map((row) => ({
+      buttons: [...row.querySelectorAll('.rs__facet')],
+      multiple: row.hasAttribute('data-multiple'),
+      selected: [],
+    }));
+
+    function facetMatches(card, btn) {
+      const attr = btn.getAttribute('data-facet-attr') || '';
+      const value = btn.getAttribute('data-facet') || '';
+      const match = btn.getAttribute('data-facet-match') || 'data-group';
+      return attr ? card.hasAttribute(attr) : card.getAttribute(match) === value;
+    }
+
+    function syncButtons(set) {
+      for (const btn of set.buttons) {
+        const on = btn.hasAttribute('data-facet-all')
+          ? set.selected.length === 0
+          : set.selected.includes(btn);
+        btn.classList.toggle('is-on', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+    }
 
     function apply() {
       const q = (input.value || '').trim().toLowerCase();
       const terms = q.split(/\s+/).filter(Boolean);
+      const active = sets.filter((s) => s.selected.length > 0);
+      const filtering = terms.length > 0 || active.length > 0;
       // Set before any element is evaluated: applyVisibility reads it.
-      if (terms.length || facet || facetAttr) document.documentElement.setAttribute('data-filtering', '');
+      if (filtering) document.documentElement.setAttribute('data-filtering', '');
       else document.documentElement.removeAttribute('data-filtering');
       let shown = 0;
       for (const card of cards) {
         const hay = haystacks.get(card) || '';
-        // Attribute facets match on presence; group facets on equality.
-        const okFacet = facetAttr
-          ? card.hasAttribute(facetAttr)
-          : !facet || card.getAttribute('data-group') === facet;
+        const okFacet = active.every((s) =>
+          s.selected.some((btn) => facetMatches(card, btn)));
         const okText = terms.every((t) => hay.includes(t));
         const show = okFacet && okText;
         // Ownership split: this component decides *matching*, and anything
-        // else on the page (the feed's progressive reveal) decides
-        // *revealing*. Both write their own flag; applyVisibility derives
-        // `hidden` from the pair, so neither overrides the other.
+        // else on the page (progressive reveal) decides *revealing*. Both
+        // write their own flag; applyVisibility derives `hidden` from the
+        // pair, so neither overrides the other.
         if (show) card.removeAttribute('data-nomatch');
         else card.setAttribute('data-nomatch', '');
         applyVisibility(card);
         if (show) shown += 1;
       }
       for (const sec of sections) {
+        // Progressive reveal hides unrevealed cards without any filter being
+        // active, and that must not empty their section. Only an active
+        // filter collapses a section whose cards all failed to match.
+        if (!filtering) { sec.hidden = false; continue; }
         const any = [...sec.querySelectorAll(targetSel)].some((c) => !c.hidden);
         sec.hidden = !any;
       }
-      const filtering = terms.length > 0 || facet || facetAttr;
       count.textContent = filtering
         ? `${shown} of ${cards.length} shown`
         : `${cards.length} items`;
-      // Other visibility owners (the feed's reveal control) may need to
-      // re-evaluate now that filtering has started or stopped.
+      // Other visibility owners (the reveal control) may need to re-evaluate
+      // now that filtering has started or stopped.
       document.dispatchEvent(new CustomEvent('rs:filter', { detail: { filtering } }));
     }
 
     input.addEventListener('input', apply);
-    facets.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        facet = btn.getAttribute('data-facet') || '';
-        facetAttr = btn.getAttribute('data-facet-attr') || '';
-        facets.forEach((b) => b.classList.toggle('is-on', b === btn));
-        apply();
+    for (const set of sets) {
+      set.buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (btn.hasAttribute('data-facet-all')) {
+            set.selected = [];
+          } else if (set.multiple) {
+            set.selected = set.selected.includes(btn)
+              ? set.selected.filter((selected) => selected !== btn)
+              : [...set.selected, btn];
+          } else {
+            set.selected = [btn];
+          }
+          syncButtons(set);
+          apply();
+        });
       });
-    });
+    }
+    // Initialise defaults without dispatching several intermediate filter
+    // states when a multi-select row starts with more than one choice.
+    for (const set of sets) {
+      const defaults = set.buttons.filter((b) => b.hasAttribute('data-default'));
+      set.selected = set.multiple ? defaults : defaults.slice(0, 1);
+      syncButtons(set);
+    }
     apply();
   });
 </script>
@@ -148,7 +245,16 @@ const {
     font-family: var(--font-mono); font-size: .66rem; color: var(--ink-3);
     letter-spacing: .06em; text-transform: uppercase;
   }
-  .rs__facets { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+  .rs__facets { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; align-items: center; }
+  .rs__facets[data-all-last] .rs__facet--all {
+    order: 2;
+    margin-left: auto;
+  }
+  .rs__setlabel {
+    font-family: var(--font-mono); font-size: .66rem; color: var(--ink-3);
+    letter-spacing: .06em; text-transform: uppercase;
+    margin-right: .3rem;
+  }
   .rs__facet {
     font-family: var(--font-mono); font-size: .6rem; font-weight: 600;
     letter-spacing: .08em; text-transform: uppercase;

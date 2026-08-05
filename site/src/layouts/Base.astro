@@ -30,19 +30,11 @@ const INDEXABLE = import.meta.env.PUBLIC_INDEXABLE === 'true';
 // for corrections, sources and code rather than money.
 const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
 
-/*
- * Intent-based primary navigation (docs/design/site-information-architecture.md
- * section 3). Labels are the question a reader brings, not the content type.
- * `match` lists every URL prefix that lights a link up: the affected journey
- * spans /risk/ and /safety/, which keep their URLs beneath the /affected/ hub
- * so no published link breaks.
- */
 const nav: { href: string; label: string; match?: string[] }[] = [
   { href: '/', label: 'Overview' },
-  { href: '/affected/', label: 'Am I affected?', match: ['/affected/', '/risk/', '/safety/'] },
-  { href: '/how-it-broke/', label: 'What happened?' },
-  { href: '/record/', label: 'The record' },
-  { href: '/response/', label: 'The aftermath' },
+  { href: '/record/timeline/', label: 'The record', match: ['/record/'] },
+  { href: '/how-it-broke/', label: 'How it broke' },
+  { href: '/response/', label: 'Responses' },
   { href: '/about/', label: 'About' },
 ];
 
@@ -56,55 +48,31 @@ const navCurrent = (n: NavItem) => {
   return isActive(n) ? 'location' : undefined;
 };
 
-/*
- * Section navigation.
- *
- * Six primary links were hiding around thirty pages. Anything not linked from
- * the body of whichever page you happened to land on was effectively invisible,
- * and /response/ was not reachable from the nav at all. A reader on
- * the separate mitigation pages had no way to discover each other.
- *
- * Keyed by URL prefix, so a page joins its section by living at the right path
- * and needs no per-page wiring. Sections with a single page have no entry and
- * render no second bar.
- */
-// The affected journey is one section spanning three URL prefixes
-// (/affected/, /risk/, /safety/): the hub is meant to make the boundary
-// invisible, so all three keys share one entry list with one set of labels.
-const AFFECTED_SUBNAV = [
-  { href: '/affected/', label: 'Overview' },
-  { href: '/risk/', label: 'Check: your risk' },
-  { href: '/risk/estimator/', label: 'Check: estimator' },
-  { href: '/risk/mitigations/', label: 'Check: dice, passphrase, multisig' },
-  { href: '/risk/moving-funds/', label: 'Act: moving funds' },
-  { href: '/safety/scams/', label: 'Avoid: scams' },
-  { href: '/safety/seed-words/', label: 'Avoid: seed-word safety' },
-];
+type SubnavItem = { href: string; label: string; match?: string[] };
 
-const SUBNAV: Record<string, { href: string; label: string }[]> = {
-  '/affected/': AFFECTED_SUBNAV,
-  '/risk/': AFFECTED_SUBNAV,
-  '/safety/': AFFECTED_SUBNAV,
+const SUBNAV: Record<string, SubnavItem[]> = {
   '/how-it-broke/': [
     { href: '/how-it-broke/', label: 'Generator path' },
     { href: '/how-it-broke/entropy/', label: 'Attack-cost estimates' },
+    { href: '/how-it-broke/conditions/', label: 'Dice, passphrases and threshold wallets' },
     { href: '/how-it-broke/blast-radius/', label: 'Blast radius' },
   ],
   '/response/': [
-    { href: '/response/', label: 'Custody providers' },
-    { href: '/response/developers/', label: 'Developer activity' },
-    { href: '/response/ai/', label: 'Did AI find this?' },
-    { href: '/response/legal/', label: 'Legal context' },
+    { href: '/response/', label: 'Overview' },
+    { href: '/response/statements/', label: 'Public statements' },
+    { href: '/response/migration/', label: 'Migration guidance' },
+    { href: '/response/scams/', label: 'Scams and warnings' },
+    { href: '/response/developers/', label: 'Developer work' },
+    { href: '/response/ai/', label: 'AI and discovery' },
+    { href: '/response/disclosure-history/', label: 'Disclosure history' },
+    { href: '/response/legal/', label: 'Legal record' },
   ],
   '/record/': [
-    { href: '/record/', label: 'Sources' },
-    { href: '/record/feed/', label: 'Feed' },
-    { href: '/record/analysis/', label: 'Primary analysis' },
-    { href: '/record/repos/', label: 'Published code' },
-    { href: '/record/timeline/', label: 'Incident timeline' },
+    { href: '/record/timeline/', label: 'Timeline' },
     { href: '/record/funds/', label: 'Funds accounting' },
-    { href: '/record/firmware/', label: 'Firmware releases' },
+    { href: '/record/', label: 'Sources' },
     { href: '/record/changes/', label: 'Source changes' },
+    { href: '/record/reference/', label: 'Reference' },
   ],
 };
 
@@ -112,7 +80,14 @@ const subKey = Object.keys(SUBNAV).find((k) => path.startsWith(k));
 const subnav = subKey ? SUBNAV[subKey] : [];
 // Exact match: every sub-page starts with the section prefix, so a
 // startsWith test would light up the overview link on all of them.
-const subActive = (href: string) => path === href || path === href.replace(/\/$/, '');
+const subMatches = (n: SubnavItem) => n.match ?? [n.href];
+const subExact = (n: SubnavItem) => path === n.href || path === n.href.replace(/\/$/, '');
+const subActive = (n: SubnavItem) => subMatches(n).some(
+  (href) => path === href || path === href.replace(/\/$/, ''),
+);
+const subCurrent = (n: SubnavItem) => subExact(n)
+  ? 'page'
+  : subActive(n) ? 'location' : undefined;
 ---
 
 <!doctype html>
@@ -186,14 +161,27 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
         ))}
       </nav>
 
-      <button id="theme-toggle" class="theme-toggle" type="button"
-              aria-label="Switch colour scheme" aria-pressed="false">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-             stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-          <circle cx="12" cy="12" r="4.5" />
-          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
-        </svg>
-      </button>
+      <div class="prefs" role="group" aria-label="Display preferences">
+        <button id="timezone-toggle" class="timezone-toggle" type="button"
+                aria-label="Archive times use your browser time zone. Switch to UTC"
+                aria-pressed="true">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+          <span id="timezone-label">Local</span>
+        </button>
+
+        <button id="theme-toggle" class="theme-toggle" type="button"
+                aria-label="Switch colour scheme" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.5" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -204,8 +192,8 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
           {subnav.map((n) => (
             <a
               href={n.href}
-              class:list={['subnav__link', { 'is-active': subActive(n.href) }]}
-              aria-current={subActive(n.href) ? 'page' : undefined}
+              class:list={['subnav__link', { 'is-active': subActive(n) }]}
+              aria-current={subCurrent(n)}
             >
               {n.label}
             </a>
@@ -248,14 +236,13 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
             scenarios are kept separate with their assumptions rather than
             reconciled into one answer. Everything is meant to be checked against
             the linked evidence rather than taken on trust. Act on your own
-            judgement.
+            judgement about a particular situation.
             <a href="/about/#editorial-standards">Editorial standards and corrections</a>.
           </p>
           <p class="disclaimer__seed">
             <strong>Do not disclose recovery material to a website, form, message or support account.</strong>
-            This site never asks for it. Deliberate recovery on independently verified
-            offline equipment is a separate operation.
-            <a href="/safety/seed-words/">Seed-word safety</a>.
+            This site never asks for it, and contributions containing recovery
+            words or private keys are not accepted.
           </p>
         </div>
       </details>
@@ -318,6 +305,53 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
   </footer>
 
   <script is:inline>
+    const timezoneButton = document.getElementById('timezone-toggle');
+    const timezoneLabel = document.getElementById('timezone-label');
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'browser time';
+    const timestampFormatter = (zone, seconds = false) => new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+      ...(seconds ? { second: '2-digit' } : {}),
+      timeZoneName: 'short',
+      ...(zone === 'utc' ? { timeZone: 'UTC' } : {}),
+    });
+    const updateTimestamps = () => {
+      const zone = localStorage.getItem('time-zone') === 'utc' ? 'utc' : 'local';
+      const minuteFormatter = timestampFormatter(zone);
+      const secondFormatter = timestampFormatter(zone, true);
+      document.querySelectorAll('[data-cc-time]').forEach((time) => {
+        const instant = new Date(time.getAttribute('datetime') || '');
+        const formatter = time.hasAttribute('data-cc-seconds') ? secondFormatter : minuteFormatter;
+        if (!Number.isNaN(instant.getTime())) time.textContent = formatter.format(instant);
+      });
+      document.querySelectorAll('[data-cc-time-range]').forEach((range) => {
+        const start = new Date(range.getAttribute('data-cc-start') || '');
+        const end = new Date(range.getAttribute('data-cc-end') || '');
+        const formatter = range.hasAttribute('data-cc-seconds') ? secondFormatter : minuteFormatter;
+        if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+          range.textContent = formatter.formatRange(start, end);
+        }
+      });
+      const local = zone === 'local';
+      const next = local ? 'UTC' : browserTimezone;
+      timezoneLabel.textContent = local ? 'Local' : 'UTC';
+      timezoneButton?.setAttribute('aria-pressed', String(local));
+      timezoneButton?.setAttribute(
+        'aria-label',
+        `Archive times use ${local ? browserTimezone : 'UTC'}. Switch to ${next}`,
+      );
+      timezoneButton?.setAttribute(
+        'title',
+        `Archive times use ${local ? browserTimezone : 'UTC'}. Switch to ${next}`,
+      );
+    };
+    updateTimestamps();
+    timezoneButton?.addEventListener('click', () => {
+      const current = localStorage.getItem('time-zone') === 'utc' ? 'utc' : 'local';
+      localStorage.setItem('time-zone', current === 'local' ? 'utc' : 'local');
+      updateTimestamps();
+    });
+
     const themeButton = document.getElementById('theme-toggle');
     const updateThemeButton = () => {
       const el = document.documentElement;
@@ -339,11 +373,21 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
       }));
     });
     // Both navigation rows scroll horizontally on narrow screens. Keep the
-    // current location visible when it would otherwise begin off-screen. Run
-    // again after fonts settle because their final widths change the scroll.
+    // current location visible inside its own row without asking the browser to
+    // scroll the document vertically. scrollIntoView() moved every non-first
+    // response page below the masthead on load and could shift the whole page
+    // sideways while centring the active link.
     const revealActiveNavigation = () => {
       document.querySelectorAll('.nav__link.is-active, .subnav__link.is-active')
-        .forEach((link) => link.scrollIntoView({ block: 'nearest', inline: 'center' }));
+        .forEach((link) => {
+          const scroller = link.parentElement;
+          if (!scroller) return;
+          const scrollerRect = scroller.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
+          const left = scroller.scrollLeft + linkRect.left - scrollerRect.left
+            - ((scroller.clientWidth - linkRect.width) / 2);
+          scroller.scrollLeft = Math.max(0, left);
+        });
     };
     revealActiveNavigation();
     document.fonts?.ready.then(revealActiveNavigation);
@@ -390,14 +434,23 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
     .nav__link:hover { background: var(--surface-2); color: var(--ink); }
     .nav__link.is-active { color: var(--ink); background: var(--surface-2); font-weight: 500; }
 
-    .theme-toggle {
+    .prefs { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+    .theme-toggle, .timezone-toggle {
       display: grid; place-items: center;
-      width: 44px; height: 44px; flex-shrink: 0;
+      height: 44px;
       border: 1px solid var(--rule); border-radius: 8px;
       background: transparent; color: var(--ink-3); cursor: pointer;
       transition: color .15s, border-color .15s;
     }
-    .theme-toggle:hover { color: var(--ink); border-color: var(--rule-2); }
+    .theme-toggle { width: 44px; }
+    .timezone-toggle {
+      grid-auto-flow: column; gap: .35rem; padding-inline: .65rem;
+      font-family: var(--font-mono); font-size: .64rem;
+      letter-spacing: .04em;
+    }
+    .theme-toggle:hover, .timezone-toggle:hover {
+      color: var(--ink); border-color: var(--rule-2);
+    }
 
     /* Sticks below the masthead, not at the viewport top. At top: 0 it slid
        under the sticky masthead (z 50 vs 40) and vanished exactly when a
@@ -516,12 +569,17 @@ const subActive = (href: string) => path === href || path === href.replace(/\/$/
       .nav__link { padding: .62rem .68rem; }
       .subnav { top: 0; }
       .subnav__link { padding: .62rem .7rem; }
-      .theme-toggle { margin-left: auto; }
+      .prefs { margin-left: auto; }
 
       .disclaimer__summary {
         justify-content: space-between; text-align: left; line-height: 1.45;
       }
       .disclaimer__body { text-align: left; }
+    }
+    @media (max-width: 440px) {
+      /* Keep both display controls beside the brand on narrow phones. The
+         fuller project description remains in the document title and hero. */
+      .brand__text span { display: none; }
     }
   </style>
 </body>

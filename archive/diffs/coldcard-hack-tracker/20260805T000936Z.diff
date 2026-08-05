@@ -1,0 +1,303 @@
+--- coldcard-hack-tracker@20260804T233928Z
++++ coldcard-hack-tracker@20260805T000936Z
+@@ -83,9 +83,9 @@
+ 
+ LAST MOVEMENT
+ 
+-Block 961,075
+-
+-0.00544006 BTC from Hop 1 from P2TR vault
++Block 961,069
++
++64.90373154 BTC from Hop 1 from Aug 2 vault
+ 
+ Watched holdings
+ 
+@@ -637,7 +637,7 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Aug 2 vault
+-Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… (e3274a1b…2b3ddf). Hop emptied same day in Wasabi-style CoinJoin (block 961069, ~2 sat/vB, 324→382, base-3 denoms; likely Wasabi 2 — f3ee6e61…7b24): equal ~1.2914 BTC outs ×20 + residual ~54.32 BTC still at bc1qajcr….
++Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… (e3274a1b…2b3ddf). Hop emptied same day in Wasabi-style CoinJoin (block 961069, ~2 sat/vB, 324→382; f3ee6e61…7b24): equal ~1.2914 BTC outs ×20 + residual ~54.32 BTC at bc1qajcr…. Residual re-entered a second CJ (mempool, ~2 sat/vB, 320→374; 3bdac8ed…cdf935): equal denoms (1 / 0.3355 / 0.2 / …) + new residual ~47.12 BTC at bc1qq6s7…. No exchange exit yet.
+ 	bc1q0rvn88…jf5q6m	0.00 BTC
+ <live-fiat-value>
+ 	64.90373764 BTC	0	EMPTIED
+@@ -675,11 +675,11 @@
+ 
+ AUG 4 CASH-OUT · LATER P2TR VAULT (~10.45)
+ 
+-~0.01→hop bc1qqa7p9… · 961019 · 780ea043…cf0326
+-~1.00→hop bc1qqa7p9… · 961021 · 064eb61d…7ddd4f
+-~2.00→hop bc1q2nfx… · 961026 · 1a454301…c772c2
+-~1.00→hop bc1qqa7p9… · 961032 · 2c7075a3…5012cc
+-~2.00→hop bc1q2nfx… · 961037 · 92718385…cac6b9
++~0.01→OP_RETURN messenger hub · 961019 · 780ea043…cf0326
++~1.00→OP_RETURN messenger hub · 961021 · 064eb61d…7ddd4f
++~2.00→OP_RETURN messenger hub · 961026 · 1a454301…c772c2
++~1.00→OP_RETURN messenger hub · 961032 · 2c7075a3…5012cc
++~2.00→OP_RETURN messenger hub · 961037 · 92718385…cac6b9
+ ~4.44→Taproot park (still held) · 961048 · d969fd1c…7e16ef
+ 
+ Then via hop hubs (commingled) → Binance
+@@ -730,7 +730,7 @@
+ 	5.61303754 BTC	0	EMPTIED
+ 
+ Wave 4 park
+-Emptied Aug 4 (block 961064, ~2 sat/vB): 14-input P2SH consolidate with sibling parks → 334iKwmh… still holding ~136.41 BTC (f02164a9…50db281). Same tx as 342L6n3b… + 36XfMDAYu… + 34nHYNnc…. Mix includes parks funded outside Wave 4 window — Arkham unlabeled, no exchange exit yet.
++Emptied Aug 4 (block 961064, ~2 sat/vB): 14-input P2SH consolidate with sibling parks → 334iKwmh… still holding ~136.41 BTC (f02164a9…50db281). Same tx as 342L6n3b… + 36XfMDAYu… + 34nHYNnc…. Mix includes parks funded outside Wave 4 window.
+ 	35dHFzKHn4…X4wNxH	0.00 BTC
+ <live-fiat-value>
+ 	2.17767618 BTC	0	EMPTIED
+@@ -770,54 +770,6 @@
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Later surplus that passes through a vault while its reported balance remains is ignored.
+-
+-HOP 1
+-34858588…e8c4df
+-−0.00061033 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To bc1qml22…us8p
+-
+-HOP 1
+-4cde11d6…6bebb4
+-−0.00043723 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To bc1q3dwq…d3xz
+-
+-HOP 1
+-637a832f…ed934b
+-−0.0002598 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To bc1qzrks…s0zj
+-
+-HOP 1
+-96400681…fcf595
+-−0.33149475 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To OP_RETURN messenger hub bc1qesrv…d78w
+-
+-HOP 1
+-e6801737…285f61
+-−0.51781432 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To bc1qvau7…wpxy
+-
+-HOP 1
+-faf354d1…950cd2
+-−0.00076366 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Unconfirmed
+-
+-To bc1qh4cy…kqd9
+ 
+ HOP 2
+ 3bdac8ed…cdf935
+@@ -828,14 +780,6 @@
+ To bc1qq6s7…y2fr, bc1qp9cn…vyzf, bc1qsp57…c4ad +371 more
+ 
+ HOP 1
+-5d54d965…b1a28a
+-−0.00544006 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,075
+-
+-To bc1q829y…dsqn
+-
+-HOP 1
+ f3ee6e61…c37b24
+ −64.90373154 BTC
+ From Hop 1 from Aug 2 vault bc1pynd6…7h92
+@@ -871,77 +815,12 @@
+ 
+ To 334iKwmh…J6gB
+ 
+-HOP 1
+-1e96c88b…91ab3a
+-−0.33330008 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,059
+-
+-To OP_RETURN messenger hub bc1qesrv…d78w
+-
+-HOP 1
+-34d1450a…bb592b
+-−0.33307481 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,058
+-
+-To OP_RETURN messenger hub bc1qesrv…d78w
+-
+-HOP 1
+-3a1941c2…ffe8ae
+-−0.00009669 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,058
+-
+-To bc1qkzvm…7h6s
+-
+-HOP 1
+-bebfb05f…710826
+-−1.12722763 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,058
+-
+-To bc1q684n…gf0u
+-
+-HOP 1
+-400a609f…5faae2
+-−0.00155178 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,057
+-
+-To bc1qgw9v…y7ql
+-
+-HOP 1
+-8fc1b8ad…85334d
+-−0.00024622 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,057
+-
+-To bc1q7hcw…aaqs
+-
+-HOP 1
+-d73ac571…1d3c29
+-−0.00031385 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,057
+-
+-To bc1qrp6u…n2up
+-
+-HOP 1
+-67269902…8ce3fe
+-−0.33310015 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,056
+-
+-To OP_RETURN messenger hub bc1qesrv…d78w
+-
+-HOP 1
+-8f741f45…1f5453
+-−0.33351502 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,056
+-
+-To OP_RETURN messenger hub bc1qesrv…d78w
++f02164a9…0db281
++−0.96227191 BTC
++From Wave 4 park 34nHYNnc…4qDQ
++Block 961,064
++
++To 334iKwmh…J6gB
+ 
+ d969fd1c…7e16ef
+ −4.43721266 BTC
+@@ -950,14 +829,6 @@
+ 
+ To bc1prjnv…prpr
+ 
+-HOP 1
+-cecd3aa5…b4f0e2
+-−0.00048106 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,044
+-
+-To bc1qhp93…kwz2
+-
+ 92718385…cac6b9
+ −2.00018023 BTC
+ From P2TR vault bc1p0l0x…lk0h
+@@ -970,7 +841,7 @@
+ From P2TR vault bc1p0l0x…lk0h
+ Block 961,032
+ 
+-To bc1qqa7p…36pr
++To OP_RETURN messenger hub bc1qqa7p…36pr
+ 
+ 1a454301…c772c2
+ −2.00017714 BTC
+@@ -984,14 +855,22 @@
+ From P2TR vault bc1p0l0x…lk0h
+ Block 961,021
+ 
+-To bc1qqa7p…36pr
++To OP_RETURN messenger hub bc1qqa7p…36pr
+ 
+ 780ea043…cf0326
+ −0.01017904 BTC
+ From P2TR vault bc1p0l0x…lk0h
+ Block 961,019
+ 
+-To bc1qqa7p…36pr
++To OP_RETURN messenger hub bc1qqa7p…36pr
++
++HOP 2
++822230d2…e3083a
++−0.47797906 BTC
++From Hop 2 from Hop 1 from Wave 4 park bc1qq0j5…vfz9
++Block 960,832
++
++To bc1qx7pu…xevf, bc1qspw0…vy3w, bc1q728v…gedk +12 more
+ 
+ HOP 1
+ 15d1287d…e9bdf0
+@@ -1008,14 +887,6 @@
+ 
+ To Coinbase Prime Custody bc1qdj58…60ms, bc1qa2xv…c3y9
+ 
+-HOP 2
+-24ed08ad…a7f583
+-−4.27762101 BTC
+-From Hop 2 from Hop 1 from Wave 4 park bc1qhfdz…3wcx
+-Block 960,797
+-
+-To P2WPKH service hub bc1qactq…80gh, bc1qm26v…3q52, bc1qemas…ahmt +27 more
+-
+ HOP 1
+ 6c85668e…d30bbb
+ −0.02374887 BTC
+@@ -1053,6 +924,14 @@
+ Block 960,666
+ 
+ To bc1qu2uq…6srw
++
++HOP 2
++3cf126ca…10ae88
++−0.44999667 BTC
++From Hop 2 from Hop 1 from Aug 1 hop vault 3P3K2MQw…Lfgy
++Block 960,666
++
++To P2SH service hub 3KMmeqPe…qtc8
+ 
+ HOP 1
+ a7bf30f0…92fdec
+@@ -1102,7 +981,7 @@
+ BEYOND THE MAIN SEED
+ Weak RNG also hit paper-wallet keys, clone / Key Teleport material, and some Secure Notes passwords — even when the BIP-39 seed itself came from dice (WizardSardine / Block).
+ LOWER RISK
+-At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase. Still migrate when practical.
++At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase. CK tripwire is mapping live how far added dice/passphrase entropy currently stops sweeps (zero-entropy control swept in ~1h; low-band honeypots still live as of Aug 4). Still migrate when practical.
+ NOT THIS BUG
+ TAPSIGNER, Opendime, and Satscard use different codebases and are not affected. Mk1 and pre-4.0.1 Mk2/Mk3 firmware used the real TRNG.
+ SOURCES
+@@ -1114,6 +993,10 @@
+ 
+ Aug 4: ≥15 attackers (footprints A–O). Overnight footprint O ~12 BTC from 126 addresses from one victim report; no public address list yet.
+ 
++James O'Beirne · CK tripwire
++
++Aug 4: live honeypot scoreboard mapping attacker brute-force depth via decoys with added dice/passphrase entropy (cktripwire.com; announcement). Zero-entropy control swept in ~1h; low-band (11–13 bit) honeypots still live at launch. Defensive research only — do not add honeypot sinks to holdings.
++
+ Galaxy Research · Wave 3
+ 
+ Aug 1: third wave (~207.73 BTC into 293 P2WSH vaults). Observed total 1,367.05 BTC across 4,585 addresses.

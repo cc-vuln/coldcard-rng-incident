@@ -1,0 +1,87 @@
+CKTRIPWIRE
+methodology
+scoreboard
+admin
+This page explains what the Coldcard RNG bug is, how we reproduce
+it in software, how we validated that reproduction against real hardware, and how the
+experiment on the scoreboard is designed. Everything here is defensive
+security research: the underlying bug is public, and every honeypot is fully recoverable
+by us.
+The bug
+Coldcard hardware wallets (Coinkite Mk3/Mk4/Q) running firmware in the 4.x series
+shipped with a build/linking defect: the call that is supposed to draw randomness from the
+device's hardware true-random-number generator (TRNG) silently fell back to a
+software pseudo-random generator instead. A compile-time guard meant to refuse to
+build without a real TRNG used a defined-ness check rather than a value check, so it never
+fired, and the software fallback was linked in on every affected build.
+Concretely, ngu.random.bytes() resolves to the XOR of two
+Yasmarang PRNGs, with no hardware entropy: one half (in libngu) is seeded from
+compile-time constants that are identical on every device and never reseeded in 4.x; the
+other half (the MicroPython STM32 port fallback) is seeded once at first use from a handful
+of low-entropy boot registers. The result is a wallet seed drawn from a keyspace small
+enough to brute-force. Because seeds, dice-derived seeds, XOR seeds, and nonces all flow
+through this generator, the private keys of affected wallets can be reconstructed and the
+coins swept. Attackers are actively doing exactly that.
+What this project does
+We generate decoy honeypot wallets that carry the identical weakness, fund them
+with small amounts on Bitcoin mainnet, and watch which ones get swept and how quickly. Some
+honeypots are deliberately hardened with extra genuine entropy — physical dice rolls,
+or a BIP-39 passphrase — layered on top of the compromised seed. By observing where
+sweeping stops as we add entropy, we map the frontier of what the attacker can
+currently crack, and how much added protection actually defends a wallet.
+Reproducing the bad entropy in software
+No physical device is needed to generate a vulnerable seed — the whole path
+is deterministic software. We reimplemented the exact firmware pipeline:
+Per 32-bit word, rng_get() (the STM32-port Yasmarang fallback) XOR
+my_yasmarang() (the libngu Yasmarang with fixed constants), little-endian
+packed — byte-for-byte as the firmware's my_random_bytes().
+The port half is seeded once at first call: pad = UID ^ SysTick,
+n = RTC->TR, d = RTC->SSR. The libngu half is its
+compile-time constant state.
+32 bytes are drawn, whitened with SHA-256, then encoded as a BIP-39 mnemonic and
+derived to a BIP-84 (native-segwit) address — matching make_new_wallet.
+Dice add entropy as sha256(seed ‖ ascii_rolls); a passphrase enters
+the standard BIP-39 PBKDF2 salt. Neither touches the vulnerable RNG.
+A honeypot is only findable if its seed lands in the same keyspace the attacker searches,
+which is fixed entirely by the seeding inputs (UID, SysTick, RTC) and how many random words
+the device consumes before making the wallet. Getting those right — and proving it
+— is the whole game.
+How we validated the entropy generation
+We validated the reproduction two independent ways: cross-implementation agreement, and
+a real device.
+layerwhat it checksresult
+Go emulatorthe generator used to build honeypotsreference
+independent Python porta second, from-scratch implementation of the same pipelinebyte-exact
+firmware C, compiledthe actual random.c/rng.c from the firmware, run nativelybyte-exact
+Coldcard simulatorthe real firmware Python + RNG stack in the unix simulatorbyte-exact
+real Mk3 hardwareinstrumented firmware on a sacrificial device, boot battery replayedword-exact
+The first four agree byte-for-byte across 500+ randomized test vectors — raw draws,
+both PRNG stream states, whitened seeds, and the final BIP-39 words. That proves our
+software implements the firmware algorithm correctly.
+The decisive step is hardware. We flashed an instrumented build onto a real, sacrificial
+Mk3, ran an automated boot battery that captures the device's actual seeding registers at
+first use and dumps the words it generates, and replayed those through our emulator. Every
+sample matched word-for-word. The battery also settled the inputs empirically and confirmed
+our model: on the Mk3 the RTC registers read 0 (its clock is disabled and there is no
+backup battery), SysTick falls in a narrow early-boot range, and the UID word is
+packed die coordinates rather than a uniform 32-bit value — exactly what our generator
+assumes. Finally, the empirical proof: a zero-entropy control funded on mainnet. If the
+attacker sweeps it, our software-generated seeds are demonstrably inside their search space.
+The experiment
+Honeypots are grouped into difficulty bands by the entropy added on top of the
+attacker-known seed (dice contribute ~2.585 bits per roll; a random BIP-39 passphrase word
+contributes 11 bits). The scoreboard shows a ladder from a zero-entropy
+control upward. A wallet swept at a given band tells us the attacker can search that much
+added keyspace; the point where sweeping stops is their current frontier. Value is a second
+axis — a sweep that requires dedicated computation is only worth an attacker's effort
+if the coins justify it.
+What is public, and safety
+The public scoreboard is deliberately coarse: anonymized handles, order-of-magnitude
+value bands, difficulty, and status only — never addresses, exact amounts, or keys.
+We hold the keys to every honeypot and can reclaim any of them, so no funds are permanently
+at risk beyond what an attacker takes first. This is defensive research on a publicly known
+vulnerability.
+If you own a Coldcard: treat any wallet created on firmware 4.x as compromised and
+move your funds to a freshly generated wallet now. Background and updates:
+@jamesob on Twitter/X.
+← back to the scoreboard

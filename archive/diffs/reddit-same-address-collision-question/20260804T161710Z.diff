@@ -1,0 +1,14 @@
+--- reddit-same-address-collision-question@20260804T151538Z
++++ reddit-same-address-collision-question@20260804T161710Z
+@@ -332,3 +332,11 @@
+ * **Your Mk3 seed colliding with another among 1 million vulnerable seeds:** about **1 in 1.1 million**
+ 
+ Rare enough to chalk any instances up to user error, not rare enough to say it never happened.
++
++comment: p1o9kr3
++parent: t1_p1k5z39
++author: DragonflyBoom
++created_utc: 1785859329
++edited: false
++body:
++ColdCards entropy was 40 bits and a BIP39 seed has at least 128 bits. So it's impossible for two different numbers in the 40 bit range to produce the same hash. You get collisions with larger data sets if they are reduced to 128 bits (which is also very very unlikely).

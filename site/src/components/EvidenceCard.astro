@@ -6,10 +6,11 @@
  * Capturing evidence and displaying only its hash asks the reader to trust
  * the transcription. Where a screenshot is held it leads the card; where only
  * text is held, a short excerpt does. Either way the card links through to
- * the source page, where the full artefact list and hashes live.
+ * the source page, where the capture state and revision history live.
  */
 import { xMedia } from '../lib/xmedia';
 import { sourceById, withholdsCapturedMedia, xPostById } from '../lib/archive';
+import Timestamp from './Timestamp.astro';
 
 interface Props {
   href: string;
@@ -23,6 +24,10 @@ interface Props {
   by?: string;
   /** ISO or human date of publication. */
   when?: string;
+  /** Exact instant, localized by the shared archive-time preference. */
+  whenIso?: string;
+  /** Text immediately before an exact instant, such as "checked ". */
+  whenPrefix?: string;
   /** Short text excerpt shown when no screenshot is held. */
   excerpt?: string;
   /**
@@ -40,7 +45,7 @@ interface Props {
 }
 
 const {
-  href, title, kind, group, id, by = '', when = '',
+  href, title, kind, group, id, by = '', when = '', whenIso = '', whenPrefix = '',
   excerpt = '', search = '', captures = 0, changes = 0, blocked = false,
   gone = false,
 } = Astro.props;
@@ -76,7 +81,10 @@ const changeLabel = changes > 0
   </div>
 
   <div class="ec__foot">
-    <span>{when}</span>
+    <span>
+      <span hidden={!whenIso}>{whenPrefix}<Timestamp iso={whenIso} /></span>
+      <span hidden={Boolean(whenIso)}>{when}</span>
+    </span>
     <span>{captures} capture{captures === 1 ? '' : 's'}</span>
   </div>
 </a>

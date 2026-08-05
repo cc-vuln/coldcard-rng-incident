@@ -1,7 +1,14 @@
+<img src="site/tools/branding/out/github-social.png"
+     alt="cc-vuln.org. An open-source archive: the public record, collected and explained. Every source, snapshot, and revision of the COLDCARD RNG incident, openly archived. Every claim links to the record.">
+
 # COLDCARD entropy incident archive
 
 An open source collection and presentation of what has been published about the
 July 2026 COLDCARD predictable-RNG incident.
+
+The site is the public record of the July 2026 COLDCARD predictable-RNG
+incident: it preserves what each party published and how it changed, organises
+the material, and explains it without adjudicating between the people involved.
 
 The material is scattered across vendor advisories that get edited, threads that
 scroll away, repositories, blog posts and reporting that restates other
@@ -10,7 +17,7 @@ is public and reusable: the captures, the tooling that takes them, the review
 record and the site itself, so anyone can re-run the captures, check the record
 against the originals, or take the material and do something else with it.
 
-The project does two jobs that reinforce each other:
+The project has three parts that reinforce each other:
 
 - **The archive**, this repository's spine: a primary-source record built to
   answer one question that gets harder to answer every day: **what did each
@@ -18,9 +25,9 @@ The project does two jobs that reinforce each other:
 - **The repository**, [github.com/cc-vuln/coldcard-rng-incident](https://github.com/cc-vuln/coldcard-rng-incident):
   the captures, the tooling that takes them, the review record and the site
   source, all under licences that permit reuse.
-- **The site**, [cc-vuln.org](https://cc-vuln.org): presents that record in an
-  educational and informative form: plain-language help for affected owners, a
-  technical explainer of how the failure worked, and the change record itself.
+- **The site**, [cc-vuln.org](https://cc-vuln.org): presents the source record,
+  a technical explanation of how the failure worked, and attributed accounts
+  of how vendors, researchers, developers and others responded.
 
 Nothing is solicited or sold. There is no donation address, no sponsorship and
 no advertising. What the project wants is corrections, sources it has missed,
@@ -91,9 +98,13 @@ site/                     Astro front end, reads archive/ at build time
 Temporary audits, screenshots and generated review evidence belong under
 `.work/`, which is ignored. They are working material, not project documentation.
 
-Snapshots are timestamped UTC (`YYYYMMDDTHHMMSSZ`). Every snapshot carries the
-SHA-256 of both the raw bytes and the extracted text, so a claim about what a
-page said on a given date is checkable rather than asserted.
+Snapshots are timestamped UTC (`YYYYMMDDTHHMMSSZ`). Every snapshot sidecar
+carries the SHA-256 of both the raw bytes and the extracted text. The capture
+tool uses comparison hashes to detect changes, and the audit recomputes the
+extracted-text hash to catch later mutation of that held text. The raw-byte hash
+remains capture metadata. None of these hashes authenticates who made a
+capture, so the public site does not present them as independent proof of
+provenance.
 
 ## Usage
 

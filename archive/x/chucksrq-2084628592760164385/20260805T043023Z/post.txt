@@ -1,0 +1,169 @@
+url:      https://x.com/ChuckSRQ/status/2084628592760164385
+author:   ChuckSRQ
+handle:   @ChuckSRQ
+posted:   2026-08-04T13:12:41.000Z (from the page's <time> element)
+captured: 20260805T043023Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HO4WodVXEAAO2Hn?format=jpg&name=small (680 x 272 pixels)
+
+--- post text (verbatim) ---
+
+Coldcard Users Reported Instant Drains Years Before July 2026. Here Are the Receipts.
+
+# Coldcard Pre-July 2026 Drain Reports
+**Incident table and evidence cutoff: August 4, 2026**
+## Bottom line
+This report documents public reports that appeared before the July 2026 mass waves[8][9][22].
+The catalog below records public pre-July reports and incident claims. They are not all proven instances of the newly disclosed firmware bug:
+* One report occurred in August 2020, before the vulnerable firmware existed, so it cannot be this bug[8][9][22].
+* Several victims explicitly described dangerously low dice entropy[8][9][22]. Those incidents prove automated weak-seed theft existed, but they do not require the hidden firmware fallback[8][9][22].
+* One Mk4 theft of 3.731 BTC is verified on-chain and is technically consistent with the hidden firmware flaw, but its exact cause is not proven[8][9][22].
+* One December 2024 X post may be a retelling of an earlier February 2024 incident, so it must not be silently counted as a separate victim[8][9][22].
+* Several reports lack addresses, transaction IDs, exact firmware versions, or seed-generation traces[8][9][22].
+The evidence supports this community warning:[8][9][22]
+> Coldcard users were reporting instant or rapid weak-seed drains years before the July 2026 waves[8][9][22]. At least one well-documented Mk4 case fits the later-confirmed firmware failure[8][9][22]. Multiple other cases prove that attackers were already precomputing weak Coldcard seed spaces and monitoring for deposits[8][9][22]. The public record does not yet prove when any attacker first discovered the hidden `ngu.random` firmware defect itself[8][9][22].
+## Timeline evidence
+Coldcard firmware tag [`2021-03-29T1927-v4.0.1`](https://github.com/Coldcard/firmware/tree/2021-03-29T1927-v4.0.1) was created on March 29, 2021 at 19:27 UTC[30]. The earliest first-funding date in the report's 100-address sample of later Wave 1 victims was April 12, 2021[16][22][30]. That is **13 days and 4 hours later**[16][22][30].
+That timing proves a wallet later identified in the affected population was funded less than two weeks after v4.0.1[16][22][30]. It does **not** prove a bad actor knew the bug then[16][22][30]. The address was drained in July 2026, not April 2021[16][22][30]. First funding is not theft[16][22][30].
+Using the earlier v4.0.0 tag from March 17, the same April 12 funding is 26 days later, not less than three weeks[5].
+The earliest suspected post-release theft report found here is dated only to **February 2022**[16][22][30]. That is approximately 308 to 336 days after v4.0.1, depending on the unknown day in February[22][30].
+Vulnerable exposure appeared within two weeks, while the earliest suspected theft report in this catalog falls within the first year[16][22][30]. The evidence does not establish when an attacker discovered the defect[16][22][30].
+## Pre-July incident reports
+Dates in the first column are the claimed theft date when known[26][28]. When the victim did not publish an exact theft date, the table says “by” the report date or marks the date approximate[26][28].
+| # | Suspected theft date | Amount | Report and direct link | What the victim claimed | Relationship to the 2021 firmware bug | Evidence status |
+|---:|---|---:|---|---|---|---|
+| 1 | August 20, 2020 or earlier | Not stated | [“The loss of bitcoin,” r/Electrum](https://www.reddit.com/r/Electrum/comments/id7bpj/the_loss_of_bitcoin/)[21] | A Coldcard Mk3 and Electrum user found an unauthorized transfer and missing BTC. | **Cannot be the March 2021 bug.** This is a useful control case showing that a Coldcard mention alone does not establish the later flaw. | First-person report. No public address or transaction ID found. |
+| 2 | February 2022, day unknown | Nearly 2 BTC implied | [“feb '22 bug victim,” r/coldcard](https://www.reddit.com/r/coldcard/comments/1h6zjx6/feb_22_bug_victim/)[22] | The victim said the wallet was swept after selecting “automated dice rolls” during setup. The post alleges a six-seed failure. | Earliest claimed theft after vulnerable firmware. The description may indicate the dangerous dice workflow rather than the hidden fallback. Root cause unverified. | First-person report posted December 4, 2024. No address or transaction ID. |
+| 3 | February 2023, day unknown | 1.7 BTC | [“1.7 BTC drained instantly using sparrow to cold card,” r/coldcard](https://www.reddit.com/r/coldcard/comments/17fy8cz/17_btc_drained_instantly_using_sparrow_to_cold/)[10] | The victim said funds transferred from Trezor to Coldcard through Sparrow were drained instantly. An X post from the same discussion says an autogenerated seed was used[23]. | Plausible weak-seed theft. Could involve normal device entropy, dice workflow confusion, imported seed exposure, or another cause. | Full Reddit body recovered from archive, but no address, transaction ID, model, or firmware. |
+| 4 | July 9, 2023 at 01:21:23 UTC | 3.73118785 BTC | [“Coldcard MK4 UX Flaw,” r/Bitcoin](https://www.reddit.com/r/Bitcoin/comments/1ja3uua/coldcard_mk4_ux_flaw/)[8] | Mk4 owner said two deposits were consolidated and swept after using a device-generated seed plus 50 Python-generated values. | **Best public candidate for the hidden firmware bug.** Model and date fit. Another possible failure path is the computer-generated roll sequence. | Theft and amount confirmed by transaction [`596802d0...c80553`](https://mempool.space/tx/596802d0b3f99149b6c7b4250ce52894938d252aa3ad4fdbf125336bb0c80553)[14]. Exact firmware unknown. |
+| 5 | October 23, 2023 | 0.40 BTC | [“0.40 Bitcoin taken instantly from my coldcard,” r/coldcard](https://www.reddit.com/r/coldcard/comments/17epqk8/040_bitcoin_taken_instantly_from_my_coldcard/)[9] | Victim said the deposit was swept almost instantly and later admitted entering one dice roll. | Strong evidence of automated weak-seed monitoring. One roll creates only six input possibilities. No hidden firmware defect is needed. | First-person report and detailed comment trail. Public transaction ID not found in the thread. |
+| 6 | On or before October 26, 2023 | Not stated | [BITCOINLENNON on X](https://x.com/UNKNOWNBITCOINS/status/1717451541517422621)[24] | “I also did this, and lost Bitcoin,” referring to proceeding with too few rolls. | Strongly consistent with the low-dice failure mode, not proof of the hidden fallback. | First-person X claim. No amount, address, transaction ID, or exact theft date. |
+| 7 | February 11, 2024 | 0.02 BTC | [Direct comment in the 0.40 BTC thread](https://www.reddit.com/r/coldcard/comments/17epqk8/040_bitcoin_taken_instantly_from_my_coldcard/kpvhi5s/)[25] | “I just lost 0.02 bitcoin in the same way as OP. I generated my seed phrase on cold card using two dice rolls.” | Strongly consistent with automated enumeration of a tiny dice-only seed space. No hidden firmware defect is needed. | First-person comment with exact report timestamp. No address or transaction ID. |
+| 8 | By February 20, 2024 | Not stated | [ElectricNclave on X](https://x.com/ElectricNclave/status/1759766145215902088)[26] | While helping a friend, they used too few dice rolls. The account was compromised “within minutes” and the contents were lost. | Strongly consistent with the low-dice failure mode. Shows rapid automated monitoring. | First-person helper account. No amount, address, transaction ID, or exact theft day. |
+| 9 | By April 8, 2024 | Portion of a BTC stack | [Shredaway on X](https://x.com/NickShredaway/status/1777296991401210010)[27] | User made a Coldcard wallet with “very low entropy,” which was swept after one day. Cash App limits reduced the loss. | Strongly consistent with low-entropy enumeration. The post does not identify the hidden firmware path. | First-person X report. No amount, address, transaction ID, model, or firmware. |
+| 10 | Approximately April 2024 | “Smaller but still significant” amount | [ElectricNclave follow-up on X](https://x.com/ElectricNclave/status/1873445887483236391)[28] | A friend transferred from Ledger to a new Coldcard. Funds were stolen within about ten minutes. The author suspected too few dice rolls. | Strongly consistent with the low-dice failure mode. **Possible duplicate of incident 8.** The dates do not align cleanly enough to prove either one or two victims. | Second-hand X report posted December 29, 2024. No address or transaction ID. |
+| 11 | By May 16, 2024 | “Everything I had” | [Gregory Butchham on X](https://x.com/GregoryButchham/status/1791043161986396383)[29] | User said BTC was stolen despite using Coldcard, but was unsure how and suspected the regular PC, node choice, or old firmware. | Coldcard-associated theft claim, but entropy-bug attribution is weak. This could be endpoint compromise or another failure. | First-person X report. No address, transaction ID, seed details, model, or exact theft date. |
+### Possible duplicate source record
+Row 10 may be a later retelling of row 8[26][28]. Both come from ElectricNclave, both involve a friend, too few dice rolls, and theft within minutes[26][28]. The December 2024 post says “about 8 months ago,” which points to roughly April 2024, while the earlier post proves a similar incident had already happened by February 20[26][28]. That could be rough recollection or a second friend[26][28]. The two posts should not be treated as distinct victims without further evidence[26][28].
+The catalog retains both source records and identifies the later post as a possible duplicate[26][28].
+## Earliest suspected post-release incident: February 2022
+The earliest report that can fall after the vulnerable release is the Reddit post titled [“feb '22 bug victim”](https://www.reddit.com/r/coldcard/comments/1h6zjx6/feb_22_bug_victim/)[22].
+The author wrote:[22]
+> “i was a victim of the february 2022 bug where for some reason, my wallet was swept because I chose automated dice rolls (hit 1 to select automated dice rolls) then proceeded with setup.”[22]
+> “i had a pass code and a seedphrase and it was still swept.”[22]
+> “i was told this was because there was a bug from cold card where they were giving out 1 of SIX of the SAME seed phrases and all those people had their wallets swept.”[22]
+This is important, but it is not clean proof of the hidden firmware fallback:[22]
+* The incident date is month-only[22].
+* The post was published on December 4, 2024, nearly three years after the claimed theft[22].
+* “Automated dice rolls” and “one of six” suggest confusion with the dice-only workflow[22].
+* No address, transaction ID, device model, firmware version, or setup transcript was published[22].
+The correct label is **earliest suspected post-release theft report found**, not earliest proven exploitation of `ngu.random`[22].
+## The best same-firmware-bug candidate: 3.731 BTC in July 2023
+A shorter 2023 comment from the same claimant had already said the Mk4 wallet was drained after using a 12-word seed[11].
+The March 13, 2025 post [“Coldcard MK4 UX Flaw”](https://www.reddit.com/r/Bitcoin/comments/1ja3uua/coldcard_mk4_ux_flaw/) documents a theft that occurred on July 9, 2023[8][14].
+The victim wrote:[8][14]
+> “I purchased a Coldcard MK4 in 2023 migrating from a ledger device.”[8][14]
+> “I unfortunately saw my hard work money being swept and after reporting it to Coldcard, they blocked me like they have been doing to the other users.”[8][14]
+> “The funds immediately went into external wallets: Hacker wallet `bc1qa4hrzegkrrq5fmyelma2y3lcs2papk5ee7suns` received 3.731 BTC.”[8][14]
+The chain record confirms:[8][14]
+* input address [`bc1qra4d...za9y`](https://mempool.space/address/bc1qra4dcsj34f4nu00ywxhc9986j62t00l2ksza9y): 1.68751710 BTC[8][14]
+* input address [`bc1q484x...kpv2`](https://mempool.space/address/bc1q484x0pjz5g0ghs92zq89yearhlatamng2akpv2): 2.04368515 BTC[8][14]
+* attacker receipt [`bc1qa4hr...suns`](https://mempool.space/address/bc1qa4hrzegkrrq5fmyelma2y3lcs2papk5ee7suns): 3.73118785 BTC[8][14]
+* drain transaction [`596802d0...c80553`](https://mempool.space/tx/596802d0b3f99149b6c7b4250ce52894938d252aa3ad4fdbf125336bb0c80553), block 797871, July 9, 2023 at 01:21:23 UTC[14]
+The attacker spent that output about 23 hours and 33 minutes later through [`29dec778...8d677`](https://mempool.space/tx/29dec7783b22d43974f30ce54a1ea453f1522cb2174baeeab3860646d418d677)[15].
+Why this case matters:[8][14]
+1. The victim used a Mk4 purchased in 2023, inside the affected generation window[4].
+2. The victim says the starting seed was device-generated, then mixed with 50 values[8][14].
+3. The later-confirmed Mk4 weakness means the old assumption of a sound hardware-random base was false or materially overstated[1][2].
+4. The address and theft transaction are public and independently checkable[8][14].
+Why it is still not proven:[8][14]
+1. The exact firmware and device state are unknown[8][14].
+2. The 50 values came from Python's `random` module, which is not intended for cryptographic use[13].
+3. The Python environment and state are unknown[8][14].
+4. Seed exposure, endpoint compromise, or another failure cannot be excluded[8][14].
+5. No address overlap was found with the July 2026 Wave 1 set[8][14].
+This is the strongest public case for possible pre-July exploitation of the same firmware weakness[8][14]. It is not proof of the same operator[8][14].
+## The 2023 and 2024 cluster shows active weak-seed hunters
+The following claims share a narrow operational signature:[9][25][26]
+* funds arrive at a Coldcard-derived wallet[9][25][26]
+* the wallet was created with one roll, two rolls, or otherwise “very low entropy”[9][25][26]
+* funds leave almost instantly, within minutes, or after one day[9][25][26]
+* the victim did not authorize the withdrawal[9][25][26]
+That pattern appears in the 0.40 BTC Reddit post, the 0.02 BTC reply, BITCOINLENNON's X reply, ElectricNclave's account, and Shredaway's post[9][25][26].
+These reports support a strong conclusion: **one or more bad actors had already precomputed low-entropy Coldcard seed spaces and were monitoring derived addresses before July 2026.** A human thief could not reliably notice unrelated deposits across unrelated wallets within minutes[9][25][26]. An automated watcher can[9][25][26].
+What they do not prove is that the attacker had discovered the hidden MicroPython fallback[9][25][26]. Trivial dice-only wallets and the hidden firmware fallback produce the same visible symptom while arising from different causes[9][25][26].
+BitcoinTalk participants later resurfaced and debated the old reports during the July 2026 disclosure[12].
+## Foundation's April 2024 warning
+Foundation stated on April 12, 2024:[7]
+> “Numerous users have lost funds on Coldcard in the last several months due to rolling a low number of dice rolls (their team has deleted posts on Reddit and blocked users who reported these problems).”[7]
+That warning independently confirms that the visible reports were not isolated in community discussion[7]. It also explains why a complete victim count may be impossible from surviving public posts[7].
+The warning does not identify the `ngu.random` integration bug[7]. Foundation framed the known losses around low dice counts[7]. It supports prior notice of weak-seed theft and alleged report suppression, not proof that Foundation or Coinkite knew the hidden firmware root cause[7].
+## The bug and the attack template
+The confirmed 2021 integration error routed seed generation through MicroPython's deterministic Yasmarang fallback instead of the intended STM32 hardware RNG[1][2][3].
+Two distinct failures could then produce the same instant-drain symptom:[1][2][9]
+### Hidden firmware fallback
+The user selects normal device generation or starts from the device-generated seed[1][2][9]. The device does not contribute the intended hardware entropy on affected firmware[1][2][9]. An attacker who reconstructs the reduced search space can derive addresses and watch them[1][2].
+### Too few dice rolls
+The user selects a deterministic dice-only path and enters one or two rolls[1][2][9]. One six-sided roll gives six possibilities[1][2][9]. Two rolls give 36 ordered possibilities[1][2][9]. A 24-word display cannot manufacture entropy that was never supplied[1][2][9].
+### Shared attack sequence
+1. Enumerate candidate seeds[1][2][9].
+2. Derive common BIP32 paths and Bitcoin addresses[1][2][9].
+3. Monitor those addresses[1][2][9].
+4. Detect a deposit[1][2][9].
+5. Broadcast a sweep[1][2][9].
+6. Consolidate or peel the stolen output[1][2][9].
+The shared sequence proves a common attack method[1][2][9]. It does not prove a common root cause or common operator[1][2][9].
+## Minimal July 2026 context
+The July 2026 waves are outside this report's main scope[14][16]. They matter only because the later disclosure proved that Coldcard's internal entropy path had been broken and made old dismissals worth revisiting[1][2][4].
+Galaxy Research independently documented the multi-wave scope and warned that operator grouping rested on resemblance rather than identity proof[6].
+Wave 1 collected 594.47722484 BTC from 500 victim transactions into [`bc1qnk4zh...fecp0`](https://mempool.space/address/bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0) across blocks 960188 through 960191[16][19][20]. The wave used regular fee templates and same-block consolidation, which clearly identifies an industrial batch operation[17][18].
+No direct address overlap was found between that Wave 1 set and the July 2023 3.731 BTC theft[14][16]. That means “same operator” is not established[14][16].
+## What the evidence supports
+### Supported
+* Weak-seed theft against Coldcard users existed before July 2026[1][8][22].
+* Automated attackers were monitoring trivially enumerable Coldcard dice-only wallets by October 2023, and probably earlier[1][8][22].
+* A February 2022 report is the earliest suspected post-release theft located in the surviving public record[1][8][22].
+* The July 2023 Mk4 theft is the strongest public candidate for the later-confirmed firmware weakness[1][8][22].
+* Foundation publicly warned in April 2024 that numerous users had lost funds through low-dice Coldcard seeds[7].
+* Some users and reports were dismissed under the assumption that the internal TRNG path was sound[1][8][22]. The 2026 technical disclosure proved that assumption wrong for affected firmware[1][2].
+### Not supported
+* Proof that an attacker knew the hidden bug within three weeks of release[1][8][22].
+* Proof that every instant drain came from the hidden firmware fallback[1][8][22].
+* Proof that the pre-July thieves and July 2026 wave operator were the same people[1][8][22].
+* Proof that Coinkite knew the exact hidden root cause before the 2026 disclosure[1][8][22].
+## Final finding
+The public record supports a measured warning about the history of these reports[8][9][22].
+Before July 2026, Coldcard users repeatedly reported deposits being swept immediately, within minutes, within an hour, or after one day[8][9][22]. Several incidents have a complete low-dice explanation[8][9][22]. One Mk4 case has public chain evidence and remains plausibly attributable to the firmware flaw later confirmed by Block and Coinkite[8][9][22]. A February 2022 report places suspected post-release theft inside the first year of the vulnerable firmware[8][9][22].
+The evidence does not prove attacker knowledge within three weeks[8][9][22]. It establishes vulnerable exposure within two weeks and places the earliest suspected theft report within roughly eleven months[8][9][22]. A stronger timeline is not supported by the public record[8][9][22].
+## Sources
+[1] https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware | Block Engineering: Predictable RNG Fallback and 32-Bit Reseed
+[2] https://blog.coinkite.com/entropy-technical-backgrounder | Coinkite: Technical Deep Dive into the Entropy Issue
+[3] https://wizardsardine.com/blog/coldcard-rng-vulnerability | Wizardsardine: Critical Coldcard flaw
+[4] https://blog.coinkite.com/coldcard-mk3-seed-generation-warning | Coinkite: Coldcard Security Advisory
+[5] https://github.com/Coldcard/firmware/commit/b18723dd | Coldcard firmware commit b18723dd
+[6] https://x.com/glxyresearch/status/2083623519967997958 | Galaxy Research three-wave forensic thread
+[7] https://x.com/FoundationHQ/status/1778581463618773441 | Foundation April 2024 Coldcard dice-roll warning
+[8] https://www.reddit.com/r/Bitcoin/comments/1ja3uua/coldcard_mk4_ux_flaw | Economy-Cash6726: Coldcard MK4 UX Flaw
+[9] https://www.reddit.com/r/coldcard/comments/17epqk8/040_bitcoin_taken_instantly_from_my_coldcard | iwashere1990: 0.40 Bitcoin taken instantly
+[10] https://www.reddit.com/r/coldcard/comments/17fy8cz/17_btc_drained_instantly_using_sparrow_to_cold | Western-Educator-728: 1.7 BTC drained instantly
+[11] https://www.reddit.com/r/ledgerwallet/comments/167bgjr/seed_entropy | MeetingBrilliant: Seed entropy thread
+[12] https://bitcointalk.org/index.php?topic=5589927 | BitcoinTalk: Large-scale Coldcard compromise
+[13] https://docs.python.org/3/library/random.html | Python random module documentation
+[14] https://mempool.space/tx/596802d0b3f99149b6c7b4250ce52894938d252aa3ad4fdbf125336bb0c80553 | 2023 drain transaction
+[15] https://mempool.space/tx/29dec7783b22d43974f30ce54a1ea453f1522cb2174baeeab3860646d418d677 | 2023 attacker outbound transaction
+[16] https://mempool.space/address/bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0 | July 2026 Wave 1 collector address
+[17] https://mempool.space/tx/0c6bf853a645b699a3b2cd6d8e3c44cf1a02a16f538df08212a44753f75d9d01 | July 2026 same-block consolidation transaction
+[18] https://mempool.space/address/bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r | July 2026 endpoint collector address
+[19] https://mempool.space/block/960188 | Bitcoin block 960188
+[20] https://mempool.space/block/960191 | Bitcoin block 960191
+[21] https://www.reddit.com/r/Electrum/comments/id7bpj/the_loss_of_bitcoin | 2020 Coldcard Mk3 and Electrum unauthorized-transfer report
+[22] https://www.reddit.com/r/coldcard/comments/1h6zjx6/feb_22_bug_victim | February 2022 claimed Coldcard sweep, posted December 2024
+[23] https://x.com/anarchoBTC/status/1717243529460961696 | October 2023 autogenerated-seed instant-sweep statement
+[24] https://x.com/UNKNOWNBITCOINS/status/1717451541517422621 | BITCOINLENNON low-dice loss statement
+[25] https://www.reddit.com/r/coldcard/comments/17epqk8/040_bitcoin_taken_instantly_from_my_coldcard/kpvhi5s | 0.02 BTC two-roll loss comment
+[26] https://x.com/ElectricNclave/status/1759766145215902088 | ElectricNclave friend loss within minutes
+[27] https://x.com/NickShredaway/status/1777296991401210010 | Shredaway low-entropy wallet swept after one day
+[28] https://x.com/ElectricNclave/status/1873445887483236391 | ElectricNclave later friend-loss report
+[29] https://x.com/GregoryButchham/status/1791043161986396383 | Gregory Butchham Coldcard-associated theft report
+[30] https://github.com/Coldcard/firmware/tree/2021-03-29T1927-v4.0.1 | Coldcard v4.0.1 firmware tag dated March 29, 2021

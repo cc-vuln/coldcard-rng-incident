@@ -7,9 +7,8 @@
  *
  * Capturing evidence and never showing it wastes the capture: the point of a
  * screenshot is that a reader can see what was said without trusting our
- * transcription. Copies are byte-identical and the manifest carries the same
- * SHA-256 the source page cites, so what is displayed is provably the held
- * artefact.
+ * transcription. copyFileSync stages the held file directly; the build
+ * manifest carries only what renderers need to locate and date it.
  *
  * Three exclusions, none of them incidental:
  *
@@ -24,8 +23,7 @@
  *  3. PUBLIC_X_MEDIA=false (the default) stages nothing at all, so a public
  *     build cannot ship media until that policy decision is made deliberately.
  */
-import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { basename, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -102,9 +100,6 @@ if (enabled) {
       return {
         src: `/x-media/${post.id}/${name}`,
         name,
-        bytes: statSync(path).size,
-        sha256: createHash('sha256').update(readFileSync(path)).digest('hex'),
-        archivePath: `archive/x/${post.id}/${ts}/post.png`,
       };
     });
   }

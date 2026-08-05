@@ -1,0 +1,202 @@
+--- reddit-drained-timeline@20260804T120634Z
++++ reddit-drained-timeline@20260805T094915Z
+@@ -1418,23 +1418,13 @@
+ body:
+ What? Wait if this is an issue with rng, would this affect other HW wallets like Blockstream Jade plus?
+ 
+-comment: p0scpz0
+-parent: t1_p0s1vkb
+-author: OldHamburger7923
+-created_utc: 1785460841
+-edited: false
+-body:
+-he'll have as much btc as a baby
+-
+ comment: p0sdrir
+ parent: t1_p0rv18a
+-author: OldHamburger7923
++author: [deleted]
+ created_utc: 1785461187
+ edited: 1785474844
+ body:
+-So, its what I mentioned on my reply to you yesterday. The RND issue. Your takeaway in your OP was always wrong, you can and should restore your seed on your HW wallet in order to verify your funds are reachable in case you messed up writing down the seed and to test the device restore capabilities. The issue is your original HW RNG, and ironically your new device could have fixed your issue if you generated a new wallet with it and did the transfer - which would be super easy with two devices.
+-
+-What I did when I moved from an older device to a new one was to create a new account. I was however lazy, so I didn't make a completely new account. I scrambled the existing words around, and then randomly picked a few words to replace, plus added a lengthy passphrase. You can get from ChatGPT the required amount of entropy needed to secure it to a reasonable expectation if someone knew your prior seed. But the non lazy way is just make a new seed. Or do what I did above, to a newly generated seed.
++[deleted]
+ 
+ comment: p0sduf0
+ parent: t3_1vb6teq
+@@ -1472,29 +1462,6 @@
+ body:
+ I’m so sorry for this bullshit OP.
+ 
+-comment: p0sfaf4
+-parent: t1_p0rjnj8
+-author: OldHamburger7923
+-created_utc: 1785461692
+-edited: 1785463008
+-body:
+-Look at the mk3 security advisory. It's about specific firmware. The RNG code isn't as random as it could be. Knowing that, an attacker can take their time (even over years) to run code to check potential addresses till they made a list large enough to sweep.
+-
+-**edit:**
+-
+-A flawed fallback RNG apparently derived randomness from a small or predictable device state, including a timer.
+-
+-* The researchers narrowed that state to about 80,000 possibilities.
+-
+-* They recreated the wallet’s RNG process for each possibility.
+-
+-* Each possibility produced a candidate 24-word phrase.
+-
+-* They compared each candidate’s resulting public wallet identifier, the xpub, against the known xpub.
+-One candidate matched, revealing the private key and recovery phrase.
+-
+-* 80,000-state timer range appears to come from a controlled reproduction where timing and device behavior were constrained. It does not prove that every affected wallet has exactly 80,000 possibilities.
+-
+ comment: p0sfkvu
+ parent: t3_1vb6teq
+ author: dkayt
+@@ -1520,20 +1487,6 @@
+ edited: false
+ body:
+ Ledger... Not gonna go making that mistake again
+-
+-comment: p0sghla
+-parent: t1_p0r6s63
+-author: OldHamburger7923
+-created_utc: 1785462088
+-edited: false
+-body:
+-Which makes perfect sense. If the RNG is flawed, it takes time to randomly generate potential addresses and to log the ones found with btc in it. Over time you build up a list knowing that people aren't likely to move funds often. One you generated enough wallets to hack, you sweep in one go. 
+-
+-The nice thing for people who haven't been hacked yet, who had a coldcard on the bad firmware version, you now have advance notice your wallet is going to be fucked if you don't move it.
+-
+-Start moving it now. Generate a seed on a device without the bad firmware, then scramble the words around so its not what the RNG used, replace some words, add a passphrase. You won't have this issue even if they find a new RNG issue. Or just roll dice (or flip a coin) to generate your own seed by scratch. 
+-
+-The 24th word is a checksum. You get one out of 7 potentials for your 23 words. On ledger and trezor devices (years ago) I don't recall seeing the ability for the device to give you the available checksum word, but on my new jade, it does. Which helps because you don't need to go off device to figure that out. Maybe there is an offline easy way to calculate it (I haven't looked)
+ 
+ comment: p0sgnj8
+ parent: t1_p0s1fl1
+@@ -1547,13 +1500,11 @@
+ 
+ comment: p0sgoad
+ parent: t1_p0s1zok
+-author: OldHamburger7923
++author: [deleted]
+ created_utc: 1785462151
+ edited: false
+ body:
+-I read the prospectus on FBTC and IBIT and both said you are fucked if they get hacked.
+-
+-So its a matter if you trust fidelity or blackrock (coinbase custody) more than you trust yourself. The other consideration is that fidelity and coinbase have a larger target on their back because of the size of the assets they hold. your personal wallet isn't going to be large enough for anyone to focus on.
++[deleted]
+ 
+ comment: p0si12n
+ parent: t1_p0rim2d
+@@ -1652,14 +1603,6 @@
+ edited: false
+ body:
+ Probably should consider to re-key that multisig. If other vendor hardware involved you're safer of course... but now one quorum member has a published exploit.
+-
+-comment: p0slxff
+-parent: t1_p0sk3m9
+-author: OldHamburger7923
+-created_utc: 1785463937
+-edited: false
+-body:
+-Crazy. I really wanted to get a coldcard with keyboard too. But I didn't want to spend that much on a wallet.
+ 
+ comment: p0smbi1
+ parent: t1_p0sl8zh
+@@ -2014,14 +1957,6 @@
+ 
+ And you won't hear it enough to make it any better, but I'm sorry this happened to you. I can't even imagine.
+ 
+-comment: p0t937v
+-parent: t1_p0s60k6
+-author: OldHamburger7923
+-created_utc: 1785472502
+-edited: false
+-body:
+-The point is, no matter what device you get, if they later find an exploit with the RNG, you are exposed. You could do a mixture of the two, use the HW wallet seed, but restore it with the words reordered, and replace at least 4 of the words with random other words. Make sure the 24th checksum word matches the 23. Some wallets do this automatically (Jade), which makes it easier.
+-
+ comment: p0t9drk
+ parent: t1_p0s60k6
+ author: newMoneyStyle
+@@ -2102,31 +2037,13 @@
+ 
+ It’s always a extremely small fraction 
+ 
+-comment: p0teh5y
+-parent: t1_p0s5joi
+-author: OldHamburger7923
+-created_utc: 1785474781
+-edited: false
+-body:
+-only on some versions of the firmware. But at this point anyone with a coldcard or any other hw wallet should consider generating their own seed and then migrating assets to it. And add a passphrase.
+-
+-comment: p0ter32
+-parent: t1_p0s6775
+-author: OldHamburger7923
+-created_utc: 1785474902
+-edited: false
+-body:
+-i wouldn't assume that. a normal guy from last season low could have put their savings into btc. we'd need to check when they put the funds into the wallet to even guess.
+-
+ comment: p0teyf3
+ parent: t1_p0sbi27
+-author: OldHamburger7923
++author: [deleted]
+ created_utc: 1785474993
+ edited: false
+ body:
+-You are shitting on coldcard with some justification, but keep in mind your trezor, ledger, etc, could also have a RND exploit in the future. And I bet people have been and continue looking for it. Best to generate your own seed so you aren't part of a bulk exploit.
+-
+-The coldcard with keyboard looks super nice still.
++[deleted]
+ 
+ comment: p0tfqe3
+ parent: t1_p0skel1
+@@ -2198,11 +2115,11 @@
+ 
+ comment: p0tjaux
+ parent: t1_p0tj1dl
+-author: OldHamburger7923
++author: [deleted]
+ created_utc: 1785476944
+ edited: false
+ body:
+-Why would you get drained if you make your own wallet seed? As I said, any company can have an exploitable seed generator. This one took many years to be exploited. Next one could be yours. 
++[deleted]
+ 
+ comment: p0tkdxl
+ parent: t1_p0teyf3
+@@ -2391,11 +2308,11 @@
+ 
+ comment: p0tutrw
+ parent: t1_p0tumiz
+-author: OldHamburger7923
++author: [deleted]
+ created_utc: 1785482243
+ edited: false
+ body:
+-It's just a matter of any small edge. With enough time the computational requirements isn't prohibitive. And the more users using the algorithm the more odds of hitting someone's wallet.
++[deleted]
+ 
+ comment: p0tuze4
+ parent: t1_p0svd3o
+@@ -2445,14 +2362,6 @@
+ body:
+ [deleted]
+ 
+-comment: p0tzi55
+-parent: t1_p0tybaq
+-author: OldHamburger7923
+-created_utc: 1785484513
+-edited: false
+-body:
+-As I said it depends on the explot. You can't say anything with any certainly what current rnd code will be exploitable. Especially as computational power increases
+-
+ comment: p0u0vub
+ parent: t1_p0traw6
+ author: downtherabbit

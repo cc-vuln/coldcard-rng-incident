@@ -1,0 +1,292 @@
+post: 1vchr6s
+author: seolein
+created_utc: 1785573088
+title: WHO has audited those firmwares for the last 5 years?
+body:
+this is beyond outrage, who has done the audits for this? how can such a bug can be undetected for 5 years? how can you not constantly test your own device if everything is about security, how is it even allowed on the device to bypass the true randomness generation of the seed which is the whole point of a fucking hardware device? people need to go to jail for this - coinkite did not only fuck the lives of countless customers, they fucked every other hardware wallet company and the whole industry, there is no way I will use a wallet like this every again
+
+comment: p11pbd6
+parent: t3_1vchr6s
+author: Mission-Disaster-447
+created_utc: 1785580864
+edited: false
+body:
+Yeah, they should have regularily run AI scans of their code with a swarm of agents, constantly checking for bugs. 
+
+Thats what the hackers are doing too.
+
+comment: p129frr
+parent: t1_p11pbd6
+author: Intelligent_Map_246
+created_utc: 1785589016
+edited: false
+body:
+Inside job 100℅. Could be them or somebody behind.   This all smells fishy. 
+
+comment: p12bnm1
+parent: t1_p129frr
+author: eldude40
+created_utc: 1785589784
+edited: false
+body:
+I was just thinking this. Did anyone on the coinkite team lose any btc?
+
+comment: p13uv9c
+parent: t1_p129frr
+author: moviemaker2
+created_utc: 1785606223
+edited: false
+body:
+Not saying it's not, just that you have no way to know that, so ignorant speculation isn't helping anyone.
+
+comment: p13v4ny
+parent: t3_1vchr6s
+author: Yodel_And_Hodl_Mode
+created_utc: 1785606297
+edited: false
+body:
+It comes down to the difference between reading code and working with the code.
+
+This bug was introduced when ColdCard switched from being open source to being "Source Verifiable."
+
+ColdCard stopped being open source in order to prevent other developers from legally using ColdCard's code on their own projects. That decision, based on greed and hubris, had brutal consequences.
+
+It led to fewer devs working with ColdCard's code.
+
+Fewer devs using the code for their own projects meant fewer devs finding errors and issues in the code.
+
+Fewer devs finding errors and issues meant errors and issues weren't fixed... such as the error in how ColdCard was generating seeds with nowhere near enough randomness.
+
+That error was in ColdCard's code for five years.
+
+The ColdCard seed generation error was probably found by hackers months ago, if not longer. Hackers have surely been chewing through billions upon billions of seeds for months, if not longer, to find wallets with a balance. When they found enough of them, it made it worth revealing the exploit. Maybe they waited until they found a thousand coins?
+
+This wouldn't have happened if ColdCard had stayed open source. If more devs were using ColdCard's code, this would have been found and fixed years ago, just as bugs with other open source hardware wallets are quickly found and fixed.
+
+This is a perfect example of why open source matters.
+
+Never trust your coins to code that is not open source.
+
+Never.
+
+comment: p151kbj
+parent: t1_p129frr
+author: Analog-Digital-
+created_utc: 1785618817
+edited: false
+body:
+Let's start a business, let all influencers tell we are the best and next, a few years later, we'll empty the accounts
+
+comment: p1583qi
+parent: t1_p11pbd6
+author: Makunouchiipp0
+created_utc: 1785620852
+edited: false
+body:
+There was no bug to find. The code was executing how it was written.
+
+comment: p173ab6
+parent: t3_1vchr6s
+author: EricJDMBAMD
+created_utc: 1785645122
+edited: false
+body:
+[ Removed by Reddit ]
+
+comment: p17kffs
+parent: t1_p13v4ny
+author: grraarr
+created_utc: 1785653055
+edited: false
+body:
+I'm much more sympathetic to Coinkite apparently. Attributing the move solely to "greed and hubris" ignores the economic realities of funding physical hardware R&D.
+
+While true open source encourages third-party downstream projects to reuse code (which can lead to more eyes on a shared codebase), niche hardware wallet firmware is rarely thoroughly audited by third-party developers just because it is open source. Relying on "more users" to catch build-configuration cryptographic flaws is historically unreliable. Structured professional security audits and continuous automated entropy testing are what typically uncover these issues. And they clearly do those, and those clearly failed.
+
+comment: p17m9qq
+parent: t1_p17kffs
+author: Yodel_And_Hodl_Mode
+created_utc: 1785653951
+edited: false
+body:
+> I'm much more sympathetic to Coinkite apparently. Attributing the move solely to "greed and hubris" ignores the economic realities of funding physical hardware R&D.
+
+Coinkite used Trezor's code for their first hardware wallet. Then, Coinkite made their own firmware not open source to prevent others from doing to them what they did to Trezor. And yet, Trezor kept their code open source.
+
+comment: p17p8kb
+parent: t1_p17m9qq
+author: grraarr
+created_utc: 1785655387
+edited: false
+body:
+The source code was always public on GitHub. Researchers, security auditors, or hobbyists could inspect it, compile it, and test it for free.
+
+The only thing the license change prevented was running that code inside a competing commercial device for profit.
+
+Trezor suffered a their own RNG bug in 2019 where hardware entropy wasn't properly mixed. Pure open-source status didn't prevent it.
+
+comment: p17pjo5
+parent: t1_p17p8kb
+author: Yodel_And_Hodl_Mode
+created_utc: 1785655538
+edited: false
+body:
+> The source code was always public on GitHub. Researchers, security auditors, or hobbyists could inspect it, compile it, and test it for free.
+
+But they're not allowed to use it, so they don't actually use it.
+
+That's the difference.
+
+This bug is easy to miss if you're not actually using the code, because the borked line of code functions properly. It doesn't throw an error.
+
+If you cannot understand the difference between viewing code and using code, you've never written code.
+
+comment: p17qpmf
+parent: t1_p17pjo5
+author: grraarr
+created_utc: 1785656109
+edited: false
+body:
+I was thinking the same about you, as you seem to be conflating functional UI testing with cryptographic validation. As I've already indicated, using code exposes functional bugs (like a broken button or a crash), but it does not expose silent cryptographic degradation. That requires specialized binary auditing and statistical analysis, neither of which depends on whether a license allows commercial reuse.
+
+comment: p17ropj
+parent: t1_p17qpmf
+author: Yodel_And_Hodl_Mode
+created_utc: 1785656592
+edited: false
+body:
+Surely, you understand why both matter.
+
+comment: p17s2za
+parent: t1_p17ropj
+author: grraarr
+created_utc: 1785656789
+edited: false
+body:
+Of course I do, and there's a marketplace of options out there to cover all use cases. I am still certain that Coinkite's take on their licensing is not why this happened.
+
+comment: p17td9b
+parent: t1_p17s2za
+author: Yodel_And_Hodl_Mode
+created_utc: 1785657430
+edited: false
+body:
+> I am still certain that Coinkite's take on their licensing is not why this happened.
+
+On this, we'll have to agree to disagree.
+
+I believe, if other devs were using ColdCard code in their own work... *just as ColdCard used Trezor's code in the early days of their own work*... this bug would have been quickly found and squashed, most likely back in 2021.
+
+Collaboration keeps everyone safe.
+
+comment: p17x2fs
+parent: t1_p17td9b
+author: grraarr
+created_utc: 1785659306
+edited: false
+body:
+yeah youre probably right
+
+comment: p18ay1s
+parent: t3_1vchr6s
+author: mightyroy
+created_utc: 1785666434
+edited: false
+body:
+Someone in /bitcoin did got claude to analyse the code and they it reported the same bug the number generator. So it could be any highschool student stealing the coins now.
+
+comment: p19s1jn
+parent: t1_p1583qi
+author: ComprehensiveDog7299
+created_utc: 1785685088
+edited: false
+body:
+Look, if your code runs exactly as you wrote it but still shits the bed, it’s still a bug. You just designed a defect on purpose. That’s not a clean bill of health, that’s admitting you shipped broken shit and called it a feature
+
+comment: p1cj5wp
+parent: t1_p17kffs
+author: superdariom
+created_utc: 1785713208
+edited: false
+body:
+There is no excuse for flawed random number generation in a cryptographic hardware device. It is the most fundamentally important thing.
+
+comment: p1cjgih
+parent: t1_p12bnm1
+author: superdariom
+created_utc: 1785713305
+edited: false
+body:
+Have any of them recently retired to a private island?
+
+comment: p1d8u3e
+parent: t1_p17td9b
+author: circuit_breaker
+created_utc: 1785721879
+edited: false
+body:
+Groan, a standard test suite could have caught this. You don't even need "many eyes". This is a silly display of devs thinking they can omplement crypto correctly. it can easily go wrong. 
+
+Remember the lack of entropy that made ssh keys generated for years, fundamentally weak? Many eyes aren't help there either
+
+comment: p1e7ktk
+parent: t1_p13v4ny
+author: vatai
+created_utc: 1785736131
+edited: false
+body:
+How is this not open-source?
+
+[https://github.com/Coldcard/firmware/blob/master/COPYING-CC](https://github.com/Coldcard/firmware/blob/master/COPYING-CC)
+
+comment: p1ereyy
+parent: t3_1vchr6s
+author: janpapiratie
+created_utc: 1785746084
+edited: false
+body:
+Source verifiable seems more dangerous than closed sourced imo. There’s not much incentive to contribute/audit to the code if you’re well intended, since you can’t use it for your own (commercial) projects, but you do open the door for criminals to find critical vulnerabilities in the source code, and they clearly do have an incentive to do so.
+
+So basically full open-source or bust. Am I right?
+
+comment: p1jgku9
+parent: t1_p17p8kb
+author: DesertDissident
+created_utc: 1785796696
+edited: false
+body:
+>The only thing the license change prevented was running that code inside a competing commercial device for profit.
+
+Not exactly, in this case it did two important things:
+
+1) It required them to refactor the code and risk regression. They were originally using GPL code which means they had to be open-source or stop using other GPL code. They chose the latter path, which was the very update that introduced the flaw.
+
+2) It ensures that fewer resources will be spent auditing their changes. Enterprises looking to adopt open-source code have a strong incentive to spend resources auditing it. Sure anybody *can* look at the code, but fewer *will* look at the code (who actually know what they're doing). It's similar security in theory, but not in practice.
+
+I'm unsympathetic to Coinkite because it was so hypocritical and greedy. They were fine benefitting from Trezor's open-source code to develop their product but subsequently diminished its security solely to inhibit competition after Foundation used their open-source code to develop their product. "You can't have your cake and eat it too"
+
+comment: p1jgx7q
+parent: t1_p1jgku9
+author: grraarr
+created_utc: 1785796800
+edited: false
+body:
+All good points.
+
+comment: p1ms7ju
+parent: t1_p19s1jn
+author: Makunouchiipp0
+created_utc: 1785844191
+edited: false
+body:
+Retirement plan
+
+comment: p1rmqd4
+parent: t1_p13v4ny
+author: SomeGuyInOz
+created_utc: 1785892593
+edited: false
+body:
+I keep hearing this as a kind of excuse, but I don’t buy it. I think the fair criticism would be that Coinkite did not have bug bounties, etc. I wonder how many people actually did review the source code.
+
+more-stub: parent t1_p1d8u3e count 0

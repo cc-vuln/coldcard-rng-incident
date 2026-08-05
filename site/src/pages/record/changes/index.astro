@@ -1,13 +1,40 @@
 ---
 import Article from '../../../layouts/Article.astro';
+import RecordSearch from '../../../components/RecordSearch.astro';
+import Timestamp from '../../../components/Timestamp.astro';
 import {
-  changeLog, tsToHuman, sourceById, diffText, parseDiff, displayTitle,
-  reviewForRevision, revisions, withholdsCapturedText,
+  changeLog, sourceById, diffText, parseDiff,
+  displayTitle, revisions, withholdsCapturedText, sources, snapshots, xPosts,
+  groupOf, xArtifacts, summary, withholdsCapturedMedia,
 } from '../../../lib/archive';
+import { xMedia } from '../../../lib/xmedia';
+
+/*
+ * The whole capture record as one chronological stream.
+ *
+ * This page absorbed the old /record/feed/: detected differences, first
+ * captures, registered X posts and the operational log interleave because to
+ * a reader they are the same kind of event, something entered the record on a
+ * date. The filter defaults to reviewed source changes, which is the view
+ * this page has always led with; everything else is one click away and stays
+ * in the DOM.
+ *
+ * Known trade-off: the merged page ships roughly 2.3 MB of HTML by design
+ * (every entry in the DOM, revealed progressively), consistent with the feed
+ * approach and the no-JS rule that everything stays visible.
+ *
+ * Everything the template needs is precomputed here. No conditionals or
+ * string escapes in the markup: .astro expression parsing is fussier than
+ * plain JSX, so the three entry shapes (full revision card, compact entry,
+ * operational row) share one structure and differ by which parts are hidden
+ * and by CSS classes computed below.
+ */
 
 const LABEL: Record<string, string> = {
   first: 'baseline',
   error: 'fetch error',
+  blocked: 'blocked',
+  skipped: 'skipped',
 };
 
 const REVIEW_LABEL: Record<string, string> = {
@@ -25,65 +52,61 @@ function publicErrorSummary(error: unknown): string {
   return detail ? 'Source check did not complete. Detailed diagnostics are retained privately.' : '';
 }
 
-// Everything the template needs, precomputed. No conditionals or string escapes
-// in the markup: .astro expression parsing is fussier than plain JSX.
-const events = changeLog().map((e) => {
-  const src = sourceById(e.id);
-  const review = e.event === 'changed' ? reviewForRevision(e.id, e.ts) : null;
-  const withholdDiff = withholdsCapturedText(src);
-  const raw = e.event === 'changed' && !withholdDiff ? diffText(e.id, e.ts) : null;
-  const parsed = raw
-    ? parseDiff(raw).filter((l) => l.kind === 'add' || l.kind === 'del').slice(0, 14)
-    : [];
-  return {
-    human: tsToHuman(e.ts),
-    id: e.id,
-    title: src ? displayTitle(src) : e.id,
-    // An unregistered id has no page: the index is append-only, so events
-    // outlive registry entries. Show the id, do not link it.
-    href: src ? '/record/sources/' + e.id + '/' : null,
-    cls: 'ch ch--' + (review?.status ?? e.event),
-    label: review ? REVIEW_LABEL[review.status] : LABEL[e.event] || e.event,
-    summary: review?.summary ?? publicErrorSummary(e.error),
-    reviewStatus: review?.status ?? '',
-    isChanged: e.event === 'changed',
-    added: e.added || 0,
-    removed: e.removed || 0,
-    org: src ? [src.org, src.kind].filter(Boolean).join(' / ') : '',
-    lines: parsed.map((l) => ({
-      cls: 'dl dl--' + l.kind,
-      text: (l.kind === 'add' ? '+' : '-') + l.text + '\n',
-    })),
-    hasLines: parsed.length > 0,
-  };
-});
+type Entry = {
+  iso: string;
+  kind: string;
+  group: string;
+  search: string;
+  cls: string;
+  href: string | null;
+  title: string;
+  label: string;
+  inherited: boolean;
+  baselineInherited: boolean;
+  showDelta: boolean;
+  added: number;
+  removed: number;
+  orgLine: string;
+  note: string;
+  imgSrc: string | undefined;
+  hasShot: boolean;
+  lines: { cls: string; text: string }[];
+  hasLines: boolean;
+};
 
-const differences = revisions().map((revision) => {
+const revList = revisions();
+
+// Detected differences: the archive's reason for existing, rendered as the
+// full card with review status, provenance marks and a bounded diff excerpt.
+const revisionEntries: Entry[] = revList.map((revision) => {
   const src = sourceById(revision.sourceId)!;
   const withholdDiff = withholdsCapturedText(src);
   const raw = withholdDiff ? null : diffText(revision.sourceId, revision.ts);
   const parsed = raw
     ? parseDiff(raw).filter((l) => l.kind === 'add' || l.kind === 'del').slice(0, 14)
     : [];
+  const status = revision.review.status;
   return {
-    human: tsToHuman(revision.ts),
-    id: revision.sourceId,
+    iso: revision.iso,
+    kind: status === 'source-content' || status === 'unreviewed' ? 'change' : 'collection',
+    group: groupOf(src),
+    search: `${revision.sourceId} ${src.org ?? ''}`,
+    cls: 'chev ch ch--' + status,
+    href: '/record/sources/' + revision.sourceId + '/',
     title: displayTitle(src),
-    href: sourceById(revision.sourceId)
-      ? '/record/sources/' + revision.sourceId + '/'
-      : null,
-    cls: 'ch ch--' + revision.review.status,
-    label: REVIEW_LABEL[revision.review.status],
-    summary: revision.review.summary,
-    reviewStatus: revision.review.status,
-    isChanged: true,
-    // Provenance is published in the JSON feeds but was invisible here, which
-    // let a Wayback-recovered state read as one this project caught live.
+    label: REVIEW_LABEL[status],
+    // Provenance is published in the JSON feeds and must stay visible here:
+    // on the later state when that state was inherited, and as a baseline
+    // note when the text being revised was the inherited one.
     inherited: revision.inherited,
     baselineInherited: revision.baselineInherited,
+    showDelta: true,
     added: revision.added,
     removed: revision.removed,
-    org: [src.org, src.kind].filter(Boolean).join(' / '),
+    orgLine: `${revision.sourceId} · ${[src.org, src.kind].filter(Boolean).join(' / ')}`,
+    note: revision.review.summary,
+    imgSrc: undefined,
+    hasShot: false,
     lines: parsed.map((l) => ({
       cls: 'dl dl--' + l.kind,
       text: (l.kind === 'add' ? '+' : '-') + l.text + '\n',
@@ -91,32 +114,178 @@ const differences = revisions().map((revision) => {
     hasLines: parsed.length > 0,
   };
 });
-const sourceChanges = differences.filter((e) =>
-  e.reviewStatus === 'source-content' || e.reviewStatus === 'unreviewed'
-);
-const collectionDifferences = differences.filter((e) =>
-  e.reviewStatus === 'capture-noise' || e.reviewStatus === 'capture-correction'
-);
-const operationalEvents = events.filter((e) => !e.isChanged);
-const unreviewed = differences.filter((e) => e.reviewStatus === 'unreviewed').length;
-const isEmpty = sourceChanges.length === 0;
-const inheritedCount = differences.filter((e) => e.inherited || e.baselineInherited).length;
+
+// First capture of each source: when it entered the record.
+const firstEntries: Entry[] = sources().flatMap((src) => {
+  const snaps = snapshots(src.id);
+  if (!snaps.length) return [];
+  const first = snaps[0];
+  return [{
+    iso: first.iso,
+    kind: 'first',
+    group: groupOf(src),
+    search: `${src.id} ${src.org ?? ''}`,
+    cls: 'chev ch ch--first',
+    href: '/record/sources/' + src.id + '/',
+    title: displayTitle(src),
+    label: 'entered the record',
+    inherited: false,
+    baselineInherited: false,
+    showDelta: false,
+    added: 0,
+    removed: 0,
+    orgLine: src.org ?? '',
+    note: summary(src.note?.trim().split('\n').join(' '), 25),
+    imgSrc: undefined,
+    hasShot: false,
+    lines: [],
+    hasLines: false,
+  }];
+});
+
+// Registered X posts, shown with the held screenshot where there is one.
+// Staging is a provenance check; withholding is the publication decision, and
+// both must pass before an image renders. No source withholds today.
+const postEntries: Entry[] = xPosts().map((post) => {
+  const shots = withholdsCapturedMedia(post) ? [] : xMedia(post.id);
+  const held = xArtifacts(post).length;
+  const shot = shots[0];
+  return {
+    iso: post.posted ?? '',
+    kind: 'post',
+    group: 'x',
+    search: `${post.id} @${post.author} ${post.org ?? ''}`,
+    cls: 'chev ch ch--post',
+    href: `/record/sources/${post.id}/`,
+    title: displayTitle(post),
+    label: held ? 'post captured' : 'post registered, capture pending',
+    inherited: false,
+    baselineInherited: false,
+    showDelta: false,
+    added: 0,
+    removed: 0,
+    orgLine: `@${post.author}${post.org ? ` · ${post.org}` : ''}`,
+    note: summary(post.why, 25),
+    imgSrc: shot?.src,
+    hasShot: Boolean(shot),
+    lines: [],
+    hasLines: false,
+  };
+});
+
+// Operational events: baselines, fetch errors, blocked and skipped polls.
+// `changed` log events are excluded because revisions() above already derives
+// every difference from the snapshots on disk, including Wayback recoveries
+// the poller logged as `first`.
+const opEntries: Entry[] = changeLog()
+  .filter((e) => e.event !== 'changed')
+  .map((e) => {
+    const src = sourceById(e.id);
+    return {
+      iso: e.iso,
+      kind: 'operational',
+      // An unregistered id has no group and no page: the index is
+      // append-only, so events outlive registry entries.
+      group: src ? groupOf(src) : '',
+      search: src ? `${e.id} ${src.org ?? ''}` : e.id,
+      cls: 'chev ch chev--op ch--' + e.event,
+      href: src ? '/record/sources/' + e.id + '/' : null,
+      title: src ? displayTitle(src) : e.id,
+      label: LABEL[e.event] || e.event,
+      inherited: false,
+      baselineInherited: false,
+      showDelta: false,
+      added: 0,
+      removed: 0,
+      orgLine: '',
+      note: publicErrorSummary(e.error),
+      imgSrc: undefined,
+      hasShot: false,
+      lines: [],
+      hasLines: false,
+    };
+  });
+
+const ordered = [...revisionEntries, ...firstEntries, ...postEntries, ...opEntries]
+  .filter((e) => e.iso)
+  .sort((a, b) => (a.iso < b.iso ? 1 : a.iso > b.iso ? -1 : 0));
+
+// Month grouping over the newest-first list, with the progressive-reveal flag
+// assigned by position in the whole stream rather than per month.
+const INITIAL = 24;
+type Month = { key: string; label: string; entries: (Entry & { beyond: boolean })[] };
+const months: Month[] = [];
+let pos = 0;
+for (const e of ordered) {
+  const key = e.iso.slice(0, 7);
+  let m = months[months.length - 1];
+  if (!m || m.key !== key) {
+    m = {
+      key,
+      label: new Date(`${key}-01T00:00:00Z`).toLocaleDateString('en-GB', {
+        month: 'long', year: 'numeric', timeZone: 'UTC',
+      }),
+      entries: [],
+    };
+    months.push(m);
+  }
+  m.entries.push({ ...e, beyond: pos >= INITIAL });
+  pos += 1;
+}
+
+const reviewedCount = revList.filter((r) => r.review.status === 'source-content').length;
+const unreviewed = revList.filter((r) => r.review.status === 'unreviewed').length;
+const collectionCount = revList.filter((r) =>
+  r.review.status === 'capture-noise' || r.review.status === 'capture-correction'
+).length;
+const inheritedCount = revList.filter((r) => r.inherited || r.baselineInherited).length;
+const isEmpty = reviewedCount + unreviewed === 0;
+
+const FACET_SETS = [
+  {
+    label: 'Show',
+    facets: [
+      { value: 'change', label: 'Source changes', matchAttr: 'data-kind', default: true },
+      { value: 'collection', label: 'Collection differences', matchAttr: 'data-kind' },
+      { value: 'first', label: 'First captures', matchAttr: 'data-kind' },
+      { value: 'post', label: 'X posts', matchAttr: 'data-kind' },
+      { value: 'operational', label: 'Operational log', matchAttr: 'data-kind' },
+    ],
+  },
+  {
+    label: 'Source',
+    facets: [
+      { value: 'community', label: 'Community' },
+      { value: 'vendor', label: 'Vendor' },
+      { value: 'reporting', label: 'Reporting' },
+      { value: 'research', label: 'Research' },
+      { value: 'analysis', label: 'Analysis' },
+      { value: 'repo', label: 'Repos' },
+      { value: 'monitor', label: 'Monitors' },
+      { value: 'firsthand', label: 'First-hand' },
+      { value: 'x', label: 'X posts' },
+    ],
+  },
+];
 ---
 
 <Article
   title="Source change record"
-  description="Reviewed source-content changes, preserved collection differences and operational capture events."
-  standfirst="Every difference the archive holds between two states of a tracked page, classified and dated."
+  description="Every capture, detected difference, registered post and operational event in the archive, in one chronological stream defaulting to the reviewed source changes."
+  standfirst="Everything that entered the record, in order: each difference the archive holds between two states of a tracked page, each first capture, each registered post, classified and dated."
   depth="plain"
-  kicker="Evidence / changes"
+  kicker="The record / changes"
 >
     <p>
-      Newest first. A reviewed <em>source-content</em> difference means the
-      relevant text served by the publisher changed between two captures. It
-      does not verify the new claim. Dynamic page chrome, collection-method
-      corrections, baselines and fetch errors remain preserved below without
-      being presented as editorial revisions. Chain-monitor diff bodies remain
-      local because they can contain victim addresses.
+      Newest first, one stream. The filter below defaults to the reviewed
+      <em>source-content</em> changes: a reviewed source-content difference
+      means the relevant text served by the publisher changed between two
+      captures. It does not verify the new claim. Collection differences
+      (dynamic page chrome and collection-method corrections), first captures,
+      registered posts and the operational log (baselines, fetch errors,
+      blocked and skipped checks) remain part of the record one click away.
+      Chain-monitor diff bodies remain local because they can contain victim
+      addresses.
     </p>
 
     <p>
@@ -125,7 +294,7 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
       carries an <strong>Internet Archive</strong> mark: on the later state when
       that state was inherited, and as a baseline note when the text being
       revised was the inherited one. As of 1 August 2026, {inheritedCount} of the
-      {differences.length} recorded differences carry one of those marks. This
+      {revList.length} recorded differences carry one of those marks. This
       keeps a recovered state from reading as a change this project caught live.
     </p>
 
@@ -138,108 +307,142 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
     </p>
 
     <div class="ch__stats">
-      <div><strong>{sourceChanges.length - unreviewed}</strong><span>reviewed source changes</span></div>
+      <div><strong>{reviewedCount}</strong><span>reviewed source changes</span></div>
       <div><strong>{unreviewed}</strong><span>awaiting review</span></div>
-      <div><strong>{collectionDifferences.length}</strong><span>collection differences</span></div>
-      <div><strong>{operationalEvents.length}</strong><span>baselines and errors</span></div>
+      <div><strong>{collectionCount}</strong><span>collection differences</span></div>
+      <div><strong>{opEntries.length}</strong><span>baselines and errors</span></div>
+    </div>
+
+    <div class="ch__search">
+      <RecordSearch
+        target=".chev"
+        section=".ch__month"
+        placeholder="Search the change record"
+        facetSets={FACET_SETS}
+      />
     </div>
 
     <p class="ch__empty" hidden={!isEmpty}>No source-content changes recorded yet.</p>
 
-    <ol class="ch__list">
-      {sourceChanges.map((e) => (
-        <li class={e.cls}>
-          <div class="ch__bar">
-            <span class="ch__ts">{e.human}</span>
-            {e.href
-              ? <a class="ch__id" href={e.href}>{e.title}</a>
-              : <span class="ch__id">{e.title}</span>}
-            <span class="pill">{e.label}</span>
-            <span class="pill pill--wayback" hidden={!e.inherited}>Internet Archive</span>
-            <span class="ch__delta" hidden={!e.isChanged}>
-              <span class="add">+{e.added}</span>
-              <span class="del">-{e.removed}</span>
-            </span>
-          </div>
-          <p class="ch__org">{e.id} · {e.org}</p>
-          <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
-          <p class="ch__summary">{e.summary}</p>
-          <pre class="ch__diff" hidden={!e.hasLines}><code>{e.lines.map((l) => (
-            <span class={l.cls}>{l.text}</span>
-          ))}</code></pre>
-        </li>
-      ))}
-    </ol>
+    {months.map((m) => (
+      <section class="ch__month">
+        <h2>{m.label}</h2>
+        <ol class="ch__list">
+          {m.entries.map((e) => (
+            <li
+              class={e.cls}
+              data-kind={e.kind}
+              data-group={e.group}
+              data-search={e.search}
+              data-beyond={e.beyond ? '' : undefined}
+              hidden={e.beyond}
+            >
+              <div class="ch__bar">
+                <Timestamp class="ch__ts" iso={e.iso} />
+                {e.href
+                  ? <a class="ch__id" href={e.href}>{e.title}</a>
+                  : <span class="ch__id">{e.title}</span>}
+                <span class="pill">{e.label}</span>
+                <span class="pill pill--wayback" hidden={!e.inherited}>Internet Archive</span>
+                <span class="ch__delta" hidden={!e.showDelta}>
+                  <span class="add">+{e.added}</span>
+                  <span class="del">-{e.removed}</span>
+                </span>
+              </div>
+              <div class="ch__shot" hidden={!e.hasShot}>
+                <img src={e.imgSrc} alt={`Captured screenshot: ${e.title}`} loading="lazy" />
+              </div>
+              <p class="ch__org" hidden={!e.orgLine}>{e.orgLine}</p>
+              <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
+              <p class="ch__summary" hidden={!e.note}>{e.note}</p>
+              <pre class="ch__diff" hidden={!e.hasLines}><code>{e.lines.map((l) => (
+                <span class={l.cls}>{l.text}</span>
+              ))}</code></pre>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
 
-    <details class="ch__section" open={collectionDifferences.length > 0}>
-      <summary>Preserved collection differences <span>{collectionDifferences.length}</span></summary>
-      <p>
-        These diffs remain part of the record, but review found that they came
-        from dynamic page chrome or a collection-method correction rather than
-        a relevant edit by the publisher.
-      </p>
-      <p class="ch__empty" hidden={collectionDifferences.length > 0}>
-        No collection differences are recorded. Every detected difference so far
-        was reviewed as a change in the source content itself.
-      </p>
-      <ol class="ch__list ch__list--nested">
-        {collectionDifferences.map((e) => (
-          <li class={e.cls}>
-            <div class="ch__bar">
-              <span class="ch__ts">{e.human}</span>
-              {e.href
-              ? <a class="ch__id" href={e.href}>{e.title}</a>
-              : <span class="ch__id">{e.title}</span>}
-              <span class="pill">{e.label}</span>
-              <span class="pill pill--wayback" hidden={!e.inherited}>Internet Archive</span>
-              <span class="ch__delta">
-                <span class="add">+{e.added}</span>
-                <span class="del">-{e.removed}</span>
-              </span>
-            </div>
-            <p class="ch__org">{e.id} · {e.org}</p>
-            <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
-            <p class="ch__summary">{e.summary}</p>
-          </li>
-        ))}
-      </ol>
-    </details>
+    <div class="ch__more">
+      <button class="ch__btn" type="button">Show more</button>
+      <p class="ch__status" role="status" aria-live="polite"></p>
+    </div>
 
-    <details class="ch__section">
-      <summary>Collection baselines and fetch errors <span>{operationalEvents.length}</span></summary>
-      <p>
-        Baselines establish the first copy held. Fetch errors describe this
-        project's collection attempt, not a change at the source.
-      </p>
-      <p class="ch__empty" hidden={operationalEvents.length > 0}>
-        No baselines or fetch errors are recorded in the capture log yet.
-      </p>
-      <ol class="ch__ops">
-        {operationalEvents.map((e) => (
-          <li>
-            <span class="ch__ts">{e.human}</span>
-            {e.href
-              ? <a class="ch__id" href={e.href}>{e.title}</a>
-              : <span class="ch__id">{e.title}</span>}
-            <span class="pill">{e.label}</span>
-            <span class="ch__opnote">{e.summary}</span>
-          </li>
-        ))}
-      </ol>
-    </details>
+    <noscript>
+      <style is:inline>
+        /* Progressive reveal is the enhancement, not the content: with no
+           script the whole stream stays visible and the reveal control goes. */
+        .chev[hidden] { display: block; }
+        .ch__more { display: none; }
+      </style>
+    </noscript>
 
     <p class="ch__foot">
       Back to <a href="/record/">the evidence index</a>, or read the same
       differences as structured data in
       <a href="/record/changes.json">the JSON change feed</a>.
     </p>
+
+  <script>
+    // Progressive reveal. Everything is already in the DOM, so this only flips
+    // `hidden`: with JavaScript off the whole stream is visible instead of
+    // empty, which is the right failure for an archive.
+    const STEP = 24;
+    const items = [...document.querySelectorAll('.chev')];
+    const btn = document.querySelector('.ch__btn');
+    const status = document.querySelector('.ch__status');
+    const wrap = document.querySelector('.ch__more');
+    // Declared by the search component when present; harmless standalone.
+    const show = window.applyVisibility || ((el) => {
+      el.hidden = el.hasAttribute('data-nomatch') || el.hasAttribute('data-beyond');
+    });
+
+    function update() {
+      // Check the flag as well as the event: the default facet means the page
+      // can load already filtered, before this listener was registered.
+      const filtering = document.documentElement.hasAttribute('data-filtering');
+      const unrevealed = items.filter((el) => el.hasAttribute('data-beyond')).length;
+      wrap.hidden = filtering || unrevealed === 0;
+      status.textContent = unrevealed === 0
+        ? `all ${items.length} entries shown`
+        : `${items.length - unrevealed} of ${items.length} shown`;
+    }
+    function more() {
+      let n = 0;
+      for (const el of items) {
+        if (n >= STEP) break;
+        if (el.hasAttribute('data-beyond')) {
+          el.removeAttribute('data-beyond');
+          show(el);
+          n += 1;
+        }
+      }
+      update();
+    }
+    btn.addEventListener('click', more);
+    // While a filter is active every match is already shown, so the reveal
+    // control would be meaningless; it returns when the filter is cleared.
+    document.addEventListener('rs:filter', (e) => {
+      if (e.detail && e.detail.filtering) wrap.hidden = true;
+      else update();
+    });
+    // Infinite scroll: reveal as the end of the list comes into view, with the
+    // button kept as the accessible and no-observer fallback.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        if (entries.some((en) => en.isIntersecting)) more();
+      }, { rootMargin: '400px' }).observe(wrap);
+    }
+    update();
+  </script>
 </Article>
 
 <style>
   /* These blocks are wider than the reading measure by design: a change entry
      carries a timestamp, a title, pills and a diff on one line. The Article
      layout already grants that escape to tables and figures. */
-  .ch__stats, .ch__list, .ch__section {
+  .ch__stats, .ch__search, .ch__month, .ch__more {
     width: 100cqi;
     max-width: none;
   }
@@ -250,8 +453,13 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
   .ch__empty { color: var(--ink-3); margin-top: 2rem; }
   .ch__empty[hidden] { display: none; }
 
+  .ch__month { margin-top: 2.4rem; }
+  .ch__month h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; }
+  .ch__month .ch__list { margin-top: 1rem; }
+
   .ch__list { list-style: none; padding: 0; margin-top: 2rem; display: grid; gap: .9rem; }
   .ch {
+    min-width: 0;
     background: var(--surface);
     border: 1px solid var(--rule);
     border-left: 3px solid var(--rule-2);
@@ -262,7 +470,9 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
   .ch--unreviewed { border-left-color: var(--warn); }
   .ch--capture-noise, .ch--capture-correction { border-left-color: var(--rule-2); }
   .ch--first { border-left-color: var(--safe); }
-  .ch--error { border-left-color: var(--danger); }
+  .ch--post { border-left-color: var(--accent); }
+  .ch--error, .ch--blocked { border-left-color: var(--danger); }
+  .ch--skipped { border-left-color: var(--rule-2); }
 
   .ch__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
   .ch__ts { font-family: var(--font-mono); font-size: .78rem; color: var(--ink-3); }
@@ -279,8 +489,14 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
   }
   .pill--wayback[hidden] { display: none; }
 
+  .ch__shot {
+    margin-top: .6rem; border: 1px solid var(--rule); border-radius: var(--radius);
+    overflow: hidden; max-height: 260px; background: var(--surface-2);
+  }
+  .ch__shot img { display: block; width: 100%; height: auto; }
+
   .ch__org { font-size: .76rem; color: var(--ink-3); margin-top: .3rem; }
-  .ch__org:empty { display: none; }
+  .ch__org[hidden] { display: none; }
   .ch__prov {
     font-family: var(--font-mono); font-size: .68rem;
     letter-spacing: .04em; color: var(--ink-3); margin-top: .3rem;
@@ -288,6 +504,7 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
   .ch__prov[hidden] { display: none; }
   .ch__foot { margin-top: 2.4rem; font-size: .86rem; color: var(--ink-3); }
   .ch__summary { font-size: .88rem; line-height: 1.55; color: var(--ink-2); margin-top: .45rem; max-width: 76ch; }
+  .ch__summary[hidden] { display: none; }
 
   .ch__diff {
     background: var(--sunken);
@@ -308,16 +525,39 @@ const inheritedCount = differences.filter((e) => e.inherited || e.baselineInheri
   .dl--add { background: var(--add-bg); color: var(--add); }
   .dl--del { background: var(--del-bg); color: var(--del); }
 
-  .ch__section { margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
-  .ch__section > summary { cursor: pointer; font-family: var(--font-display); font-size: 1.25rem; }
-  .ch__section > summary span { font-family: var(--font-mono); color: var(--ink-3); font-size: .78rem; margin-left: .4rem; }
-  .ch__section > p { color: var(--ink-3); font-size: .84rem; line-height: 1.6; max-width: 70ch; margin-top: .55rem; }
-  .ch__list--nested { margin-top: 1rem; }
-  .ch__ops { list-style: none; padding: 0; margin-top: 1rem; border-top: 1px solid var(--rule); }
-  .ch__ops li { display: grid; grid-template-columns: 20ch minmax(16ch,1fr) 11ch minmax(0,1.6fr); gap: .8rem; align-items: baseline; padding: .65rem .2rem; border-bottom: 1px solid var(--rule); }
-  .ch__opnote { color: var(--danger); font-size: .76rem; }
-  .ch__opnote:empty { display: none; }
+  /* Operational entries are compact rows, not cards. The bar's children join
+     the row grid directly (display: contents), and the note takes the last
+     column. */
+  .chev--op {
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    border-radius: 0;
+    padding: .65rem .2rem;
+    display: grid;
+    grid-template-columns: 20ch minmax(16ch,1fr) 11ch minmax(0,1.6fr);
+    gap: .8rem;
+    align-items: baseline;
+  }
+  .chev--op[hidden] { display: none; }
+  .chev--op .ch__bar { display: contents; }
+  .chev--op .ch__summary {
+    margin-top: 0; font-size: .76rem; color: var(--danger); max-width: none;
+  }
   @media (max-width: 720px) {
-    .ch__ops li { grid-template-columns: 1fr; gap: .25rem; }
+    .chev--op { grid-template-columns: 1fr; gap: .25rem; }
+  }
+
+  .ch__more { text-align: center; margin-top: 1.5rem; }
+  .ch__btn {
+    font: inherit; font-size: .85rem;
+    padding: .5rem 1.1rem;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  .ch__btn:hover { border-color: var(--accent); color: var(--accent); }
+  .ch__status {
+    font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3);
+    letter-spacing: .06em; text-transform: uppercase; margin-top: .5rem;
   }
 </style>

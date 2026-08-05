@@ -1,0 +1,24 @@
+url:      https://x.com/fatmanterra/status/2084791442212339942
+author:   FatMan
+handle:   @FatManTerra
+posted:   2026-08-04T23:59:48.000Z (from the page's <time> element)
+captured: 20260805T034620Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HO5vXuAXMAEVeZD?format=jpg&name=small (680 x 463 pixels)
+
+--- post text (verbatim) ---
+
+I don't like Coldcard either, but NVK didn't orchestrate this.
+
+For an inside job, you'd want to use a firmware RNG (like Dual EC DRBG where the NSA backdoored their RNG while shilling it as safe), or more generally, have the device generate the entropy in a way that only the attacker knows (rather than the general public knowing how to crack it, with the code being fully open)
+
+In this case the RNG was just broken (and publicly so), not actually backdoored
+
+If I'm a malicious HWW maker, I'd do something like the device comes (silently) pre-initialised with a seed, and the first time you generate a seed, it always uses the first seed (and then later it generates a new one), and you just make it look like a bug. As the attacker, you'd know how all the pre-init seeds are, and if someone finds it (highly unlikely) you just claim it's a bug
+
+Bear in mind that even with open source stuff like CC, you can have the bug in preinstalled firmware (the never used state straight out of the factory), and the subsequent firmware doesn't have it, so the bug would never even need to enter the open source firmware. I'd just have that in the firmware that's flashed onto the device, and come up with some legit justification that there's a different firmware that's flashed at the factory. Free backdoor, 100% plausible deniability, and extremely hard for anyone to find out. There's no practical way to export the firmware that's preloaded on the device.
+
+Or if you were going to mess up the entropy like Coldcard actually did (but intentionally, as a backdoor), you'd use way more entropy, so that it's theoretically exploitable but super hard to exploit. And then as your retirement plan you'd have a huge GPU cluster to crack them. As opposed to being able to crack them in twenty minutes like what happened here.
+
+So yeah, can confirm this was not an inside job, the inside job narrative logically makes no sense. It's really just a (bad) coincidence that NVK kept talking about retirement attacks; this wasn't one of them.

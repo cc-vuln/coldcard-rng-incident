@@ -9,7 +9,12 @@ import Answer from '../../components/Answer.astro';
   description="What Coinkite said about AI, the pre-incident and post-publication prompt attempts now on record, and why the original discovery method remains unknown."
   standfirst="AI-assisted reproduction is reported. Whether AI found the bug in the first place is disputed: Coinkite says it has to assume someone used AI on its firmware, while a pre-incident audit prompt that missed the defect and a worked human route to the same code are also on record. This page sets out who says what."
   depth="plain"
-  kicker="The response"
+  kicker="Responses"
+  next={{
+    href: '/response/disclosure-history/',
+    label: 'Disclosure history',
+    note: 'The vendor chronology read alongside accounts that do not fully agree with it.',
+  }}
 >
   <Answer>
     <p>
@@ -62,6 +67,55 @@ import Answer from '../../components/Answer.astro';
     />
     That is an attributed security position, not evidence
     about how this defect was originally found.
+  </p>
+
+  <h2>What the post-incident tests do and do not show</h2>
+
+  <p>
+    In its 4 August public-record update, Coinkite said that an internal review
+    before the incident and additional tests with frontier models after the
+    incident did not catch the defect.
+    <Claim
+      basis="reported"
+      contested
+      scope="Coinkite's account of its pre-incident and post-incident AI review results"
+      source="COLDCARD's captured 4 August public-record update; the post names Kimi K3, Claude Fable and Codex 5.6 but publishes no prompts, transcripts or evaluation protocol"
+      href="/record/sources/coldcardwallet-2084731768632991801/"
+      compact
+    />
+    That evidence cuts against treating public source plus frontier-model access
+    as sufficient by itself, but it does not show what a differently scoped or
+    tool-assisted review would find.
+  </p>
+
+  <p>
+    Rob Hamilton separately reported that an incident-funded red team spent
+    about US$20,000 scanning 150 repositories and produced more than a dozen
+    private disclosures with critical findings.
+    <Claim
+      basis="reported"
+      scope="Hamilton's stated spend, repository count and disclosure count"
+      source="Rob Hamilton's captured 4 August post; no itemised finding list, prompts or disclosure acknowledgements are public in the held record"
+      href="/record/sources/rob1ham-2084523368783438198/"
+      compact
+    />
+    Those figures describe a reported defensive campaign, not evidence about
+    the original finder or the theft operator.
+  </p>
+
+  <p>
+    Julián Ors supplied the corresponding false-positive warning: finding an
+    insecure generator in source is not enough without showing that the path was
+    reachable in shipped firmware and reconstructing the relevant release
+    history.
+    <Claim
+      basis="reported"
+      scope="Ors's methodological warning about reachability and historical shipped code"
+      source="Julián Ors, captured primary X post"
+      href="/record/sources/julianor-2084332016321863862/"
+      compact
+    />
+    That is a review criterion, not a finding about any particular scanner.
   </p>
 
   <h2>Early hypotheses about the operator</h2>
@@ -245,6 +299,16 @@ import Answer from '../../components/Answer.astro';
             <td class="wide">The same original prompt also fails on a current frontier model.</td>
             <td class="nw"><span class="status status--info">Reported</span></td>
             <td class="wide">The first data point of LLFOURN's reproduction thread, 3 August: Claude Opus 5 at the highest reasoning-effort setting did not find the bug from the original prompt.</td>
+          </tr>
+          <tr>
+            <td class="wide">Coinkite's additional post-incident frontier-model tests did not catch the defect.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Coinkite's 4 August account names Kimi K3, Claude Fable and Codex 5.6, but does not publish the prompts, transcripts or evaluation protocol.</td>
+          </tr>
+          <tr>
+            <td class="wide">An incident-funded red team found critical issues across a 150-repository scan.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Rob Hamilton's 4 August account of the campaign. The held record does not include an itemised public finding list or disclosure acknowledgements.</td>
           </tr>
           <tr>
             <td class="wide">AI originally found the defect.</td>

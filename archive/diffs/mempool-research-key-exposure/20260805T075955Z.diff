@@ -1,0 +1,18 @@
+--- mempool-research-key-exposure@20260805T022423Z
++++ mempool-research-key-exposure@20260805T075955Z
+@@ -1,4 +1,5 @@
+ Coldcard Key Exposure
++An analysis of the ongoing Coldcard key exposure with details for how to manage migration, and when to use private broadcast.
+ orangesurf
+ 05 Aug 2026
+ • 7 min read
+@@ -59,8 +60,8 @@
+ 1.4 - single sig Mk4 / Mk5 / Q with weak passphrase or small number of dice rolls
+ Real world data:
+ July 30, ~01:10 UTC: The first wave of thefts from single sig Mk3 no passphrase [source]
+-Aug 1, 2026. A reported theft from a single-signature Mk4 with no passphrase [source]
+ Aug 2, 2026, ~04:00 UTC A reported theft from a single-signature Mk3 with a weak two-word passphrase. [source]
++Aug 4, 2026. A reported theft from a single-signature Mk4 with no passphrase [source]
+ Phase 2 - Multisig via address/key reuse
+ Description:
+ The attacker scans for unspent outputs which are known multisigs which have addresses that have previously been spent from. They then search the redeem script / witness script for matches against indexed weak public keys. For each output they find where the threshold can be met by the compromised keys, they construct a transaction stealing the funds.

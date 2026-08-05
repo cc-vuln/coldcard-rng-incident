@@ -22,11 +22,9 @@ let contestedCount = 0;
 
 const markerExemptPages = new Set([
   '404.astro',
-  'affected/index.astro',
   'about.astro',
   'record/changes/index.astro',
   'record/index.astro',
-  'record/feed.astro',
   'record/sources/[id].astro',
 ]);
 

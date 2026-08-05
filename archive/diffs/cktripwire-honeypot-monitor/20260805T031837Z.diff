@@ -1,0 +1,37 @@
+--- cktripwire-honeypot-monitor@20260805T022425Z
++++ cktripwire-honeypot-monitor@20260805T031837Z
+@@ -2,10 +2,8 @@
+ last update <relative-time>
+ methodology
+ admin
+-Own a Coldcard? Treat any wallet created on firmware 4.x as compromised and move
+-your funds to a freshly generated wallet now. Background and updates:
+-from
+-@Rob1Ham
++Own a Coldcard? Treat any wallet created without additional entropy as compromised and move
++your funds to a safe place now.
+ What is this?
+ Coldcard hardware wallets generated wallet seeds with a
+ broken random-number generator: a predictable software pseudo-RNG instead of true
+@@ -154,10 +152,15 @@
+ mid16–30 bits6–11 dice rolls, or a 2-word passphrase
+ high31–45 bits12–17 dice rolls, or a 3–4 word passphrase
+ extreme>45 bits18+ dice rolls, or a 5+ word passphrase
+-A note on timing. This RNG flaw was almost certainly known to attackers well
+-before these honeypots went live, so the sweep times shown here reflect our own
+-observation window — not how quickly the first affected coins were taken. The
+-earliest real batches may have been swept long before we began measuring. By the same
+-token, an older honeypot that is still live is not necessarily “safe”: it
+-may simply be a lower-priority target the attackers are still working through.
++A note on timing. Just because a particular honeypot here hasn't been taken
++yet doesn't mean its entropy class is safe. We don't know long this attack has been going on, but it
++started well before our
++honeypots existed. The thousands of coins already taken were ground
++down over more than a few days, likely much longer than ours have been live.
++So read “still live” as not taken yet, nothing more: a honeypot
++surviving for weeks says little about the safety of its entropy class (in
++terms of older coins real people are still holding) because the
++attackers have had a chance to grind those coins for far longer than any of ours have
++existed.
+ auto-refresh 60s - coarse public view: no addresses, no exact values, no keys
++made by @jamesob

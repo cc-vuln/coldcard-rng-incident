@@ -175,29 +175,41 @@ def gen_x_banner(path, w=1500, h=500):
 
 
 def gen_profile(path, size=512):
-    img = Image.new("RGB", (size, size), PAPER)
+    """Avatar. Drawn for a circular crop, and with no text.
+
+    GitHub and X both mask a profile picture to a circle, so the square
+    double rule the other assets use loses its four corners and renders as
+    arc-truncated segments. The frame here is concentric circles instead,
+    which the mask follows rather than cuts.
+
+    The wordmark is gone for the same class of reason: an avatar is read at
+    20 to 40px in a comment thread, where 30px type in a 512px canvas
+    resolves to two pixels. The mark carries the identity at that size and
+    matches the favicon, which is the same shape.
+
+    Supersampled 4x and downscaled, because Pillow does not antialias an
+    ellipse outline and a jagged ring is visible at profile size.
+    """
+    ss = 4
+    n = size * ss
+    img = Image.new("RGB", (n, n), PAPER)
     d = ImageDraw.Draw(img)
-    frame(d, size, size, 26)
 
-    # Centered ochre mark with serif C
-    m = 150
-    cx = (size - m) // 2
-    cy = int(size * 0.30)
-    d.rounded_rectangle([cx, cy, cx + m, cy + m], radius=34, fill=ACCENT)
-    f_c = serif(110)
-    d.text((size / 2, cy + m / 2 + 2), "C", font=f_c, fill=PAPER, anchor="mm")
+    # Double rule as concentric circles, thick then thin, matching frame()
+    outer, gap = int(14 * ss), int(12 * ss)
+    d.ellipse([outer, outer, n - outer, n - outer], outline=INK, width=6 * ss)
+    inner = outer + gap
+    d.ellipse([inner, inner, n - inner, n - inner], outline=INK, width=2 * ss)
 
-    f_word = mono(30, medium=True)
-    tw = d.textlength(COPY["wordmark"], font=f_word)
-    d.text(((size - tw) / 2, cy + m + 56), COPY["wordmark"], font=f_word,
-           fill=INK)
+    # Centred ochre mark with serif C, sized to sit inside the ring
+    m = int(n * 0.46)
+    o = (n - m) // 2
+    d.rounded_rectangle([o, o, o + m, o + m], radius=int(m * 0.22), fill=ACCENT)
+    f_c = serif(int(m * 0.74))
+    d.text((n / 2, n / 2 + int(m * 0.02)), "C", font=f_c, fill=PAPER,
+           anchor="mm")
 
-    f_tag = mono(17)
-    tag = "THE PUBLIC RECORD, IN THE OPEN"
-    tw = d.textlength(tag, font=f_tag)
-    d.text(((size - tw) / 2, cy + m + 110), tag, font=f_tag, fill=MUTED)
-
-    img.save(path, optimize=True)
+    img.resize((size, size), Image.LANCZOS).save(path, optimize=True)
 
 
 FAVICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

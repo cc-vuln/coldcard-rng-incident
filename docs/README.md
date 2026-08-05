@@ -33,9 +33,11 @@ Future-facing technical designs and implementation rationale.
   source discovery and X account watching
 - [`design/reddit-json-capture.md`](design/reddit-json-capture.md): replacing
   rendered-page reddit captures with structured thread JSON
+- [`design/record-first-focus.md`](design/record-first-focus.md): narrowing
+  the site to the public record, the retained material and the completed route
+  refit
 - [`design/site-information-architecture.md`](design/site-information-architecture.md):
-  reader-intent navigation, progressive disclosure and incident-age design for
-  the site
+  current record-first navigation, route ownership and progressive disclosure
 
 ## Research
 
@@ -51,7 +53,7 @@ claims.
 
 - [`reviews/slipstream-confirmation-window-2026-08-01.md`](reviews/slipstream-confirmation-window-2026-08-01.md):
   preserve the observed MARA Pool share and mean-block-interval calculation used
-  on the migration page (now `/risk/moving-funds/`)
+  on the migration record (now `/response/migration/`)
 - [`reviews/mk3-synthetic-test-vector-2026-08-01.md`](reviews/mk3-synthetic-test-vector-2026-08-01.md):
   fix and independently verify one synthetic Mk3 RNG-to-xpub path
 - [`reviews/funds-accounting-2026-08-01.md`](reviews/funds-accounting-2026-08-01.md):

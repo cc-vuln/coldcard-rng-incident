@@ -10,9 +10,6 @@ import manifest from '../data/x-media.json';
 export interface XMediaFile {
   src: string;
   name: string;
-  bytes: number;
-  sha256: string;
-  archivePath: string;
 }
 
 const byPost = manifest as Record<string, XMediaFile[]>;

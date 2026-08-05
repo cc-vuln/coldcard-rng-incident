@@ -1,0 +1,318 @@
+post: 1vdrbxo
+author: ardevd
+created_utc: 1785699425
+title: If your Coldcard isn't in the trash already, read this
+body:
+Under all the fluff of a cyberpunk hardware wallet was a shaky complex codebase backed by shoddy and lazy development practices.
+
+comment: p1bh80c
+parent: t3_1vdrbxo
+author: froch_
+created_utc: 1785701798
+edited: false
+body:
+I think that might be the best validation that there is no other bug in the code. Hundreds of researchers and developers looked at it, scanned it with LLMs in the last 2 days.   
+My 2 cents but I think it’s fine 
+
+comment: p1bhcww
+parent: t3_1vdrbxo
+author: Silent_Ad_9963
+created_utc: 1785701835
+edited: false
+body:
+What I find interesting is that we are behaving like they , coinkite, kept all of this hidden and secret and the vulnerability brought these dark secrets to the surface.
+
+Reality is that all of this , the vulnerability as well as the bad development practices were all under the sun ... Where was the scrutiny over the last 5 years ? 
+
+Not trying to take blame away from them. They are 100% to blame in this ... But the community did not protect itself, which is why all this "let's all move to XYZ" cause they are doing it right is very scary ... Is a ticking bomb for the same to happen again.
+
+What we need is community involvement into scrutiny of the code and the practices 
+
+comment: p1bhof3
+parent: t1_p1bhcww
+author: ardevd
+created_utc: 1785701924
+edited: false
+body:
+I agree. Its astonishing the bug wasn't discovered ages ago and made public. It was staring us all in the face for years. 
+
+comment: p1bmg0f
+parent: t3_1vdrbxo
+author: ExplorerBoring9848
+created_utc: 1785703269
+edited: false
+body:
+Yeah, I feel really sorry for the people that have been swiped with their funds, but at the end of the day, all the bitcoin bros are saying, "Oh, you gotta do your own due diligence and review the code." Well, wasn't code there to be reviewed. Yes, you couldn't copy it and use it, but it was readable, so why didn't these people do that? That's the question I like to ask. 
+
+comment: p1bsqav
+parent: t1_p1bmg0f
+author: didnt_hodl
+created_utc: 1785705082
+edited: false
+body:
+all code will have bugs. much bigger problem is that the final product, the seed generator, was not properly tested. forget about properly, not tested at all, period. with just 32 bits of entropy any half assed dumbest possible test would have discovered the problem immediately
+
+that's why I cannot trust that company. it's just mind boggling they were shipping an untested seed generator for years. like seriously bro
+
+comment: p1cjm6w
+parent: t1_p1bhcww
+author: circuit_breaker
+created_utc: 1785713356
+edited: false
+body:
+There are reports of this happening in 2024 that they basically ignored
+
+comment: p1cknr1
+parent: t1_p1cjm6w
+author: jmeador42
+created_utc: 1785713698
+edited: false
+body:
+Link? 
+
+comment: p1cl1b6
+parent: t1_p1cknr1
+author: circuit_breaker
+created_utc: 1785713823
+edited: false
+body:
+https://x.com/TheBTCTherapist/status/2083916626051715528
+
+comment: p1cl33r
+parent: t1_p1bhcww
+author: PoeCollector
+created_utc: 1785713839
+edited: false
+body:
+Agreed. Because the source code has been public on github for years, we all thought, "well, I'm not a cryptography or security expert, but I'm sure plenty of experts out there have scrutinized the code." For me this has shattered that illusion, and that to me is what makes this a nasty blow to the self-custody movement as a whole.
+
+comment: p1cx5vo
+parent: t1_p1bmg0f
+author: F1shB0wl816
+created_utc: 1785717860
+edited: false
+body:
+Probably because everybody’s expecting everyone else to read it and lead them. 
+
+comment: p1d0hbh
+parent: t1_p1bh80c
+author: Ok-Information-2428
+created_utc: 1785718980
+edited: false
+body:
+Sadly this is how it goes. Open source is only better in that it’s easier to find flaws, it doesn’t mean there won’t be flaws only that they get identified and rectified easier
+
+comment: p1d7t35
+parent: t1_p1cl33r
+author: AcrobaticPrinciple21
+created_utc: 1785721518
+edited: false
+body:
+Bystander effect
+
+comment: p1d8kwq
+parent: t3_1vdrbxo
+author: No-Aardvark-3840
+created_utc: 1785721790
+edited: false
+body:
+Coldcard gave me a cold cock. I only lost $10 though 😂 forgot to transfer it last month. I’m still down a shit ton from BTC Ath though. So in the red still. 
+
+comment: p1dh54u
+parent: t3_1vdrbxo
+author: themindspeaks
+created_utc: 1785724863
+edited: false
+body:
+controversial opinion but, its a great device thats overall great philosophy of design with a catastrophic failure at the most critical point. Now that the cat is out of the bag, and every single researcher across all crypto security firm has looked at it, its probably fine now.
+
+I totally get not wanting to use it, i wouldnt if i had lost funds.. 
+
+comment: p1ebx8s
+parent: t1_p1cl33r
+author: Yodel_And_Hodl_Mode
+created_utc: 1785738259
+edited: false
+body:
+That's the difference between "Source Viewable" and Open Source.
+
+ColdCard's code was not open source. It was only "Source Viewable."
+
+With open source code, there is incentive for other devs to work with the code, which leads to more devs reading and actually using the code. That leads to bugs being found.
+
+But NVK thought he was being clever. He published the code but removed any incentive to read it. Thus, most never did.
+
+But even for those who did read it... reading it isn't the same as using it. When you use code, you find errors when things don't behave as you expect.
+
+I firmly believe this bug would have been found in 2021 if ColdCard had kept their code open source. After all, Foundation Passport was using ColdCard's code before this bug was introduced. If ColdCard would have allowed them to keep using ColdCard's code, odds are, they'd have noticed the change and contacted Coinkite with a fix.
+
+Three pieces of irony:
+
+1. Coinkite changed ColdCard's code from being open source to only being "Source Viewable" to block companies like Foundation from using their code.
+
+2. Foundation Passport doesn't contain this error. ColdCard does, and has for five and a half years.
+
+3. ColdCard began by using Trezor's code. Trezor's code is still open source, but not ColdCard's.
+
+Make no mistake. Rodolfo Novak's hubris and greed caused this catastrophe. He needs to resign.
+
+comment: p1edqo3
+parent: t1_p1ebx8s
+author: Silent_Ad_9963
+created_utc: 1785739166
+edited: false
+body:
+I am not convinced by this story. While the whole Oss Vs source available narrative make sense from a philosophical point of view here the economic incentive must still make motivate the community to keep an eye on the code.
+
+Everything is available , especially this new judgement ( correct judgement ) on the development practices. 
+
+Again , 100% of the blame on them but we had 5 years of opportunity to notice those problems that now everyone is pointing at ... And we did not. Too easy now 
+
+comment: p1ef41j
+parent: t1_p1edqo3
+author: Yodel_And_Hodl_Mode
+created_utc: 1785739850
+edited: false
+body:
+> the economic incentive must still make motivate the community to keep an eye on the code.
+
+That's right. You don't realize it, but you perfectly proved my point.
+
+By making ColdCard's code "Source Viewable" instead of Open Source, Coinkite remove the economic incentive for other devs to keep an eye on the code.
+
+And quite frankly, "keeping an eye on the code" isn't enough. Devs need to work with the code in their own projects so they can see chunks of the code in use outside of the original finished product.
+
+Download any finished thing. It looks right.
+
+Try to repurpose it for your own use. "Hang on. When I change this, *that* breaks. Why?" Problems get found.
+
+> Again , 100% of the blame on them but we had 5 years of opportunity to notice those problems
+
+By reading. Not by using. The difference matters.
+
+comment: p1efw81
+parent: t1_p1ebx8s
+author: PoeCollector
+created_utc: 1785740240
+edited: false
+body:
+It's worse than that; the bug was introduced directly because of the license switch away from FOSS, which required different libraries. The bug would have never been written in the first place if they stayed on the open source track.
+
+Even so, I have less faith in open source as a guarantee of security than I did before this. Securing your own funds, which amounted to millions for some people, is a decent incentive to scrutinize the source-available RNG code, but no one did. I can't say for sure that people would have found this bug if the codebase was in wider use.
+
+This reminds me of the Heartbleed security bug in OpenSSL a decade ago. To your point, yes, the bug was discovered by Google's security team instead of the original devs, but only after the bug was live on half a million websites for 2 years, facilitating numerous cyber crimes during that time.
+
+comment: p1ehd0k
+parent: t1_p1bmg0f
+author: scrandlle
+created_utc: 1785740967
+edited: false
+body:
+Yep. And if every 'expert' who reccomended it donated 0.01BTC to a recovery fund everyone could be paid back multiple times over. 
+
+comment: p1ei8ff
+parent: t1_p1efw81
+author: Yodel_And_Hodl_Mode
+created_utc: 1785741400
+edited: false
+body:
+> I have less faith in open source as a guarantee of security than I did before this.
+
+Bitcoin is open source. Never trust your Bitcoin to code that isn't.
+
+Ledger is proof of why open source matters. Their key extraction API is closed source, and the only ones working on finding issues with it are Ledger (we hope?) and hackers.
+
+You're out of your mind if you don't think hackers are working 24/7 to crack that thing. It's closed source, so the good guys can't help until it's too late.
+
+> This reminds me of the Heartbleed security bug in OpenSSL a decade ago. To your point, yes, the bug was discovered by Google's security team instead of the original devs, but only after the bug was live on half a million websites for 2 years, facilitating numerous cyber crimes during that time.
+
+Without an outside group of devs, how much longer would it have taken to find it? How much more damage would have been done?
+
+You just proved my point.
+
+comment: p1eookr
+parent: t1_p1d0hbh
+author: JumpProfessional3372
+created_utc: 1785744683
+edited: false
+body:
+correct and i guess "source verifiable" under the radar of many people due to this mess > "open source" that just a few interested parts are looking at.
+
+comment: p1erza4
+parent: t3_1vdrbxo
+author: WetForTeddy
+created_utc: 1785746375
+edited: false
+body:
+I don't understand the heavy tones in the article.  It is just bitcoin, not healthcare.  It reads like lives are at stake when really, it is just bitcoin wallet toys people play with.  Oh no, my Call Of Duty game crashed
+
+comment: p1f2mlx
+parent: t3_1vdrbxo
+author: Hot-Door-9515
+created_utc: 1785751649
+edited: false
+body:
+Agree, all commitments on github have very poor quality. Zero explanations. 
+
+comment: p1fb04n
+parent: t1_p1bh80c
+author: Practical_Mango7633
+created_utc: 1785755318
+edited: false
+body:
+But do you want to put your trust that someone who did such a sloppy job as this, with the one extremely critical component of all the code will do better next time? Peter D. Gray is the CTO of the company. And a self proclaimed Wizard-level developer on his linkedin page. Had he not been so high on himself, perhaps he would have let someone else double check the code first. 
+
+As the article states *"The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = \~0.003*
+
+*This is an atrociously bad comment to code change ratio.*
+
+*There are some rare instances where a low comment ratio is justifiable -- but changing* ***the most important part of the code*** *is not one of those cases!"*
+
+I imagine this is how the conversation within ColdCard went at the critical moment the code was changed.
+
+**Rodolfo:** "Hey Petey-boy! Code is fucked, can you fix it? 
+
+**Peter:** Yeah sure I am a self proclaimed wizard-level developer, let me just change these 1534 lines of our most critical, security-sensitive infrastructure. Annnd… it runs!
+
+**Rodolfo:** Well done! Did you document any of these changes? Write a changelog? Maybe drop a few comments explaining how you secured our absolute most vital components!?
+
+**Peter:** I wrote "Runs"
+
+**Rodolfo:**  But Petey, this is a hardware wallet. People trust us with their entire life savings. Is the cryptographic core actually still secure, or did you just open a backdoor wide enough to drive a truck through?
+
+**Peter:** But Rodolfo... look at the screen. The red text turned into green text. Green means go. Green means the magic worked!  
+
+
+comment: p1fbs8g
+parent: t1_p1eookr
+author: newMoneyStyle
+created_utc: 1785755632
+edited: false
+body:
+yeah the "many eyes" thing is kinda a myth until something actually blows up and forces people to look. source-available with actual scrutiny > open source that nobody audits fr
+
+comment: p1gh9q1
+parent: t1_p1erza4
+author: ComprehensiveDog7299
+created_utc: 1785768625
+edited: false
+body:
+What a weird thing to say. People lost real money. Some people lost seven figures.
+
+This isn’t mythical imaginary money. It’s real.
+
+comment: p1h9v51
+parent: t1_p1cl33r
+author: Big-Cheetah5159
+created_utc: 1785775925
+edited: false
+body:
+Silver lining, this does is make the software/hardware stronger. 
+
+comment: p1nqtay
+parent: t1_p1fb04n
+author: MysteriousAlpaco
+created_utc: 1785854475
+edited: false
+body:
+ the code, commit messages, no rigorous testing, the quality is honestly questionable. To each their own but I wouldnt wanna store anything valuable when thats the kind of "professionalism" put in that codebase. 

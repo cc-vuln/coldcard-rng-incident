@@ -12,7 +12,7 @@ export const GET: APIRoute = ({ site }) => {
 
   const body = `# cc-vuln.org
 
-> Primary-source archive and neutral explainer for the July 2026 COLDCARD predictable-RNG incident. It records what each party said, when captured source content changed, and the provenance of every held state.
+> The site is the public record of the July 2026 COLDCARD predictable-RNG incident: it preserves what each party published and how it changed, organises the material, and explains it without adjudicating between the people involved.
 
 Archive last capture: ${lastCapture}
 Registered web sources: ${archive.sources}
@@ -35,10 +35,17 @@ Registered social posts: ${archive.xPosts}
 ## Canonical human-readable pages
 
 - [Evidence index](${link('/record/')})
-- [Source change record](${link('/record/changes/')})
 - [Incident timeline](${link('/record/timeline/')})
-- [Primary research register](${link('/record/analysis/')})
-- [Source-labelled attack sensitivity estimator](${link('/risk/estimator/')})
+- [Funds accounting: each source's current total, what it counts and when it was read](${link('/record/funds/')})
+- [Source change record](${link('/record/changes/')})
+- [Reference: primary analysis, published code and firmware records](${link('/record/reference/')})
+- [Technical reconstruction](${link('/how-it-broke/')})
+- [Published candidate models and model explorer](${link('/how-it-broke/entropy/#model-explorer')})
+- [Dice, passphrase and threshold-wallet conditions](${link('/how-it-broke/conditions/')})
+- [Published responses](${link('/response/')})
+- [Public statements and actions](${link('/response/statements/')})
+- [Migration guidance record](${link('/response/migration/')})
+- [Incident-related scams and warnings](${link('/response/scams/')})
 - [Editorial standards and corrections](${link('/about/#editorial-standards')})
 
 ## Machine-readable records
@@ -50,7 +57,7 @@ Registered social posts: ${archive.xPosts}
 
 ## Citation guidance
 
-Cite the original publisher and link to its source URL. When a claim depends on a prior or revised state, also cite the corresponding cc-vuln.org source record so the capture time, revision window, provenance and hash can be checked. Public pages contain diffs and short excerpts; complete third-party captures remain held locally rather than republished as full mirrors.
+Cite the original publisher and link to its source URL. When a claim depends on a prior or revised state, also cite the corresponding cc-vuln.org source record so the capture time, revision window and origin of the held state can be checked. Public pages contain diffs and short excerpts; complete third-party captures remain held locally rather than republished as full mirrors.
 
 ## Incident registry description
 

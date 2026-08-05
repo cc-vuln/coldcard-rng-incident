@@ -1,0 +1,80 @@
+--- reddit-future-of-bitcoin-debate@20260804T221822Z
++++ reddit-future-of-bitcoin-debate@20260804T232441Z
+@@ -459,14 +459,6 @@
+ edited: false
+ body:
+ [deleted]
+-
+-comment: p18w6w4
+-parent: t1_p18nhdc
+-author: dvondurden
+-created_utc: 1785675312
+-edited: false
+-body:
+-Exactly. Unless people have those options, there will be no meaningful adoption. By now there is just risk and the necessity for trust in various degrees, but no real solutions either way
+ 
+ comment: p18w8tc
+ parent: t1_p186h5d
+@@ -4174,6 +4166,53 @@
+ body:
+ Err backed up in another location 🙄
+ 
++comment: p1r0r19
++parent: t3_1vdds1l
++author: FroyoInternal8203
++created_utc: 1785885557
++edited: false
++body:
++I've been following the Coldcard incident closely over the past few weeks, and the more I read, the more I think this exposed something much bigger than a firmware bug—it exposed a gap in our trust model.
++
++For years we've repeated **"Don't trust, verify."** But in reality, every self-custody solution still depends on trusting something outside the blockchain: the hardware manufacturer, firmware developers, entropy implementation, supply chain, secure element, compiler, update process, and operational procedures.
++
++Bitcoin successfully proved that the transactions were valid. What it could not prove was whether the keys were generated under trusted conditions.
++
++Those are two different problems.
++
++To me, this points toward the need for an **independent trust layer** that continuously validates the environment before value moves.
++
++Imagine if every wallet could independently prove (without revealing the private key or seed):
++
++* The firmware hash matches an approved release.
++* The entropy source passed required health tests.
++* The device was provisioned under approved manufacturing controls.
++* No known vulnerability exists for that firmware version.
++* The wallet has not entered an untrusted state since initialization.
++* A high-value transfer satisfies the owner's security policy (multisig, approval workflow, geofencing, etc.).
++
++Those proofs could be generated through cryptographic attestations and, where appropriate, zero-knowledge proofs, allowing a wallet to demonstrate trustworthiness without exposing sensitive information.
++
++The blockchain would continue doing what it does best—proving that a transaction occurred. The trust layer would answer a different question:
++
++**Should this transaction have been trusted in the first place?**
++
++I don't think the future of Bitcoin is choosing between self-custody and centralized custody. I think it's adding an independent verification layer that continuously measures trust instead of assuming it.
++
++This is actually the core idea behind a protocol/platform I've been developing called **PROOF**, which is designed as an **Independent Trust Layer**. The goal isn't to replace Bitcoin or hardware wallets, but to continuously validate firmware integrity, identity, entropy health, policy compliance, device provenance, AI-assisted operations, and transaction authorization before critical actions occur.
++
++In short:
++
++**Blockchain proves the transaction. PROOF proves the trust conditions that made the transaction possible.**
++
++I'm genuinely interested in whether this line of thinking resonates with others here.
++
++* Am I looking at the problem from the wrong angle?
++* Is an independent trust layer unnecessary because multisig, passphrases, and better operational security already solve this?
++* Or is this where hardware wallets and digital asset security need to evolve as AI accelerates software analysis, exploit discovery, and supply-chain attacks?
++
++I'd especially appreciate feedback from wallet developers, cryptographers, firmware engineers, and others with deep technical experience. If there are flaws in this reasoning—or better approaches I'd love to hear them. My goal isn't to promote a product, but to explore whether we're missing an architectural layer that could help strengthen trust across the broader Bitcoin ecosystem.
++
+ more-stub: parent t1_p1b161g count 3
+ 
+ more-stub: parent t1_p1a6exs count 1
+@@ -4224,7 +4263,7 @@
+ 
+ more-stub: parent t1_p186h5d count 6
+ 
+-more-stub: parent t1_p18nhdc count 4
++more-stub: parent t1_p18nhdc count 5
+ 
+ more-stub: parent t1_p185yzn count 6
+ 

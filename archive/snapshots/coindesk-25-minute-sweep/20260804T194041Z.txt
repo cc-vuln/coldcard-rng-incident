@@ -1,0 +1,155 @@
+Search
+/
+News
+Video
+Prices
+Research
+Events
+Data & Indices
+More
+Sponsored
+Search
+/
+en
+Sign In
+Sign Up
+Tech
+Major bitcoin wallet flaw drains $38 million worth of BTC in 25-minute sweep
+A hardware wallet randomness bug turned “impossible to guess” seeds into guessable ones, and $38 million is already gone.
+By Shaurya Malwa
+Updated Jul 31, 2026, 11:13 a.m. Published Jul 31, 2026, 5:12 a.m.
+2 min read
+Make preferred on
+Share
+Share this article
+Copy linkX (Twitter)LinkedInFacebookEmail
+Make preferred on
+Coldcard flaw lets attacker drain $38 million in bitcoin from old wallets. (Coinkite)
+Summary
+Show
+An attacker exploited a flaw in how some Coldcard hardware wallets generated keys to steal roughly 594 bitcoin, worth about $38 million, from around 500 single-signature wallets in under 30 minutes.
+The vulnerability, introduced in Coldcard firmware 4.0.0 in March 2021, caused devices to skip their hardware randomness generator and fall back to predictable software-based key generation seeded by nonsecret chip data.
+Coinkite has warned users who created seeds on Mk3 devices running firmware 4.0.1 or later, while stressing that Mk4, Q and Mk5 appear unaffected so far, and the theft has had little visible impact on bitcoin’s market price.
+Roughly 594 bitcoin, worth about $38 million, was swept out of around 500 separate wallets between 01:31 and 01:56 UTC on Friday in an attack traced to a flaw in how Coldcard hardware wallets generated their keys.
+The theft moved 1,324 chunks of bitcoin across 500 transactions inside a three-block window, with 562 BTC then consolidated into a single address that has not moved.
+Every drained wallet was single-signature and each held more than 0.15 BTC. Many had been dormant for years and the coins spanned 2021 to 2026, matching the flaw's age almost exactly.
+Coldcard is a hardware wallet built by Canadian firm Coinkite, a small standalone device that stores bitcoin keys offline, away from internet-connected computers. Mk2, Mk3, Mk4, Q and Mk5 are successive generations of that product, released over several years the way a phone maker ships numbered models.
+Exposure depends on the firmware the device was running at the moment the wallet was first created, not on when the hardware was bought.
+A wallet's seed, the secret phrase controlling the funds, is meant to be drawn at random from a pool so vast that guessing is hopeless.
+Coldcard's firmware was not doing that. According to a report published by Block's Bitcoin engineering and security teams, a build setting told the device to skip its own hardware randomness generator, and a check in a supporting library tested only whether that setting existed rather than whether it was switched on.
+Key generation quietly fell through to a basic software substitute seeded from the chip's serial number and clock registers.
+None of those are secrets. The serial number is fixed factory metadata, and the clock values are timing state an attacker can narrow down or measure on a device of their own. Block traced the change to a commit dated March 1, 2021, shipped in firmware 4.0.0 that month.
+As such, Coinkite warned users who generated a seed on an Mk3 running version 4.0.1 or later, and said "Mk4, Q and Mk5 are not affected based on our early analysis."
+Block said it disclosed its findings to Coinkite, whose team acknowledged them. Both companies describe their analyses as preliminary, and Block said it published without full testing to confirm exploitability because exploitation was already under way.
+The exposure runs past wallet seeds. The same generator produced Coldcard's paper wallet private keys, where the output becomes the key directly with no further derivation, along with seed-splitting masks, device cloning keys and Key Teleport transfers.
+Bitcon traded above $64,000 in early Asian hours, with widespread drain appearing to have little impact on the market.
+Latest Crypto News
+1
+Open USD rattled Circle's stock, but its key backers still support USDC
+1 hour ago
+2
+Samsung is poised to become a dominant stablecoin distributor, analysts say
+2 hours ago
+3
+Clarity Act sits idle over Trump ethics question as Warren asks SEC to investigate him
+3 hours ago
+4
+Wells Fargo joins JPMorgan and Citi in the race to tokenize Wall Street’s settlement rails
+3 hours ago
+5
+Bitcoin’s $63,000 zone emerges as key battleground for buyers: Glassnode
+4 hours ago
+6
+Polymarket targets $20 billion valuation as competition heats up in prediction market sector
+5 hours ago
+7
+Intesa Sanpaolo slashed IBIT stake by 94% in 2Q, tripled ether ETF holding as crypto prices slumped
+5 hours ago
+8
+Dinari brings tokenized U.S. stocks to American investors as equity race heats up
+5 hours ago
+9
+As Clarity Act teeters, mystery group hammers away at crypto in Washington ads
+6 hours ago
+10
+BitGo’s WBTC move pushes LayerZero-to-Chainlink tally near $15 billion
+6 hours ago
+Latest Research
+The Evolution of the Crypto CEX Landscape: A Case Study on Binance
+The Evolution of the Crypto CEX Landscape: A Case Study on Binance
+Binance remains crypto’s leading exchange, expanding from spot and derivatives into RWAs, payments, savings, yield, and broader financial services.
+By CoinDesk Research
+Jun 29, 2026
+Commissioned byBinance
+Binance remains crypto’s leading exchange, expanding from spot and derivatives into RWAs, payments, savings, yield, and broader financial services.
+Why it matters:
+Binance remains crypto’s leading exchange, expanding from spot and derivatives into RWAs, payments, savings, yield, and broader financial services.
+View Full Report
+More From Tech
+Coldcard urges users to move bitcoin as exploit is still in progress
+A new Solana proposal aims to ramp up daily SOL Burns from $47,000 to $650,000
+Coldcard wallet losses may near $114 million as possible fourth sweep emerges
+About
+About Us
+Masthead
+Careers
+Blog
+Investor Relations
+Contact
+Contact Us
+Accessibility
+Advertise
+Media Kit
+Sitemap
+System status
+Newsletters
+CoinDesk Headlines
+Crypto Daybook Americas
+The Protocol
+State of Crypto
+Crypto for Advisors
+Crypto Long & Short
+News
+Markets
+Finance
+Tech
+Policy
+Focus
+Videos
+CoinDesk Daily
+Editor's Picks
+Shorts
+Spotlight
+Podcasts
+CoinDesk Podcast Network
+Markets Outlook
+Gen C
+Cryptocurrencies
+Latest crypto prices
+Bitcoin (BTC)
+Ethereum (ETH)
+XRP
+Solana (SOL)
+Data & Indices
+Market Data
+Index Offering
+API
+Research Insights
+Documentation and Governance
+Events
+CoinDesk: Policy & Regulation
+Webinars
+Sponsored
+Bitcoin Treasuries Theme Week
+Thought Leadership
+Press Release
+MEXC
+Phemex
+Stellar
+Research
+Research Hub
+Exchange Benchmark
+EthicsPrivacyTerms of UseCookie SettingsDo Not Sell My InfoBug Bounty Program
+© 2026 CoinDesk, Inc.
+Disclosure & Polices: CoinDesk is an award-winning media outlet that covers the cryptocurrency industry. Its journalists abide by a strict set of editorial policies. CoinDesk has adopted a set of principles aimed at ensuring the integrity, editorial independence and freedom from bias of its publications. CoinDesk is part of Bullish (NYSE:BLSH), an institutionally focused global digital asset platform that provides market infrastructure and information services. Bullish owns and invests in digital asset businesses and digital assets and CoinDesk employees, including journalists, may receive Bullish equity-based compensation.
+CryptoCD20$1,754.66CD20 up 0.28 percent0.28%BTC$64,250.16BTC up 0.70 percent0.70%ETH$1,876.40ETH up 0.43 percent0.43%XRP$1.08XRP up 0.027 percent0.027%SOL$74.15SOL up 0.26 percent0.26%

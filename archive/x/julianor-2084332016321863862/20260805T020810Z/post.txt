@@ -1,0 +1,25 @@
+url:      https://x.com/julianor/status/2084332016321863862
+author:   Juliano Rizzo
+handle:   @julianor
+posted:   2026-08-03T17:34:12.000Z (from the page's <time> element)
+captured: 20260805T020810Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Now that weak entropy is a hot topic, a few tips from our experience with quick  AI reviews of crypto codebases. Hopefully this helps reduce FUD and false positive/negatives in the coming days.
+
+Finding a broken RNG in a codebase does not mean it was used to generate private keys, recovery phrases, or nonces.
+
+Wallets often support dozens of chains and depend on a large number of chain-specific packages. Some dependencies may include insecure PRNG, but the wallet may never use that code path for seed generation.
+
+For example, one historically popular library had a broken RNG that was, and may still be, used by applications including wallets. But in many cases it is used to generate encryption salts or IVs, not keys. That can still be a security problem but it is not automatically a critical, remotely exploitable wallet-draining vulnerability.
+
+Those are common sources of false positives.
+
+False negatives: You need to inspect the application’s history, not only its current version. This is possible with open-source repositories, although it may require linking multiple repos to determine what code was actually shipped.
+
+For closed-source applications, reconstructing that history is harder or impossible without access to private archives.
+
+AI can help identify suspicious code quickly. Determining whether it was reachable, shipped to users, used for key generation, and practically exploitable still requires careful analysis.

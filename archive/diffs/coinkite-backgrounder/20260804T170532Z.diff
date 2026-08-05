@@ -1,0 +1,14 @@
+--- coinkite-backgrounder@20260801T184429Z
++++ coinkite-backgrounder@20260804T170532Z
+@@ -101,8 +101,9 @@
+ migration, wallet seed generation moved from ckcc.rng_bytes() to
+ ngu.random.bytes(). That path resolved rng_get() to MicroPython’s software
+ fallback instead of COLDCARD’s hardware RNG implementation.
+-The bulk of randomness on the COLDCARD was coming from a PRNG that
+-I didn’t know was actually in the source code base (it is from a
++The bulk of randomness on the COLDCARD was coming from a
++PRNG
++that I didn’t know was actually in the source code base (it is from a
+ submodule, Micropython). At the same time the carefully crafted
+ TRNG code I wrote was being used, but just by chance, and only for
+ less important things.

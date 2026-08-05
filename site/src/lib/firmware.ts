@@ -9,7 +9,7 @@
  * the page.
  *
  * Values are checked against the firmware release histories, release commits
- * and the signed-release record; see /record/firmware/ for the evidence and
+ * and the signed-release record; see /record/reference/#firmware for the evidence and
  * per-row sourcing notes.
  *
  * Where a range here is wider than the one the vendor currently publishes, the
@@ -58,7 +58,7 @@ export interface ModelRange {
    * corroboration without also printing what it does not establish. The
    * expanded treatment, including the verbatim wording and the analyst's own
    * scope disclaimer, lives in the #vendor-lower-bound callout on
-   * /record/firmware/. Set together with `vendorAffectedFrom`.
+   * /record/reference/. Set together with `vendorAffectedFrom`.
    */
   vendorCorroboration: string | null;
 }

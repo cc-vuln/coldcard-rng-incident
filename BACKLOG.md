@@ -6,14 +6,97 @@ Status key: **BLOCKED** needs something only the maintainer can do · **OPEN** r
 work · **GAP** evidence has not been identified publicly and may not be gettable
 · **FIX** something already published that is wrong or unbalanced.
 
-Last reviewed: 3 Aug 2026, after the weekend intake batch (40 sources
-registered and integrated), the captures-front-and-centre IA review and
-its P1/P2 implementation (decision record at
-`docs/design/captures-front-and-centre.md`).
+Last reviewed: 5 Aug 2026, after the 67-link screenshot intake was deduplicated,
+captured and integrated alongside the ongoing archive poll.
 
 ---
 
-## 0. Follow-ups from the 3 Aug intake batch and IA implementation
+## 0. Follow-ups from the 5 Aug intake batch
+
+**OPEN.** The screenshot batch contained 62 unique X posts and five web
+resources after URL-level deduplication. All were registered and captured. The
+strongest new evidence was integrated with explicit limits. What remains:
+
+- [x] **Coinkite historical disclosures page.** Done 5 Aug 2026: registered as
+      `coinkite-historical-disclosures` (tier 1, vendor-index) and first-captured
+      at 20260805T030223Z, 18,540 chars. The page self-reports 23
+      security-relevant events from 2019 onward, 12 with public evidence of
+      coordinated disclosure, coverage stated through 4 Aug 2026. Two entries
+      bear on other backlog items and are noted under section 1: a March 2022
+      paid pre-release review that examined random-number generation, and the
+      absence of any May 2025 randomness or libngu report in the chronology.
+- [x] **CKTRIPWIRE methodology.** Done 5 Aug 2026: registered as
+      `cktripwire-methodology` and first-captured at 20260805T030232Z, 5,891
+      chars. Held at tier 3 rather than the 30-minute chain-monitor lane because
+      it is static prose, unlike the scoreboard's live state. Reviewed against
+      the scope note now on /how-it-broke/conditions/: no change needed. The methodology
+      states that value is a second axis alongside added entropy, which
+      reinforces rather than revises the existing caveat that one control
+      outcome and seven then-live cases cannot establish a safe number of added
+      bits or a time-to-sweep distribution. Optional follow-up: the bands the
+      page now documents could be cited there, which is an enhancement rather
+      than a correction.
+- [ ] **James O'Beirne's May 2025 audit artefact.** His 4 August first-person
+      post says a potential randomness and libngu concern was reported to the
+      team in May 2025, but it attaches no contemporary report or correspondence.
+      Rechecked 5 Aug 2026 against the newly captured
+      `coinkite-historical-disclosures` chronology: it carries no May 2025 entry
+      and no randomness or libngu report between the March 2022 review and the
+      September 2025 Delta PIN disclosure. By the page's own stated convention
+      that is an absence of public evidence in its cited record rather than
+      evidence that no private report was made, and the vendor selects what the
+      chronology contains. Two accounts, still unreconciled.
+- [ ] **Chainalysis geographic method.** Its 4 August post reports that Canada
+      represents 25 percent of geographically attributable losses, with
+      Australia, the United States and Thailand also prominent, but publishes
+      no victim set, address set, method or denominator.
+- [x] **Legal-context page review.** Done 5 Aug 2026. The page was a register of
+      two document sets (Coinkite's Terms of Sale, the Ontario consumer statutes)
+      and had not caught up with the claims activity the archive already held:
+      the two 117 Partners posts, the Stoltmann claimant page and the contested
+      warnings about Braziel were registered but appeared nowhere on it. Added a
+      "Who is publicly organising claims" section carrying all of them with the
+      dispute intact, registered and first-captured
+      `newsbitcom-class-action-threat` (the only held source with named legal
+      opinion on liability in both directions), and replaced the "checked on
+      1 August" wording with the unchanged-since-first-capture position the poll
+      record supports. The commencement-status card was reframed from an internal
+      correction to a reader-facing warning about commentary citing an Act that
+      has not commenced.
+- [ ] **Watch for an actual filing.** Nothing captured by 5 Aug 2026 is a
+      commenced proceeding: Braziel's 3 August update is a stated strategy, not a
+      claim. If a Canadian statement of claim, an arbitration notice or a
+      regulator statement appears, it changes the "Public-record limits"
+      paragraph on /response/legal/ from an absence to a document, and the
+      one-year period in clause 22 becomes relevant to date arithmetic the page
+      currently declines to do.
+- [x] **NCFA Canada commentary.** Done 5 Aug 2026: registered as
+      `ncfacanada-self-custody-commentary` and first-captured at
+      20260805T035650Z, 18,251 chars. Two things defeated the earlier attempts.
+      The site answers plain scripted fetches with a challenge page, so it needs
+      `capture = "browser"`; and even in the browser the article body never
+      hydrates without scrolling, so the first browser read returned navigation
+      and the headline alone. `browser_scroll = true` is what makes this source
+      work, and a future source behaving the same way should be checked for it
+      before being written off. robots.txt was itself challenge-blocked on first
+      contact and became readable once the session settled: stock WordPress,
+      only `/wp-admin/` disallowed, so this path is permitted.
+      Registered for the Canadian vantage, not for new evidence: its loss
+      figures are attributed to Galaxy Research, already held. Its compiled
+      company profile names Coinkite's founders, and the note states explicitly
+      that this is public company record and does not bear on the unverified
+      libngu-authorship claim. Woven into /response/ as a named row in the
+      attributed-positions table, with its industry-association affiliation
+      stated in the claim marker and its Galaxy-sourced figures marked as
+      carried secondhand.
+- [ ] **Review unsafe third-party migration advice.** The Rage article is held
+      as a source but is not used as guidance because it suggests photographing
+      and sending seed words through Signal. Keep it as evidence of the content
+      environment unless a separate misinformation treatment is warranted.
+
+---
+
+## 0a. Follow-ups from the 3 Aug intake batch and IA implementation
 
 **OPEN.** The batch registered 38 X posts and two web sources, captured all but
 the two below, and wove the material into twelve pages. What remains:
@@ -61,7 +144,7 @@ the two below, and wove the material into twelve pages. What remains:
       integrating them risks reading as product endorsement), and
       kevinkelbie-gpu-farm-question.
 
-## 0a. Captures front and centre: remaining pieces
+## 0b. Captures front and centre: remaining pieces
 
 The IA review's P1 and most of P2 are implemented (decision record at
 `docs/design/captures-front-and-centre.md`; policy at
@@ -87,18 +170,51 @@ freshness stamp on /record/; feed in the subnav; phase-aware nav;
       has them), and the removal-route line next to displayed media (stated
       on /about/ today).
 
+## 0c. Record-first focus refit
+
+**DONE 5 Aug 2026.** The timeline rebuild landed and the baseline production
+build was green before this work started. The operator then chose the narrower
+conclusion: the site is the public record, not a wallet-classification or
+incident-response service.
+
+- [x] Removed the affectedness hub, risk overview, personal estimator,
+      seed-handling tutorial and their shared triage and warning components.
+- [x] Moved the retained dice, passphrase and threshold analysis to
+      `/how-it-broke/conditions/`; replaced the personal estimator with the
+      source-labelled model explorer on `/how-it-broke/entropy/`.
+- [x] Moved the retained migration evidence to `/response/migration/` and
+      removed the site-authored seven-step procedure, fee guidance and signing
+      checklist.
+- [x] Moved documented scam artefacts and vendor warnings to
+      `/response/scams/`; removed the site-authored ranking and action list.
+- [x] Removed the legal action checklist while retaining the document register,
+      public organising record and public-record limits.
+- [x] Rebuilt the landing page and navigation around one record-first state;
+      removed `INCIDENT_PHASE`.
+- [x] Added permanent redirects for every retired public route and preserved the
+      source archive, snapshots, diffs and review classifications unchanged.
+- [x] Aligned `AGENTS.md`, `README.md`, About, `/llms.txt` and the design
+      records to one mission and belonging test.
+
+The evidence-marker count is expected to fall because whole editorial pages and
+site-authored calculations were deliberately removed. No source capture or
+revision history was deleted. The final claim, link and production-build gate
+results belong with the completion handoff for this change.
+
+---
+
 ## 1. Open questions not answered in the archive
 
 **GAP.** Worth stating on the site as open, because that is itself information.
 
 - [ ] **STM32 UID low-word distribution across real devices.** No population
-      measurement has been identified in this archive as of a recheck on 3 Aug
+      measurement has been identified in this archive as of a recheck on 5 Aug
       2026 (GitHub, web search, HN and Stacker News surfaces). It would
       constrain the UID term in published candidate-count models, but would not
       settle SysTick, RTC, call-history or derivation-cost assumptions. See the
       research plan under `docs/research/`.
 - [ ] No publication of instagibbs' two reproduction scripts has been captured
-      or linked in the archive. A 4 Aug 2026 recheck covered his public GitHub
+      or linked in the archive. A 5 Aug 2026 recheck covered his public GitHub
       repositories and rendered gist index without finding them; a 3 Aug 2026
       recheck also covered issue and comment surfaces and his personal site;
       unauthenticated global code search was not reachable either time, so a
@@ -108,15 +224,25 @@ freshness stamp on /record/; feed in the subnav; phase-aware nav;
 - [ ] Total population of seeds generated under vulnerable firmware unknown.
       No unit-sales figure has been identified in the captured Coinkite material.
 - [ ] Coinkite's formal technical review: promised, with no publication date or
-      scope identified as of a recheck on 4 Aug 2026. The official
+      scope identified as of a recheck on 5 Aug 2026. The official
       blog index and current firmware repository were checked again; the
       vendor's 2 Aug update still describes the postmortem as forthcoming.
 - [ ] No CVE request or assignment has been identified in the checked sources as
-      of 4 Aug 2026. NVD keyword queries for `COLDCARD` and `Coinkite` returned
+      of 5 Aug 2026. NVD keyword queries for `COLDCARD` and `Coinkite` returned
       only the earlier `CVE-2019-14356` OLED side-channel record.
 - [ ] No third-party audit announcement has been identified in the checked
       official blog, current firmware repository or incident pull-request set as
-      of 4 Aug 2026. These negative results do not address private work.
+      of 5 Aug 2026. These negative results do not address private work.
+      Partially addressed for the historical case on 5 Aug 2026: the captured
+      `coinkite-historical-disclosures` page discloses a paid private review of
+      1 to 14 March 2022 that examined SE2-backed PIN derivation, rate limiting,
+      MCU firewall coverage and random-number generation before the first public
+      Mk4 release, attributed to "Lazy Ninja", and says bootloader RNG
+      conditioning and reseed hooks were recorded as defence in depth without
+      the public firmware history showing they were adopted. Vendor-stated and
+      sourced to correspondence this archive cannot inspect. It is a
+      pre-incident review, so it does not answer whether a post-incident
+      third-party audit has been commissioned.
 
 ## 2. Archive and tooling
 
@@ -134,7 +260,13 @@ freshness stamp on /record/; feed in the subnav; phase-aware nav;
       deliberately off. Enabling it edits the relay's route config (host set
       via `NOTIFY_SSH_HOST` in `.env`) and needs a restart.
 - [ ] Add unattended X watching only after authentication failure, deletion,
-      suspension and access restriction can be distinguished reliably.
+      suspension and access restriction can be distinguished reliably. Manual
+      watched-account discovery and read-only LLM triage landed 5 Aug 2026
+      using the official read-only X API, first-run baselining, shallow hard
+      caps, atomic private state and fail-closed cooldowns. It remains absent
+      from systemd until the API use case and retention obligations are
+      approved, and while real API outcomes and intake quality are observed.
+      Direct-post deletion classification is still unbuilt.
 - [ ] Add a nightly archive/build/link audit after defining failure alerting.
       Keep deployment outside that job.
 - [ ] Add a daily off-machine backup after choosing retention and proving a
@@ -168,7 +300,11 @@ undesigned until promoted into a numbered section or the IA design doc.
   reveal, and it is now in the subnav, on the homepage record band, and paired
   with the register's capture wall. The copyright posture is settled by
   `docs/design/capture-display-policy.md`. Residual piece is section 0a's R9
-  facet. (2 Aug 2026, updated 3 Aug 2026)
+  facet. (2 Aug 2026, updated 3 Aug 2026) Updated 5 Aug 2026: the feed has
+  since merged into /record/changes/, and the editorial /record/timeline/
+  page was rebuilt as the weighted scrollable chronology (curated landmarks
+  interleaved with every dated post, publication and reviewed source change,
+  story-order/latest-first toggle). This item is fully landed.
 
 - **Interactive entropy widgets.** Hands-on explainers for "what is entropy
   and how does it map to a secure seed": for example a live demonstration of
@@ -206,7 +342,7 @@ undesigned until promoted into a numbered section or the IA design doc.
   across the site and in sources without the reader being shown where the
   number comes from (log2(6)), why fairness and secrecy of the rolls matter,
   or how rolls accumulate toward 128 bits. Candidates: a short derived-basis
-  aside on /risk/mitigations/#dice, a glossary entry, and one of the interactive
+  aside on /how-it-broke/conditions/#dice, a glossary entry, and one of the interactive
   widgets above. Source: wizardsardine.com/blog/coldcard-rng-vulnerability/
   (already tracked as wizardsardine-postmortem). (2 Aug 2026)
 

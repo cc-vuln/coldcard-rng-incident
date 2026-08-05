@@ -1,0 +1,26 @@
+--- reddit-hardware-wallet-comparison@20260804T134446Z
++++ reddit-hardware-wallet-comparison@20260804T141531Z
+@@ -1276,3 +1276,23 @@
+ edited: 1785850711
+ body:
+ This. The coldcard exploit wasn’t a hardware or engineering failure.  I wouldn’t even call it a software bug.  This was a problem with their build process.  This is where the argument about open source vs. verifiable source falls down.  Unless you were building for the same hardware and using the same build process, you would never find this bug.  Therefore it very unlikely any open source implementation would have flagged this.  This kind of problem is easy to miss and could very well be in any competing implementation.  If I were on the engineering team, I would be a fruitcake about ensuring the RNG was running because it’s the one thing you can’t really unit test.  My first thought would be to get rid of any software PRNGs to reduce the risk of them being used.  After that, I would probably test on a board with the RNG chip removed to ensure its output is necessary and being used.  I would test it many different ways because I have experienced similar surprises where I was confident something was solid when it reality it was subtly broken.
++
++comment: p1njgd5
++parent: t1_p1n92xm
++author: OldHamburger7923
++created_utc: 1785852509
++edited: false
++body:
++You should look it up. Open source means you can see the source.
++
++Open source licencing takes many forms. GPL is just one of many. It can be open source without you being able to take it and use it commercially for yourself.
++
++I swear, the people on reddit get dumber every day.
++
++comment: p1nkwnb
++parent: t3_1vehzv8
++author: disruptioncoin
++created_utc: 1785852902
++edited: false
++body:
++You can roll your own rng/seed for any wallet really, you just need to either do the math yourself or use any number of open source tools to convert the dice rolls into a seed and mnemonic. Id cross reference multiple tools and see if the output is the same before trusting. Iancoleman.io is a really cool site for stuff like this. Though I would download the page, then re-open it offline on pc with no storage or network (live boot debian, tails, etc). 

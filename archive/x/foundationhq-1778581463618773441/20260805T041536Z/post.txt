@@ -1,0 +1,27 @@
+url:      https://x.com/FoundationHQ/status/1778581463618773441
+author:   FOUNDATION
+handle:   @FoundationHQ
+posted:   2024-04-12T00:30:40.000Z (from the page's <time> element)
+captured: 20260805T041536Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+reply-to: Wicked
+@w_s_bitcoin
+·
+Apr 12, 2024 -- "Hey \n@foundationhq\n, ya'll planning to enable dice roll seed generation anytime soon?"
+
+--- post text (verbatim) ---
+
+So far we've made a conscious decision to not add dice rolls. We'd much prefer that users pull seed words out of a hat and allow Passport to autocomplete the 12th or 24th word.
+
+Numerous users have lost funds on Coldcard in the last several months due to rolling a low number of dice rolls (their team has deleted posts on Reddit and blocked users who reported these problems).  Even enforcing a minimum limit on dice rolls does not add assurance; for example a user could mash random numbers on the keypad which would lead to poor entropy.
+
+There's no easy way for us to assess the entropy of the seed. We could preprogram Passport with a "blacklist" of seeds by brute forcing low-entropy seeds, but that would only be an incomplete solution.
+
+Additionally if the firmware is malicious, there are other ways it could extricate seed words. Dice rolls do not fully protect against malicious firmware.
+
+So the only thing they do protect against is a mistake in the entropy generation of the hardware wallet – but our firmware has been audited and has been in the wild for 3+ years, and we combine multiple sources of entropy – including an avalanche noise source, which is a fully open source circuit (the only of its kind in a hardware wallet). 
+
+Also our firmware is fully open source and reproducible.
+
+I hope this gives you more context. Please let us know if you have further questions and we appreciate any feedback.

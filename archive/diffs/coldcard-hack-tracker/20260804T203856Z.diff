@@ -1,0 +1,282 @@
+--- coldcard-hack-tracker@20260804T193854Z
++++ coldcard-hack-tracker@20260804T203856Z
+@@ -64,28 +64,28 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,466.33640014 BTC
++1,397.35234589 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+ 
+ STILL HELD
+ 
+-98.8%
++94.2%
+ 
+ of 1,483.59806802 BTC consolidated
+ 
+ MOVED
+ 
+-17.26166788 BTC
++86.24572213 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Block 961,060
+-
+-1.6670576 BTC from Hop 2 from Hop 1 from P2TR vault
++Block 961,065
++
++64.90373764 BTC from Aug 2 vault
+ 
+ Watched holdings
+ 
+@@ -637,9 +637,10 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Aug 2 vault
+-	bc1q0rvn88…jf5q6m	64.90373764 BTC
+-<live-fiat-value>
+-	64.90373764 BTC	1	HELD
++Emptied Aug 4 (block 961065, ~5 sat/vB): bc1q0rvn… → Taproot hop bc1pynd6… still holding ~64.90 BTC (e3274a1b…2b3ddf). No exchange label yet.
++	bc1q0rvn88…jf5q6m	0.00 BTC
++<live-fiat-value>
++	64.90373764 BTC	0	EMPTIED
+ P2TR WAVE · AUG 1–3
+ Source
+ 
+@@ -729,9 +730,10 @@
+ 	5.61303754 BTC	0	EMPTIED
+ 
+ Wave 4 park
+-	342L6n3b61…TSjZtz	2.02374869 BTC
+-<live-fiat-value>
+-	2.02374869 BTC	1	HELD
++Emptied Aug 4 (block 961064, ~2 sat/vB): 14-input P2SH consolidate with sibling parks → 334iKwmh… still holding ~136.41 BTC (f02164a9…50db281). Same tx as 36XfMDAYu… + 34nHYNnc…. Mix includes parks funded outside Wave 4 window — Arkham unlabeled, no exchange exit yet.
++	342L6n3b61…TSjZtz	0.00 BTC
++<live-fiat-value>
++	2.02374869 BTC	0	EMPTIED
+ 
+ Wave 4 park
+ 	bc1q65e6cd…yce9u8	1.14852067 BTC
+@@ -739,9 +741,10 @@
+ 	1.14852067 BTC	1	HELD
+ 
+ Wave 4 park
+-	36XfMDAYuC…1F1x3G	1.09429601 BTC
+-<live-fiat-value>
+-	1.09429601 BTC	1	HELD
++Emptied Aug 4 (block 961064): same 14-input consolidate as 342L6n3b… → 334iKwmh… (~136.41 BTC still held).
++	36XfMDAYuC…1F1x3G	0.00 BTC
++<live-fiat-value>
++	1.09429601 BTC	0	EMPTIED
+ 
+ Wave 4 park
+ 	bc1qcmnjt0…rfjvtl	1.04998888 BTC
+@@ -754,20 +757,41 @@
+ 	1.03514173 BTC	1	HELD
+ 
+ Wave 4 park
+-	34nHYNnc9D…jP4qDQ	0.96227191 BTC
+-<live-fiat-value>
+-	0.96227191 BTC	1	HELD
++Emptied Aug 4 (block 961064): same 14-input consolidate as 342L6n3b… → 334iKwmh… (~136.41 BTC still held).
++	34nHYNnc9D…jP4qDQ	0.00 BTC
++<live-fiat-value>
++	0.96227191 BTC	0	EMPTIED
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Later surplus that passes through a vault while its reported balance remains is ignored.
+ 
+-HOP 2
+-e685505b…414b8f
+-−1.6670576 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qesrv…d78w
+-Block 961,060
+-
+-To 153La7Fb…Wmav
++e3274a1b…2b3ddf
++−64.90373764 BTC
++From Aug 2 vault bc1q0rvn…5q6m
++Block 961,065
++
++To bc1pynd6…7h92
++
++f02164a9…0db281
++−2.02374869 BTC
++From Wave 4 park 342L6n3b…jZtz
++Block 961,064
++
++To 334iKwmh…J6gB
++
++f02164a9…0db281
++−1.09429601 BTC
++From Wave 4 park 36XfMDAY…1x3G
++Block 961,064
++
++To 334iKwmh…J6gB
++
++f02164a9…0db281
++−0.96227191 BTC
++From Wave 4 park 34nHYNnc…4qDQ
++Block 961,064
++
++To 334iKwmh…J6gB
+ 
+ HOP 1
+ 1e96c88b…91ab3a
+@@ -833,14 +857,6 @@
+ 
+ To bc1qrp6u…n2up
+ 
+-HOP 2
+-804eb231…e29116
+-−1.25404944 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qesrv…d78w
+-Block 961,057
+-
+-To 153La7Fb…Wmav
+-
+ HOP 1
+ 67269902…8ce3fe
+ −0.33310015 BTC
+@@ -857,14 +873,6 @@
+ 
+ To bc1qesrv…d78w
+ 
+-HOP 2
+-9ef38b2b…01f97d
+-−1.33704944 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qesrv…d78w
+-Block 961,054
+-
+-To 153La7Fb…Wmav
+-
+ HOP 1
+ 156e7ebd…f58a90
+ −0.00309444 BTC
+@@ -928,14 +936,6 @@
+ Block 961,052
+ 
+ To bc1q2ckk…6gam
+-
+-HOP 2
+-5667309b…44dd39
+-−1.11004128 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qesrv…d78w
+-Block 961,052
+-
+-To 153La7Fb…Wmav
+ 
+ HOP 1
+ d89884fa…b6242a
+@@ -1025,46 +1025,6 @@
+ To bc1q2gpn…p2a6
+ 
+ HOP 1
+-fcda8404…846909
+-−0.02158849 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,047
+-
+-To bc1qvvrh…0sc0
+-
+-HOP 2
+-44cb36ab…272c4f
+-−1.00404128 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qesrv…d78w
+-Block 961,047
+-
+-To 153La7Fb…Wmav
+-
+-HOP 2
+-9d509867…59f590
+-−0.29900645 BTC
+-From Hop 2 from Hop 1 from P2TR vault bc1qqm62…efvn
+-Block 961,047
+-
+-To bc1q9r83…k0sw
+-
+-HOP 1
+-1c09bf59…af961f
+-−1.81206797 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,046
+-
+-To Binance deposit 199JVFuJ…2GwG
+-
+-HOP 1
+-57a9d5f2…7c90bc
+-−2.42609494 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,046
+-
+-To Binance deposit 14ajEkhP…tsxR
+-
+-HOP 1
+ cecd3aa5…b4f0e2
+ −0.00048106 BTC
+ From Hop 1 from P2TR vault bc1qqa7p…36pr
+@@ -1072,13 +1032,51 @@
+ 
+ To bc1qhp93…kwz2
+ 
+-HOP 1
+-78bbac1c…f3d60c
+-−0.00310542 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,043
+-
+-To bc1qmpj5…rk2c
++92718385…cac6b9
++−2.00018023 BTC
++From P2TR vault bc1p0l0x…lk0h
++Block 961,037
++
++To bc1q2nfx…kyyq
++
++2c7075a3…5012cc
++−1.00017899 BTC
++From P2TR vault bc1p0l0x…lk0h
++Block 961,032
++
++To bc1qqa7p…36pr
++
++HOP 1
++d37d6901…bac7b6
++−0.00061835 BTC
++From Hop 1 from P2TR vault bc1qqa7p…36pr
++Block 961,030
++
++To bc1qkg64…xygt
++
++HOP 1
++ee4e4c70…2105f2
++−0.00282469 BTC
++From Hop 1 from P2TR vault bc1qqa7p…36pr
++Block 961,030
++
++To bc1qz9hf…97s0
++
++HOP 1
++58932a6d…7eb177
++−0.229641 BTC
++From Hop 1 from P2TR vault bc1qqa7p…36pr
++Block 961,028
++
++To bc1q080c…wua8
++
++HOP 1
++d58b2c53…3d82a4
++−0.25476269 BTC
++From Hop 1 from P2TR vault bc1qqa7p…36pr
++Block 961,028
++
++To bc1qqm62…efvn
+ 
+ Am I at risk?
+ 

@@ -1,0 +1,44 @@
+--- reddit-hardware-wallet-comparison@20260805T014733Z
++++ reddit-hardware-wallet-comparison@20260805T075741Z
+@@ -1444,3 +1444,41 @@
+ yet coldcard having public code may have only helped it be hacked
+ 
+ 
++
++comment: p1s5h3x
++parent: t1_p1m1dou
++author: Miserable_Hope_3073
++created_utc: 1785898840
++edited: false
++body:
++can you also check seed signer please? It seems great since its air gapped and made of decentralized components.
++
++comment: p1snthe
++parent: t1_p1s5h3x
++author: PrimaryHuckleberry11
++created_utc: 1785905987
++edited: false
++body:
++It's okay. It has a different architecture for generating seeds. Instead of relying on entropy from PRNG/TRNG, it generates seeds based on user input provided through a camera, dice roll, or coin flip.
++
++However, AI didn't like the camera input much. It believes that under certain circumstances, it can produce predictable input as well. Dice rolls seem to be preferred for this wallet, but it also made some recommendations for improvements. It doesn't check if the user doesn't enter a weak pattern.
++
++[https://share-md.com/view?id=cd735452-f5c0-450e-94f7-66494013d0ff](https://share-md.com/view?id=cd735452-f5c0-450e-94f7-66494013d0ff)
++
++comment: p1ss2h5
++parent: t1_p1snthe
++author: Miserable_Hope_3073
++created_utc: 1785907865
++edited: false
++body:
++Thanks! I will try to understand how entropy and the code-based dice/coin works before getting into crypto. But it seems like this is one of the better wallets. Do you think using physical casino dice is best?
++
++comment: p1su9wx
++parent: t1_p1ss2h5
++author: PrimaryHuckleberry11
++created_utc: 1785908871
++edited: false
++body:
++No problem. In theory, casino dice is better because it should be really well-balanced. However, I think even standard dice would be pretty good. What matters most is how many rolls you do. You need to go with 99 rolls to get a proper 24-word seed with a 256-bit length.
++
++If you have SeedSigner, I would have done 99 rolls and, for extra safety, also used a passphrase to your seed. (I don't think a passphrase would improve "randomness," but it would still protect you in an event where someone got your seed.)

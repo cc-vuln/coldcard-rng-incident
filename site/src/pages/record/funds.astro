@@ -5,6 +5,63 @@ import Disclosure from '../../components/Disclosure.astro';
 import Answer from '../../components/Answer.astro';
 import FigureFundsFlow from '../../components/figures/FigureFundsFlow.astro';
 import { fig } from '../../lib/figures';
+import { trackerReadings, trackerRange } from '../../lib/trackers';
+
+/*
+ * The three community trackers' headline totals are read out of this archive's
+ * own captures rather than typed in, because they restate them continuously
+ * and a typed figure is only right on the day it is typed. lib/trackers.ts
+ * carries what each reading came from and whether the source is still
+ * answering; this page states both beside every figure. See the note in that
+ * file for what happens when a tracker rebuilds its page.
+ */
+const readings = trackerReadings();
+const range = trackerRange(readings);
+const byId = Object.fromEntries(readings.map((r) => [r.id, r]));
+const watch = byId['coldcard-watch'];
+const rip = byId['coldcard-rip-tracker'];
+const hack = byId['coldcard-hack-tracker'];
+
+/*
+ * What each tracker counts, which is editorial and does not come from the
+ * capture. Kept to one scannable clause: the dates, health and figure beside
+ * it are fields, not prose, and the source page carries the full description.
+ */
+const SCOPE_NOTE: Record<string, string> = {
+  'coldcard-watch': 'Self-described verified floor, three clusters',
+  'coldcard-rip-tracker': 'Ten block-indexed waves, AI-compiled',
+  'coldcard-hack-tracker': 'Known waves only, includes a likely wave 4',
+};
+
+/*
+ * Each card carries up to four fields under the figure. Rows are built here
+ * rather than in the template because two of them are conditional, and a
+ * conditional returning markup breaks the Astro expression parser.
+ */
+const cards = readings.map((reading, i) => {
+  const rows: { term: string; value: string; flag: boolean }[] = [
+    { term: 'Read', value: reading.readAtShort, flag: false },
+  ];
+  if (reading.hasHeld) {
+    // "since" rides in the value: the term column is sized by its longest
+    // entry, and a long term squeezes every value in the card against it.
+    rows.push({ term: 'Unchanged', value: `since ${reading.heldSinceShort}`, flag: false });
+  }
+  if (reading.stateShort) {
+    rows.push({ term: 'Reading', value: reading.stateShort, flag: true });
+  }
+  if (reading.healthShort) {
+    rows.push({ term: 'Source', value: reading.healthShort, flag: true });
+  }
+  return {
+    ...reading,
+    style: `--i:${i}`,
+    counts: reading.addresses
+      ? `${SCOPE_NOTE[reading.id]}, ${reading.addresses} addresses`
+      : SCOPE_NOTE[reading.id],
+    rows,
+  };
+});
 ---
 
 <Article
@@ -12,7 +69,7 @@ import { fig } from '../../lib/figures';
   description="Current headline totals from Galaxy Research and the community trackers, when each figure last changed, and the published figures for the 30 July transaction sets attributed to the COLDCARD incident."
   standfirst="The headline totals have been revised repeatedly as the attributed set has widened, and different sources count different sets. This page keeps each source's current number, when it last moved, and what it measures."
   depth="plain"
-  kicker="Evidence"
+  kicker="The record"
 >
   <Answer>
   <p>
@@ -21,10 +78,11 @@ import { fig } from '../../lib/figures';
     Research puts confirmed losses at
     {fig('galaxyConfirmedBtc')} from {fig('galaxyConfirmedAddresses')} as of
     3 August, rising to {fig('galaxyInclWave4Btc')} if a suspected fourth wave
-    is confirmed. Live community trackers show between about 1,367 and 1,924
-    BTC depending on what they count. Every figure below keeps its source, the
-    set it counts and the date it was stated; superseded figures live in the
-    register further down, not in the headline numbers.
+    is confirmed. The three community trackers stood at {range.low} to
+    {range.high} BTC when this archive last read them, depending on what they
+    count. Every figure below keeps its source, the set it counts and the date
+    it was stated; superseded figures live in the register further down, not in
+    the headline numbers.
   </p>
   </Answer>
 
@@ -42,34 +100,39 @@ import { fig } from '../../lib/figures';
   </div>
 
   <div class="kpi-row">
-    <div class="kpi-card" style="--i:0">
-      <div class="kpi-card__value"><span>1,366.58</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">coldcardwatch.com</div>
-      <div class="kpi-card__note">Anonymous tracker's self-described verified floor: three clusters, 4,580 addresses. 3 Aug 04:03 UTC capture, unchanged in a 4 Aug poll.</div>
-    </div>
-    <div class="kpi-card" style="--i:1">
-      <div class="kpi-card__value"><span>1,433.13</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">coldcard.rip, Kevin Kelbie</div>
-      <div class="kpi-card__note">Ten block-indexed waves from 5,477 swept addresses; the page self-describes as AI-compiled. Data snapshot 3 Aug 22:59 UTC.</div>
-    </div>
-    <div class="kpi-card" style="--i:2">
-      <div class="kpi-card__value"><span>1,923.81</span><sup>BTC</sup></div>
-      <div class="kpi-card__label">coldcard-hack-tracker, SamSamskies</div>
-      <div class="kpi-card__note">Eight labelled waves including a likely wave 4 at 443.34 BTC; a known-waves-only floor. Captured 4 Aug 03:05 UTC.</div>
-    </div>
+    {cards.map((card) => (
+      <div class="kpi-card" style={card.style} data-tracker={card.id} data-tracker-state={card.state}>
+        <div class="kpi-card__value"><span>{card.btcRounded}</span><sup>BTC</sup></div>
+        <div class="kpi-card__label">
+          <a href={card.href}>{card.label}</a> · {card.by}
+          <span class={`status status--${card.liveness.tone} kpi-live`}>{card.liveness.label}</span>
+        </div>
+        <dl class="kpi-meta">
+          {card.rows.map((row) => (
+            <div class="kpi-meta__row" data-flag={String(row.flag)}>
+              <dt>{row.term}</dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div class="kpi-card__note">{card.counts}</div>
+      </div>
+    ))}
   </div>
 
   <p class="cap">
     The cards measure different sets, not competing measurements of one set.
-    Dates are when each figure was published or captured; the trackers publish
-    live totals that keep moving, and nothing on this page tracks live
-    balances.
-  </p>
-
-  <p>
-    If your own addresses may be affected, start with the
-    <a href="/risk/">risk assessment</a>, which works from the firmware a seed
-    was generated on.
+    Each tracker figure is read out of the copy this archive holds, and says
+    which capture it came from, when the figure last moved, and whether the
+    tracker is still answering. They are readings of a held copy rather than
+    live balances: a tracker moves between captures, and this page moves only
+    when it is rebuilt.
+    <Claim
+      basis="verified"
+      scope="That each tracker figure above matches the capture named beside it, and the capture and health times stated"
+      source="Read at build time from the held snapshots for coldcard-watch, coldcard.rip and coldcard-hack-tracker, and from this archive's own poll record"
+      href="/record/changes/"
+    />
   </p>
 
   <h2 id="headline-numbers">The headline numbers, and when they last moved</h2>
@@ -87,8 +150,8 @@ import { fig } from '../../lib/figures';
         <caption>Current headline totals by source, with scope and update time
           <Claim
             basis="reported"
-            scope="The five headline figures in the table, their scopes and their stated or captured times"
-            source="Galaxy Research's captured 3 August thread and the three tracker captures held at the stated times"
+            scope="The five headline figures in the table, their scopes, and the captures each tracker figure was read from"
+            source="Galaxy Research's captured 3 August thread, and the tracker figures read at build time from the captures named in each row"
             href="/record/sources/glxy-losses-exceed-100m/"
           />
         </caption>
@@ -114,22 +177,22 @@ import { fig } from '../../lib/figures';
             <td class="wide" data-sort="20260803225141">Published 3 Aug, 22:51 UTC, same thread.</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-hack-tracker/">coldcard-hack-tracker</a></strong><small>SamSamskies' tracker</small></td>
-            <td class="nw" data-sort="1923.81">1,923.80748125 BTC</td>
-            <td class="wide">Eight labelled waves, 30 Jul to 3 Aug, including a likely wave 4 carried at 443.34 BTC; self-described as a known-waves-only floor</td>
-            <td class="wide" data-sort="20260804030519">Captured 4 Aug, 03:05 UTC. Live page, changes roughly hourly; history below.</td>
+            <td class="nw"><strong><a href={hack.href}>coldcard-hack-tracker</a></strong><small>SamSamskies' tracker</small></td>
+            <td class="nw" data-sort={hack.btcSort}>{hack.btc} BTC</td>
+            <td class="wide">{hack.detail}, 30 Jul to 3 Aug, including a likely wave 4 carried at 443.34 BTC; self-described as a floor</td>
+            <td class="wide" data-sort={hack.readAt}>{hack.provenance} History below.</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-rip-tracker/">coldcard.rip</a></strong><small>Kevin Kelbie's tracker</small></td>
-            <td class="nw" data-sort="1433.13">1,433.13 BTC<small>from 5,477 addresses</small></td>
-            <td class="wide">Ten block-indexed waves, 30 Jul to 3 Aug; destinations received 1,432.48 BTC after fees. The page self-describes as AI-compiled, not independently fact-checked</td>
-            <td class="wide" data-sort="20260803225915">Successor to the railway deployment Kelbie announced on 2 Aug. Data snapshot 3 Aug, 22:59 UTC; captured 3 Aug, 23:44 UTC.</td>
+            <td class="nw"><strong><a href={rip.href}>coldcard.rip</a></strong><small>Kevin Kelbie's tracker</small></td>
+            <td class="nw" data-sort={rip.btcSort}>{rip.btc} BTC<small>from {rip.addresses} addresses</small></td>
+            <td class="wide">Ten block-indexed waves, 30 Jul to 3 Aug; {rip.detail}. The page self-describes as AI-compiled, not independently fact-checked</td>
+            <td class="wide" data-sort={rip.readAt}>Successor to the railway deployment Kelbie announced on 2 Aug. {rip.provenance}</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-watch/">coldcard-watch</a></strong><small>anonymous tracker</small></td>
-            <td class="nw" data-sort="1366.58">1,366.5774 BTC<small>4,580 addresses</small></td>
+            <td class="nw"><strong><a href={watch.href}>coldcard-watch</a></strong><small>anonymous tracker</small></td>
+            <td class="nw" data-sort={watch.btcSort}>{watch.btc} BTC<small>{watch.addresses} addresses</small></td>
             <td class="wide">Self-described verified minimums: a floor, three clusters from 30 Jul to 1 Aug</td>
-            <td class="wide" data-sort="20260803040304">Anonymously operated. Moved from coldcard-watch.vercel.app to coldcardwatch.com on 3 to 4 Aug; re-polled at the new domain 4 Aug, 08:06 UTC, figure unchanged since the 3 Aug, 04:03 UTC capture.</td>
+            <td class="wide" data-sort={watch.readAt}>Anonymously operated. Moved from coldcard-watch.vercel.app to coldcardwatch.com on 3 to 4 Aug. {watch.provenance}</td>
           </tr>
         </tbody>
       </table>
@@ -309,8 +372,8 @@ import { fig } from '../../lib/figures';
     four holdings Galaxy published for the 30 July waves, listed below, fall
     inside the waves Galaxy describes as unmoved. It also states
     that <a href="/record/sources/glxy-attack-ongoing/">the attack is ongoing</a>,
-    which is a risk question rather than an accounting one and is taken up on
-    the <a href="/risk/">risk pages</a>.
+    which is outside this accounting page and remains preserved in the linked
+    source record.
   </p>
 
   <p>
@@ -340,7 +403,7 @@ import { fig } from '../../lib/figures';
     />
     That bears on the affected firmware range rather
     than on the accounting here, and is
-    <a href="/record/firmware/">taken up on the firmware page</a>.
+    <a href="/record/reference/#firmware">taken up on the firmware page</a>.
   </p>
 
   <Disclosure id="estimate-register" title="The estimate register" note="every published total, what it measures, when it moved">
@@ -360,7 +423,7 @@ import { fig } from '../../lib/figures';
             basis="reported"
             scope="The BTC and USD estimates in the source register above"
             source="Estimates as published by each source; USD figures use each source's conversion at its publication time"
-            href="/record/analysis/"
+            href="/record/reference/#analysis"
           />
         </caption>
         <thead>
@@ -385,22 +448,22 @@ import { fig } from '../../lib/figures';
             <td class="nw"><a href="/record/sources/lookonchain-galaxy-2055-btc/">copy held</a>; a relay, not independent analysis</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-hack-tracker/">coldcard-hack-tracker</a></strong><small>SamSamskies, captured 4 Aug 2026</small></td>
-            <td class="nw" data-sort="1923.81">1,923.80748125 BTC</td>
-            <td class="nw">Eight labelled waves, 30 Jul to 3 Aug, including a likely wave 4 at 443.34 BTC; known waves only, self-described floor</td>
-            <td class="nw"><a href="/record/sources/coldcard-hack-tracker/">copy held</a>, captured 4 Aug 03:05 UTC; live total moves often</td>
+            <td class="nw"><strong><a href={hack.href}>coldcard-hack-tracker</a></strong><small>SamSamskies · capture of {hack.readAtShort}</small></td>
+            <td class="nw" data-sort={hack.btcSort}>{hack.btc} BTC</td>
+            <td class="nw">{hack.detail}, 30 Jul to 3 Aug, including a likely wave 4 at 443.34 BTC; self-described floor</td>
+            <td class="nw"><a href={hack.href}>copy held</a>; unchanged since {hack.heldSinceShort}, and the live page moves often</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-rip-tracker/">coldcard.rip</a></strong><small>Kevin Kelbie, captured 3 Aug 2026</small></td>
-            <td class="nw" data-sort="1433.13">1,433.13 BTC swept<small>1,432.48 BTC received after fees</small></td>
-            <td class="nw">Ten block-indexed waves from 5,477 swept addresses; self-described as AI-compiled, not independently fact-checked</td>
-            <td class="nw"><a href="/record/sources/coldcard-rip-tracker/">copy held</a>, data snapshot 3 Aug 22:59 UTC; supersedes Kelbie's 2 Aug post below</td>
+            <td class="nw"><strong><a href={rip.href}>coldcard.rip</a></strong><small>Kevin Kelbie · capture of {rip.readAtShort}</small></td>
+            <td class="nw" data-sort={rip.btcSort}>{rip.btc} BTC swept<small>{rip.detail}</small></td>
+            <td class="nw">Ten block-indexed waves from {rip.addresses} swept addresses; self-described as AI-compiled, not independently fact-checked</td>
+            <td class="nw"><a href={rip.href}>copy held</a>; supersedes Kelbie's 2 Aug post below</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/coldcard-watch/">coldcard-watch</a></strong><small>captured 3 Aug 2026</small></td>
-            <td class="nw" data-sort="1366.58">1,366.5774 BTC</td>
-            <td class="nw">Self-described verified minimums across 4,580 addresses in three clusters, 30 Jul to 1 Aug</td>
-            <td class="nw"><a href="/record/sources/coldcard-watch/">copy held</a>; moved to coldcardwatch.com, re-polled 4 Aug 08:06 UTC, figure unchanged</td>
+            <td class="nw"><strong><a href={watch.href}>coldcard-watch</a></strong><small>anonymous · capture of {watch.readAtShort}</small></td>
+            <td class="nw" data-sort={watch.btcSort}>{watch.btc} BTC</td>
+            <td class="nw">Self-described verified minimums across {watch.addresses} addresses in three clusters, 30 Jul to 1 Aug</td>
+            <td class="nw"><a href={watch.href}>copy held</a>; moved to coldcardwatch.com, and unchanged since {watch.heldSinceShort}</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">@intangiblecoins wave 4</a></strong><small>X, 3 Aug 2026</small></td>
@@ -491,8 +554,8 @@ import { fig } from '../../lib/figures';
     BTC/USD conversion time. Galaxy's approximately US$88.6m belongs to the
     three-wave scope of 1 August, and its US$100M and US$130m statements of
     3 August to the wider confirmed and suspected sets. Tracker rows carry the
-    figure held at the stated capture time; those sites publish live totals
-    that have continued to move since.
+    figure read from the capture named in the row; those sites publish live
+    totals that may have moved since it was taken.
   </p>
 
   <p>
@@ -834,7 +897,7 @@ import { fig } from '../../lib/figures';
   <p>
     Nothing in the held captures records an exchange freeze, a flagging
     commitment or any other custodial action against the four consolidation
-    addresses as of 4 August 2026, and no captured source names an exchange or
+    addresses as of 5 August 2026, and no captured source names an exchange or
     service that has undertaken to stop or mark deposits from them. The tracker
     record does show deposits attributed to the later wave-4 park reaching
     Bullish.com, Coinbase Prime Custody and KuCoin, with no freeze or seizure
@@ -843,7 +906,7 @@ import { fig } from '../../lib/figures';
     <Claim
       basis="unverified"
       scope="Whether any exchange or custodial service has frozen or committed to flagging deposits from the attributed addresses"
-      source="No captured source held by this project reports such a step as of 4 August 2026; the archive cannot observe unpublished compliance action"
+      source="No captured source held by this project reports such a step as of 5 August 2026; the archive cannot observe unpublished compliance action"
       href="/record/changes/"
     />
   </p>
@@ -913,11 +976,22 @@ import { fig } from '../../lib/figures';
       that the 14 smaller footprints could be many different attackers
       individually exploiting the now-known vulnerability. Block's fingerprint
       match for the 695 earlier transactions remains reported rather than
-      independently confirmed.
+      independently confirmed. On 4 August, Galaxy's Alex Thorn estimated at
+      least 15 distinct attackers based on continuing victim reports and newly
+      labelled activity.
+      <Claim
+        basis="reported"
+        scope="The estimate of at least 15 distinct attackers"
+        source="Alex Thorn's captured 4 August post; the underlying labels, victim set and counting method are not published in the post"
+        href="/record/sources/intangiblecoins-2084584185528746434/"
+        compact
+      />
+      The newer number is therefore recorded as an estimate, not a resolved
+      operator count.
       <Claim
         basis="unverified"
         scope="Whether the 14 smaller footprints and the earlier 695 transactions were controlled by the same operator as the mass waves"
-        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed"
+        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 5 August 2026 recheck"
         href="/record/sources/clay-earlier-waves-thread/"
       />
     </li>
@@ -950,7 +1024,7 @@ import { fig } from '../../lib/figures';
       <Claim
         basis="unverified"
         scope="Whether the reported 45.9 BTC cluster is in fact related to the principal incident set"
-        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship has been captured"
+        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship was captured in a 5 August 2026 recheck"
         href="/record/sources/kevinkelbie-later-wave/"
       />
     </li>
@@ -958,13 +1032,13 @@ import { fig } from '../../lib/figures';
       <strong>Whether the circulated fourth wave is part of the same incident.</strong>
       The corrected wave-4 set rests on pattern matching. Galaxy suspects it is
       real with medium-high confidence, and neither Galaxy nor its author
-      reports direct victim confirmation as of 4 August 2026. Its stated
+      reports direct victim confirmation as of 5 August 2026. Its stated
       figures, corrections and unreconciled arithmetic are recorded
       <a href="#wave-4">above</a>; it enters no total on this page.
       <Claim
         basis="unverified"
         scope="Whether the circulated wave-4 set belongs to the same incident as the attributed transaction sets"
-        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation"
+        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation; no later confirmation was captured in a 5 August 2026 recheck"
         href="/record/sources/glxy-wave4-caveat/"
       />
     </li>

@@ -1,0 +1,90 @@
+--- reddit-mk4-bricked-hotfix@20260804T201356Z
++++ reddit-mk4-bricked-hotfix@20260804T204329Z
+@@ -25,14 +25,62 @@
+ 
+ [https://github.com/Coldcard/firmware/pull/692](https://github.com/Coldcard/firmware/pull/692)
+ 
+-
+-
+ ———-EDIT 3 DAYS LATER, COLD CARD REPORT  ———-
+ 
++[https://x.com/COLDCARDwallet/status/2084632863756955661](https://x.com/COLDCARDwallet/status/2084632863756955661)
++
++I will try to test in the described way and update here about results for everyone.
++
+   
+-[https://x.com/COLDCARDwallet/status/2084632863756955661](https://x.com/COLDCARDwallet/status/2084632863756955661)
+-
+-I will try to test in the described way and update here about results for everyone.
++——— EDIT 3 DAYS LATER, DEVICE RECOVERED / WHAT ACTUALLY HAPPENED ———
++
++The device was not permanently bricked.
++
++
++
++I fully disconnected every power source, left it unpowered for a while, and pressed a few keys for several seconds while it was disconnected, just to help drain any remaining power. After reconnecting it, the normal PIN screen came back.
++
++
++
++What seems to have happened is a temporary fault in the STM32 hardware TRNG on firmware 5.6.0. Once the TRNG enters that error state, the current firmware does not recover it properly, so later RNG calls can fail with OSError(EFAULT).
++
++
++
++This also explains why it happened while I was applying a passphrase. The BIP-39 passphrase calculation itself is deterministic, but the keypad/UI also uses the hardware RNG to randomize the scan order. The RNG fault likely surfaced through that path, caused the MicroPython crash I saw, and then left the device showing the very misleading BRICKED screen.
++
++
++
++The important part is that the fault is temporary and clears after a real power cycle:
++
++
++
++disconnect USB, Coldpower, batteries and everything else;
++
++leave it fully unpowered for a bit;
++
++while disconnected, press a few keys for several seconds;
++
++reconnect it using a stable power source.
++
++
++
++PR #692 documented the issue, while PR #693 contains the proper fix:
++
++
++
++[https://github.com/Coldcard/firmware/pull/693](https://github.com/Coldcard/firmware/pull/693)
++
++
++
++The new code detects the TRNG error, tries to recover it properly and retries instead of leaving the device stuck in that state.
++
++
++
++Until Coinkite releases an official signed firmware containing the #693 fix, I would avoid unnecessary passphrase/keypad testing on 5.6.0, because the issue could happen again.
++
++
++
++Also: do not install random firmware from GitHub and do not trust any “online recovery” link sent through DMs ( I actually received a bunch of those ). Wait for the official release. 
+ 
+ comment: p13tui2
+ parent: t3_1vct6m2
+@@ -496,3 +544,19 @@
+ [https://github.com/Coldcard/firmware/pull/693](https://github.com/Coldcard/firmware/pull/693)
+ 
+ Even if I was not affected  (I used dice rolls + strong passphrase) I moved my funds to a new seed (generated with dice rolls, no CC involved) and I would like to update my CC mk3 but firmware hasn't been update to fix this "BRICKED" bug, or?
++
++comment: p1q1psp
++parent: t1_p1natto
++author: lucapocchio
++created_utc: 1785875582
++edited: false
++body:
++I updated the post with the "post mortem", and how to recover it. But still can happen until new firmware is not officialy released.
++
++comment: p1q28tf
++parent: t3_1vct6m2
++author: lucapocchio
++created_utc: 1785875724
++edited: false
++body:
++POST MORTEM UPDATE ON POST

@@ -10,7 +10,13 @@ Instrument Serif headline, IBM Plex Mono labels.
 
     .venv/bin/python site/tools/branding/gen-brand-assets.py
 
-Needs Pillow. Output lands in `out/` beside the script. The two assets
+Needs Pillow, which is not in `.venv`: install it there, or run the script
+from a throwaway venv, which keeps the capture interpreter as it is. Text
+rasterisation differs between FreeType versions, so a regenerate on a
+different machine rewrites every PNG with visually identical output. Check
+what actually moved before committing the churn.
+
+Output lands in `out/` beside the script. The two assets
 the site serves are copies, so publishing a change is two steps:
 
     cp site/tools/branding/out/og.png site/tools/branding/out/favicon.svg site/public/
@@ -27,8 +33,23 @@ hand to GitHub and X; nothing in the build reads them. Edit the `COPY` block at 
 | `og.png`             | 1200x630  | `site/public/og.png`, Open Graph and Twitter `summary_large_image` |
 | `github-social.png`  | 1280x640  | GitHub repo social preview (repo Settings, Social preview) |
 | `x-banner.png`       | 1500x500  | X/Twitter profile header (text sits right of the avatar overlay) |
-| `profile.png`        | 512x512   | X/Twitter and GitHub avatar |
+| `profile.png`        | 512x512   | GitHub and X/Twitter avatar (Settings, profile picture) |
 | `favicon.svg`        | vector    | `site/public/favicon.svg` |
+
+`github-social.png` is also the banner at the top of the repository README,
+referenced by relative path so a clone or a fork renders it without
+reaching for the network.
+
+## The avatar is drawn for a circle
+
+GitHub and X both mask a profile picture to a circle. The square double rule
+every other asset carries loses its four corners under that mask and renders
+as four arc-truncated segments, so `profile.png` uses concentric circles
+instead, which the mask follows rather than cuts. It also carries no text:
+an avatar is read at 20 to 40px beside a comment, where the 30px wordmark it
+used to have resolves to about two pixels. The ochre mark is the identity at
+that size, and it is the same shape as `favicon.svg`. Check any change to it
+under a circular crop at 40px, not as a 512px square.
 
 ## Copy
 

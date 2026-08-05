@@ -1,0 +1,27 @@
+---
+/** A bounded pair of exact instants formatted in one selected time zone. */
+interface Props {
+  start: string;
+  end: string;
+  seconds?: boolean;
+}
+
+const { start, end, seconds = false } = Astro.props;
+const startDate = new Date(start);
+const endDate = new Date(end);
+const valid = !Number.isNaN(startDate.getTime()) && !Number.isNaN(endDate.getTime());
+const formatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric', month: 'short', year: 'numeric',
+  hour: '2-digit', minute: '2-digit',
+  ...(seconds ? { second: '2-digit' } : {}),
+  timeZoneName: 'short', timeZone: 'UTC',
+});
+const display = valid ? formatter.formatRange(startDate, endDate) : `${start} to ${end}`;
+---
+
+<span
+  data-cc-time-range
+  data-cc-start={start}
+  data-cc-end={end}
+  data-cc-seconds={seconds ? '' : undefined}
+>{display}</span>

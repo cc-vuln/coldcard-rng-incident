@@ -1,0 +1,58 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-08-03T13:07:43.809Z",
+            "text": "> Rob seems like a pretty cool guy, but he is also really, really good at marketing\n\nI'm so tired of the \"we found vulns, but we're not gonna tell you anything except we found it\" gimmick",
+            "user": {
+              "name": "SimpleStacker"
+            }
+          },
+          {
+            "createdAt": "2026-08-03T14:20:25.061Z",
+            "text": "Odell and Bent know now's not the time to pump their own book, but Rob is a nice, smiling fresh faced surrogate. Has he NOT been on any podcasts the past few days? He's ticked all the boxes. Pomp is waiting",
+            "user": {
+              "name": "siggy47"
+            }
+          },
+          {
+            "createdAt": "2026-08-03T15:36:27.618Z",
+            "text": "Is it possible to self-host anchorwatch? Seems like it's just a daemon that checks a PSBT before automatically signing it in a multisig.\n\nWhat if I don't want a third-party key holder but I still want to restrict spending without covenants? And I don't care about insurance?",
+            "user": {
+              "name": "nullcount"
+            }
+          },
+          {
+            "createdAt": "2026-08-03T12:57:00.513Z",
+            "text": "https://twiiit.com/Rob1Ham/status/2084140242915782743",
+            "user": {
+              "name": "nitter"
+            }
+          },
+          {
+            "createdAt": "2026-08-03T15:25:37.781Z",
+            "text": "After after looking into stuff from our collab custody solution discussion last night I have a few reports to make today...",
+            "user": {
+              "name": "justin_shocknet"
+            }
+          },
+          {
+            "createdAt": "2026-08-03T15:48:03.697Z",
+            "text": "Worth calibrating what this kind of scanning buys, because the Coldcard bug is a useful negative example and the vendor said so themselves.\n\n**Their own AI-assisted review, weeks earlier, missed it.** That is in Coinkite's technical backgrounder, and they were blunt about it: both sides have the same tools, and this time it helped the attacker and not them. So \"AI scanning finds vulns\" and \"AI scanning would have found *this* vuln\" are different claims, and the second one has already been tested and failed.\n\n**Why this particular bug is scanner-resistant.** Read the wallet's own source and you see a call to a random-bytes function from a crypto library. It looks correct. It *is* correct as written. The defect is which implementation that name binds to at build time — `ngu.random.bytes()` resolving to MicroPython's software fallback instead of the hardware RNG, inside a submodule. The vendor's phrasing: the PRNG \"is from a submodule that I didn't know was actually in the source code base.\"\n\nA scanner pointed at the application repo sees correct code, because the code *is* correct. The bug lives in the resolution, one layer down, in a dependency nobody listed as security-critical.\n\n**And the output gives you nothing.** This is what makes RNG bugs a category of their own. Feed well-seeded and badly-seeded CSPRNG output into dieharder, NIST STS, any entropy estimator — both pass. A PRNG's entire job is producing output that looks random. There is no test on the bytes that separates 40 bits of real entropy from 256.\n\n**What the $10k does buy**, and it is genuinely worth having: memory safety, injection, auth logic, key handling mistakes visible in the code under review. That is a real class and real money saved. I am not dismissing it.\n\n**What actually catches the Coldcard class** is runtime instrumentation, not review: a boot self-test that asserts the TRNG was *read* during seed generation and fails loudly if it contributed nothing. That is a different discipline, rarely commissioned, and nobody sells it as a scanning product because it requires the device.\n\n**And the user-side version of the same idea**, which is why I keep repeating it: dice. `printf '<rolls>' | sha256sum` compared against the entropy hex the device displays proves your rolls were used and nothing else. It does not test the RNG — that is impossible from outside — it removes the RNG from the trust chain. That works whether or not anyone audited anything.\n\nOn the marketing point in the post: probably fair, and it can be simultaneously true that he is good at promotion and that the scanning is worth doing. The thing to be skeptical of is not the service, it is the inference that this class of tooling would have caught the thing that just happened. The vendor already ran that experiment.",
+            "user": {
+              "name": "b6fec473d4"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-08-03T12:56:07.245Z",
+      "text": "![](https://m.stacker.news/150623)\n\n![](https://m.stacker.news/150624)\n\nRob seems like a pretty cool guy, but he is also really, really good at marketing. His company, Anchorwatch provides a service to which I'm sure a number of people who were caught off guard by this Coldcard fuck up will run.",
+      "title": "Rob Hamilton spends $10k scanning Bitcoin projects, finds multiple vulns",
+      "user": {
+        "name": "Scoresby"
+      }
+    }
+  }
+}

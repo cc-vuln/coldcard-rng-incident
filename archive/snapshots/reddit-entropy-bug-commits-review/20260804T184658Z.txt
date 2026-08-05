@@ -1,0 +1,1005 @@
+post: 1vdycb4
+author: DyehuthyTV
+created_utc: 1785717011
+title: Coldcard entropy bug: the commits that introduced it are worth reviewing
+body:
+Source → X (Tweet): [hodlonaut #BIP-110 on X: "The commits (code changes)..." / X](https://x.com/hodlonaut/status/2083885515229573203) 👀
+
+This is why people should learn to **VERIFY the things they consume**. No excuses!
+
+>"I am not a programmer, I don't understand code. How am I supposed to verify?"
+
+Learn! With Bitcoin, you are adopting a living standard of verifying everything: **understanding how things really work.**
+
+* Economics
+* Monetary system(fiat money)
+* Banking system
+* Investing & Saving
+* Software
+* Hardware
+* Information (facts vs noise)
+* Privacy
+* Cybersecurity
+* etc., etc.
+
+This living standard is not just for "paranoids." It is for people who like to do their own research and their own due diligence.
+
+**"Don't trust, verify" is not a slogan. It is a living standard!**
+
+**"With Bitcoin, you are your own bank."** Well, this is a huge responsibility! It is not a "game." You have to invest a lot of time into **security**, just like banks do.
+
+comment: p1czpje
+parent: t3_1vdycb4
+author: CheeseWeezel
+created_utc: 1785718716
+edited: false
+body:
+I've never heard of anyone comparing commit message length to the amount of code changes.
+
+Every production system I've ever worked on inevitably has an occasional "WIP", "Ugh", or "Crap" commit message - just how it works.
+
+  
+The real problem is the code, not the commit message.
+
+comment: p1d0v8t
+parent: t1_p1czpje
+author: DyehuthyTV
+created_utc: 1785719108
+edited: false
+body:
+For critical parts of any software code, 'long' commits \[detailed description\] are mandatory, bro. 
+
+comment: p1d1xx7
+parent: t1_p1czpje
+author: CaughtCovidCrazy
+created_utc: 1785719472
+edited: false
+body:
+At least the message that survives (the MR) shouldn't be like that. My branch commits often only have a message because git makes me. And it's often '.' 
+
+comment: p1d329a
+parent: t3_1vdycb4
+author: puck2
+created_utc: 1785719856
+edited: false
+body:
+Have you looked at electrum or sparrow? Or why not just run the official bitcoin client on an air gapped pc? But what really matters is the computer's RNG? Do old laptops have good RNGs? How do sparrow, electrum, or bitcoin-at generate seeds? 
+
+comment: p1d363s
+parent: t1_p1d1xx7
+author: DyehuthyTV
+created_utc: 1785719894
+edited: false
+body:
+You can do that in personal projects, but in big projects (especially open-source ones), like Bitcoin itself (Bitcoin Core, node repo), you have a "detailed description" process for all code changes, and this is even more mandatory if that code change touches a critical part of the code lol
+
+It's not like: "I will change the block size of the Bitcoin blockchain with a commit \[.\], and will merge" ("Easy!") xD
+
+If you do this in a serious project, you will be banned or expelled from it ;)
+
+comment: p1d4doi
+parent: t1_p1d363s
+author: Not_A_Taco
+created_utc: 1785720314
+edited: false
+body:
+>If you do this in a serious project, you will be banned or expelled from it ;)
+
+Definitely not true. Many "serious" projects squash commits.
+
+comment: p1d4yp3
+parent: t1_p1czpje
+author: TheMania
+created_utc: 1785720520
+edited: false
+body:
+I take it you've never worked on Linux?
+
+ie crypto/rng.c's history is [here](https://github.com/torvalds/linux/commits/master/crypto/rng.c), click on any commit, see the kind of messages that are expected [there](https://github.com/torvalds/linux/commit/52b84667bbdc656b380983262ac6303caf49ef2c).
+
+comment: p1d5xms
+parent: t1_p1d4doi
+author: CaughtCovidCrazy
+created_utc: 1785720859
+edited: false
+body:
+Ya this guy doesn't understand the distinction I think. 
+
+comment: p1d6kel
+parent: t1_p1d329a
+author: DyehuthyTV
+created_utc: 1785721082
+edited: false
+body:
+Yes, seed generation depends on hardware RNG + operating system (software, firmware)
+
+Isolated devices to generate and store keys and are commun use it in Bitcoin for Security purpose. As you well know.
+
+Bitcoin Nodes, like Bitcoin Core or Knots are Open-Source, you can review their code on Github. The same for Sparrow and Electrum. Code reviews are not easy, and takes time and technical knowledge, thats why people should take their time to learn and review this things to understand what kind of risks they have to manage, before move their Bitcoins from a crypto exchange.
+
+Bitcoin as personal sovereignty does not have an easy learning curve :P
+
+comment: p1d6z7a
+parent: t3_1vdycb4
+author: ElGuano
+created_utc: 1785721226
+edited: false
+body:
+A detailed post-mortem/retro is good practice. A take-away that non-developers should learn to code so they can personally verify all commits before they use a consumer product, and presumably for all time moving forward so long as they continue to use the product?  This is not a serious proposal worth considering.
+
+comment: p1d746q
+parent: t1_p1d4doi
+author: DyehuthyTV
+created_utc: 1785721275
+edited: 1785721482
+body:
+Try to merge (or only a PR) a code change on Bitcoin with that commits :P Good luck!
+
+comment: p1d7gzk
+parent: t1_p1d746q
+author: Not_A_Taco
+created_utc: 1785721401
+edited: false
+body:
+I’m not fully sure why you think my comment about squashing commits would apply to a repo that doesn’t squash commits lol?
+
+comment: p1da4ay
+parent: t1_p1d7gzk
+author: DyehuthyTV
+created_utc: 1785722337
+edited: false
+body:
+I am pretty sure that most people don't understand the workflow (PRs, Tasks, Flags, etc) that big open-source projects have.
+
+Again, in serious projects, like Bitcoin (GitHub repo), with that "squashing commits" approach, you will never make a "code change"; your PR (pull request) will be directly ignored if you dont follow the instructions on the PR commits for review, with your "squash commits" lol
+
+Some projects that are open-source too, but don't have a "big team of devs" behind them, can end up committing everything with "squash commits" because they treat the project like a personal project :P, which is actually not professional.
+
+comment: p1dc6w0
+parent: t3_1vdycb4
+author: enchufadoo
+created_utc: 1785723080
+edited: false
+body:
+Learn quantum physics so you are quantum safe!
+
+comment: p1dcvlk
+parent: t3_1vdycb4
+author: ScoreOk5355
+created_utc: 1785723328
+edited: false
+body:
+Can anyone please ELI5?
+
+Is this making default words of the seed phrase (runs) and (x)?
+
+comment: p1dd5ys
+parent: t1_p1da4ay
+author: Not_A_Taco
+created_utc: 1785723433
+edited: false
+body:
+I don’t really know of a nicer way to say it, but all of this is nonsense and/or incorrect. Again, as someone who has worked on multiple (very) “serious” projects I can tell you first hand that squashing commits is a valid and common workflow.
+
+I was just trying to jump in and offer a SWE perspective but I don’t think you’ll be convinced otherwise, so I’ll just say enjoy the rest of your evening here
+
+comment: p1dgj43
+parent: t1_p1czpje
+author: SongOfStorms_
+created_utc: 1785724642
+edited: false
+body:
+booo down you go - it's not acceptable. The commit messages explains the code and scopes the feature, bad dev's, write bad/poorly scoped code, in bad commits, a tale as old as time. They all go together.
+
+comment: p1dgscs
+parent: t1_p1dcvlk
+author: soundssarcastic
+created_utc: 1785724732
+edited: false
+body:
+Coders changed lots of lines of codes and when they finalized it, they wrote (runs) and (x) instead of a detailed description of what code was changed. I guess. Im not a coder and this seems nit-picky, if it didnt reflect a higher culture of negligece and laissez-faire attitude resulting in the loss of millions of dollars
+
+comment: p1dh61j
+parent: t1_p1d4yp3
+author: DyehuthyTV
+created_utc: 1785724873
+edited: false
+body:
+Well, there are (professional) developers and people who think they are "developers" xD
+
+>Every production system I've ever worked on inevitably has an occasional "WIP", "Ugh", or "Crap" commit message - just how it works.
+
+**The key word here is 'OCCASIONAL'**. And it depends on what project you are working on. In personal projects they are fine (non-commercial or not for mass usage) :P  
+  
+In some projects, with this kind of "OCCASIONAL commits", your PRs (pull requests) will be fully ignored; we are not even talking about making a code changes (a merge). Again, people should read the CONTRIBUTION files on GitHub of big projects (e.g Bitcoin Github repo) before talk about it. 
+
+comment: p1dh7yb
+parent: t1_p1d4yp3
+author: SongOfStorms_
+created_utc: 1785724892
+edited: false
+body:
+Yes, this. It doesn't mean bad code can't happen but it filters out a lot of derps if you just have commit standards.
+
+comment: p1dh9xe
+parent: t3_1vdycb4
+author: somebodyistrying
+created_utc: 1785724913
+edited: false
+body:
+Could you imagine reading the code and commits for every product you use
+
+comment: p1dhn2p
+parent: t1_p1dh9xe
+author: DyehuthyTV
+created_utc: 1785725047
+edited: false
+body:
+Only open-source ones; not everything that you use is open-source (open-source = you can verify) lol
+
+comment: p1dhz95
+parent: t1_p1dhn2p
+author: somebodyistrying
+created_utc: 1785725175
+edited: false
+body:
+Like the Linux kernel 
+
+comment: p1dj4p1
+parent: t1_p1dgscs
+author: OldHamburger7923
+created_utc: 1785725606
+edited: false
+body:
+it goes to show they were taking shortcuts. In my workplace, git is hooked into the feature tracker, your commit messages go into the release, release notes info, and is read by more than just your code reviewer.
+
+comment: p1dlx6a
+parent: t1_p1dhn2p
+author: user_name_checks_out
+created_utc: 1785726672
+edited: false
+body:
+absurd
+
+comment: p1doevf
+parent: t1_p1dcvlk
+author: DyehuthyTV
+created_utc: 1785727663
+edited: false
+body:
+If you read the article shared in the tweet (X), you will see that those firmware code changes in Coldcard introduce major implementation errors in the HWW's Entropy RNG.
+
+And the bad practice of making major changes to the codebase with practically zero description of those changes in the commits: no logic, no reasoning, no explanation, nothing, just few words: "runs" and "x". 
+
+And it is a big change in terms of lines of code (an important change where security depends on it) with zero description. Usually, this kind of change follows a methodical process.
+
+If you read and review the commits of other major open source projects (intended for mass usage and requiring a security layer), you will see that they specify in the repository's CONTRIBUTING file (on GitHub) the instructions for describing what kind of code changes you want to make, starting with the proposed change (PR). Then, other developers review that proposal, and those reviews also follow a defined process.
+
+For example, you can read the CONTRIBUTING file of the Bitcoin GitHub repository, specifically the section "Creating the Pull Request (PR)". This happens before any code change is Merged. It is only a proposal, and you will see the description requirements you need to provide in order to propose (PR) a code change.
+
+I hope this helps you. Its not easy makes a ELI5 on this :P
+
+comment: p1dtode
+parent: t1_p1czpje
+author: Ok_Option_3
+created_utc: 1785729826
+edited: false
+body:
+I'd take comments in the code over comments in the pr / commit message every time. How many comments are there in the commit itself?
+
+comment: p1dvgjl
+parent: t3_1vdycb4
+author: ThreeTonChonker
+created_utc: 1785730580
+edited: false
+body:
+Dark days for the Canadian programming industry. This guy was considered a wizard up there.
+
+comment: p1dy3qy
+parent: t1_p1dgscs
+author: ScoreOk5355
+created_utc: 1785731737
+edited: false
+body:
+Thanks that helps a lot.
+
+comment: p1e23hf
+parent: t3_1vdycb4
+author: quietlydesperate90
+created_utc: 1785733516
+edited: false
+body:
+Asking people to learn to code to the point they know better than the people working on the product is an insane ask. People will just use the ETFs if you can't trust products without being a programmer.
+
+comment: p1e2c4c
+parent: t1_p1dhn2p
+author: quietlydesperate90
+created_utc: 1785733628
+edited: false
+body:
+You use an android phone? I'm sure you've looked through aosp? I'm sure you've reviewed the Linux kernel too, yeah? Any notes you want to share?
+
+comment: p1e2y0e
+parent: t1_p1d6z7a
+author: DyehuthyTV
+created_utc: 1785733912
+edited: false
+body:
+Not only developers (or non-developers) should learn from this catasthropic events. 
+
+Everybody who has some interest in using Bitcoin as their personal sovereignty asset should learn from these events. And in fact, Bitcoiners' education should increase, not decrease, after this.
+
+>I was thinking about doing another post sharing these slides, but the conditions on Reddit really don’t make it very appealing to share a lot of content. And even less so often, even if the content is of high quality, which is a shame. If someone wants to download the slides and republish them here, while giving credit to the source (the link to the tweet in X), that would be fine.
+
+[Bitcoin Dev Project on X: "The COLDCARD entropy attack, explained simply"](https://x.com/Bitcoin_Devs/status/2083912081255153897) 👀 ← Look the Slides, are good to understand the Coldcard failure in a simple way + this post, it gives a good context (information).
+
+:D
+
+comment: p1e3l4i
+parent: t3_1vdycb4
+author: brtastic
+created_utc: 1785734211
+edited: false
+body:
+What a stupid screenshot. You don't need to calculate the ratio of commit message length to number of lines of code changed to consider "runs." or "x." awful commit messages. It's the first time I hear about calculating such ratio anyway.
+
+Naming big sets of changes in a commit message is hard anyway. Best is to avoid it entirely and commit more frequently, but it's sometimes hard if you don't get a working program before your codebase gets messy. So he should've just add a commit message promptly describing what he tried to achieve, and then comment somewhere else what did it take to reach that goal. That somewhere else may be in git message comments, right below the commit message. But that requires commiting without -m flag, which I guess he used: `git commit -m runs.` This is an awful display of laziness.
+
+Huge commits like these are also harder to review, as you need to notice one line out of 1500 which was at fault. But that assumes they had someone else even review these changes before they got merged.
+
+comment: p1e3wsr
+parent: t1_p1e23hf
+author: DyehuthyTV
+created_utc: 1785734364
+edited: false
+body:
+Yes, I agree. If you are not someone who is willing to learn more than what you already know, then without a doubt an ETF or another investment product that is 'simpler' to understand and gives you exposure to Bitcoin (returns%) is an alternative.   
+  
+Obviously, buying these types of instruments has a completely different purpose from owning Bitcoin (sovereignty), beyond simply being an investment in terms of a Fiat currency (unrealized gains in $$ by holding an Bitcoin ETF).
+
+:D
+
+comment: p1e4ct2
+parent: t1_p1e2c4c
+author: DyehuthyTV
+created_utc: 1785734576
+edited: false
+body:
+I dont use android :P  
+
+>I'm sure you've reviewed the Linux kernel
+
+Well, it depends on the distro :D Yeah, usually I review the packages I’m going to install, especially if you are installing a "clean or customizable" distro, like Arch for example (security checks!) 
+
+:D
+
+comment: p1e4idx
+parent: t1_p1dgj43
+author: otterbarks
+created_utc: 1785734649
+edited: false
+body:
+Agreed. At my company, commits like this just don't happen.
+
+If you have a proper code review culture (enforced by technical/policy controls), these one-word commits never get through because they don't give your peers enough information to actually make sense of what you're trying to do. (It's actually disrespectful to your peers, because one-word commit messages make more work for them to try to puzzle together what your commit is supposed to even do.)
+
+So your commits wouldn't pass code review.
+
+comment: p1e62ti
+parent: t1_p1e23hf
+author: brtastic
+created_utc: 1785735398
+edited: false
+body:
+Everyone should be capable of doing basic coding, just like everyone can do basic math. But not to the level to verify open source codebases, that takes years and years of dedication. However, AI is pretty good at analyzing data, and that includes code.
+
+The problem is that you can't be 100% certain there are no bugs, it's simply impossible. Even with a completely bug-free system, there is a non-zero chance that a rogue cosmic ray flips a random bit in your operating memory and produces it. One bug with Bitcoin can lead to losing everything. Does it mean that Bitcoin self custody is flawed? I don't think so, but it surely begs for the software to be as simple as possible, well-tested, well-reviewed, battle-tested etc. Which is what software should've been in the first place.
+
+Bitcoin Core should probably be the standard wallet, but syncing your node takes a long time, and it does not support BIP39 (mnemonics).
+
+comment: p1e9xgt
+parent: t1_p1dvgjl
+author: CzechYourStonks
+created_utc: 1785737281
+edited: false
+body:
+[ Removed by Reddit ]
+
+comment: p1ecsvx
+parent: t1_p1dh9xe
+author: sturmeh
+created_utc: 1785738698
+edited: false
+body:
+No but I can imagine the developer who wrote them reading them, sadly we're moving towards a future where people only read the code after the fact lol.
+
+comment: p1ed9rk
+parent: t1_p1e4idx
+author: DyehuthyTV
+created_utc: 1785738934
+edited: 1785739147
+body:
+Yes (100%!), but some people want to show that this kind of commits ("runs" or "x") is "normal" in a professional development environment, which is completely untrue.
+
+Like the other guy comment mentioning "OCCASIONAL commits" with messages such as "WIP," "Ugh," or "Crap," it is pretty clear that there is a lack of professional experience here.
+
+* Non-professional commit: `Crap`, `runs` or `x` (LOL!)
+* Professional commit: `<type>(<scope>): <description>`
+* Example: `validation: Check transaction inputs before adding to mempool`
+* In the **Bitcoin Core GitHub repository**, you can 'verify' my example :P
+
+As I said before, people should read the CONTRIBUTING files of major open-source projects, especially those involving commercial use or mass adoption (security is Important!)
+
+This type of commits is not acceptable in a professional software development environment.
+
+comment: p1edwun
+parent: t1_p1dhn2p
+author: ExcitingHamster
+created_utc: 1785739252
+edited: false
+body:
+So who was verifying this code?
+
+comment: p1ee9sa
+parent: t1_p1e62ti
+author: ExcitingHamster
+created_utc: 1785739430
+edited: false
+body:
+Haha found a developer who blames all his bugs on “rogue cosmic rays” 🤣
+
+comment: p1eec45
+parent: t1_p1czpje
+author: TheMermanly
+created_utc: 1785739463
+edited: false
+body:
+I’ve never seen something like that on my code base
+
+comment: p1efbkj
+parent: t3_1vdycb4
+author: Melchiah
+created_utc: 1785739954
+edited: false
+body:
+What a terrible take. Even if you DO learn and dedicate your whole life to reading and understanding all these commits, finding all the bugs in them by just reading the code is virtually impossible. I don't think you know a single line of code because if you did you'd know better than to write this shit post. 
+
+comment: p1ego86
+parent: t1_p1edwun
+author: DyehuthyTV
+created_utc: 1785740623
+edited: 1785741201
+body:
+Nobody, apparently not even the developers themselves had a mechanism for code review.
+
+"But it’s open-source, why don’t other people with technical knowledge do a review?"
+
+Sadly, in small open-source projects, these reviews require an economic incentive. If the company behind it dont have it, even less others.
+
+And most users of this kind of small open-source "software"  (firmware+hardware) products never read the code (*because they don't understand it)*. They just follow the "influencers" to buying things, without paying attention to the risks associated with them.
+
+* People don't always follow the security steps to secure their seed on any device, such as rolling dice, using a passphrase, multisig, etc.
+* They also don't review or check the security of these kinds of devices (HWWs). You don't necessarily need to understand the code, but you should do at least a little research to gather information about the associated risks.
+
+You can blame the company behind the open-source device, but consumers of this product should understand the risks associated with such products too.
+
+comment: p1ek1m7
+parent: t1_p1czpje
+author: flesjewater
+created_utc: 1785742322
+edited: false
+body:
+That sort of message is okay for inconsequential stuff like styling, but when it touches the foundation of the device's security more diligence is to be expected.
+
+comment: p1ek47b
+parent: t3_1vdycb4
+author: throwaway_ga_omscs
+created_utc: 1785742358
+edited: false
+body:
+> 
+This is why people should learn to 
+VERIFY the things they consume
+. No excuses!
+
+I mean, I don’t disagree with you philosophically. Ideally. But this is a dumb expectation to have in practice. 
+
+comment: p1eki1y
+parent: t1_p1d329a
+author: flesjewater
+created_utc: 1785742554
+edited: false
+body:
+I did in fact generate all my software wallets on airgapped systems back in the day, before HW wallets were commonplace.
+
+comment: p1ekot4
+parent: t1_p1e23hf
+author: flesjewater
+created_utc: 1785742652
+edited: false
+body:
+You can spot this at a glance if you scroll through the commit history. Which is something you should do when you consider buying a hardware wallet to store your capital on.
+
+comment: p1el9mg
+parent: t1_p1ek47b
+author: DyehuthyTV
+created_utc: 1785742944
+edited: 1785743365
+body:
+It's "dumb" if the product you are buying is not open-source, e.g., Nintendo, where you can make a claim.
+
+But if the product is open-source "software" (firmware+hardware) like HWWs you should at least understand the risks associated with that product, because when things like this happen, there is no "conventional way" to make claims.
+
+As I already said in another commentary:
+
+>You can blame the company behind the open-source device (firmware+hardware) but consumers of this product should understand the risks associated with such products (HWWs) too.
+
+And for this you don’t need to learn programming or software engineering, you just need to do at least a little research on the risks associated with these products. I think this is the smartest thing anyone can do, especially if it’s a product meant to store considerable weight of your wealth.
+
+comment: p1emgko
+parent: t3_1vdycb4
+author: JumpProfessional3372
+created_utc: 1785743550
+edited: false
+body:
+I didn't trust the coldcard rng from day 1. But let's be honest, I do not 't trust any rng anywhere. Coldcard has some paranoid guide that is a hassle for many, but skipped this rng function from the seed creation.
+
+In my opinion in cold storage it is recommended to roll 100+ dices, no matter the wallet brand. And also add a passphrase on top of it to give you time to migrate, if the seed was compromised.
+
+comment: p1euo7i
+parent: t3_1vdycb4
+author: One-Adhesiveness-138
+created_utc: 1785747741
+edited: false
+body:
+Now, is anyone looking at the commits history of other "open source" wallets like TREZOR and validating their track record?
+
+comment: p1exju5
+parent: t1_p1el9mg
+author: throwaway_ga_omscs
+created_utc: 1785749187
+edited: false
+body:
+No, I'm sorry, this is just not a reasonable expectation to have on the user and I have to admit I'm guilty of sometimes arguing the "other side" for DeFI exploits. 
+
+The risks associated wth these products are probably clear for someone like you and me who (I presume?) have been in crypto for years and learned all these lessons through painful first-hand experiences. It is not something we can expect an average user to know before buying a hardware wallet that is specifically advertised as a device meant to provide bulletproof security. 
+
+I think this is what makes it egregious in this case. For DeFI, we kinda all expect that we're sitting at an underground casino table and money might appear or disappear for various reasons. With a hardware wallet, this expectation is never there.
+
+comment: p1exror
+parent: t3_1vdycb4
+author: beatthebook2x
+created_utc: 1785749297
+edited: false
+body:
+inside job fsssss
+
+comment: p1eymr3
+parent: t3_1vdycb4
+author: nachtraum
+created_utc: 1785749726
+edited: false
+body:
+Commit messages are irrelevant, they can not garuantee correctness. It's about having proper testing established. For example if you have production and test algorithms implemented in the code you have to have tests ready that ensure that you are not using the wrong algorithm for a public release.
+
+comment: p1eyyng
+parent: t3_1vdycb4
+author: ramosmarbella
+created_utc: 1785749890
+edited: false
+body:
+Shouldn't they investigate this guy? I mean couldn't this be an inside job?
+
+comment: p1ezmrc
+parent: t1_p1exju5
+author: DyehuthyTV
+created_utc: 1785750215
+edited: false
+body:
+In any open-source product, people should have the interest (and responsibility) to do their own research into how solid the "bulletproof security" that these **open-source devices (keyword)** claim to have actually is.
+
+And not necessarily to detect bugs or errors like this, or to start playing a "detective role." People should be aware of these kinds of risks. You have to be conscious of the risks and limitations of the product you buy. People perform quality checks on many other things, so why not here? Where it is highly important for obvious reasons.
+
+> It is not something we can expect an average user to know before buying a hardware wallet that is specifically advertised as a device meant to provide bulletproof security.
+
+So people do quality research for other things, like computers, cars, etc. But for a device that they will use to store a big part of their wealth, they have to buy "blindly"? I don't agree with this.
+
+comment: p1f0v98
+parent: t1_p1eymr3
+author: DyehuthyTV
+created_utc: 1785750822
+edited: 1785751014
+body:
+Well, saying this is like saying that a pilot should ignore the preflight checklist cuz is "irrelevant." :P
+
+Commits descriptions are a necessary workflow to avoid a serious **technical debt** in development, ok?
+
+* Non-professional commit: `Crap`, `runs` or `x` (LOL!)
+* Professional commit: `<type>(<scope>): <description>`
+* Example: `validation: Check transaction inputs before adding to mempool`
+* In the **Bitcoin Core GitHub repository**, you can 'verify' my example 👀
+
+>you have to have tests ready that ensure that you are not using the wrong algorithm for a public release.
+
+The `tests/` directory in any project also has 'commits' with a detailed description of what kind of tests you are performing. It's not like "I run the tests and then that's it; I leave my peers to guess what I am doing" lol. Maybe this can work in a small project, but it will cause problems in the future because this implies a lack of communication.
+
+Anyways!
+
+comment: p1f2wub
+parent: t1_p1e2y0e
+author: Freeloader_
+created_utc: 1785751778
+edited: false
+body:
+why should I as a total noob in coding learn anything regarding this scenario? I said this numerous times before and I'll say it again
+
+my crypto in hands of insured centralized US backed exchange is way safer than trying to safeguard it myself
+
+comment: p1f4dgq
+parent: t1_p1f2wub
+author: DyehuthyTV
+created_utc: 1785752446
+edited: false
+body:
+>my crypto in hands of insured centralized US backed exchange is way safer than trying to safeguard it myself
+
+You answer that yourself.  
+  
+If you don’t want to take on the responsibility of storing and securing your wealth (self custody) because you don’t want to spend your time learning how to do it, you can simply leave that responsibility to third parties (e.g exchanges, banks, brokers, etc)
+
+But be careful: leaving this responsibility to third parties also carries risks ;) And is your responsability to understand those risks. 
+
+The problem is not your laziness in learning new things; the problem is laziness itself!   
+  
+You don’t want to do any research about the product or service you are consuming. You want to live completely ignorant of the risks associated with these products or services, and this is a problem, not for me or for other people, but it will be a problem for you when things go wrong.
+
+:D
+
+comment: p1f4mkm
+parent: t1_p1f4dgq
+author: [deleted]
+created_utc: 1785752561
+edited: false
+body:
+[removed]
+
+comment: p1f4nn6
+parent: t1_p1d6kel
+author: puck2
+created_utc: 1785752574
+edited: false
+body:
+I used to have a solid electrum air-gapped setup, then followed the horde to hardware wallets. Now I think I like the old laptop akrgap setup better agan. 
+
+comment: p1fdbpz
+parent: t1_p1f4dgq
+author: South-Attorney-5209
+created_utc: 1785756239
+edited: false
+body:
+This is why bitcoin will never be actually used by average people. I have zero clue how the programming works at the bank I use, or investment firms. But what I do know, im insured even if they fail. So I dont care.
+
+If I lost it in btc the response will be a changing goalpost “well you shoulda read all the code and known there was this exploit even the developer missed”. Like stfu nobody reads this stuff, even if they did they didnt catch this until now.
+
+comment: p1fo8ev
+parent: t3_1vdycb4
+author: ReplacementBig7068
+created_utc: 1785760202
+edited: false
+body:
+Please tell me they pushed to production on Friday
+
+comment: p1fv9gh
+parent: t1_p1czpje
+author: Technical-Lettuce385
+created_utc: 1785762444
+edited: false
+body:
+Maybe in your codebases that is the norm. We have strict guidelines how commit messages have to be structured etc. For example at least using a conventional commit standard.
+
+comment: p1fxs68
+parent: t1_p1f4nn6
+author: WeekendQuant
+created_utc: 1785763204
+edited: false
+body:
+Rolling dice is the ultimate airgap with easily increasing entropy. The average person understands the randomness of good dice.
+
+Take 4 dice and roll them 25 times and you have 256-bit of entropy.
+
+comment: p1fy86c
+parent: t3_1vdycb4
+author: Sweet-Meaning9874
+created_utc: 1785763337
+edited: false
+body:
+Wizards don’t need verbose commits
+
+comment: p1g03c0
+parent: t1_p1czpje
+author: CydeWeys
+created_utc: 1785763884
+edited: false
+body:
+You don't need to make excuses for this stuff.  Every commit message should be comprehensive and well-written before it's merged into master, and it should be part of code review to ensure this.
+
+comment: p1g9pb3
+parent: t1_p1ekot4
+author: quietlydesperate90
+created_utc: 1785766597
+edited: false
+body:
+Have you done this with every open source product you use? I don't believe for a second that people are doing this. Obviously no one using cold card ever did this if it was so easy to spot.
+
+Are you looking at every commit for the Linux kernel?
+
+Absolutely insane gatekeeping that you need to be a programmer to do self custody.
+
+comment: p1gali6
+parent: t1_p1e4ct2
+author: quietlydesperate90
+created_utc: 1785766844
+edited: false
+body:
+Why does it depend on the distro? You aren't reviewing every commit to the kernel?
+
+comment: p1ge7qt
+parent: t1_p1czpje
+author: tenuousemphasis
+created_utc: 1785767816
+edited: false
+body:
+The problem is they were in a hurry to rewrite code in order to change the code's license because a competitor forked their code and offered a better product.
+
+comment: p1gkpo1
+parent: t1_p1fxs68
+author: puck2
+created_utc: 1785769533
+edited: false
+body:
+But then aren't you mentally choosing the order between the four dice? Isn't it best to roll one die a hundred times?
+
+comment: p1gr8i1
+parent: t3_1vdycb4
+author: holyknight00
+created_utc: 1785771227
+edited: false
+body:
+People want to have it both ways; they want to have the freedom of being their own bank but don't want to take over the risks. It doesn't work like that. If you like the convenience and a trusted third party doing the due dilligence, keep your coins in an exchange.
+
+If you want to be your own bank, the due dilligence is on you and the risk of losing your coins is also on you.
+
+comment: p1h2pm3
+parent: t3_1vdycb4
+author: CiaranCarroll
+created_utc: 1785774147
+edited: false
+body:
+I didn't have to know this detail because I used dice roll and passphrase. 
+
+It's important to understand what level of complexity you have to verify to be secure. Learning to code isn't the same as securing your bitcoin. Some bitcoin core developers have lost a lot of bitcoin and they could read all of the code they're setup was based upon. 
+
+The verification I had to do was available to any pleb, any idiot could have rolled dice and verified that the CC HWW was not giving it bad seeds by checking that the seed produced by another source for the same dice rolls was identical.
+
+comment: p1h3jn6
+parent: t1_p1e2y0e
+author: CiaranCarroll
+created_utc: 1785774354
+edited: false
+body:
+Your conclusion is just wrong. The verification required by non-technical users in this instance didn't involve reading any code, it involved dice and/or robust passphrase, ideally both.
+
+comment: p1h3rhi
+parent: t1_p1f2wub
+author: CiaranCarroll
+created_utc: 1785774408
+edited: false
+body:
+I'm an idiot, and my bitcoin in cold storage using CC Q is way safer than yours.
+
+comment: p1h454v
+parent: t1_p1gkpo1
+author: WeekendQuant
+created_utc: 1785774502
+edited: false
+body:
+How do casinos do it?
+
+comment: p1h4znp
+parent: t1_p1gkpo1
+author: CiaranCarroll
+created_utc: 1785774715
+edited: false
+body:
+If the 4 dice are easily identifiable (different boardgames) you can select the order before you roll.
+
+comment: p1i2hoh
+parent: t3_1vdycb4
+author: BDCRA
+created_utc: 1785783090
+edited: 1785783709
+body:
+Bitcoin will be worthless is nobody can adopt it. A steep learning cure is a for sure way to keep away the average population. Great way to scare everyone away.
+
+Edit: If this is true then why didn't you or anyone else figure out this exploit before now. A ton of gifted people that apparently scrutinize code have looked over this product. So how does someone with little to no coding knowledge supposed to climb this mountain and figure out that the product is not safe when the experts didn't figure it out for years and led consumers to trust it. This all comes down to consumers trusting a company to do what they say they will do. Anyone could have had the money stolen. The extra informed/paranoid use dice, that is all good and well but lets be realistic about how capable the average person is including myself.
+
+comment: p1i4284
+parent: t1_p1gali6
+author: DyehuthyTV
+created_utc: 1785783493
+edited: 1785786845
+body:
+>You aren't reviewing every commit to the kernel?
+
+xD Lol Have you ever install the linux kernel? Is the base layer of the OS (distro). You dont review "commits" :P
+
+You have resources and tools to verify the state and functionality of the kernel (low-level) but that is not the same as verifying an "application" or "user-space software" (firmware + hardware)
+
+comment: p1i5fu6
+parent: t1_p1h3jn6
+author: DyehuthyTV
+created_utc: 1785783845
+edited: false
+body:
+The code review of any software (in this case, firmware) requires technical knowledge (understanding the code).
+
+You are talking about the technical aspects of securing your seed on any device + software/firmware ("app"), such as: rolling dice, passphrases, multisig, etc. This is pretty different from performing code reviews.
+
+:D
+
+comment: p1i5wr7
+parent: t1_p1i4284
+author: quietlydesperate90
+created_utc: 1785783968
+edited: false
+body:
+What do you mean you don't review commits? If you insist on users verifying the software they use you should be reviewing every commit to the kernel.
+
+Here, you can get started, let me know how it goes. https://github.com/torvalds/linux/commits/master/
+
+comment: p1i5zpq
+parent: t1_p1h2pm3
+author: DyehuthyTV
+created_utc: 1785783989
+edited: false
+body:
+Exactly, you have to understand at least how to protect your seed in case the device (hardware + firmware) fails (the risks associated with using this kind of product: HWWs) :D
+
+comment: p1i6kc4
+parent: t1_p1i5fu6
+author: CiaranCarroll
+created_utc: 1785784139
+edited: false
+body:
+My bitcoin is fine and I'll continue using my CC Q. I will not learn to read code, that's unnecessary.
+
+comment: p1i8487
+parent: t1_p1g9pb3
+author: flesjewater
+created_utc: 1785784544
+edited: false
+body:
+My point is literally you don't even need to be able to read a single line of code. You only need to be able to read commit messages and know the bad practices. This was a giant red flag.
+
+And yes, since the xz controversy I do my due diligence before purchasing hardware to store my literal wealth on when possible. Not the code itself, but I do ensure that proper quality control is in place. This is precisely why you *don't* need to worry about stuff like the Linux kernel.
+
+comment: p1ia6o7
+parent: t1_p1d6z7a
+author: ddesla2
+created_utc: 1785785086
+edited: false
+body:
+It's like saying you should learn engineering when your car manufacturer does a recall and updates something in your engine to prevent it from exploding. 
+
+comment: p1id2na
+parent: t1_p1i5wr7
+author: DyehuthyTV
+created_utc: 1785785851
+edited: 1785787041
+body:
+Ye lol, all open-source stuff basically has a GitHub repository lol.
+
+You can review the "commits" of any low-level system, OS, or firmware to understand how it has been developed.
+
+However, the process of verifying security is different between an OS environment (e,g distro) where the firmware is the BIOS/UEFI (or Legacy BIOS), and a HWWs, where the firmware itself is part of the device's security boundary and the root of trust relies on the hardware architecture to secure entropy process, and cryptographic verification mechanisms.
+
+With an OS (e.g Linux Kernel) you can "play" and experiment much more, even with something as low-level as the kernel, because the consequences are usually limited to things like system crashes, breaking the installation, or having to reinstall the OS. In most cases, you still have recovery options and backups.
+
+But when you start messing with firmware on a HWWs, the risk model is completely different, a small mistake can potentially compromise the device, expose private keys, or make you lose all your funds permanently xD
+
+**So, the necessity and the process of verifying security are quite different.**
+
+;)
+
+comment: p1ief0a
+parent: t1_p1i6kc4
+author: DyehuthyTV
+created_utc: 1785786204
+edited: 1785786748
+body:
+Yes, it's optional.
+
+An Educated Bitcoiner doesn't need to understand the code to understand that if the Entropy generation process fails, it's game over xD. (*Concepts are important. You don't need to learn the technical details deeply*)
+
+Entropy is what makes Bitcoin your Bitcoin! ;)
+
+comment: p1iinzx
+parent: t3_1vdycb4
+author: nonkeywayzee
+created_utc: 1785787318
+edited: false
+body:
+What Coinkite did is indefensible, but please, stop listening to these clown who are judging the change by the quality of the comments in the code.
+
+These are literally the kind of people who led to a lot of Bitcoiners, who were ideologically aligned with Coinkite's claims, and their families to lose funds.
+
+Stop listening to people who sound like they know what the hell they are doing and saying, and start listening to actual experts in their fields.
+
+comment: p1im5ec
+parent: t1_p1iinzx
+author: DyehuthyTV
+created_utc: 1785788235
+edited: false
+body:
+>What Coinkite did is indefensible, but please, stop listening to these clown who are judging the change by the quality of the comments in the code.
+
+Well, Coinkite and many of their members were considered "experts" :P
+
+I think people after this event will learn that they need to understand the devices and tools they use and make decisions based on their own knowledge (research) rather than blindly trusting what other people "experts" say :D
+
+comment: p1isaeq
+parent: t3_1vdycb4
+author: healthnuttier
+created_utc: 1785789851
+edited: false
+body:
+Open source never meant proven safe. It means that it could be inspected by others not that it is. 
+
+comment: p1ivjg4
+parent: t1_p1isaeq
+author: DyehuthyTV
+created_utc: 1785790715
+edited: false
+body:
+Exactly. 
+
+However, many people assume that open-source products are just as "safe" (or guaranteed) as branded products (e.g Nintendo, Windows, Fintech Apps, etc), so they don’t do their own reviews, safety checks and research. In the end, they "trust" on the open-source product in the same way that they would do on a commercial product 
+
+comment: p1j0ms8
+parent: t3_1vdycb4
+author: Equity_GOD
+created_utc: 1785792108
+edited: false
+body:
+imagine spending $250 on a random number generator, and thousands of lines of code in order for it to not be random...
+
+  
+\#include <sys/random.h> int x; getrandom(&x, sizeof(x), 0);
+
+\^ that one line is literallly more secure than their entire codebase lmao.
+
+comment: p1j3trz
+parent: t1_p1im5ec
+author: nonkeywayzee
+created_utc: 1785792996
+edited: false
+body:
+That doesn't scale, the solution is teaching people what actual experts are.
+
+If you believe that any of these guys were experts, then you have no idea what an actual expert is.
+
+comment: p1jgwys
+parent: t1_p1e3l4i
+author: knivengaffelnskeden
+created_utc: 1785796798
+edited: false
+body:
+That whole text reads like AI. It couldn't even get to right number of letters in the word "runs" correct. 
+
+comment: p1pd7ia
+parent: t1_p1dvgjl
+author: magicmulder
+created_utc: 1785869183
+edited: false
+body:
+Most big names are all hat and no cattle. What exactly did he do to warrant that reverence?

@@ -1,17 +1,103 @@
 # Discovery intake
 
-Thread candidates found by `scripts/discover_stackernews.py` and
-`scripts/discover_reddit.py`, run every 12 hours (`discover-community.timer`).
-Pending entries are assessed by the intake agent
-(`scripts/agent-discovery-intake.sh`): a relevant thread is registered in
-`sources.toml`, first-captured, and its entry moves to Assessed with the
-verdict. Entries whose thread reaches `sources.toml` by any route drop out of
-Pending on the next discovery run. To dismiss a candidate by hand, move its
+Candidates found by the Stacker News, Reddit, BitcoinTalk and manual X
+discovery commands. The community-thread lanes run every 12 hours through
+`discover-community.timer`; X discovery remains manual while its API and
+policy gates are proved. That timer neither runs X discovery nor sends queued
+X links to the general community agent. An operator may invoke the separate
+X-only triage with `--include-x` during probation. Direct `just ingest-x`
+capture of a manually supplied permalink does not use this queue.
+Eligible pending entries are assessed by the intake agent
+(`scripts/agent-discovery-intake.sh`): a relevant community thread is
+registered and first-captured. Explicit X triage only recommends or dismisses
+permalinks for human review; it cannot capture or register them. Assessed
+entries move below with the verdict. To dismiss a candidate by hand, move its
 line to Assessed with a one-line reason.
 
 ## Pending
 
+- 2026-08-04 [The ColdCard hack might be bigger than you think](https://www.reddit.com/r/Bitcoin/comments/1vfekam/the_coldcard_hack_might_be_bigger_than_you_think/) by Unreal_fist, 51 comments (r/Bitcoin)
+- 2026-08-04 [A warning about misinformation about coldcard](https://www.reddit.com/r/Bitcoin/comments/1vf5ohi/a_warning_about_misinformation_about_coldcard/) by thomascr9695, 27 comments (r/Bitcoin)
+- 2026-08-04 [Canary wallets, good idea or a shot in the foot?](https://www.reddit.com/r/Bitcoin/comments/1vfcsri/canary_wallets_good_idea_or_a_shot_in_the_foot/) by SmokeAndSkate, 10 comments (r/Bitcoin)
+- 2026-08-04 [Cold Wallets: How to handle trade-off?](https://www.reddit.com/r/Bitcoin/comments/1vf9ki6/cold_wallets_how_to_handle_tradeoff/) by Ayuil, 8 comments (r/Bitcoin)
+- 2026-08-04 [This too shall pass.](https://www.reddit.com/r/Bitcoin/comments/1vf9hac/this_too_shall_pass/) by thelaurelhighlander, 1 comments (r/Bitcoin)
+- 2026-08-04 [Shouldn’t coldcards victims OPs show transaction history?](https://www.reddit.com/r/Bitcoin/comments/1vff9ak/shouldnt_coldcards_victims_ops_show_transaction/) by Prestigious_Ear_8055, 20 comments (r/Bitcoin)
+- 2026-08-04 [Should I convert my BTC to an ETF?](https://www.reddit.com/r/Bitcoin/comments/1vfen7d/should_i_convert_my_btc_to_an_etf/) by MrNoodleIncident, 23 comments (r/Bitcoin)
+- 2026-08-04 [Has anyone looked at the latest cold card firmware?](https://www.reddit.com/r/Bitcoin/comments/1vf7av8/has_anyone_looked_at_the_latest_cold_card_firmware/) by Dilan57169, 8 comments (r/Bitcoin)
+- 2026-08-04 [The Coldcard Bug Visualized - Bitcoin Policy Institute](https://www.reddit.com/r/Bitcoin/comments/1vf1veo/the_coldcard_bug_visualized_bitcoin_policy/) by NeighborhoodOld163, 1 comments (r/Bitcoin)
+- 2026-08-04 [Would the ColdCard attack succeeded if not open sourced](https://www.reddit.com/r/Bitcoin/comments/1vf2y2z/would_the_coldcard_attack_succeeded_if_not_open/) by Acrobatic_News_4860, 26 comments (r/Bitcoin)
+- 2026-08-04 [Funds locked on Conbase after migration from ColdCard.](https://www.reddit.com/r/Bitcoin/comments/1vfblse/funds_locked_on_conbase_after_migration_from/) by Apprehensive-Two-490, 7 comments (r/Bitcoin)
+- 2026-08-04 [Curious about the recent coldwallet hack](https://www.reddit.com/r/Bitcoin/comments/1vf5r6j/curious_about_the_recent_coldwallet_hack/) by DSWLEADER, 10 comments (r/Bitcoin)
+- 2026-08-04 [The risk of Bitcoin](https://www.reddit.com/r/Bitcoin/comments/1vf9q59/the_risk_of_bitcoin/) by Virtual_Okra_5588, 10 comments (r/Bitcoin)
+- 2026-08-04 [Did multiple people have the same seed phrase?](https://www.reddit.com/r/Bitcoin/comments/1vf9nm3/did_multiple_people_have_the_same_seed_phrase/) by tjpearson1995, 9 comments (r/Bitcoin)
+- 2026-08-04 [$100M+ reportedly lost in the alleged Coldcard hack.](https://www.reddit.com/r/Bitcoin/comments/1vf55p9/100m_reportedly_lost_in_the_alleged_coldcard_hack/) by BackgroundStory7986, 3 comments (r/Bitcoin)
+- 2026-08-04 [Ou allez suite à coldcard?](https://www.reddit.com/r/Bitcoin/comments/1vf8qwv/ou_allez_suite_à_coldcard/) by yepoha, 2 comments (r/Bitcoin)
+- 2026-08-04 [How can closed source wallets like ledger prove their entropy generation is working as stated?](https://www.reddit.com/r/Bitcoin/comments/1vf1otl/how_can_closed_source_wallets_like_ledger_prove/) by slvbtc, 5 comments (r/Bitcoin)
+- 2026-08-04 [Question about entropy and passphrases](https://www.reddit.com/r/Bitcoin/comments/1vf6tdj/question_about_entropy_and_passphrases/) by Quirky-Reveal-1669, 0 comments (r/Bitcoin)
+- 2026-08-04 [Coldcard MK4 to what?](https://www.reddit.com/r/Bitcoin/comments/1vf6i8u/coldcard_mk4_to_what/) by Bal-84, 25 comments (r/Bitcoin)
+- 2026-08-04 [Given the recent events related to the Coldcard wallet hack, how could Coinkite have prevented the theft of the wallets if they had detected the vulnerability in time?](https://www.reddit.com/r/Bitcoin/comments/1vf55pp/given_the_recent_events_related_to_the_coldcard/) by niretx, 5 comments (r/Bitcoin)
+- 2026-08-04 [How does such big vulnerability went unnoticed for 5 years on opensource coldcard repo?](https://www.reddit.com/r/Bitcoin/comments/1vffytz/how_does_such_big_vulnerability_went_unnoticed/) by Firm-Ad-2446, 11 comments (r/Bitcoin)
+- 2026-08-04 [CC Incident Conclusions](https://www.reddit.com/r/Bitcoin/comments/1vf3u3z/cc_incident_conclusions/) by Green_Bar_8851, 30 comments (r/Bitcoin)
+- 2026-08-04 [Bitcoin Toxic Maximalism Has Failed](https://www.reddit.com/r/Bitcoin/comments/1vfbzic/bitcoin_toxic_maximalism_has_failed/) by stickac, 8 comments (r/Bitcoin)
+- 2026-08-04 [BIP39 or SLIP39 and why?](https://www.reddit.com/r/Bitcoin/comments/1vf1hkr/bip39_or_slip39_and_why/) by pairoxR, 1 comments (r/Bitcoin)
+- 2026-08-04 [Should wallets warn users about low-quality entropy during SEED generation?](https://bitcointalk.org/index.php?topic=5590329.0) by satscraper, 8 comments (bct/37)
+- 2026-08-04 [Self custody is not reliable](https://bitcointalk.org/index.php?topic=5590307.0) by Somegory, 39 comments (bct/1)
+- 2026-08-04 [Adding to the Public Record on Our Ongoing Investigation - Coldcard](https://stacker.news/items/1540370) by Scoresby, 8 comments (~bitcoin)
+- 2026-08-05 [Will you ever trust a wallet's entropy again? (Long term hodl not spend wallets)](https://stacker.news/items/1540542) by theonceler, 3 comments (~bitcoin)
+- 2026-08-04 [mapping the ongoing Coldcard attack with a live dashboard - James O'Beirne](https://stacker.news/items/1540481) by Scoresby, 1 comments (~bitcoin)
+- 2026-08-04 [Coldcard Key Exposure | @orangesurf](https://stacker.news/items/1540419) by 0xbitcoiner, 0 comments (~bitcoin)
+- 2026-08-04 [Is there a solution to ColdCard hack?](https://www.reddit.com/r/coldcard/comments/1vfh00n/is_there_a_solution_to_coldcard_hack/) by Either_Display_6624, 38 comments (r/coldcard)
+- 2026-08-04 [The Coldcard Hack: What Happened, What Actions to Take as a Coldcard Holder, and How U.S. Taxpayers May Claim Their Losses](https://www.reddit.com/r/coldcard/comments/1vfh61c/the_coldcard_hack_what_happened_what_actions_to/) by Garrett_CPAatCOS, 0 comments (r/coldcard)
+- 2026-08-04 [Ethical Coincard Hacker](https://www.reddit.com/r/coldcard/comments/1vfn7q9/ethical_coincard_hacker/) by pezdal, 0 comments (r/coldcard)
+- 2026-08-04 [Computer added entropy](https://www.reddit.com/r/coldcard/comments/1vflguz/computer_added_entropy/) by yeahhhbeer, 2 comments (r/coldcard)
+- 2026-08-04 [Muh Coldcard!! Oh no, muh Coldcard!!!](https://www.reddit.com/r/coldcard/comments/1vfm2du/muh_coldcard_oh_no_muh_coldcard/) by sentientchimpman, 0 comments (r/coldcard)
+- 2026-08-05 [Retirement Attack: Many more details pointing straight to the CEO and CTO stealing the coins. This is more than enough evidence of probable cause to charge them and start a prosecution.](https://www.reddit.com/r/Bitcoin/comments/1vfvogm/retirement_attack_many_more_details_pointing/) by Todo_es, 53 comments (r/Bitcoin)
+- 2026-08-04 [Coinkite CTO Peter Gray linked to the code behind the $114M Coldcard hack](https://www.reddit.com/r/Bitcoin/comments/1vfpadi/coinkite_cto_peter_gray_linked_to_the_code_behind/) by Giancarlo_Donadoni, 120 comments (r/Bitcoin)
+- 2026-08-04 [Coldcard 'joked' about retirement attacks in 2021 lmao](https://www.reddit.com/r/Bitcoin/comments/1vfn1ha/coldcard_joked_about_retirement_attacks_in_2021/) by Amarettxo, 30 comments (r/Bitcoin)
+- 2026-08-05 [All hardware wallet manufacturers need to release 3rd party audited proof that their entropy generation is working.](https://www.reddit.com/r/Bitcoin/comments/1vfwlgj/all_hardware_wallet_manufacturers_need_to_release/) by slvbtc, 20 comments (r/Bitcoin)
+- 2026-08-04 [This hack was not like all the others: They easily could have gotten away scot free. Why didn't they?](https://www.reddit.com/r/Bitcoin/comments/1vfkd7d/this_hack_was_not_like_all_the_others_they_easily/) by CiaranCarroll, 88 comments (r/Bitcoin)
+- 2026-08-05 [What's ColdCard's CEO doing during an emergency? He's on X, Deleting posts](https://www.reddit.com/r/Bitcoin/comments/1vfxsv0/whats_coldcards_ceo_doing_during_an_emergency_hes/) by Yodel_And_Hodl_Mode, 1 comments (r/Bitcoin)
+- 2026-08-04 [Coldcard Hack Sparks Biggest Bitcoin Migration Since FTX](https://www.reddit.com/r/Bitcoin/comments/1vfli7v/coldcard_hack_sparks_biggest_bitcoin_migration/) by Mazrael33, 13 comments (r/Bitcoin)
+- 2026-08-05 [Live look in at Coldcard.com](https://www.reddit.com/r/Bitcoin/comments/1vfvfya/live_look_in_at_coldcardcom/) by Neat-Finger197, 5 comments (r/Bitcoin)
+- 2026-08-04 [What’s up with the current narrative?](https://www.reddit.com/r/Bitcoin/comments/1vfh33i/whats_up_with_the_current_narrative/) by andrew869, 33 comments (r/Bitcoin)
+- 2026-08-05 [BIP-39 Passphrase Entropy & Hardware Wallet Passphrase Storage](https://www.reddit.com/r/Bitcoin/comments/1vftxak/bip39_passphrase_entropy_hardware_wallet/) by frosted94145, 6 comments (r/Bitcoin)
+- 2026-08-05 [Why not use cards?](https://www.reddit.com/r/Bitcoin/comments/1vft3lz/why_not_use_cards/) by SavageKabage, 33 comments (r/Bitcoin)
+- 2026-08-05 [Can someone do the math?](https://www.reddit.com/r/Bitcoin/comments/1vfuyug/can_someone_do_the_math/) by Illustrious-Boss9356, 4 comments (r/Bitcoin)
+- 2026-08-05 [Maybe "coinkite" was a perfectly clever name!](https://www.reddit.com/r/Bitcoin/comments/1vfwpf0/maybe_coinkite_was_a_perfectly_clever_name/) by LazyTech8315, 4 comments (r/Bitcoin)
+- 2026-08-04 [Best cold storage option](https://www.reddit.com/r/Bitcoin/comments/1vfj023/best_cold_storage_option/) by Fit_Ad_5556, 67 comments (r/Bitcoin)
+- 2026-08-04 [Is using my CC for dice seed crazy?](https://www.reddit.com/r/Bitcoin/comments/1vfoty6/is_using_my_cc_for_dice_seed_crazy/) by No_Organization3095, 9 comments (r/Bitcoin)
+- 2026-08-04 [Rolling dice seed questions](https://www.reddit.com/r/Bitcoin/comments/1vfosja/rolling_dice_seed_questions/) by Vipu2, 2 comments (r/Bitcoin)
+- 2026-08-04 [Should I upgrade to Trezor Safe 7?](https://www.reddit.com/r/Bitcoin/comments/1vfnrpk/should_i_upgrade_to_trezor_safe_7/) by originalgainster, 10 comments (r/Bitcoin)
+- 2026-08-05 [ColdCard website says it uses a TRNG...](https://www.reddit.com/r/Bitcoin/comments/1vfuzzp/coldcard_website_says_it_uses_a_trng/) by StarCommand1, 21 comments (r/Bitcoin)
+- 2026-08-04 [The only thing you need to know about the cold card situation.](https://www.reddit.com/r/Bitcoin/comments/1vfo4yv/the_only_thing_you_need_to_know_about_the_cold/) by thelaurelhighlander, 1 comments (r/Bitcoin)
+- 2026-08-05 [Always remember CIA->>>COLDCARD, mostly military industrial complex](https://www.reddit.com/r/Bitcoin/comments/1vfvfgx/always_remember_ciacoldcard_mostly_military/) by Equivalent-Spot-1325, 5 comments (r/Bitcoin)
+- 2026-08-04 [I've never trusted device-generated entropy. Here's my full offline dice + BIP39 workflow, step by step](https://www.reddit.com/r/Bitcoin/comments/1vf768v/ive_never_trusted_devicegenerated_entropy_heres/) by EriksonThorsen, 3 comments (r/Bitcoin)
+- 2026-08-04 [Storing Bitcoin On Exchange...](https://www.reddit.com/r/Bitcoin/comments/1vfic3n/storing_bitcoin_on_exchange/) by Carterta3x, 20 comments (r/Bitcoin)
+- 2026-08-04 [Ethical Coincard Hacker](https://www.reddit.com/r/Bitcoin/comments/1vfn6mq/ethical_coincard_hacker/) by pezdal, 41 comments (r/Bitcoin)
+- 2026-08-04 [Using a Nintendo 64 to generate keys and wallet addresses with dice rolls, encrypt data, and more](https://www.reddit.com/r/Bitcoin/comments/1vfmo1y/using_a_nintendo_64_to_generate_keys_and_wallet/) by HowIsDigit8888, 1 comments (r/Bitcoin)
+- 2026-08-04 [Is using tails safe enough to create the checksum for a dice generated seed? (For ledger/trezor wallets)](https://www.reddit.com/r/Bitcoin/comments/1vff6q7/is_using_tails_safe_enough_to_create_the_checksum/) by Kindly-Window-8448, 0 comments (r/Bitcoin)
+- 2026-08-04 [Sooo, like, are we still using Coldcard Mk4?](https://www.reddit.com/r/Bitcoin/comments/1vfpcqm/sooo_like_are_we_still_using_coldcard_mk4/) by I_had_corn, 25 comments (r/Bitcoin)
+- 2026-08-05 [Galaxy Research post cited as a wave source](https://x.com/glxyresearch/status/2083560940469981591) linked as "Source" from coldcard-hack-tracker (link review)
+- 2026-08-05 [evands post cited as a wave source](https://x.com/evands/status/2083505832587587945) linked as "Source" from coldcard-hack-tracker (link review)
+- 2026-08-05 [Kevin Kelbie post cited as a wave source](https://x.com/KevinKelbie/status/2084294469126361372) linked as "Source" from coldcard-hack-tracker (link review)
+- 2026-08-05 [intangiblecoins post cited as a wave source](https://x.com/intangiblecoins/status/2084079706320646300) linked as "Source" from coldcard-hack-tracker (link review)
+- 2026-08-05 [intangiblecoins post cited for Alex Thorn footprint](https://x.com/intangiblecoins/status/2084584284837322868) linked as "Alex Thorn / Footprint" from coldcard-hack-tracker (link review)
+- 2026-08-05 [eriklocalhost first-hand claim for wave 960668](https://x.com/eriklocalhost/status/2083875886458171626) linked as "Erik" from coldcard-hack-tracker (link review); the same claimant coldcard.rip names for that wave
+
 ## Assessed
+
+- 2026-08-04 [Coldcard Users Reported Instant Drains Years Before July 2026. Here Are the Receipts](https://www.reddit.com/r/Bitcoin/comments/1vfag0m/coldcard_users_reported_instant_drains_years/) by ChuckSRQ, 3 comments (r/Bitcoin) -> dismissed: link-post relay of the already registered ChuckSRQ primary report, without distinct record value (20260805T052021Z)
+- 2026-08-04 [How many of you are redoing your seed phrase generation in light of the cold card hack?](https://www.reddit.com/r/Bitcoin/comments/1vfcnry/how_many_of_you_are_redoing_your_seed_phrase/) by anonymousopsec1337, 47 comments (r/Bitcoin) -> dismissed: repetitive seed-regeneration response already represented by reddit-dice-seed-generation and reddit-safe-after-reseed (20260805T052021Z)
+- 2026-08-04 [Bitcoin phishing scams heating up!](https://www.reddit.com/r/Bitcoin/comments/1vf8j1t/bitcoin_phishing_scams_heating_up/) by Deathstaroperatorguy, 0 comments (r/Bitcoin) -> dismissed: generic phishing title with no incident-specific or first-hand record value (20260805T052021Z)
+- 2026-08-04 [This doesn't kill self-custody of bitcoin](https://www.reddit.com/r/Bitcoin/comments/1vf6403/this_doesnt_kill_selfcustody_of_bitcoin/) by Myntad_com, 36 comments (r/Bitcoin) -> dismissed: repetitive self-custody sentiment already represented by reddit-future-of-bitcoin-debate and reddit-self-custody-custodian-debate (20260805T052021Z)
+- 2026-08-04 [Anyone know of a good/reputable bullion exchange that accepts crypto for payment?](https://www.reddit.com/r/Bitcoin/comments/1vfcwr6/anyone_know_of_a_goodreputable_bullion_exchange/) by Lounginguru, 6 comments (r/Bitcoin) -> dismissed: unrelated purchase-support question (20260805T052021Z)
+- 2026-08-04 [What's one Bitcoin concept that seemed confusing at first but eventually made perfect sense?](https://www.reddit.com/r/Bitcoin/comments/1vfa7h3/whats_one_bitcoin_concept_that_seemed_confusing/) by Satsatlas_Bitcoin, 6 comments (r/Bitcoin) -> dismissed: generic Bitcoin discussion with no incident reference in the title (20260805T052021Z)
+- 2026-08-04 [Coldcard Users Reported Instant Drains Years Before July 2026. Here Are the Receipts.](https://www.reddit.com/r/Bitcoin/comments/1vf9jam/coldcard_users_reported_instant_drains_years/) by ChuckSRQ, 0 comments (r/Bitcoin) -> dismissed: duplicate link-post relay of the already registered ChuckSRQ primary report (20260805T052021Z)
+- 2026-08-04 [How did Satoshi protect his stash?](https://www.reddit.com/r/Bitcoin/comments/1vf1hb8/how_did_satoshi_protect_his_stash/) by Personal-Time-9993, 52 comments (r/Bitcoin) -> dismissed: generic historical-security discussion with no incident reference in the title (20260805T052021Z)
+- 2026-08-04 [Entropy and Seed Phrases](https://www.reddit.com/r/Bitcoin/comments/1vffa2r/entropy_and_seed_phrases/) by Sad-Froyo-3198, 2 comments (r/Bitcoin) -> dismissed: generic entropy topic with no incident reference in the title (20260805T052021Z)
+- 2026-08-04 [TIL ColdCard's libngu code reference is "Number go up"... oh the irony](https://www.reddit.com/r/Bitcoin/comments/1vfglkr/til_coldcards_libngu_code_reference_is_number_go/) by Scissorhat, 0 comments (r/Bitcoin) -> dismissed: content-free code-name observation; the underlying libngu material is already registered (20260805T052021Z)
+- 2026-08-04 [CoinKite TAPSIGNER](https://www.reddit.com/r/Bitcoin/comments/1vfa6xv/coinkite_tapsigner/) by DarrelXero, 0 comments (r/Bitcoin) -> dismissed: product-support title with no incident-specific record value (20260805T052021Z)
+- 2026-08-04 [Cold card vs Ledger](https://www.reddit.com/r/Bitcoin/comments/1vf9u3v/cold_card_vs_ledger/) by jpnovato, 8 comments (r/Bitcoin) -> dismissed: repetitive product-comparison discussion already represented by reddit-hardware-wallet-comparison (20260805T052021Z)
 
 - 2026-08-04 [Large-scale Coldcard compromise (1360.23 BTC stolen so far)](https://bitcointalk.org/index.php?topic=5589927.0) by flatfly, 292 comments (bct/1) -> registered as bitcointalk-large-scale-compromise-thread (20260804T103040Z)
 - 2026-08-04 [The coldcard hack will change Bitcoin, it's a revolution.](https://bitcointalk.org/index.php?topic=5590255.0) by SaddamoftheWest, 20 comments (bct/1) -> registered as bitcointalk-hack-revolution-opinion (20260804T103040Z)
@@ -199,3 +285,57 @@ line to Assessed with a one-line reason.
 - 2026-07-16 [[ANN Preview] Lock.com: software isolation will replace the hardware wallet](https://bitcointalk.org/index.php?topic=5587463.0) by madebylock, 13 comments (bct/37) -> dismissed: Lock.com product announcement preview, no incident content (20260804T102301Z)
 - 2026-08-03 [We can all learn one or two from this ColdCard incident](https://bitcointalk.org/index.php?topic=5590065.0) by YellowSwap, 36 comments (bct/1) -> registered as bitcointalk-learn-from-incident (20260804T102301Z)
 - 2026-08-02 [i want to buy bitcoin but i keep getting hacked by infostealer](https://bitcointalk.org/index.php?topic=5590131.0) by wez, 28 comments (bct/1) -> dismissed: infostealer support question, no incident content (20260804T102301Z)
+
+- 2026-08-04 [ColdCard Entropy Bug: An Investigative History](https://stacker.news/items/1540008) by SimpleStacker, 8 comments (~bitcoin) -> registered as stackernews-entropy-bug-history (20260804T171957Z)
+- 2026-08-04 [Coldcard and the limits of “don't trust, verify”](https://stacker.news/items/1539812) by bennet, 9 comments (~bitcoin) -> registered as stackernews-limits-dont-trust-verify (20260804T171957Z)
+- 2026-08-04 [Cold Card Retirement Attack?](https://stacker.news/items/1540033) by UncleJim21, 13 comments (~bitcoin) -> registered as stackernews-retirement-attack-question (20260804T171957Z)
+- 2026-08-04 [Bitcoins Have No Physical Form: The Coldcard Heist (Money Stuff, Matt Levine)](https://stacker.news/items/1539875) by denlillaapan, 2 comments (~bitcoin) -> registered as stackernews-matt-levine-heist (20260804T171957Z)
+- 2026-08-04 [I'm out](https://www.reddit.com/r/coldcard/comments/1vfbi4w/im_out/) by General_Asparagus976, 24 comments (r/coldcard) -> registered as reddit-im-out (20260804T171957Z)
+- 2026-08-04 [Inside job? The “bug” conveniently originated in 2021](https://www.reddit.com/r/coldcard/comments/1vfdmtf/inside_job_the_bug_conveniently_originated_in_2021/) by Such_Advantage6988, 4 comments (r/coldcard) -> registered as reddit-inside-job-speculation (20260804T171957Z)
+- 2026-08-04 [Is Coldcard Really Open Source or Not?](https://www.reddit.com/r/coldcard/comments/1vf4z1b/is_coldcard_really_open_source_or_not/) by Crypto-Moony, 5 comments (r/coldcard) -> registered as reddit-coldcard-open-source-question (20260804T171957Z)
+- 2026-08-04 [So is multi-sig the only way out?](https://www.reddit.com/r/coldcard/comments/1vf9oh5/so_is_multisig_the_only_way_out/) by ady1583, 4 comments (r/coldcard) -> registered as reddit-multisig-only-way (20260804T171957Z)
+- 2026-08-04 [Is it only about entropy? I don't get it.](https://www.reddit.com/r/coldcard/comments/1vf4hdx/is_it_only_about_entropy_i_dont_get_it/) by Psychological-Hawk80, 37 comments (r/coldcard) -> registered as reddit-entropy-explainer-question (20260804T171957Z)
+- 2026-08-04 [Dark skippy](https://www.reddit.com/r/coldcard/comments/1vf8gfb/dark_skippy/) by Intelligent_Map_246, 1 comments (r/coldcard) -> dismissed: narrow Dark Skippy question with minimal discussion, not a substantive record of this incident (20260804T171957Z)
+- 2026-08-04 [Question: Is the ColdCard Encrypted Backup feature affected too?](https://www.reddit.com/r/coldcard/comments/1vf2y4b/question_is_the_coldcard_encrypted_backup_feature/) by iW9bkb1Mjp, 5 comments (r/coldcard) -> dismissed: narrow encrypted-backup support question, with no wider record value established (20260804T171957Z)
+- 2026-08-04 [A simple and inexpensive way to safely store your BTC](https://www.reddit.com/r/coldcard/comments/1vf3ika/a_simple_and_inexpensive_way_to_safely_store_your/) by doorshock, 0 comments (r/coldcard) -> dismissed: content-free generic storage-advice post with no discussion (20260804T171957Z)
+- 2026-08-04 [This Has Struck a Dagger Through the Heart of Self-Custody](https://www.reddit.com/r/coldcard/comments/1vf5gj4/this_has_struck_a_dagger_through_the_heart_of/) by Crypto-Moony, 37 comments (r/coldcard) -> registered as reddit-self-custody-dagger (20260804T171957Z)
+- 2026-08-04 [The Coldcard hacker is still progressing stolen BTC keeps increasing](https://www.reddit.com/r/Bitcoin/comments/1vfagz9/the_coldcard_hacker_is_still_progressing_stolen/) by pairoxR, 288 comments (r/Bitcoin) -> registered as reddit-hacker-still-progressing (20260804T171957Z)
+- 2026-08-04 [Not your keys, not your coins](https://www.reddit.com/r/Bitcoin/comments/1vfak2k/not_your_keys_not_your_coins/) by ShinyGallantWalrus, 75 comments (r/Bitcoin) -> registered as reddit-not-your-keys-not-your-coins (20260804T171957Z)
+
+## Link review, held for a human decision
+
+Candidates found by reading a registered source's own citations rather than by
+a discovery command. They sit below `## Assessed` on purpose: the intake agent
+reads only the Pending list, and these are neither community threads nor X
+permalinks, so neither of its two lanes fits them. Move a line into Pending, or
+register it directly, once the decision below is taken.
+
+**From coldcard-hack-tracker, 5 Aug 2026.** Its 300 outbound links were read
+through the capture browser and compared against the registry. 188 mempool.space
+transaction links, 8 arkm.com and 4 etherscan.io address views are deliberately
+not queued: they are explorer views of chain data, and the chain is not a
+document this archive needs to hold a copy of. What is left:
+
+- [CoinDesk, 1 Aug: how bitcoin cold wallets lost $70 million in an attack that never touched the devices](https://www.coindesk.com/tech/2026/08/01/how-bitcoin-cold-wallets-lost-usd70-million-in-an-attack-that-never-touched-the-devices) - press the registry does not hold, from a title already represented by other outlets. Straightforward to register if wanted
+- Seven Chainabuse victim reports the tracker cites as evidence for its waves:
+  [e568bed8](https://chainabuse.com/report/e568bed8-62f8-46b8-aae6-4d271c8d63e0),
+  [d4c95fab](https://chainabuse.com/report/d4c95fab-ed8e-4749-ae81-9d42bfdab1cb),
+  [0f8d1d1c](https://chainabuse.com/report/0f8d1d1c-556b-40e6-a819-c91c153497aa),
+  [2727f906](https://chainabuse.com/report/2727f906-bf8f-4540-92e4-ad4fd5b59cbf),
+  [6e9fa34a](https://chainabuse.com/report/6e9fa34a-6128-4b9b-9ef9-8cc4159b1935),
+  [61e7b80a](https://chainabuse.com/report/61e7b80a-4ec6-42b4-a8b4-4cab1a29c9ac),
+  [6e9ac9f1](https://chainabuse.com/report/6e9ac9f1-61e5-49c5-947c-062afc70b73b).
+  These are the primary evidence under the tracker's wave attributions, and
+  they are first-hand accounts their authors published. They are also victim
+  reports, and a victim's own addresses are exactly what they contain, so
+  registering them puts victim address sets in this repository and on the site.
+  The 3 August decision covers author-published first-hand material; whether it
+  was meant to reach this is a call for the operator, not the intake agent
+- Two pastebins the wave-4 material rests on:
+  [confirmed addresses](https://pastebin.com/6AG9s0pP) and the
+  [mempool / RBF list](https://pastebin.com/zR5Wk2cz). These are the unfiltered
+  sets the @intangiblecoins corrections refer to, already described on
+  /record/funds/, and pastebins disappear. Worth capturing on those grounds;
+  the RBF list may enumerate addresses that were being swept, meaning victims'
+  addresses. That requires the same operator decision as the Chainabuse reports
+  before registration.

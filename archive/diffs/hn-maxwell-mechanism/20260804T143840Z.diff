@@ -1,0 +1,38 @@
+--- hn-maxwell-mechanism@20260803T114256Z
++++ hn-maxwell-mechanism@20260804T143840Z
+@@ -61,24 +61,24 @@
+ Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+ So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+ reply
++nullc <relative-time> | prev | next [–]
++Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
++reply
++RustyRussell <relative-time> | parent | next [–]
++Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
++reply
++dist-epoch <relative-time> | prev | next [–]
++I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
++Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
++reply
+ smithcoin <relative-time> | prev | next [–]
+ Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+ reply
+ nullc <relative-time> | parent | next [–]
+ Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+ reply
+-mlcrypto <relative-time> | prev | next [–]
++mlcrypto <relative-time> | prev [–]
+ The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+-reply
+-nullc <relative-time> | prev | next [–]
+-Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+-reply
+-RustyRussell <relative-time> | parent | next [–]
+-Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
+-reply
+-dist-epoch <relative-time> | prev [–]
+-I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
+-Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
+ reply
+ Consider applying for YC's Fall 2026 batch! Applications are open till July 27.
+ Guidelines | FAQ | Lists | API | Security | Legal | Apply to YC | Contact

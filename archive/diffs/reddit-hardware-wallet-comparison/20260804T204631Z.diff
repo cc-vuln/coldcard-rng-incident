@@ -1,0 +1,36 @@
+--- reddit-hardware-wallet-comparison@20260804T194628Z
++++ reddit-hardware-wallet-comparison@20260804T204631Z
+@@ -1416,3 +1416,33 @@
+ edited: false
+ body:
+ What is the checksum?
++
++comment: p1pvobn
++parent: t3_1vehzv8
++author: Flowa-Powa
++created_utc: 1785873982
++edited: false
++body:
++I moved from Ledger to Coldcard.
++
++I told my noob friends to use Trezor at around the same time because it was more user friendly. I should have taken my own advice.
++
++comment: p1pyb0v
++parent: t1_p1o42ri
++author: tenor_tymir
++created_utc: 1785874678
++edited: 1785875292
++body:
++Thank you for the detailed explanation. Commenting the code is a very good idea so that other LLMs understand it correctly from the start. Since many people and computing power will now be scrutinizing your code, there should be no more doubt about its functionality.
++
++Here’s what chatGPT is suggesting: 
++
++**Overall assessment**  
++From a security engineering perspective, this code appears significantly stronger than typical wallet implementations. It demonstrates good practices such as authenticated encryption, separation of long-term and retained keys, secure-element-backed key derivation, zeroization of many sensitive values, password stretch migration, and extensive testing.  
++The issues I found are mostly hardening opportunities rather than obvious exploitable vulnerabilities. The ones I'd prioritize are:  
++Add bounds checking to ReadOnlyBuffer::from\_slice().  
++Ensure RetainedEncryptedBuffer and ReadOnlyBuffer are explicitly zeroized on overwrite/drop.  
++Audit SyncCell to confirm old values are wiped and accesses are atomic.  
++Replace ordinary equality with constant-time comparison for secret values.  
++Reduce reliance on panics in security-sensitive paths and prefer explicit error handling.  
++Without dynamic analysis or review of dependent components (especially SyncCell, bitbox\_aes, the secure-chip interface, and the memory abstraction), I don't see a clear cryptographic break or authentication bypass in the provided code.

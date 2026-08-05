@@ -1,0 +1,30 @@
+--- reddit-1-6m-cad-drained@20260804T084630Z
++++ reddit-1-6m-cad-drained@20260804T134209Z
+@@ -317,3 +317,27 @@
+ edited: false
+ body:
+ This is true. But, I don't think they can drain multi-sigs until they make a transaction. Then the attacker can outbid you in the mempool for that 10 minute window before a block is created. All vulnerable addresses have been compiled and they are now waiting to.ambush multi sig transactions in the mempool.
++
++comment: p1mgjev
++parent: t1_p1l5e0d
++author: Mission-Disaster-447
++created_utc: 1785839625
++edited: false
++body:
++Its a brute forceable problem. They just have to find the 2 private keys that create the correct signature. And this isnt that hard because all possible keys belong to the same small set, if they were all generated with a coldcard that had the rng bug.
++
++comment: p1mi6ne
++parent: t1_p1mgjev
++author: SpendHefty6066
++created_utc: 1785840324
++edited: false
++body:
++Isn't that 40 bit squared? That seems like a lot to brute force. Unless the space is even smaller than this. I still think monitoring the mempool for any multi-sig transactions that use those known keys will be ambushed. There are calls for node runners to turn off RBF for this reason. Replace By Fee allows someone to increase the transaction cost and get priority by miners.
++
++comment: p1mitlt
++parent: t1_p1mi6ne
++author: Mission-Disaster-447
++created_utc: 1785840587
++edited: false
++body:
++I agree that its not the low hanging fruit, but I wouldn‘t rely on it for substantial amounts.

@@ -1,0 +1,81 @@
+url:      https://x.com/KuptoKosmos/status/2083916236002336780
+author:   Kruptos
+handle:   @KuptoKosmos
+posted:   2026-08-02T14:02:02.000Z (from the page's <time> element)
+captured: 20260805T042624Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOuOxOQWsAA5uBa?format=jpg&name=small (590 x 680 pixels)
+
+--- post text (verbatim) ---
+
+ DEBUNK COLDCARD
+
+ July 2020
+- Foundation Devices releases Passport by copying the Coldcard firmware (then under free GPL license)
+- NVK publicly regrets choosing the GPL: "now we have a clone"
+
+ Late 2020 early 2021
+- Coinkite changes the license
+- Switch to MIT + Commons Clause: you can read the code, but you no longer have the right to use it to make a competing product
+- Goal: kill commercial copies
+
+ March 1, 2021
+- Massive commit of 120 files "First pass w/ libNgU"
+- We remove the last GPL-licensed code sections
+- It's exactly in this commit that the bug is introduced
+- The hardware random number generator (TRNG) is bypassed
+- The firmware silently switches to a predictable software generator (Yasmarang)
+- Result: instead of 128 bits of entropy, we drop to about 40 bits on Coldcard Mk3... That's weak. Very weak
+
+ 2021 to 2026
+- The bug remains "invisible" for 5 years
+- The new restrictive license has sharply reduced the number of people motivated to deeply audit the code
+- Fewer eyes = the bug survives!
+
+ The arrival of AI changes the game
+- Coinkite itself runs its firmware through "one of the best AI models" a few weeks before the attack, and the model finds nothing!
+- The attacker certainly used an LLM (or several) to scan old versions of the open-source code and spotted the subtle bug that even Coinkite's AI had missed 
+
+ April-May 2026
+- The biggest addresses that will be drained in July receive tiny amounts of bitcoin (dust)
+- This isn't random. It's target marking
+- The attacker already had the list of vulnerable seeds at least three months earlier
+
+ July 30, 2026
+- Between 01:10 and 01:51 UTC, over 1080 BTC leaves 1,196 addresses
+- Three days later, the total exceeds 1367 BTC from 4,585 addresses
+- The funds are consolidated to a few addresses... and almost nothing moves afterward
+- Recognizable transaction signatures: fixed fees at 30 sat/vB, no change output, batched sends
+
+ The attacker's only real mistake
+- During the operation, he used a paid account with a major blockchain data provider
+- The logs match down to the second
+- The provider wasn't complicit, but it has logs and probably KYC... That's the best lead for the authorities
+
+ Why July 30?
+- The stock of vulnerable seeds with dormant funds was at its maximum
+- We were just days from the start of the critical BIP-110 window (the anti-Ordinals soft fork)
+- The entire hardcore community's attention (exactly the Coldcard audience) was already saturated!
+
+ Who's responsible for what?
+
+- Coinkite: changed the license to protect itself commercially, and introduced the bug in the same move
+
+- The attacker: showed rare patience, prepared his strike for months (or even years), and executed it almost perfectly
+
+- The community: trusted "open-source" and a hardware wallet without ever really checking how the randomness was generated
+
+ The lesson:
+
+- Dice rolls + passphrase are not optional
+
+- "Open-source" doesn't mean "audited"
+
+- A license that's too restrictive can kill audits
+
+- AI radically changes the power dynamic: a subtle bug can stay hidden for 5 years... until a model finds it in one night
+
+- An attacker with time almost always beats a community that's too trusting!
+
+#COLDCARD 

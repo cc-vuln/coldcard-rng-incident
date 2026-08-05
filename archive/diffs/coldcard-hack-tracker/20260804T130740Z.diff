@@ -1,0 +1,44 @@
+--- coldcard-hack-tracker@20260804T090706Z
++++ coldcard-hack-tracker@20260804T130740Z
+@@ -89,7 +89,7 @@
+ 
+ Watched holdings
+ 
+-About 1,923.80748125 BTC drained across known waves. Galaxy’s same-operator total is 1,367.05 BTC across 4,585 addresses. 1,483.59806802 BTC is in watched holdings. The remaining ~440.20941323 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults and fees. Community waves (evening, morning, early Aug 2, P2TR, Wave 4) may be different operators.
++About 1,923.80748125 BTC drained across known waves. Galaxy’s Waves 1–3 same-operator total is 1,367.05 BTC across 4,585 addresses; their Aug 3 high-confidence headline is 1,596.00 BTC across ~7,300 addresses (Waves 1–3 + owner-confirmed footprints), or up to ~2,055.00 BTC if candidate Wave 4 is included. 1,483.59806802 BTC is in watched holdings. The remaining ~440.20941323 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults, untracked lettered footprints, and fees. Community waves (evening, morning, early Aug 2, P2TR, Wave 4) may be different operators — Galaxy now estimates ≥15 attackers.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+@@ -620,7 +620,7 @@
+ EARLY AUG 2 CONSOLIDATION
+ Source
+ 
+-Distinct fee/structure from Galaxy Waves 1–3. Community Mk2 drain report plus a Mk3 testing-device victim in the same consolidation; sampled inputs long-dormant and funded after the March 2021 vuln window.
++Distinct fee/structure from Galaxy Waves 1–3. Community Mk2 drain report plus a Mk3 testing-device victim in the same consolidation; sampled inputs long-dormant and funded after the March 2021 vuln window. Chainabuse victim lands in the same vault/tx (block 960668). Likely one of Galaxy’s lettered footprints.
+ 
+ SCOPE
+ 64.90947964 BTC · 902 inputs
+@@ -676,7 +676,7 @@
+ LIKELY WAVE 4 · AUG 3
+ Source
+ 
+-Pattern-match only (no victim report yet). Galaxy’s revised Wave 4 figure is 448.73 BTC after cutting 89 multisig destinations. We go one step further and also drop 6 destinations that already had prior on-chain history (−5.39 BTC), so our total is 443.34. Press totals near 1,816 BTC are Galaxy’s Waves 1–3 (1,367.05) plus their 448.73 — not our stricter cut. Watched addresses are a sparse still-held sample.
++Pattern-match only (no victim report yet). Galaxy’s revised Wave 4 figure is 448.73 BTC after cutting 89 multisig destinations. We go one step further and also drop 6 destinations that already had prior on-chain history (−5.39 BTC), so our total is 443.34. Galaxy’s Aug 3 ceiling ~2,055 BTC is their high-confidence 1,596 plus this 448.73 candidate — not our stricter 443.34 cut. Watched addresses are a sparse still-held sample.
+ 
+ SCOPE
+ 443.34 BTC · 703 addrs
+@@ -897,6 +897,14 @@
+ NOT THIS BUG
+ TAPSIGNER, Opendime, and Satscard use different codebases and are not affected. Mk1 and pre-4.0.1 Mk2/Mk3 firmware used the real TRNG.
+ SOURCES
++Galaxy Research · $100M update
++
++Aug 3: high-confidence 1,596 BTC / ~7,300 addresses across Waves 1–3 + 14 owner-confirmed footprints; candidate Wave 4 would bring ~2,055 BTC. Multiple independent attackers. Waves 1–3 coins still unmoved.
++
++Alex Thorn · Footprint O
++
++Aug 4: ≥15 attackers (footprints A–O). Overnight footprint O ~12 BTC from 126 addresses from one victim report; no public address list yet.
++
+ Galaxy Research · Wave 3
+ 
+ Aug 1: third wave (~207.73 BTC into 293 P2WSH vaults). Observed total 1,367.05 BTC across 4,585 addresses.

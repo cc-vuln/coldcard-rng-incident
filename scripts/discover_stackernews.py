@@ -40,9 +40,12 @@ Zero dependencies: stdlib only, Python 3.11+ for tomllib.
 """
 
 import argparse
+import fcntl
 import json
+import os
 import re
 import sys
+import tempfile
 import time
 import tomllib
 import urllib.request
@@ -55,6 +58,7 @@ WORK = ROOT / ".work"
 STATE = WORK / "stackernews-discovery.json"
 CANDIDATES = WORK / "stackernews-candidates.jsonl"
 INTAKE = ROOT / "DISCOVERY.md"
+INTAKE_LOCK = WORK / "agent-discovery-intake" / "intake.lock"
 
 API = "https://stacker.news/api/graphql"
 UA = (
@@ -66,6 +70,7 @@ TIMEOUT = 45
 POLITE_DELAY = 1.5
 MAX_PAGES = 3  # hard ceiling; deeper backfill is a deliberate one-off, see docstring
 SEEN_KEEP = 5000
+INTAKE_LOCK_TIMEOUT = 60.0
 
 # Incident vocabulary for title matching. Oblique titles ("Dear podcasters &
 # influencers") will not match; --all exists for a full sweep when the feed is
@@ -115,13 +120,18 @@ def registered_urls() -> set[str]:
 INTAKE_HEADER = """\
 # Discovery intake
 
-Thread candidates found by `scripts/discover_stackernews.py` and
-`scripts/discover_reddit.py`, run every 12 hours (`discover-community.timer`).
-Pending entries are assessed by the intake agent
-(`scripts/agent-discovery-intake.sh`): a relevant thread is registered in
-`sources.toml`, first-captured, and its entry moves to Assessed with the
-verdict. Entries whose thread reaches `sources.toml` by any route drop out of
-Pending on the next discovery run. To dismiss a candidate by hand, move its
+Candidates found by the Stacker News, Reddit, BitcoinTalk and manual X
+discovery commands. The community-thread lanes run every 12 hours through
+`discover-community.timer`; X discovery remains manual while its API and
+policy gates are proved. That timer neither runs X discovery nor sends queued
+X links to the general community agent. An operator may invoke the separate
+X-only triage with `--include-x` during probation. Direct `just ingest-x`
+capture of a manually supplied permalink does not use this queue.
+Eligible pending entries are assessed by the intake agent
+(`scripts/agent-discovery-intake.sh`): a relevant community thread is
+registered and first-captured. Explicit X triage only recommends or dismisses
+permalinks for human review; it cannot capture or register them. Assessed
+entries move below with the verdict. To dismiss a candidate by hand, move its
 line to Assessed with a one-line reason.
 
 ## Pending
@@ -133,38 +143,74 @@ LINE_URL_RE = re.compile(r"\((https?://[^)]+)\)")
 
 
 def intake_line(c: dict) -> str:
+    if c.get("platform") == "x":
+        return (f"- {c['createdAt'][:10]} [{c['title']}]({c['url']}) "
+                f"({c['label']})")
     return (f"- {c['createdAt'][:10]} [{c['title']}]({c['url']}) "
             f"by {c['author'] or '?'}, {c['ncomments']} comments ({c['label']})")
+
+
+def atomic_text(path: Path, text: str) -> None:
+    """Replace the shared intake file only after its new body is durable."""
+    fd, raw = tempfile.mkstemp(prefix=path.name + ".", dir=path.parent)
+    tmp = Path(raw)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+
+
+def acquire_intake_lock(lock_handle, timeout: float = INTAKE_LOCK_TIMEOUT) -> None:
+    """Wait briefly for the agent's DISCOVERY.md lock, then fail visibly."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except BlockingIOError:
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    "discovery intake remained busy; checkpoint not advanced"
+                )
+            time.sleep(0.25)
 
 
 def update_intake(candidates: list[dict], known_urls: set[str]) -> None:
     """Reconcile DISCOVERY.md: prune registered threads from Pending, append
     new candidates. Assessed entries are the intake agent's (or a human's)
     record and are kept verbatim."""
-    if INTAKE.exists():
-        text = INTAKE.read_text(encoding="utf-8")
-    else:
-        text = INTAKE_HEADER
-    parts = text.split("## Assessed", 1)
-    head = parts[0]
-    assessed = parts[1] if len(parts) == 2 else "\n"
-    pending = [l for l in head.splitlines() if l.startswith("- ")]
-    head = [l for l in head.splitlines() if not l.startswith("- ")]
+    INTAKE_LOCK.parent.mkdir(parents=True, exist_ok=True)
+    with INTAKE_LOCK.open("a+") as lock_handle:
+        acquire_intake_lock(lock_handle)
+        if INTAKE.exists():
+            text = INTAKE.read_text(encoding="utf-8")
+        else:
+            text = INTAKE_HEADER
+        parts = text.split("## Assessed", 1)
+        head = parts[0]
+        assessed = parts[1] if len(parts) == 2 else "\n"
+        pending = [l for l in head.splitlines() if l.startswith("- ")]
+        head = [l for l in head.splitlines() if not l.startswith("- ")]
 
-    present = {m.group(1) for l in pending + assessed.splitlines()
-               if (m := LINE_URL_RE.search(l))}
-    pending = [l for l in pending
-               if LINE_URL_RE.search(l).group(1) not in known_urls]
-    for c in candidates:
-        if c["url"] not in present:
-            pending.append(intake_line(c))
+        present = {m.group(1) for l in pending + assessed.splitlines()
+                   if (m := LINE_URL_RE.search(l))}
+        pending = [l for l in pending
+                   if LINE_URL_RE.search(l).group(1) not in known_urls]
+        for c in candidates:
+            if c["url"] not in present:
+                pending.append(intake_line(c))
 
-    out = "\n".join(head).rstrip() + "\n"
-    if pending:
-        out += "\n" + "\n".join(pending) + "\n"
-    out += "\n## Assessed" + assessed.rstrip() + "\n"
-    if not INTAKE.exists() or out != text:
-        INTAKE.write_text(out, encoding="utf-8")
+        out = "\n".join(head).rstrip() + "\n"
+        if pending:
+            out += "\n" + "\n".join(pending) + "\n"
+        out += "\n## Assessed" + assessed.rstrip() + "\n"
+        if not INTAKE.exists() or out != text:
+            atomic_text(INTAKE, out)
 
 
 def load_state() -> dict:

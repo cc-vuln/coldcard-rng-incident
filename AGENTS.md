@@ -1,9 +1,8 @@
 # Agent instructions
 
-Primary-source archive and explainer for the July 2026 COLDCARD predictable-RNG
-incident, published at cc-vuln.org. The job of this repo is provenance: capture
-what each party said, detect when they change it, keep the previous version, and
-explain the incident without adjudicating between the people involved.
+The site is the public record of the July 2026 COLDCARD predictable-RNG
+incident: it preserves what each party published and how it changed, organises
+the material, and explains it without adjudicating between the people involved.
 
 Read `BACKLOG.md` before starting work. It is the current state of what is
 missing, wrong, or blocked.
@@ -25,7 +24,9 @@ scripts/
   discover_stackernews.py  find new incident threads on Stacker News (gentle)
   discover_reddit.py    find new incident threads on Reddit (via capture browser)
   discover_bitcointalk.py  find new incident threads on BitcoinTalk (direct)
-  agent-discovery-intake.sh  assess discovery candidates via REVIEW_AGENT_BIN
+  discover_x.py         find new posts from watched X accounts (manual probation)
+  agent-discovery-intake.sh  community intake and explicit X triage agent
+  agent-x-discovery-triage-prompt.md  read-only X recommendation prompt
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
   agent-review.sh     classify new diffs via REVIEW_AGENT_BIN (optional)
@@ -58,6 +59,13 @@ npm live entirely under `site/`. Do not let site dependencies leak outward.
 
 ## Epistemic model
 
+The belonging test for site content is strict: a page belongs if it preserves
+incident material, organises that material, or explains the incident using
+preserved material. General bitcoin-security guidance fails this test even when
+it is sound. The site does not classify a reader's wallet or publish its own
+incident-response procedure. Published guidance remains in scope when it is
+attributed and presented as part of the record.
+
 Material claims and claim groups carry one evidence basis. This is the spine of
 the site's impartiality, not decoration:
 
@@ -89,15 +97,13 @@ Disclose conflicts plainly where they bear on advice. The Slipstream
 recommendation traces to AnchorWatch people and to the tool's own author; that is
 stated on the page without implying bad faith.
 
-## Precision belongs deeper, not at the front door
+## The record leads; precision belongs deeper
 
-Someone arriving on `/` has usually just been told their savings might be gone.
-They need to know what happened and whether it includes them. They do not need
-the symbol name.
-
-**The landing hero and every page standfirst are written for that reader.** Plain
-words, no jargon, rounded figures. Everything precise is one click away and
-should stay there.
+The landing page orients a non-technical reader to the incident and shows the
+record itself. It does not classify the reader's wallet or direct a course of
+action. The landing hero and every page standfirst use plain words, little
+jargon and rounded figures. Everything precise is one click away and should
+stay there.
 
 This has drifted twice, in both cases toward writing that is more accurate and
 less useful:
@@ -112,9 +118,9 @@ less useful:
   reader has not met yet. Say claims are graded and linked; the badges teach
   themselves in context
 
-The test: read it as somebody who owns a COLDCARD, does not write firmware, and
-is frightened. If a sentence sends them to a search engine before it answers
-their question, it is in the wrong place on the site rather than wrong.
+The test: read it as somebody who does not write firmware. If a sentence sends
+them to a search engine before orienting them to the subject, it belongs deeper
+on the site rather than being wrong.
 
 Depth is the point of the rest of the site. `/how-it-broke/` should be as exact
 as the source allows, and the accounting pages should carry every decimal they
@@ -171,6 +177,19 @@ that has already been edited (import.meta)". The production build is unaffected,
 so local preview builds and serves `dist/`. Rebuild and restart the preview to
 see changes. Fixing this properly is in the backlog.
 
+**The community trackers' totals are read out of the archive, never typed.**
+`site/src/lib/trackers.ts` pulls each chain monitor's headline figure from the
+newest held snapshot whose reader still parses, and `/record/funds/` prints
+which capture it came from, when the figure last moved and whether the source
+is still answering. Do not put a tracker total back into a page as a literal:
+it is right the day it is typed and silently wrong afterwards. When a tracker
+rebuilds its page the reader stops matching and the reading degrades visibly,
+first to an older capture (`lagging`), then to the pinned figure (`pinned`);
+`site/tools/check-trackers.mjs` fails a build on `pinned`, so the fix is the
+reader's anchor rather than the pin. A tracker that has stopped answering is
+not a build failure: the page states it beside the figure, from this archive's
+own poll record via `pollHealth()` in `lib/archive.ts`.
+
 **Hand-built figures live in `site/src/components/figures/`.** Every diagram
 on the site is an inline SVG component (a shared `Fig.astro` frame plus one
 component per figure): they theme from the design tokens in both schemes,
@@ -191,9 +210,11 @@ the explainer markup is not JSX-safe. Ported pages inject HTML via `set:html`
 and diagrams render client-side.
 
 **Published builds show excerpts, not mirrors.** `PUBLIC_FULL_TEXT` defaults to
-false: source pages show diffs, a 40-line excerpt, hashes and a link. Full
-captures stay local, where they still back every claim. Do not flip this on for
-a public deploy.
+false: source pages show diffs, a 40-line excerpt and a link. Full captures stay
+local, where they still back every claim. Snapshot hashes remain internal
+capture and audit data; the public site does not present them as independent
+proof of provenance or tamper resistance. Do not flip this on for a public
+deploy.
 
 ## The capture host
 
@@ -255,6 +276,14 @@ status id, so a capture always lands where the site reads it, and a
 re-capture is a new directory beside the old one. That makes the append-only
 rule a property of the layout rather than something a writer has to remember.
 
+`just discover-x` is a separate pre-capture lane for the small `[[x_watch]]`
+registry. It performs bounded official X API reads, queues new permalinks
+in `DISCOVERY.md`, and writes no archive capture. Live reads require
+`X_DISCOVERY_ENABLED=true`; first contact baselines instead of backfilling,
+and account-health signals stop the whole run with a persistent cooldown. It
+is manual during probation and must not be added to a timer until the gate in
+`docs/design/discovery-and-x-watch.md` is satisfied.
+
 
 ## Capturing Stacker News threads
 
@@ -272,7 +301,8 @@ deterministic canonical text, so no normalizer binding is needed.
 
 Discovery is separate from capture: Stacker News keyword search does not
 index recent items, and Reddit has no usable anonymous search from this host.
-Two scripts feed one intake queue:
+Three scheduled community scripts and the separate manual X watcher feed one
+intake queue:
 
 - `just discover-stackernews` reads the ~bitcoin and ~security recent feeds
   (two requests per run, 1.5s apart) and queues title-matched candidates
@@ -286,20 +316,33 @@ Two scripts feed one intake queue:
   view (`action=printpage`), the whole thread as stable text; the `;all`
   view is Cloudflare-challenged from this host and board pages carry live
   user counters
+- `just discover-x` reads shallow public user timelines for the curated
+  `[[x_watch]]` registry through the official read-only X API. It is opt-in
+  and manual during probation, baselines first contact and fails closed on
+  API-health signals. Do not put it in `discover-community.service` yet
 
 Candidates land in `DISCOVERY.md`, the tracked intake file at the repo root.
-On the capture host `discover-community.timer` runs both discoveries every 12
-hours, chained with the intake agent (`agent-discovery-intake.sh`, the same
+On the capture host `discover-community.timer` runs the three community
+discoveries every 12 hours, chained with the intake agent
+(`agent-discovery-intake.sh`, the same
 REVIEW_AGENT_BIN pattern as agent-review.sh), which assesses each pending
 candidate (bounded chunks of 15 per run while a backlog exists), appends
 registrations to `sources.toml` in the established shapes, may correct
 existing `stackernews-*`/`reddit-*` entries with the reason in its report,
-first-captures each registration via `just capture-one` (exit 10 is healthy;
-exit 21 defers to the next poll), and records every verdict in
+first-captures each community registration via `just capture-one` (exit 10 is
+healthy; exit 21 defers to the next poll), and records every verdict in
 `DISCOVERY.md`. With REVIEW_AGENT_BIN unset, candidates wait in
 `DISCOVERY.md` for human triage. stacker.news serves no robots.txt, so there
 is no published crawl policy; keep discovery at this volume unless the
-operators have been asked. Full polls remain the scheduled runner's alone.
+operators have been asked. The recurring community service neither runs
+`discover-x` nor sends queued X links to its general intake agent. During X
+probation an operator may run `just discovery-intake --include-x` to authorize
+a bounded X-only assessment through the separately configured
+`X_REVIEW_AGENT_BIN`. That prompt may only add recommendation or dismissal
+verdicts to `DISCOVERY.md`; it cannot capture or register a post. Direct manual
+`just ingest-x` capture is unchanged and does not pass through this queue.
+Human X promotion remains separate. Full polls remain the scheduled runner's
+alone.
 
 
 ## Publishing screenshots: provenance, never inspection

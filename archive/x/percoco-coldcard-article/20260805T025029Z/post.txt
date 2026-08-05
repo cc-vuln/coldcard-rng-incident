@@ -1,0 +1,40 @@
+url:      https://x.com/c7five/status/2083884290442469678
+author:   Nick Percoco
+handle:   @c7five
+posted:   2026-08-02T11:55:06.000Z (from the page's <time> element)
+captured: 20260805T025029Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOtw-1kXAAAIQ9q?format=jpg&name=small (680 x 272 pixels)
+
+--- post text (verbatim) ---
+
+The Coldcard entropy failure should be a wake-up call for the entire hardware wallet industry.
+
+For five and a half years, certain firmware versions generated seeds with far less entropy than intended. Roughly 40 bits on Mk2 and Mk3, and about 72 bits on Mk4, Mk5 and Q, against an intended 128-bit target. Coinkite calls both figures preliminary.
+What happened is simpler than it sounds. In March 2021, Coldcard moved to a new library for its Bitcoin math. That was a good decision. But the move quietly changed which random number generator the seed code reached for. A safety check that should have caught the swap was written slightly wrong, so it never fired. The two versions of the function looked identical from the outside, and the build picked the wrong one without complaint.
+The hardware TRNG code was still in the firmware. It was still correct. It just was not the code that generated your seed. You had one job.
+Then there is the part that should end the debate about whether certifying components is enough. Mk4, Mk5 and Q ship with secure elements, and Coinkite mixed their hardware randomness into the software generator. Certified hardware entropy was physically present on the device. The seed still came out around 72 bits, because the certification covered the component and nobody validated the path.
+That is the core problem. “Trust, but verify” is the classic security principle. Right now the hardware wallet model mostly delivers the first half. Consumers are asked to trust a manufacturer’s implementation of the single most critical function in the system, with no independent verification that the approved entropy path is the one actually executing.
+The rest of the security industry addressed this decades ago.
+NIST SP 800-90B exists specifically to validate entropy sources used for cryptographic random bit generation. It is not a checklist. It requires:
+At least 1,000,000 sequential raw samples from the noise source
+A restart dataset of 1,000 restarts, 1,000 samples each
+Min-entropy estimation using IID or non-IID estimators
+Continuous health tests (Repetition Count and Adaptive Proportion)
+Strict rules on any conditioning component
+Testing by an NVLAP-accredited lab, with results reviewed under CMVP
+BSI AIS-31 covers similar ground in Europe if you would rather not build on a NIST document. The methodology is what matters, not the flag on it.
+Would this have caught the Coldcard bug? Not through the statistical tests alone. A competent software generator passes those. It gets caught by three other things: the requirement to identify a physical noise source and sample it raw, restart testing across 1,000 device restarts, and validation performed against the firmware as built rather than the code as written.
+Hardware wallets have no equivalent process. We have Common Criteria on secure elements, some CSPN certifications, and vendor-sponsored audits. None of them systematically force end-to-end verification that the validated entropy source is what production firmware actually calls.
+I am not arguing every hardware wallet needs full FIPS 140-3 Level 3. The cost and timeline would kill most open-source and smaller projects. But the entropy validation methodology is extractable from the compliance apparatus built around it.
+A lightweight, industry-specific assurance standard should at minimum:
+Require independent lab validation of the entropy source against SP 800-90B or a recognized equivalent
+Require verification that the validated hardware entropy path is the one compiled, linked and reachable in shipped firmware
+Tie the certificate to specific hardware and firmware versions
+Publish a public registry users can check
+Points 3 and 4 are not hypothetical. PCI PTS already does both for payment terminals. Approvals are bound to specific hardware and firmware versions and listed in a public registry. Solved problem, adjacent industry, far greater scale.
+Point 2 is not hypothetical either. Coinkite’s hotfix now adds a build-time check that fails the build unless the correct hardware generator is the one linked in. That is the control. It took roughly 48 hours to implement once they knew. The question is why the industry waits for an exploit to require it.
+On transparency: public source code is useful. It allows more eyes and faster discovery once someone knows where to look. Coldcard’s firmware was public the entire time. But open source is not a hard requirement for assurance. Most lab-certified cryptographic modules in the government and payments world are closed source. The confidence comes from independent testing against a defined standard, not from the source being public. Source availability helps. It is not a substitute for the verification step.
+The payments industry does not let PIN entry devices ship without independent lab testing. The U.S. government does not accept cryptographic modules without entropy source validation. Digital asset self-custody should not be the exception.
+Curious what other security practitioners and hardware wallet teams think. Is the industry ready to treat entropy generation with the same seriousness as the rest of the cryptographic community?

@@ -1,0 +1,31 @@
+url:      https://x.com/xbtoshi/status/2084476380452950050
+author:   CyberSatoshi 𓆙
+handle:   @XBToshi
+posted:   2026-08-04T03:07:51.000Z (from the page's <time> element)
+captured: 20260805T020852Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    2 attached image(s)
+media-1: https://pbs.twimg.com/media/HO2L_r0WsAADmnH?format=jpg&name=360x360 (360 x 360 pixels)
+media-2: https://pbs.twimg.com/media/HO2MCKGXcAA7uh5?format=png&name=360x360 (360 x 360 pixels)
+
+--- post text (verbatim) ---
+
+Interesting thought experiment: 
+
+what if the exact same Coldcard RNG flaw hit Monero instead of Bitcoin?
+
+The math vulnerability remains -- a broken RNG still collapses the seed space into something enumerable. Attackers could still generate all weak candidates offline. But the actual on-chain slaughter would look completely different.
+
+Here is why an automated mass-drain is economically broken on XMR:
+
+ - Zero cheap filtering: On BTC, attackers generate a seed, derive the address, and ping a public node to check for a balance, it costs nothing. On XMR, there is no public ledger of balances.
+
+ - Brutal scanning costs: To know if an XMR seed has funds, you must derive its private view key and scan the blockchain for every output. You pay massive compute upfront before knowing if the wallet is empty.
+
+ - Subaddress multipliers: Nobody uses the primary address. Users spread funds across multiple account indices and subaddresses. Attackers must scan a range of these for every candidate seed, multiplying the search space into oblivion.
+
+On transparent chains, observation is cheap and filtering is instant. On Monero, the privacy architecture acts as a massive economic firewall against industrial-scale brute-forcing.
+
+A weak RNG will still ruin an individual target, but that automated $88.6m sweep across thousands of addresses? Near impossible.
+
+Am I missing any attack vectors here?

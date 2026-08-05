@@ -81,6 +81,34 @@ const allowedUpstreamExcerpts = [
   // },
 ];
 
+// Archive hashes are useful inside the capture and audit pipeline, but a
+// published hash does not authenticate who made a browser capture. Keep the
+// public source records from regaining the retired integrity presentation.
+// These checks are deliberately route-scoped because editorial pages discuss
+// SHA-256 as part of the firmware incident itself.
+const publicArchiveHashTokens = [
+  {
+    label: 'social artefact sha256 field',
+    needle: '"sha256":',
+    matchesFile: (file) => file === 'record/sources.json',
+  },
+  {
+    label: 'source-page SHA-256 prefix',
+    needle: 'SHA-256 prefix',
+    matchesFile: (file) => file.startsWith('record/sources/') && file.endsWith('/index.html'),
+  },
+  {
+    label: 'source-page text sha256',
+    needle: 'text sha256',
+    matchesFile: (file) => file.startsWith('record/sources/') && file.endsWith('/index.html'),
+  },
+  {
+    label: 'source-page integrity record',
+    needle: 'Integrity record',
+    matchesFile: (file) => file.startsWith('record/sources/') && file.endsWith('/index.html'),
+  },
+];
+
 const knownTextExtensions = new Set([
   '.atom',
   '.css',
@@ -256,6 +284,19 @@ if (!existsSync(outputRoot) || !statSync(outputRoot).isDirectory()) {
 }
 
 const configurationProblems = validateAllowlist();
+const headersPath = join(outputRoot, '_headers');
+if (!existsSync(headersPath)) {
+  configurationProblems.push('site/dist/_headers is missing');
+} else {
+  const headers = readFileSync(headersPath, 'utf-8');
+  const fontDirective = headers.match(/(?:^|;\s*)font-src\s+([^;\n]+)/m);
+  const fontSources = fontDirective?.[1].trim().split(/\s+/) ?? [];
+  if (!fontSources.includes("'self'")) {
+    configurationProblems.push(
+      "site/dist/_headers CSP must allow 'self' in font-src for the bundled fonts",
+    );
+  }
+}
 if (configurationProblems.length) {
   console.error(`public output check failed (${configurationProblems.length} configuration problem(s)):`);
   for (const problem of configurationProblems) console.error(`- ${problem}`);
@@ -263,6 +304,7 @@ if (configurationProblems.length) {
 }
 
 const findings = [];
+const archiveHashFindings = [];
 let scannedFiles = 0;
 
 for (const path of filesUnder(outputRoot).sort()) {
@@ -282,6 +324,20 @@ for (const path of filesUnder(outputRoot).sort()) {
     if (!matches.length) continue;
     const first = locationOf(text, matches[0]);
     findings.push({
+      file,
+      token: token.label,
+      count: matches.length,
+      line: first.line,
+      column: first.column,
+    });
+  }
+
+  for (const token of publicArchiveHashTokens) {
+    if (!token.matchesFile(file)) continue;
+    const matches = matchesFor(text, token, file);
+    if (!matches.length) continue;
+    const first = locationOf(text, matches[0]);
+    archiveHashFindings.push({
       file,
       token: token.label,
       count: matches.length,
@@ -336,4 +392,23 @@ if (findings.length) {
   process.exit(1);
 }
 
-console.log(`public output check ok: ${scannedFiles} text file(s), no operational tokens found`);
+if (archiveHashFindings.length) {
+  const totalMatches = archiveHashFindings.reduce(
+    (sum, finding) => sum + finding.count, 0);
+  console.error(
+    `public output check failed: ${totalMatches} retired archive-hash ` +
+      'presentation match(es)',
+  );
+  for (const finding of archiveHashFindings) {
+    const suffix = finding.count > 1 ? ` (${finding.count} matches)` : '';
+    console.error(
+      `- ${finding.token}: ${finding.file}:${finding.line}:${finding.column}${suffix}`,
+    );
+  }
+  process.exit(1);
+}
+
+console.log(
+  `public output check ok: ${scannedFiles} text file(s), no operational tokens ` +
+    'or public archive hashes found',
+);

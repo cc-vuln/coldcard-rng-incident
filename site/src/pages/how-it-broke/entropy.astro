@@ -3,6 +3,7 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
 import Disclosure from '../../components/Disclosure.astro';
+import ModelExplorer from '../../components/ModelExplorer.astro';
 import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.astro';
 import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
 ---
@@ -54,7 +55,7 @@ import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
           contested
           scope="The candidate-space estimates and attribution in the comparison table above"
           source="Published models from Block, Coinkite, LLFOURN and otaliptus; the 58.3 to 62.3-bit row is arithmetic on LLFOURN's follow-up"
-          href="/record/analysis/"
+          href="/record/reference/#analysis"
         /></caption>
         <thead>
           <tr>
@@ -141,12 +142,12 @@ d = RTC-&gt;SSR;</pre>
       words as wafer and lot information. That field layout explains why an
       analyst might model fewer than <code>2^32</code> possible first words, but it
       does not by itself establish a COLDCARD-specific range. This project holds
-      no population sample of device UIDs, so
+      no population sample of device UIDs as of a 5 August 2026 recheck, so
       <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code>2^20</code> assumption</a>
       remains unchecked here.<Claim
         basis="unverified"
         scope="The practical distribution of the 32-bit UID word across shipped COLDCARD devices"
-        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices has not been measured here"
+        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices had not been measured here as of a 5 August 2026 recheck"
       />
     </p>
 
@@ -215,10 +216,32 @@ d = RTC-&gt;SSR;</pre>
     </div>
   </div>
 
+  <ModelExplorer />
+
+  <h2 id="model-loss-record">What the held record established by model</h2>
+
   <p>
-    The <a href="/risk/estimator/">in-browser estimator</a> applies the same
-    formula to every source-labelled scenario and lets you add uniform dice or
-    passphrase assumptions without sending or storing the inputs.
+    On 2 August, Rob Hamilton asked whether any compromise of a Mk4, Mk5 or Q
+    wallet had been confirmed, noted that multiple earlier claims had been
+    retracted, and asked how much collective effort was being applied to the
+    larger Mk4-class search space.
+    <Claim
+      basis="reported"
+      scope="Hamilton's 2 August question about confirmed Mk4, Mk5 or Q compromises, retracted claims and collective search effort"
+      source="Rob Hamilton, captured X post, 2 Aug 2026"
+      href="/record/sources/robhamilton-mk4-confirmation-question/"
+      compact
+    />
+    As of 4 August 2026, no captured source in this archive demonstrated a
+    confirmed drain of a wallet generated on one of those models. That is a
+    dated archive limit, not a finding that those models were safe, and the
+    published candidate-space estimates above remain in disagreement.
+    <Claim
+      basis="unverified"
+      scope="Whether any Mk4, Mk5 or Q wallet had lost funds in this incident by 4 August 2026"
+      source="No captured source demonstrated a confirmed Mk4-class drain by that date; absence from this bounded archive is not evidence of safety"
+      compact
+    />
   </p>
 
   <h2 id="collisions">Reported collision arithmetic</h2>

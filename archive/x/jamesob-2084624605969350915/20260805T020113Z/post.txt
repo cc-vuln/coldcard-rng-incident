@@ -1,0 +1,25 @@
+url:      https://x.com/jamesob/status/2084624605969350915
+author:   James O'Beirne
+handle:   @jamesob
+posted:   2026-08-04T12:56:51.000Z (from the page's <time> element)
+captured: 20260805T020113Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    2 attached image(s)
+media-1: https://pbs.twimg.com/media/HO4S6DvXgAA1oJ2?format=png&name=small (680 x 568 pixels)
+media-2: https://pbs.twimg.com/media/HOxGPVUaQAAXFJA?format=jpg&name=large (946 x 2048 pixels)
+
+--- post text (verbatim) ---
+
+I haven't told the full story yet, but I came to the same conclusion back in May 2025 when I started doing an audit of `coldcard/firmware`. 
+
+I wanted to figure out conclusively where the CC RNG was getting sourced from, and found that it backed up to some shady library called libngu (
+https://
+github.com/switck/libngu) that had literally 6 stars on github and was maintained solely by a pseudoanon tranny.
+
+I knew from past experience that linking to libsecp256k1 from Python was pretty easy, which seemed to be the stated purpose of the library use, and so I was confused about why it was there.
+
+I sent a report to the CC team that I had doubts about whether the true RNG was actually in use, and pointed out that the hardcoded yasmarang constants in libngu were sloppy. I advised they rip the whole thing out and link against libsecp256k1 directly.
+
+I was told that if something was wrong "we'd already know about it by now" and that everything was properly configured for the real boards.
+
+I didn't follow up rigorously, which was a horrible mistake on my part.

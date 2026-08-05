@@ -1,0 +1,270 @@
+post: 1vc55eb
+author: Intelligent_Map_246
+created_utc: 1785536288
+title: Trust issues.
+body:
+How can we make sure that CC did not 
+
+Ignored your rolls and just used its own RNG, 
+
+Or
+
+Only used a tiny fraction of your rolls (e.g. first 5, or some hash that discards most of the entropy),
+
+Nothing is for sure right?
+
+comment: p0yr2kl
+parent: t3_1vc55eb
+author: JumpProfessional3372
+created_utc: 1785536905
+edited: 1785537094
+body:
+Well I'm not 100% replying But here I remember I executed my rolls using this script in an air-gapped booted (from an installation usb) linux and then I slow formatted the usb.
+
+[https://coldcard.com/docs/rolls.py](https://coldcard.com/docs/rolls.py)
+
+Basically running
+
+`$ echo <your 100+ dice rolls> | python3` [`rolls.py`](http://rolls.py)
+
+And then checking that the seed this command gives, is the same the coldcard is giving you. So you compare that the seed you got from mk4 after entering 100+ rolls is the same this script gives you after entering the same 100+ rolls in a secure environment (this is the part i'm not fully remembering yet).
+
+But in case i'm wrong please somebody correct me.
+
+comment: p0ywcom
+parent: t3_1vc55eb
+author: KingMe6
+created_utc: 1785538567
+edited: false
+body:
+Thx for this answer, I did a dice roll. A a year and a 1/2 ago and for the life of me, I could not remember how many roles I actually did. I think it was 100+ But I do recall using that python script to validate output. Now , my paranoia is about the fact that the dice were not casino dice , even though I have a very lengthy pass phrase on top of it
+
+comment: p0yxxz1
+parent: t3_1vc55eb
+author: undeadkarlmarx
+created_utc: 1785539084
+edited: false
+body:
+Just bypass the RNG entirely.
+
+Use the option to create a new seed from dice rolls and record every roll on a piece of paper as you go. 
+
+After you’ve rolled 100+ times and generated and recorded your new seed, you can wipe the device and re-enter all the same rolls again. It should generate the exact same seed and device fingerprint as before, because it’s using your rolls to create them.
+
+Of course always use a strong passphrase on top of your seed for extra entropy. 
+
+I will personally not be installing the new firmware or using the RNG on the wallet again. It’s not worth the risk IMO. 
+
+Honestly I’ll probably never use a coldcard in a single sig setup after this whole mess. I’m willing to continue using it as one factor in my multisig for now, with dice rolls and a passphrase, but beyond that I just don’t have enough confidence in the product after this.
+
+comment: p0yyhp2
+parent: t1_p0yr2kl
+author: didnt_hodl
+created_utc: 1785539260
+edited: false
+body:
+so in order to check the randomness you need to bring your entire seed onto a linux box, I see!
+
+comment: p0yyl3g
+parent: t1_p0ywcom
+author: JumpProfessional3372
+created_utc: 1785539291
+edited: 1785539742
+body:
+yeah i'm not a python programmer, but the script looks clean to me and quite small. hopefully free of bugs. But it looked to me that the coldcard runs the same as this python script because i remember that i didn't want to trust any RNG when creating my seed. So i did probably 110 rolls something like that.
+
+I haven't even updated my mk4 firmware since early 2024. So I guess the only potential risk is when you sign the PSBT and you export the file to be read by Sparrow wallet. So as long as that PSBT never ends up carrying some private key or something like that, should be safe, I suppose...
+
+Just to add.. I think my passphrase is also quite complex. (and that could be my downfall).
+
+TLDR: as per my understanding, for the ones who rolled the dice. as long as that python script is not compromised, we should be fine. However, I personally verified that the python script was returning the same seed as the MK4. (Just in case the MK4 sometimes was doing an exception so I wanted to see the same seed coming out from both devices). The risk of doing this, is exposing your seed in a second system.
+
+comment: p0z0tdt
+parent: t1_p0yyhp2
+author: JumpProfessional3372
+created_utc: 1785540017
+edited: 1785541274
+body:
+Yes. At the cost of adding some risk.
+
+But this is just to check that the MK4 is converting your 100+ rolls into a seed in a single way
+
+Otherwise you don't know if is really using your dice rolls everytime
+
+comment: p0z366r
+parent: t1_p0z0tdt
+author: 0100000101101000
+created_utc: 1785540792
+edited: false
+body:
+I think the point was you verify once, destroy the verification seed as you've confirmed it's using the dice rolls. Then roll new dice to setup your production wallet which isn't checked against the script.
+
+"Verifying the dice roll math" [https://coldcard3.econoalchemist.com/04%20Dice%20Rolls.html](https://coldcard3.econoalchemist.com/04%20Dice%20Rolls.html)
+
+comment: p0z42ec
+parent: t1_p0yxxz1
+author: TeaSipper007
+created_utc: 1785541088
+edited: false
+body:
+I wanna know the results of this experiment 
+
+comment: p0z483u
+parent: t1_p0z366r
+author: JumpProfessional3372
+created_utc: 1785541142
+edited: false
+body:
+Yes that is the point. You are correct. I went with a more risky approach but because I needed to see the same output in both systems for my peace of mind.
+
+Other user below suggested to load the dice rolls once, wipe the cold card, do it again and the same seed should appear.
+
+comment: p0zd4v8
+parent: t3_1vc55eb
+author: CortaCircuit
+created_utc: 1785544177
+edited: false
+body:
+It has been reported by multiple people on X (I believe, Portland HODL and Rob Hamilton, among others) who have reviewed the code since this incident began and have said that both ways to add entropy via dice rolls on the cold card were working correctly.
+
+The two options cold card gave users to add entropy were
+- Dice rolls only
+- TRNG + Dice rolls
+
+Based on what I have seen if either of those were used the seed had the correct amount of entropy.
+
+Someone respond if you have heard otherwise.
+
+comment: p100txc
+parent: t3_1vc55eb
+author: Quirky-Reveal-1669
+created_utc: 1785552683
+edited: false
+body:
+It is a bummer. I still want to like ColdCard. But they have also been quite arrogant, e.g. with regards to SLIP39 (which has nothing to do with the current issue). But this RNG  issue COMBINED with an attitude is causing trust issues, also with me. 
+
+Still, I hope they can and will survive this shitstorm, and improve the products they are developing. 
+
+comment: p102owe
+parent: t1_p0z0tdt
+author: didnt_hodl
+created_utc: 1785553385
+edited: false
+body:
+technically, that's a not a hw wallet anymore after that. once you seed touched anything outside the wallet, all bets are off. it is a software wallet now
+
+comment: p1045gu
+parent: t1_p0yxxz1
+author: Intelligent_Map_246
+created_utc: 1785553947
+edited: false
+body:
+Could this not be tampered with even if same seed is shown ?
+
+comment: p10tk07
+parent: t1_p102owe
+author: JumpProfessional3372
+created_utc: 1785564825
+edited: false
+body:
+Yeah I know. But I'm not worried about it. 
+
+Even a seed plate expose a risk. 
+
+comment: p10x9t4
+parent: t1_p0yr2kl
+author: Optionbulls
+created_utc: 1785566611
+edited: false
+body:
+We good bruh 
+
+comment: p10xee3
+parent: t1_p0yyhp2
+author: Optionbulls
+created_utc: 1785566674
+edited: false
+body:
+https://coldcard.com/docs/paranoid/ 
+
+Here you go 
+
+comment: p10xhkf
+parent: t1_p0z483u
+author: Optionbulls
+created_utc: 1785566717
+edited: false
+body:
+Yes
+
+comment: p10xmu1
+parent: t1_p0yxxz1
+author: Optionbulls
+created_utc: 1785566788
+edited: false
+body:
+Basically where I’m at 
+
+comment: p10yjqy
+parent: t1_p10xee3
+author: didnt_hodl
+created_utc: 1785567233
+edited: false
+body:
+who are they to teach us about being paranoid ?!
+
+they were generating atotally predictable "random" seeds for years. for years
+
+people lost millions because of that sloppy code. 
+
+I am  just not taking them seriously anymore, not going to that link, not reading that crap, never using their products
+
+comment: p11dpf4
+parent: t1_p0yyhp2
+author: ardevd
+created_utc: 1785574935
+edited: false
+body:
+You don't have to. You can just test the script with a dummy sequence of numbers just to satisfy yourself that the math checks out
+
+comment: p120lrt
+parent: t1_p0ywcom
+author: 99999999999999999989
+created_utc: 1785585741
+edited: false
+body:
+> even though I have a very lengthy pass phrase on top of it
+
+If the passphrase is sufficiently long and not easy to guess based on your personal info or something like 'bitcoinrocks' then you are fine.
+
+comment: p1237p6
+parent: t1_p102owe
+author: Charming-Designer944
+created_utc: 1785586745
+edited: false
+body:
+Well, no, and yes.
+
+Properly done its no different from writing down the seed on a piece of paper or steel. Each time you handle the seed (or the entropy such as the dice rolls) you need to be cautious and make sure no unintended traces are left fir others to find.
+
+The "hard wallet" device is just a signing device that allows you to securely sign with your wallet without exposing the wallet seed. Your wallet (seed phrase + passphrase if used) is your wallet, not the device.
+
+It's your responsibility to manage the wallet seed in a careful manner. Both verifying the validity of the seed, making sure the seed is not stolen, and ensure that you have strong records of the seed so you don't accidently lose it.
+
+comment: p16xz2l
+parent: t1_p0yxxz1
+author: l_i_g_h_t
+created_utc: 1785642934
+edited: false
+body:
+Same. I did 50 live dice rolls when I setup my CCQ. Then a strong passphrase as well. Then I have multiple wallets both single and multisig under that also using bip-85 so I think im safe, but I still feel like I should move everything to a new seed. It’s a lot though, so I don’t really want to.
+
+comment: p1pwfvl
+parent: t3_1vc55eb
+author: thelaurelhighlander
+created_utc: 1785874185
+edited: false
+body:
+My two cents.....I had an unopened MK4 that I wasn't using when this all went down. I updated the firmware and I created a seed phrase with 100 dice rolls. I did a test set of rolls first to see if the CC provided the same value for the rolls as on bitcoiner.guide/seed/, it did. I then created a new seed the same way (without checking online) and added a passphrase.  
+
+

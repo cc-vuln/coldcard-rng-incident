@@ -1,0 +1,433 @@
+Skip to content
+Search Gists
+Search Gists
+All gists
+Back to GitHub
+Sign in
+Sign up
+Sign in
+Sign up
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Instantly share code, notes, and snippets.
+nickfarrow/COLDCARD-AUDIT-2026-06-17.md
+Created
+August 2, 2026 07:08
+Show Gist options
+Download ZIP
+Star
+0
+(0)
+You must be signed in to star a gist
+Fork
+0
+(0)
+You must be signed in to fork a gist
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/nickfarrow/4e97c71c8f1acd01aedce671621081d2.js&quot;&gt;&lt;/script&gt;
+Save nickfarrow/4e97c71c8f1acd01aedce671621081d2 to your computer and use it in GitHub Desktop.
+Code
+Revisions
+1
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/nickfarrow/4e97c71c8f1acd01aedce671621081d2.js&quot;&gt;&lt;/script&gt;
+Save nickfarrow/4e97c71c8f1acd01aedce671621081d2 to your computer and use it in GitHub Desktop.
+Download ZIP
+Raw
+COLDCARD-AUDIT-2026-06-17.md
+Coldcard Firmware Security Audit — 2026-06-17
+Scope: memory crashes / OOB, weak RNG, nonce reuse, Bitcoin signing logic
+(oversized-fee, change/fee handling), integer/number overflows, and anything else that
+could cause loss of funds or device compromise.
+Method: read-only review. Python layer (PSBT/signing/serialization, RNG, NFC, QR)
+plus a deep multi-agent pass over the C code (bootloader/USB dispatch, secure-element
+I2C, NFC/NDEF, QR/BBQr decode, crypto wrappers, flash/firmware-update). Every C finding
+was put through an independent adversarial verifier prompted to refute it; only what
+survived, plus manual re-tracing of the headline bug, is reported here.
+Bottom line: This is a mature, well-defended codebase. None of the headline issues
+flagged by the initial automated sweep survived verification — the signing path, RNG, and
+fee logic are sound. The audit found one genuine memory-safety bug (a stack overflow
+in the secure-element response parser, gated behind physical bus access) and a handful of
+defense-in-depth hardening gaps in the bootloader / firmware-update path. No issue was
+found that lets a remote or USB/NFC/QR/SD attacker steal funds or crash the device into
+a fund-loss state.
+Severity summary
+#
+Finding
+Severity
+Impact
+Reachable from
+1
+ae_read_n stack buffer overflow via unbounded SE response length
+Medium
+mem-corruption (potential code-exec in bootloader)
+physical SE-bus MITM/glitch
+2
+psram_do_upgrade flash sink has no upper-bound / alignment check
+Low
+self-brick / DoS
+authenticated upgrade caller
+3
+pin_firmware_upgrade len not reconciled with signed firmware_length
+Low
+self-brick / DoS
+authenticated upgrade caller
+4
+dfu_hdr_parse SD-card DFU walk has no buffer-end bounds check
+Low
+read bus-fault (lockup)
+recovery mode + physical SD
+5
+dispatch case 25 (mcu_key_usage) off-by-4 vs REQUIRE_OUT
+Info
+latent boundary bug
+compromised main firmware
+Everything else investigated was a false positive, not-a-bug, or accepted
+by-design — documented at the end so it is not re-raised later.
+Confirmed findings
+1. (Medium) Stack buffer overflow in ae_read_n — unbounded ATECC608 response length
+Files: stm32/mk4-bootloader/ae.c (and identical in legacy stm32/bootloader/ae.c)
+Entry: the single-wire bus from the MCU to the ATECC608 secure element.
+Sink: ae.c:599 memcpy(body, tmp+1, actual-3)
+Trace:
+ae_read_response() (ae.c:242-276) increments actual for every byte received on
+the bus (loop at ae.c:258, exits only on a read timeout). Writes into the local
+raw[max_expect] VLA are bounded by if(actual < max_expect) (ae.c:264), so raw is
+safe — but actual itself keeps counting past max_expect. The function returns the
+unbounded actual/8 (ae.c:275).
+ae_read_n() (ae.c:554-614) declares tmp[1+len+2] (= len+3 bytes, ae.c:557) and
+takes actual = ae_read_response(tmp, len+3). Guards before the sink are insufficient:
+actual < 4 only (ae.c:562)
+tmp[0] != len+3 (ae.c:578) — tmp[0] is the chip's claimed length, attacker-controlled.
+ae_check_crc(tmp, actual) (ae.c:592) takes length as uint8_t (ae.c:484), so
+actual is truncated to actual & 0xFF; the CRC is validated only over those low-8-bit
+bytes, all within tmp and attacker-shaped.
+The sink (ae.c:599) uses the full int actual. By sending actual ≡ (len+3) mod 256
+(e.g. 256 + len + 3 deserialized bytes — ~2000+ bus bytes streamed without an
+inter-byte timeout), both the tmp[0] check and the truncated CRC pass while memcpy
+copies actual-3 ≈ 256+len bytes out of the len+3-byte tmp into the caller's
+len-sized body (e.g. a 32-byte randout, or 4-byte buffers). This is simultaneously
+an over-read of tmp and a stack overflow of body with attacker-controlled bytes,
+executing in the bootloader (the most security-sensitive code, handling PIN/secrets).
+Why Medium, not High: exploitation requires physically controlling or glitching the
+on-PCB single-wire signal to the secure element and streaming the long frame without
+triggering the read timeout — board-level tampering, not remote/USB. But physical
+attackers are in the Coldcard threat model (that is the secure element's whole purpose),
+and the overflow lands in the bootloader with attacker-shaped data, so a controlled stack
+overwrite / code-exec is plausible rather than mere DoS. Confirmed in both the mk4 and the
+legacy mk3 bootloader.
+Recommendation:
+In ae_read_response, clamp actual to max_expect so the returned length can never
+exceed the caller's buffer.
+In ae_read_n, reject any response where the full int actual != len+3 before the
+memcpy (not just tmp[0]).
+Widen ae_check_crc's length parameter from uint8_t to int so the truncation that
+lets a large actual masquerade as a valid short frame disappears.
+Apply the same three fixes to stm32/bootloader/ae.c.
+Hardening gaps (real code-level gaps; not exploitable from untrusted input as-is)
+These were each downgraded by the adversarial verifier because the entry point is
+authenticated or recovery-only — but they are genuine missing checks on the
+firmware-update flash sink and are cheap to add as defense-in-depth.
+2. (Low) psram_do_upgrade() flash write has no upper-bound or alignment check
+stm32/mk4-bootloader/psram.c:308-349. The erase/program loop only asserts
+size >= FW_MIN_LENGTH (psram.c:310); there is no size <= FW_MAX_LENGTH_MK4 and no
+8-byte alignment check. This is the common sink for all three upgrade callers. The
+recovery caller psram_recover_firmware does bound h->size (psram.c:265-266), but the
+USB/pins caller does not (see #3). Add ASSERT(size <= FW_MAX_LENGTH_MK4),
+ASSERT((size % 8) == 0), and bound the per-iteration dest to
+FIRMWARE_START + FW_MAX_LENGTH_MK4 before each flash_page_erase/flash_burn.
+3. (Low) pin_firmware_upgrade() length not reconciled with the signed firmware_length
+stm32/mk4-bootloader/pins.c:1293-1338. Host-supplied len is bounded only by
+len <= 2<<20 (0x200000), which is 128 KB larger than the firmware region
+(FIRMWARE_START 0x08020000 … region end 0x08200000, size 0x1E0000).
+verify_firmware_in_ram() ignores its len argument and signs only
+hdr->firmware_length (verify.c:269-273), so len is decoupled from the verified region.
+The legitimate path is safe — check_firmware_hdr() binds len to firmware_length
+(shared/utils.py:398), and reaching this requires a valid PIN + factory-signed image —
+so an attacker here is already a compromised main-firmware caller and gains only a
+self-brick. Still: after verification, flash exactly hdr->firmware_length bytes (or reject
+when len != firmware_length) rather than trusting the caller's len.
+4. (Low) dfu_hdr_parse() walks attacker-controlled element/target counts with no end bound
+stm32/mk4-bootloader/sdcard.c:156-206. file->targets (uint8) and target->elements
+(uint32) come straight from the SD-card file; ptr advances per element and is
+dereferenced (sdcard.c:190-195) with no check that it stays within the loaded PSRAM region.
+A crafted file walks ptr far past the 8 MB PSRAM window → read bus-fault → lockup. It is
+read-only (no write primitive, no signature bypass — install is still gated by
+verify_firmware_in_ram), and only reachable in recovery mode (entered only after the
+installed firmware fails verification, main.c:162-182) with physical SD access. Pass the
+actual buffer length into the parser and bounds-check ptr + sizeof(struct) before each
+dereference; cap targets/elements to sane maxima.
+5. (Info) dispatch case 25 (mcu_key_usage) off-by-4 vs REQUIRE_OUT
+stm32/mk4-bootloader/dispatch.c:568. The case writes 12 bytes (three ints at offsets
+0/4/8 via storage.c:686-688) but only declares REQUIRE_OUT(8). good_addr() validates
+the full caller len_in against BL_SRAM_BASE, so the only gap is len_in ∈ {8..11},
+and per layout.ld the MicroPython heap ends ≥24 KB below BL_SRAM_BASE — so the 4-byte
+overshoot can never reach protected bootloader SRAM (at worst it touches adjacent heap the
+caller already controls). Latent, not exploitable, but the declaration should read
+REQUIRE_OUT(12) to match the actual write extent. Best practice: decouple the
+REQUIRE_* size from caller-supplied len_in and validate the access size each method
+truly uses.
+Accepted by-design (working as intended; reported for completeness)
+Oversized fee: shared/psbt.py:1612-1624. Fee is checked as a % of output value
+(DEFAULT_MAX_FEE_PERCENTAGE = 10, warn at ≥5%). A user can disable it entirely by
+setting fee_limit = -1 (documented chooser). Coinjoin/multi-party PSBTs with foreign
+inputs set total_value_in = None, so calculate_fee() returns None and the fee check
+is skipped — but a visible "Unable to calculate fee" warning is shown
+(psbt.py:1868-1879). These are deliberate, warned tradeoffs.
+Dangerous SIGHASH: shared/psbt.py:1653-1690. SIGHASH_NONE is blocked by default;
+pure-consolidation txs are forced to SIGHASH_ALL. A user can downgrade the block to a
+warning via the sighshchk setting (flow.py warns this enables theft via crafted PSBT).
+False positives investigated (did not survive verification)
+Recorded so they are not re-raised:
+"Legacy input amount not verified → segwit fee attack" (claimed High): FALSE.
+psbt.py:674-685 computes calc_txid over the full supplied prev-tx and asserts it
+equals txin.prevout.hash; the txid commits to every prev-output nValue, so a legacy
+input's amount cannot be inflated. Segwit is covered by history.verify_amount
+(psbt.py:1819-1820). Fee math is sound.
+ECDSA nonce reuse (claimed): FALSE. libsecp256k1 RFC6979 deterministic nonces; the
+n param in ecdsa_grind_sign (psbt.py:2033-2060) is a low-R grinding counter, not a
+random nonce. ctx_rnd() adds blinding. No randomized nonces anywhere.
+Weak RNG (claimed): FALSE. Entropy = STM32 TRNG + ATECC608 + DS28C36 mixed via
+SHA256d (mk4.py rng_seeding), with health checks (seed.py generate_seed asserts
+len(set(seed)) > 4). No weak PRNG in the seed/key/signing path.
+BBQr memory-exhaustion DoS (claimed High): FALSE. bbqr.py:284-289 catches
+MemoryError → clean QRDecodeExplained("Too big"); num_parts ≤ 1296, blksize
+bounded by real QR payloads.
+BBQr inconsistent-blksize / final_size over-read (claimed): NOT-A-BUG. Writes route
+through PSRAM.write_at (bounds-checked, psram.py:24-26); final_size is by construction
+the end of the runt's own written bytes; reassembly only finalizes after is_complete().
+NDEF negative pl_len (claimed): NOT-A-BUG. All indexing is on the in-RAM copy of
+the attacker's own tag bytes (MicroPython: negative slices empty, negative index wraps
+in-bounds, overrun raises caught IndexError). Parser-confusion only, no OOB; a
+fail-closed assert pl_len >= skip (ndef.py:199/206) would still be good robustness.
+uint256_from_compact negative-shift (claimed Medium): NOT-A-BUG. Dead code — zero
+call sites in shared/ or stm32/.
+PSBTv2 unbounded num_inputs/num_outputs (claimed Medium DoS): Bounded in practice
+— the PSBT loads into PSRAM with max_size = MAX_TXN_LEN (auth.py:818) and each
+psbtInputProxy(fd, idx) consumes ≥1 byte from fd (EOF raises), so the count cannot
+exceed the file size.
+aes256ctr nonce memcpy (claimed Low): no finding — the n_in.len > 16 guard
+(module.c:47) matches the 16-byte nonce field; the C-wrapper finder surfaced nothing.
+Coverage & limits
+Python signing/PSBT/serialization, RNG, NFC/NDEF, BBQr: reviewed in depth.
+C: bootloader dispatch/callgate, ATECC608/DS28C36 I2C, NFC/NDEF, QR/BBQr (incl. quirc
+boundary), crypto wrappers (aes256ctr, libngu boundary, micro-ecc/verify),
+flash/firmware-update/PSRAM: reviewed for untrusted-input memory-safety and arithmetic.
+Not deeply reviewed: internals of vendored libsecp256k1 / quirc / micro-ecc beyond
+their Python↔C call boundary; constant-time/side-channel properties of crypto primitives;
+hardware-level fault-injection resistance beyond what the code expresses.
+Finding #1 was re-traced manually; #2–#5 are code-level gaps confirmed by reading the
+cited lines. Suggested next step: add the #1 fixes and the #2/#3 flash-sink bounds, then
+exercise via the existing testing/ PSBT and SE harnesses.
+nickfarrow
+commented
+Aug 2, 2026
+Copy link
+Copy Markdown
+Author
+Audit log and postmortem: the June 2026 pass that missed the Coldcard entropy bug
+Companion to AUDIT-2026-06-17.md. This is primarily a record of what was actually run, published
+because the audit explicitly looked for a weak RNG, dismissed it as a false positive, and six weeks
+later that same defect was disclosed and exploited.
+The original session transcript no longer exists. Everything below was recovered from surviving
+side-channel artifacts or re-verified against the source. Confidence is marked per item.
+Written 2026-08-02, after Coinkite's advisory of 2026-07-30.
+1. What was run
+Field
+Value
+Source / confidence
+Target repo
+github.com/Coldcard/firmware
+git reflog
+Commit audited
+a24a894cfd510da7974b3c89f7f7870ccc0d3c76 (master, 2026-05-16)
+verified
+Version context
+after tag 2026-03-25T1408-v6.5.0X; before fixes in 5.6.0 / 6.6.0X
+verified
+Repo cloned
+2026-06-16 22:13:15 UTC
+git reflog
+First prompt
+2026-06-16 22:38:06 UTC (25 min after clone)
+~/.claude/history.jsonl
+Audit doc written
+2026-06-16 23:01 UTC
+file mtime
+Second prompt
+2026-06-16 23:36:36 UTC
+~/.claude/history.jsonl
+Wall-clock span
+~58 min, first prompt to last
+derived
+Tool
+Claude Code (CLI)
+—
+Model
+claude-opus-4-8 — inferred, not logged
+see §4
+Transcript
+destroyed 30 days after session
+see §4
+Prompts, verbatim
+I need to audit this firmware. In particular:
+-- Memory crashes / OOB
+-- Weak RNG source
+-- Nonce reuse
+-- Bitcoin transaction signing logic (e.g. oversized fee that doesn't get noticed)
+-- Number overflows
+-- Anything else that could lead to loss of funds or otherwise
+Second and final prompt (the response to it is lost):
+What could an attacker do with physical access and this ae_read_n bug?
+Note that "Weak RNG source" was explicitly in scope — bullet two. The miss was not a scoping failure.
+Method, quoted from the audit document's own preamble
+read-only review. Python layer (PSBT/signing/serialization, RNG, NFC, QR) plus a deep
+multi-agent pass over the C code (bootloader/USB dispatch, secure-element I2C, NFC/NDEF,
+QR/BBQr decode, crypto wrappers, flash/firmware-update). Every C finding was put through
+an independent adversarial verifier prompted to refute it; only what survived, plus
+manual re-tracing of the headline bug, is reported here.
+Environment
+All git submodules were uninitialized — confirmed by git submodule status (leading -) and by
+empty directories with mtimes matching the clone. external/libngu, external/micropython,
+external/mpy-qr and external/ckcc-protocol were all empty. The clone was made without
+--recursive and git submodule update --init was never run. Nothing in the toolchain warned that
+half the dependency tree was absent.
+Outcome
+1 Medium confirmed (ae_read_n stack overflow, stm32/mk4-bootloader/ae.c:599), 4 Low/Info
+hardening gaps, 2 accepted-by-design, 8 candidate findings refuted. One of the eight refuted was
+the real bug:
+Weak RNG (claimed): FALSE. Entropy = STM32 TRNG + ATECC608 + DS28C36 mixed via
+SHA256d (mk4.py rng_seeding), with health checks (seed.py generate_seed asserts
+len(set(seed)) > 4). No weak PRNG in the seed/key/signing path.
+Both assertions are claims about C code that was not on disk. len(set(seed)) > 4 is a stuck-source
+tripwire, not an entropy measure — a 32-bit-seeded PRNG passes it every time.
+2. What was missed
+Fully documented publicly by now (Coinkite,
+Block Engineering),
+so only the shape is recorded here. Four files, all line numbers at a24a894c:
+shared/seed.py:599 — generate_seed() calls ngu.random.bytes(32) under the comment
+"Generate 32 bytes of best-quality high entropy TRNG bytes."
+external/libngu/ngu/random.c:28 — guards its entropy source with #ifndef MICROPY_HW_ENABLE_RNG
+/ #error "get a HW TRNG plz". Tests definedness, not value.
+stm32/COLDCARD_MK4/mpconfigboard.h:78 — #define MICROPY_HW_ENABLE_RNG (0). Defined, so the
+guard passes silently.
+external/micropython/ports/stm32/rng.c:30 — asks the same macro the correct way (#if), takes
+the #else branch at :64, and rng_get() at :96 returns pyb_rng_yasmarang().
+Coldcard's own hardware RNG (stm32/COLDCARD_MK4/rng.c) is real and correct, but exports only
+pyb_rng_get_obj / random32(). Nothing tree-wide defines the bare C symbol rng_get() that libngu
+links against, so the working TRNG is orphaned from the seed path. shared/mk4.py:43-49 then
+truncates the secure-element contribution from 256 bits to 32 before reseed().
+Introduced: commit 37e4af54, 2021-05-21, commit message runs. Live ~5 years.
+Unresolved: the advisory's ~72-bit figure is not derived here. Treat as unconfirmed.
+3. Hypotheses for the miss
+Hypotheses, not findings. No ordering is implied, and none of them are testable now: the models
+available today are not the model that ran in June, they change under the same name, and current
+safeguards interfere with exactly this kind of security work. Any re-run would be grading its own
+homework.
+Missing submodules. Two of the four relevant files were empty directories on disk. Nothing in
+the toolchain flagged it. Treat an empty dependency directory as a hard error rather than silent
+under-coverage.
+The verifier had no way to say "I don't know." Findings went through an adversarial pass
+prompted to refute. Absent or unread source became FALSE rather than unverifiable.
+Nobody asked where the entropy comes from. The finders were tracing untrusted-input-to-sink
+dataflow. Entropy provenance is a linking question — resolve the symbol to its definition across
+build configuration — not a reading question.
+A docstring was treated as evidence. "best-quality high entropy TRNG bytes" was accepted
+instead of the call being traced.
+The visible files told a coherent story. #define MICROPY_HW_ENABLE_RNG (0) next to
+"We have our own version of this code" reads exactly like a deliberate hardware-RNG substitution,
+which is what it was intended to be.
+One suggestive detail: the only June finding that survived verification (ae_read_n) was in a file
+that was actually on disk.
+4. Forensic artifact survival (Claude Code)
+Of general interest to anyone reconstructing a lost AI-assisted session. Observed on Claude Code
+2.1.x, Linux, 46 days after the session.
+Artifact
+Path
+Survived?
+Session transcript
+~/.claude/projects/<proj>/<uuid>.jsonl
+No — deleted at 30 days
+Subagent transcripts
+~/.claude/projects/<proj>/<uuid>/subagents/
+No — deleted with parent
+User prompts
+~/.claude/history.jsonl
+Yes — appears unbounded
+Daily aggregates
+~/.claude/stats-cache.json
+Partially — see caveat
+Per-project last-run stats
+~/.claude.json
+Only for the most recent session per project
+Session scratch / workflow runs
+/tmp/claude-<uid>/<proj>/<uuid>/
+No — lost at reboot
+Config backups
+~/.claude/backups/
+No — only recent copies retained
+Retention is governed by cleanupPeriodDays, default 30. Not set here, so the default applied.
+Set it explicitly (e.g. 3650) if sessions have archival value.
+history.jsonl is the highest-value survivor. Typed prompts verbatim, epoch-ms timestamps,
+project path — enough to recover intent, scope and timing long after the transcript is gone. It does
+not store assistant responses, session IDs or model names.
+stats-cache.json is recomputed, not accumulated. Its lastComputedDate here was 2026-07-24,
+after the June transcript was deleted, so that day's row reflects only sessions still on disk. This
+is why the model attribution in §1 is an inference (the only main model across that week's records)
+rather than a fact.
+Deleted transcripts are not practically recoverable on ext4 with no snapshots, especially on a
+near-full volume.
+Working-tree state is an underrated forensic source. git reflog gave the exact clone time;
+git submodule status and empty-directory mtimes proved what was and wasn't on disk. Both outlived
+the transcript.
+5. Lessons worth keeping
+An adversarial verifier needs a third verdict: CONFIRMED / REFUTED /
+UNVERIFIABLE-MISSING-SOURCE. Collapsing the third into the second manufactures false negatives
+exactly where coverage is weakest.
+Entropy provenance is a linking question. For any random_bytes()-style call, resolve the
+symbol to its definition across build configuration before making a claim about its quality.
+Build-configuration macros deserve the same scrutiny as code. #ifndef where #if was meant is
+a one-token defect in a safety check, and it disabled the one guard that would have caught this.
+Verify submodules are populated before scoping any audit, and treat an empty dependency
+directory as a hard error rather than silent under-coverage.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

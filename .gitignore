@@ -6,8 +6,13 @@ archive/x/_capture-*.log
 site/node_modules/
 site/dist/
 site/.astro/
+site/.wrangler/
 .env
 .work/
+
+# Operator kill switch for the scheduled publish timer: while this exists,
+# scripts/publish-scheduled.sh skips every tick and says why.
+.no-publish
 site/tools/private-tokens.json
 AGENTS.local.md
 site/public/x-media/

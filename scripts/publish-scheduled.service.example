@@ -1,0 +1,31 @@
+# Publish the site if the tree is clean and the record has moved. Paired with
+# publish-scheduled.timer.
+#   sudo cp publish-scheduled.service.example /etc/systemd/system/publish-scheduled.service
+#   sudo cp publish-scheduled.timer.example /etc/systemd/system/publish-scheduled.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now publish-scheduled.timer
+#
+# Replace USER and REPO with the account and checkout path. The deploy needs
+# the Cloudflare credentials `just publish` expects, which live in .env and in
+# the wrangler config of the account this runs as: check with
+# `sudo -u USER ./scripts/publish-scheduled.sh --dry-run` before enabling.
+#
+# Guards live in the script, not here: it exits 0 and logs a reason when the
+# tree has uncommitted work outside archive/, when .no-publish exists, when a
+# difference is still unreviewed, or when nothing has changed since the last
+# publish. Only a genuine failure fails the unit.
+[Unit]
+Description=publish the site when the record has moved and the tree is clean
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/scripts/publish-scheduled.sh
+# A build plus a deploy, on a tree that may need its npm cache warmed.
+TimeoutStartSec=1800
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,24 @@
+--- samsamskies-tracker-readme@20260802T010028Z
++++ samsamskies-tracker-readme@20260804T183848Z
+@@ -24,12 +24,19 @@
+ | Wave 3 balances | `/snapshot.json` (cron) |
+ | BTC/USD | `/api/v1/prices` (+ snapshot) |
+ | Incident facts | Galaxy Research + community cluster reports (static) |
+-No API key is needed. Core vaults refresh about every 60 seconds; the Wave 3 snapshot is re-read about every 5 minutes.
++No API key is needed for the dashboard. Core vaults refresh about every 60 seconds; the Wave 3 snapshot is re-read about every 5 minutes.
++Optional local research: put `BLOCKCHAIR_API_KEY` in a gitignored `.env` for faster tip wave scouts (`scripts/scan-new-waves.py --blockchair`) and batch balance checks (`scripts/blockchair-balances.py`). Estimate request points and confirm before spending quota; **do not** use that key in the snapshot cron.
+ ### Balance snapshot
+ ```bash
+ npm run snapshot
+ ```
+-Writes `public/snapshot.json` (all watched holdings + movements for vaults that look spent). On `main`, [`.github/workflows/snapshot.yml`](.github/workflows/snapshot.yml) runs this on a schedule and commits the file so static hosts redeploy with fresh Wave 3 numbers.
++Writes `public/snapshot.json` (all watched holdings + movements for vaults that look spent). On `main`, [`.github/workflows/snapshot.yml`](.github/workflows/snapshot.yml) runs this on a schedule and commits the file so static hosts redeploy with fresh Wave 3 numbers. Esplora-only by design.
++### Tip wave scout
++```bash
++python3 scripts/scan-new-waves.py --no-escalate --blockchair   # needs .env key
++python3 scripts/scan-new-waves.py --no-escalate                # Esplora fallback
++```
++Scouts the last 3 tip blocks for Coldcard-like 1-vout fee clusters. See `.cursor/skills/new-wave-scan/SKILL.md`.
+ ### Movement alerts
+ Use the **Alerts** toggle in the header for browser notifications when a new
+ outbound spend appears (holdings or followed hops). Preference is stored in

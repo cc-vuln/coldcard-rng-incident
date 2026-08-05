@@ -1,0 +1,27 @@
+--- reddit-jade-passphrase-safety@20260804T101524Z
++++ reddit-jade-passphrase-safety@20260804T162815Z
+@@ -348,3 +348,24 @@
+ If they used (for example) Claude Fable to analyse the source to find the flaw, they've had less than 2 months since it was released (June 9th re-release). 
+ 
+ Coldcard's own statement on this is that the attacker used a sufficiently advanced AI to find the flaw, and that CoinKite themselves have used advanced models to look through their source, and found nothing.
++
++comment: p1oa6we
++parent: t1_p1kcmh6
++author: trufin2038
++created_utc: 1785859487
++edited: false
++body:
++If your jade is ever used for transactions, those have to go via some internet connected computer. That computer being Linux is key.
++
++If you are running an airgap in addition to a Linux, that is an additional level of security; but it's no substitute. It's something added on to a working system. a hardware wallet is generally a much inferior form of airgap backend than simply using another Linux tho.
++
++Also, the jade uses a camera for sneakernet, which is one of the least secure types of sneakernet. It's still an overall well designed system with a few little hitches, imo.
++
++As for adding a very weak passphrase as a trivial ornamental addition, no it doesn't add any value. If you do it perfectly, all you have done is make things slightly more complicated but not any more secure. 
++
++Trezor often suggested passphrases, but that was due to a flaw in their design: you can extract the key from it physically. That in fact is a general flaw in all hardware wallets. Securing an offline key would require a passphrase at least as strong as the key itself...obviously making the whole storage redundant. Imagine a safe that only unlocks when it's contents are used as the key. 
++
++
++Jade has a nice feature called stateless. I would recommend using that, and treating the mnemonic as your passphrase. Because that's what it is. 
++
++People using passphrases often make mistakes, such as writing down the mnemonic or stamping it into metal etc.

@@ -1,0 +1,19 @@
+# Fire publish-scheduled.service every three hours. See the .service example.
+#
+# Three hours, not thirty minutes: a deploy is a public act and each one leaves
+# a Cloudflare Pages deployment behind that stays reachable at its own
+# subdomain, so a tighter cadence accumulates published copies faster than it
+# adds freshness. The service skips cleanly when nothing has changed, so the
+# real cost of a quiet tick is one hash.
+[Unit]
+Description=publish the site every three hours if the record has moved
+
+[Timer]
+OnBootSec=900
+OnUnitActiveSec=10800
+# Not on the hour: this competes with the capture poll for the build lock.
+RandomizedDelaySec=600
+Unit=publish-scheduled.service
+
+[Install]
+WantedBy=timers.target

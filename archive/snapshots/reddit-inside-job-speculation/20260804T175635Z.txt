@@ -1,0 +1,72 @@
+post: 1vfdmtf
+author: Such_Advantage6988
+created_utc: 1785857383
+title: Inside job? The “bug” conveniently originated in 2021
+body:
+Original: https://x.com/coldcardwallet/status/1447213375398846473?s=46
+
+comment: p1o60gy
+parent: t3_1vfdmtf
+author: EngelGate
+created_utc: 1785858429
+edited: false
+body:
+Priceless. 
+
+comment: p1o81cs
+parent: t3_1vfdmtf
+author: Friendly-Sign-3289
+created_utc: 1785858941
+edited: false
+body:
+Seems bait AF this tweet 🤔 
+
+comment: p1obza0
+parent: t3_1vfdmtf
+author: Such_Advantage6988
+created_utc: 1785859939
+edited: false
+body:
+to quote from another thread:
+
+That would be Peter Gray, aka doc-hex.
+
+The person most clearly associated with the vulnerable Coldcard RNG integration is Peter D. Gray, via the doc-hexaccount.
+
+The exact sequence was:
+
+1.	⁠switck\*\*, January 28, 2021:\*\* wrote the defective libNgU feature check.  
+2.	⁠doc-hex\*\*, March 1, 2021:\*\* imported that code, disabled MicroPython’s hardware RNG in the board configuration, and switched master-seed generation to the affected ngu.random path.  
+3.	⁠Coinkite, March 17, 2021: released it as firmware 4.0.0.  
+4.	⁠doc-hex\*\*, March 11, 2022:\*\* added a reseed API accepting only a 32-bit integer.  
+5.	⁠doc-hex\*\*, March 11, 2022:\*\* truncated secure-element-derived hash material to 32 bits and used that API for Mk4.  
+6.	⁠Coinkite, March 14, 2022: released the construction in Mk4 firmware 5.0.0.
+
+That is considerably more specific than merely saying “an integration error occurred.”
+
+comment: p1okmrn
+parent: t3_1vfdmtf
+author: xirvin
+created_utc: 1785862107
+edited: false
+body:
+I don’t think this tweet is evidence that they did it intentionally.  
+If the goal were to deliberately weaken the entropy, you’d expect to see the same behavior carried over to the MK4, MK5, and their flagship Q product. On those newer devices, the entropy was stronger, even if it still wasn’t a full 256 bits.  
+To me, this tweet is actually evidence that they were security-conscious and had analyzed the risk, but then became sloppy when updating the code.  
+Don’t attribute to malice what incompetence can explain.
+
+comment: p1ounpn
+parent: t1_p1okmrn
+author: CBpegasus
+created_utc: 1785864586
+edited: false
+body:
+And if it was intentional, a tweet like this is weird - it:
+
+1. Brings attention to the possibility
+
+2. Might look almost like admitting the crime (as we see now people sharing it as "evidence")
+
+3. Encourages people to roll dice instead of using the compromized RNG, reducing the potential bounty.
+
+It could be that they were malicious but if so their strategy was all over the place, between clever setup of plausible deniability and some weird choices. For example they could have easily put the backdoor in the proprietary secure element for less chance of it being discovered (and still the same amount of plausible deniability). And as you say it would likely be the same in their other products. So yeah I think incompetence is more likely.

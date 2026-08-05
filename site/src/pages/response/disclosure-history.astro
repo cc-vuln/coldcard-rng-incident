@@ -1,0 +1,439 @@
+---
+import Article from '../../layouts/Article.astro';
+import Claim from '../../components/Claim.astro';
+import Answer from '../../components/Answer.astro';
+import Disclosure from '../../components/Disclosure.astro';
+
+---
+
+<Article
+  title="What was disclosed before?"
+  description="Coinkite's own chronology of 23 security events since 2019, published during the incident: what it records, what bears on this bug, and where it does not match other accounts."
+  standfirst="Five days into the incident, Coinkite published a history of every security finding it says has affected COLDCARD since 2019. It is useful, and it is the vendor's own account of the vendor's own record. This page holds the document, sets out the three entries that touch this bug, and shows where it disagrees with other people."
+  depth="plain"
+  kicker="Responses"
+  next={{
+    href: '/response/legal/',
+    label: 'Legal record',
+    note: 'Published terms, statutes, claimant organising and the limits of what the archive can determine.',
+  }}
+>
+  <Answer>
+    <p>
+      On 4 August 2026 Coinkite published a page listing 23 security-relevant
+      events affecting COLDCARD since 2019, 12 of them with public evidence of
+      coordinated disclosure. This archive captured it the following day.
+      <Claim
+        basis="verified"
+        scope="That the page exists, was published under Coinkite's own name, and states the 23-event and 12-coordinated-record counts described here"
+        source="Coinkite's security disclosure history, checked against the capture held by this archive"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+      Three of its entries bear directly on the July 2026 bug: a paid review in
+      2022 that examined random-number generation, an internal AI review that
+      closed five weeks before the theft, and a firmware-version boundary the
+      page draws twice. It is primary material worth reading. It is also
+      self-selected: Coinkite chose what the list contains, how each entry is
+      labelled and what counts as coordinated, and several entries rest on
+      private correspondence nobody outside the company can check.
+    </p>
+  </Answer>
+
+  <p>
+    The page was announced in the same 4 August update that described the
+    submodule-boundary theory and the frontier-model tests.
+    <Claim
+      basis="reported"
+      scope="That Coinkite announced the disclosure-history page in its 4 August public-record post"
+      source="COLDCARD's captured 4 August public-record update"
+      href="/record/sources/coldcardwallet-2084731768632991801/"
+      compact
+    />
+    Coinkite's stated reason was that "researchers, journalists, and security
+    teams doing their own review need a definitive record to work from". What
+    follows takes it at that word and reads it as a source.
+  </p>
+
+  <Disclosure
+    id="what-the-page-is"
+    title="What the page is, and what Coinkite says it is not"
+    note="Scope, counts, and the vendor's own three caveats"
+    open
+  >
+    <p>
+      The page describes itself as a record of "public security research,
+      coordinated disclosures, professional reviews, internal findings, and
+      security advisories affecting COLDCARD", covering 2019 to 2026.
+      Entries are tagged Coordinated, Credited fix, Vendor/internal,
+      Cross-wallet, Overlap, Incident/advisory or AI, and each carries a
+      product scope, a public status and a named reporter where one exists.
+    </p>
+
+    <p>
+      Three caveats are the vendor's own, stated on the page, and they are
+      worth preserving because they constrain how the document can fairly be
+      used:
+    </p>
+
+    <ul>
+      <li>
+        It presents itself as "a chronology, not a count of independent
+        vulnerabilities or a product score".
+      </li>
+      <li>
+        Its "no public evidence" label "means none was found in the cited
+        record; it does not prove that something never happened privately".
+      </li>
+      <li>
+        It says raw event counts "should not be used to compare hardware
+        wallets", because older, open and heavily researched products
+        accumulate more public findings.
+      </li>
+    </ul>
+
+    <p>
+      That last point cuts against a use the document might otherwise invite,
+      and it is correct as far as it goes. The counts still do work for
+      Coinkite, though: a page that opens on 23 events and 12 coordinated
+      disclosures presents a record of engagement with researchers, which is
+      the contested question this history sits inside.
+      <Claim
+        basis="verified"
+        scope="The three quoted caveats and the two headline counts, as they appear on the captured page"
+        source="Quotations checked against the captured Coinkite disclosure history; the reading of what the counts do is this archive's"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="rng-review-2022"
+    title="A 2022 paid review that examined random-number generation"
+    note="Recommendations the page says are not all shown as adopted"
+  >
+    <p>
+      The chronology's entry for 1 to 14 March 2022 records a paid private
+      review before the first public Mk4 release, attributed to "Lazy Ninja".
+      It says the review examined SE2-backed PIN derivation, PIN-attempt rate
+      limiting, MCU firewall coverage and random-number generation, and that
+      during the review the runtime random-number generator was seeded with
+      authenticated entropy from both secure elements.
+    </p>
+
+    <p>
+      The entry then records something the vendor was not obliged to publish.
+      Further suggestions, including additional bootloader RNG conditioning
+      and reseed hooks, were logged as defence in depth, and in the page's own
+      words "the public firmware history does not show that all were adopted".
+      <Claim
+        basis="reported"
+        scope="The 2022 review's scope, its RNG-related recommendations, and Coinkite's statement that the public firmware history does not show all of them were adopted"
+        source="Coinkite's disclosure history, which sources this entry to private paid review correspondence not available to this archive"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+    </p>
+
+    <p>
+      Two limits keep this in proportion. The review was Mk4 pre-release work
+      in 2022, while the defect at issue here entered through the March 2021
+      change that routed seed generation through the affected library, and its
+      effect differed by device class, so a recommendation adopted or declined
+      for the Mk4 bootloader does not straightforwardly map onto it. And the
+      entry rests on correspondence
+      this archive cannot inspect, so the scope, the wording of the
+      recommendations and the reason any were not adopted are Coinkite's
+      account of a private document.
+      <Claim
+        basis="unverified"
+        scope="Whether the 2022 review's unadopted RNG recommendations would have prevented or surfaced the defect in this incident"
+        source="No captured artefact shows the review's contents, and the entry is a vendor summary of private correspondence"
+        compact
+      />
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="ai-review-2026"
+    title="An AI review closed five weeks before the theft"
+    note="85 candidate findings, triaged internally, none of them this bug"
+  >
+    <p>
+      The chronology records an enterprise AI review of the firmware running
+      from 1 May to 26 June 2026. It reports 85 candidate findings, 8 high, 37
+      medium, 20 low and 20 informational, each manually reviewed by Coinkite.
+      Most of the high group is described as false positives, intended
+      behaviour, documented trade-offs or unreachable paths, with two
+      exceptions that received fixes. The review is recorded as closed on 26
+      June, with all items fixed, rejected, accepted as design choices or
+      tracked elsewhere.
+      <Claim
+        basis="reported"
+        scope="The AI review's dates, its 85-finding breakdown, its triage outcomes and its closure on 26 June 2026"
+        source="Coinkite's disclosure history, which sources the entry to a private internal review and firmware commit 9b131b2; the private issues, finding links, internal pull requests and reviewer identities are stated as not publicly linked"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+    </p>
+
+    <p>
+      The theft began on 30 July, about five weeks after that review closed.
+      The chronology does not claim the review covered the seed-generation
+      path, and it lists the flows it did reach: CCC and SSSP, signing, Seed
+      XOR, Key Teleport, PSBT handling, QR, USB, NFC and the WIF Store. On the
+      page's own account, then, a substantial AI-assisted review of this
+      firmware ran to completion weeks before the incident without the
+      seed-generation defect appearing in its output.
+      <Claim
+        basis="reported"
+        contested
+        scope="That a completed AI-assisted firmware review closing 26 June 2026 did not surface the seed-generation defect"
+        source="Coinkite's own account; no prompts, transcripts, scope definition or evaluation protocol are published, so the review's coverage of the seed path cannot be checked here"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+      This is the same class of evidence as the pre-incident and post-incident
+      model tests set out on <a href="/response/ai/">the AI page</a>, and it
+      carries the same limit: without the prompts and scope, a miss is not
+      measurable.
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="version-boundary"
+    title="The version boundary the chronology draws twice"
+    note="Why the affected range is stated to begin at 4.0.1, not 4.0.0"
+  >
+    <p>
+      Two separate entries do the same work. A 2021 vendor note records that
+      firmware 4.0.0 shipped with a USB serial REPL enabled, and states that
+      4.0.0 was built, signed and tested internally but never released
+      publicly, making 4.0.1 the first public 4.x binary. The 2026 incident
+      entry then states that Block traces the RNG implementation to the v4.0.0
+      source lineage, that Coinkite did not publicly release v4.0.0 as a
+      signed binary, and that "the affected-user range therefore begins at
+      v4.0.1".
+      <Claim
+        basis="reported"
+        scope="The chronology's account that firmware 4.0.0 was never publicly released and that the affected range therefore begins at 4.0.1"
+        source="Coinkite's disclosure history, sourced there to the Mk3 release history, a 4.0.0 to 4.0.1 source comparison, a historical signing manifest and the public binary archive"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+    </p>
+
+    <p>
+      The boundary itself is not in dispute here: it matches the affected
+      range this archive already records, and Block's own disclosure traces
+      the lineage the same way.
+      <Claim
+        basis="verified"
+        scope="That the 4.0.1 lower bound stated in the chronology matches the affected range recorded elsewhere in this archive"
+        source="Block's engineering disclosure, held as a captured source, read alongside the firmware record"
+        href="/record/sources/block-disclosure/"
+        compact
+      />
+      What is worth noticing is structural rather than factual. A disclosure
+      history is a document about process, and this one is also doing scope
+      work: two of its entries establish a version boundary that sets the
+      outer edge of who was affected. That does not make the boundary wrong.
+      It does mean the page is not a neutral archive of process alone, and
+      should not be read as one.
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="not-in-the-chronology"
+    title="What the chronology does not contain"
+    note="A May 2025 report is described elsewhere and does not appear here"
+  >
+    <p>
+      James O'Beirne's 4 August first-person account says he audited the
+      firmware in May 2025, became concerned about the RNG path and the libngu
+      constants, and reported it to the COLDCARD team, where he says it was
+      dismissed.
+      <Claim
+        basis="reported"
+        contested
+        scope="O'Beirne's account of a May 2025 audit, an RNG and libngu concern, and a report to the team that he says was dismissed"
+        source="James O'Beirne's captured 4 August posts, which attach no contemporaneous report or correspondence"
+        href="/record/sources/jamesob-2084624605969350915/"
+        compact
+      />
+    </p>
+
+    <p>
+      The chronology carries no May 2025 entry. Between the March 2022 review
+      and the September 2025 Delta PIN disclosure it records nothing at all,
+      and no entry anywhere in it describes a randomness or libngu report
+      before the incident.
+      <Claim
+        basis="verified"
+        scope="That the captured chronology contains no May 2025 entry and no pre-incident randomness or libngu report"
+        source="Read directly from the captured page, whose 2025 section begins at the September 2025 Delta PIN disclosure"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+    </p>
+
+    <p>
+      Neither account settles the other, and this page does not try to. By the
+      chronology's own stated convention an absence means only that nothing
+      was found in the cited record, and the cited record is one the vendor
+      assembled. By the same token a first-person recollection published
+      during an incident, with no contemporaneous artefact attached, is not a
+      document either. What can be said is narrow and worth saying plainly:
+      one party describes a report, the other party's published history of
+      reports does not contain it, and no artefact has surfaced that would
+      decide it.
+      <Claim
+        basis="unverified"
+        contested
+        scope="Whether a randomness concern was reported to Coinkite in May 2025 and how it was handled"
+        source="Two accounts that do not reconcile, with no contemporaneous report, correspondence or ticket captured on either side as of a 5 August 2026 recheck"
+        compact
+      />
+    </p>
+  </Disclosure>
+
+  <Disclosure
+    id="contested-reading"
+    title="A contested reading of the same history"
+    note="A community thread argues the pattern runs the other way"
+  >
+    <p>
+      Before the chronology existed, Vlad Costea published a thread arguing
+      that Coinkite's handling of past disclosures showed a pattern, including
+      a 2019 disclosure he says was rewarded with merchandise and a later
+      researcher who he says disclosed to other vendors but not to Coinkite.
+      <Claim
+        basis="reported"
+        contested
+        scope="Costea's characterisation of a pattern in Coinkite's handling of past disclosures, including the merchandise reward and the researcher who bypassed Coinkite"
+        source="Vlad Costea's 31 July thread, preserved as an X capture; the characterisations are the author's and are not verified here"
+        href="/record/sources/vladcostea-disclosure-history/"
+        compact
+      />
+    </p>
+
+    <p>
+      The two documents overlap on events and diverge on meaning. Coinkite's
+      2019 entries are all tagged Coordinated and name their reporters. Costea
+      is not disputing that the reports happened; he is describing how they
+      were received, which is exactly what a tag like Coordinated does not
+      record. The chronology also contains one entry that leans his way
+      without meaning to: the May 2020 factory-reset finding is listed with
+      its mitigation "disputed", no retrofit, and a vendor-response link the
+      page itself notes is no longer available.
+      <Claim
+        basis="verified"
+        scope="That the chronology lists the May 2020 factory-reset entry with a disputed mitigation, no bootloader retrofit, and a vendor-response permalink recorded as no longer available"
+        source="Read directly from the captured page"
+        href="/record/sources/coinkite-historical-disclosures/"
+        captured="5 Aug 2026"
+        compact
+      />
+      Reception is not something either document can settle. Both are held.
+    </p>
+  </Disclosure>
+
+  <h2>Claim register</h2>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>
+          Disclosure-history claims and their evidence basis
+          <Claim
+            basis="verified"
+            scope="The rows below marked Verified, each read directly from the captured chronology"
+            source="Coinkite's security disclosure history as held by this archive"
+            href="/record/sources/coinkite-historical-disclosures/"
+            captured="5 Aug 2026"
+            compact
+          />
+          <Claim
+            basis="reported"
+            scope="The rows below marked Reported, each attributed to the party that published it"
+            source="Coinkite's chronology, O'Beirne's 4 August posts and Costea's 31 July thread, all captured"
+            href="/record/sources/jamesob-2084624605969350915/"
+            compact
+          />
+        </caption>
+        <thead>
+          <tr><th scope="col" class="wide">Claim</th><th scope="col" class="nw">Evidence basis</th><th scope="col" class="wide">What supports it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="wide">Coinkite published a 23-event disclosure history on 4 August 2026.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+            <td class="wide">Captured by this archive on 5 August. The counts, tags and caveats quoted on this page are read from that capture.</td>
+          </tr>
+          <tr>
+            <td class="wide">A paid 2022 review examined random-number generation before the first Mk4 release.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Coinkite's entry, sourced to private paid review correspondence that this archive cannot inspect.</td>
+          </tr>
+          <tr>
+            <td class="wide">Some RNG-related recommendations from that review are not shown as adopted.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Coinkite's own wording. Whether adopting them would have affected this defect is not established.</td>
+          </tr>
+          <tr>
+            <td class="wide">An AI-assisted firmware review closed on 26 June 2026 without surfacing this defect.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Coinkite's entry, with an 85-finding breakdown. No prompts, transcripts or scope definition are published, so the coverage of the seed path cannot be checked.</td>
+          </tr>
+          <tr>
+            <td class="wide">The affected range begins at firmware 4.0.1 because 4.0.0 was never publicly released.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">Stated in two separate entries. The resulting boundary matches the affected range recorded elsewhere in this archive and Block's tracing of the lineage.</td>
+          </tr>
+          <tr>
+            <td class="wide">The chronology contains no May 2025 entry and no pre-incident randomness report.</td>
+            <td class="nw"><span class="status status--ok">Verified</span></td>
+            <td class="wide">Read directly from the capture. By the page's own convention this is an absence in a vendor-assembled record, not proof that nothing was reported.</td>
+          </tr>
+          <tr>
+            <td class="wide">A randomness concern was reported to Coinkite in May 2025.</td>
+            <td class="nw"><span class="status status--neutral">Unverified</span></td>
+            <td class="wide">O'Beirne's first-person account, with no contemporaneous artefact attached, against a vendor history that does not record it.</td>
+          </tr>
+          <tr>
+            <td class="wide">Coinkite's handling of past disclosures shows an adverse pattern.</td>
+            <td class="nw"><span class="status status--neutral">Unverified</span></td>
+            <td class="wide">Costea's characterisation, contested by the chronology's own tagging of the same events. Reception is not recorded by either document.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ve-card ve-card--blue">
+    <div class="ve-card__label lbl-blue">What would change the status</div>
+    <p>
+      A contemporaneous report, ticket or correspondence from May 2025 would
+      settle the O'Beirne question in one direction or the other. The 2022
+      review's written recommendations, or a statement of which were declined
+      and why, would move that entry from vendor summary to document. The AI
+      review's scope definition would show whether the seed path was ever in
+      range. Until any of those appear, the entries above stay as they are
+      graded.
+      <Claim
+        basis="unverified"
+        scope="Whether pre-incident reviews or reports covered the seed-generation path, and how any such report was handled"
+        source="Every relevant entry rests on private material that had not been published; no artefact in the captured record resolved them as of a 5 August 2026 recheck"
+        compact
+      />
+    </p>
+  </div>
+</Article>

@@ -455,3 +455,766 @@
 - reddit-retirement-attack-resurfaced  +24 -0
 - reddit-self-custody-risk-doubt  +8 -0
 - reddit-quantum-damage-reaction  (first capture)
+
+## 20260804T110437Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+- newsbitcom-who-lost-who-at-risk  +0 -11
+- chaincatcher-nunchuk-response  +32 -32
+- reddit-unused-coldcard-collectible  +8 -0
+- reddit-attack-timing-speculation  +16 -0
+- reddit-ceo-anthropic-hack-challenge  +16 -10
+- reddit-btc-price-holding-up  +34 -0
+- reddit-throw-away-coldcard  +16 -0
+- reddit-retirement-attack-resurfaced  +18 -0
+- reddit-self-custody-risk-doubt  +16 -0
+- reddit-coinkite-refund-question  +8 -0
+
+## 20260804T113439Z
+
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +32 -32
+- stackernews-troll-1367btc  +20 -13
+- reddit-unused-coldcard-collectible  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +1 -1
+- reddit-btc-price-holding-up  +40 -0
+- bitcointalk-hack-revolution-opinion  +15 -0
+
+## 20260804T120445Z
+
+- reddit-drained-timeline  +8 -0
+- chaincatcher-nunchuk-response  +32 -32
+- stackernews-dear-podcasters  +7 -7
+- reddit-q-repurpose  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +10 -8
+- reddit-btc-price-holding-up  +32 -0
+- reddit-throw-away-coldcard  +8 -0
+- reddit-retirement-attack-resurfaced  +17 -0
+- reddit-flag-four-addresses  +8 -0
+
+## 20260804T123450Z
+
+- newsbitcom-who-lost-who-at-risk  +11 -0
+- chaincatcher-nunchuk-response  +32 -32
+- stackernews-dear-podcasters  +7 -7
+- stackernews-troll-1367btc  +7 -7
+- reddit-q-repurpose  +8 -0
+- reddit-bricked-mid-transfer  +16 -0
+- reddit-attack-timing-speculation  +8 -0
+- reddit-btc-price-holding-up  +24 -0
+- reddit-throw-away-coldcard  +16 -0
+- reddit-retirement-attack-resurfaced  +26 -0
+- reddit-flag-four-addresses  +8 -0
+
+## 20260804T130454Z
+
+- coldcard-hack-tracker  +11 -3
+- newsbitcom-who-lost-who-at-risk  +0 -11
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-price-mockery  +8 -0
+- reddit-bricked-mid-transfer  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +9 -9
+- reddit-btc-price-holding-up  +66 -0
+- reddit-retirement-attack-resurfaced  +32 -0
+- bitcointalk-hack-revolution-opinion  +11 -0
+
+## 20260804T133458Z
+
+- libngu-pr-61  +12 -0
+- satsigner-pr-468  +12 -0
+- coindesk-25-minute-sweep  +23 -23
+- hn-dettmer-writeup-thread  +67 -64
+- reddit-ai-discovery-thread  +34 -35
+- stackernews-larp-discussion  +7 -7
+- stackernews-boltz-zeuslsp-shutdown  +13 -13
+- reddit-self-custody-last-straw  +48 -0
+- reddit-dice-wallets-at-risk  +8 -0
+- reddit-am-i-affected-dice  +48 -0
+- reddit-do-not-dispose-device  +8 -0
+- reddit-codebase-practices-critique  (first capture)
+- reddit-vendor-counterfactual  +8 -0
+- reddit-device-useful-if-company-closes  +8 -0
+- reddit-still-use-the-cc  +8 -0
+- reddit-mk4-bricked-hotfix  +28 -0
+- reddit-coinkite-solvency-class-action  +10 -0
+- reddit-coinkite-done-for  +8 -0
+- reddit-firmware-audit-history  +8 -0
+- reddit-1-6m-cad-drained  +24 -0
+- reddit-user-entropy-options  +18 -0
+- reddit-wallet-drained-mk3  +8 -0
+- reddit-0-7-btc-drained  +373 -2
+- reddit-white-hat-drains-relay  +28 -0
+- reddit-5-13-btc-loss  +59 -3
+- reddit-hacker-address-message-board  +49 -0
+- reddit-self-custody-custodian-debate  +64 -0
+- reddit-trezor-community-audit-call  +50 -0
+- reddit-1400-btc-hacked-report  +24 -0
+- reddit-bitcoin-org-still-recommends  +18 -0
+- reddit-liability-blame-debate  +68 -38
+- reddit-ledger-article-relay  +8 -0
+- reddit-cash-out-forensics-question  +56 -0
+- reddit-fourth-wave-389-btc  +34 -0
+- reddit-passphrase-vulnerable-question  +38 -12
+- reddit-hardware-wallet-comparison  +395 -0
+- reddit-88m-hack-not-over  +26 -0
+- reddit-same-address-collision-question  +16 -0
+- reddit-bought-last-week  +12 -0
+- reddit-secure-btc-after-incident  +28 -0
+- reddit-victim-support-psa  +8 -0
+- reddit-wild-west-sentiment  +34 -0
+- reddit-safe-seed-without-hardware  +106 -0
+- reddit-where-store-bitcoin-now  +93 -0
+- reddit-best-way-keep-safe  +16 -0
+- reddit-opreturn-laundering-offer  (first capture)
+- reddit-self-custody-to-etf  (first capture)
+- reddit-still-using-added-entropy  (first capture)
+- reddit-coldcard-never-again  (first capture)
+- reddit-future-of-bitcoin-debate  (first capture)
+- reddit-seed-collision-odds  (first capture)
+- reddit-dice-seed-generation  (first capture)
+- bitcointalk-large-scale-compromise-thread  +90 -25
+- chaincatcher-nunchuk-response  +32 -32
+- reddit-bricked-mid-transfer  +13 -0
+- reddit-attack-timing-speculation  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +10 -0
+- reddit-btc-price-holding-up  +64 -0
+- reddit-retirement-attack-resurfaced  +40 -0
+
+## 20260804T140459Z
+
+- coldcard-hack-tracker  +0 -8
+- coindesk-25-minute-sweep  +9 -9
+- reddit-ai-discovery-thread  +10 -20
+- reddit-0-7-btc-drained  +34 -0
+- reddit-white-hat-drains-relay  +26 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-cash-out-forensics-question  +10 -0
+- reddit-hardware-wallet-comparison  +20 -0
+- reddit-safe-seed-without-hardware  +8 -0
+- reddit-where-store-bitcoin-now  +8 -0
+- bitcointalk-large-scale-compromise-thread  +12 -0
+- checkonchain-coldcard-psa  +3 -3
+- chaincatcher-nunchuk-response  +34 -34
+- stackernews-personal-responsibility  +7 -7
+- reddit-attack-timing-speculation  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +9 -9
+- reddit-btc-price-holding-up  +24 -0
+
+## 20260804T143508Z
+
+- hn-maxwell-mechanism  +11 -11
+- coindesk-25-minute-sweep  +26 -26
+- hn-dettmer-writeup-thread  +10 -10
+- reddit-ai-discovery-thread  +4 -6
+- reddit-device-useful-if-company-closes  +8 -0
+- reddit-safe-after-reseed  +64 -0
+- reddit-0-7-btc-drained  +16 -0
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-trezor-community-audit-call  +16 -0
+- reddit-liability-blame-debate  +5 -45
+- reddit-cash-out-forensics-question  +8 -0
+- reddit-passphrase-vulnerable-question  +9 -3
+- reddit-hardware-wallet-comparison  +15 -1
+- reddit-best-way-keep-safe  +8 -0
+- reddit-seed-collision-odds  +10 -0
+- chaincatcher-nunchuk-response  +32 -32
+- reddit-price-mockery  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +15 -17
+- reddit-btc-price-holding-up  +32 -0
+- reddit-retirement-attack-resurfaced  +34 -0
+- reddit-flag-four-addresses  +8 -0
+
+## 20260804T150509Z
+
+- coindesk-25-minute-sweep  +28 -28
+- reddit-dice-wallets-at-risk  +39 -0
+- reddit-codebase-practices-critique  +8 -0
+- reddit-coinkite-next-steps  +24 -0
+- reddit-0-7-btc-drained  +36 -0
+- reddit-hacker-address-message-board  +8 -0
+- reddit-bitcoin-org-still-recommends  +8 -0
+- reddit-same-address-collision-question  +13 -0
+- reddit-best-way-keep-safe  +22 -0
+- bitcointalk-large-scale-compromise-thread  +13 -0
+- bitbox-not-affected  +9 -4
+- chaincatcher-nunchuk-response  +32 -32
+- reddit-price-mockery  +50 -0
+- reddit-q-repurpose  +8 -0
+- reddit-attack-timing-speculation  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +1 -1
+- reddit-btc-price-holding-up  +21 -0
+- reddit-retirement-attack-resurfaced  +8 -0
+
+## 20260804T153517Z
+
+- coindesk-25-minute-sweep  +16 -16
+- hn-dettmer-writeup-thread  +4 -4
+- reddit-coinkite-done-for  +2 -2
+- reddit-0-7-btc-drained  +8 -0
+- reddit-5-13-btc-loss  +10 -0
+- reddit-hacker-address-message-board  +16 -0
+- reddit-1400-btc-hacked-report  +16 -0
+- reddit-fourth-wave-389-btc  +16 -0
+- reddit-hardware-wallet-comparison  +32 -0
+- reddit-safe-seed-without-hardware  +8 -0
+- bitcointalk-large-scale-compromise-thread  +15 -0
+- newsbtc-entropy-risk-focus  +7 -7
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-price-mockery  +8 -0
+- reddit-coldcard-just-drained-rug  +8 -0
+- reddit-attack-timing-speculation  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +11 -17
+- reddit-btc-price-holding-up  +72 -0
+- reddit-quantum-damage-reaction  +8 -0
+
+## 20260804T160522Z
+
+- coldcard-hack-tracker  +326 -124
+- libngu-pr-58  +3 -23
+- libngu-pr-59  +3 -23
+- libngu-pr-60  +3 -23
+- libngu-pr-61  +3 -23
+- coldcard-firmware-pr-691  +3 -23
+- satsigner-pr-468  +3 -23
+- coindesk-25-minute-sweep  +26 -26
+- reddit-ai-discovery-thread  +1 -17
+- reddit-0-7-btc-drained  +80 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-cash-out-forensics-question  +8 -0
+- reddit-hardware-wallet-comparison  +8 -0
+- reddit-same-address-collision-question  +8 -0
+- reddit-bought-last-week  +8 -0
+- reddit-where-store-bitcoin-now  +28 -0
+- reddit-future-of-bitcoin-debate  +2 -8
+- coldcard-firmware-pr-689  +3 -23
+- coldcard-firmware-pr-690  +3 -23
+- bitcoinorg-pr-4905  +3 -23
+- seedsigner-pr-962  +3 -23
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +34 -34
+- reddit-btc-price-holding-up  +64 -0
+- reddit-retirement-attack-resurfaced  +8 -0
+- reddit-verify-code-on-device  +14 -0
+- reddit-jade-passphrase-safety  +21 -0
+
+## 20260804T163527Z
+
+- coindesk-25-minute-sweep  +6 -6
+- reddit-self-custody-last-straw  +14 -0
+- reddit-dice-wallets-at-risk  +18 -0
+- reddit-am-i-affected-dice  +16 -0
+- reddit-shipments-halted-relay  +0 -8
+- reddit-0-7-btc-drained  +40 -0
+- reddit-5-13-btc-loss  +0 -8
+- reddit-hacker-address-message-board  +8 -0
+- reddit-trezor-community-audit-call  +10 -0
+- reddit-fourth-wave-389-btc  +8 -0
+- reddit-hardware-wallet-comparison  +8 -0
+- reddit-bought-last-week  +3 -1
+- reddit-secure-btc-after-incident  +8 -0
+- reddit-safe-seed-without-hardware  +9 -9
+- reddit-where-store-bitcoin-now  +16 -0
+- bitcointalk-large-scale-compromise-thread  +11 -0
+- chaincatcher-nunchuk-response  +32 -32
+- reddit-q-repurpose  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +11 -9
+- reddit-btc-price-holding-up  +24 -0
+- reddit-retirement-attack-resurfaced  +12 -0
+- bitcointalk-hack-revolution-opinion  +8 -0
+
+## 20260804T170532Z
+
+- coinkite-backgrounder  +3 -2
+- coindesk-25-minute-sweep  +15 -15
+- casa-blog-index  +6 -7
+- reddit-dice-wallets-at-risk  +20 -0
+- reddit-0-7-btc-drained  +24 -0
+- reddit-hacker-address-message-board  +8 -0
+- reddit-trezor-community-audit-call  +16 -0
+- reddit-passphrase-vulnerable-question  +8 -0
+- reddit-coinkite-options-after-disclosure  +8 -0
+- bitcointalk-large-scale-compromise-thread  +17 -0
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-unused-coldcard-collectible  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +19 -19
+- reddit-btc-price-holding-up  +8 -0
+- reddit-verify-code-on-device  +10 -0
+- reddit-nvk-awareness-critique  +8 -0
+
+## 20260804T173537Z
+
+- coldcard-hack-tracker  +107 -109
+- btcpp-dettmer-commit-history  +5 -5
+- coindesk-25-minute-sweep  +15 -15
+- reddit-ai-discovery-thread  +2 -10
+- reddit-0-7-btc-drained  +32 -0
+- reddit-hacker-address-message-board  +16 -0
+- reddit-trezor-community-audit-call  +4 -18
+- reddit-passphrase-vulnerable-question  +2 -2
+- reddit-hardware-wallet-comparison  +16 -0
+- reddit-secure-btc-after-incident  +14 -0
+- reddit-where-store-bitcoin-now  +8 -0
+- reddit-lost-one-bitcoin-victim  +8 -0
+- reddit-coinkite-options-after-disclosure  +2 -2
+- bitcointalk-large-scale-compromise-thread  +9 -0
+- stackernews-entropy-bug-history  (first capture)
+- stackernews-limits-dont-trust-verify  (first capture)
+- stackernews-retirement-attack-question  (first capture)
+- reddit-im-out  (first capture)
+- reddit-entropy-explainer-question  (first capture)
+- reddit-self-custody-dagger  (first capture)
+- reddit-hacker-still-progressing  (first capture)
+- reddit-not-your-keys-not-your-coins  (first capture)
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +30 -30
+- stackernews-dice-attack-vectors  +7 -0
+- reddit-q-repurpose  +16 -0
+- reddit-ceo-anthropic-hack-challenge  +25 -32
+- reddit-btc-price-holding-up  +8 -0
+- reddit-retirement-attack-resurfaced  +8 -0
+- stackernews-matt-levine-heist  (first capture)
+- reddit-inside-job-speculation  (first capture)
+- reddit-coldcard-open-source-question  (first capture)
+- reddit-multisig-only-way  (first capture)
+
+## 20260804T180539Z
+
+- btcpp-dettmer-commit-history  +5 -5
+- coindesk-25-minute-sweep  +7 -7
+- hn-dettmer-writeup-thread  +7 -7
+- casa-blog-index  +1 -1
+- reddit-self-custody-last-straw  +16 -0
+- reddit-0-7-btc-drained  +8 -0
+- reddit-hacker-address-message-board  +7 -3
+- reddit-cash-out-forensics-question  +16 -0
+- reddit-passphrase-vulnerable-question  +32 -0
+- reddit-secure-btc-after-incident  +9 -0
+- reddit-where-store-bitcoin-now  +10 -0
+- reddit-future-of-bitcoin-debate  +25 -21
+- stackernews-entropy-bug-history  +7 -0
+- reddit-im-out  +8 -0
+- reddit-hacker-still-progressing  +232 -3
+- reddit-not-your-keys-not-your-coins  +123 -0
+- newsbtc-entropy-risk-focus  +1 -1
+- checkonchain-coldcard-psa  +1 -1
+- chaincatcher-nunchuk-response  +30 -30
+- stackernews-dice-attack-vectors  +10 -3
+- reddit-btc-price-holding-up  +8 -0
+- reddit-retirement-attack-resurfaced  +19 -3
+- reddit-self-custody-risk-doubt  +8 -0
+- reddit-nvk-awareness-critique  +8 -0
+- bitcointalk-hack-revolution-opinion  +4 -0
+- reddit-coldcard-open-source-question  +8 -0
+
+## 20260804T183549Z
+
+- coldcard-hack-tracker  +233 -216
+- samsamskies-tracker-readme  +9 -2
+- reddit-coldcard-letter-db-leak  +1 -1
+- coindesk-25-minute-sweep  +15 -15
+- casa-blog-index  +1 -1
+- reddit-firmware-audit-history  +8 -0
+- reddit-0-7-btc-drained  +8 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-trezor-community-audit-call  +16 -0
+- reddit-fourth-wave-389-btc  +8 -0
+- reddit-hardware-wallet-comparison  +16 -0
+- reddit-secure-btc-after-incident  +73 -3
+- reddit-victim-support-psa  +24 -0
+- reddit-entropy-bug-commits-review  +8 -0
+- reddit-safe-seed-without-hardware  +16 -0
+- reddit-where-store-bitcoin-now  +10 -2
+- reddit-lost-one-bitcoin-victim  +18 -0
+- reddit-future-of-bitcoin-debate  +0 -16
+- bitcointalk-large-scale-compromise-thread  +6 -0
+- stackernews-entropy-bug-history  +7 -7
+- reddit-self-custody-dagger  +14 -0
+- reddit-hacker-still-progressing  +134 -6
+- reddit-not-your-keys-not-your-coins  +34 -0
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-ceo-anthropic-hack-challenge  +2 -0
+- reddit-btc-price-holding-up  +24 -0
+
+## 20260804T190554Z
+
+- coindesk-25-minute-sweep  +7 -7
+- reddit-vendor-counterfactual  +8 -0
+- reddit-0-7-btc-drained  +8 -0
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-1400-btc-hacked-report  +8 -0
+- reddit-hardware-wallet-comparison  +10 -0
+- reddit-secure-btc-after-incident  +20 -0
+- reddit-entropy-bug-commits-review  +34 -0
+- reddit-safe-seed-without-hardware  +8 -0
+- reddit-future-of-bitcoin-debate  +19 -16
+- bitcointalk-large-scale-compromise-thread  +26 -0
+- stackernews-entropy-bug-history  +7 -7
+- stackernews-retirement-attack-question  +7 -0
+- reddit-im-out  +9 -0
+- reddit-hacker-still-progressing  +172 -0
+- reddit-not-your-keys-not-your-coins  +60 -0
+- newsbtc-entropy-risk-focus  +2 -2
+- chaincatcher-nunchuk-response  +30 -30
+- stackernews-troll-1367btc  +7 -7
+- reddit-btc-price-holding-up  +8 -0
+
+## 20260804T193600Z
+
+- coldcard-hack-tracker  +72 -69
+- coindesk-25-minute-sweep  +5 -5
+- casa-blog-index  +2 -2
+- reddit-am-i-affected-dice  +8 -0
+- reddit-0-7-btc-drained  +18 -0
+- reddit-self-custody-custodian-debate  +18 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-bitcoin-org-still-recommends  +3 -3
+- reddit-cash-out-forensics-question  +12 -0
+- reddit-hardware-wallet-comparison  +16 -0
+- reddit-bought-last-week  +12 -0
+- reddit-entropy-bug-commits-review  +14 -12
+- reddit-future-of-bitcoin-debate  +1 -11
+- bitcointalk-learn-from-incident  +6 -0
+- stackernews-entropy-bug-history  +7 -7
+- reddit-im-out  +8 -0
+- reddit-hacker-still-progressing  +220 -0
+- reddit-not-your-keys-not-your-coins  +65 -3
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-q-repurpose  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +12 -10
+- reddit-retirement-attack-resurfaced  +19 -0
+- stackernews-matt-levine-heist  +7 -7
+
+## 20260804T200606Z
+
+- btcpp-dettmer-commit-history  +7 -5
+- coindesk-25-minute-sweep  +7 -7
+- stackernews-robhamilton-scanning  +7 -7
+- reddit-shipments-halted-relay  +8 -0
+- reddit-mk4-bricked-hotfix  +10 -1
+- reddit-dice-rolls-trust  +10 -0
+- reddit-0-7-btc-drained  +25 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-hacker-address-message-board  +10 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-cash-out-forensics-question  +8 -0
+- reddit-where-store-bitcoin-now  +16 -0
+- reddit-future-of-bitcoin-debate  +1 -1
+- bitcointalk-large-scale-compromise-thread  +20 -0
+- stackernews-entropy-bug-history  +7 -0
+- reddit-im-out  +24 -0
+- reddit-hacker-still-progressing  +218 -0
+- reddit-not-your-keys-not-your-coins  +24 -0
+- newsbtc-entropy-risk-focus  +3 -3
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-btc-price-holding-up  +17 -1
+- reddit-retirement-attack-resurfaced  +18 -0
+- reddit-coldcard-open-source-question  +18 -0
+- reddit-multisig-only-way  +8 -0
+
+## 20260804T203610Z
+
+- coinkite-blog-index  +3 -0
+- coldcard-hack-tracker  +94 -96
+- btcpp-dettmer-commit-history  +5 -7
+- coindesk-25-minute-sweep  +11 -11
+- reddit-mk4-bricked-hotfix  +69 -5
+- reddit-0-7-btc-drained  +8 -0
+- reddit-cash-out-forensics-question  +10 -0
+- reddit-hardware-wallet-comparison  +30 -0
+- reddit-where-store-bitcoin-now  +16 -0
+- bitcointalk-large-scale-compromise-thread  +3 -0
+- stackernews-retirement-attack-question  +7 -0
+- reddit-im-out  +20 -0
+- reddit-self-custody-dagger  +8 -0
+- reddit-hacker-still-progressing  +151 -0
+- reddit-not-your-keys-not-your-coins  +36 -0
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-retirement-attack-resurfaced  +12 -0
+- bitcointalk-hack-revolution-opinion  +13 -3
+
+## 20260804T210615Z
+
+- coldcard-hack-tracker  +60 -58
+- btcpp-dettmer-commit-history  +7 -5
+- reddit-coldcard-letter-db-leak  +8 -0
+- coindesk-25-minute-sweep  +21 -21
+- reddit-dice-rolls-trust  +8 -0
+- reddit-0-7-btc-drained  +34 -0
+- reddit-where-store-bitcoin-now  +8 -0
+- bitcointalk-large-scale-compromise-thread  +9 -0
+- reddit-im-out  +24 -0
+- reddit-hacker-still-progressing  +148 -0
+- reddit-not-your-keys-not-your-coins  +8 -0
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-q-repurpose  +12 -0
+- reddit-attack-timing-speculation  +8 -0
+- reddit-ceo-anthropic-hack-challenge  +9 -9
+- reddit-btc-price-holding-up  +8 -0
+- reddit-throw-away-coldcard  +16 -0
+- reddit-retirement-attack-resurfaced  +20 -0
+- reddit-coinkite-refund-question  +8 -0
+- reddit-inside-job-speculation  +20 -0
+
+## 20260804T213621Z
+
+- coldcard-hack-tracker  +5 -5
+- coindesk-25-minute-sweep  +6 -6
+- casa-blog-index  +1 -1
+- reddit-am-i-affected-dice  +8 -0
+- reddit-0-7-btc-drained  +33 -0
+- reddit-trezor-user-alert-email  +24 -0
+- reddit-hardware-wallet-comparison  +8 -0
+- reddit-bought-last-week  +0 -16
+- reddit-where-store-bitcoin-now  +8 -0
+- reddit-lost-one-bitcoin-victim  +8 -0
+- reddit-dice-seed-generation  +8 -0
+- bitcointalk-large-scale-compromise-thread  +19 -0
+- stackernews-limits-dont-trust-verify  +7 -0
+- reddit-im-out  +8 -8
+- reddit-hacker-still-progressing  +94 -17
+- reddit-not-your-keys-not-your-coins  +51 -0
+- newsbtc-entropy-risk-focus  +3 -3
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-ceo-anthropic-hack-challenge  +9 -11
+- reddit-btc-price-holding-up  +16 -0
+- reddit-retirement-attack-resurfaced  +20 -0
+- bitcointalk-hack-revolution-opinion  +16 -0
+- reddit-coldcard-open-source-question  +10 -0
+
+## 20260804T220628Z
+
+- coldcard-hack-tracker  +90 -149
+- reddit-coldcard-letter-db-leak  +8 -0
+- coindesk-25-minute-sweep  +11 -11
+- reddit-0-7-btc-drained  +28 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-trezor-user-alert-email  +8 -0
+- reddit-liability-blame-debate  +16 -0
+- reddit-cash-out-forensics-question  +28 -0
+- reddit-hardware-wallet-comparison  +10 -0
+- reddit-secure-btc-after-incident  +8 -0
+- reddit-where-store-bitcoin-now  +19 -0
+- reddit-future-of-bitcoin-debate  +0 -8
+- bitcointalk-large-scale-compromise-thread  +33 -0
+- reddit-hacker-still-progressing  +158 -3
+- reddit-not-your-keys-not-your-coins  +16 -0
+- chaincatcher-nunchuk-response  +30 -30
+- reddit-bricked-mid-transfer  +8 -0
+- reddit-device-repurpose  +16 -0
+- reddit-ceo-anthropic-hack-challenge  +9 -9
+- reddit-btc-price-holding-up  +19 -3
+- reddit-retirement-attack-resurfaced  +3 -2
+
+## 20260804T223634Z
+
+- coldcard-hack-tracker  +95 -38
+- reddit-coldcard-letter-db-leak  +8 -0
+- coindesk-25-minute-sweep  +11 -11
+- casa-blog-index  +6 -1
+- stackernews-boltz-zeuslsp-shutdown  +7 -7
+- reddit-am-i-affected-dice  +8 -0
+- reddit-0-7-btc-drained  +8 -0
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-hardware-wallet-comparison  +8 -0
+- reddit-where-store-bitcoin-now  +8 -0
+- bitcointalk-large-scale-compromise-thread  +2 -2
+- reddit-im-out  +10 -0
+- reddit-hacker-still-progressing  +147 -103
+- reddit-not-your-keys-not-your-coins  +72 -0
+- newsbitcom-who-lost-who-at-risk  +11 -0
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +30 -30
+- nvkwtf-articles  +3 -0
+- nvkwtf-reactions  +2 -0
+- stackernews-personal-responsibility  +7 -7
+- reddit-q-repurpose  +8 -0
+- reddit-saved-my-stack-thanks  +8 -0
+- reddit-coldcard-just-drained-rug  +8 -0
+- reddit-btc-price-holding-up  +28 -0
+- reddit-flag-four-addresses  +16 -0
+
+## 20260804T230639Z
+
+- coindesk-25-minute-sweep  +16 -16
+- reddit-ceo-resign-calls  +8 -0
+- reddit-5-13-btc-loss  +18 -0
+- reddit-trezor-community-audit-call  +36 -0
+- reddit-cash-out-forensics-question  +15 -0
+- reddit-fourth-wave-389-btc  +8 -0
+- reddit-hardware-wallet-comparison  +41 -0
+- reddit-where-store-bitcoin-now  +16 -0
+- reddit-self-custody-to-etf  +10 -0
+- reddit-future-of-bitcoin-debate  +48 -9
+- reddit-im-out  +8 -0
+- reddit-entropy-explainer-question  +12 -0
+- reddit-hacker-still-progressing  +123 -89
+- reddit-not-your-keys-not-your-coins  +8 -0
+- newsbitcom-who-lost-who-at-risk  +0 -11
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +30 -32
+- nvkwtf-articles  +5 -2
+- nvkwtf-reactions  +3 -0
+- reddit-bricked-mid-transfer  +10 -0
+- reddit-ceo-anthropic-hack-challenge  +1 -9
+- reddit-btc-price-holding-up  +28 -8
+- reddit-retirement-attack-resurfaced  +16 -0
+- reddit-inside-job-speculation  +8 -0
+- reddit-coldcard-open-source-question  +10 -0
+
+## 20260804T233639Z
+
+- coldcard-hack-tracker  +94 -95
+- coindesk-25-minute-sweep  +16 -16
+- reddit-firmware-audit-history  +0 -8
+- reddit-0-7-btc-drained  +34 -10
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-self-custody-to-etf  +21 -0
+- bitcointalk-large-scale-compromise-thread  +7 -0
+- stackernews-retirement-attack-question  +7 -0
+- reddit-hacker-still-progressing  +153 -153
+- reddit-not-your-keys-not-your-coins  +39 -7
+- chaincatcher-nunchuk-response  +32 -30
+- reddit-btc-price-holding-up  +8 -0
+- reddit-retirement-attack-resurfaced  +8 -0
+
+## 20260805T000650Z
+
+- coldcard-hack-tracker  +40 -157
+- coindesk-25-minute-sweep  +6 -6
+- casa-blog-index  +3 -2
+- stackernews-first-drain-report  +7 -0
+- reddit-new-firmware-safety  +18 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-cash-out-forensics-question  +18 -0
+- reddit-lost-one-bitcoin-victim  +8 -0
+- bitcointalk-large-scale-compromise-thread  +27 -27
+- reddit-im-out  +20 -0
+- reddit-hacker-still-progressing  +97 -91
+- reddit-not-your-keys-not-your-coins  +8 -0
+- newsbtc-entropy-risk-focus  +1 -1
+- chaincatcher-nunchuk-response  +36 -36
+- bitcointalk-hack-revolution-opinion  +6 -6
+
+## 20260805T003655Z
+
+- coldcard-hack-tracker  +45 -5
+- coindesk-25-minute-sweep  +16 -16
+- stackernews-first-drain-report  +7 -0
+- reddit-0-7-btc-drained  +8 -0
+- reddit-hardware-wallet-comparison  +2 -71
+- reddit-where-store-bitcoin-now  +8 -0
+- bitcointalk-large-scale-compromise-thread  +18 -0
+- stackernews-retirement-attack-question  +14 -7
+- reddit-im-out  +16 -0
+- reddit-hacker-still-progressing  +35 -46
+- reddit-not-your-keys-not-your-coins  +8 -0
+- chaincatcher-nunchuk-response  +32 -32
+
+## 20260805T010701Z
+
+- reddit-0-7-btc-drained  +16 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-secure-btc-after-incident  +2 -2
+- reddit-im-out  +18 -0
+- reddit-hacker-still-progressing  +47 -40
+- newsbtc-entropy-risk-focus  +1 -1
+- bitcointalk-hack-revolution-opinion  +10 -0
+
+## 20260805T013703Z
+
+- reddit-firmware-audit-history  +8 -0
+- reddit-security-advisory-relay  +10 -0
+- reddit-0-7-btc-drained  +24 -0
+- reddit-fourth-wave-389-btc  +2 -2
+- reddit-hardware-wallet-comparison  +2 -2
+- reddit-im-out  +8 -0
+- reddit-hacker-still-progressing  +70 -78
+- reddit-not-your-keys-not-your-coins  +8 -0
+- reddit-q-repurpose  +8 -0
+- reddit-coldcard-just-drained-rug  +8 -0
+- reddit-unused-coldcard-collectible  +0 -8
+- reddit-retirement-attack-resurfaced  +16 -0
+- reddit-inside-job-speculation  +8 -0
+
+## 20260805T021456Z
+
+- coldcard-hack-tracker  +17 -1
+
+## 20260805T031529Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+- cktripwire-honeypot-monitor  +13 -10
+
+## 20260805T041553Z
+
+- cktripwire-honeypot-monitor  +33 -19
+
+## 20260805T044608Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260805T054619Z
+
+- coldcard-hack-tracker  +8 -0
+
+## 20260805T074705Z
+
+- coldcard-hack-tracker  +8 -0
+- reddit-ai-discovery-thread  +19 -19
+- stackernews-boltz-zeuslsp-shutdown  +7 -7
+- reddit-am-i-affected-dice  +21 -0
+- reddit-shipments-halted-relay  +10 -0
+- reddit-still-using-coldcard  +16 -0
+- reddit-coinkite-solvency-class-action  +8 -0
+- reddit-firmware-audit-history  +14 -0
+- reddit-still-trust-coinkite  +34 -0
+- reddit-0-7-btc-drained  +28 -0
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-self-custody-custodian-debate  +0 -8
+- reddit-1400-btc-hacked-report  +10 -0
+- reddit-trezor-user-alert-email  +8 -0
+- reddit-liability-blame-debate  +12 -0
+- reddit-cash-out-forensics-question  +32 -0
+- reddit-hardware-wallet-comparison  +38 -0
+- reddit-secure-btc-after-incident  +8 -8
+- reddit-best-way-keep-safe  +8 -0
+- reddit-lost-one-bitcoin-victim  +26 -0
+- reddit-self-custody-to-etf  +16 -0
+- reddit-future-of-bitcoin-debate  +9 -23
+- bitcointalk-large-scale-compromise-thread  +119 -0
+- stackernews-retirement-attack-question  +14 -7
+- reddit-im-out  +97 -0
+- reddit-entropy-explainer-question  +11 -0
+- reddit-hacker-still-progressing  +231 -283
+- reddit-not-your-keys-not-your-coins  +102 -0
+- mempool-research-key-exposure  +2 -1
+- newsbitcom-who-lost-who-at-risk  +11 -0
+- ncfacanada-self-custody-commentary  +5 -5
+- reddit-q-repurpose  +16 -0
+- reddit-dice-consensus-nontechnical  +2 -2
+- reddit-coldcard-just-drained-rug  +8 -0
+- reddit-unused-coldcard-collectible  +18 -0
+- reddit-attack-timing-speculation  +19 -0
+- reddit-ceo-anthropic-hack-challenge  +1 -1
+- reddit-btc-price-holding-up  +32 -8
+- reddit-retirement-attack-resurfaced  +55 -0
+- bitcointalk-hack-revolution-opinion  +23 -0
+- reddit-inside-job-speculation  +90 -0
+- reddit-coldcard-open-source-question  +8 -0
+- reddit-multisig-only-way  +16 -0
+- newsbitcom-class-action-threat  +32 -32
+
+## 20260805T094723Z
+
+- reddit-drained-timeline  +10 -101
+- reddit-full-panic-drain-report  +8 -16
+
+## 20260805T104732Z
+
+- coldcard-hack-tracker  +5 -5

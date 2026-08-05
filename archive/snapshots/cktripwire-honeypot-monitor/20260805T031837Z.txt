@@ -1,0 +1,166 @@
+CKTRIPWIRE
+last update 2 hours ago
+methodology
+admin
+Own a Coldcard? Treat any wallet created without additional entropy as compromised and move
+your funds to a safe place now.
+What is this?
+Coldcard hardware wallets generated wallet seeds with a
+broken random-number generator: a predictable software pseudo-RNG instead of true
+hardware entropy. The private keys can be brute-forced and the coins swept. If
+affected, migrate your funds now.
+We fund decoy “honeypot” wallets carrying that
+exact flaw on mainnet, some hardened with extra dice rolls or a passphrase, and
+track which ones an attacker sweeps and how fast. This maps the frontier of what
+coins are being confiscated. Read the methodology →
+honeypots8
+live7
+swept1
+value exposed~0.003 BTC
+fastest sweep1h18m
+frontier-
+recent activity last 5 events
+time (utc)
+event
+difficulty
+value band
+tx
+2026-08-05 01:07
+honeypot funded HP-0708
+high (pass)
+<=0.001
+-
+2026-08-05 01:06
+honeypot funded HP-25AA
+mid (pass)
+<=0.001
+-
+2026-08-05 01:05
+honeypot funded HP-7B35
+low (dice)
+<=0.001
+-
+2026-08-04 23:11
+honeypot funded HP-8284
+low (dice)
+<=0.001
+-
+2026-08-04 23:11
+honeypot funded HP-FC1E
+low (dice)
+<=0.001
+-
+honeypots
+handle
+device
+difficulty
+sec(bits)
+value band
+status
+age / time-to-sweep
+HP-3146
+mk3 v4
+trivial
+0
+<=0.001
+SWEPT ->
+swept in 1h18m
+HP-7B35
+mk3 v4
+low (dice)
+5
+<=0.001
+LIVE
+live 2h13m
+HP-96ED
+mk3 v4
+low (pass)
+11
+<=0.001
+LIVE
+live 6h28m
+HP-FA90
+mk3 v4
+low (pass)
+11
+<=0.001
+LIVE
+live 6h28m
+HP-8284
+mk3 v4
+low (dice)
+13
+<=0.001
+LIVE
+live 4h6m
+HP-FC1E
+mk3 v4
+low (dice)
+13
+<=0.001
+LIVE
+live 4h6m
+HP-25AA
+mk3 v4
+mid (pass)
+22
+<=0.001
+LIVE
+live 2h12m
+HP-0708
+mk3 v4
+high (pass)
+33
+<=0.001
+LIVE
+live 2h11m
+showing 8 - sort: sec(bits) ascending (easiest to sweep first)
+frontier summary
+difficulty
+deployed
+swept
+fastest
+still live
+trivial
+1
+1
+1h18m
+0
+low
+5
+0
+-
+5
+mid (pass)
+1
+0
+-
+1
+high (pass)
+1
+0
+-
+1
+extreme
+0
+0
+-
+0
+difficulty bands added entropy over the attacker-known seed · dice ~2.585 bits/roll · passphrase 11 bits/word
+trivial0 bitsthe control — no dice, no passphrase
+low1–15 bits1–5 dice rolls, or a 1-word passphrase
+mid16–30 bits6–11 dice rolls, or a 2-word passphrase
+high31–45 bits12–17 dice rolls, or a 3–4 word passphrase
+extreme>45 bits18+ dice rolls, or a 5+ word passphrase
+A note on timing. Just because a particular honeypot here hasn't been taken
+yet doesn't mean its entropy class is safe. We don't know long this attack has been going on, but it
+started well before our
+honeypots existed. The thousands of coins already taken were ground
+down over more than a few days, likely much longer than ours have been live.
+So read “still live” as not taken yet, nothing more: a honeypot
+surviving for weeks says little about the safety of its entropy class (in
+terms of older coins real people are still holding) because the
+attackers have had a chance to grind those coins for far longer than any of ours have
+existed.
+auto-refresh 60s - coarse public view: no addresses, no exact values, no keys
+made by @jamesob

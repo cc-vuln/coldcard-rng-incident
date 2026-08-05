@@ -5,8 +5,8 @@
  * assembles the n most recent events a front-door reader should see: sources
  * entering the record, reviewed changes to published source content, and
  * registered X posts. It is a deliberately minimal sibling of the fuller
- * assembly in src/pages/record/feed.astro, not an import from it: pages are
- * not libraries, and the band needs far less than the feed carries.
+ * assembly in src/pages/record/changes/index.astro, not an import from it:
+ * pages are not libraries, and the band needs far less than that page carries.
  *
  * Two narrowing decisions, both on purpose:
  * - only `source-content` revisions qualify. Collection noise and unreviewed
@@ -31,7 +31,7 @@ export interface LatestEvent {
   by: string;
   /** UTC timestamp of the event, ISO 8601. */
   iso: string;
-  /** The source page, where the artefacts and hashes live. */
+  /** The source page, where the capture state and revision history live. */
   href: string;
   /** Staged screenshot path, or null when none may be shown. */
   thumb: string | null;

@@ -1,9 +1,15 @@
 # Design: captures front and centre
 
-**Status:** decided 3 Aug 2026; P1 and most of P2 shipped the same day. R11
-and two presentation duties remain, tracked in `BACKLOG.md` section 0a and
+**Status:** decided 3 Aug 2026; P1 and most of P2 shipped the same day. Public
+hash presentation was retired 5 Aug 2026. R11 and two presentation duties
+remain, tracked in `BACKLOG.md` section 0a and
 `design/capture-display-policy.md` section 8, not here.
-**Date:** 3 Aug 2026
+**Date:** 3 Aug 2026, revised 5 Aug 2026
+
+The record-first refit of 5 August superseded this document's owner-triage,
+phase-switch and navigation decisions. Its capture-display findings and policy
+remain in force. The current route and navigation contract is in
+`design/site-information-architecture.md`.
 
 This is the decision record of the 3 Aug 2026 information-architecture
 review, "captures front and centre". The review itself is generated working
@@ -26,7 +32,7 @@ its fourth section:
   showed an X capture as a hash table and never rendered the screenshot,
   so a reader clicked a card bearing an image and landed on a page with
   less evidence than the card.
-- The feed at /record/feed/, the best captures-first page on the site and
+- The feed at /record/changes/, the best captures-first page on the site and
   roughly 80 percent of the parked captured-tweet-timeline idea, had
   exactly one inbound link sitewide and was absent from the record subnav.
 - Display had outrun the written policy: 62 staged post screenshots were
@@ -35,8 +41,8 @@ its fourth section:
 
 The review also found what already worked, and none of it was to be
 displaced: the triage front door, the disclosure shape, the grouped
-source taxonomy, the vanished-sources aside, the per-source integrity
-apparatus, the excerpt discipline, the staging gate, the changes page's
+source taxonomy, the vanished-sources aside, the per-source revision history,
+the excerpt discipline, the staging gate, the changes page's
 three-way separation, the JSON feeds and the no-JS progressive reveal.
 
 ## The decision
@@ -66,8 +72,9 @@ labour:
 P1, highest leverage:
 
 - **R1, artefact-first source pages.** The staged screenshot leads the
-  per-source page as a figure; the hash table sits beneath it as the
-  integrity record.
+  per-source page as a figure. The artefact hash table that originally shipped
+  beneath it was retired on 5 Aug 2026 because it did not independently
+  authenticate the capture.
 - **R2, policy revision.** Written before the next deploy, at
   `design/capture-display-policy.md`.
 - **R3, homepage record band.** Stat tiles, a freshness line driven by
@@ -86,7 +93,7 @@ P2, structural:
   reorders the nav as it already reordered the homepage grid.
 - **R7, thumbnails beside citing entries.** A shared `CaptureThumb`
   component placed 41 thumbnails inside rungs and entry bodies on
-  /record/timeline/, /record/analysis/ and /response/, one per dated
+  /record/timeline/, /record/reference/#analysis and /response/, one per dated
   entry, never above Answers.
 - **R8, named evidence journeys.** One line per journey in the record
   band: what the vendor said and when, who did the primary analysis,
@@ -115,9 +122,8 @@ mechanisms.
   above the Answers.
 - The register's grouped-by-what-a-source-is taxonomy and the
   vanished-sources aside at the top of /record/.
-- The per-source integrity apparatus: SHA-256 per copy, unified diffs,
-  the Internet Archive cross-check, explicit wayback provenance and
-  bounded revision windows.
+- The per-source revision apparatus: unified diffs, the Internet Archive
+  cross-check, explicit wayback provenance and bounded revision windows.
 - The excerpt discipline, the withhold flags and the OWN_HOST_FROM
   staging gate.
 - The changes page's three-way separation of source content, collection

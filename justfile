@@ -49,7 +49,12 @@ discover-reddit *ARGS:
 discover-bitcointalk *ARGS:
     @{{py}} scripts/discover_bitcointalk.py {{ARGS}}
 
-# Assess pending DISCOVERY.md candidates with the intake agent
+# Discover new posts from watched X accounts through the official read-only
+# API. Manual and opt-in during probation; requires X_DISCOVERY_ENABLED=true.
+discover-x *ARGS:
+    @{{py}} scripts/discover_x.py {{ARGS}}
+
+# Assess community candidates. X uses explicit, read-only --include-x triage.
 discovery-intake *ARGS:
     @./scripts/agent-discovery-intake.sh {{ARGS}}
 
@@ -66,7 +71,21 @@ audit:
 # Focused capture regression tests
 test-capture:
     @{{py}} -m unittest scripts/test_capture.py
+    @{{py}} -m unittest scripts/test_discover_x.py
+    @{{py}} -m unittest scripts/test_agent_discovery_intake.py
+    @{{py}} scripts/discover_x.py --list >/dev/null
+    @PYTHONPATH=scripts {{py}} -m unittest scripts/test_list_unreviewed_diffs.py
+    @PYTHONPATH=scripts {{py}} -m unittest scripts/test_review_packets.py
+    @{{py}} -m py_compile scripts/discover_x.py scripts/render_review_packets.py scripts/render_agent_review_prompt.py scripts/auto_classify_noise.py
     @/bin/bash -n scripts/capture-x.sh scripts/notify.sh
+
+# Rank sources by how much capture noise reaches the review layer.
+review-signal *ARGS:
+    @{{py}} scripts/report_review_signal.py {{ARGS}}
+
+# Rank active Tier 3 sources for a human freeze decision.
+watch-candidates *ARGS:
+    @{{py}} scripts/recommend_watch_state.py {{ARGS}}
 
 # Due-state, source-ownership, aggregation and scheduler-lock regressions
 test-scheduler:
@@ -157,6 +176,11 @@ check-claims:
 check-public-output:
     @node site/tools/check-public-output.mjs
 
+# The funds page's tracker figures must still be read from a held capture, not
+# frozen at a pinned value because a tracker rebuilt its page.
+check-trackers:
+    @node site/tools/check-trackers.mjs
+
 # Every internal link and anchor in the built site must resolve, including the
 # retired routes served by public/_redirects. Pages get merged and routes get
 # retired; without this, a stale nav entry or citation becomes a silent 404.
@@ -172,6 +196,7 @@ build-site: test audit check-claims
     @node site/tools/stage-x-media.mjs
     @cd site && SITE_URL="${SITE_URL:-https://example.invalid}" npx astro build
     @node site/tools/check-public-output.mjs
+    @node site/tools/check-trackers.mjs
     @node site/tools/check-links.mjs
 
 # Build with complete snapshot bodies embedded. Local or gated use only.
@@ -198,6 +223,7 @@ build-preview: test audit check-claims
     @node site/tools/stage-x-media.mjs
     @cd site && SITE_URL="https://${CF_PAGES_PROJECT:?set CF_PAGES_PROJECT}.pages.dev" npx astro build
     @SITE_URL="https://${CF_PAGES_PROJECT}.pages.dev" node site/tools/check-public-output.mjs
+    @node site/tools/check-trackers.mjs
     @node site/tools/check-links.mjs
 
 # Capture, audit, build and push a review copy to pages.dev.
@@ -212,6 +238,11 @@ preview: capture-gate audit build-preview deploy
 # preview, the output invites indexing.
 publish: audit build-site-indexable deploy
 
+# Publish only if the tree is clean and the record has actually moved. This is
+# what the publish-scheduled timer runs; --dry-run reports the decision only.
+publish-scheduled *ARGS:
+    @./scripts/publish-scheduled.sh {{ARGS}}
+
 # The strict path: capture first and refuse to deploy an incomplete poll.
 # Exit 10 (healthy changes) does not block; a source erroring does.
 publish-fresh: capture-gate audit build-site-indexable deploy
@@ -222,6 +253,7 @@ build-site-indexable: test audit check-claims
     @node site/tools/stage-x-media.mjs
     @cd site && PUBLIC_INDEXABLE=true SITE_URL="${SITE_URL:?set SITE_URL}" npx astro build
     @node site/tools/check-public-output.mjs
+    @node site/tools/check-trackers.mjs
     @node site/tools/check-links.mjs
 
 # Push the built site to Cloudflare Pages by direct upload, so no source repo

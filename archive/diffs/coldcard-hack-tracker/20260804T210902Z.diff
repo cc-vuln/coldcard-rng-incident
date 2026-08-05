@@ -1,0 +1,192 @@
+--- coldcard-hack-tracker@20260804T203856Z
++++ coldcard-hack-tracker@20260804T210902Z
+@@ -71,25 +71,25 @@
+ 
+ STILL HELD
+ 
+-94.2%
+-
+-of 1,483.59806802 BTC consolidated
++94.0%
++
++of 1,485.7757442 BTC consolidated
+ 
+ MOVED
+ 
+-86.24572213 BTC
++88.42339831 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Block 961,065
+-
+-64.90373764 BTC from Aug 2 vault
++Block 961,069
++
++64.90373154 BTC from Hop 1 from Aug 2 vault
+ 
+ Watched holdings
+ 
+-About 1,923.80748125 BTC drained across known waves. Galaxy’s Waves 1–3 same-operator total is 1,367.05 BTC across 4,585 addresses; their Aug 3 high-confidence headline is 1,596.00 BTC across ~7,300 addresses (Waves 1–3 + owner-confirmed footprints), or up to ~2,055.00 BTC if candidate Wave 4 is included. 1,483.59806802 BTC is in watched holdings. The remaining ~440.20941323 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults, untracked lettered footprints, and fees. Community waves (evening, morning, early Aug 2, P2TR, Wave 4) may be different operators — Galaxy now estimates ≥15 attackers.
++About 1,923.80748125 BTC drained across known waves. Galaxy’s Waves 1–3 same-operator total is 1,367.05 BTC across 4,585 addresses; their Aug 3 high-confidence headline is 1,596.00 BTC across ~7,300 addresses (Waves 1–3 + owner-confirmed footprints), or up to ~2,055.00 BTC if candidate Wave 4 is included. 1,485.7757442 BTC is in watched holdings. The remaining ~438.03173705 BTC is mostly unwatched Wave 4 destinations (sparse still-held sample), plus smaller/unmatched Wave 3 vaults, untracked lettered footprints, and fees. Community waves (evening, morning, early Aug 2, P2TR, Wave 4) may be different operators — Galaxy now estimates ≥15 attackers.
+ 
+ GALAXY WAVE 1 · JULY 30
+ Source
+@@ -730,7 +730,13 @@
+ 	5.61303754 BTC	0	EMPTIED
+ 
+ Wave 4 park
+-Emptied Aug 4 (block 961064, ~2 sat/vB): 14-input P2SH consolidate with sibling parks → 334iKwmh… still holding ~136.41 BTC (f02164a9…50db281). Same tx as 36XfMDAYu… + 34nHYNnc…. Mix includes parks funded outside Wave 4 window — Arkham unlabeled, no exchange exit yet.
++Emptied Aug 4 (block 961064, ~2 sat/vB): 14-input P2SH consolidate with sibling parks → 334iKwmh… still holding ~136.41 BTC (f02164a9…50db281). Same tx as 342L6n3b… + 36XfMDAYu… + 34nHYNnc…. Mix includes parks funded outside Wave 4 window — Arkham unlabeled, no exchange exit yet.
++	35dHFzKHn4…X4wNxH	0.00 BTC
++<live-fiat-value>
++	2.17767618 BTC	0	EMPTIED
++
++Wave 4 park
++Emptied Aug 4 (block 961064): same 14-input consolidate as 35dHFzKH… → 334iKwmh… (~136.41 BTC still held).
+ 	342L6n3b61…TSjZtz	0.00 BTC
+ <live-fiat-value>
+ 	2.02374869 BTC	0	EMPTIED
+@@ -741,7 +747,7 @@
+ 	1.14852067 BTC	1	HELD
+ 
+ Wave 4 park
+-Emptied Aug 4 (block 961064): same 14-input consolidate as 342L6n3b… → 334iKwmh… (~136.41 BTC still held).
++Emptied Aug 4 (block 961064): same 14-input consolidate as 35dHFzKH… → 334iKwmh… (~136.41 BTC still held).
+ 	36XfMDAYuC…1F1x3G	0.00 BTC
+ <live-fiat-value>
+ 	1.09429601 BTC	0	EMPTIED
+@@ -757,13 +763,21 @@
+ 	1.03514173 BTC	1	HELD
+ 
+ Wave 4 park
+-Emptied Aug 4 (block 961064): same 14-input consolidate as 342L6n3b… → 334iKwmh… (~136.41 BTC still held).
++Emptied Aug 4 (block 961064): same 14-input consolidate as 35dHFzKH… → 334iKwmh… (~136.41 BTC still held).
+ 	34nHYNnc9D…jP4qDQ	0.00 BTC
+ <live-fiat-value>
+ 	0.96227191 BTC	0	EMPTIED
+ Movement feed
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Later surplus that passes through a vault while its reported balance remains is ignored.
++
++HOP 1
++f3ee6e61…c37b24
++−64.90373154 BTC
++From Hop 1 from Aug 2 vault bc1pynd6…7h92
++Block 961,069
++
++To bc1qajcr…2d3t, bc1qrrx3…hy4j, bc1qyzsq…qvdx +379 more
+ 
+ e3274a1b…2b3ddf
+ −64.90373764 BTC
+@@ -773,6 +787,13 @@
+ To bc1pynd6…7h92
+ 
+ f02164a9…0db281
++−2.17767618 BTC
++From Wave 4 park 35dHFzKH…wNxH
++Block 961,064
++
++To 334iKwmh…J6gB
++
++f02164a9…0db281
+ −2.02374869 BTC
+ From Wave 4 park 342L6n3b…jZtz
+ Block 961,064
+@@ -1001,28 +1022,12 @@
+ To bc1qmxc0…4ne6
+ 
+ HOP 1
+-65d43b31…a3192b
+-−0.00692653 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,048
+-
+-To bc1qnnfx…v8pz
+-
+-HOP 1
+ d6c15cd4…b280cc
+ −0.0070087 BTC
+ From Hop 1 from P2TR vault bc1q2nfx…kyyq
+ Block 961,048
+ 
+ To bc1q67pj…3drp
+-
+-HOP 1
+-6baa09bc…294c5b
+-−0.03611606 BTC
+-From Hop 1 from P2TR vault bc1q2nfx…kyyq
+-Block 961,047
+-
+-To bc1q2gpn…p2a6
+ 
+ HOP 1
+ cecd3aa5…b4f0e2
+@@ -1046,37 +1051,34 @@
+ 
+ To bc1qqa7p…36pr
+ 
+-HOP 1
+-d37d6901…bac7b6
+-−0.00061835 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,030
+-
+-To bc1qkg64…xygt
+-
+-HOP 1
+-ee4e4c70…2105f2
+-−0.00282469 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,030
+-
+-To bc1qz9hf…97s0
+-
+-HOP 1
+-58932a6d…7eb177
+-−0.229641 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,028
+-
+-To bc1q080c…wua8
+-
+-HOP 1
+-d58b2c53…3d82a4
+-−0.25476269 BTC
+-From Hop 1 from P2TR vault bc1qqa7p…36pr
+-Block 961,028
+-
+-To bc1qqm62…efvn
++1a454301…c772c2
++−2.00017714 BTC
++From P2TR vault bc1p0l0x…lk0h
++Block 961,026
++
++To bc1q2nfx…kyyq
++
++064eb61d…7ddd4f
++−1.00017823 BTC
++From P2TR vault bc1p0l0x…lk0h
++Block 961,021
++
++To bc1qqa7p…36pr
++
++780ea043…cf0326
++−0.01017904 BTC
++From P2TR vault bc1p0l0x…lk0h
++Block 961,019
++
++To bc1qqa7p…36pr
++
++HOP 1
++15d1287d…e9bdf0
++−0.50633044 BTC
++From Hop 1 from Wave 4 park bc1qa2xv…c3y9
++Block 960,822
++
++To bc1qq0j5…vfz9, bc1qhcpk…c3tl, 38maz2s8…erUH +13 more
+ 
+ Am I at risk?
+ 

@@ -1,0 +1,41 @@
+--- bitcointalk-large-scale-compromise-thread@20260804T214824Z
++++ bitcointalk-large-scale-compromise-thread@20260804T221845Z
+@@ -3147,5 +3147,38 @@
+ Coinkite's attempt to downplay the severity of the attack gave owners of MK4, MK5, and Q devices false assurance their coins were safe while also giving thieves more time to work on finding and draining those users' wallets.
+ Every step of the way, Coinkite's handling of the catastrophe has been inexcusable.
+ Meanwhile, @NVK has been on Xwitter (https://x.com/nvk) for days. He's been doing lots of reposting, but saying nothing.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: ovcijisir on August 04, 2026, 10:02:19 PM
++Be aware of fake Telegram groups, where they "help" with "wallet migration".
++Scam telegram groups:
++Code:
++https://t.me/coldcardREAL
++https://t.me/coldcardMigration
++These groups are swaming with scammers that want victims to use their malicious links:
++Code:
++https://swiftprotocolresolvers.web.app/
++http://migrate.coldcardfirmware.com
++https://m-coldcard.web.app
++https://dashboards.protocolsdata.workers.dev
++https://coldcard-en.web.app
++https://coldcard-devicenode.net/en/
++https://dapplogin-connect.com
++Do not enter seed words there! Do not send funds there! Do kot download any software from there!
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: NUCLEAR7.1 on August 04, 2026, 10:13:31 PM
++Quote from: shahzadafzal on Today at 09:12:58 PM
++Quote from:  https://x.com/coldcardwallet/status/2084731768632991801?s=46&t=EYlgQnpcCaCtcz2k1MwkNg
++We've run AI-assisted review against our critical codebases, including in the weeks before the exploit. It did not catch this vulnerability. Since the incident, we've also tested our code against frontier models, including Kimi K3, Claude Fable, and Codex 5.6. None of them caught it.
++Now that�s a straight lie.
++Coinkite�s latest post claims they performed AI-assisted code reviews weeks before the vulnerability was discovered. Yet people have shown that Claude can identify the bug in just a 8 minutes.
++Yes, it depends on the prompt too, but I�d expect the entropy generation logic to be one of the first areas reviewed. Instead of prompts like �Find a security issue in this code� or �find a bug in this code� will never expose the issue.
++Of course, I�m only speculating about the prompts they actually used before the vulnerability was discovered.
++You can read the full post here https://x.com/coldcardwallet/status/2084731768632991801?s=46&t=EYlgQnpcCaCtcz2k1MwkNg
++Calling this a "straight lie" is jumping the gun a bit.
++AI review results are heavily prompt-dependent. Running "find a bug in this code" against an entire firmware codebase is a very different task than pointing a model directly at the RNG function once you already know it's an entropy issue. Nobody outside Coinkite knows what prompts or scope they actually used pre-disclosure � that's the missing piece in this whole argument.
++Hindsight also does a lot of heavy lifting here. Once the bug is public and everyone knows to look at seed/entropy generation, of course a model (or a human researcher) zeroes in on it fast. That's not really comparable to a blind review of the full codebase before anyone knew where the problem was.
++That said, the underlying question is fair. If Coinkite actually ran targeted reviews of the RNG logic specifically, with well-crafted prompts, across multiple frontier models, and still came back empty � that would be a real red flag worth pressing them on. But without knowing exactly what they tested, how, and against what scope, there's no way to call this a "lie" with any confidence. It's either a genuine limitation of AI-assisted review under generic prompting, or a case of "we didn't look hard enough in the right place" � and those are two very different admissions.
++Would be good to see Coinkite actually publish the prompts and methodology they used for both the pre- and post-incident reviews. That's the only way this gets resolved instead of argued about.
++Just my two sats.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

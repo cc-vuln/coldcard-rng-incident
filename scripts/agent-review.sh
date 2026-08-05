@@ -2,13 +2,13 @@
 # Invoke the review agent over newly captured diffs.
 #
 # The capture runner (archive-poll.timer) owns archive writes. This script
-# owns only the additive interpretation layer: it finds diff files newer than
-# the last successful review and asks the agent to classify them in
+# owns only the additive interpretation layer: it finds differences that lack
+# a completed classification and asks the agent to classify a bounded batch in
 # revision-reviews.toml.
 #
 # Exit codes:
 #   0  review completed, or there was nothing new to review
-#   1  agent run failed (marker not advanced; next tick retries the backlog)
+#   1  agent run failed (the unclassified batch is retried next tick)
 
 set -Eeuo pipefail
 
@@ -26,56 +26,59 @@ fi
 # `<bin> -p "<prompt>"`, reads and edits the working tree, and exits non-zero
 # on failure. Which agent that is stays out of the repository: set
 # REVIEW_AGENT_BIN in .env (see .env.example).
-: "${REVIEW_AGENT_BIN:?REVIEW_AGENT_BIN not set. Point it at a review agent CLI in .env -- see .env.example.}"
 STATE_DIR="$ROOT/.work/agent-review"
-MARKER="$STATE_DIR/last-run"
-# Stamped when this run starts. The marker only advances to it on
-# success, so a capture that lands mid-run is still newer than the
-# marker next time and does not slip past the review.
-RUN_STAMP="$STATE_DIR/.run-started"
 PROMPT_TEMPLATE="$ROOT/scripts/agent-review-prompt.md"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
+PACKETS_RENDERED="$STATE_DIR/evidence-packets.md"
+: "${REVIEW_BATCH_SIZE:=15}"
+: "${REVIEW_BATCH_BYTES:=120000}"
+if [[ ! "$REVIEW_BATCH_SIZE" =~ ^[1-9][0-9]*$ ]] || \
+   [[ ! "$REVIEW_BATCH_BYTES" =~ ^[1-9][0-9]*$ ]]; then
+  echo "agent-review: REVIEW_BATCH_SIZE and REVIEW_BATCH_BYTES must be positive integers" >&2
+  exit 1
+fi
 
 mkdir -p "$STATE_DIR" "$ROOT/.work/normalizer-proposals"
-rm -f "$RUN_STAMP"
-touch "$RUN_STAMP"
-
-# Diff files newer than the last successful review. On the first run the
-# marker does not exist and every diff is a candidate.
-if [[ -f "$MARKER" ]]; then
-  mapfile -t CANDIDATES < <(find archive/diffs -name '*.diff' -newer "$MARKER" | sort)
-else
-  mapfile -t CANDIDATES < <(find archive/diffs -name '*.diff' | sort)
+exec 9>"$STATE_DIR/review.lock"
+if ! flock -w 60 9; then
+  echo "agent-review: another review run holds the lock; skipping"
+  exit 0
 fi
+
+# Tested current normalizers can prove some historical diffs contain no
+# tracked source-content change. Classify those mechanically before buying
+# model context. Unknown and substantive differences remain for the agent.
+PYTHONPATH=scripts .venv/bin/python scripts/auto_classify_noise.py --apply
+
+mapfile -t CANDIDATES < <(
+  .venv/bin/python scripts/list_unreviewed_diffs.py \
+    --limit "$REVIEW_BATCH_SIZE" --max-bytes "$REVIEW_BATCH_BYTES"
+)
 
 if [[ ${#CANDIDATES[@]} -eq 0 ]]; then
-  echo "agent-review: no new diffs since last run; nothing to do"
+  echo "agent-review: no unreviewed diffs; nothing to do"
   exit 0
 fi
 
-echo "agent-review: ${#CANDIDATES[@]} diff(s) to review"
-
-if [[ -f "$MARKER" ]]; then
-  SINCE="$(date -u -r "$MARKER" +%Y%m%dT%H%M%SZ)"
-else
-  SINCE="the beginning of the archive (first run)"
+if [[ -z "${REVIEW_AGENT_BIN:-}" ]]; then
+  echo "agent-review: ${#CANDIDATES[@]} unreviewed diff(s) remain, but REVIEW_AGENT_BIN is unset"
+  exit 0
 fi
 
-# Render the standing prompt with this run's scope.
-export SINCE
-awk -v candidates="$(printf -- '- %s\n' "${CANDIDATES[@]}")" '
-  {
-    gsub(/{SINCE}/, ENVIRON["SINCE"])
-    if ($0 ~ /{CANDIDATES}/) { printf "%s", candidates } else { print }
-  }
-' "$PROMPT_TEMPLATE" > "$PROMPT_RENDERED"
+echo "agent-review: reviewing bounded batch of ${#CANDIDATES[@]} diff(s)"
+
+.venv/bin/python scripts/render_review_packets.py "${CANDIDATES[@]}" \
+  > "$PACKETS_RENDERED"
+
+# Render without passing diff text through shell or awk escaping.
+.venv/bin/python scripts/render_agent_review_prompt.py \
+  --template "$PROMPT_TEMPLATE" --packets "$PACKETS_RENDERED" \
+  "${CANDIDATES[@]}" > "$PROMPT_RENDERED"
 
 if "$REVIEW_AGENT_BIN" -p "$(cat "$PROMPT_RENDERED")"; then
-  mv -f "$RUN_STAMP" "$MARKER"
-  chmod 600 "$MARKER"
-  echo "agent-review: run complete; marker advanced to $(date -u +%Y%m%dT%H%M%SZ)"
+  echo "agent-review: batch complete; any remaining backlog will run next tick"
   exit 0
 else
-  echo "agent-review: agent run failed; marker NOT advanced" >&2
+  echo "agent-review: agent run failed; unclassified diffs remain queued" >&2
   exit 1
 fi

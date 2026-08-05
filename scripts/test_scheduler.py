@@ -234,6 +234,7 @@ class DefaultJobTests(SchedulerTestCase):
                 job.name for job in scheduler.DEFAULT_JOBS if matches(job, source)
             ]
             for source in registry["source"]
+            if source.get("watch", "active") == "active"
         }
         violations = {
             source_id: owners
@@ -357,11 +358,15 @@ class StateTransitionTests(SchedulerTestCase):
                 self.assertEqual(exit_code, child_exit)
                 self.assertEqual(record["last_success_at"], success)
                 self.assertEqual(record["last_attempt_at"], "20260801T000005Z")
-                self.assertEqual(record["next_due_at"], "20260731T003000Z")
+                expected_due = (
+                    "20260801T003005Z" if child_exit == 20
+                    else "20260731T003000Z"
+                )
+                self.assertEqual(record["next_due_at"], expected_due)
                 self.assertEqual(record["last_exit_code"], child_exit)
                 self.assertEqual(record["consecutive_failures"], 3)
 
-    def test_first_failure_remains_due_on_the_next_tick(self) -> None:
+    def test_completed_incomplete_poll_waits_until_the_next_cadence(self) -> None:
         clock = FakeClock(self.start)
         first = FakeCaptureRunner(clock, exits={"tier1": 20})
         first_exit, _ = self.run_tick(first, jobs=self.JOB)
@@ -372,6 +377,20 @@ class StateTransitionTests(SchedulerTestCase):
         self.assertEqual(first_exit, 20)
         self.assertEqual(second_exit, 0)
         self.assertEqual(len(first.calls), 1)
+        self.assertEqual(len(second.calls), 0)
+
+    def test_lock_contention_remains_due_on_the_next_tick(self) -> None:
+        clock = FakeClock(self.start)
+        first = FakeCaptureRunner(
+            clock, exits={"tier1": 21}, omit_results={"tier1"}
+        )
+        first_exit, _ = self.run_tick(first, jobs=self.JOB)
+
+        second = FakeCaptureRunner(clock)
+        second_exit, _ = self.run_tick(second, jobs=self.JOB)
+
+        self.assertEqual(first_exit, 21)
+        self.assertEqual(second_exit, 0)
         self.assertEqual(len(second.calls), 1)
 
 
