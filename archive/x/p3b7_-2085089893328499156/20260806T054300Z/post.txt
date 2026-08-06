@@ -1,0 +1,82 @@
+url:      https://x.com/P3b7_/status/2085089893328499156
+author:   Charles Guillemet
+handle:   @P3b7_
+posted:   2026-08-05T19:45:44.000Z (from the page's <time> element)
+captured: 20260806T054300Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Open source is not a security property. It is a distribution and inspection property. Confusing the two is how the industry keeps selling trust minimization theater.
+
+Those who equated Coldcard’s public source (not really open source, by the way) with security just learned, the hard way, that availability is not a security property.
+
+ Open source is genuinely great
+First, the philosophical case. Sharing knowledge, letting anyone inspect, fork, and build on it, is one of the best things computing ever produced. It compounds human knowledge. And now, AI knowledge too.
+
+Second, for pure software, it can reduce trust. Clone the repo. Compile it. Run it on your machine. That is a real, concrete property. You are not downloading a black box from a vendor and hoping the binary matches the marketing page.
+
+ Hardware wallets break the simple story
+On a hardware wallet, verifying source is not enough. You also have a trust assumption on the device itself.
+
+Yes, you can review the code, compile it, and load it onto the wallet. But unless the device gives you attestation and real tamper resistance, you have no strong guarantee that what runs is what you loaded. You may believe you are running your firmware while a backdoor was introduced in the process.
+
+That is the uncomfortable part: source availability does not magically transfer integrity guarantees onto silicon.
+
+ The chip is still a black box
+Even if the application firmware is open, the chip embeds low-level firmware that handles the hardware primitives. That layer is almost never open. You have no visibility into it, and a lot of blind trust assumptions sit right there.
+
+You might think: "Then build an open-source secure element." That sounds elegant. It is mostly wishful thinking.
+
+Reaching the security level of secure element manufacturers is incredibly hard. Decades of experience. Mountains of patents. Billions invested. Specialized process nodes, countermeasures, certifications, attack labs. This is not a weekend GitHub project with better vibes.
+
+ Even full openness does not solve verification
+Assume the hard part is somehow solved. Full design open. All the sources in your left hand. Actual chip in your right hand.
+
+How do you prove these two things match?
+
+You cannot. That gap is not a footnote. It is the core problem of hardware trust. Open schematics do not give you a cryptographic bridge between "what was designed" and "what was manufactured and shipped."
+
+ "Many eyes" is not a threat model
+Another popular claim: open source means anyone can review and audit the code, so bugs get found faster.
+
+In theory, yes. In practice, professional security researchers do not review code for free. Bug bounties help align incentives a bit. They do not replace paid third-party reviews, audits, pentests, and certifications.
+
+If your security model is "the crowd will save us," you do not have a security model. You have a hope.
+
+ Then AI entered the chat
+AI is extremely good at finding vulnerabilities and turning them into exploits at very low cost.
+
+What happens next is predictable. Malicious actors scan interesting open-source repositories, extract attack surface, and exploit at scale. The incentive misalignment is structural: defenders pay to secure one codebase; attackers amortize discovery across thousands.
+
+You cannot clap your way out of that.
+
+ Closed source is not security. It is friction.
+Incidentally, closed source makes exploitation harder. Anyone who has done offensive security knows this. If you cannot get the source or even the binary easily, breaking the system becomes much more expensive.
+
+That does not mean security should rely on obscurity. Not at all.
+
+Security must come from security by design, defense in depth, secure hardware, real countermeasures, attack detection, and so on. Then you pay competent people to review the code, run pentests, and challenge the design.
+
+And if, on top of that, attackers do not get free access to your source, you add friction. You widen the moat. Obscurity as a foundation is weak. Obscurity as an extra layer on top of strong design is rational.
+
+Where this leaves us
+Open source is valuable. Philosophically. Practically. For software transparency and community building.
+
+It is not a substitute for secure hardware. It is not a substitute for attestation. It is not a substitute for paid adversarial review. And it is definitely not a free lunch against AI-assisted attackers.
+
+Those who equated Coldcard’s public source (not really open source, by the way) with security just learned, the hard way, that availability is not a security property.
+
+What about Ledger?
+Most of Ledger’s code is open source: Ledger Wallet, the crypto libraries, and the apps that run on the device. You can inspect them. You can audit them. That part is real.
+
+The low-level part of the operating system is not. Not because we enjoy secrecy. Because it talks to the internals of the Secure Element, and that interface sits under NDA with the chip vendor. We cannot publish it.
+
+So we face a tradeoff: publish everything and pretend that “open” equals “trustless,” or keep the SE boundary closed and actually use hardware that can resist real attackers.
+
+Between a high level of security and a fake trust assumption, we chose the former.
+
+Call it what it is: open source reduces some trust assumptions and creates others. Hardware security lives in the ones it cannot eliminate. Stay honest about which ones you are actually removing.
+
+Stay safe. Stay honest about your trust assumptions.

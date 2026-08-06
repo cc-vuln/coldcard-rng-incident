@@ -1,0 +1,17 @@
+--- reddit-coinkite-options-after-disclosure@20260805T142744Z
++++ reddit-coinkite-options-after-disclosure@20260805T210311Z
+@@ -375,4 +375,14 @@
+ body:
+ Another issue is that some customers themselves could be the bad actors, and alerting them just gives them an early heads-up on the vulnerability. 
+ 
++comment: p1x7kxw
++parent: t1_p1do8xt
++author: Present-Resolution23
++created_utc: 1785959521
++edited: false
++body:
++I know I'm coming from the future with more information but.. no shot they would have let an exploit like this go unaddressed for years.. This wasn't like a small bug.. This was entirely bypassing all of their fancy encryption for a basic pseudorandom rng with limited seeds.. 
++
++That said.. they absolutely should have caught this with randomness testing, integration testing (simply replacing the call to the hardware RNG with a call to a counter would have told them instantly the hardware was never being hit,) or any number of other standard procedures in the industry.. Giving them the most benefit.. I imagine they probably ran these when they first launched but after swapping libraries, or ANYTIME in the last half-decade, they definitely should have run any of the above at least once.. It's negligent enough that I expect they're beyond toast once the litigation starts. 
++
+ more-stub: parent t1_p1jyoqk count <live-count>

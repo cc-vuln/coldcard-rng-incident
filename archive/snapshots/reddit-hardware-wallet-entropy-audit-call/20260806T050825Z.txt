@@ -1,0 +1,616 @@
+post: 1vfwlgj
+author: slvbtc
+created_utc: 1785902586
+title: All hardware wallet manufacturers need to release 3rd party audited proof that their entropy generation is working.
+body:
+After this coinkite coldcard situation we cant trust code that is open source, we cant trust code that is closed source, and we definitely cant trust a statement saying "we use a TRNG so your seed is secure".
+
+Every hardware wallet manufacturer needs to release hard proof that their TRNG works, their code is complete and robust, and their entropy generation actually meets a minimum 128/256 bit standard.
+
+Even if their code is closed source a reputable 3rd party auditor can run tests on seed entropy generation to statistically prove 256 bits of entropy is being used.
+
+Every wallet manufacturer should have this 3rd party audited proof of entropy document available to view on their website, and if they do not do this by the end of this month we as a community should boycott that manufacturer to help ensure safety for all bitcoiners.
+
+comment: p1sgd00
+parent: t3_1vfwlgj
+author: Empty-Mouse-856
+created_utc: 1785902904
+edited: false
+body:
+What about SW wallets? Can they have the same problem?
+
+comment: p1sgmnc
+parent: t3_1vfwlgj
+author: Big-Cheetah5159
+created_utc: 1785903010
+edited: false
+body:
+Or use dice rolls, it will alleviate the internal TRNG issue. 
+
+comment: p1sh7ch
+parent: t1_p1sgmnc
+author: slvbtc
+created_utc: 1785903237
+edited: false
+body:
+If a HW wallet manufacturer wants to offer the ability to generate a seed for their users they should have a 3rd party audited proof of entropy document. If they do not provide this audited proof of entropy they should not be in business.
+
+comment: p1shtcw
+parent: t3_1vfwlgj
+author: Infinite-Ad1720
+created_utc: 1785903479
+edited: false
+body:
+\-I bet every hardware wallet company is excited that they can offer new wallets and market them “Now with 10% more entropy!”
+
+\-New versions of all kinds of hardware wallets will be coming out of the woodwork within in the next 12 months. 
+
+comment: p1slb46
+parent: t3_1vfwlgj
+author: MilkImpossible4192
+created_utc: 1785904920
+edited: false
+body:
+just use paper, a pendrive to store a key is just dumb and fancy
+
+comment: p1slcyd
+parent: t3_1vfwlgj
+author: Puzzled_Cookie778
+created_utc: 1785904941
+edited: false
+body:
+Open source is great, but if the entropy generation itself isn't independently verified we're still taking the manufacture's word for it. Third party audits would be a solid baseline
+
+comment: p1slko9
+parent: t3_1vfwlgj
+author: Left_Entrepreneur918
+created_utc: 1785905031
+edited: false
+body:
+Ledger pays 3rd party to certify their TRNG and give certs rather than be open source, Trezor does the same but is open source. 
+
+comment: p1slp4r
+parent: t1_p1sh7ch
+author: riisen
+created_utc: 1785905084
+edited: false
+body:
+Well technically coldcard had a 3rd party audited RNG from STM32. Its just that they disabled it so it used micropythons default PRNG 
+
+comment: p1sm90x
+parent: t1_p1slp4r
+author: slvbtc
+created_utc: 1785905316
+edited: false
+body:
+A proof of entropy document would verify the TRNG actually works and is not being bypassed.
+
+comment: p1smdfi
+parent: t1_p1slko9
+author: slvbtc
+created_utc: 1785905368
+edited: 1785905567
+body:
+Can you please link to these ledger certifications.
+
+We dont want to see certifications that they have a TRNG, coldcard had a certified TRNG. What we want to see is a 3rd party audit proving that the TRNG is actually operating and actively creating 256 bits of entropy.
+
+comment: p1sn23y
+parent: t1_p1sgd00
+author: reggionh
+created_utc: 1785905661
+edited: false
+body:
+they can but they don’t usually claim peak security as their value proposition.
+
+comment: p1so4o4
+parent: t3_1vfwlgj
+author: APisAccounting
+created_utc: 1785906121
+edited: false
+body:
+Just roll casino dice. Then you dont have to worry about this. Why trust the third party who audits it?
+
+comment: p1so64s
+parent: t1_p1sm90x
+author: moviemaker2
+created_utc: 1785906138
+edited: false
+body:
+What are you talking about?
+
+comment: p1sodwj
+parent: t3_1vfwlgj
+author: linuxmeaningfully
+created_utc: 1785906230
+edited: false
+body:
+The code wasn’t open source. It was source available. Nobody cared enough to verify the code
+
+comment: p1sot9y
+parent: t1_p1sgd00
+author: Icy_Wishbone9495
+created_utc: 1785906417
+edited: false
+body:
+yeah those are often worse since they rely on whatever the OS gives them for randomness, at least hardware wallets have a dedicated chip for it
+
+comment: p1sp43j
+parent: t3_1vfwlgj
+author: vivjohn2871991
+created_utc: 1785906548
+edited: false
+body:
+Looks like Ledger has links to their third-party assessment reports on their support portal:
+
+https://github.com/LedgerHQ/Ledger-OS-third-party-reports
+
+Third-party Security Assessment Reports
+
+https://support.ledger.com/article/Third-party-Security-Assessment-Report
+
+comment: p1spr63
+parent: t3_1vfwlgj
+author: SpendHefty6066
+created_utc: 1785906832
+edited: false
+body:
+Alternatively, they require people to roll their own entropy. This is fool proof and simple. SeedSigner does this. Great project. 
+
+comment: p1sptrk
+parent: t3_1vfwlgj
+author: Cute_Square9524
+created_utc: 1785906865
+edited: false
+body:
+exacty! how can a decentralized exchange ever work without a central authority enforcing "needs" ?
+
+comment: p1sq4ot
+parent: t3_1vfwlgj
+author: Javanaut018
+created_utc: 1785906998
+edited: false
+body:
+It's Bitcoin. We need more like: All customers have learned something and do proper research on what they buy and intend to do.
+
+- Was my product audited by a renowned organization?
+- Did I perform all recommended steps to improve security of my product?
+- Do I understand all steps of the process of managing my assets?
+
+Also that should be true independently of using a device or software for self custody or trusting an exchange.
+
+comment: p1studh
+parent: t1_p1smdfi
+author: Left_Entrepreneur918
+created_utc: 1785908673
+edited: false
+body:
+[https://www.ledger.com/message-ledgers-ceo-data-leak](https://www.ledger.com/message-ledgers-ceo-data-leak)
+
+The CEO responded and names the certifications that verify entropy used.
+
+comment: p1su6tc
+parent: t3_1vfwlgj
+author: JamesTDennis
+created_utc: 1785908832
+edited: false
+body:
+Counter proposal:  every wallet user should support their own entropy (initial 23 words, or equivalent) and the ecosystem should supply tooling to confirm that the wallets are using it and that anti-ex-filtration is enabled in transaction construction (https://help.blockstream.com/blockstream-jade/faqs/what-is-anti-exfil-and-how-does-it-work).
+
+Should never have trusted built-in random generators for this mission critical operation at all.  Consider the supply chain upstream of your wallet vendor!
+
+comment: p1su9vp
+parent: t3_1vfwlgj
+author: Impressive-Piglet386
+created_utc: 1785908870
+edited: false
+body:
+What we actually need is a 3rd party certification of the whole hardware wallet  package, not the TRNG alone. Coldcard's TRNG did work, and certified with EAL5+ if I remember correctly. The problem is the TRNG chip was not used by the device. So it's an integration problem. 
+
+comment: p1sv9dc
+parent: t1_p1so64s
+author: [deleted]
+created_utc: 1785909324
+edited: false
+body:
+[deleted]
+
+comment: p1swaab
+parent: t1_p1slcyd
+author: Aurorion
+created_utc: 1785909798
+edited: false
+body:
+Open source is technically better than "independent verification" and "audits". Because that means anyone is free to verify and audit themselves.
+
+Coldcard itself was open - they had made their source code openly available for anyone to check and verify anytime. Though the license did not allow unrestricted reuse and modification.
+
+It's amazing that nobody in the community caught this bug till now. In hindsight, Coldcard should have taken more initiative to actively invite and incentivize the community to find and report bugs, as many companies in various industries do.
+
+comment: p1swidg
+parent: t1_p1swaab
+author: Background_Pause34
+created_utc: 1785909903
+edited: false
+body:
+So open source means nothing…
+
+comment: p1swq5n
+parent: t3_1vfwlgj
+author: BigvalBROski
+created_utc: 1785910001
+edited: false
+body:
+Use a passphrase or just buy the ETF 
+
+comment: p1sxxra
+parent: t1_p1shtcw
+author: HugeLarry
+created_utc: 1785910558
+edited: false
+body:
+Now with two scoops of entropy!
+
+comment: p1t1f5c
+parent: t3_1vfwlgj
+author: HedgehogGlad9505
+created_utc: 1785912198
+edited: false
+body:
+That won't work. A certification is done on a specific version of the firmware. And today most hardware wallets frequently update their firmware, so a "bug" can be introduced after the certification.
+
+comment: p1t6g6p
+parent: t1_p1spr63
+author: AAAdamKK
+created_utc: 1785914602
+edited: false
+body:
+Correct me if I'm wrong as I'm not too familiar with SeedSigner, but you are still trusting that the seed it generates is using your entropy and not defaulting to some weaker form such as was the case with Coldcard. 
+
+That is of course, unless you are verifying the SeedSigner code for yourself.
+
+comment: p1t9v1v
+parent: t3_1vfwlgj
+author: rini17
+created_utc: 1785916260
+edited: false
+body:
+Why do you insist on having someone else do it for you?   
+  
+The amount of entropy needed for private keys/seed is easy to generate by dice for example. With simple, easy to check algorithm to calculate the seed.
+
+The ECDSA signatures need entropy too and that's harder to do with dice, but that's problem only if you reuse addresses. Which you should avoid anyway.
+
+comment: p1t9zpw
+parent: t1_p1swidg
+author: bieker
+created_utc: 1785916322
+edited: false
+body:
+No it does not mean nothing, it’s just not a silver bullet for finding flaws. The problem with the cold card was that since it was not true open source it was not Used by multiple projects and had low activity. No one could use the code or contribute to it so it did not attract a lot of eyeballs. 
+
+comment: p1tafez
+parent: t1_p1sgd00
+author: sunflowersaint
+created_utc: 1785916536
+edited: false
+body:
+They generally rely on some level of physical input and operating system conditions to generate randomness. It enough to create basic security 
+
+Coldcard randomness was based on the UID of the chip and it's clock, so was easily predictable.
+
+comment: p1tanwu
+parent: t1_p1sm90x
+author: bieker
+created_utc: 1785916651
+edited: false
+body:
+How do you prove entropy of the completed compiled binary?
+
+The difficulty with coldcard is that if you went looking for the entropy generator in the source code it is actually properly implemented.  From a source code analysis you could certify that function as correct. The ‘bug’ was that function was being swapped for the weaker one by a define. 
+
+comment: p1tas5p
+parent: t3_1vfwlgj
+author: DaVirus
+created_utc: 1785916709
+edited: false
+body:
+Or, much easier, use your own entropy.
+
+That depends on no one else doing anything, and we are in this for the freedom, right?
+
+comment: p1tbbrf
+parent: t1_p1t6g6p
+author: SpendHefty6066
+created_utc: 1785916974
+edited: false
+body:
+No. The ColdCard disaster has taught all of us paying attention to never trust RNG. Even if you verify it, one firmware update can undo that verification. It's not just the RNG engine, its the software scaffolding around it that can break. 
+
+I highly recommend [https://github.com/taelfrinn/Bip39-diceware](https://github.com/taelfrinn/Bip39-diceware) for instructions on creating your own seed phrase. Requires 1 fair coin, and 4 fair 6-sided dice. Then just 12 coin flips and 12 rolls and you have created an unimaginably impossible to guess secret. I have verified this repo against the canonical BIP39 word list: [https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt](https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt) it is legit. But don't trust me. verify this yourself.
+
+Once you have your 12 word seed list, use SeedSigner, or another 100% air-gapped signing device and enter your seed phrase yourself manually. The 12th word will be the checksum. I put the full process of creating and securing an unguessable seed phrase together here: [https://www.reddit.com/r/Bitcoin/s/SVXKTtxbbP](https://www.reddit.com/r/Bitcoin/s/SVXKTtxbbP)
+
+My position on passphrases is that they should never be used as a crutch for robust and properly deployed entropy. If your single-sig is vulnerable to discovery, then study multi-sig and use that. A passphrase doubles the chances of losing your Bitcoin. My advice, however controversial is: never trust RNG, and if you roll your own entropy, you don't need a passphrase.
+
+Hope that helps, and I am happy to see that you are taking private key management security seriously. ✅
+
+comment: p1tdws1
+parent: t1_p1tbbrf
+author: AAAdamKK
+created_utc: 1785918243
+edited: false
+body:
+I'm considering going down the dice roll/ coin route, as I'm sure many are right now. I've never been a coldcard owner but it does make me nervous. I have a passphrase but only a mildly strong one.
+
+I tell you what though, if there's one good thing to come of this debacle, it's that there's finally some interesting discussion on the subreddit and the community at large instead of the endless price, treasury company and clarity act discussions. As well as that everyone is educating themselves and we'll all come out stronger for it.
+
+Thanks for the links, I'll check it out.
+
+comment: p1tepja
+parent: t1_p1studh
+author: slvbtc
+created_utc: 1785918631
+edited: false
+body:
+There is nothing written there about entropy.
+
+comment: p1tgg74
+parent: t1_p1tas5p
+author: slvbtc
+created_utc: 1785919479
+edited: false
+body:
+If you roll dice dont you still have to rely on another parties software generating your 24th word checksum?
+
+comment: p1tgjrz
+parent: t1_p1slko9
+author: Zaytion_
+created_utc: 1785919526
+edited: false
+body:
+Mostly open source. The Trezor 3, 5, and 7 use a closed source chip. 
+
+comment: p1tgkio
+parent: t1_p1slko9
+author: Zaytion_
+created_utc: 1785919536
+edited: false
+body:
+Mostly open source. The Trezor 3, 5, and 7 use a closed source chip.
+
+comment: p1thkx4
+parent: t1_p1tgg74
+author: DaVirus
+created_utc: 1785920026
+edited: false
+body:
+No. You can do it by hand. It just takes a long time.
+
+It's not "software" really, it's just a math equation.
+
+comment: p1tivmz
+parent: t3_1vfwlgj
+author: ultimatepoker
+created_utc: 1785920662
+edited: false
+body:
+Coinkite would have got the RNG certified. Nobody will certify that they don’t skip the RNG. 
+
+comment: p1tjruw
+parent: t1_p1thkx4
+author: slvbtc
+created_utc: 1785921100
+edited: false
+body:
+How many people who roll their own dice for entropy also calculate their own checksum entirely offline with zero software, using math alone?
+
+comment: p1tk6il
+parent: t1_p1tjruw
+author: DaVirus
+created_utc: 1785921300
+edited: false
+body:
+It doesn't matter, that was my point. The checksum is just math. You aren't trusting software, because there is no trust involved. It is just what it is otherwise it will not be a valid seed.
+
+comment: p1tqp99
+parent: t1_p1slko9
+author: AcostaJA
+created_utc: 1785924381
+edited: false
+body:
+Ledger certifications are just "trust me bro" bs
+
+comment: p1tr1dv
+parent: t3_1vfwlgj
+author: AcostaJA
+created_utc: 1785924531
+edited: false
+body:
+I posted this days ago, people here burned me https://www.reddit.com/r/Bitcoin/s/yP1qTMqPUa
+
+Seee youuuu
+
+comment: p1u39zl
+parent: t3_1vfwlgj
+author: [deleted]
+created_utc: 1785929518
+edited: 1785929773
+body:
+[deleted]
+
+comment: p1u7pxr
+parent: t1_p1sgd00
+author: JumpProfessional3372
+created_utc: 1785931130
+edited: false
+body:
+If you want to avoid using any RNG. In a software wallet, in a hardwallet, etc. You gotta create your own entropy rolling 100+ dices. 
+
+comment: p1ul8bn
+parent: t1_p1sv9dc
+author: moviemaker2
+created_utc: 1785935413
+edited: false
+body:
+I know what entropy is, I'm asking what they mean by "proof of entropy document."  How would that work, and why would you trust it if it's generated from the same device that generated the low entropy seed phrase?
+
+comment: p1up3jy
+parent: t1_p1sp43j
+author: vivjohn2871991
+created_utc: 1785936530
+edited: false
+body:
+Also, realizing that the Coldcard doesn't have an independent third-party audit for its "Dual-Element" chip. Whereas Trezor and Ledger go through a third-party audit for both their element and code. Not that it makes them immune to what they say is the "Truth" but still no audits for Coldcard, and they solely rely on community inspection.
+
+comment: p1uz2cs
+parent: t1_p1u39zl
+author: kernel_task
+created_utc: 1785939266
+edited: false
+body:
+Yeah, 100 tries won’t tell you anything. Even Coldcoin had around 40 bits of meaningful entropy, so that’s like 2\^40 unique combinations, way more than 100.
+
+comment: p1vf594
+parent: t1_p1smdfi
+author: read_more_comments
+created_utc: 1785943445
+edited: false
+body:
+Just so you know, a rng can be designed to appear random and tested as random, but contains backdoor that let's an attacker still grab funds. 
+
+Google kleptographic backdoor. It can also be embedded into the hardware itself. 
+
+At this point I don't trust any 3rd party to generate a seed for me.
+
+comment: p1x8vvf
+parent: t1_p1vf594
+author: Steak1994
+created_utc: 1785959860
+edited: false
+body:
+I know that some people used dice to generate their own Seed - is this really the most secure way? 
+
+comment: p1xrd62
+parent: t3_1vfwlgj
+author: NakedNick_ballin
+created_utc: 1785964829
+edited: false
+body:
+You can trust closed source is generally less likely to be hacked. Not saying I love it, just the reality
+
+comment: p1xx3wz
+parent: t1_p1tbbrf
+author: Strong_Judge_3730
+created_utc: 1785966467
+edited: false
+body:
+This is just a knee jerk reaction led by non technical people's security theatre.
+
+The same kind of fools would recommend coldcard because it had that most security "features"
+
+comment: p1xxmuq
+parent: t1_p1tdws1
+author: Strong_Judge_3730
+created_utc: 1785966617
+edited: false
+body:
+Please don't follow the instructions of a random Redditor that links you to AI generated infographics.
+
+The links to dice ware doesn't even tell you how to calculate the last checksum word.
+
+The process will be very difficult for a 24 word wallet.
+
+comment: p1xxvob
+parent: t1_p1sodwj
+author: Strong_Judge_3730
+created_utc: 1785966689
+edited: false
+body:
+Did you know a wallets can sign txns in a away it leaks your private key
+
+comment: p1y7g03
+parent: t3_1vfwlgj
+author: qwertyuiop121314321
+created_utc: 1785969555
+edited: false
+body:
+3rd parties can audit TRNGs with manufacturers' wallets all they want, the thing they WON'T find is the backdoor 'bugs' that are secretly hidden.  
+
+comment: p1y9b83
+parent: t1_p1x8vvf
+author: read_more_comments
+created_utc: 1785970132
+edited: false
+body:
+Yes. It's what your wallet should be doing but we generally don't know what it's actually doing. 
+
+comment: p1ybwpz
+parent: t1_p1smdfi
+author: kkZZZ
+created_utc: 1785970943
+edited: false
+body:
+https://support.ledger.com/article/4415198323089-zd
+
+If you click on trng link you can see what you're looking for
+
+comment: p1yoo1o
+parent: t1_p1swaab
+author: bkns356
+created_utc: 1785975096
+edited: false
+body:
+>nobody in the community caught this bug till now
+
+untrue. the bug was found years ago and brought to the attention of coldcard but they ignored it and didn't attempt to fix anything 
+
+comment: p1yth9g
+parent: t1_p1swidg
+author: JamesTDennis
+created_utc: 1785976685
+edited: false
+body:
+This is just the most recent (and tragic) example of how "source available" (open source but not FOSS licensed) — gratis vs. libre — is far weaker than truly free software that's actively forked and used in multiple independent projects and products.
+
+Simple source availability, without licensing rights, fails to align to the incentives of the most qualified (honest) coders.
+
+Thus the bug went years unfixed, slightly obscured by the production environment and hardware specifications.
+
+comment: p1yvlra
+parent: t1_p1tgg74
+author: m4rM2oFnYTW
+created_utc: 1785977383
+edited: false
+body:
+https://coldcard.com/docs/verifying-dice-roll-math/
+
+Following this procedure independently recreates the full seed-generation process from your dice rolls to the final 24 words, including the checksum. If all 24 words match the Coldcard, you are not relying on the device to have calculated the seed phrase or checksum correctly.
+
+I did this when I created my wallet back in 2022. I'm not very technical but I was able to figure it out. I sure looked crazy doing it at the time with all the dice rolls and verifying but I didn't want to take any chances. 
+
+comment: p1z2fe7
+parent: t1_p1yoo1o
+author: Aurorion
+created_utc: 1785979623
+edited: false
+body:
+Did you do this yourself? Or else, how do you know?
+
+comment: p1zoaf2
+parent: t1_p1spr63
+author: Aazimoxx
+created_utc: 1785987094
+edited: false
+body:
+>This is fool proof
+
+Oh boy, you haven't met some of the fools I know.
+
+As evidenced by data breaches, almost 2% of people use a truly awful password like '123456' or 'password' if it's allowed, and a further 50% will use a simple dictionary word or keyboard walk if possible.
+
+Surely any software RNG should be trying to incorporate multiple sources like mic noise(*), camera light, and temperature sensor fluctuations when present, in addition to whatever else it uses? Combine all of that with 'random' user kb/mouse input, or on a phone/tablet with asking them to draw a random picture and sign it or something - then a lot less is relying just on whatever RNG is being utilised.
+
+I have a vague recollection of 'true random' on Linux working something like this a long time ago, where if asked to output more than a certain buffer amount, it would stall until you button mashed to generate more entropy, rather than outputting unseeded randomness.  And same with early versions of TrueCrypt, getting you to initiate mouse and keyboard activity when creating header keys, if it didn't feel it had enough entropy from available sources - showing a little progress bar and everything.
+
+(*) Assuming user consent is gained for these hardware accesses, of course.

@@ -1,0 +1,102 @@
+post: 1vgto2m
+author: inner_engineering08
+created_utc: 1785989265
+title: The weirdest part of the Coldcard mess: was Peter D. Gray talking to himself through “switck”?
+body:
+I’m not going to re-explain the RNG bug. That part has already been documented. What I want to know is who exactly was behind `switck`, and why this identity existed in the first place.
+
+Someone checked the actual Git signatures in the `switck/libngu` repository. They found **58 commits authored as “Switck” signed with Peter D. Gray’s personal GPG key**. The same key also signed commits under Peter’s real name, with both identities being used during overlapping periods. Unless Peter shared or lost control of his private signing key, the obvious conclusion is that GitHub `switck` was Peter Gray operating under another name.
+
+Now look at the social-media side.
+
+In 2019, u/switck posted: “#defcon seems like a good time to start a new identity. Follow me!”
+
+https://preview.redd.it/w5rmzok8sohh1.png?width=588&format=png&auto=webp&s=ebe00de9eacaac13e2bdb4aea73ec5eb7401d621
+
+That tweet is real and still online.
+
+Later, the account promoted `switck/libngu`, thanked u/DocHex for a merge and said the library might someday be useful on Coldcard.
+
+So the account that announced it was starting a “new identity” was apparently Peter’s alias, publicly speaking to Peter’s main identity as though they were two different developers. 
+
+https://preview.redd.it/x33a7a85sohh1.png?width=609&format=png&auto=webp&s=461d44b0b6c4ffe05191c03a2d0dde29d9a47159
+
+The same thing appears on GitHub. `doc-hex` opened issues in the `switck/libngu` repository. In one pull request, `doc-hex` added four commits, then `switck` merged them. GitHub lists **no reviews**.
+
+And this wasn’t some unrelated side project. `switck/libngu` became part of Coldcard. The `switck` account introduced a critical piece of the vulnerable RNG path, and `doc-hex` later integrated libNgU into the Coldcard firmware. Coinkite itself confirms that this migration moved wallet-seed generation onto the wrong RNG implementation.
+
+None of this proves Peter intentionally created the vulnerability, knew it could be exploited or had anything to do with the thefts.
+
+But it is still extremely fucking weird.
+
+Why was a security-critical Coldcard library hosted under a pseudonymous personal account instead of Coinkite or Coldcard?
+
+Did Coinkite know that `switck` and `doc-hex` were apparently the same person?
+
+Why create the public appearance of two developers interacting, submitting code and merging each other’s work?
+
+Who independently reviewed the library and the Coldcard integration if the library author and the person integrating it were apparently using the same private signing key?
+
+And why has Coinkite explained the technical bug without addressing who controlled the `switck` identity?
+
+Peter, if you read this: **was** `switck` **you?**
+
+If it wasn’t, why were dozens of `Switck` commits signed with your personal GPG key?
+
+If it was, why did you publicly talk to that account as though it belonged to someone else? Did NVK and the rest of Coinkite know? Who was actually reviewing your work?
+
+There may be an innocent explanation. But after this code path left customer wallets vulnerable and people lost bitcoin, hiding behind silence is not an explanation.
+
+comment: p1zxzd4
+parent: t3_1vgto2m
+author: tongkat-jack
+created_utc: 1785990928
+edited: false
+body:
+Excellent questions!
+
+comment: p201k2o
+parent: t3_1vgto2m
+author: BigDik6355
+created_utc: 1785992450
+edited: false
+body:
+Geez, this is unfolding like a classic murder story. Was it the butler? The CEO? Or was it the CTO under another name?
+
+Or someone else entirely? The intrigue!
+
+Peter would be very high on the suspect list, that is for sure.
+
+comment: p201u2d
+parent: t3_1vgto2m
+author: eckstuhc
+created_utc: 1785992570
+edited: false
+body:
+There’s a perfectly good explanation for all of your questions. Peter Gray thought he was smart enough to get away with fraud. Spoiler: he is not.
+
+comment: p203ers
+parent: t3_1vgto2m
+author: Appropriate_Comb1486
+created_utc: 1785993269
+edited: false
+body:
+Private key means nothing. Forensically prove it was him posting and I'll buy in. This feels like someone's half baked blackmail attempt that that was involved and isn't getting paid. 
+
+comment: p20483j
+parent: t1_p203ers
+author: OtherwiseAlbatross14
+created_utc: 1785993635
+edited: false
+body:
+Isn't that exactly what signing it with the same private key is? 
+
+Like how they said Craig Wright could prove he was Satoshi by simply signing that claim with Satoshi's private key
+
+comment: p204mm5
+parent: t1_p20483j
+author: Appropriate_Comb1486
+created_utc: 1785993817
+edited: false
+body:
+Yes but reality and a a claim are two different things. Me and you could get together and say you typed this even though it's a reply from my device in my style of writing, unless their is video footage all i see an account logged in under that user id. Not the person who created the account logged in. Code is law but once it hit code all law is gone. 

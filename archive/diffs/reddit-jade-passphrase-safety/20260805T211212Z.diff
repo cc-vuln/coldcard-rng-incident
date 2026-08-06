@@ -1,0 +1,45 @@
+--- reddit-jade-passphrase-safety@20260805T143654Z
++++ reddit-jade-passphrase-safety@20260805T211212Z
+@@ -377,3 +377,42 @@
+ edited: false
+ body:
+ I am going to try with Parman’s method. 
++
++comment: p1w1cse
++parent: t1_p1oa6we
++author: AggressiveGas4637
++created_utc: 1785948950
++edited: false
++body:
++>
++ As for adding a very weak passphrase as a trivial ornamental addition, no it doesn't add any value.
++
++I disagree here only because of stuff you yourself said earlier 
++
++It’s good not to have your whole stack in one space, we agree there. 
++
++12 word seed is enough, we agree there. 12 properly random generated words won’t get brute forced. You are functionally safe.
++
++So if I wanted to generate a second wallet, wouldn’t the absolute easiest way would be to put in my 12 mnemonic with a passphrase of “wallet2”?
++
++As you yourself state, no one’s gonna guess the twelve words. So the passphrase being weak isn’t relevant 
++
++And remembering “wallet2” is a lot easier than remembering a new set of 12 words. That’s in alignment with your don’t over complicate things as that leaves room for error 
++
++Agree with the stateless, use your 12 words as a passphrase. But since those 12 words aren’t guesssable (in your own words) I fail to see how the easiest and most efficient way to mentally make new wallets would be to continue to use your 12 phrase mnemonic, with passphrases for the extra wallets.
++
++Anyways I rolled a new wallet
++
++comment: p1wxf5k
++parent: t1_p1w1cse
++author: trufin2038
++created_utc: 1785956883
++edited: false
++body:
++As for a "second wallet" that's going to depend heavily on how you define wallet. If you define it as a bip33 key series, then the correct method to make a "new wallet" is to increment the wallet ID in the derivation path. Then you get a new base root and the key id's start at zero again, and they are cryptographically isolated because its a hard path separation.
++
++If you define a wallet as a separate address like some people do, then you get those automatically as you make transactions.
++
++If you mean different hardware&software, then you probably want a different root secret altogether to keep them fully separate.
++
++I honestly don't think there is any good case for the extra word feature whatsoever. Imo, it should not have been in the spec as is. At the very least if not left out entirely, it should follow the same rules as the mnemonic, being 12, 18, or 24 machine generated words.

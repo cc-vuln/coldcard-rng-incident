@@ -1,0 +1,42 @@
+--- hn-dettmer-writeup-thread@20260804T180917Z
++++ hn-dettmer-writeup-thread@20260805T205459Z
+@@ -1,6 +1,6 @@
+ Hacker Newsnew | past | comments | ask | show | jobs | submitlogin
+ When random.bytes() runs but doesn't work (btcpp.dev)
+-94 points by Funes- <relative-time> | hide | past | favorite | 56 comments
++94 points by Funes- <relative-time> | hide | past | favorite | 57 comments
+ help
+ londons_explore <relative-time> | next [–]
+ I am getting suspicious of "random number generator not actually returning random numbers" bugs....
+@@ -112,6 +112,9 @@
+ > dice rolls
+ Yes, the new cope I've seen is that you should've been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I'm sure.
+ 1: https://old.reddit.com/r/Bitcoin/comments/1vcr4r4/dice_rolls...
++reply
++firmretention <relative-time> | root | parent | next [–]
++While I agree self-custody is too onerous for the average person, Coldcard's own documentation had a section on generating secure seeds with dice and why that's more secure. It wasn't some esoteric knowledge - anyone who RTFM on the device they intended to store their savings on was fine. That's not an absolution of Coldcard of course, but it's not "new cope".
+ reply
+ inigyou <relative-time> | parent | prev | next [–]
+ I take it you get your paycheck in cash?
+@@ -191,15 +194,15 @@
+ nullc <relative-time> | root | parent | next [–]
+ Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
+ reply
++nullc <relative-time> | parent | prev | next [–]
++Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
++reply
++RustyRussell <relative-time> | root | parent | next [–]
++Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
++reply
+ killerstorm <relative-time> | parent | prev | next [–]
+ Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+ So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+-reply
+-nullc <relative-time> | parent | prev | next [–]
+-Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+-reply
+-RustyRussell <relative-time> | root | parent | next [–]
+-Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
+ reply
+ dist-epoch <relative-time> | parent | prev | next [–]
+ I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.

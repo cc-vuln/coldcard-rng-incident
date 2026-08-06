@@ -1,0 +1,281 @@
+--- coldcard-hack-tracker@20260805T235428Z
++++ coldcard-hack-tracker@20260806T015427Z
+@@ -64,7 +64,7 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,397.35239555 BTC
++1,397.35269555 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+@@ -77,15 +77,15 @@
+ 
+ MOVED
+ 
+-88.42334865 BTC
++88.42304865 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Block 961,204
+-
+-1.29140163 BTC from Hop 2 from Hop 1 from Aug 2 vault
++Block 961,090
++
++0.00031682 BTC from Hop 1 from Wave 4 park
+ 
+ Watched holdings
+ 
+@@ -112,9 +112,9 @@
+ LABEL	ADDRESS	BALANCE	REPORT	UTXOS	STATUS
+ 
+ Holding 1
+-	bc1qq85v2c…3fcu9r	562.02082401 BTC
+-<live-fiat-value>
+-	562.02021083 BTC	37	HELD
++	bc1qq85v2c…3fcu9r	562.02112401 BTC
++<live-fiat-value>
++	562.02021083 BTC	40	HELD
+ 
+ Holding 2
+ 	bc1qx76cae…htfhe3	398.47576957 BTC
+@@ -684,7 +684,7 @@
+ 	36.01585057 BTC	1	HELD
+ 
+ P2TR vault
+-Later sibling; fees mostly ~5 sat/vB with 25/40 bands (blocks 960773–960897). Emptied Aug 4 — trail below.
++Later sibling; fees mostly ~5 sat/vB with 25/40 bands (blocks 960773–960897). Emptied Aug 4 — trail below. ETH side (@osint_based): ~205 ETH via THORChain into 0x41B752… → 200 ETH Tornado (2×100); BTC→THOR hop soft (commingled hubs). ~4.44 BTC still on Taproot park bc1prjnv….
+ 
+ AUG 4 CASH-OUT · LATER P2TR VAULT (~10.45)
+ 
+@@ -701,6 +701,11 @@
+ ~2.43→Binance deposit · 961046 · from bc1q2nfx… change chain · 57a9d5f2…7c90bc
+ ~1.81→Binance deposit · 961046 · includes vault UTXO taint via prior consolidate · 1c09bf59…af961f
+ ~5.33→Binance hot · 961043 · 13i9Za… sweep · e8c70a9d…15ce29
++
++Parallel ETH rail (@osint_based) · Aug 4 — BTC→THOR hop soft
++
++~205 ETH→0x41B752… (via THORChain)
++200 ETH→Tornado.Cash Router · 2×100
+ 	bc1p0l0xs2…6qlk0h	0.00000872 BTC
+ <live-fiat-value>
+ 	10.44811501 BTC	2	PARTIAL
+@@ -782,47 +787,7 @@
+ 	0.96227191 BTC	0	EMPTIED
+ Movement feed
+ 
+-Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Later surplus that passes through a vault while its reported balance remains is ignored.
+-
+-HOP 2
+-02d7df6b…d69ec4
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qtp7f…gn4v
+-Block 961,204
+-
+-To bc1qg4tw…t4tu, bc1q2kg7…rr6x, bc1qa8wa…jqmr +330 more
+-
+-HOP 2
+-5ebdd8c2…a3ade5
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qrrx3…hy4j
+-Block 961,187
+-
+-To bc1q9tpc…mwu6, bc1q92mu…7ckk, bc1qgnu8…yupa +447 more
+-
+-HOP 2
+-716796bb…5bf37b
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qkmpp…qtky
+-Block 961,184
+-
+-To bc1q99hg…6u46, bc1qnkre…v7z6, bc1pwh5y…fdhs +380 more
+-
+-HOP 2
+-3e45e90f…4c11f0
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1pr0h7…5ej8
+-Block 961,103
+-
+-To bc1q89tx…8ue8, bc1qju80…mfh5, bc1qnq55…rkva +397 more
+-
+-HOP 2
+-80f11c77…8cbf90
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qyhr4…k9jv
+-Block 961,093
+-
+-To bc1qy9u8…hrc6, bc1qg83g…lyd5, bc1qf35y…ad8k +499 more
++Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Surplus through a vault that still holds its reported balance, later peels through a hop after it already cashed out to a known exit, and CoinJoin-scale fan-outs are ignored.
+ 
+ HOP 1
+ 24ee02cf…7d11f2
+@@ -833,62 +798,6 @@
+ To bc1q55ll…g4q2
+ 
+ HOP 2
+-11a3edd2…df46c1
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1pyym5…hfw9
+-Block 961,084
+-
+-To bc1qqyk6…dyh2, bc1qqf2k…d8nc, bc1qz2yc…racr +380 more
+-
+-HOP 2
+-11a3edd2…df46c1
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qvznm…5t7e
+-Block 961,084
+-
+-To bc1qqyk6…dyh2, bc1qqf2k…d8nc, bc1qz2yc…racr +380 more
+-
+-HOP 2
+-11a3edd2…df46c1
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qyzsq…qvdx
+-Block 961,084
+-
+-To bc1qqyk6…dyh2, bc1qqf2k…d8nc, bc1qz2yc…racr +380 more
+-
+-HOP 2
+-3bdac8ed…cdf935
+-−54.31783009 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qajcr…2d3t
+-Block 961,082
+-
+-To bc1qq6s7…y2fr, bc1qp9cn…vyzf, bc1qsp57…c4ad +371 more
+-
+-HOP 2
+-65c79326…638de0
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1pxs72…0pct
+-Block 961,077
+-
+-To bc1qvsrp…93hs, bc1qwp64…y9kh, bc1qelpm…c5hg +332 more
+-
+-HOP 2
+-65c79326…638de0
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1q5h2t…22mf
+-Block 961,077
+-
+-To bc1qvsrp…93hs, bc1qwp64…y9kh, bc1qelpm…c5hg +332 more
+-
+-HOP 2
+-65c79326…638de0
+-−1.29140163 BTC
+-From Hop 2 from Hop 1 from Aug 2 vault bc1qtmwr…rwz8
+-Block 961,077
+-
+-To bc1qvsrp…93hs, bc1qwp64…y9kh, bc1qelpm…c5hg +332 more
+-
+-HOP 2
+ 93eeb9e7…d9fbc6
+ −1.29140163 BTC
+ From Hop 2 from Hop 1 from Aug 2 vault bc1qs0zc…l3n6
+@@ -896,14 +805,6 @@
+ 
+ To bc1qh6me…z56m
+ 
+-HOP 1
+-f3ee6e61…c37b24
+-−64.90373154 BTC
+-From Hop 1 from Aug 2 vault bc1pynd6…7h92
+-Block 961,069
+-
+-To bc1qajcr…2d3t, bc1qrrx3…hy4j, bc1qyzsq…qvdx +379 more
+-
+ e3274a1b…2b3ddf
+ −64.90373764 BTC
+ From Aug 2 vault bc1q0rvn…5q6m
+@@ -938,41 +839,6 @@
+ Block 961,064
+ 
+ To 334iKwmh…J6gB
+-
+-d969fd1c…7e16ef
+-−4.43721266 BTC
+-From P2TR vault bc1p0l0x…lk0h
+-Block 961,048
+-
+-To bc1prjnv…prpr
+-
+-92718385…cac6b9
+-−2.00018023 BTC
+-From P2TR vault bc1p0l0x…lk0h
+-Block 961,037
+-
+-To OP_RETURN messenger hub bc1q2nfx…kyyq
+-
+-2c7075a3…5012cc
+-−1.00017899 BTC
+-From P2TR vault bc1p0l0x…lk0h
+-Block 961,032
+-
+-To OP_RETURN messenger hub bc1qqa7p…36pr
+-
+-1a454301…c772c2
+-−2.00017714 BTC
+-From P2TR vault bc1p0l0x…lk0h
+-Block 961,026
+-
+-To OP_RETURN messenger hub bc1q2nfx…kyyq
+-
+-064eb61d…7ddd4f
+-−1.00017823 BTC
+-From P2TR vault bc1p0l0x…lk0h
+-Block 961,021
+-
+-To OP_RETURN messenger hub bc1qqa7p…36pr
+ 
+ 780ea043…cf0326
+ −0.01017904 BTC
+@@ -997,13 +863,6 @@
+ 
+ To bc1qq0j5…vfz9, bc1qhcpk…c3tl, 38maz2s8…erUH +13 more
+ 
+-23a84f33…bc709c
+-−2.81971503 BTC
+-From Wave 4 park 1N8knQCf…qfDo
+-Block 960,818
+-
+-To Coinbase Prime Custody bc1qdj58…60ms, bc1qa2xv…c3y9
+-
+ HOP 2
+ 24ed08ad…a7f583
+ −4.27762101 BTC
+@@ -1089,6 +948,21 @@
+ Block 960,661
+ 
+ To P2SH service hub 3KMmeqPe…qtc8
++
++5ecc3052…a8bf87
++−0.69135523 BTC
++From Aug 1 hop vault bc1qayw8…2u0s
++Block 960,658
++
++To bc1qsd9t…jah8, bc1qvrpc…cddc
++
++HOP 1
++135d4c2c…2d4ce9
++−0.241352 BTC
++From Hop 1 from Aug 1 hop vault bc1qvrpc…cddc
++Block 960,658
++
++To 36c8aprK…QW35
+ 
+ Am I at risk?
+ 
+@@ -1151,6 +1025,10 @@
+ 
+ Aug 3: ~0.51 BTC Chainabuse-corroborated P2TR sink plus two larger sibling Taproot consolidations (~36 + ~10 BTC) at ~5 sat/vB — distinct from Wave 4.
+ 
++@osint_based · P2TR later-vault ETH rail
++
++Aug 5: later P2TR vault cash-out — ~205 ETH via THORChain into 0x41B752… → 200 ETH Tornado Cash (2×100). Same Kelbie later vault (bc1p0l0…), not a new cluster; BTC→THOR amount/path soft through commingled hubs. ~4.44 BTC still parked on bc1prjnv….
++
+ Evan Schoenberg
+ 
+ Evening July 31 low-fee (~2 sat/vB) sweeps into a separate vault; Aug 1 hop consolidation (incl. delayed ~0.19 BTC) raised the watched cluster to ~1.20 BTC.

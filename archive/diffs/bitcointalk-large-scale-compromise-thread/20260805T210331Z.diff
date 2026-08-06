@@ -1,0 +1,220 @@
+--- bitcointalk-large-scale-compromise-thread@20260805T142758Z
++++ bitcointalk-large-scale-compromise-thread@20260805T210331Z
+@@ -3206,7 +3206,7 @@
+ .....
+ Gmaxwell detailed exactly what the ColdCard programmer(s) did wrong (https://bitcointalk.org/index.php?topic=5589927.msg66996519#msg66996519)
+ Letting such an amateur bug slip through into production software is beyond inexcusable. So they wrote a critical function selection process but never added a followup state check flag? When debugging the software they made no allowances to actually see what RNG was being used? They should be and probably will be massively sued.
+-When I used to write CNC code that used #define and #if/#ifndif to setup key functions I always followed it with 2 lines of code to act as a handshake to verify what I intended to run actually has been the one chosen and is the one running, if it wasn't it would throw a error about it. It just was common sense to do that and I'm not even a 'real' programmer as writing code was just part of what I did designing the systems we used to build. For someone who writes code for a living, not checking the state of critical functions is pure slop.
++When I used to write CNC code that used #define and #ifdef/#ifndef to setup key functions I always followed it with 2 lines of code to act as a handshake to verify what I intended to run actually has been the one chosen and is the one running, if it wasn't it would throw a error about it. It just was common sense to do that and I'm not even a 'real' programmer as writing code was just part of what I did designing the systems we used to build. For someone who writes code for a living, not checking the state of critical functions is pure slop.
+ Worse, others have pointed out that Coinkite was aware of something wrong long ago. They buried the reports. They also have a history of not paying any bug bounties which of course discourages knowledgeable folks from reviewing their code. Their code maybe 'Open View' but they made no effort to respond to any possible issues reported by anyone They never paid any 3rd party security org to certify their code & hardware. The list goes on and on for the probable grounds of lawsuits.
+ Title: Re: Large-scale Coldcard compromise (1128.47 BTC stolen so far)
+ Post by: JayJuanGee on August 05, 2026, 04:59:37 AM
+@@ -3414,5 +3414,208 @@
+ Each of them has about 40-50 addresses distributed along 2-3 derivation paths... I have more than 60 addresses with balance and used more than 100 (including the ones without balance)
+ And I still have ethereum and some tokens such as PAXG/XAUT. It will take some time to move all those coins which are in the wallet without a passphrase. But I think this is very important. I already set up a new hardware wallet and added a passphrase. I will move the funds soon.
+ You are right about being careful with consolidations. I will try not to spend too many addresses together, for privacy reasons
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Catenaccio on August 05, 2026, 02:32:43 PM
++Quote from: philipma1957 on August 03, 2026, 04:45:13 PM
++My advice is have a few setups and add strong passphrases
++I know the importance of wallet passphrase but honestly I don't know what are strong passphrases, could you help me with information about that or any resources for learning about that?
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++Like how many words are considered as strong enough for a wallet passphrase?
++No recommendation about that in Mastering Bitcoin book.
++https://github.com/bitcoinbook/bitcoinbook/blob/develop/ch05_wallets.adoc#optional-passphrase-in-bip39
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Comeacross on August 05, 2026, 02:40:48 PM
++Quote from: ovcijisir on August 04, 2026, 10:02:19 PM
++Be aware of fake Telegram groups, where they "help" with "wallet migration".
++Scam telegram groups:
++Code:
++https://t.me/coldcardREAL
++https://t.me/coldcardMigration
++These groups are swaming with scammers that want victims to use their malicious links:
++Code:
++https://swiftprotocolresolvers.web.app/
++http://migrate.coldcardfirmware.com
++https://m-coldcard.web.app
++https://dashboards.protocolsdata.workers.dev
++https://coldcard-en.web.app
++https://coldcard-devicenode.net/en/
++https://coldcard-audit.com
++https://dapplogin-connect.com
++https://t.me/AiCustomerSupport247_bot
++https://onchains-hub.vercel.app
++Do not enter seed words there! Do not send funds there! Do not download any software from there!
++Edit. Added new scams
++If any of the victim fall for this again, they probably should not have any business with Bitcoin.
++Scammers have no conscience indeed. If you can not sympathise with the victims, you should not attempt to steal more from them. Taking advantage of the hack to scam again is too devilish.
++These people don't deserve this. Their only mistake was using the device that aim to protect them now they are being punished for silly mistakes by devs.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: jayhex on August 05, 2026, 03:36:14 PM
++you jest but at least mtgox people got ~20% of their btc/bcash back
++[/quote]
++Yep and a long solid hodl so good they made nice money in fiat terms.
++[/quote]
++incorrect
++i think just like FTX they got 20% of the price at the time of theft. so no hodl, just 20% of what u lost at that time 5-6 or more years ago
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: FP91G on August 05, 2026, 03:51:06 PM
++MARA opens Slipstream to public as a free, permissionless Bitcoin transaction tool
++link (https://cryptobriefing.com/mara-slipstream-public-permissionless-bitcoin-service/)
++MARA Holdings has made its Slipstream transaction service free and open to the public, letting any Bitcoin user submit transactions directly through the company�s mining pool without touching the public mempool. The move turns a formerly restricted infrastructure tool into something any Bitcoin holder can use from a browser.
++The service is live at slipstream.mara.com, requires no client software, and carries no additional fees beyond standard Bitcoin network transaction costs.
++Quote
++For users using multi-signature configurations�common among Coldcard holders who share control of their funds across multiple devices�the slipstream process itself is fraught with risk. Publicly broadcasting a transaction reveals wallet keys and the spending details. An attacker with a corresponding vulnerable private key could detect this transaction, create a competing transaction with a higher fee, and exploit the Bitcoin network's "Replace-by-Fee" (RBF) feature to bypass the queue and steal funds before the original transaction is confirmed.
++MARA's Slipstream feature eliminates this window of vulnerability. Because the transaction never reaches the public mempool, the attacker sees neither the keys nor the spending details until MARA mines the coins in a confirmed block.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: hosemary on August 05, 2026, 03:55:15 PM
++Quote from: Catenaccio on Today at 02:32:43 PM
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++When it comes to the amount of entropy and the probability of being cracked, I don't see any difference between a passphrase and a password.
++It's simple. The more random characters you add to your passphrase, the higher entropy it provides.
++Assuming all the characters you used in your passphrase are completely random and have been drawn from the full set of printable ASCII characters, there are 95 possibilities for each character.
++For example, if your passphrase contains 10 random printable ASCII characters, there are 9510 possible combinations, which provide around 65.7 bits of entropy.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Cookdata on August 05, 2026, 04:10:09 PM
++Quote from: Catenaccio on Today at 02:32:43 PM
++Quote from: philipma1957 on August 03, 2026, 04:45:13 PM
++My advice is have a few setups and add strong passphrases
++I know the importance of wallet passphrase but honestly I don't know what are strong passphrases, could you help me with information about that or any resources for learning about that?
++If a scammer get access to your seed phrase and scan the wallet and see nothing on the wallet, they are not going to walk away immediately, they will try to guess right some common possible words which they know you might use as extension of your seed phrase. They are going to test words like your name, your child name or common strings you use for password, all of these are weak passphrase that scammer can guess right especially if the person knows much about you in detail. You should learn to use words that are uncommon that you can remember any time.
++Quote
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++I think that's because seed phrase that is generated with a secured entropy is safe for your Bitcoin that's why emphasis are not given to passphrase and some recommendations but it's something you can do. If not for Coldcard negligence, most people don't use passphrase unless they want to use it. Look at numbers of wallet that were swept, it shows most didn't use passphrase else the attacker wouldn't be able to access them.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Princess Leah on August 05, 2026, 04:53:08 PM
++Quote from: Cookdata on Today at 04:10:09 PM
++Quote from: Catenaccio on Today at 02:32:43 PM
++I know the importance of wallet passphrase but honestly I don't know what are strong passphrases, could you help me with information about that or any resources for learning about that?
++If a scammer get access to your seed phrase and scan the wallet and see nothing on the wallet, they are not going to walk away immediately, they will try to guess right some common possible words which they know you might use as extension of your seed phrase. They are going to test words like your name, your child name or common strings you use for password, all of these are weak passphrase that scammer can guess right especially if the person knows much about you in detail. You should learn to use words that are uncommon that you can remember any time.
++Quote
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++I think that's because seed phrase that is generated with a secured entropy is safe for your Bitcoin that's why emphasis are not given to passphrase and some recommendations but it's something you can do. If not for Coldcard negligence, most people don't use passphrase unless they want to use it. Look at numbers of wallet that were swept, it shows most didn't use passphrase else the attacker wouldn't be able to access them.
++A combination of aphabets, numbers and symbols is more better  for instance a common name like Grace or Paul Smith can be guessed correctly but a combination of a nickname number and symbols would be so tough to guess and it should be from 12 to 32 characters something like PsmithY@&80566@.
++Noticed how the characters contains upper and lowercase alphabets, that's to add extra strength to it and make it tough to decoded. People would begin to see the importance of adding extra security to their wallets by including a passphrase, those who did that to their wallets and also used multi sig wallets would be secured from hack.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: philipma1957 on August 05, 2026, 06:05:01 PM
++Quote from: Catenaccio on Today at 02:32:43 PM
++Quote from: philipma1957 on August 03, 2026, 04:45:13 PM
++My advice is have a few setups and add strong passphrases
++I know the importance of wallet passphrase but honestly I don't know what are strong passphrases, could you help me with information about that or any resources for learning about that?
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++Like how many words are considered as strong enough for a wallet passphrase?
++No recommendation about that in Mastering Bitcoin book.
++https://github.com/bitcoinbook/bitcoinbook/blob/develop/ch05_wallets.adoc#optional-passphrase-in-bip39
++I can talk to you about trezor as that is what I use.
++you can use up to 50 character length but don't lost it or you lose your funds.
++easy ways to make a good one.
++https://www.amazon.com/Abrrow-Scrabble-Symbols-Great-Pendants-Scrapbooking/dp/B077SDLMLL/ref=sr_1_36?
++above has
++0
++1
++2
++3
++4
++5
++6
++7
++8
++9
++-
+++
++/
++=                       that is 14 different characters
++put them in a bag all 14 shake pick 1 out write it on paper put it back
++shake bag  pick 1 out write it on paper put it back do this at least 16 times
++so 1/14 for each pick
++a single pick is 14 combos = shit
++2 picks is 14x14=196 combos =shit
++3 picks is 14x14x14=2,744  = shit
++4 pick is   14x14x14x14=38,416 =shit
++5 picks is 14x14x14x14x14=537,824 =shit
++6 picks is  14x14x14x14x14x14=7,529,536 =shit
++7 picks is  14x14x14x14x14x14x14=105,413,504 = meh yeah 105mill is meh
++8 picks is 14x14x14x14x14x14x14x14=1,475,789,056 = meh  yep 1.4bill is meh
++9 picks is  14x14x14x14x14x14x14x14x14= 20,661,046,784 = meh yep 20.6 billion is also meh
++10 picks is  289,254,654,,976              still meh yep 289 bill = so so
++11 picks is 4,049,565,169,664            this may give you enough time to move the coins out as you would not be the first wave of victims
++12 picks is 56,693,912,375,296          same here you would likely be a bit longer that the first wave.
++13 picks is             793,714,773,254,144         I still would want more then a 793 trillion set of protection
++14 picks is        11,112,006,825,558,016
++15 picks is   2,177,953,337,809,371,136
++16 picks is 30,491,346,729,331,195,904      this is 30 million times 1 trillion the weak hacked set on cold card was 1.1 trillion
++so this would be 30 million times harder to hit than the hack and you also have a seed in front of of it.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Meuserna on August 05, 2026, 06:17:30 PM
++Quote from: Catenaccio on Today at 02:32:43 PM
++Quote from: philipma1957 on August 03, 2026, 04:45:13 PM
++My advice is have a few setups and add strong passphrases
++I know the importance of wallet passphrase but honestly I don't know what are strong passphrases, could you help me with information about that or any resources for learning about that?
++It's easy to find resources to learn about passwords, how to create a strong password, but with passphrases I see very limited resources to learn and apply for my practice.
++Like how many words are considered as strong enough for a wallet passphrase?
++No recommendation about that in Mastering Bitcoin book.
++https://github.com/bitcoinbook/bitcoinbook/blob/develop/ch05_wallets.adoc#optional-passphrase-in-bip39
++Picking a Good BIP39 Passphrase or avoiding a bad one.
++A guide by the ultimate white-hat Bitcoiner, Crypto-Guide:
++https://www.youtube.com/watch?v=nhjq_1J0EbU&t=583s
++His youtube channel is one of the best. No fluff, no hype. Just serious security, well explained.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: suzanne5223 on August 05, 2026, 06:28:12 PM
++Quote from: abaeze on August 04, 2026, 03:39:59 PM
++Quote from: philipma1957 on August 04, 2026, 02:47:28 PM
++Quote from: asUHWEceyc on August 04, 2026, 01:18:16 PM
++This certainly appears to be an exit scam with good plausible deniability when you look back at JWWeatherman_ badgering coldcard to add external entropy via dice rolls to their quick start guide in the 2020-2021 period, which they refused to do.
++It also casts a shadow on their podcast promoters, who were most likely mere useful idiots.
++The company is obviously done, through reputational damage and/or lawsuits, but someone has the coins
++lets say inside job.
++the issue is any other wallet company can do the same.
++firmware 2027 for ledger makes a bug
++and in 2028 ledger hacked.
++right down the road.
++so  back to core only?
++since if core is bad it is all dead.
++The Coldcard hacking incident is actually challenging the entire Bitcoin ecosystem
++No, it actually challenges the hardware wallet ecosystem.
++Quote from: abaeze on August 04, 2026, 03:39:59 PM
++no one can say exactly what will happen in the future, but self-custody, which was people's last resort to keep their digital assets Bitcoin safe, is now distrusted.
++This is exactly why it is a challenge for the hardware sector to focus more on their product security and have more concern about every security flaw that's raised.
++Quote from: vapourminer on August 04, 2026, 05:28:10 PM
++Quote from: asUHWEceyc on August 04, 2026, 04:53:22 PM
++I can only recommend storing coins safely at MtGox, BTC-e or FTX at this time
++you jest but at least mtgox people got ~20% of their btc/bcash back
++Not everyone, though, because the final repayment deadline for Mt. Gox was postponed to October 31, 2026 (https://www.coindesk.com/markets/2025/10/27/mt-gox-delays-creditor-repayment-to-october-2026)
++Quote from: Lucius on August 04, 2026, 01:51:55 PM
++Quote from: MicroGuy on August 03, 2026, 05:24:21 PM
++What's wrong with a laminated paper wallet rolled up in a sealed PVC pipe filled with rice and buried in backyard?
++It's okay if you don't have a dog that likes to dig, and you haven't dug deep enough - or if you have a neighbor who watches you just for fun and decides to dig around your yard when you're not home. In addition, in some countries there are laws that say that the owner of the land is the owner of what is found up to a certain depth, and everything else is owned by the state. This is how they protect oil and gas deposits from ordinary people.
++The ground settles over time, so if you bury something to a depth of, say, half a meter, it will slowly sink over time, especially if the soil is moist and there is a lot of rainfall.
++I believe the major problem will be the neighbor who likes to watch for fun.
++According to my research, the country with the lowest owner legal depth is 32 feet / 10 meters, which is Japan (https://note.com/tomadoor/n/neb075b869a9d?hl=en), while the max depth a dog can dig is roughly 3-7 feet.
++Any depth thats dip to 15 feet deep is far below every active topsoil layer where earthworms and roots can cause slowly sink unless the object buried is something immensely heavy.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: pawel7777 on August 05, 2026, 07:54:42 PM
++Due to holiday, I'm a bit behind with all recent news including the coldcard vulnerability thing. But if I understand this correctly:
++- nobody "hacked" anything per se
++- the "hacker(s)" didn't have any contact with coldcard hardware
++- it's all a result of open source code flaw that nobody noticed for like 5 years.
++I read on social media that this type of flaw was almost impossible to notice for an untrained eye, so unless you're an expert, any self-inspection of the code would unlikely work.
++I guess there's a sad lesson to be learned here. Even an open source software that has been around for years cannot be trusted blindly.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: NotATether on August 05, 2026, 08:05:22 PM
++Quote from: OmegaStarScream on August 03, 2026, 07:54:52 PM
++Quote from: EstherBtc on August 03, 2026, 06:31:45 PM
++Found this on https://x.com/BitcoinNewsCom/status/2084273394229362780
++-snip-
++How would this work exactly? the KYC information are going to be cross checked against what exactly?
++A signed message is not going to work either. Someone who can access your funds, would also have the ability to sign a message...
++I understand the intention may be good but with no clear and straightforward way to know the rightful owners of those funds, whoever is going to do this will probably end up in legal trouble, or am I missing something here?
++It seems they don't care, their only idea it seems is to involve law enforcement and inshallah
++https://x.com/i/status/2084949932289765633
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Ambatman on August 05, 2026, 08:32:57 PM
++Quote from: pawel7777 on Today at 07:54:42 PM
++I guess there's a sad lesson to be learned here. Even an open source software that has been around for years cannot be trusted blindly.
++It wasn't necessarily an open source but a verifiable source code.
++And yeah open source doesn't mean it's bug free
++Even bugs were noticed in bitcoin years ago.
++And this would set a precedence for more to come.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

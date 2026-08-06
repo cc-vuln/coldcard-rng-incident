@@ -1,0 +1,508 @@
+{
+ "author": "Trezor",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 11,
+  "posts_observed": 54,
+  "replies_observed": 43,
+  "reply_cap": 500,
+  "screenshots_taken": 23,
+  "scroll_rounds": 7
+ },
+ "gaps": [
+  "'Show more' control present, not expanded"
+ ],
+ "posts": [
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:53Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "focal",
+   "status": "2084975929948766645",
+   "text": "Trezor devices are not affected by the Coldcard vulnerability.\n\nWe\u2019ve answered your key questions about who may need to move funds, how Trezor backups work, and how to avoid related scams.\n\nMore info: \nhttps://\ntrezor.io/blog/news/cold\ncard-vulnerability-trezor-devices-are-not-affected\n\u2026\n\nFull FAQ below  [1/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:54Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975932909948965",
+   "text": "1. Are Trezor devices affected by this incident?\n\nNo. Trezor devices are not affected by the Coldcard vulnerability. [2/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:54Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975935510462540",
+   "text": "2. What if I generated my wallet on a Coldcard and later restored it on a Trezor?\n\nYou're still affected. Restoring it on a Trezor doesn't fix the weak randomness used when the wallet was created. Generate a new wallet on your Trezor and safely move your funds. [3/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:55Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975938920390952",
+   "text": "3. If I send coins from an affected Coldcard wallet to a new Trezor address, are they safe?\n\nYes. Once confirmed, funds sent to a new wallet generated on Trezor are no longer controlled by affected Coldcard-generated keys. \n\nSimply restoring the Coldcard wallet on Trezor is not enough. The funds must be moved to a newly generated wallet. [4/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:56Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975941948731622",
+   "text": "4. Are older models such as Trezor Model One and Model T still safe?\n\nYes. Trezor Model One and Model T remain perfectly safe to use.\n\nThey combine randomness from the device and the host to generate the wallet. Trezor Safe 3 and Safe 5 add randomness from the Optiga secure element as well, while Trezor Safe 7 also includes TROPIC01 (mixes four sources).\n\nAll models generate at least 128-bit entropy under default settings. [5/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:56Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975944905736451",
+   "text": "5. Should I update my firmware and regenerate my Trezor seed?\n\nKeep your Trezor firmware updated, but this incident does not require Trezor users to regenerate wallets created on a Trezor. If your wallet was generated on an affected Coldcard, create a new wallet and move your funds. [6/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:57Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975947946532944",
+   "text": "6. How does Trezor\u2019s wallet generation differ from Coldcard\u2019s?\n\nTrezor does not rely on one source of entropy. It combines entropy from the device and host, with additional independent hardware sources on Trezor Safe models. Entropy Check provides another safeguard by making parts of this process verifiable.\n\nView more information below:\n\nhttps://\nx.com/tsusanka/statu\ns/2084249667504578691?s=20\n\u2026\n[7/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:58Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975951033561134",
+   "text": "7. Does Trezor use AI to audit its firmware?\n\nYes. Trezor uses automated tooling, including AI-assisted analysis, as one layer of code review.\n \nThis is used alongside human review, public open-source review, external audits, and Trezor\u2019s Bug Bounty Program. [8/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:59Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975954049266025",
+   "text": "8. Will Trezor add more support for dice rolls or change its default wallet format?\n\nWe are studying the lessons from this incident and considering additional safeguards, including support for user-supplied entropy. We cannot commit to a specific feature yet.\n\nThe central issue in this incident was not simply the availability of entropy, but whether the firmware correctly used it. [9/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:12:59Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975957085974629",
+   "text": "9. Would SLIP39 or multisig have prevented this issue?\n\nMultisig may reduce risk if the affected Coldcard key is only one part of the setup and the remaining keys are secure, but the exact impact depends on the multisig threshold and configuration. An affected key should still be replaced. [10/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:13:00Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "self-thread",
+   "status": "2084975959980089381",
+   "text": "10. Have any historical Trezor firmware versions had similar entropy problems?\n\nNo. Trezor\u2019s seed-generation code is continuously reviewed, publicly auditable and protected by multiple independent entropy sources, entropy checks, signed firmware and a bug bounty program. [11/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:13:01Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084975963503260096",
+   "text": "Security events often lead to phishing attempts designed to create fear and urgency.\n\nPlease remember:\n\n- Never share your wallet backup, aka recovery seed (12/20/24 words)\n- Only enter your wallet backup as instructed on your Trezor device. Never type it into a website, form, app or message\n\nMore info: \nhttps://\ntrezor.io/blog/news/cold\ncard-vulnerability-trezor-devices-are-not-affected\n\u2026\n[12/12]"
+  },
+  {
+   "author": "marber1111",
+   "created": "2026-08-05T12:14:56Z",
+   "media": 0,
+   "name": "Marber",
+   "role": "reply",
+   "status": "2084976447278473722",
+   "text": "I like you wallets. I\u2019ve played around with 4 of them. Very user friendly.\n\nPlease consider a wallet that integrates dice rolls, is air gapped and is bitcoin only. I will pay top dollar. (top sat)"
+  },
+  {
+   "author": "tobi_salami_",
+   "created": "2026-08-05T12:15:58Z",
+   "media": 0,
+   "name": "Tobi Salami",
+   "role": "reply",
+   "status": "2084976704582213949",
+   "text": "You guys are over communicating and I love it!"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:16:48Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084976915530526961",
+   "text": "Thank you for the kind words "
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:17:25Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084977070392725539",
+   "text": "Thank you for your feedback!"
+  },
+  {
+   "author": "eightlends",
+   "created": "2026-08-05T12:19:25Z",
+   "media": 0,
+   "name": "8lends",
+   "role": "reply",
+   "status": "2084977576364147045",
+   "text": "meanwhile hardware wallets still the only thing giving peace of mind\n\ntransparency like this matters"
+  },
+  {
+   "author": "satsklepter",
+   "created": "2026-08-05T12:23:04Z",
+   "media": 0,
+   "name": "satsklepter",
+   "role": "reply",
+   "status": "2084978493696123329",
+   "text": "thoughts ? \n@Dantoshi\n \n@Trezor\n \n@tsusanka"
+  },
+  {
+   "author": "MrPicule",
+   "created": "2026-08-05T12:23:36Z",
+   "media": 0,
+   "name": "mrpicule.eth",
+   "role": "reply",
+   "status": "2084978626420785261",
+   "text": "Always double-check your entropy sources, frens. Entropy is everything in this game."
+  },
+  {
+   "author": "FreedomMatt1",
+   "created": "2026-08-05T12:32:22Z",
+   "media": 0,
+   "name": "MattM",
+   "role": "reply",
+   "status": "2084980831966171348",
+   "text": "hope mine ships soon."
+  },
+  {
+   "author": "childofrose_",
+   "created": "2026-08-05T12:32:40Z",
+   "media": 0,
+   "name": "Child of Rose",
+   "role": "reply",
+   "status": "2084980908105568295",
+   "text": "I appreciate the clear guidance on how to protect my funds and avoid scams"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:38:34Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084982392851145165",
+   "text": "that's our job"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:39:24Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084982604021866563",
+   "text": "7. Does Trezor use AI to audit its firmware?\n\nYes. Trezor uses automated tooling, including AI-assisted analysis, as one layer of code review.\n \nThis is used alongside human review, public open-source review, external audits, and Trezor\u2019s Bug Bounty Program. [8/12]"
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:40:14Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084982814034862575",
+   "text": "it certainly will\n\nour team is hard at work "
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T12:40:30Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2084982881814798416",
+   "text": "always at your service"
+  },
+  {
+   "author": "Friedrich__Wil",
+   "created": "2026-08-05T13:03:23Z",
+   "media": 0,
+   "name": "F.W. NiChe",
+   "role": "reply",
+   "status": "2084988640665498088",
+   "text": "just add a passphrase & we are good to go"
+  },
+  {
+   "author": "ElToroBitcoin",
+   "created": "2026-08-05T13:20:29Z",
+   "media": 0,
+   "name": "Bitcoin Bull  \u221e/21M",
+   "role": "reply",
+   "status": "2084992944067518767",
+   "text": "When protection against anti-exfil and anti-klepto (nowadays Dark Skippy attack) ???"
+  },
+  {
+   "author": "FixxTheMoneyy",
+   "created": "2026-08-05T13:34:02Z",
+   "media": 0,
+   "name": "FixxTheMoney",
+   "role": "reply",
+   "status": "2084996352191148037",
+   "text": "Trezor is top 5 of all time and they're not 5..."
+  },
+  {
+   "author": "Linnalba",
+   "created": "2026-08-05T13:34:35Z",
+   "media": 0,
+   "name": "RealVitalik",
+   "role": "reply",
+   "status": "2084996491035263124",
+   "text": ""
+  },
+  {
+   "author": "BTCyberpunk",
+   "created": "2026-08-05T14:03:37Z",
+   "media": 0,
+   "name": "KIK3",
+   "role": "reply",
+   "status": "2085003798058016962",
+   "text": "I have a question: if a bug as poorly implemented as the one in the Coldcard firmware were present in Trezor, would all sources of entropy have been ignored, or would even if one source was affected, it would have combined with the others to achieve an optimal 128-bit result?"
+  },
+  {
+   "author": "anthAncze",
+   "created": "2026-08-05T14:08:51Z",
+   "media": 0,
+   "name": "Honza Jaro\u0161",
+   "role": "reply",
+   "status": "2085005115593798020",
+   "text": "And you're still haven't done a 5% discount promo with the code \"coldcard\", after COLDCARD attacked you on Twitter, it'd deserve a little payback in the morning."
+  },
+  {
+   "author": "qiangzi520",
+   "created": "2026-08-05T14:31:31Z",
+   "media": 0,
+   "name": "qiangziXEC",
+   "role": "reply",
+   "status": "2085010818798911657",
+   "text": "I also like trezor. I have many of your products and friends who have been recommended to me."
+  },
+  {
+   "author": "Trezor",
+   "created": "2026-08-05T14:32:44Z",
+   "media": 0,
+   "name": "Trezor",
+   "role": "reply",
+   "status": "2085011126937354296",
+   "text": ""
+  },
+  {
+   "author": "JJsPlayhouse",
+   "created": "2026-08-05T14:50:13Z",
+   "media": 0,
+   "name": "Crypto Noobs News",
+   "role": "reply",
+   "status": "2085015524874797069",
+   "text": "I've been using Trezor wallets for 10 years.  The only modification I've considered since the Coldcard hack is adding a random passphrase.  I think at least 7 random words will do the trick."
+  },
+  {
+   "author": "Le_Unsung_Hero",
+   "created": "2026-08-05T14:51:10Z",
+   "media": 0,
+   "name": "The Unsung Hero",
+   "role": "reply",
+   "status": "2085015762088206432",
+   "text": "I'm sold"
+  },
+  {
+   "author": "ZephyrCryptoX",
+   "created": "2026-08-05T14:54:35Z",
+   "media": 0,
+   "name": "Zephyr",
+   "role": "reply",
+   "status": "2085016625560924664",
+   "text": "Communication is appreciated. "
+  },
+  {
+   "author": "coinsigliere1",
+   "created": "2026-08-05T14:55:00Z",
+   "media": 0,
+   "name": "zec",
+   "role": "reply",
+   "status": "2085016728803909679",
+   "text": "Hi. I read from Trezor website that Trezor Safe 5 and Safe 3 use the OPTIGA Trust M (V3) Secure Element, but secure elements are closed sourced. So, could there be any risk for backdoor leakage of private keys?"
+  },
+  {
+   "author": "Nupezes8",
+   "created": "2026-08-05T14:57:53Z",
+   "media": 0,
+   "name": "Nupezes",
+   "role": "reply",
+   "status": "2085017452396650851",
+   "text": "Trezor for the win "
+  },
+  {
+   "author": "ikigaimaster",
+   "created": "2026-08-05T15:04:01Z",
+   "media": 0,
+   "name": "historylessons",
+   "role": "reply",
+   "status": "2085018997444227139",
+   "text": "what's the best method to generate a strong passphrase?"
+  },
+  {
+   "author": "Rkeyology",
+   "created": "2026-08-05T15:09:14Z",
+   "media": 1,
+   "name": "Rkeyology",
+   "role": "reply",
+   "status": "2085020309480984646",
+   "text": "Trezor when the heard about Coldcard knowing they\u2019re about to sell a lot of Safe 7s"
+  },
+  {
+   "author": "missteencrypto",
+   "created": "2026-08-05T15:14:38Z",
+   "media": 1,
+   "name": "Randi Hipper",
+   "role": "reply",
+   "status": "2085021668171186457",
+   "text": "Looking at other wallets like"
+  },
+  {
+   "author": "ElectronixGuru",
+   "created": "2026-08-05T15:37:48Z",
+   "media": 0,
+   "name": "electronixguru Win",
+   "role": "reply",
+   "status": "2085027499067560429",
+   "text": "Nicely done guys. Appreciate the professionalism"
+  },
+  {
+   "author": "mr_mustache___",
+   "created": "2026-08-05T15:42:45Z",
+   "media": 0,
+   "name": "Mustache",
+   "role": "reply",
+   "status": "2085028743697870982",
+   "text": "Are you hardening software by using AI to identify vulnerabilities and fixing them?"
+  },
+  {
+   "author": "Buhlahkay",
+   "created": "2026-08-05T15:43:34Z",
+   "media": 0,
+   "name": "Blake Lewis",
+   "role": "reply",
+   "status": "2085028952565756119",
+   "text": "Thank you for communicating throughout all of this!"
+  },
+  {
+   "author": "Mohamed4439970",
+   "created": "2026-08-05T16:50:08Z",
+   "media": 0,
+   "name": "CryptoAnalystX",
+   "role": "reply",
+   "status": "2085045704746308028",
+   "text": "great"
+  },
+  {
+   "author": "Black_ops221122",
+   "created": "2026-08-05T17:23:43Z",
+   "media": 0,
+   "name": "bingbang_theory12",
+   "role": "reply",
+   "status": "2085054152464302510",
+   "text": "Please add multisig feature to trezor suite app"
+  },
+  {
+   "author": "michal1980pl",
+   "created": "2026-08-05T18:09:09Z",
+   "media": 0,
+   "name": "Michal.BTC",
+   "role": "reply",
+   "status": "2085065589861593451",
+   "text": "Now emails full of scammers"
+  },
+  {
+   "author": "AxieSkoomaDealr",
+   "created": "2026-08-05T18:17:19Z",
+   "media": 0,
+   "name": "SkoomaLord",
+   "role": "reply",
+   "status": "2085067644127097323",
+   "text": "128 bits of entropy is  fine but is there a way to maximize it and get more entropy if we wanted?"
+  },
+  {
+   "author": "cluelessbru",
+   "created": "2026-08-05T18:35:26Z",
+   "media": 0,
+   "name": "\u20bfadru",
+   "role": "reply",
+   "status": "2085072201334595934",
+   "text": "Please hook up Trezor Safe 7 bumper covers. I understand one of the reasons of having a cold wallet is actually for others to NOT KNOW that you have one in the first place but, it's just that the design so good, one can't help but ogle at that ass (the back that is) Pls & Thank U"
+  },
+  {
+   "author": "AntoineDBTC",
+   "created": "2026-08-05T18:50:07Z",
+   "media": 1,
+   "name": "Antoine",
+   "role": "reply",
+   "status": "2085075898265444588",
+   "text": ""
+  },
+  {
+   "author": "picdoc581",
+   "created": "2026-08-05T20:33:57Z",
+   "media": 0,
+   "name": "picdoc581",
+   "role": "reply",
+   "status": "2085102027424633309",
+   "text": "Bravo!"
+  },
+  {
+   "author": "Viniciu96931330",
+   "created": "2026-08-05T22:12:39Z",
+   "media": 0,
+   "name": "Vini 4845",
+   "role": "reply",
+   "status": "2085126865337884767",
+   "text": "I love those OG Czechs behind Trezor and SatoshiLabs\u2014pure Bitcoin maximalists through and through"
+  },
+  {
+   "author": "joh5452",
+   "created": "2026-08-05T22:32:33Z",
+   "media": 0,
+   "name": "johnny iverson",
+   "role": "reply",
+   "status": "2085131876541374649",
+   "text": "Does trezor suite gather any of my personal data (ip address, xpubs, etc) if I only use it to update my firmware? I don't need it for any other purpose"
+  },
+  {
+   "author": "TroyLindsey",
+   "created": "2026-08-05T22:53:46Z",
+   "media": 0,
+   "name": "Troy Lindsey",
+   "role": "reply",
+   "status": "2085137214107717983",
+   "text": "You know what would be nice? If just maybe it wasn\u2019t closed-source code so we could verify that y\u2019all don\u2019t have a similar, hidden vulnerability. "
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2084975929948766645",
+ "url": "https://x.com/Trezor/status/2084975929948766645"
+}

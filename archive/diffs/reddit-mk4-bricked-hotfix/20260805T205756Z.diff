@@ -1,0 +1,94 @@
+--- reddit-mk4-bricked-hotfix@20260805T142307Z
++++ reddit-mk4-bricked-hotfix@20260805T205756Z
+@@ -568,3 +568,91 @@
+ edited: false
+ body:
+ Can you elaborate on the not open source claim? Because I dont quite follow the chain of thought there.
++
++comment: p1w7wm1
++parent: t1_p1uuiuf
++author: Yodel_And_Hodl_Mode
++created_utc: 1785950559
++edited: false
++body:
++Open source means anyone can read the code, and anyone can use the code in their own work. It's literally open to view, copy, use, work with, build on, etc.
++
++Bitcoin is open source.
++
++ColdCard was open source until March 2021, when the license for the code was changed from Open Source to "Source Verifiable."
++
++Source Verifiable meant anyone could read ColdCard's code, but other devs weren't legally allowed to use it in their own work.
++
++Since they weren't allowed to use it anymore, they didn't use it. And since they weren't using it in their own work, they weren't battle testing it through real world use. They weren't finding bugs, which left bugs unfound and thus not reported. That's why this devastating bug lasted in ColdCard's code for almost five and a half years.
++
++Other devs didn't have a reason to read ColdCard's code anymore, because as of March 2021, they weren't allowed to use it in their own work.
++
++Part of the reason there's so much confusion is because Coinkite, makers of ColdCard, falsely promoted their products as if they were open source. They didn't say there were open source, but they used other ways of saying it. That's why people think ColdCards are open source. They're not.
++
++comment: p1wgnsl
++parent: t1_p1w7wm1
++author: Charming-Designer944
++created_utc: 1785952701
++edited: false
++body:
++Thanks. Valid arguments, but I doubt there would had been a different outcome if the license did not have the non-competition clause.
++
++comment: p1wivih
++parent: t1_p140izw
++author: jdells59
++created_utc: 1785953249
++edited: false
++body:
++Other cases of catastrophic crashes. Don’t forget crowd strike two years ago. Impacted virtually the whole world. Microsoft involved too. Or Boeing software that killed people. Trust is earned back. Let’s hope coinkite can earn it back 
++
++comment: p1wt25k
++parent: t1_p1wgnsl
++author: Yodel_And_Hodl_Mode
++created_utc: 1785955776
++edited: false
++body:
++I strongly disagree.
++
++The first time a dev used that code with a wallet containing any different options for entropy (such as camera pixels), they'd have to edit that line of code, and they'd immediately have seen the bug. They'd surely have had a laugh and gotten in touch with Coinkite to let them know.
++
++The bug wasn't hidden. It's just that nobody but Coinkite had a reason to work with the code, so nobody found it.
++
++comment: p1xcuug
++parent: t1_p16hrku
++author: EyesFor1
++created_utc: 1785960902
++edited: false
++body:
++This is what I did out of an abundance of caution even thou I had used dice roll entropy. Sent to a new dice roll entropy wallet. Now I'm actively researching new hardware wallets, not rushing into anything but learning. Rushing is another proven way to loose funds. 
++
++comment: p1xdvg6
++parent: t1_p1wt25k
++author: Charming-Designer944
++created_utc: 1785961169
++edited: false
++body:
++Why would they need to edit which rng.c source file is used in the build?
++
++https://github.com/Coldcard/firmware/commit/ca72463709f4e3f8964952039d5caf955f566a87
++
++Mixing of RNG sources was done at a higher level by reseeding the micropython prng. Not by modifying the trng source. And yes they likely would had laughted at that part of the code,
++
++Its quite likely someone who rebuilds the coldcard firmware for another device first of all uses the same CPU. Second, if they dont then they address the TRNG integration strength directly in micropython instead of trying to override it with a separate copy of the source file.
++
++And if Coldcard had gone the open source path and sent their improvements to the micropython stm32 TRNG integration upstream directly instead of trying to work around the micropython build then this problem would never have arised.
++
++On the positive side this debacle triggered a more in depth review of the Coldcard entropy collection and more improvements seem to be coming than just enabling the stm32 TRNG. Like actually using the TRNG sources in the secure elements. But that part have not finalized yet.
++
++comment: p1xen2l
++parent: t1_p1xdvg6
++author: Yodel_And_Hodl_Mode
++created_utc: 1785961371
++edited: false
++body:
++> Why would they need to edit which rng.c source file is used in the build?
++
++I'm talking about devs using the code for their own work, not using it to just run ColdCard.
++
++I'll let an expert take a shot at explaining it:
++
++https://youtu.be/GQOoONFuDE0?si=5-ApnzdNYWery00F&t=272

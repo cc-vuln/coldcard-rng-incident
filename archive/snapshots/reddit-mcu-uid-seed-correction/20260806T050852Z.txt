@@ -1,0 +1,106 @@
+post: 1vg0nop
+author: opossum_cz
+created_utc: 1785915824
+title: ColdCard MCU UID is not part of the seed - stop repeating that nonsense
+body:
+It is one of the values that is used to generate the seed, but it is xored with timer value, RTC time, registers etc. It is used to get some entropy.
+
+If MCU UID is a part of the seed in any shape or form to tie generated seed to the device. It would be massive vulnerability, as everybody who gets ahold of your device (and especially the company itself which knows all MCU UIDs) would be able to lower the entropy of every seed key generated there by 32 bits immediately.
+
+comment: p1tbkht
+parent: t3_1vg0nop
+author: Javanaut018
+created_utc: 1785917094
+edited: false
+body:
+Doesn't matter if the UID (only the first 32 bit of it was used tho) is part of the generated key or used for the seed of the RNG. As the RNG is fully known, it really only depends on the set of input parameters that flowed into the private key making process.
+
+You just need to test all possible or at least all probable input arguments to the generation chain and ka-chinnng! there it comes.
+
+This is the big difference to TRNG units. They draw randomness from non-deterministic processes like noising amplifiers or chirping ring-oscillators, things that are physically governed by the butterfly effect. Such unit run for a couple of milliseconds and then start to throw out randomized numbers with 100% maxed out entropy. Impossible to guess on that.
+
+Also ppl tend to underestimate how vast key spaces are and have to be. The collapsed key space of the weak RNG chain in the device compared to the full 256-bit space is more or less like 1 atom in the whole milky way. Thats why such attack was feasible in the first place.
+
+Sad double so that such perfectly working TRNG is on all affected devices. It was only forgotten to plug it in ...
+
+comment: p1u2pvr
+parent: t3_1vg0nop
+author: frugaleringenieur
+created_utc: 1785929305
+edited: false
+body:
+As long as you can fix all the other constants (which could be possible in the 40 bits hack) and the MCU UID is XORED against it, you could reliably identify a physical accessed Coldcard Mk3 as a victim.
+
+This is of importance for recovery of funds - if ever.
+
+comment: p1u7dra
+parent: t1_p1u2pvr
+author: opossum_cz
+created_utc: 1785931011
+edited: false
+body:
+What constants? Those are variables! You would need timer value and RTC time at minimal. And it is xored, so it is not like you can derived it easily.
+
+comment: p1u8qkz
+parent: t1_p1u7dra
+author: frugaleringenieur
+created_utc: 1785931486
+edited: false
+body:
+Sorry, I need to clarify my earlier point because you're actually right on the core technical issue.
+
+After digging into the source code and the Block Engineering analysis, here's what I should have said more clearly:
+
+1. The MCU UID is XORed with volatile timer values (SysTick, RTC->TR, RTC->SSR) — it's not baked into the seed as a device fingerprint
+
+2. Those timer values are lost on power-off, they cannot be recovered from the device, even with physical access
+
+3. This means the UID cannot prove when a seed was generated, even for law enforcement or insurance purposes
+
+Where I was trying to go (but didn't articulate well):
+
+\- The \~40-bit search space on Mk3 is brute-forceable (\~1 trillion candidates)
+
+\- However, seed collisions occur, roughly 1 duplicate per 1.3M generations under the 40-bit model
+
+\- This means the same seed could be generated at multiple different boot times with different timer values
+
+\- So even if you brute-force matching timer states, you get multiple valid timestamps, not one provable moment
+
+Victims cannot cryptographically prove:
+
+\- When their seed was generated
+
+\- That their specific device created it (beyond circumstantial evidence)
+
+\- A unique timestamp for legal/insurance purposes
+
+You called it correctly: the UID being XORed with variables means it doesn't tie seeds to devices in a forensically recoverable way. I should have been clearer that this actually hurts victims' ability to prove ownership/timing, not helps it.
+
+Thanks for pushing back on this, precision matters here.
+
+comment: p1wxaxx
+parent: t1_p1u8qkz
+author: opossum_cz
+created_utc: 1785956853
+edited: false
+body:
+Yes. You described it pretty well. Several devices could generate same seed under these conditions and depending on the exact entropy, number of seeds generated and birthday paradox properties, there may have been actual collisions. (Somebody else can calculate the probability.)
+
+comment: p1y70jo
+parent: t1_p1wxaxx
+author: frugaleringenieur
+created_utc: 1785969422
+edited: false
+body:
+Saw such a calculation on X and chance is around 50%; and there was a suspected case reported \~2 years ago.
+
+comment: p1z7f2w
+parent: t3_1vg0nop
+author: nullc
+created_utc: 1785981257
+edited: false
+body:
+It would be prudent to remind people here that there are still a lot of vulnerable funds that could be saved and that it would be anti-social to explain how to reduce the search space of coldcard devices just to brag about how smart you are, or show that some rando was wrong on the internet.
+
+Plenty of other people could be posting about the *exact* search space needed to enumerate vulnerable seeds and are kindly refraining from doing so.  Just because you could figure out that doesn't mean that every would be coin-thief is going to figure it out before the owners sweep their coins.

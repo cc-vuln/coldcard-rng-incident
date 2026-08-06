@@ -1,0 +1,333 @@
+From 81f56afed191e32a3a870d1c60c6f5171de1c378 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Sat, 1 Aug 2026 13:12:55 +0200
+Subject: [PATCH 1/3] bugfix: detect RNG_SR_SEIS and RNG_SR_SECS, retry safely,
+ and fail closed on persistent faults
+---
+ releases/Next-ChangeLog.md |  2 +-
+ shared/keyboard.py         |  7 +++-
+ shared/mempad.py           |  7 +++-
+ stm32/COLDCARD_MK4/rng.c   | 74 ++++++++++++++++++++++++++++++--------
+ stm32/mk4-bootloader/rng.c | 56 ++++++++++++++++++++++-------
+ 5 files changed, 117 insertions(+), 29 deletions(-)
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index 2bfd7e8b1..a1f1d1b19 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -4,7 +4,7 @@ This lists the new changes that have not yet been published in a normal release.
+ # Shared Improvements - Both Mk and Q
+-- tbd
++- Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ # Mk Specific Changes
+diff --git a/shared/keyboard.py b/shared/keyboard.py
+index b9296e98f..9f254d711 100644
+--- a/shared/keyboard.py
++++ b/shared/keyboard.py
+@@ -97,7 +97,12 @@ def _wait_any(self):
+     def _start_scan(self):
+         # reset and re-start scanning keys
+         self.lp_time = utime.ticks_ms()
+-        shuffle(self.scan_order)
++        try:
++            shuffle(self.scan_order)
++        except OSError:
++            # An RNG fault may reduce scan-order randomization, but must not
++            # prevent the keyboard from accepting input before login.
++            pass
+         self._scan_count = 0
+         self.waiting_for_any = False
+diff --git a/shared/mempad.py b/shared/mempad.py
+index 661a0e5c9..e47343fb8 100644
+--- a/shared/mempad.py
++++ b/shared/mempad.py
+@@ -81,7 +81,12 @@ def _start_scan(self):
+         # reset and re-start scanning keys
+         self.waiting_for_any = False
+         self.lp_time = utime.ticks_ms()
+-        shuffle(self.scan_order)
++        try:
++            shuffle(self.scan_order)
++        except OSError:
++            # An RNG fault may reduce scan-order randomization, but must not
++            # leave the keypad disabled before the user can log in.
++            pass
+         self._scan_count = 0
+         self._history = bytearray(NUM_ROWS * NUM_COLS)
+diff --git a/stm32/COLDCARD_MK4/rng.c b/stm32/COLDCARD_MK4/rng.c
+index 00e3d203a..c95eaccb0 100644
+--- a/stm32/COLDCARD_MK4/rng.c
++++ b/stm32/COLDCARD_MK4/rng.c
+@@ -31,6 +31,7 @@
+  */
+ #include <string.h>
++#include <stdbool.h>
+ #include "py/obj.h"
+ #include "py/runtime.h"
+@@ -46,36 +47,81 @@ void random_buffer(uint8_t *p, size_t count);
+ static void rng_init(void) {
+     if (!(RNG->CR & RNG_CR_RNGEN)) {
+         __HAL_RCC_RNG_CLK_ENABLE();
+-
+         RNG->CR |= RNG_CR_RNGEN;
+-
+-        // TODO: throw out some samples?
+     }
+ }
+-
+-#define RNG_TIMEOUT_MS (10)
++#define RNG_TIMEOUT_MS      (10)
++#define RNG_MAX_ATTEMPTS    (3)
++#define RNG_SEED_ERROR_MASK (RNG_SR_SEIS | RNG_SR_SECS)
+ static uint32_t last_value;
+-static uint32_t rng_get_or_fault(void)
++// Recover from a seed error.
++static void rng_recover(void)
+ {
+-    // Enable the RNG peripheral if it's not already enabled
+-    rng_init();
++    // Ensure the peripheral is clocked before touching its registers.
++    __HAL_RCC_RNG_CLK_ENABLE();
++
++    // Clear sticky SEIS, then cycle RNGEN per the STM32L4 recovery sequence.
++    RNG->SR &= ~RNG_SR_SEIS;
++    RNG->CR &= ~RNG_CR_RNGEN;
++    RNG->CR |= RNG_CR_RNGEN;
++}
+-    // Wait for a new random number to be ready, takes on the order of 10us
++// Make one bounded attempt to obtain a trustworthy, non-zero word.
++static bool rng_try_once(uint32_t *value)
++{
+     uint32_t start = HAL_GetTick();
+-    while (!(RNG->SR & RNG_SR_DRDY)) {
++    // Seed errors can suppress DRDY, so check for them while polling.
++    while (1) {
++        uint32_t sr = RNG->SR;
++
++        if (sr & RNG_SEED_ERROR_MASK) {
++            return false;
++        }
++
++        if (sr & RNG_SR_DRDY) {
++            break;
++        }
++
+         if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) {
+-            // hardware failure... do not return anything!
+-            mp_raise_OSError(MP_EFAULT);
++            return false;
+         }
+     }
+-    // Get and return the new random number
+-    last_value = RNG->DR;
++    uint32_t sample = RNG->DR;
++
++    // Recheck after reading DR to close the polling race; zero is also suspect.
++    if (!sample || (RNG->SR & RNG_SEED_ERROR_MASK)) {
++        return false;
++    }
++
++    *value = sample;
++    return true;
++}
++
++static uint32_t rng_get_or_fault(void)
++{
++    rng_init();
++
++    // Retry transient failures, recovering only between attempts.
++    for (int attempt = 0; attempt < RNG_MAX_ATTEMPTS; attempt++) {
++        uint32_t value;
++
++        if (rng_try_once(&value)) {
++            last_value = value;
++            return last_value;
++        }
++
++        if (attempt + 1 < RNG_MAX_ATTEMPTS) {
++            rng_recover();
++        }
++    }
++    // Persistent hardware failure: never return suspect randomness.
++    mp_raise_OSError(MP_EFAULT);
+     return last_value;
+ }
+diff --git a/stm32/mk4-bootloader/rng.c b/stm32/mk4-bootloader/rng.c
+index 53d6ecd34..bc7e15b85 100644
+--- a/stm32/mk4-bootloader/rng.c
++++ b/stm32/mk4-bootloader/rng.c
+@@ -6,7 +6,21 @@
+ #include "basics.h"
+ #include "stm32l4xx_hal.h"
++#define RNG_MAX_ATTEMPTS (3)
++#define RNG_SEED_ERROR_MASK (RNG_SR_SEIS | RNG_SR_SECS)
++// Recover from a seed error.
++static void
++rng_recover(void)
++{
++    // Ensure the peripheral is clocked before touching its registers.
++    __HAL_RCC_RNG_CLK_ENABLE();
++
++    // Clear sticky SEIS, then cycle RNGEN per the STM32L4 recovery sequence.
++    RNG->SR &= ~RNG_SR_SEIS;
++    RNG->CR &= ~RNG_CR_RNGEN;
++    RNG->CR |= RNG_CR_RNGEN;
++}
+ // rng_setup()
+ //
+@@ -47,25 +61,43 @@ rng_sample(void)
+ {
+     static uint32_t last_rng_result;
+-    while(1) {
+-        // Check if data register contains valid random data
+-        while(!(RNG->SR & RNG_FLAG_DRDY)) {
+-            // busy wait; okay to get stuck here... better than failing.
+-        }
++    // Attempts bound seed-error recovery; DRDY polling remains intentionally unbounded.
++    for(int attempt = 0; attempt < RNG_MAX_ATTEMPTS; attempt++) {
++        while(1) {
++            uint32_t sr = RNG->SR;
+-        // Get the new number
+-        uint32_t rv = RNG->DR;
++            if(sr & RNG_SEED_ERROR_MASK) {
++                break;
++            }
+-        if(rv != last_rng_result && rv) {
+-            last_rng_result = rv;
++            if(!(sr & RNG_FLAG_DRDY)) {
++                // Missing clocks are a hard failure. Preserve the existing
++                // fail-closed behaviour and wait rather than use bad data.
++                continue;
++            }
+-            return rv;
++            uint32_t rv = RNG->DR;
++
++            // Recheck after reading DR to close the documented polling race.
++            if(RNG->SR & RNG_SEED_ERROR_MASK) {
++                break;
++            }
++
++            if(rv != last_rng_result && rv) {
++                last_rng_result = rv;
++
++                return rv;
++            }
++
++            // Zero or repeat: poll for another word without consuming an attempt.
+         }
+-        // keep trying if not a new number
++        if(attempt + 1 < RNG_MAX_ATTEMPTS) {
++            rng_recover();
++        }
+     }
+-    // NOT-REACHED
++    fatal_error("rng");
+ }
+ // rng_buffer()
+From c608e96d5d8be23b949e76fe2fcd0b14047791c0 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Tue, 4 Aug 2026 10:42:38 +0200
+Subject: [PATCH 2/3] docs: why RNG clock errors don't invalidate RNG_DR
+---
+ stm32/COLDCARD_MK4/rng.c   | 7 +++++++
+ stm32/mk4-bootloader/rng.c | 8 ++++++++
+ 2 files changed, 15 insertions(+)
+diff --git a/stm32/COLDCARD_MK4/rng.c b/stm32/COLDCARD_MK4/rng.c
+index c95eaccb0..0ed77427b 100644
+--- a/stm32/COLDCARD_MK4/rng.c
++++ b/stm32/COLDCARD_MK4/rng.c
+@@ -53,6 +53,13 @@ static void rng_init(void) {
+ #define RNG_TIMEOUT_MS      (10)
+ #define RNG_MAX_ATTEMPTS    (3)
++
++// Clock-error flags (CEIS/CECS) are intentionally ignored: per RM0432
++// section 32.3.7, "the clock error has no impact on generated random
++// numbers", and ST's errata (ES0250/ES0335) confirm a clock error neither
++// stops generation nor invalidates RNG_DR when DRDY is set. A dead clock
++// still fails closed via the DRDY timeout below. CEIS is left set on
++// purpose: clearing it is a no-op while RNG interrupts stay disabled.
+ #define RNG_SEED_ERROR_MASK (RNG_SR_SEIS | RNG_SR_SECS)
+ static uint32_t last_value;
+diff --git a/stm32/mk4-bootloader/rng.c b/stm32/mk4-bootloader/rng.c
+index bc7e15b85..c381d3d14 100644
+--- a/stm32/mk4-bootloader/rng.c
++++ b/stm32/mk4-bootloader/rng.c
+@@ -7,6 +7,14 @@
+ #include "stm32l4xx_hal.h"
+ #define RNG_MAX_ATTEMPTS (3)
++
++// Clock-error flags (CEIS/CECS) are intentionally ignored: per RM0432
++// section 32.3.7, "the clock error has no impact on generated random
++// numbers", and ST's errata (ES0250/ES0335) confirm a clock error neither
++// stops generation nor invalidates RNG_DR when DRDY is set. A dead clock
++// still fails closed via the intentionally unbounded DRDY wait below.
++// CEIS is left set on purpose: clearing it is a no-op while RNG interrupts
++// stay disabled.
+ #define RNG_SEED_ERROR_MASK (RNG_SR_SEIS | RNG_SR_SECS)
+ // Recover from a seed error.
+From fb5e69d489b73821166a88913985b16e2052b412 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Tue, 4 Aug 2026 11:16:19 +0200
+Subject: [PATCH 3/3] rng: discard 12 words after SEIS clear per RM0432 32.3.7
+---
+ stm32/COLDCARD_MK4/rng.c   | 21 ++++++++++++++++++++-
+ stm32/mk4-bootloader/rng.c | 14 +++++++++++++-
+ 2 files changed, 33 insertions(+), 2 deletions(-)
+diff --git a/stm32/COLDCARD_MK4/rng.c b/stm32/COLDCARD_MK4/rng.c
+index 0ed77427b..5e05fd7b0 100644
+--- a/stm32/COLDCARD_MK4/rng.c
++++ b/stm32/COLDCARD_MK4/rng.c
+@@ -70,10 +70,29 @@ static void rng_recover(void)
+     // Ensure the peripheral is clocked before touching its registers.
+     __HAL_RCC_RNG_CLK_ENABLE();
+-    // Clear sticky SEIS, then cycle RNGEN per the STM32L4 recovery sequence.
++    // Clear sticky SEIS and cycle RNGEN (ST HAL recommendation).
+     RNG->SR &= ~RNG_SR_SEIS;
+     RNG->CR &= ~RNG_CR_RNGEN;
+     RNG->CR |= RNG_CR_RNGEN;
++
++    // RM0432 32.3.7: after clearing SEIS, read out 12 words from RNG_DR and
++    // discard each of them to clean the pipeline of pre-error residue.
++    // Bounded: if the error recurs or DRDY stops arriving, bail out and let
++    // the next attempt's flag checks and DRDY timeout handle it.
++    for (int i = 0; i < 12; i++) {
++        uint32_t start = HAL_GetTick();
++
++        while (!(RNG->SR & RNG_SR_DRDY)) {
++            if (RNG->SR & RNG_SEED_ERROR_MASK) {
++                return;
++            }
++            if (HAL_GetTick() - start >= RNG_TIMEOUT_MS) {
++                return;
++            }
++        }
++
++        (void)RNG->DR;
++    }
+ }
+ // Make one bounded attempt to obtain a trustworthy, non-zero word.
+diff --git a/stm32/mk4-bootloader/rng.c b/stm32/mk4-bootloader/rng.c
+index c381d3d14..5544c734c 100644
+--- a/stm32/mk4-bootloader/rng.c
++++ b/stm32/mk4-bootloader/rng.c
+@@ -24,10 +24,22 @@ rng_recover(void)
+     // Ensure the peripheral is clocked before touching its registers.
+     __HAL_RCC_RNG_CLK_ENABLE();
+-    // Clear sticky SEIS, then cycle RNGEN per the STM32L4 recovery sequence.
++    // Clear sticky SEIS and cycle RNGEN (ST HAL recommendation).
+     RNG->SR &= ~RNG_SR_SEIS;
+     RNG->CR &= ~RNG_CR_RNGEN;
+     RNG->CR |= RNG_CR_RNGEN;
++
++    // RM0432 32.3.7: discard 12 words to clean the pipeline. The DRDY wait
++    // stays unbounded like rng_sample(): a dead clock remains a hard
++    // fail-closed wait; a recurring seed error bails to the next attempt.
++    for(int i = 0; i < 12; i++) {
++        while(!(RNG->SR & RNG_FLAG_DRDY)) {
++            if(RNG->SR & RNG_SEED_ERROR_MASK) {
++                return;
++            }
++        }
++        (void)RNG->DR;
++    }
+ }
+ // rng_setup()

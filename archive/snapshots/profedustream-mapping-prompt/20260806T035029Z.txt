@@ -1,0 +1,95 @@
+Build a single self-contained HTML file (inline CSS + JS, no CDN, no build step, no
+external requests) that loads and edits a Bitcoin transaction-graph "view" file.
+Light theme only. All UI text in French.
+## Input format
+The user imports a JSON file with this shape (values are in satoshis):
+{
+  "v": 2,
+  "ts": 1785703805937,              // epoch ms, save timestamp
+  "name": "Affichage 2",
+  "root": "<address>",              // the focus address of the graph
+  "graph": {
+    "nodes": [
+      {
+        "i": "<id>",                // address string, OR "tx:<txid>" for tx nodes
+        "t": "address" | "tx",
+        "x": 15, "y": 2,            // canvas coordinates (may be negative)
+        "r": true,                  // optional: this is the root node
+        "e": true,                  // optional: already expanded
+        "k": 37,                    // opaque weight/degree, preserve as-is
+        "s": 67622305,              // optional: amount in sats (address nodes)
+        "m": {}                     // metadata; for t=="tx" it holds the full tx:
+                                    // { tx: { hash, time, blockNumber, fee, size,
+                                    //   inputs:[{address,value,coinbase}],
+                                    //   outputs:[{address,value}],
+                                    //   totalIn, totalOut, isCoinbase },
+                                    //   time, fee, block, totalIn, totalOut, nIn, nOut }
+                                    // for the root node it may hold { dirs:{in,out} }
+      }
+    ],
+    "links": [
+      {
+        "s": "<source node id>",
+        "d": "<dest node id>",
+        "k": "flow" | "txflow",     // "flow" = address→address (tx hidden);
+                                    // "txflow" = address→tx or tx→address
+        "v": 67622305,              // value in sats
+        "t": [ { hash, time, value, blockNumber } ]   // contributing transactions
+      }
+    ]
+  },
+  "view": {
+    "scale": 1.47, "offsetX": 120.4, "offsetY": -42.4,
+    "layout": "organique",
+    "showTx": true,
+    "highlight": null
+  },
+  "ui": {                            // checkbox / slider state, all optional
+    "opt-max": "50", "opt-min": "0", "opt-cp": "40", "opt-tx": "50",
+    "opt-cluster": true, "opt-change": false, "opt-balance": true, "opt-persist": true,
+    "d-labels": true, "d-amounts": true, "d-cluster": true, "d-tx": true, "d-min": "0"
+  }
+}
+Note that the same edge often appears twice: once as a direct "flow" link
+address→address, and once as the pair of "txflow" links address→tx→address.
+## Required features
+1. **Import**: file picker + drag-and-drop anywhere on the page. Validate `v`, show a
+   clear French error if the file is malformed. Also accept pasted JSON.
+2. **Render**: draw the graph on a `<canvas>` (or SVG) using each node's `x`/`y`.
+   - Address nodes: rounded rectangles / circles, radius scaled by `s` (log scale).
+   - The root node (`r: true`) is visually distinct and always on top.
+   - Tx nodes: small diamonds, shown only when `view.showTx` is on.
+   - Edges: curved lines, thickness scaled by `v` (log scale), with an arrowhead
+     pointing to `d`. When tx nodes are hidden, draw the `"flow"` links; when shown,
+     draw the `"txflow"` links instead — never both at once.
+3. **Direct manipulation**:
+   - Drag any node with the mouse; its `x`/`y` update live and edges follow.
+   - Multi-select with a rubber-band rectangle + Shift-click; drag the whole selection.
+   - Pan by dragging the background, zoom with the mouse wheel around the cursor;
+     both write back to `view.offsetX/offsetY/scale`.
+   - Double-click a node to center on it; Delete removes the selected nodes and any
+     link that references them.
+   - Ctrl+Z / Ctrl+Y undo-redo for moves and deletions (keep at least 50 steps).
+4. **Inspector panel** (right side): on hover show a tooltip; on click show a details
+   pane — for an address: the full address, a copy button, the amount in BTC
+   (sats / 1e8, 8 decimals) and in sats, the number of in/out links; for a tx node:
+   txid with copy button, block height, date (from `time`, epoch ms, local format),
+   fee, size, and the full input/output lists with amounts.
+5. **Controls panel** (left side), each bound to the corresponding `ui` key:
+   - toggle labels (`d-labels`), amounts (`d-amounts`), tx nodes (`d-tx` / `showTx`)
+   - a minimum-amount slider (`d-min`) that hides nodes/links below the threshold
+   - a search box that filters and highlights nodes by address substring
+   - layout buttons: keep saved positions (default), plus "organique"
+     (force-directed relax) and "radial" (root at center, others by rank) — layout
+     only rewrites `x`/`y`, it never changes nodes or links.
+6. **Export**: a "Enregistrer" button that downloads the JSON in the *exact same
+   schema*, with updated `x`/`y`, `view`, `ui`, and a refreshed `ts`. Preserve every
+   field you did not modify — including `m`, `k`, `e`, and the full `t` arrays —
+   byte-for-byte in value. Keep the same 1-space indentation style. Default filename
+   `affichage-<name>.json`.
+7. **Robustness**: handle 500+ nodes smoothly (skip off-screen drawing, throttle
+   redraws with requestAnimationFrame). Tolerate missing optional fields (`s`, `e`,
+   `r`, `ui`, `view`) with sane defaults. Never mutate the imported object in place
+   before a successful parse.
+Amounts must always be displayed in BTC with the sats value available on hover.
+Deliver one file, ready to open with a double-click.

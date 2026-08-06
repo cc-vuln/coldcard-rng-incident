@@ -1285,3 +1285,138 @@
 ## 20260805T144814Z
 
 - coldcard-hack-tracker  +14 -1
+
+## 20260805T154825Z
+
+- coldcard-hack-tracker  +1 -1
+- cktripwire-honeypot-monitor  +11 -0
+
+## 20260805T164837Z
+
+- coldcard-hack-tracker  +5 -13
+
+## 20260805T174839Z
+
+- coldcard-hack-tracker  +17 -1
+
+## 20260805T184901Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+- coldcard-hack-tracker  +8 -8
+- cktripwire-honeypot-monitor  +5 -22
+
+## 20260805T194919Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260805T204956Z
+
+- coldcard-hack-tracker  +21 -5
+- cktripwire-honeypot-monitor  +63 -28
+- hn-dettmer-writeup-thread  +10 -7
+- unchained-help-replace-keys  +3 -3
+- casa-blog-index  +2 -2
+- reddit-ai-discovery-thread  +52 -32
+- stackernews-first-drain-report  +28 -28
+- stackernews-boltz-zeuslsp-shutdown  +7 -7
+- reddit-do-not-dispose-device  +8 -0
+- reddit-shipments-halted-relay  +3 -3
+- reddit-mk4-bricked-hotfix  +88 -0
+- reddit-coinkite-solvency-class-action  +8 -0
+- reddit-coinkite-done-for  +34 -0
+- reddit-mk3-advisory-relay  +2 -10
+- reddit-0-7-btc-drained  +46 -0
+- reddit-white-hat-drains-relay  +10 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-trezor-user-alert-email  +8 -0
+- reddit-cash-out-forensics-question  +24 -0
+- reddit-passphrase-vulnerable-question  +10 -0
+- reddit-hardware-wallet-comparison  +4 -4
+- reddit-bought-last-week  +0 -8
+- reddit-secure-btc-after-incident  +0 -8
+- reddit-best-way-keep-safe  +8 -0
+- reddit-lost-one-bitcoin-victim  +12 -6
+- reddit-self-custody-to-etf  +16 -0
+- reddit-future-of-bitcoin-debate  +0 -8
+- reddit-coinkite-options-after-disclosure  +10 -0
+- bitcointalk-large-scale-compromise-thread  +204 -1
+- reddit-im-out  +36 -0
+- reddit-self-custody-dagger  +12 -19
+- reddit-hacker-still-progressing  +257 -326
+- reddit-not-your-keys-not-your-coins  +42 -0
+- reddit-coldcard-misinformation-warning  (first capture)
+- optech-416  +0 -6
+- cryptonews-build-error-38m  +1 -366
+- ncfacanada-self-custody-commentary  +23 -23
+- reddit-q-repurpose  +16 -8
+- reddit-unused-coldcard-collectible  +16 -0
+- reddit-ceo-anthropic-hack-challenge  +82 -90
+- reddit-btc-price-holding-up  +10 -0
+- reddit-throw-away-coldcard  +0 -8
+- reddit-jade-passphrase-safety  +39 -0
+- reddit-inside-job-speculation  +8 -0
+- reddit-multisig-only-way  +8 -0
+- newsbitcom-class-action-threat  +34 -34
+
+## 20260805T215025Z
+
+- coldcard-hack-tracker  +22 -6
+- cktripwire-honeypot-monitor  +35 -39
+
+## 20260805T225045Z
+
+- coldcard-hack-tracker  +16 -8
+
+## 20260805T235058Z
+
+- coldcard-hack-tracker  +8 -7
+- cktripwire-honeypot-monitor  +18 -11
+
+## 20260806T015129Z
+
+- coldcard-hack-tracker  +34 -156
+- cktripwire-honeypot-monitor  +19 -12
+
+## 20260806T025149Z
+
+- cktripwire-honeypot-monitor  +2 -2
+
+## 20260806T032202Z
+
+- coldcard-firmware-pr-691-patch  +2 -2
+- reddit-ai-discovery-thread  +14 -24
+- stackernews-first-drain-report  +84 -70
+- reddit-do-not-dispose-device  +8 -0
+- reddit-still-using-coldcard  +8 -0
+- reddit-mk4-bricked-hotfix  +8 -0
+- reddit-coinkite-done-for  +16 -0
+- reddit-0-7-btc-drained  +136 -0
+- reddit-5-13-btc-loss  +2 -10
+- reddit-self-custody-custodian-debate  +16 -0
+- reddit-trezor-community-audit-call  +8 -0
+- reddit-liability-blame-debate  +4 -10
+- reddit-cash-out-forensics-question  +0 -8
+- reddit-fourth-wave-389-btc  +8 -0
+- reddit-hardware-wallet-comparison  +4 -4
+- reddit-bought-last-week  +8 -0
+- reddit-secure-btc-after-incident  +16 -0
+- reddit-wild-west-sentiment  +10 -0
+- reddit-where-store-bitcoin-now  +2 -2
+- bitcointalk-learn-from-incident  +11 -0
+- bitcointalk-large-scale-compromise-thread  +45 -12
+- reddit-im-out  +40 -0
+- reddit-entropy-explainer-question  +11 -0
+- reddit-hacker-still-progressing  +170 -179
+- reddit-not-your-keys-not-your-coins  +16 -10
+- ncfacanada-self-custody-commentary  +6 -6
+- reddit-price-mockery  +8 -0
+- reddit-retirement-attack-resurfaced  +18 -0
+- reddit-self-custody-risk-doubt  +8 -0
+- reddit-inside-job-speculation  +16 -0
+- newsbitcom-class-action-threat  +28 -28
+- clay-attribution  +886 -0
+
+## 20260806T052252Z
+
+- coldcard-hack-tracker  +8 -8

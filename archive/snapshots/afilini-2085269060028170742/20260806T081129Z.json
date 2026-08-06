@@ -1,0 +1,74 @@
+{
+ "author": "afilini",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 0,
+  "posts_observed": 6,
+  "replies_observed": 0,
+  "reply_cap": 500,
+  "screenshots_taken": 6,
+  "scroll_rounds": 4
+ },
+ "gaps": [],
+ "posts": [
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:40Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "focal",
+   "status": "2085269060028170742",
+   "text": "Seeing lots of people say coinkite should have tested entropy better. I don\u2019t think they could\u2019ve done much there.\n\nWhat I think they could\u2019ve done was to build a proper emulator. That might have caught the issue "
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:41Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269063517839714",
+   "text": "The existing coldcard emulator runs micropython on Unix (Linux / macOS) systems. It\u2019s not emulating the hardware at all. For entropy, it just reads it from /dev/urandom"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:42Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269067099701267",
+   "text": "For Portal, which compared to the scale of coldcard is effectively a garage toy project, I took the time to fork QEMU and implement a few missing STM32 peripherals I needed"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:43Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269070350328032",
+   "text": "This was before AI, it was a pain in the ass but that allowed me to run the exact same binary on device and in the emulator. Not cycle perfect, but still same exact instructions"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:44Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269073793880517",
+   "text": "Why I think that could have caught the bug? The UID would have likely been fixed to some constant like 0xB00B5 (yeah engineers do that all the time) and while developing there\u2019s a good chance they might have started getting collisions and seeing the same mnemonic multiple times"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:45Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269077052764499",
+   "text": "I\u2019m not the first to point out the sloppy work (I consider the one-letter commit messages in libngu also sloppy work) and this just adds to that"
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2085269060028170742",
+ "url": "https://x.com/afilini/status/2085269060028170742"
+}

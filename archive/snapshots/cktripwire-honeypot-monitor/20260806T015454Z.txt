@@ -1,0 +1,219 @@
+CKTRIPWIRE
+last update just now
+methodology
+admin
+Own a Coldcard? Treat any wallet created without additional entropy as compromised and move
+your funds to a safe place now.
+What is this?
+Coldcard hardware wallets generated wallet seeds with a
+broken random-number generator: a predictable software pseudo-RNG instead of true
+hardware entropy. The private keys can be brute-forced and the coins swept. If
+affected, migrate your funds now.
+We fund decoy “honeypot” wallets carrying that
+exact flaw on mainnet, some hardened with extra dice rolls or a passphrase, and
+track which ones an attacker sweeps and how fast. This maps the frontier of what
+coins are being confiscated. Read the methodology →
+honeypots17
+live15
+swept2
+value exposed~0.01 BTC
+fastest sweep2m
+frontier-
+recent activity last 5 events
+time (utc)
+event
+difficulty
+tx
+2026-08-06 01:54
+honeypot funded HP-8DA1
+low (dice)
+-
+2026-08-05 23:02
+honeypot funded HP-EDAD
+3-of-3 multisig
+-
+2026-08-05 20:49
+honeypot swept HP-5AFC
+trivial
+62b8e9..6c060b ->
+2026-08-05 20:46
+honeypot funded HP-374B
+trivial
+-
+2026-08-05 20:46
+honeypot funded HP-A528
+trivial
+-
+honeypots
+handle
+device
+difficulty
+sec(bits)
+est. crack (GPU)
+status
+age / time-to-sweep
+HP-C6F6
+mk3 v4
+2-of-3 multisig
+-
+-
+LIVE
+live 22h11m
+HP-EDAD
+mk3 v4
+3-of-3 multisig
+-
+-
+LIVE
+live 2h51m
+HP-3146
+mk3 v4
+trivial
+0
+~88 min
+SWEPT ->
+swept in 1h18m
+HP-7B35
+mk3 v4
+low (dice)
+5
+~2 days
+LIVE
+live 1d49m
+HP-8DA1
+mk3 v4
+low (dice)
+5
+~2 days
+PENDING
+live <1m
+HP-96ED
+mk3 v4
+low (pass)
+11
+~125 days
+LIVE
+live 1d5h4m
+HP-FA90
+mk3 v4
+low (pass)
+11
+~125 days
+LIVE
+live 1d5h4m
+HP-8284
+mk3 v4
+low (dice)
+13
+~476 days
+LIVE
+live 1d2h43m
+HP-FC1E
+mk3 v4
+low (dice)
+13
+~476 days
+LIVE
+live 1d2h43m
+HP-25AA
+mk3 v4
+mid (pass)
+22
+~703 yr
+LIVE
+live 1d48m
+HP-0708
+mk3 v4
+high (pass)
+33
+~1e6 yr
+LIVE
+live 1d47m
+HP-F755
+mk3 v4
+extreme (dice)
+90
+~1e23 yr
+LIVE
+live 21h59m
+showing 12 - sort: sec(bits) ascending (easiest to sweep first)
+external honeypots community-submitted, watch-only
+handle
+device
+source
+status
+age / time-to-sweep
+0 added bits
+mk3
+x.com/ColeTU/status/2085065558333022663
+SWEPT ->
+swept in 2m
+1 word passphrase
+mk3
+x.com/ColeTU/status/2085065558333022663
+LIVE
+live 5h7m
+2 word passphrase
+mk3
+x.com/ColeTU/status/2085065558333022663
+LIVE
+live 5h7m
+3 word passphrase
+mk3
+x.com/ColeTU/status/2085065558333022663
+LIVE
+live 5h7m
+0 added, random account
+mk3
+x.com/ColeTU/status/2085065558333022663
+LIVE
+live 5h7m
+frontier summary
+difficulty
+deployed
+swept
+fastest
+still live
+trivial
+3
+1
+1h18m
+2
+low
+6
+0
+-
+6
+mid (pass)
+1
+0
+-
+1
+high (pass)
+1
+0
+-
+1
+extreme (dice)
+1
+0
+-
+1
+difficulty bands added entropy over the attacker-known seed · dice ~2.585 bits/roll · passphrase 11 bits/word
+trivial0 bitsthe control — no dice, no passphrase
+low1–15 bits1–5 dice rolls, or a 1-word passphrase
+mid16–30 bits6–11 dice rolls, or a 2-word passphrase
+high31–45 bits12–17 dice rolls, or a 3–4 word passphrase
+extreme>45 bits18+ dice rolls, or a 5+ word passphrase
+A note on timing. Just because a particular honeypot here hasn't been taken
+yet doesn't mean its entropy class is safe. We don't know long this attack has been going on, but it
+started well before our
+honeypots existed. The thousands of coins already taken were ground
+down over more than a few days, likely much longer than ours have been live.
+So read “still live” as not taken yet, nothing more: a honeypot
+surviving for weeks says little about the safety of its entropy class (in
+terms of older coins real people are still holding) because the
+attackers have had a chance to grind those coins for far longer than any of ours have
+existed.
+auto-refresh 60s - coarse public view: no addresses, no exact values, no keys
+made by @jamesob

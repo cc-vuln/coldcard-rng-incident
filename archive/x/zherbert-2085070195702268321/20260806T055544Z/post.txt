@@ -1,0 +1,26 @@
+url:      https://x.com/zherbert/status/2085070195702268321
+author:   Zach Herbert
+handle:   @zherbert
+posted:   2026-08-05T18:27:28.000Z (from the page's <time> element)
+captured: 20260806T055544Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+reply-to: JP Technology ₿
+@JP_Technology
+·
+14h -- "THEY'VE KNOWN FOR YEARS\n\nIn this TFTC podcast from MARCH 2021, \n@odellxyz\n explains how he was informed by \n@nvk\n of a bug in Coldcard's v4.0 firmware, the nature of which could not be revealed to him lest such information enable him to steal Coldcard user's Bitcoin.\n\nWTF"
+
+--- post text (verbatim) ---
+
+Unrelated
+
+The mystery bug was this:
+Coldcard 4.0.0 accidentally initialized ckcc_vcp_enabled to true.
+
+After the user logged in and USB became active, a connected computer could send Control-C, interrupt the interface, and enter Coldcard’s MicroPython REPL.
+
+That provided firmware-level Python access and could expose wallet secrets.
+
+Version 4.0.1 changed the flag to default to false.
+
+The actual 4.0.0-to-4.0.1 diff makes this remarkably clear. Coinkite has also now explicitly identified it as the “USB serial REPL” vulnerability in its security-disclosure history.

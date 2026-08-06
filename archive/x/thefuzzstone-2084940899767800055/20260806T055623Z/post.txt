@@ -1,0 +1,94 @@
+url:      https://x.com/thefuzzstone/status/2084940899767800055
+author:   TheFuzzStone
+handle:   @thefuzzstone
+posted:   2026-08-05T09:53:41.000Z (from the page's <time> element)
+captured: 20260806T055623Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HO8ypQmWYAAnn-7?format=jpg&name=small (680 x 475 pixels)
+
+--- post text (verbatim) ---
+
+Timeline of #Coldcard Heist.
+
+2010
+Peter D. Gray and Rodolfo Novak (NVK) begin working together at Ripe Apps, an iPhone/iPad app development studio in Toronto. Predates their Bitcoin involvement by a year.
+
+2011
+Gray discovers the Bitcoin whitepaper and shares it with Novak, his existing business partner.
+
+2012
+The pair builds 
+http://
+btclook.com, a visual blockchain explorer, as a Ripe Apps side project. Later that year they build PCI-certified Bitcoin payment terminals and begin international deployment, ahead of incorporating.
+
+2012–2013
+Peter D. Gray and Rodolfo Novak (NVK) co-found Coinkite in Toronto. Gray becomes CTO, Novak becomes CEO. Debuts a working terminal at the Bitcoin Conference. Raises a $120K seed round, the company’s only funding round to date. Remains a team of around five.
+
+November 7, 2013
+Peter D. Gray creates his GPG key (uid “Peter D. Gray peter@coinkite.com”). This key later signs dozens of commits under the switck identity, including the critical libngu changes.
+
+Early 2016
+Coinkite shuts down its web wallet/exchange service, citing legal complications and DDoS attacks, and pivots fully to hardware — the turn that leads to Opendime and eventually Coldcard.
+
+December 2017
+Coinkite announces the Coldcard hardware wallet. Pre-orders open for 2018 shipping.
+
+July 25, 2018
+First Coldcard Mk1 units ship.
+
+August 2019
+Peter creates the anonymous identity “switch,” named after the Matrix character Switch, using a still of that character as the profile picture. First posts note DEF CON is a good time to start a new identity. Later commits under this name are often single-word or extremely terse.
+
+2019–2020 onward
+Bitcoin educators and influencers, including BTC Sessions, begin promoting Coldcard as one of the most secure Bitcoin hardware wallets.
+
+July 2020
+Foundation Devices announces the Passport, built in part on Coldcard’s then-GPLv3 firmware.
+
+Early 2020s
+Ten31 becomes Coinkite’s sole external investor, confirmed on record by NVK in podcast disclosures.
+
+January 8, 2021
+Coldcard firmware 3.2.1 announces the license change from GPL to MIT + Commons Clause.
+
+January 5, 2021
+Domain 
+http://
+switck.com is registered via a privacy service. The switck account posts the single word “got” the same day.
+
+January 28, 2021
+Under switck, the vulnerable preprocessor guard (#ifndef MICROPY_HW_ENABLE_RNG) is committed to libngu. This fails to force the hardware TRNG when the macro is set to zero. The library is co-maintained with scgbckbone.
+
+March 1, 2021
+Under doc-hex, the commit “First pass w/ libNgU” (b18723dd) replaces remaining Trezor-derived GPL crypto and BIP-39 code with libngu. Seed generation switches from hardware path to ngu.random.bytes(). This is the point real hardware entropy is replaced by the weak software PRNG. Coinkite release notes later thank 
+@switck
+ for the library.
+
+March 17, 2021
+Firmware v4.0.0 released, stating all crypto and BIP39 code had been replaced and the last remaining GPL code removed.
+
+March 29, 2021
+Firmware 4.0.1 ships. Seeds generated under this and later affected versions fall back to the software PRNG, yielding roughly 40 bits of effective entropy on Mk2/Mk3 (roughly 72 bits on later models with limited secure-element mixing).
+
+Around April 2021
+Public users begin questioning the libngu rewrite and the replacement of the prior crypto stack.
+
+2022
+As DocHex, Gray publicly states that as CTO he encourages Coinkite developers to operate under nyms and stay low-profile about their employer, and notes he may appear to author his own GitHub commits under a different identity. In a podcast appearance the same year, Novak refers to Gray directly as “Doc Hex, my co-founder.”
+
+May 2025
+James O’Beirne audits the firmware, identifies the low-star, pseudonymously maintained libngu library as the RNG source. In his own words, posted on X: he wanted to figure out conclusively where the Coldcard RNG was sourced from, and traced it to a shady library. He contacts Coinkite. Reported response: if something were wrong, they’d likely already know about it by now. The warning is not acted on.
+
+July 30, 2026
+Attackers begin draining wallets. Initial wave: roughly 594 BTC (~$38M) from about 500 addresses in ~25 minutes. Coinkite publishes a security advisory the same day acknowledging the 2021 entropy failure.
+
+July 31, 2026
+Coinkite releases fixed firmware (4.2.0 Mk3, 5.6.0 Mk4/Mk5, 1.5.0Q). Existing weak seeds remain compromised and must be migrated. Independent verification beyond Coinkite’s own account: Bitcoin Core developer instagibbs reproduces the vulnerability on a fresh Mk3 device. Kevin Loaec of Wizardsardine is among the first to publicly sound the alarm. Peter Todd flags a specific multisig risk for 2-of-3 setups using compromised Coldcards. Multiple reports note NVK deleting older tweets related to the 2020–2021 license change and open-source decisions.
+----
+
+Authors: 
+
+- Contra [npub14hq5lgadtyy9dhvtszq46dnl0s0xwdddqr7e32rdqqhma8a4xhsspxjjzu]
+
+- Laser [npub1vjk0gp2l4qnte2uy2l3ya78m5ays4wc7wmd6k64gw5498g8tf49qtkd33q]

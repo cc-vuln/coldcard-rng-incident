@@ -1,0 +1,59 @@
+thread: 2085269060028170742
+url: https://x.com/afilini/status/2085269060028170742
+author: afilini
+
+post: 2085269060028170742
+role: focal
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:40Z
+media: 0
+body:
+Seeing lots of people say coinkite should have tested entropy better. I don’t think they could’ve done much there.
+
+What I think they could’ve done was to build a proper emulator. That might have caught the issue 
+
+post: 2085269063517839714
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:41Z
+media: 0
+body:
+The existing coldcard emulator runs micropython on Unix (Linux / macOS) systems. It’s not emulating the hardware at all. For entropy, it just reads it from /dev/urandom
+
+post: 2085269067099701267
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:42Z
+media: 0
+body:
+For Portal, which compared to the scale of coldcard is effectively a garage toy project, I took the time to fork QEMU and implement a few missing STM32 peripherals I needed
+
+post: 2085269070350328032
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:43Z
+media: 0
+body:
+This was before AI, it was a pain in the ass but that allowed me to run the exact same binary on device and in the emulator. Not cycle perfect, but still same exact instructions
+
+post: 2085269073793880517
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:44Z
+media: 0
+body:
+Why I think that could have caught the bug? The UID would have likely been fixed to some constant like 0xB00B5 (yeah engineers do that all the time) and while developing there’s a good chance they might have started getting collisions and seeing the same mnemonic multiple times
+
+post: 2085269077052764499
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:45Z
+media: 0
+body:
+I’m not the first to point out the sloppy work (I consider the one-letter commit messages in libngu also sloppy work) and this just adds to that

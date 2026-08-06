@@ -1,0 +1,878 @@
+post: 1vcfugv
+author: ardevd
+created_utc: 1785566580
+title: Coinkite is done for - Here is why
+body:
+I see a lot of people here wondering what to do at this point and whether trusting Coinkite moving forward is possible. Here is my take:
+
+**Unforgivable sin #1**
+
+This bug was a integration mistake, not a complex crypto flaw. It should have been easily caught by basic build time assertions. It's a huge oversight and unforgivable for a company whose very existence is based on security. 
+
+**Unforgivable sin #2**
+
+The most damning issue here is that Coinkite, a company that primary and ONLY premise is the development of a secure HARDWARE device does not test the output of that hardware at runtime. The fact that they didn't check that the output produced by the seed generator passed through standard randomness battery tests is wild! They would have instantly noticed that the outputs were coming from a deterministic PRNG if they bothered to test.
+
+**Unforgivable sin #3**
+
+At the end of the day, a hardware wallet only has one job. Generate true randomness. All coldcard wallets failed at this. Yes, you could say the bug is hard to spot, especially when doing static code analysis. The code is open source and has been subject to audits, but integration tests should have discovered this flaw before the affected firmware was ever published. 
+
+The theory that this bug was discovered by AI is also a side track and completely irrelevant. This was not a complex vulnerability.
+
+comment: p10za0h
+parent: t3_1vcfugv
+author: didnt_hodl
+created_utc: 1785567591
+edited: false
+body:
+100% man. not properly testing the output of that PRNG is wild. I mean they did what? generated 2-3 numbers, which looked "random" to them and that's it?? they should have been running those tests non-stop, for years, just to confirm that there is no correlation, no significant repeats, etc. all standard tests would show the problem very quickly
+
+comment: p110ml4
+parent: t3_1vcfugv
+author: ivme
+created_utc: 1785568248
+edited: false
+body:
+What made me think is that despite being open-source, this bug wasn’t discovered until now.  Therefore, one shouldn’t blindly trust open-source software.
+
+comment: p111ru6
+parent: t3_1vcfugv
+author: Friendly_Variety6386
+created_utc: 1785568820
+edited: false
+body:
+They are done. They will be filling for bankruptcy soon. No way they can survive this and problem can trust them anymore. 
+
+comment: p112d33
+parent: t1_p110ml4
+author: xXCsd113Xx
+created_utc: 1785569115
+edited: false
+body:
+That’s because it was found by an ai model that can find zero day exploits that even the best software devs can’t.  Pretty spooky
+
+comment: p116693
+parent: t3_1vcfugv
+author: Quirky-Reveal-1669
+created_utc: 1785571055
+edited: false
+body:
+Does anyone know if lawsuits against CoinKite have already been announced?
+
+comment: p117915
+parent: t1_p110ml4
+author: ardevd
+created_utc: 1785571600
+edited: false
+body:
+Well, kinda. The bug is hard to spot by just looking at the source code. Both the intended hardware TRNG function and the MicroPython software fallback function shared identical signatures. The compiler didn't throw any wwarnings, and the TRNG code was present in memory. Again, integration tests would have spotted this issue imesdiately.
+
+Open source software doesn't mean it's bug free. The Linux kernel is open source and people find bugs there all the time. If the code was closed source however we would never be able to verify Coinkite's findings. 
+
+comment: p11dsvt
+parent: t3_1vcfugv
+author: megagram
+created_utc: 1785574984
+edited: false
+body:
+I’m a relative layman here. Do you know why there was a fallback to this vulnerable RNG in the first place? Why even have it if there’s a hardware TRNG?
+
+Also, can you explain more how this could have been caught with build time assertions?
+
+comment: p11ge3v
+parent: t1_p11dsvt
+author: ardevd
+created_utc: 1785576341
+edited: false
+body:
+ColdCard migrated to a different elliptic curve library in 2021. That library had a fallback to a software PRNG. The code checked if a specifc macro was defined (MICROPY_HW_ENABLE_RNG).
+
+If the macro was defined but set to a value of 1, the library would use it's generic STM32 driver for RNG.
+
+If the macro was not defined, the compiler would throw an error, forcing devs to fix it.
+
+In this case, the macro was defined but set to a value of 0. That bypassed the compiler error but resulted in the library using it's fallback software RNG instead. 
+
+Coinkite erroneously assumed setting the value to 0 would tell the library to disable it's internal RNG driver and let the custom board-level RNG driver handle all entropy calls across the entire system. 
+
+In the hot fix Coinkite has a script that checks the generated symbol table and asserts that whether the rng_get() symbol originates from the coldcard board directory and throws an error otherwise. There are several other ways they could accomplish the same thing.
+
+comment: p11j30z
+parent: t1_p117915
+author: Dettol-tasting-menu
+created_utc: 1785577755
+edited: false
+body:
+I think the fact that they switched from true FOSS open source to a “open code” license has a lot to do with this. When it’s truly open source, competitions could reuse the codes for their own projects and therefore more scrutiny would be provided. If they merely let the code go open but people aren’t allowed to use it, then why would they audit the code for Coinkite? The incentive to spend time and effort to look into the code in detail would be gone.
+
+comment: p11ykh6
+parent: t1_p110ml4
+author: Strong_Judge_3730
+created_utc: 1785584928
+edited: false
+body:
+People are saying it's not open source because of the licence. 
+
+What is with these fanboys trying to save face
+
+comment: p12031m
+parent: t1_p11j30z
+author: Strong_Judge_3730
+created_utc: 1785585535
+edited: false
+body:
+Are u a dev or a developer that works on micro controllers?
+
+Their competition could only use their source code if there have very similar hardware architecture since it's firmware.
+
+Ledger looks as trezor hardware and looks for vulnerabilities just to show attacks against them. Guess they didn't view Coinkite as competition.
+
+White hat hackers might go after a bug bounty, users of the HW might be developers or organisations that might want to audit their HW.
+
+It's naive to say other companies would have used their python firmware (lol)
+
+If they had an OSI licence, if anything it would mean their shit code would have affected more users
+
+https://github.com/trezor/trezor-firmware
+
+
+
+comment: p122275
+parent: t3_1vcfugv
+author: Impossible_Book_6478
+created_utc: 1785586307
+edited: false
+body:
+If you guys just used a strong passphrase... 
+
+comment: p127jns
+parent: t1_p122275
+author: Flowa-Powa
+created_utc: 1785588343
+edited: false
+body:
+And used dice rolls which use a completely different algorithm 
+
+comment: p128ol8
+parent: t3_1vcfugv
+author: davidcwilliams
+created_utc: 1785588748
+edited: 1785676085
+body:
+I created this subreddit in May of 2019... grew it for over year, and then contacted Coinkite to let them takeover. I asked for no money, but they were kind enough to send an MK3 as appreciation. I asked to stay on as an honorary mod. Though once the subreddit was in their hands, I always deferred to their staff, or would message NVK directly for how he wanted me to handle whatever it was. 
+
+A few years ago, I was abruptly removed as mod. I messaged them to ask why. Was told that I was 'inactive'. I explained that that was intentional so as to not do or say anything that might conflict with their messaging. I then offered to be more active if that was what ws required to keep the role. They stopped responding altogether. I wrote the staff repeatedly, and messaged NVK himself... and was ignored.
+
+None of this has anything to do with the recent developments, but now seems like an appropriate time to mention it.
+
+comment: p128wc2
+parent: t1_p127jns
+author: Impossible_Book_6478
+created_utc: 1785588823
+edited: false
+body:
+Right, I didn't
+
+comment: p1290tq
+parent: t3_1vcfugv
+author: rottiesrule88
+created_utc: 1785588868
+edited: false
+body:
+I’ll role the dice
+
+comment: p12cavz
+parent: t3_1vcfugv
+author: ExpertProMax
+created_utc: 1785590005
+edited: false
+body:
+They will relaunch under different name. 
+
+comment: p12d76m
+parent: t1_p128wc2
+author: Flowa-Powa
+created_utc: 1785590305
+edited: false
+body:
+If you used the Coldcard random seed generator you should move your Bitcoin urgently. Pass phrase can be brute forced, and now everyone knows about this exploit including N Korea etc
+
+comment: p12p75s
+parent: t1_p110ml4
+author: brandonholm
+created_utc: 1785594127
+edited: false
+body:
+Coldcard is not open source though.
+
+comment: p12r9lu
+parent: t1_p128ol8
+author: deny_by_default
+created_utc: 1785594756
+edited: false
+body:
+I appreciate you sharing your story anyway.  It sounds like those folks are jerks.
+
+comment: p12rqnv
+parent: t1_p116693
+author: deny_by_default
+created_utc: 1785594897
+edited: false
+body:
+I'm kind of curious about this myself.  I just got a CCQ two months ago and I no longer trust it even though I imported the seed from another device.
+
+comment: p12sbbe
+parent: t1_p128ol8
+author: corporate-citizen
+created_utc: 1785595070
+edited: false
+body:
+Coinkite owners and managers should be interrogated, extensively about this hack. Potentially, they could be subject to a warrant to sweep their servers and even personal computers. A warrant to their ISPs if needed to check for traffic and see if there’s a correlation leading up to the event.  
+Investigations always start with friends, family and business associates.
+
+comment: p12t9nt
+parent: t3_1vcfugv
+author: Bwu1207
+created_utc: 1785595359
+edited: false
+body:
+I remember seeing people in this sub mindlessly recommending Coldcard because it was bitcoin only and open source. Just because something is open source doesn’t mean it’s free from error.
+
+comment: p12tcdt
+parent: t1_p12sbbe
+author: trimalcus
+created_utc: 1785595381
+edited: false
+body:
+Insider job
+
+comment: p12weo5
+parent: t1_p110ml4
+author: Crypto-Guide
+created_utc: 1785596296
+edited: false
+body:
+Coldcard isn't open source, nobody was building on it. (And that matters in terms of reviewing the codebase)
+
+comment: p12wfw1
+parent: t1_p12tcdt
+author: Big80sweens
+created_utc: 1785596306
+edited: false
+body:
+Definitely could be. $30M USD ain’t no joke
+
+comment: p12x5kx
+parent: t1_p12d76m
+author: Impossible_Book_6478
+created_utc: 1785596516
+edited: false
+body:
+My passphrase is far from newyork123! 
+
+comment: p1318eg
+parent: t1_p12wfw1
+author: Left_Entrepreneur918
+created_utc: 1785597716
+edited: false
+body:
+70 mil now
+
+comment: p131xhn
+parent: t1_p12wfw1
+author: Solid_Wolverine1639
+created_utc: 1785597920
+edited: false
+body:
+Isn't it over 70 million now?
+
+comment: p1325mg
+parent: t1_p131xhn
+author: Big80sweens
+created_utc: 1785597987
+edited: false
+body:
+Ya but I think that includes people moving their own bitcoin out of those wallets. As soon as I heard of the initial $30M I moved it all out of my cold card wallet.
+
+comment: p132beu
+parent: t1_p11ge3v
+author: Solid_Wolverine1639
+created_utc: 1785598034
+edited: false
+body:
+Yeah buddy we need to see your flow charts and Venn diagrams... PowerPoint demonstration... The code...
+
+comment: p1335cl
+parent: t1_p111ru6
+author: Solid_Wolverine1639
+created_utc: 1785598275
+edited: false
+body:
+Rewrite your last sentence
+
+comment: p1337mz
+parent: t1_p12x5kx
+author: Alfador8
+created_utc: 1785598295
+edited: false
+body:
+I tried putting in "far from newyork123!" but it didn't work. Are the spaces supposed to be underscores?
+
+comment: p133d4v
+parent: t1_p12cavz
+author: Solid_Wolverine1639
+created_utc: 1785598339
+edited: false
+body:
+And the current crew by name won't be mentioned... They'll legally change their names... Get face surgery... Move to another location 
+
+Lol
+
+comment: p133oru
+parent: t1_p1325mg
+author: Solid_Wolverine1639
+created_utc: 1785598432
+edited: false
+body:
+Expanded Estimates: Subsequent analysis by Galaxy Research and Block suggested a broader impact, estimating that 1,082.65 BTC (worth approximately $70 million) was stolen from 1,196 addresses.  This larger figure includes additional affected wallets and potentially multi-signature setups not captured in the initial sweep. 
+
+comment: p134xbz
+parent: t1_p133oru
+author: Big80sweens
+created_utc: 1785598788
+edited: false
+body:
+I’m so glad I was quick to move my bitcoin out of there goddamn.
+
+comment: p135nud
+parent: t1_p134xbz
+author: Solid_Wolverine1639
+created_utc: 1785598999
+edited: false
+body:
+🫡✊💪⚡🖥️💻⌨️📱📟
+
+comment: p135yro
+parent: t1_p134xbz
+author: Solid_Wolverine1639
+created_utc: 1785599085
+edited: false
+body:
+I've been joking that it was safer to send your Bitcoin to an exchange which if in the moment of new news that actually would have been a good idea... I have other Cold storage so I could have just sent it there...  Never had a cold card...
+
+comment: p1370on
+parent: t1_p128ol8
+author: prehensilly
+created_utc: 1785599389
+edited: false
+body:
+Thanks for sharing that. And for all your work on the sub. I've never met NVK, but got a sense of who he is through reading his posts and listening tomany of his interviews. His arrogance and superiority complex helped create an air of dismissive genius that made for fun/shocking reading/listening. 
+I see this whole mess as a result of his hubris. It's now clear that he's just a prick.
+
+comment: p138rg2
+parent: t1_p12t9nt
+author: ardevd
+created_utc: 1785599888
+edited: false
+body:
+To be fair, based on the available information, the Coldcard was a great product. 
+
+I think the key takeaway from this incident is that a mixed entropy source is super important 
+
+comment: p139si9
+parent: t1_p135yro
+author: Big80sweens
+created_utc: 1785600183
+edited: false
+body:
+I’ll be diversifying where it is stored now for sure
+
+comment: p13btzv
+parent: t3_1vcfugv
+author: dirtymouth2022
+created_utc: 1785600769
+edited: false
+body:
+ye its over them. how can anyone trust coinkite again. inside job or not its done
+
+comment: p13cgdx
+parent: t1_p117915
+author: JumpProfessional3372
+created_utc: 1785600946
+edited: false
+body:
+In short open source helps a lot, but still need lot of testing. The more testers and reviewers the more secure it is.
+
+Just like Bitcoin. 
+
+I think eventually the best wallet would be an open source wallet that is the most popular. Like the Linux kernel. But i guess it also needs a good responsible like Linus  Torvalds.
+
+comment: p13d4f5
+parent: t3_1vcfugv
+author: JumpProfessional3372
+created_utc: 1785601139
+edited: false
+body:
+I agree with most points but no with the part about hardware wallet only job is to generate true randomness. 
+
+I personally trust more an open source app to generate this, and the wallet just to contain it every time it is used. 
+
+Here I rolled manually 100+ times, just because there is no way I'll ever trust a wallet (or an RNG) to do this one task for me
+
+comment: p13rhwt
+parent: t3_1vcfugv
+author: Big-Cheetah5159
+created_utc: 1785605261
+edited: false
+body:
+I don’t think they’re DONE for. I think people WILL start to add more security to their wallets and devices from now on though. What made Coldcard the most “secure” was all the extra security you could use with the device (dice rolls, air gapping, nfc, passphrase, seed vault, etc.). All the people who took this seriously has their BTC safe, the others got burned. You trusted software (which is proven to have faults/bugs, which is normal). You allowed a single point of failure of your BTC because of negligence. I know this sucks for them but it will continue to happen until we become less trusting (which is the philosophy of Bitcoin). Be more paranoid people, it saves you.
+
+comment: p13t8sx
+parent: t1_p127jns
+author: bje332013
+created_utc: 1785605760
+edited: false
+body:
+What do you mean about dice rolls using an algorithm? Maybe I'm making the mistake of associating the term 'algorhythm' too much with computers and not enough with human activity.
+
+comment: p13tjj1
+parent: t3_1vcfugv
+author: Yodel_And_Hodl_Mode
+created_utc: 1785605845
+edited: false
+body:
+It's time for people who do self custody to take their security seriously.
+
+Too many are here for the wrong reasons.
+
+Bitcoin has too many gadget guys looking for online street-cred and cool-factor. We see it all the time in these subs. Guys fight for this brand or that brand because it's cool.
+
+Be honest. How many of you bought ColdCards because they look cool?
+
+We see it everywhere online. I'm not going to call anybody out by name, but go to youtube and look up videos on hardware wallets. Most of those guys are gadget guys, reviewing toys. They know nothing about actual security. Most of them don't even understand the devices they're reviewing.
+
+Ledger added the ability to extract seeds from their devices over the internet, and dudes here still trust them. Insane!
+
+I'll say it again. It's time for people who do self custody to take their security seriously.
+
+**If you trust ColdCard again after this, you are not a serious person and you're not ready for the challenge of doing self custody for your Bitcoin.**
+
+Self Custody means self-responsibility. I hate that you got burned hard by ColdCard, but I hope you learned the lesson that comes with trusting a company to keep you safe. ColdCard's lawyers protect them, not you. That's why you're paying the price for their mistake, not them.
+
+Bitcoin is open source. Your hardware wallet should be too.
+
+If I were you, my next move would be to ShieldSigner, which is a fork of SeedSigner that adds important security benefits. It's a fully open source and free project. Krux is excellent too, but the hardware isn't as easy to get.
+
+I'd also buy [Entropia Tablets](https://btc-hardware-solutions.square.site/product/entropia-v2-seed-tablets/11?cp=true&sa=true&sbp=false&q=false) (plastic BIP39 wordlist for making your own random seed), or I'd make a DIY version. And I would never again trust a device to generate a seed phrase.
+
+comment: p13uwq6
+parent: t1_p133oru
+author: corporate-citizen
+created_utc: 1785606234
+edited: false
+body:
+This could the trigger which gives us the ultimate Bitcoin bottom for this cycle. I expect it to visit sub-$58K during August-September, give or take a couple of weeks.
+
+comment: p13vrq5
+parent: t1_p13t8sx
+author: Flowa-Powa
+created_utc: 1785606480
+edited: false
+body:
+It's a functionality of Coldcard. You throw dice, punch the results into the device and spits out a seed generated by the entropy of those rolls.
+
+This method was not faulty and is still safe
+
+comment: p13yxie
+parent: t1_p13vrq5
+author: bje332013
+created_utc: 1785607383
+edited: false
+body:
+That sounds best in theory, but has it been proven that the dice roll-based numbers that the user supplies the Coldcard with are actually factored into the creation of a seed phrase? In other words, how do we know that the user input isn't actually being counted, and that the seed phrase that he/she receives would be exactly the same (derived from the so-called random number generator) regardless of what the user did or did not do?
+
+comment: p13z8y9
+parent: t1_p13yxie
+author: Flowa-Powa
+created_utc: 1785607476
+edited: false
+body:
+Because doing it wrong would be more complicated than doing it right, and it would be obviously wrong 
+
+comment: p13zg5e
+parent: t1_p13uwq6
+author: Solid_Wolverine1639
+created_utc: 1785607535
+edited: false
+body:
+Well that's kind of too specific...  I would say I expect to visit sub 58k August through October possibly (Which seems kind of silly for both of us cuz we're what 4K away?)... Almost like playing Monday morning quarterback...
+
+But we still might have bottomed and this is the same kind of dumb blame on bitcoin coming from FTX behavior and this also has nothing to do with Bitcoin... Bip 39 is sound and if you fail utilizing it with as much randomness as possible than that's not bitcoin's fault... I mean how do you f*** this up with 25 words... You could have a very complex pass phrase...  Multi-signature... There's really multiple steps that could have prevented this even with a crappy seed phrase... Prevented using dice...
+
+Doesn't that sound actually more fun than having software generate randomness?    From board games and casinos to making your Bitcoin secure...
+
+Well your idea isn't completely unfounded cuz people can now legitimately worry about all the other Cold storage and Bitcoin in general for a lot of people that don't understand it well enough and will just have fear...
+
+ This was a very specific problem in a narrow niche of Bitcoin storage... Totally ridiculous this went on so long undiscovered and this is actually a shot across the bow as far as quantum fears because more immediately we need to worry about AI...
+
+Bitcoin is supposed to disintermediate middlemen but clearly we need to cut out even more...  And be our own sovereign bitcoiner with Dice and not somebody else's software for starters in this case...  
+
+Running your own node... But in the case of multi-signature a third party could be useful as one out of two needed of three and you control the other two and even the third party as far as access as conceivably they should have only indirect access anyway...
+
+Bitkey might be a good way to cold store... But who knows anymore 🙄?
+
+comment: p142u71
+parent: t1_p12rqnv
+author: thanosied
+created_utc: 1785608514
+edited: false
+body:
+Yeah. I think seedsigner is the way to go. Not wasting any more money on these companies.
+
+comment: p14aon0
+parent: t3_1vcfugv
+author: joefunk76
+created_utc: 1785610768
+edited: false
+body:
+The name “Coldcard” has, unfortunately, become apropos in a way that few could have anticipated.
+
+comment: p14hldr
+parent: t1_p1337mz
+author: Impossible_Book_6478
+created_utc: 1785612796
+edited: false
+body:
+Are you joking right?  :-) 
+
+comment: p14nqjn
+parent: t1_p112d33
+author: ardevd
+created_utc: 1785614636
+edited: false
+body:
+Sorry, but that's bullshit. The AI claim is taken out of thin air and is an attempt by ColdKite to soften the PR narrative. 
+
+This bug is a well known bug class in C programming 
+
+comment: p15btcb
+parent: t3_1vcfugv
+author: jltdhome
+created_utc: 1785622047
+edited: false
+body:
+I find three things interesting: 
+
+1. More people were using ColdCard than I imagined.   
+2. There is an argument that it is an inside job and that the flaw was purposely left in while the cow got fat.   
+3. CoinKite does not have $100\~ million to cover costs for anyone. Bankruptcy would limit their liability. No idea how the company survives financially unless people are that ignorant. 
+
+For my part, I was a ColdCard maxi and even enjoyed the banter on social media. I am def not keeping a significant portion of Bitcoin on any of their hardware. That would be like trusting your net worth into FTX after the trials. At this point, im here to see how the chips fall. 
+
+comment: p15yqu0
+parent: t1_p133oru
+author: MillerBlade2
+created_utc: 1785629781
+edited: false
+body:
+ELI5 how would multisig wallets be affected?
+
+comment: p16guks
+parent: t1_p13yxie
+author: redchannit8
+created_utc: 1785636272
+edited: false
+body:
+yes, and it's trivial to prove. there are tools you can use to generate a seed phrase from dice rolls, and coldcards produce the same seed phrase from the same dice rolls.
+
+comment: p16hm6h
+parent: t1_p13d4f5
+author: redchannit8
+created_utc: 1785636555
+edited: false
+body:
+fr, a hardware wallet's job is to securely sign transactions.
+
+everything else are convenience features and fluff.
+
+comment: p16t60m
+parent: t1_p128ol8
+author: Banes_Addiction
+created_utc: 1785641000
+edited: false
+body:
+While they obviously had bigger failures as a company, it absolutely makes sense to remove you.
+
+A social media space should either be entirely official and solely handled by the company, or entirely unofficial and not at all run by the company.
+
+Having the mods be "all company employees, plus this random guy" would be a ridiculous attack vector to open.
+
+comment: p170ael
+parent: t1_p16t60m
+author: davidcwilliams
+created_utc: 1785643864
+edited: false
+body:
+Of course. When I handed over the subreddit I offered to step down. They said it was fine for me to stay on. 
+
+My issue is not that I was removed. My issue is being removed with no communication, and then being lied to and ignored afterward.
+
+comment: p170h5w
+parent: t1_p128ol8
+author: Ok_Specialist1911
+created_utc: 1785643940
+edited: false
+body:
+I believe it. He has a toxic attitude toward competitors they are all ‘inferior’. Rumors of domain name squatting seedsigner.nnn variations. That is a great FOSS project. This vulnerability was due to arrogance and inevitably Karma. Sadly it affected all customers 😢
+
+comment: p179kap
+parent: t1_p16hm6h
+author: JumpProfessional3372
+created_utc: 1785647898
+edited: false
+body:
+Exactly I'm just using it to secure the seed, put the passphrase and sign a psbt read by the microsd.
+
+Much smaller than a cold alr-gapped laptop with LUKS disk encryption. But I have to admit that if somebody finds a laptop, they will have less idea what it is used for, than if they find the HW wallet.
+
+comment: p17u56r
+parent: t3_1vcfugv
+author: skr_replicator
+created_utc: 1785657822
+edited: 1785658767
+body:
+>At the end of the day, a hardware wallet only has one job. Generate true randomness. 
+
+Not really its only or even primary job. In fact, it's theoretically possible for a HW wallet to not provide RNG at all (as long as it doesn't pretend to have it) and only work with user-supplied seeds, and that would still be a valid HW wallet. Though that would be quite inconvenient for most people. I bet Coinkite wishes now they chose such a path.
+
+The main job of a HW wallet is to keep the seed unhackably inside, and securely use it to sign cryptographic stuff, most notably crypto transactions. A HW wallet doesn't need to provide RNG, but it absolutely does need to keep a private key hidden inside and to be able to work with it.
+
+[This ](https://www.youtube.com/watch?v=gwIGnATzBTg)is a device whose only job is to provide true randomness. And it's not capable of being a HW wallet. It would be a fantastic accessory for one that can accept dice-like RNG.
+
+And while RNG is not really the number one job for a HW wallet, still, if it does have that feature, it should absolutely be top quality and highly verified.
+
+But it's weird when so many people believe that generating seeds is the only job Hw wallets are for, and their purpose is to make their seed and then get locked into a safe. If that's what they want, they overpaid for a much more advanced device than they needed when they could've just bought some dice or something. HW wallets are for signing with your seeds safely.
+
+comment: p17xf9p
+parent: t1_p13rhwt
+author: skr_replicator
+created_utc: 1785659490
+edited: false
+body:
+The device probably was pretty good, and it will be a shame if it completely dies because of this fuckup. It might be great if it was released completely open source and the crypto community took over. Though I'm not sure if there was any incentive for them to do that. If that could somehow get them some money to pay for some of the lawsuit/bankrupcy, but not sure how that could work. Selling it to some other private owner would be more likely to get them some money than opening it up.
+
+comment: p18bt8i
+parent: t1_p16guks
+author: bje332013
+created_utc: 1785666860
+edited: false
+body:
+"there are tools you can use to generate a seed phrase from dice rolls, and coldcards produce the same seed phrase from the same dice rolls."
+
+
+That is reassuring to read. I haven't seen sources that support or disprove what you reported, but I'll check to see what's been published about that matter.
+
+comment: p18du7s
+parent: t1_p12031m
+author: dengist_comrade
+created_utc: 1785667826
+edited: false
+body:
+> It's naive to say other companies would have used their python firmware (lol)
+
+Foundation forked ColdCard to create Passport
+
+comment: p18yod9
+parent: t1_p14nqjn
+author: davidcwilliams
+created_utc: 1785676175
+edited: false
+body:
+Shit, seriously?
+
+comment: p18yvdh
+parent: t1_p18yod9
+author: ardevd
+created_utc: 1785676242
+edited: false
+body:
+It's speculation at best. You don't need an LLM to find that bug. Doesn't mean it wasn't used but the attempt to somehow "blame" AI for this is a distraction 
+
+comment: p19pvrw
+parent: t1_p1290tq
+author: Reywas3
+created_utc: 1785684476
+edited: false
+body:
+*roll
+
+comment: p19qbyi
+parent: t3_1vcfugv
+author: Reywas3
+created_utc: 1785684604
+edited: false
+body:
+The responses saying coinkite will survive remind me of my reaction when Celsius "paused withdrawals." You're biased because you believed in them. IT'S OVER
+
+comment: p1b9dn4
+parent: t1_p112d33
+author: CBpegasus
+created_utc: 1785699596
+edited: false
+body:
+Nah, this is not a "zero day exploit the best software devs can't find". It's a bit trickey to spot by static analysis but it's actually a pretty simple vulnerability and very much possible to find in traditional methods. Any claim it was found by AI is pure speculation right now, that CoinKite seem happy to push to make their responsibility seem smaller (big scary AI found a vulnerability in our code which is not at all a simple avoidable blunder!)
+
+It's only a matter of chance - and possibly not enough people actually bothering to audit the code - that the vulnerability wasn't found so far.
+
+comment: p1cm9mg
+parent: t1_p138rg2
+author: superdariom
+created_utc: 1785714231
+edited: false
+body:
+I think those who lost money wouldn't agree that it is a great product
+
+comment: p1czr9g
+parent: t3_1vcfugv
+author: Oxymorix
+created_utc: 1785718731
+edited: 1785719324
+body:
+The criticism of Coinkite is justified, but several technical claims  need correction.
+
+First, running standard statistical randomness batteries would not necessarily have exposed this bug. A deterministic PRNG can produce output that looks statistically random and passes tests for frequency, correlation, repetition and bit balance. Those tests cannot tell you where the entropy came from or whether the underlying state space is only 40 or 72 bits.
+
+The tests Coinkite actually needed were end-to-end tests proving that seed generation called the intended hardware RNG, that the insecure fallback was absent from production builds, and that the device refused to generate a seed when hardware entropy was unavailable. The system should have failed closed rather than silently producing plausible-looking but predictable output.
+
+Second, generating randomness is not a hardware wallet’s “only job.” Its central purpose is to protect private keys and securely authorize transactions while isolating secrets from a potentially compromised computer. A hardware wallet could accept only externally generated seeds and still be a legitimate signing device. However, once a company offers internal seed generation, that function must be treated as one of its most security-critical responsibilities. Other commenters in the thread correctly made this distinction.
+
+Third, there is presently no evidence supporting claims of an inside job. Investigators should naturally consider every possibility, including employees, but a catastrophic and negligent integration error is not evidence of deliberate theft. Assertions that Coinkite employees planted the flaw or stole the Bitcoin require actual links to the attacker, infrastructure or destination funds—not suspicion based solely on the scale of the failure.
+
+The same applies to claims that bankruptcy is certain. Coinkite faces potentially existential reputational, legal and financial consequences, but nobody in this thread has provided its finances, insurance position, legal claims or current sales figures. “Coinkite is done” is a prediction, not an established fact.
+
+The AI discussion is also a distraction. AI may have helped the attacker, but Coinkite has presented no evidence proving that. The vulnerability was discoverable through conventional code and integration review. Whether an LLM found it does not reduce Coinkite’s responsibility for allowing it into production and leaving it there for years.
+
+Finally, victims should not be blamed for failing to use dice or a strong passphrase. Those are excellent additional protections, but customers buying a premium security device were entitled to expect that its advertised seed generator produced adequately secure entropy. Defense in depth protected some users; it does not transfer responsibility for defective seed generation from the manufacturer to those who trusted the product.
+
+Coinkite failed to verify the provenance and effective entropy of the bytes used to generate master seeds. Its tests confirmed that the intended hardware-RNG code existed, but did not prove that the seed-generation path actually called it. Worse, the architecture silently substituted a weak software generator instead of stopping.
+
+That is a profound engineering and institutional failure. It is severe enough without adding technically inaccurate claims or unsupported criminal theories.
+
+comment: p1e7ypf
+parent: t1_p18yvdh
+author: davidcwilliams
+created_utc: 1785736322
+edited: false
+body:
+Oh of course. I rolled my eyes about the AI claim immediately. I was asking about the known issue in C.
+
+comment: p1ecybk
+parent: t3_1vcfugv
+author: Successful-Rich151
+created_utc: 1785738774
+edited: false
+body:
+There is no such thing are true random in computers.
+But yeah its a bizar flaw they left open.
+
+comment: p1fujyj
+parent: t1_p14hldr
+author: davidcwilliams
+created_utc: 1785762225
+edited: false
+body:
+He's joking wrong.
+
+comment: p1fuzen
+parent: t1_p16guks
+author: davidcwilliams
+created_utc: 1785762358
+edited: false
+body:
+So if someone was inclined, they would roll dice, check an online seed generator that uses dice, verify that their coldcard produces the same output, then generate another series of rolls and use that?
+
+comment: p1hy1yy
+parent: t1_p117915
+author: Interesting-Gear-992
+created_utc: 1785781937
+edited: false
+body:
+I don't understand, this software random generator why sitting in the code at all? If the device have a hw TRNG, which is should be used every time, why need to implement a weak sw RNG?
+
+comment: p1hz40p
+parent: t1_p1hy1yy
+author: ardevd
+created_utc: 1785782217
+edited: false
+body:
+It was part of the MicroPython library that ColdCard (and others) use. MicroPython includes a default, software-based Pseudo-Random Number Generator (PRNG) fallback to ensure the MicroPython environment can still run on generic microcontroller boards.
+
+Both MicroPython's software fallback and the intended hardware generator exposed the exact same C function signature, so with the fuckup with the defined macro resulted in the compiler linking to the MicroPython PRNG instead of the TRNG
+
+comment: p1i03n2
+parent: t1_p1hz40p
+author: Interesting-Gear-992
+created_utc: 1785782472
+edited: false
+body:
+Now I got why it's there, thanks for clarifying!
+
+comment: p1jvh9h
+parent: t3_1vcfugv
+author: PoetHumble
+created_utc: 1785801362
+edited: false
+body:
+Should I stop using Coldcard since the company will shut down and the product support will eventually end?
+
+comment: p1ktv0c
+parent: t1_p1fuzen
+author: [deleted]
+created_utc: 1785812839
+edited: false
+body:
+[deleted]
+
+comment: p1mxjqp
+parent: t1_p1ktv0c
+author: davidcwilliams
+created_utc: 1785846029
+edited: false
+body:
+Gotcha. thanks
+
+comment: p1v674m
+parent: t1_p13uwq6
+author: Rogue_Frame83
+created_utc: 1785941151
+edited: false
+body:
+I concur but my timeline is slightly different.  I truly believe the next best opportunity to purchase will be between Nov 30 - Dec 15 of 2026.  That's our bottom, that lines up with the cycles in my very humble opinion., ands certainly not financial advice.
+
+I also agree - we will see $58k, perhaps as low as $56k around that time.
+
+comment: p1vvx2q
+parent: t1_p18bt8i
+author: masteratrisk
+created_utc: 1785947608
+edited: false
+body:
+You can do it yourself. go to bitcoiner.guide/seed
+
+Do dice rolls and test that the seedphrase the coldcard creates is the same seed as what is done on that website. Several people have done this and confirmed it works, there are videos of people doing it in real time.
+
+Obviously dont use the seed you get in this test. Its just to verify that your next rolls will generate the right seed phrase.
+
+Eveyone doing self custody should do this, dont trust the RNG. Not your entropy not your coins.
+
+comment: p1wqcs0
+parent: t1_p1vvx2q
+author: bje332013
+created_utc: 1785955100
+edited: false
+body:
+If you create a seed phrase by only entering dice roll values into the Coldcard, could that completely random seed phrase be exported onto hardware wallets that don't support dice rolls, such as those made by Ledger?
+
+Ledger doesn't just support BTC; it also supports many other cryptocurrencies. I'm not sure whether that would make it incompatible with a seed phrase that the Coldcard revealed after being fed dice roll values, but since the BTC-only Coldcard isn't relying on its own RNG in that case, I have a feeling that it should be possible.
+
+more-stub: parent t1_p139si9 count 0

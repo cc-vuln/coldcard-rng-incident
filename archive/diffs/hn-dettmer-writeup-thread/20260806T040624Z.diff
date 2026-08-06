@@ -1,0 +1,1167 @@
+--- hn-dettmer-writeup-thread@20260805T205459Z
++++ hn-dettmer-writeup-thread@20260806T040624Z
+@@ -1,264 +1,900 @@
+-Hacker Newsnew | past | comments | ask | show | jobs | submitlogin
+-When random.bytes() runs but doesn't work (btcpp.dev)
+-94 points by Funes- 3 days ago | hide | past | favorite | 57 comments
+-help
+-londons_explore 3 days ago | next [–]
+-I am getting suspicious of "random number generator not actually returning random numbers" bugs....
+-They are the perfect bug for someone trying to "accidentally" make a secure system insecure.
+-I wonder if bribe money was involved or three letter agencies...
+-reply
+-dist-epoch 3 days ago | parent | next [–]
+-And they waited 5 years to exploit it?
+-And do you think the NSA desperately needed $90 mil (the amount stolen so far), so they created this elaborate backdoor? Or were they waiting until Satoshi or Binance decided to deposit a billion dollars into this wallet?
+-All the employees which touched the code will be on watch lists now anyway. And sudden new house or yacht will be immediately flagged.
+-reply
+-londons_explore 3 days ago | root | parent | next [–]
+-Need not be the NSA. Might just be some regular thief.
+-The longer they wait, the more they get to steal after all.
+-reply
+-josephg 3 days ago | root | parent | prev | next [–]
+-> And do you think the NSA desperately needed $90 mil (the amount stolen so far)
+-If this was done as part of an operation, we would have no idea what it was actually used for. It’s very unlikely that the crypto wallet thefts we know about were the intended target.
+-reply
+-anonymousiam 3 days ago | prev | next [–]
+-This post assumed that the author of the "runs" commit was not acting maliciously. Has that been established? It's not mentioned in this article.
+-reply
+-karamanolev 3 days ago | parent | next [–]
+-Per the article, not my opinion.
+-It has been established that "I didn't do it on purpose" is not enough in some cases. You have to _not do it_ _on purpose_. That "fake it till you make it", in this case, understanding what your code does, is perfectly fine in some contexts, not in others, like this one.
+-reply
+-silvestrov 3 days ago | parent | prev | next [–]
+-When looking through all the other commits the user has made: they all lack a good commit message.
+-This is systematic for that user. Either the user needs to improve or let go.
+-The organization needs to learn that good commit messages are a requirement for anything to do with crypto and payment systems.
+-reply
+-inigyou 3 days ago | root | parent | next [–]
+-The commit message is just a surface level manifestation of a deeper issue. Fixing the commit message does not fix the issue.
+-reply
+-anonymars 3 days ago | parent | prev | next [–]
+-Ironic:
+-> NEW POLICY If I don't know you, I don't merge you! Thanks XZ!
+-https://github.com/switck/libngu
+-reply
+-Sharlin 3 days ago | parent | prev | next [–]
+-Hanlon’s razor.
+-reply
+-eru 3 days ago | parent | prev | next [–]
+-Also: writing this stuff in C just begs for bugs.
+-LLM agents are cheap and good enough that you can write in eg Lean or whatever. Or at least write it in Rust.
+-reply
+-jki275 3 days ago | root | parent | next [–]
+-C isn't the problem here. one might argue that the combination of micro python and C and the person writing it having no understanding of how either one works is the problem.
+-Also running python on a microcontroller to do cryptography is fucking insane.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-> Also running python on a microcontroller to do cryptography is fucking insane.
+-I feel like I should confess to snubbing this (and some other) hardware wallet projects for the fact it used micropython. I think it's hard to draw the line between systems programmer snobbery and good advice... and I feel a little like a cop guilty of stop-and-frisk on the basis of skin color.
+-Because in general the ideas necessary to produce reliable software aren't well understood or agreed on there is a risk of letting style preferences which are only correlated with good engineering but aren't causative of good engineering get mistaken-- and this can cause errors in both directions, both mistaking stuff as good because it uses the "right" tools, or mistaking something as bad because it doesn't.
+-reply
+-thin_carapace 3 days ago | root | parent | prev | next [–]
+-I get the feeling that the bugs found in this instance can be more directly attributed to the author having zero experience operating a microcontroller
+-reply
+-scott_w 3 days ago | root | parent | next [–]
+-Honestly, I'm going to be a bit harsher: I think they're either:
+-1. A novice who doesn't know how to debug issues.
+-2. Totally incompetent and copying code from Stack Overflow.
+-I don't think it's specific to microcontrollers, either, the error from the C compiler is something that a competent programmer would be able to interpret, or at least see it as a signal to get someone more experienced in the domain to learn about.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-> the error from the C compiler is something that a competent programmer would be able to interpret,
+-contrary to the post, this was almost certainly not an issue of compilers throwing errors.
+-Reduced familarity with C could have played a role, but given the number of C experts that looked at this knowing there was an error and still misidentified the cause I don't think we need to reach for that powerful an explanation.
+-Confusion of definedness vs value check would make for a fine underhanded C entry. The flaw was not particularly clear from the source... and most common QA procedures could not distinguish a PRNG from TRNG once the error happened.
+-reply
+-scott_w 2 days ago | root | parent | next [–]
+-Fair point: I was using the information in the article to form my opinion. I still think that, if the developer in question ignored a compiler error as described, that’s a serious competence issue. It’s harder to spot after the fact because any reviewers wouldn’t have had a chance to see the compiler output.
+-The article makes the fair point of the size of the change and the complete lack of information in the commit message, which should have set off alarm bells…
+-reply
+-Scoundreller 1 day ago | root | parent | prev | next [–]
+-Hey now, I'm totally incompetent, so my code writes entries in a log file for virtually everything because otherwise I have no idea if it's doing what I expect. Would've caught some critical function not being called at all.
+-reply
+-eru 2 days ago | root | parent | prev | next [–]
+-Of course, being a total novice and claiming to produce a super secure gadget are not to things you want to go together.
+-reply
+-jgilias 3 days ago | root | parent | prev | next [–]
+-The bug has been up since before the LLM shift.
+-reply
+-dmitrygr 3 days ago | prev | next [–]
+->Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.
+-Amen.
+-reply
+-PunchyHamster 3 days ago | prev | next [–]
+-> The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235/15 = ~16.
+-the commit message is not 235 character long, the commit message is this
+-> splice-script: Test for msat chan balances
+-> splice-script: Round channel balances down
+-author mistakes commit message for PR which doesn't get persisted into code's history and don't even contain the ID of bug being fixed.
+-So yeah it is better but nothing to actually brag about
+-reply
+-hypeatei 3 days ago | prev | next [–]
+-> You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.
+-Or, you could realize that using a financial technology which relies on no software bugs ever is probably flawed at its core. "Not your keys, not your coins" was (is?) the zeitgeist but even people who did the "right thing" and used a cold wallet still got screwed. I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+-reply
+-DJBunnies 3 days ago | parent | next [–]
+-The "right thing" here is subjective.
+-If one uses a good source of entropy (e.g. dice rolls) then one will not "get screwed."
+-> I don't know why anyone would keep their wealth in something that requires so much technical excellence.
+-It's not for everybody, for sure.
+-reply
+-hypeatei 3 days ago | root | parent | next [–]
+-> If one uses a good source of entropy then one will not "get screwed."
+-How many users were told to verify the source code to make sure it was using good entropy? How many would actually do that even if told? Obviously not even the most hardline bitcoiners were looking at it.
+-> dice rolls
+-Yes, the new cope I've seen is that you should've been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I'm sure.
+-1: https://old.reddit.com/r/Bitcoin/comments/1vcr4r4/dice_rolls...
+-reply
+-firmretention 9 hours ago | root | parent | next [–]
+-While I agree self-custody is too onerous for the average person, Coldcard's own documentation had a section on generating secure seeds with dice and why that's more secure. It wasn't some esoteric knowledge - anyone who RTFM on the device they intended to store their savings on was fine. That's not an absolution of Coldcard of course, but it's not "new cope".
+-reply
+-inigyou 3 days ago | parent | prev | next [–]
+-I take it you get your paycheck in cash?
+-reply
+-hypeatei 3 days ago | root | parent | next [–]
+-No, via direct deposit. I had a co-worker once who miskeyed his routing+account numbers and guess what? He still got his money a few days later and it wasn't lost to the void.
+-There is no blockchain, seed phrases, nor cold wallets required for this amazing feat of money transfer/remediation to take place.
+-reply
+-inigyou 3 days ago | root | parent | next [–]
+-Great! Maybe the government should stop over regulating the banking system so the same protection will also be available to someone who buys drugs.
+-reply
+-anonymars 3 days ago | root | parent | next [–]
+-Wait, is the argument now that cryptocurrency only exists and is useful for buying drugs? It's tough to keep track of what point you're trying to make
+-reply
+-hypeatei 3 days ago | root | parent | prev | next [–]
+-If your argument is that Bitcoin is only good for illicit purchases, then I sort of agree with you but there are better alternatives like Monero. Regardless, you would agree that current valuations are insane given that's the only real use-case, right?
+-Also infrequent purchases != storing wealth in Bitcoin.
+-reply
+-anonymars 3 days ago | root | parent | prev | next [–]
+-Banking-related errors have recourse
+-reply
+-nullc 3 days ago | prev | next [–]
+-This writeup isn't very good and misses/misunderstands the programming error that leads to the flaw.
+-I'm commenting because I think it's important to understand the issue.
+-The article would have you think that the change in question was a tiny change to a flag to make it compile, but in reality the commit in question is a 1533 line addition of the entire RNG infrastructure.
+-The fundamental cause is a mixup between a value test and a definedness test.
+-Coldcard attempted to replace the micropython wrapper on the hardware TRNG, apparently in order to provide a more aggressive handling of fault/error conditions.
+-The micropython hwrng code is gated by an #if check, the replacement HWRNG code is gated by an ifndef. So "#define MICROPY_HW_ENABLE_RNG (0)" deactivated the micropython implementation but failed to activate the internal one (which was #ifndef MICROPY_HW_ENABLE_RNG ... which didn't fire because MICROPY_HW_ENABLE_RNG was _defined_).
+-This was easier to miss because the usages weren't only in different files-- they were in different repositories.
+-There is a more abstract point to make that in cryptographic software the absence of a secure randomness source (the STM32 TRNG) should never fall back to an insecure source (a trivial PRNG which might have only had on the order of 20-bits of uncertainty in its input). But the code that had the fallback was micropython which was not authored by the coldcard creators and is presumably not intended for cryptographic applications...
+-In later code (for MK4+ devices) the issue was further masked without being corrected by xor-ing in another insecure PRNG seeded by 32-bits from another TRNG. ... itself acting like an additional insecure fallback. (Why it first hashes 64-bits of TRNG output then throws away half the entropy is a mystery...)
+-RNG failures can be difficult to detect because the real randomness and a PRNG are indistinguishable by any simple tests of the output. I understand the coldcard developers ran extensive tests on the randomness generated by these devices-- they may well have been just testing the PRNG. It's something of a "color of your bits" issue ( https://ansuz.sooke.bc.ca/entry/23 ).
+-The same sort of issue happens at multiple levels of the stack, e.g. IIRC the STM32 TRNG itself does some kind of whitening that could have the same effect of concealing an RNG failure.
+-The existence of insecure fake randomness in the code at all was a red flag that had been noted previously -- though the really bad one was hidden away in the micropython code and not even obviously at play. I think this is a rare case of a bug that would be more easily found from binary analysis than review of the source code (e.g. no access to the STM32 TRNG at all).
+-Without these fallbacks the failure to use the TRNG would have been immediately detected by the developers (e.g. when every attempt generated the same seed), and a review could be validated by fault injection (NOP out the hwrng and verify that the test fails).
+-reply
+-egwor 3 days ago | parent | next [–]
+-Although I might disagree with the style of the write up, I think it is right that there are weak engineering practices applied:
+-- not enough information provided in commit message.
+-- this change ought to have been split into smaller chunks (e.g. introduce indirection whilst code continues to use hardware)
+-- limited (automated) testing
+-- potential confusion by the author over C concepts
+-- additional complexity which could have been hidden behind a cleaner interface rather than using defines
+-I agree about your points about:
+-- defines over multiple repo's made this more complicated that was necessary.
+-- fault injections would have been the appropriate way to test this (or maybe mocks)
+-- testing of randomness needs careful design, e.g. RNG seeding can be a good way
+-Taking a step back, we as a community of excellence need to emphasise that this isn't a criticism about the person/author. There needs to be a clear analysis of what went wrong whilst being kind to the person/people involved.
+-reply
+-inigyou 3 days ago | parent | prev | next [–]
+-At no point did I ever think that setting "enable HW RNG" to 0 "provided a more aggressive handling of fault/error conditions". I always assumed it disabled the HW RNG.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-https://github.com/switck/libngu/blob/537519a829259622ea6b03...
+-vs
+-https://github.com/Coldcard/micropython/blob/4107246f8a08080...
+-reply
+-dale_glass 3 days ago | root | parent | next [–]
+-The my_random_bytes implementation doesn't look good at all at first glance. Let's see:
+-1. I believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
+-2. "here" is a terrible name for a length
+-3. It does a memcpy of a minimum of 4 bytes to the destination, even if count is lower. It'll also overflow longer buffers with a length not divisible by 4.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-I have absolutely no interest in defending this code-- and already considered it untrusthworthy before any of this. But in the interest of accuracy:
+-> It does a memcpy of a minimum of 4 bytes
+-This is a common misreading of MIN(). MIN(4,x) is a number that is a MAXIMUM of 4, not a minimum.
+-Count is the number of bytes remaining in the buffer. The input to the copy is a 4-byte word. min(4,count) will produce a number 0-4 which is always equal to or less than count. The copy will not overflow the buffer or overrun the input: If count is 3, for example, then here will be 3 and it will copy 3 bytes.
+-> believe it errors out if the HWRNG returns the same value twice. That's actually a thing that can legitimately happen. "0" is also a legitimate output.
+-It's been a while since I looked but I believe the STM32 manual advises you to throw away data when this happens, because the rng is updated async with the processor and reads that are too fast will produce 0s or duplicate values. Entropy loss from doing so is generally negligible. Were it me I'd read enough into a cryptographic hash to render the output cryptographically close to uniform and not have to worry about it further. (particularly since some uses of cryptographic numbers are extremely sensitive to even small biases)
+-I do wonder how fatal MP_EFAULT actually is...-- on a device like this being jumpy at failing the RNG is reasonable, but if it bricks the device (for example) that would be too much for a condition that (IIRC) the datasheet says can happen. If that error is worse than causing a reboot then it might be the case that their emergency fix deployment might have the effect of causing problems by deploying never-actually-tested code into the wild. When I initially looked at this code before finding the flaw I was somewhat surprised that this test didn't produce spurious failures.
+-[Maybe someone who isn't traveling and on vacation might want to trace out that error condition, -- and check my vague recollection of the STM32 datasheets, as I could be remembering some other part]
+-reply
+-inigyou 3 days ago | root | parent | next [–]
+-There have been cases where a small statistical bias like avoiding duplicate bytes can be amplified to a full break. I don't think this problem is applicable to a bitcoin private key though.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-Right, that's particularly a concern for DSA nonces. Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.
+-reply
+-nullc 3 days ago | parent | prev | next [–]
+-Aside, I'm somewhat surprised that MISRA (as of 2012 at least) doesn't have a directive related to definedness vs value errors.
+-reply
+-RustyRussell 3 days ago | root | parent | next [–]
+-Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.
+-reply
+-killerstorm 3 days ago | parent | prev | next [–]
+-Well, if the developer read libngu's random.c he would have noticed that it uses rng_get() and that it's asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered "wait, what?").
+-So I'd say the root cause that the developer didn't check what random.bytes() does under the hood or how libngu expects random to be generated.
+-reply
+-dist-epoch 3 days ago | parent | prev | next [–]
+-I wonder if some sort of "taint" analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.
+-Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of "formal" proof - this function calls this function which reads this buffer which gets input from here...
+-reply
+-smithcoin 3 days ago | parent | prev | next [–]
+-Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.
+-reply
+-mlcrypto 3 days ago | parent | prev | next [–]
+-The article clearly indicates the size of the changes: "The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5/1534 = ~0.003"
+-reply
+-koolba 3 days ago | prev | next [–]
+-> A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.
+-No! Blanket statements like this is how you end up with 40 pages of slop AI comments in PRs that nobody reads.
+-Comments should be terse and meaningful. They should document surprising behavior or choices. The less comments you have, the more meaningful each one becomes because your time and eyeballs are limited as well.
+-reply
+-coldbrewed 3 days ago | parent | next [–]
+-We shouldn't tolerate slop in any form, especially not in commit comments. What we should care about is communicating design decisions, intent, and especially we should explain concerns that can't be intuited from reading the code. A longer, more detailed comment that explains some significant detail can be especially valuable but it should earn the weight that it carries.
+-I think we're all in agreement that a one word "runs" commit and a 6 paragraph slop commit both fail to communicate effectively.
+-reply
+-nonfamous 3 days ago | prev | next [–]
+-From the Twitter advisory on the issue being referenced here [1]:
+->>> To every other developer: we believe this is a sober reality of the new AI paradigm. AI-assisted code review can now find latent bugs at a speed that is outpacing even the industry’s most seasoned experts. If your firmware is open-source or has ever been public, assume it's already being read by attackers and defenders alike.
+-Kinda turns the “many eyes” principle of OSS on its head, eh?
+-[1] https://x.com/nvk/status/2083216713693151552?s=61
+-reply
+-abecedarius 3 days ago | parent | next [–]
+-If your source is not open that's barely a speedbump, given a binary. At least that's my impression of the current state.
+-reply
+-nullc 3 days ago | root | parent | next [–]
+-This flaw would probably be easier to find from the binary: the source itself was misleading, but if you analyized the binary you'd find that there was no access to the hwrng at all (assuming the dead code got eliminated by the compiler) or that the only function that accessed it was never called.
+-One lesson out of this is that now that AI has made a certain grade of review cheap is that it would be useful to perform security review both against the source code and against the resulting binary.
+-reply
+-dist-epoch 3 days ago | parent | prev | next [–]
+-If the industry most seasoned experts are not using LLMs right now to front-run the discovery of vulnerabilities in the code they are responsible for, they are not experts, but clowns.
+-reply
+-catlifeonmars 3 days ago | root | parent | next [–]
+-A lot of the vulnerabilities being discovered are low hanging fruit. An LLM could discover them, but so could a human.
+-Let me amend your statement:
+-If the industry most seasoned experts are not engaging in regular security reviews of their firmware, they are not experts, but clowns.
+-LLMs are useful for this but not absolutely necessary to address the core issue.
+-reply
+-systemsweird 3 days ago | prev | next [–]
+-Very good writeup and an astonishing level of negligence for an extremely security critical piece of code. The losses are going to surpass 100 million, these guys should be thrown in jail.
+-reply
+-jonathanlydall 3 days ago | parent | next [–]
+-This does not seem to be a good write up at all, see nullc’s explanation in this discussion of (what seems to me) the actual root cause whereas this article spent a lot of words making the argument that bad commit messages must mean bad code, later using the assertion to try “prove” what the technical problem was.
+-I agree that a bad commit message combined with a big commit is a huge smell, but as it’s just metadata for the code and not the code itself, it is not in itself evidence in any form.
+-That being said, probably okay after explaining the technical code issues for the author add a couple of a sentences about how all this was was part of 1000s of a lines of code changed in commits with useless messages which demonstrates generally bad code hygiene.
+-reply
+-smithcoin 3 days ago | root | parent | next [–]
+-I think what is the author is getting at is that if you are cavalier in your commit messages when the stakes are low, chances are you aren’t taking writing code that handles money seriously. Made me think of some merges I could have taken more seriously.
+-reply
+-Consider applying for YC's Fall 2026 batch! Applications are open till July 27.
+-Guidelines | FAQ | Lists | API | Security | Legal | Apply to YC | Contact
+-Search:
++{
++  "author": "Funes-",
++  "children": [
++    {
++      "author": "anonymousiam",
++      "children": [
++        {
++          "author": "Sharlin",
++          "children": [],
++          "created_at": "2026-08-02T05:01:23.000Z",
++          "created_at_i": 1785646883,
++          "id": 49141270,
++          "options": [],
++          "parent_id": 49141102,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Hanlon’s razor.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "eru",
++          "children": [
++            {
++              "author": "thin_carapace",
++              "children": [
++                {
++                  "author": "scott_w",
++                  "children": [
++                    {
++                      "author": "nullc",
++                      "children": [
++                        {
++                          "author": "scott_w",
++                          "children": [],
++                          "created_at": "2026-08-02T21:07:14.000Z",
++                          "created_at_i": 1785704834,
++                          "id": 49148323,
++                          "options": [],
++                          "parent_id": 49146618,
++                          "points": null,
++                          "story_id": 49140405,
++                          "text": "Fair point: I was using the information in the article to form my opinion. I still think that, if the developer in question ignored a compiler error as described, that’s a serious competence issue. It’s harder to spot after the fact because any reviewers wouldn’t have had a chance to see the compiler output.<p>The article makes the fair point of the size of the change and the complete lack of information in the commit message, which should have set off alarm bells…",
++                          "title": null,
++                          "type": "comment",
++                          "url": null
++                        }
++                      ],
++                      "created_at": "2026-08-02T17:47:08.000Z",
++                      "created_at_i": 1785692828,
++                      "id": 49146618,
++                      "options": [],
++                      "parent_id": 49145347,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "&gt; the error from the C compiler is something that a competent programmer would be able to interpret,<p>contrary to the post, this was almost certainly not an issue of compilers throwing errors.<p>Reduced familarity with C could have played a role, but given the number of C experts that looked at this knowing there was an error and <i>still</i> misidentified the cause I don&#x27;t think we need to reach for that powerful an explanation.<p>Confusion of definedness vs value check would make for a fine underhanded C entry.  The flaw was not particularly clear from the source... and most common QA procedures could not distinguish a PRNG from TRNG once the error happened.",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    },
++                    {
++                      "author": "eru",
++                      "children": [],
++                      "created_at": "2026-08-03T01:07:07.000Z",
++                      "created_at_i": 1785719227,
++                      "id": 49150082,
++                      "options": [],
++                      "parent_id": 49145347,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "Of course, being a total novice and claiming to produce a super secure gadget are not to things you want to go together.",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    },
++                    {
++                      "author": "Scoundreller",
++                      "children": [],
++                      "created_at": "2026-08-04T03:07:05.000Z",
++                      "created_at_i": 1785812825,
++                      "id": 49163987,
++                      "options": [],
++                      "parent_id": 49145347,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "Hey now, I&#x27;m totally incompetent, so my code writes entries in a log file for virtually everything because otherwise I have no idea if it&#x27;s doing what I expect. Would&#x27;ve caught some critical function not being called at all.",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    }
++                  ],
++                  "created_at": "2026-08-02T15:07:55.000Z",
++                  "created_at_i": 1785683275,
++                  "id": 49145347,
++                  "options": [],
++                  "parent_id": 49141474,
++                  "points": null,
++                  "story_id": 49140405,
++                  "text": "Honestly, I&#x27;m going to be a bit harsher: I think they&#x27;re either:<p>1. A novice who doesn&#x27;t know how to debug issues.<p>2. Totally incompetent and copying code from Stack Overflow.<p>I don&#x27;t think it&#x27;s specific to microcontrollers, either, the error from the C compiler is something that a competent programmer would be able to interpret, or at least see it as a signal to get someone more experienced in the domain to learn about.",
++                  "title": null,
++                  "type": "comment",
++                  "url": null
++                }
++              ],
++              "created_at": "2026-08-02T05:43:31.000Z",
++              "created_at_i": 1785649411,
++              "id": 49141474,
++              "options": [],
++              "parent_id": 49141340,
++              "points": null,
++              "story_id": 49140405,
++              "text": "I get the feeling that the bugs found in this instance can be more directly attributed to the author having zero experience operating a microcontroller",
++              "title": null,
++              "type": "comment",
++              "url": null
++            },
++            {
++              "author": "jgilias",
++              "children": [],
++              "created_at": "2026-08-02T05:44:29.000Z",
++              "created_at_i": 1785649469,
++              "id": 49141482,
++              "options": [],
++              "parent_id": 49141340,
++              "points": null,
++              "story_id": 49140405,
++              "text": "The bug has been up since before the LLM shift.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            },
++            {
++              "author": "jki275",
++              "children": [
++                {
++                  "author": "nullc",
++                  "children": [],
++                  "created_at": "2026-08-02T17:46:05.000Z",
++                  "created_at_i": 1785692765,
++                  "id": 49146607,
++                  "options": [],
++                  "parent_id": 49144692,
++                  "points": null,
++                  "story_id": 49140405,
++                  "text": "&gt; Also running python on a microcontroller to do cryptography is fucking insane.<p>I feel like I should confess to snubbing this (and some other) hardware wallet projects for the fact it used micropython.  I think it&#x27;s hard to draw the line between systems programmer snobbery and good advice... and I feel a little like a cop guilty of stop-and-frisk on the basis of skin color.<p>Because in general the ideas necessary to produce reliable software aren&#x27;t well understood or agreed on there is a risk of letting style preferences which are only correlated with good engineering but aren&#x27;t causative of good engineering get mistaken-- and this can cause errors in both directions, both mistaking stuff as good because it uses the &quot;right&quot; tools, or mistaking something as bad because it doesn&#x27;t.",
++                  "title": null,
++                  "type": "comment",
++                  "url": null
++                }
++              ],
++              "created_at": "2026-08-02T13:49:05.000Z",
++              "created_at_i": 1785678545,
++              "id": 49144692,
++              "options": [],
++              "parent_id": 49141340,
++              "points": null,
++              "story_id": 49140405,
++              "text": "C isn&#x27;t the problem here.  one might argue that the combination of micro python and C and the person writing it having no understanding of how either one works is the problem.<p>Also running python on a microcontroller to do cryptography is fucking insane.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T05:16:48.000Z",
++          "created_at_i": 1785647808,
++          "id": 49141340,
++          "options": [],
++          "parent_id": 49141102,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Also: writing this stuff in C just begs for bugs.<p>LLM agents are cheap and good enough that you can write in eg Lean or whatever.  Or at least write it in Rust.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "karamanolev",
++          "children": [],
++          "created_at": "2026-08-02T07:39:00.000Z",
++          "created_at_i": 1785656340,
++          "id": 49142040,
++          "options": [],
++          "parent_id": 49141102,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Per the article, not my opinion.<p>It has been established that &quot;I didn&#x27;t do it on purpose&quot; is not enough in some cases. You have to _not do it_ _on purpose_. That &quot;fake it till you make it&quot;, in this case, understanding what your code does, is perfectly fine in some contexts, not in others, like this one.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "silvestrov",
++          "children": [
++            {
++              "author": "inigyou",
++              "children": [],
++              "created_at": "2026-08-02T12:45:18.000Z",
++              "created_at_i": 1785674718,
++              "id": 49144064,
++              "options": [],
++              "parent_id": 49142714,
++              "points": null,
++              "story_id": 49140405,
++              "text": "The commit message is just a surface level manifestation of a deeper issue. Fixing the commit message does not fix the issue.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T09:33:07.000Z",
++          "created_at_i": 1785663187,
++          "id": 49142714,
++          "options": [],
++          "parent_id": 49141102,
++          "points": null,
++          "story_id": 49140405,
++          "text": "When looking through all the other commits the user has made: they all lack a good commit message.<p>This is systematic for that user.   Either the user needs to improve or let go.<p>The organization needs to learn that good commit messages are a requirement for anything to do with crypto and payment systems.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "anonymars",
++          "children": [],
++          "created_at": "2026-08-02T12:51:01.000Z",
++          "created_at_i": 1785675061,
++          "id": 49144132,
++          "options": [],
++          "parent_id": 49141102,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Ironic:<p>&gt; NEW POLICY If I don&#x27;t know you, I don&#x27;t merge you! Thanks XZ!<p><a href=\"https:&#x2F;&#x2F;github.com&#x2F;switck&#x2F;libngu\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;switck&#x2F;libngu</a>",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T04:30:52.000Z",
++      "created_at_i": 1785645052,
++      "id": 49141102,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "This post assumed that the author of the &quot;runs&quot; commit was not acting maliciously.  Has that been established?  It&#x27;s not mentioned in this article.",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "systemsweird",
++      "children": [
++        {
++          "author": "jonathanlydall",
++          "children": [
++            {
++              "author": "smithcoin",
++              "children": [],
++              "created_at": "2026-08-02T08:36:14.000Z",
++              "created_at_i": 1785659774,
++              "id": 49142362,
++              "options": [],
++              "parent_id": 49142227,
++              "points": null,
++              "story_id": 49140405,
++              "text": "I think what is the author is getting at is that if you are cavalier in your commit messages when the stakes are low, chances are you aren’t taking writing code <i>that handles money</i> seriously. Made me think of some merges I could have taken more seriously.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T08:14:31.000Z",
++          "created_at_i": 1785658471,
++          "id": 49142227,
++          "options": [],
++          "parent_id": 49141837,
++          "points": null,
++          "story_id": 49140405,
++          "text": "This does not seem to be a good write up at all, see nullc’s explanation in this discussion of (what seems to me) the actual root cause whereas this article spent a lot of words making the argument that bad commit messages <i>must</i> mean bad code, later using the assertion to try “prove” what the technical problem was.<p>I agree that a bad commit message combined with a big commit is a huge smell, but as it’s just metadata for the code and not the code itself, it is not in itself evidence in any form.<p>That being said, probably okay after explaining the technical code issues for the author add a couple of a sentences about how all this was was part of 1000s of a lines of code changed in commits with useless messages which demonstrates generally bad  code hygiene.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T06:58:01.000Z",
++      "created_at_i": 1785653881,
++      "id": 49141837,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "Very good writeup and an astonishing level of negligence for an extremely security critical piece of code. The losses are going to surpass 100 million, these guys should be thrown in jail.",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "nullc",
++      "children": [
++        {
++          "author": "nullc",
++          "children": [
++            {
++              "author": "RustyRussell",
++              "children": [],
++              "created_at": "2026-08-02T09:04:47.000Z",
++              "created_at_i": 1785661487,
++              "id": 49142559,
++              "options": [],
++              "parent_id": 49142014,
++              "points": null,
++              "story_id": 49140405,
++              "text": "Always use -Wundef. For CCAN all config vars use #if and we lint for ifdefs of them, because you have to pick a side here, and sometimes using HAVE_X in C code is useful, so I prefer always-defined.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T07:34:54.000Z",
++          "created_at_i": 1785656094,
++          "id": 49142014,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Aside, I&#x27;m somewhat surprised that MISRA (as of 2012 at least) doesn&#x27;t have a directive related to definedness vs value errors.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "smithcoin",
++          "children": [
++            {
++              "author": "nullc",
++              "children": [],
++              "created_at": "2026-08-02T17:54:43.000Z",
++              "created_at_i": 1785693283,
++              "id": 49146689,
++              "options": [],
++              "parent_id": 49142373,
++              "points": null,
++              "story_id": 49140405,
++              "text": "Hopefully people are being a little circumspect right now with explotation instructions because there are still vulnerable coins out there (particularly from mk4+ wallets, as well ones with passwords that are not strong enough) which have not been taken or rescued yet and may still be rescued by owners.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T08:37:43.000Z",
++          "created_at_i": 1785659863,
++          "id": 49142373,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Have you found a write up you’d recommend on how the threat actors actually exploited the vulnerabilities?",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "dist-epoch",
++          "children": [],
++          "created_at": "2026-08-02T10:28:58.000Z",
++          "created_at_i": 1785666538,
++          "id": 49143073,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "I wonder if some sort of &quot;taint&quot; analysis could be used - you generate a byte of randomness and trace it back through code until you see all the sources of entropy which were used as input.<p>Hard problem in general, but with LLMs surely this is possible now, either with them inspecting or by them providing some sort of &quot;formal&quot; proof - this function calls this function which reads this buffer which gets input from here...",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "egwor",
++          "children": [],
++          "created_at": "2026-08-02T11:30:10.000Z",
++          "created_at_i": 1785670210,
++          "id": 49143450,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Although I might disagree with the style of the write up, I think it is right that there are weak engineering practices applied:<p>- not enough information provided in commit message. \n- this change ought to have been split into smaller chunks (e.g. introduce indirection whilst code continues to use hardware)\n- limited (automated) testing\n- potential confusion by the author over C concepts\n- additional complexity which could have been hidden behind a cleaner interface rather than using defines<p>I agree about your points about:<p>- defines over multiple repo&#x27;s made this more complicated that was necessary. \n- fault injections would have been the appropriate way to test this (or maybe mocks)\n- testing of randomness needs careful design, e.g. RNG seeding can be a good way<p>Taking a step back, we as a community of excellence need to emphasise that this isn&#x27;t a criticism about the person&#x2F;author. There needs to be a clear analysis of what went wrong whilst being kind to the person&#x2F;people involved.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "inigyou",
++          "children": [
++            {
++              "author": "nullc",
++              "children": [
++                {
++                  "author": "dale_glass",
++                  "children": [
++                    {
++                      "author": "nullc",
++                      "children": [
++                        {
++                          "author": "inigyou",
++                          "children": [
++                            {
++                              "author": "nullc",
++                              "children": [],
++                              "created_at": "2026-08-02T17:40:41.000Z",
++                              "created_at_i": 1785692441,
++                              "id": 49146562,
++                              "options": [],
++                              "parent_id": 49146187,
++                              "points": null,
++                              "story_id": 49140405,
++                              "text": "Right, that&#x27;s particularly a concern for DSA nonces.  Coldcard uses RFC 6979 however, and duplicates at the 32-bit word level is a different matter than at the byte level.",
++                              "title": null,
++                              "type": "comment",
++                              "url": null
++                            }
++                          ],
++                          "created_at": "2026-08-02T16:57:49.000Z",
++                          "created_at_i": 1785689869,
++                          "id": 49146187,
++                          "options": [],
++                          "parent_id": 49146167,
++                          "points": null,
++                          "story_id": 49140405,
++                          "text": "There have been cases where a small statistical bias like avoiding duplicate bytes can be amplified to a full break. I don&#x27;t think this problem is applicable to a bitcoin private key though.",
++                          "title": null,
++                          "type": "comment",
++                          "url": null
++                        }
++                      ],
++                      "created_at": "2026-08-02T16:55:41.000Z",
++                      "created_at_i": 1785689741,
++                      "id": 49146167,
++                      "options": [],
++                      "parent_id": 49145802,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "I have absolutely no interest in defending this code-- and already considered it untrusthworthy before any of this.  But in the interest of accuracy:<p>&gt; It does a memcpy of a minimum of 4 bytes<p>This is a common misreading of MIN().  MIN(4,x) is a number that is a MAXIMUM of 4, not a minimum.<p>Count is the number of bytes remaining in the buffer.  The input to the copy is a 4-byte word.  min(4,count) will produce a number 0-4 which is always equal to or less than count.  The copy will not overflow the buffer or overrun the input: If count is 3, for example, then here will be 3 and it will copy 3 bytes.<p>&gt; believe it errors out if the HWRNG returns the same value twice. That&#x27;s actually a thing that can legitimately happen. &quot;0&quot; is also a legitimate output.<p>It&#x27;s been a while since I looked but I believe the STM32 manual advises you to throw away data when this happens, because the rng is updated async with the processor and reads that are too fast will produce 0s or duplicate values.  Entropy loss from doing so is generally negligible. Were it me I&#x27;d read enough into a cryptographic hash to render the output cryptographically close to uniform and not have to worry about it further. (particularly since some uses of cryptographic numbers are extremely sensitive to even small biases)<p>I do wonder how fatal MP_EFAULT actually is...-- on a device like this being jumpy at failing the RNG is reasonable, but if it bricks the device (for example) that would be too much for a condition that (IIRC) the datasheet says can happen.  If that error is worse than causing a reboot then it might be the case that their emergency fix deployment might have the effect of causing problems by deploying never-actually-tested code into the wild.  When I initially looked at this code before finding the flaw I was somewhat surprised that this test didn&#x27;t produce spurious failures.<p>[Maybe someone who isn&#x27;t traveling and on vacation might want to trace out that error condition, -- and check my vague recollection of the STM32 datasheets, as I could be remembering some other part]",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    }
++                  ],
++                  "created_at": "2026-08-02T16:08:18.000Z",
++                  "created_at_i": 1785686898,
++                  "id": 49145802,
++                  "options": [],
++                  "parent_id": 49145062,
++                  "points": null,
++                  "story_id": 49140405,
++                  "text": "The my_random_bytes implementation doesn&#x27;t look good at all at first glance. Let&#x27;s see:<p>1. I believe it errors out if the HWRNG returns the same value twice. That&#x27;s actually a thing that can legitimately happen. &quot;0&quot; is also a legitimate output.<p>2. &quot;here&quot; is a terrible name for a length<p>3. It does a memcpy of a minimum of 4 bytes to the destination, even if count is lower. It&#x27;ll also overflow longer buffers with a length not divisible by 4.",
++                  "title": null,
++                  "type": "comment",
++                  "url": null
++                }
++              ],
++              "created_at": "2026-08-02T14:32:44.000Z",
++              "created_at_i": 1785681164,
++              "id": 49145062,
++              "options": [],
++              "parent_id": 49144079,
++              "points": null,
++              "story_id": 49140405,
++              "text": "<a href=\"https:&#x2F;&#x2F;github.com&#x2F;switck&#x2F;libngu&#x2F;blob&#x2F;537519a829259622ea6b0334fbafd6cae852852f&#x2F;ngu&#x2F;random.c#L77\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;switck&#x2F;libngu&#x2F;blob&#x2F;537519a829259622ea6b03...</a><p>vs<p><a href=\"https:&#x2F;&#x2F;github.com&#x2F;Coldcard&#x2F;micropython&#x2F;blob&#x2F;4107246f8a080807b62c3b4838e71e812ea68b6f&#x2F;ports&#x2F;stm32&#x2F;rng.c#L55\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;Coldcard&#x2F;micropython&#x2F;blob&#x2F;4107246f8a08080...</a>",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T12:46:41.000Z",
++          "created_at_i": 1785674801,
++          "id": 49144079,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "At no point did I ever think that setting &quot;enable HW RNG&quot; to 0 &quot;provided a more aggressive handling of fault&#x2F;error conditions&quot;. I always assumed it disabled the HW RNG.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "mlcrypto",
++          "children": [],
++          "created_at": "2026-08-02T16:16:51.000Z",
++          "created_at_i": 1785687411,
++          "id": 49145865,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "The article clearly indicates the size of the changes: &quot;The commit message is 5 characters and is simply the word “runs.” The commit changes 1534 lines of code making the ratio 5&#x2F;1534 = ~0.003&quot;",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "killerstorm",
++          "children": [],
++          "created_at": "2026-08-02T18:52:59.000Z",
++          "created_at_i": 1785696779,
++          "id": 49147215,
++          "options": [],
++          "parent_id": 49141886,
++          "points": null,
++          "story_id": 49140405,
++          "text": "Well, if the developer read libngu&#x27;s random.c he would have noticed that it uses  rng_get() and that it&#x27;s asking for MICROPY_HW_ENABLE_RNG (albeit the failsafe is defective, reading it should have at least triggered &quot;wait, what?&quot;).<p>So I&#x27;d say the root cause that the developer didn&#x27;t check what random.bytes() does under the hood or how libngu expects random to be generated.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T07:08:53.000Z",
++      "created_at_i": 1785654533,
++      "id": 49141886,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "This writeup isn&#x27;t very good and misses&#x2F;misunderstands the programming error that leads to the flaw.<p>I&#x27;m commenting because I think it&#x27;s important to understand the issue.<p>The article would have you think that the change in question was a tiny change to a flag to make it compile, but in reality the commit in question is a 1533 line addition of the entire RNG infrastructure.<p>The fundamental cause is a mixup between a value test and a definedness test.<p>Coldcard attempted to replace the micropython wrapper on the hardware TRNG, apparently in order to provide a more aggressive handling of fault&#x2F;error conditions.<p>The micropython hwrng code is gated by an #if check, the replacement HWRNG code is gated by an ifndef.   So &quot;#define MICROPY_HW_ENABLE_RNG (0)&quot; deactivated the micropython implementation but <i>failed</i> to activate the internal one (which was #ifndef MICROPY_HW_ENABLE_RNG ... which didn&#x27;t fire because MICROPY_HW_ENABLE_RNG was _defined_).<p>This was easier to miss because the usages weren&#x27;t only in different files-- they were in different repositories.<p>There is a more abstract point to make that in cryptographic software the absence of a secure randomness source (the STM32 TRNG) should never fall back to an insecure source (a trivial PRNG which might have only had on the order of 20-bits of uncertainty in its input).   But the code that had the fallback was micropython which was not authored by the coldcard creators and is presumably not intended for cryptographic applications...<p>In later code (for MK4+ devices) the issue was further masked without being corrected by xor-ing in another insecure PRNG seeded by 32-bits from another TRNG. ... itself acting like an additional insecure fallback. (Why it first hashes 64-bits of TRNG output then throws away half the entropy is a mystery...)<p>RNG failures can be difficult to detect because the real randomness and a PRNG are indistinguishable by any simple tests of the output.  I understand the coldcard developers ran extensive tests on the randomness generated by these devices-- they may well have been just testing the PRNG.  It&#x27;s something of a &quot;color of your bits&quot; issue ( <a href=\"https:&#x2F;&#x2F;ansuz.sooke.bc.ca&#x2F;entry&#x2F;23\" rel=\"nofollow\">https:&#x2F;&#x2F;ansuz.sooke.bc.ca&#x2F;entry&#x2F;23</a> ).<p>The same sort of issue happens at multiple levels of the stack, e.g. IIRC the STM32 TRNG itself does some kind of whitening that could have the same effect of concealing an RNG failure.<p>The existence of insecure fake randomness in the code at all was a red flag that had been noted previously -- though the really bad one was hidden away in the micropython code and not even obviously at play.  I think this is a rare case of a bug that would be more easily found from binary analysis than review of the source code (e.g. no access to the STM32 TRNG at all).<p>Without these fallbacks the failure to use the TRNG would have been immediately detected by the developers (e.g. when every attempt generated the same seed), and a review could be validated by fault injection (NOP out the hwrng and verify that the test fails).",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "dmitrygr",
++      "children": [],
++      "created_at": "2026-08-02T07:22:02.000Z",
++      "created_at_i": 1785655322,
++      "id": 49141953,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "<p><pre><code>  &gt;Micropython creates the illusion embedded developers do not need to understand C, their CPU, or other advanced concepts to do embedded programming.\n</code></pre>\nAmen.",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "londons_explore",
++      "children": [
++        {
++          "author": "dist-epoch",
++          "children": [
++            {
++              "author": "londons_explore",
++              "children": [],
++              "created_at": "2026-08-02T10:23:55.000Z",
++              "created_at_i": 1785666235,
++              "id": 49143043,
++              "options": [],
++              "parent_id": 49142900,
++              "points": null,
++              "story_id": 49140405,
++              "text": "Need not be the NSA.     Might just be some regular thief.<p>The longer they wait, the more they get to steal after all.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            },
++            {
++              "author": "josephg",
++              "children": [],
++              "created_at": "2026-08-02T11:02:22.000Z",
++              "created_at_i": 1785668542,
++              "id": 49143269,
++              "options": [],
++              "parent_id": 49142900,
++              "points": null,
++              "story_id": 49140405,
++              "text": "&gt; And do you think the NSA desperately needed $90 mil (the amount stolen so far)<p>If this was done as part of an operation, we would have no idea what it was actually used for. It’s very unlikely that the crypto wallet thefts we know about were the intended target.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T10:04:43.000Z",
++          "created_at_i": 1785665083,
++          "id": 49142900,
++          "options": [],
++          "parent_id": 49142187,
++          "points": null,
++          "story_id": 49140405,
++          "text": "And they waited 5 years to exploit it?<p>And do you think the NSA desperately needed $90 mil (the amount stolen so far), so they created this elaborate backdoor? Or were they waiting until Satoshi or Binance decided to deposit a billion dollars into this wallet?<p>All the employees which touched the code will be on watch lists now anyway. And sudden new house or yacht will be immediately flagged.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T08:08:06.000Z",
++      "created_at_i": 1785658086,
++      "id": 49142187,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "I am getting suspicious of &quot;random number generator not actually returning random numbers&quot; bugs....<p>They are the perfect bug for someone trying to &quot;accidentally&quot; make a secure system insecure.<p>I wonder if bribe money was involved or three letter agencies...",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "nonfamous",
++      "children": [
++        {
++          "author": "dist-epoch",
++          "children": [
++            {
++              "author": "catlifeonmars",
++              "children": [],
++              "created_at": "2026-08-02T15:22:26.000Z",
++              "created_at_i": 1785684146,
++              "id": 49145449,
++              "options": [],
++              "parent_id": 49142927,
++              "points": null,
++              "story_id": 49140405,
++              "text": "A lot of the vulnerabilities being discovered are low hanging fruit. An LLM could discover them, but so could a human.<p>Let me amend your statement:<p>If the industry most seasoned experts are not engaging in regular security reviews of their firmware, they are not experts, but clowns.<p>LLMs are useful for this but not absolutely necessary to address the core issue.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T10:07:59.000Z",
++          "created_at_i": 1785665279,
++          "id": 49142927,
++          "options": [],
++          "parent_id": 49142449,
++          "points": null,
++          "story_id": 49140405,
++          "text": "If the industry most seasoned experts are not using LLMs right now to front-run the discovery of vulnerabilities in the code they are responsible for, they are not experts, but clowns.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "abecedarius",
++          "children": [
++            {
++              "author": "nullc",
++              "children": [],
++              "created_at": "2026-08-02T17:52:04.000Z",
++              "created_at_i": 1785693124,
++              "id": 49146659,
++              "options": [],
++              "parent_id": 49144476,
++              "points": null,
++              "story_id": 49140405,
++              "text": "This flaw would probably be easier to find from the binary:  the source itself was misleading, but if you analyized the binary you&#x27;d find that there was no access to the hwrng at all (assuming the dead code got eliminated by the compiler) or that the only function that accessed it was never called.<p>One lesson out of this is that now that AI has made a certain grade of review cheap is that it would be useful to perform security review both against the source code and against the resulting binary.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T13:24:39.000Z",
++          "created_at_i": 1785677079,
++          "id": 49144476,
++          "options": [],
++          "parent_id": 49142449,
++          "points": null,
++          "story_id": 49140405,
++          "text": "If your source is <i>not</i> open that&#x27;s barely a speedbump, given a binary. At least that&#x27;s my impression of the current state.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T08:47:18.000Z",
++      "created_at_i": 1785660438,
++      "id": 49142449,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "From the Twitter advisory on the issue being referenced here [1]:<p>&gt;&gt;&gt; To every other developer: we believe this is a sober reality of the new AI paradigm. AI-assisted code review can now find latent bugs at a speed that is outpacing even the industry’s most seasoned experts. If your firmware is open-source or has ever been public, assume it&#x27;s already being read by attackers and defenders alike.<p>Kinda turns the “many eyes” principle of OSS on its head, eh?<p>[1] <a href=\"https:&#x2F;&#x2F;x.com&#x2F;nvk&#x2F;status&#x2F;2083216713693151552?s=61\" rel=\"nofollow\">https:&#x2F;&#x2F;x.com&#x2F;nvk&#x2F;status&#x2F;2083216713693151552?s=61</a>",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "PunchyHamster",
++      "children": [],
++      "created_at": "2026-08-02T09:36:32.000Z",
++      "created_at_i": 1785663392,
++      "id": 49142733,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "&gt; The commit message is 235 characters, and the commit changes 15 lines of code. That’s a ratio of 235&#x2F;15 = ~16.<p>the commit message is not 235 character long, the commit message is this<p>&gt; splice-script: Test for msat chan balances\n&gt; splice-script: Round channel balances down<p>author mistakes commit message for PR which doesn&#x27;t get persisted into code&#x27;s history and don&#x27;t even contain the ID of bug being fixed.<p>So yeah it is better but nothing to actually brag about",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "hypeatei",
++      "children": [
++        {
++          "author": "inigyou",
++          "children": [
++            {
++              "author": "anonymars",
++              "children": [],
++              "created_at": "2026-08-02T12:55:18.000Z",
++              "created_at_i": 1785675318,
++              "id": 49144163,
++              "options": [],
++              "parent_id": 49144084,
++              "points": null,
++              "story_id": 49140405,
++              "text": "Banking-related errors have recourse",
++              "title": null,
++              "type": "comment",
++              "url": null
++            },
++            {
++              "author": "hypeatei",
++              "children": [
++                {
++                  "author": "inigyou",
++                  "children": [
++                    {
++                      "author": "anonymars",
++                      "children": [],
++                      "created_at": "2026-08-02T15:19:15.000Z",
++                      "created_at_i": 1785683955,
++                      "id": 49145422,
++                      "options": [],
++                      "parent_id": 49144682,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "Wait, is the argument now that cryptocurrency only exists and is useful for buying drugs?  It&#x27;s tough to keep track of what point you&#x27;re trying to make",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    },
++                    {
++                      "author": "hypeatei",
++                      "children": [],
++                      "created_at": "2026-08-02T16:07:23.000Z",
++                      "created_at_i": 1785686843,
++                      "id": 49145792,
++                      "options": [],
++                      "parent_id": 49144682,
++                      "points": null,
++                      "story_id": 49140405,
++                      "text": "If your argument is that Bitcoin is only good for illicit purchases, then I sort of agree with you but there are better alternatives like Monero. Regardless, you would agree that current valuations are insane given that&#x27;s the only real use-case, right?<p>Also infrequent purchases != storing wealth in Bitcoin.",
++                      "title": null,
++                      "type": "comment",
++                      "url": null
++                    }
++                  ],
++                  "created_at": "2026-08-02T13:48:14.000Z",
++                  "created_at_i": 1785678494,
++                  "id": 49144682,
++                  "options": [],
++                  "parent_id": 49144432,
++                  "points": null,
++                  "story_id": 49140405,
++                  "text": "Great! Maybe the government should stop over regulating the banking system so the same protection will also be available to someone who buys drugs.",
++                  "title": null,
++                  "type": "comment",
++                  "url": null
++                }
++              ],
++              "created_at": "2026-08-02T13:19:10.000Z",
++              "created_at_i": 1785676750,
++              "id": 49144432,
++              "options": [],
++              "parent_id": 49144084,
++              "points": null,
++              "story_id": 49140405,
++              "text": "No, via direct deposit. I had a co-worker once who miskeyed his routing+account numbers and guess what? He still got his money a few days later and it wasn&#x27;t lost to the void.<p>There is no blockchain, seed phrases, nor cold wallets required for this amazing feat of money transfer&#x2F;remediation to take place.",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T12:47:02.000Z",
++          "created_at_i": 1785674822,
++          "id": 49144084,
++          "options": [],
++          "parent_id": 49143286,
++          "points": null,
++          "story_id": 49140405,
++          "text": "I take it you get your paycheck in cash?",
++          "title": null,
++          "type": "comment",
++          "url": null
++        },
++        {
++          "author": "DJBunnies",
++          "children": [
++            {
++              "author": "hypeatei",
++              "children": [
++                {
++                  "author": "firmretention",
++                  "children": [],
++                  "created_at": "2026-08-05T11:38:08.000Z",
++                  "created_at_i": 1785929888,
++                  "id": 49181406,
++                  "options": [],
++                  "parent_id": 49145759,
++                  "points": null,
++                  "story_id": 49140405,
++                  "text": "While I agree self-custody is too onerous for the average person, Coldcard&#x27;s own documentation had a section on generating secure seeds with dice and why that&#x27;s more secure. It wasn&#x27;t some esoteric knowledge - anyone who RTFM on the device they intended to store their savings on was fine. That&#x27;s not an absolution of Coldcard of course, but it&#x27;s not &quot;new cope&quot;.",
++                  "title": null,
++                  "type": "comment",
++                  "url": null
++                }
++              ],
++              "created_at": "2026-08-02T16:03:16.000Z",
++              "created_at_i": 1785686596,
++              "id": 49145759,
++              "options": [],
++              "parent_id": 49145624,
++              "points": null,
++              "story_id": 49140405,
++              "text": "&gt; If one uses a good source of entropy then one will not &quot;get screwed.&quot;<p>How many users were told to verify the source code to make sure it was using good entropy? How many would actually do that even if told? Obviously not even the most hardline bitcoiners were looking at it.<p>&gt; dice rolls<p>Yes, the new cope I&#x27;ve seen is that you should&#x27;ve been using casino-grade dice[1] to make sure your entropy is good LOL. Mass adoption soon, I&#x27;m sure.<p>1: <a href=\"https:&#x2F;&#x2F;old.reddit.com&#x2F;r&#x2F;Bitcoin&#x2F;comments&#x2F;1vcr4r4&#x2F;dice_rolls_for_a_24word_seed_two_questions&#x2F;p13ch4q&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;old.reddit.com&#x2F;r&#x2F;Bitcoin&#x2F;comments&#x2F;1vcr4r4&#x2F;dice_rolls...</a>",
++              "title": null,
++              "type": "comment",
++              "url": null
++            }
++          ],
++          "created_at": "2026-08-02T15:47:05.000Z",
++          "created_at_i": 1785685625,
++          "id": 49145624,
++          "options": [],
++          "parent_id": 49143286,
++          "points": null,
++          "story_id": 49140405,
++          "text": "The &quot;right thing&quot; here is subjective.<p>If one uses a good source of entropy (e.g. dice rolls) then one will not &quot;get screwed.&quot;<p>&gt; I don&#x27;t know why anyone would keep their wealth in something that requires so much technical excellence.<p>It&#x27;s not for everybody, for sure.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T11:05:33.000Z",
++      "created_at_i": 1785668733,
++      "id": 49143286,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "&gt; You, as a developer working on Bitcoin, need to take your time to understand your changes, document them clearly, and verify they do what you think.<p>Or, you could realize that using a financial technology which relies on no software bugs ever is probably flawed at its core. &quot;Not your keys, not your coins&quot; was (is?) the zeitgeist but even people who did the &quot;right thing&quot; and used a cold wallet still got screwed. I don&#x27;t know why anyone would keep their wealth in something that requires so much technical excellence.",
++      "title": null,
++      "type": "comment",
++      "url": null
++    },
++    {
++      "author": "koolba",
++      "children": [
++        {
++          "author": "coldbrewed",
++          "children": [],
++          "created_at": "2026-08-02T17:52:13.000Z",
++          "created_at_i": 1785693133,
++          "id": 49146661,
++          "options": [],
++          "parent_id": 49143727,
++          "points": null,
++          "story_id": 49140405,
++          "text": "We shouldn&#x27;t tolerate slop in any form, especially not in commit comments. What we should care about is communicating design decisions, intent, and especially we should explain concerns that can&#x27;t be intuited from reading the code. A longer, more detailed comment that explains some significant detail can be especially valuable but it should earn the weight that it carries.<p>I think we&#x27;re all in agreement that a one word &quot;runs&quot; commit and a 6 paragraph slop commit both fail to communicate effectively.",
++          "title": null,
++          "type": "comment",
++          "url": null
++        }
++      ],
++      "created_at": "2026-08-02T12:07:24.000Z",
++      "created_at_i": 1785672444,
++      "id": 49143727,
++      "options": [],
++      "parent_id": 49140405,
++      "points": null,
++      "story_id": 49140405,
++      "text": "&gt; A good goal as a developer is a high commit message to change ratio. The more lines of code that you change, the more comments explaining why you’re changing the code. More message and less code changes per commit is generally a good idea.<p>No! Blanket statements like this is how you end up with 40 pages of slop AI comments in PRs that nobody reads.<p>Comments should be terse and meaningful. They should document surprising behavior or choices. The less comments you have, the more meaningful each one becomes because your time and eyeballs are limited as well.",
++      "title": null,
++      "type": "comment",
++      "url": null
++    }
++  ],
++  "created_at": "2026-08-02T02:08:26.000Z",
++  "created_at_i": 1785636506,
++  "id": 49140405,
++  "options": [],
++  "parent_id": null,
++  "points": null,
++  "story_id": 49140405,
++  "text": null,
++  "title": "When random.bytes() runs but doesn't work",
++  "type": "story",
++  "url": "https://insider.btcpp.dev/p/when-randombytes-runs-but-doesnt"
++}

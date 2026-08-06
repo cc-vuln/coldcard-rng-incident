@@ -1,0 +1,613 @@
+Skip to content
+Search Gists
+Search Gists
+All gists
+Back to GitHub
+Sign in
+Sign up
+Sign in
+Sign up
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Instantly share code, notes, and snippets.
+dylanleclair1/libngu-one-key-two-names.md
+Last active
+August 5, 2026 19:08
+Show Gist options
+Download ZIP
+Star
+1
+(1)
+You must be signed in to star a gist
+Fork
+0
+(0)
+You must be signed in to fork a gist
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/dylanleclair1/67d160af313be59851b88d1a81f0d762.js&quot;&gt;&lt;/script&gt;
+Save dylanleclair1/67d160af313be59851b88d1a81f0d762 to your computer and use it in GitHub Desktop.
+Code
+Revisions
+6
+Stars
+1
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/dylanleclair1/67d160af313be59851b88d1a81f0d762.js&quot;&gt;&lt;/script&gt;
+Save dylanleclair1/67d160af313be59851b88d1a81f0d762 to your computer and use it in GitHub Desktop.
+Download ZIP
+switck/libngu — one key, two names. Runnable proof: live GitHub API + local git verify-commit across all 129 commits.
+Raw
+libngu-one-key-two-names.md
+switck/libngu — one key, two names
+Status: verified, independently reproduced · Run the proof: bash verify.sh
+This gist contains one script and this explanation. The script prints only
+facts: JSON fetched live from the GitHub API, and GPG signature verification
+performed locally on your machine. The script draws no conclusion. This file
+does not state one either — it lays out the data, then works through the
+explanations that could account for it and why they do not fit.
+The conversation
+On October 21, 2020, two GitHub accounts had a short exchange on
+switck/libngu Issue #7
+(text and timestamps from the GitHub API, verbatim):
+doc-hex 2020-10-21 14:20:04Z Welcome to Open Source... I see this is MIT
+licensed and we'd like to use some (or really
+all of it) in certain projects, like
+@coldcard. Would you accept code from us
+when we give it as PR?
+switck 2020-10-21 14:28:02Z not an issue (issue closed)
+switck 2020-10-21 14:28:45Z JK. just depends on PR
+doc-hex is the public account of Peter D. Gray, Coinkite
+(profile: "Coinkite Inc.", coinkite.com,
+Toronto). switck is a pseudonymous account created two months earlier
+whose only repositories are Coldcard-adjacent — including libngu, the
+cryptographic library that Coldcard production firmware
+still pulls in today.
+One of them asked for permission. The other granted it, eight minutes later,
+forty-three seconds after dismissing the question.
+The keys
+Each GitHub account can publish its GPG keys at github.com/<user>.gpg:
+github.com/switck.gpg — no keys.
+The endpoint always returns a PGP armor block, so the response looks
+populated; for an account with no keys the block is empty and carries the
+note "This user hasn't uploaded any GPG keys." verify.sh does not
+string-match that note — it imports the response into a throwaway keyring
+and counts the public keys that actually appear. The count is zero.
+github.com/doc-hex.gpg — one key:
+primary A004 C9BC E217 ABE9 341C D81A A2DC D558 C2BE 5D7C
+subkey D976 6C79 E77B 0198 D669 75BD F0E6 CC6A FC16 CF7B (RSA, signing)
+uid Peter D. Gray (Personal) <peter@conalgo.com>
+uid Peter Gray <peter@ripeapps.com>
+uid [jpeg image of size 7208]
+Two fingerprints, three uids, one key. A signing subkey is not a second
+key — it is part of the same keypair, and both halves appear in this history:
+f19de05 was signed by the subkey, f7711c5 by the primary. Both
+fingerprint tails (…D558 C2BE 5D7C, …CC6A FC16 CF7B) form the accept-list
+in verify.sh; a signature matching neither is not counted.
+The signatures
+Git commit signatures live inside the git objects themselves. Cloning
+switck/libngu and running git verify-commit on every commit against the
+key above gives this census
+(independently reproduced):
+commits 129 checked · git verify-commit · one key, two names
+Switck 66 authored · 58 signed · key …D558 C2BE 5D7C
+Peter D. Gray 19 authored · 19 signed · key …D558 C2BE 5D7C
+sig timestamp == commit timestamp · 77/77 signed · max Δ 8s
+a valid signature requires the private key · interleaved 2020-2024
+Two spot checks from the same history:
+f19de05 author Switck <69336248+switck@users.noreply.github.com>
+Good signature from "Peter D. Gray <peter@conalgo.com>" [expired]
+signature made 2021-01-28, RSA key D9766C79…F0E6CC6AFC16CF7B (subkey)
+f7711c5 msg "Merge branch 'master' of git-switck:switck/libngu"
+Good signature from "Peter D. Gray <peter@conalgo.com>" [expired]
+signature made 2024-03-30, RSA key A004C9BC…A2DCD558C2BE5D7C (primary)
+f19de05 selects the RNG behavior of the library — what exactly it changed is
+in What the key signed below. f7711c5 is a merge whose
+message records the ssh remote alias configured on the machine holding the
+private key: git-switck.
+(The key expired 2023-05-28, hence [expired] and git log status E. The
+signatures remain cryptographically valid — including the 2024-03-30 one above,
+made after expiry, which only the private-key holder can produce.)
+What the key signed
+f19de05 is not an arbitrary spot check. It is the commit that added libNgU's
+STM32 random-number glue, and it is one of the 58 Switck-authored commits that
+verify against Peter D. Gray's key. Authored and committed 2021-01-28
+14:16:43 −0500, signed the same second, commit message x:
+#ifdef MICROPY_PY_STM
+// ports/stm32/rng.c
+extern uint32_t rng_get(void);
+# define CHIP_TRNG_SETUP()
+# define CHIP_TRNG_32() rng_get()
+# ifndef MICROPY_HW_ENABLE_RNG
+# error "get a HW TRNG plz"
+# endif
+#endif
+The guard does not work. #ifndef tests whether a macro is defined, not
+whether it is true, and Coldcard's board config defines
+MICROPY_HW_ENABLE_RNG as 0 — so the #error never fires. The board's real
+fail-closed hardware function is a static rng_get_or_fault, so this
+extern rng_get() resolves instead to MicroPython's export, which at macro 0
+is a deterministic Yasmarang software PRNG seeded from device metadata and
+timers. No compile error, no link error, no runtime warning.
+One month later, in the Coldcard firmware repository, commit b18723dd
+("First pass w/ libNgU", 120 files, 2021-03-01) — authored openly as
+Peter D. Gray <peter@conalgo.com> — pointed wallet seed generation at that
+code:
+- from ckcc import rng_bytes # hardware TRNG, fail-closed
+- rng_bytes(seed)
++ seed = random.bytes(32) # libNgU
+That migration was not uniform. Of the consumers using the hardware ckcc API,
+exactly two moved to ngu.random — and they are the wallet seed and the module
+that feeds it. Every other ckcc consumer stayed on hardware, then and today:
+file
+purpose
+in b18723dd
+on master today
+shared/seed.py
+wallet seed
+→ ngu.random
+ngu.random.bytes(32)
+shared/random.py
+shared random module
+→ ngu.random
+ngu.random
+shared/backups.py
+backup encryption
+untouched
+ckcc.rng_bytes
+shared/compat7z.py
+backup container IV
+untouched
+ckcc.rng_bytes
+shared/users.py
+user data
+untouched
+ckcc.rng_bytes
+shared/files.py
+secure file erasure
+untouched
+ckcc.rng_bytes
+shared/display.py
+display jitter
+untouched
+ckcc.rng()
+So it was not a blanket migration, and not a mechanical namespace sweep —
+seed.py and random.py never imported the old tcc.random at all, which is
+what every other file in that commit was being moved off. Nor was it a
+half-finished migration later completed: the split is still there.
+The defect also passed every gate it could have been caught by. libNgU's
+test_random.py, and the dieharder suite the firmware later ran directly on
+ngu.random.bytes, both measure statistical distribution — not
+unpredictability. A deterministic PRNG passes both. The mechanism, the
+selectivity and that blind spot are documented in full in
+afilini's report.
+What this does and does not establish. The signatures establish who held
+the key. The diffs establish the order of events: the holder of that key wrote
+the defective RNG glue under the switck name in January 2021, and the named
+account wired seed generation to it in March. They do not establish intent.
+#ifndef where #if was meant is an ordinary C mistake, and the same author
+used the correct #if MICROPY_HW_ENABLE_RNG form in the firmware's own
+rng.c — which cuts both ways. The facts above are reproducible; the
+conclusion is yours, not this document's.
+Why nothing else explains the data
+Rebase artifact? A signature covers the whole commit object; rebasing
+destroys it. All 58 signed Switck commits have committer Switck, author
+time == commit time, and signature time == commit time to the second across
+four years. The repo contains real rebases (unsigned, months-long
+author/commit gaps) — the signed commits match none of that pattern.
+Shared key? The key UID is personal, predates the switck account by
+seven years, and guards production infrastructure of the key owner's
+employer. switck never published a key of its own.
+Forgery? Signatures verify against a key published since before the
+switck account existed. Forging requires the private key — which is the
+shared-key case.
+Run it
+Clone this gist and run it — copy-paste the whole block:
+git clone https://gist.github.com/67d160af313be59851b88d1a81f0d762.git libngu-proof
+cd libngu-proof
+bash verify.sh
+To read the script first without cloning (recommended — see below):
+curl -sL https://gist.githubusercontent.com/dylanleclair1/67d160af313be59851b88d1a81f0d762/raw/verify.sh -o verify.sh
+less verify.sh # read it
+bash verify.sh # then run it
+There is deliberately no curl … | bash one-liner here. This document argues
+that you should check provenance before trusting code; piping an unread script
+straight into a shell is the opposite of that.
+Expected output
+----------------------------------------------------------------------
+switck/libngu · Issue #7 "PR's accepted?" [closed] · live · GitHub API
+----------------------------------------------------------------------
+doc-hex 2020-10-21 14:20:04Z Welcome to Open Source... I see this is MIT
+licensed and we'd like to use some (or
+really all of it) in certain projects, like
+@coldcard. Would you accept code from us
+when we give it as PR?
+switck 2020-10-21 14:28:02Z not an issue
+switck 2020-10-21 14:28:45Z JK. just depends on PR
+----------------------------------------------------------------------
+gpg keys switck none published · github.com/switck.gpg
+doc-hex A004 C9BC E217 ABE9 341C D81A A2DC D558 C2BE 5D7C
+Peter D. Gray (Personal) <peter@conalgo.com> [expired]
+Peter Gray <peter@ripeapps.com> [expired]
+----------------------------------------------------------------------
+commits 129 checked · git verify-commit · one key, two names
+Switck 66 authored · 58 signed · key …D558 C2BE 5D7C
+Peter D. Gray 19 authored · 19 signed · key …D558 C2BE 5D7C
+sig timestamp == commit timestamp · 77/77 signed · max Δ 8s
+a valid signature requires the private key · interleaved 2020-2024
+----------------------------------------------------------------------
+f19de05 author Switck <69336248+switck@users.noreply.github.com>
+Good signature from "Peter D. Gray <peter@conalgo.com>" [expired]
+f7711c5 msg "Merge branch 'master' of git-switck:switck/libngu"
+Good signature from "Peter D. Gray <peter@conalgo.com>" [expired]
+----------------------------------------------------------------------
+f19de05 added to ngu/random.c, STM32 branch · git show f19de05
+#ifdef MICROPY_PY_STM
+// ports/stm32/rng.c
+extern uint32_t rng_get(void);
+# define CHIP_TRNG_SETUP()
+# define CHIP_TRNG_32() rng_get()
+# ifndef MICROPY_HW_ENABLE_RNG
+# error "get a HW TRNG plz"
+# endif
+#endif
+note · #ifndef tests whether a macro is DEFINED, not whether
+it is true. Coldcard's board config defines it as 0,
+so the #error never fires and the build succeeds.
+----------------------------------------------------------------------
+verify curl -sL github.com/doc-hex.gpg | gpg --import
+git clone github.com/switck/libngu && git verify-commit f19de05
+----------------------------------------------------------------------
+The census numbers above were current when this was written. libngu is a live
+repo — if it gains commits, the script's totals will move and this block will
+not. The script's output is the authority; this is a reference.
+Or verify by hand, without the script
+Paste this whole block. It clones into a fresh temporary directory, so it is
+safe to re-run and cannot collide with an existing ./libngu or leave anything
+in your home directory:
+export GNUPGHOME=$(mktemp -d) # throwaway keyring
+curl -sL https://github.com/doc-hex.gpg | gpg --import
+cd "$(mktemp -d)" && git clone -q https://github.com/switck/libngu && cd libngu
+git verify-commit f19de05 # author Switck — Good signature from Peter D. Gray
+git verify-commit f7711c5 # merge via remote alias "git-switck" — same key
+curl -s https://github.com/switck.gpg; echo # empty block: no keys published
+Do not run git clone https://github.com/switck/libngu in your home
+directory and then cd libngu on the same line with && — if a libngu
+directory already exists the clone fails, the cd is skipped, and the
+verify-commit calls run in the wrong directory and report
+fatal: not a git repository. The block above avoids this by design.
+Reproducing the firmware claims
+verify.sh deliberately does not clone the Coldcard firmware repo — it is large
+and would dominate the runtime. To check the migration claims yourself:
+git clone https://github.com/Coldcard/firmware && cd firmware
+git log -1 --format='%an <%ae> %ai %s' b18723dd # Peter D. Gray, 2021-03-01
+git show b18723dd --stat | tail -1 # 120 files changed
+# the two files moved off hardware
+git show b18723dd -- shared/seed.py | grep -E '^[+-].*(rng_bytes|random\.bytes)'
+git show b18723dd -- shared/random.py | grep -E '^[+-].*(ckcc|ngu)'
+# every other ckcc consumer: no RNG lines touched (prints 0)
+for f in backups compat7z users files display; do
+echo -n "shared/$f.py "
+git show b18723dd -- "shared/$f.py" | grep -cE '^[+-].*(rng|random)'
+done
+# and the split persists on master today
+git show master:shared/seed.py | grep -n 'ngu.random.bytes(32)'
+git show master:shared/backups.py | grep -n 'ckcc.rng_bytes'
+Before you run a script from the internet
+Read it — it is ~250 lines and commented. What verify.sh does:
+Creates one temporary directory (throwaway GPG keyrings plus a clone of the
+public switck/libngu) and deletes it on exit, including on Ctrl-C.
+Writes nothing to your real keyring, your gitconfig, or anywhere in $HOME.
+Makes no network requests other than to api.github.com and github.com.
+Needs no privileges. Nothing is installed.
+Requires: bash, git, gpg, curl, python3 — the script checks for
+all five up front and tells you what is missing (gpg comes from the gnupg
+package: brew install gnupg / apt-get install gnupg). Note that macOS ships
+with no gpg at all.
+Runtime: ~30–60s, almost all of it verifying 129 signatures locally.
+Notes: colour is emitted only to a terminal and NO_COLOR is honoured, so
+piping to a file or a pager stays clean. If you are behind a shared IP and hit
+the anonymous GitHub API limit (60 req/hr), export GH_TOKEN=<token> first.
+git verify-commit exits non-zero because the key is expired — read
+Good signature in the output, not the exit code.
+Sources
+switck/libngu ·
+Issue #7 ·
+doc-hex.gpg ·
+switck.gpg
+jamesob — switck == doc-hex: proven by GPG commit signatures —
+independent census, same numbers
+afilini — One Commit, Two Random Sources: How Coldcard's Seed Generation Was
+Moved Off the Hardware RNG —
+line-by-line analysis of migration commit b18723dd, the ineffective
+#ifndef guard in ngu/random.c, the three groups of randomness consumers,
+and why the test suite and dieharder could not catch it. States that it was
+drafted with AI assistance and reviewed before publication; every claim it
+makes is given with a reproducing git command, and the ones used above were
+re-verified independently for this document.
+Wizardsardine — Coldcard RNG vulnerability —
+third-party analysis treating switck/libngu as Coldcard's crypto library
+Raw
+verify.sh
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+#!/usr/bin/env bash
+#
+# switck/libngu — one key, two names.
+#
+# Prints only facts: JSON fetched live from the GitHub API, and GPG signature
+# verification performed locally on your machine. It draws no conclusion.
+#
+# What this script does to your machine: nothing that survives it. It creates
+# one temporary directory (throwaway GPG keyrings plus a clone of the public
+# repo switck/libngu) and deletes it on exit, including on Ctrl-C. It writes
+# nothing to your real keyring, your gitconfig, or anywhere in $HOME. It makes
+# no network requests other than to api.github.com and github.com. It needs no
+# privileges and installs nothing. Read it before you run it.
+#
+# Requires: bash, git, gpg, curl, python3.
+# Runtime: ~30-60s, dominated by verifying every commit signature locally.
+#
+# Optional: export GH_TOKEN=<token> to avoid the unauthenticated GitHub API
+# rate limit (60 requests/hour/IP) if you are behind a shared address.
+set -u
+# ---- environment ------------------------------------------------------------
+# Process substitution and $'...' below are bash features. macOS ships bash
+# 3.2, which is fine; /bin/sh on Linux (dash) is not.
+if [ -z "${BASH_VERSION:-}" ]; then
+echo "verify.sh: needs bash (try: bash verify.sh)" >&2
+exit 1
+fi
+missing=""
+for tool in git gpg curl python3; do
+command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
+done
+if [ -n "$missing" ]; then
+echo "verify.sh: missing required tool(s):$missing" >&2
+echo " macOS: brew install git gnupg python3" >&2
+echo " Debian/Ubuntu: sudo apt-get install git gnupg curl python3" >&2
+echo " (the 'gpg' command comes from the 'gnupg' package)" >&2
+exit 1
+fi
+# Colour only when writing to a terminal, so piping to a file or a pager does
+# not fill it with escape codes. Honours NO_COLOR (no-color.org).
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+G=$'\033[32m'; B=$'\033[1;32m'; D=$'\033[90m'; Y=$'\033[1;33m'; R=$'\033[0m'
+PYCOLOR=color
+else
+G=""; B=""; D=""; Y=""; R=""
+PYCOLOR=plain
+fi
+BAR="${D} ----------------------------------------------------------------------${R}"
+WORK=$(mktemp -d) || exit 1
+GNUPGHOME="$WORK/keyring-dochex"; export GNUPGHOME
+mkdir -p "$GNUPGHOME" "$WORK/keyring-switck"
+chmod 700 "$GNUPGHOME" "$WORK/keyring-switck"
+cleanup() {
+gpgconf --homedir "$GNUPGHOME" --kill all >/dev/null 2>&1 || true
+gpgconf --homedir "$WORK/keyring-switck" --kill all >/dev/null 2>&1 || true
+rm -rf "$WORK"
+}
+trap cleanup EXIT INT TERM
+# Never let git block on an interactive credential prompt; everything we touch
+# is public.
+export GIT_TERMINAL_PROMPT=0
+# Some people set gpg.program to a signing wrapper or to gpg2. Verification
+# below must use the plain gpg we checked for above, against our temp keyring.
+GIT="git -c gpg.program=gpg -c log.showSignature=false"
+gh_api() {
+if [ -n "${GH_TOKEN:-${GITHUB_TOKEN:-}}" ]; then
+curl -fsSL -H "Authorization: Bearer ${GH_TOKEN:-$GITHUB_TOKEN}" "$1"
+else
+curl -fsSL "$1"
+fi
+}
+# ---- 1. the conversation, live from the GitHub API ---------------------------
+printf '%s\n' "$BAR" \
+"${B} switck/libngu${R}${D} · Issue #7 \"PR's accepted?\" [closed] · live · GitHub API${R}" \
+"$BAR"
+ISSUE="$WORK/issue.json"
+COMMENTS="$WORK/comments.json"
+ok=0
+for attempt in 1 2 3 4; do
+if gh_api "https://api.github.com/repos/switck/libngu/issues/7" > "$ISSUE" 2>/dev/null &&
+gh_api "https://api.github.com/repos/switck/libngu/issues/7/comments" > "$COMMENTS" 2>/dev/null; then
+ok=1; break
+fi
+sleep 3
+done
+if [ "$ok" != 1 ]; then
+printf '%s\n' "${Y} GitHub API unreachable or rate-limited - re-run in a few minutes.${R}"
+printf '%s\n' "${Y} (or export GH_TOKEN=<token> to lift the anonymous rate limit)${R}"
+exit 1
+fi
+python3 -c '
+import json, sys, textwrap
+issue_path, comments_path, mode = sys.argv[1], sys.argv[2], sys.argv[3]
+if mode == "color":
+G, B, D, R = "\033[32m", "\033[1;32m", "\033[90m", "\033[0m"
+else:
+G = B = D = R = ""
+def row(who, when, body):
+text = " ".join(body.split())
+lines = textwrap.wrap(text, 44) or [""]
+head = B + " " + who + R + D + " " * max(1, 10 - len(who)) \
++ when[:10] + " " + when[11:19] + "Z " + R
+print(head + G + lines[0] + R)
+for extra in lines[1:]:
+print(" " * 34 + G + extra + R)
+with open(issue_path) as fh:
+issue = json.load(fh)
+with open(comments_path) as fh:
+comments = json.load(fh)
+row(issue["user"]["login"], issue["created_at"], issue["body"])
+for c in comments:
+if c["user"]["login"] in ("switck", "doc-hex"):
+row(c["user"]["login"], c["created_at"], c["body"])
+' "$ISSUE" "$COMMENTS" "$PYCOLOR"
+echo "$BAR"
+# ---- 2. the published keys ---------------------------------------------------
+# github.com/<user>.gpg always returns a PGP armor block, even for a user with
+# no keys — in that case the block is empty and carries a "hasn't uploaded any
+# GPG keys" note. So string-matching the response is unreliable: import it into
+# its own throwaway keyring and count the public keys that actually appear.
+curl -fsSL https://github.com/switck.gpg 2>/dev/null \
+| GNUPGHOME="$WORK/keyring-switck" gpg --batch --import >/dev/null 2>&1 || true
+sw_keys=$(GNUPGHOME="$WORK/keyring-switck" gpg --batch --with-colons --list-keys 2>/dev/null \
+| grep -c '^pub' || true)
+[ -n "$sw_keys" ] || sw_keys=0
+if [ "$sw_keys" -eq 0 ]; then
+printf '%s\n' "${G} gpg keys ${B}switck${R}${D} none published · github.com/switck.gpg${R}"
+else
+printf '%s\n' "${G} gpg keys ${B}switck${R}${D} $sw_keys key(s) published · github.com/switck.gpg${R}"
+fi
+FP=""
+for attempt in 1 2 3 4 5; do
+curl -fsSL https://github.com/doc-hex.gpg 2>/dev/null | gpg --batch --import >/dev/null 2>&1
+FP=$(gpg --batch --with-colons --list-keys 2>/dev/null | awk -F: '$1=="fpr"{print $10; exit}')
+[ -n "$FP" ] && break
+sleep 2
+done
+if [ -z "$FP" ]; then
+printf '%s\n' "${Y} could not fetch doc-hex key - check connection and re-run.${R}"
+exit 1
+fi
+printf '%s\n' "${G} ${B}doc-hex${R}${Y} $(echo "$FP" | sed 's/.\{4\}/& /g;s/ $//')${R}"
+# The key carries more than one uid; print every email uid so that nothing is
+# hidden by selecting only the first.
+gpg --batch --with-colons --list-keys 2>/dev/null \
+| awk -F: '$1=="uid" && $10 ~ /@/ {print $10}' \
+| while IFS= read -r uid; do
+printf '%s\n' "${Y} $uid${R}${D} [expired]${R}"
+done
+echo "$BAR"
+# ---- 3. the signatures, verified locally ------------------------------------
+ok=0
+for attempt in 1 2 3; do
+git clone -q https://github.com/switck/libngu "$WORK/libngu" 2>/dev/null && { ok=1; break; }
+sleep 2
+done
+if [ "$ok" != 1 ]; then
+printf '%s\n' "${Y} clone failed - check connection and re-run.${R}"
+exit 1
+fi
+cd "$WORK/libngu" || exit 1
+total=$($GIT log --all --oneline | wc -l | tr -d ' ')
+# Accept a signature only from doc-hex's key: the tail of the primary
+# fingerprint (…D558 C2BE 5D7C) or of its signing subkey (…CC6A FC16 CF7B),
+# both printed above. Same key, two fingerprints — a subkey is not a second
+# key. Both are used in this history: f19de05 was signed by the subkey,
+# f7711c5 by the primary.
+PRIMARY_TAIL="D558C2BE5D7C"
+SUBKEY_TAIL="CC6AFC16CF7B"
+if [ -t 2 ]; then
+printf '%s' " verifying $total commit signatures locally, please wait ..." >&2
+fi
+switck_total=0; switck_signed=0
+gray_total=0; gray_signed=0
+sametime=0; signed=0; maxdelta=0
+while IFS='|' read -r hash ctime aname aemail; do
+validsig=$($GIT verify-commit --raw "$hash" 2>&1 \
+| grep 'VALIDSIG' | grep -E "$PRIMARY_TAIL|$SUBKEY_TAIL" || true)
+if [ -n "$validsig" ]; then
+signed=$((signed + 1))
+sigtime=$(echo "$validsig" | awk '{print $5}')
+delta=$((sigtime - ctime))
+[ $delta -lt 0 ] && delta=$((-delta))
+[ $delta -gt $maxdelta ] && maxdelta=$delta
+[ $delta -le 60 ] && sametime=$((sametime + 1))
+fi
+case "$aemail" in
+*switck*)
+switck_total=$((switck_total + 1))
+[ -n "$validsig" ] && switck_signed=$((switck_signed + 1))
+;;
+*conalgo*)
+gray_total=$((gray_total + 1))
+[ -n "$validsig" ] && gray_signed=$((gray_signed + 1))
+;;
+esac
+done < <($GIT log --all --pretty='%H|%ct|%an|%ae')
+# Erase the progress line so it does not sit above the report.
+if [ -t 2 ]; then
+printf '\r%*s\r' 70 '' >&2
+fi
+printf '%s\n' \
+"${G} commits ${D}$total checked · git verify-commit · one key, two names${R}" \
+"${G} ${B}Switck${R}${G} $switck_total authored · ${Y}$switck_signed signed${R}${G} · key …D558 C2BE 5D7C${R}" \
+"${G} ${B}Peter D. Gray${R}${G} $gray_total authored · ${Y}$gray_signed signed${R}${G} · key …D558 C2BE 5D7C${R}" \
+"${D} sig timestamp == commit timestamp · $sametime/$signed signed · max Δ ${maxdelta}s${R}" \
+"${D} a valid signature requires the private key · interleaved 2020-2024${R}" \
+"$BAR"
+# ---- 4. two spot checks ------------------------------------------------------
+printf '%s\n' "${G} f19de05 ${D}author${R}${G} Switck <69336248+switck@users.noreply.github.com>${R}"
+$GIT verify-commit f19de05 2>&1 | grep 'Good signature' | sed 's/^gpg: *//;s/ (Personal)//' \
+| while IFS= read -r line; do printf '%s\n' "${Y} $line${R}"; done
+printf '%s\n' "${G} f7711c5 ${D}msg${R}${G} \"$($GIT log -1 --format=%s f7711c5)\"${R}"
+$GIT verify-commit f7711c5 2>&1 | grep 'Good signature' | sed 's/^gpg: *//;s/ (Personal)//' \
+| while IFS= read -r line; do printf '%s\n' "${Y} $line${R}"; done
+echo "$BAR"
+# ---- 5. what the signed commit f19de05 actually changed -----------------------
+# f19de05 is not an arbitrary spot check: it is the commit that introduced
+# libNgU's STM32 random-number glue, including the compile-time guard intended
+# to require a hardware TRNG. Printed straight from the diff, no commentary.
+printf '%s\n' "${G} f19de05 ${D}added to ngu/random.c, STM32 branch · git show f19de05${R}"
+$GIT show f19de05 -- ngu/random.c 2>/dev/null \
+| grep '^+' | grep -v '^+++' | sed 's/^+//' \
+| awk '/^#ifdef MICROPY_PY_STM/{p=1} p{print} p&&/^#endif/{exit}' \
+| while IFS= read -r line; do
+case "$line" in
+*MICROPY_HW_ENABLE_RNG*|*error*)
+printf '%s\n' "${Y} $line${R}" ;;
+*)
+printf '%s\n' "${D} $line${R}" ;;
+esac
+done
+printf '%s\n' \
+"" \
+"${D} note · #ifndef tests whether a macro is DEFINED, not whether${R}" \
+"${D} it is true. Coldcard's board config defines it as 0,${R}" \
+"${D} so the #error never fires and the build succeeds.${R}" \
+"$BAR"
+printf '%s\n' \
+"${D} verify curl -sL github.com/doc-hex.gpg | gpg --import${R}" \
+"${D} git clone github.com/switck/libngu && git verify-commit f19de05${R}" \
+"$BAR"
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.
