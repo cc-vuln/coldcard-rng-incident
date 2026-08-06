@@ -79,6 +79,15 @@ const allowedUpstreamExcerpts = [
   //   expectedMatches: 1,
   //   reason: 'Verbatim text retained from the named upstream source.',
   // },
+  {
+    file: 'record/sources/reddit-hacker-still-progressing/index.html',
+    token: 'just publish',
+    exactText: 'the ex-President Arias just published an Op-Ed in the GringoTimes',
+    expectedMatches: 1,
+    reason:
+      'A commenter in the held thread wrote "just published"; the token exists to '
+      + 'catch this project\'s own deploy recipe name, not the ordinary English verb.',
+  },
 ];
 
 // Archive hashes are useful inside the capture and audit pipeline, but a

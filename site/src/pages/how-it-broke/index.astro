@@ -258,8 +258,17 @@ The COLDCARD hotfix supplies the board's hardware-backed <code>rng_get()</code> 
 // The after-diagram is the FigureAfterHotfix component, rendered between
 // these two blocks on the same grid as the before-diagram.
 const fixRest = `<div class="callout callout--amber">
-<span class="callout__title">Scope of the remaining upstream issue</span>
-<code>libngu</code>'s <code>#ifndef</code> guard is unchanged in the public repository. Another STM32 integration is exposed to the same failure mode only if it defines <code>MICROPY_HW_ENABLE_RNG</code> as zero, resolves <code>rng_get()</code> to the MicroPython fallback and relies on that output for a security-sensitive operation. Pull request #58 proposes a value check; it remains unmerged as of 1 August 2026.
+<span class="callout__title">The remaining upstream issue, and the 5 August rewrite</span>
+<code>libngu</code>'s <code>#ifndef</code> guard is unchanged in the public repository: it still tests the macro's presence rather than its value, so an STM32 integration that defines <code>MICROPY_HW_ENABLE_RNG</code> as zero still passes it, and the library's STM32 branch still takes its chip entropy input from <code>rng_get()</code>. What changed is downstream of that symbol. On 5 August 2026 pull request #61 was merged upstream, replacing the Yasmarang generator with a SHA-256 Hash-DRBG seeded from 32 hardware words, failing hard on a zero or repeated hardware reading, and rejecting reseeds shorter than 32 bytes. Pull request #58, which proposes the value check, remains open as of 6 August 2026.
+</div>
+
+<div class="callout callout--blue">
+<span class="callout__title">Does the old failure mode still exist after the rewrite? A derivation</span>
+<p><strong>The guard is unchanged.</strong> Both held captures of <code>libngu/ngu/random.c</code>, 1 August and 5 August, carry the identical three lines <code># ifndef MICROPY_HW_ENABLE_RNG</code>, <code># error "get a HW TRNG plz"</code>, <code># endif</code>. The test is still presence rather than value, so an integrator that defines the macro as zero still builds.</p>
+<p><strong>The resolution point is unchanged.</strong> The same STM32 branch in both captures declares <code>extern uint32_t rng_get(void)</code> and maps <code>CHIP_TRNG_32()</code> to it. Which <code>rng_get()</code> an integrator links is decided outside libngu; in the incident configuration it resolved to the MicroPython fallback quoted above.</p>
+<p><strong>What the rewrite changes for that caller.</strong> Every chip word now passes <code>checked_chip_trng()</code>, which raises on a zero or a repeated value. The generator is a SHA-256 Hash-DRBG seeded from 32 such words. And <code>random_reseed()</code> rejects any seed shorter than 32 bytes, where the 1 August code assigned the caller's integer straight to the generator state, so the incident's four-byte reseed call now fails instead of collapsing that state.</p>
+<p><strong>What it does not change.</strong> The new check rejects only a zero or an exactly repeated value, so a varying software stream still passes it and still seeds the DRBG. The strength of the output then rests entirely on that stream, which sits outside libngu and outside this comparison.</p>
+<p>Read together: an integrator that repeats the configuration can still resolve <code>rng_get()</code> to a software fallback, but the 32-bit state collapse the incident turned on is closed inside libngu.</p>
 </div>`;
 ---
 
@@ -388,7 +397,7 @@ const fixRest = `<div class="callout callout--amber">
       /><Claim
         basis="unverified"
         scope="Whether the signed firmware images contain exactly the source-level fix described here"
-        source="The released binary images had not been independently disassembled or compared in this archive as of a 5 August 2026 recheck"
+      source="The released binary images had not been independently disassembled or compared in this archive as of a 6 August 2026 recheck"
         compact
       /> What changed is the link. COLDCARD's own board <code>rng.c</code> now
       exports <code>rng_get()</code> itself, backed by the real peripheral:</p>
@@ -396,6 +405,20 @@ const fixRest = `<div class="callout callout--amber">
     <div class="rung-html" set:html={fixBody} />
     <FigureAfterHotfix />
     <div class="rung-html" set:html={fixRest} />
+    <Claim
+      basis="verified"
+      scope="The unchanged presence-testing guard, the merged #61 rewrite of libngu random.c, and the open state of pull request #58"
+      source="Held captures of libngu random.c of 1 Aug and 5 Aug 2026, the merged #61 pull-request page captured 5 Aug 2026, and the #58 page captured 4 Aug 2026"
+      href="/record/sources/libngu-random-c/"
+      compact
+    />
+    <Claim
+      basis="derived"
+      scope="The post-#61 exposure chain in the second callout: the guard and the external rng_get() resolution are unchanged, checked seeding and the 32-byte reseed floor close the state collapse, and the zero-or-repeat check still passes a varying software stream"
+      source="Derived from the held libngu random.c captures of 1 Aug and 5 Aug 2026 and the MicroPython fallback quoted above; each step in the callout names the code it rests on, and the captures are linked for rechecking"
+      href="/record/sources/libngu-random-c/"
+      compact
+    />
   </Disclosure>
 </Article>
 

@@ -1,0 +1,137 @@
+# Corrections to what this project published.
+#
+# The archive already records how other people's pages changed. This file
+# records how ours did, which is a different obligation and a smaller file: a
+# publication that grades its own claims has to be able to say, in one place,
+# where it got something wrong and what it says now.
+#
+# This log opened on 6 August 2026. Changes to the site before that date are in
+# the repository history and in CHANGELOG.md, which is where anything not
+# affecting a published claim continues to live.
+#
+# What belongs here
+#
+#   A material claim that was wrong: a figure, a date, an attribution, a
+#   quotation, a link presented as evidence for something it does not show.
+#   A claim whose evidence basis was overstated (a reported claim marked
+#   verified, a derived figure presented without its method).
+#   A capture presented as this project's own that was inherited, or the
+#   reverse.
+#   Anything withdrawn: a claim removed rather than restated.
+#
+# What does not belong here
+#
+#   A source changing its own page. That is the record's subject, not our
+#   error: it goes to /record/changes/ through revision-reviews.toml.
+#   Rewording, restructuring, new pages, retired routes, design changes.
+#   Tooling fixes that did not change a published claim.
+#
+# Rules
+#
+#   Append only, newest last. A correction is itself part of the record, so an
+#   entry is never edited to make the site look better afterwards; a later
+#   entry corrects an earlier one.
+#   The corrected page carries the correction where the claim was, and this log
+#   is the index of all of them. One without the other is not a corrections
+#   policy.
+#   `said` quotes the wrong text as it was published, not a paraphrase that
+#   softens it.
+#
+# Fields
+#
+#   date     ISO date the correction was published, YYYY-MM-DD
+#   pages    routes carrying the corrected claim, e.g. ["/record/funds/"]
+#   kind     "correction" (it was wrong), "clarification" (it was defensible
+#            but read as more than it established), or "withdrawal" (the claim
+#            is gone and nothing replaces it)
+#   summary  one line, in plain words, naming what was wrong
+#   said     the published text or figure that was wrong
+#   says     what the page says now; omit for a withdrawal
+#   why      what prompted the correction and what establishes the new text,
+#            with a link a reader can check where one exists
+#   credit   optional: who reported it, if they want naming
+#
+# [[correction]]
+# date = "2026-08-06"
+# pages = ["/record/funds/"]
+# kind = "correction"
+# summary = "..."
+# said = "..."
+# says = "..."
+# why = "..."
+
+[[correction]]
+date = "2026-08-06"
+pages = ["/cite/"]
+kind = "correction"
+summary = """
+The archive has not been append-only without exception. A capture-method
+migration on 4 August 2026 deleted 134 held captures of five Reddit sources,
+along with their diffs and their entries in the poll log.
+"""
+said = """
+Captures are append-only. A snapshot is never rewritten or deleted, including
+one this project later decides was wrong: a bad capture is corrected by a later
+capture or a classification beside it, never by editing the record. The single
+exception is redacting personal data this project itself leaked.
+"""
+says = """
+Snapshots are append-only from 6 August 2026, with one exception on the record
+before that date: the 4 August 2026 reddit-json migration deleted the
+pre-migration captures of five Reddit sources. The commitment stands for
+everything held now and everything captured since.
+"""
+why = """
+Found on 6 August 2026 while auditing the repository for superseded material
+before an archival deposit. Five sources (reddit-ai-discovery-thread,
+reddit-coldcard-letter-db-leak, reddit-drained-timeline,
+reddit-june-letter-report, reddit-wallet-brand-link-warning) switched from
+rendered-page capture to the Reddit JSON API on 4 August 2026. The switch
+removed 134 captures taken between 1 and 4 August 2026, 402 files in total,
+their diffs, and every corresponding line in archive/index.jsonl, which is why
+those sources now show a first capture of 4 August. The design record for the
+migration documented retiring PDF provenance for future captures; it did not
+document deleting the history, and nothing recorded the deletion at the time.
+
+The removed material was a backup copy held outside the repository until
+6 August 2026, when it was deleted deliberately rather than restored: it was
+duplicate rendered-page capture of threads the archive still holds in a better
+form, from the days before the project's capture process settled. That is an
+operator decision about low-value superseded material, recorded here because
+the site had claimed an absolute rule that the archive did not meet.
+
+The claim is now scoped to what is true, and the rule is enforced going
+forward. No editorial claim on any page depended on the deleted captures.
+"""
+
+[[correction]]
+date = "2026-08-06"
+pages = ["/", "/record/", "/record/funds/", "/record/sources/coldcard-watch/"]
+kind = "correction"
+summary = """
+coldcardwatch.com was wrongly described as gone or offline. It remained live;
+the capture host's filtering DNS resolver was blocking the name.
+"""
+said = """
+The landing page and source register listed the COLDCARD funds flow monitor
+among sources that had "disappeared from the web". Its source page said,
+"This page is gone from the web" and described this archive's capture as the
+only remaining public copy. The funds page labelled the tracker "offline".
+"""
+says = """
+coldcardwatch.com is live. This archive has not been able to resolve it through
+the capture host's filtering resolver since 4 August, so the funds page keeps
+the last successful capture and labels its capture status "unreachable here".
+The source remains registered for polling.
+"""
+why = """
+A reader reported successfully opening coldcardwatch.com on 6 August 2026.
+Rechecking against independent public DNS services found the same A record,
+216.150.1.1, through both Google Public DNS and Cloudflare DNS. Connecting to
+that address over HTTPS with coldcardwatch.com as the hostname returned status
+200 and the live tracker page. An ordinary request from the capture host still
+fails with "Could not resolve host", which isolates the failure to that host's
+resolver rather than the publisher. The 53 failed archive polls remain in the
+append-only poll record because they accurately record what this collector
+experienced; only the site's interpretation of them was wrong.
+"""

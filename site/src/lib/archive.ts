@@ -38,10 +38,11 @@ export interface Source {
    * The origin no longer serves this source.
    *
    * Set when the material has been withdrawn, deleted or otherwise stopped
-   * resolving, verified against more than one user agent so it is not mistaken
-   * for a block on this collector. The source stops being polled and the held
-   * capture becomes the only remaining copy, which is the case the archive was
-   * built for. `goneNote` records what was observed, not why.
+   * resolving, verified through a genuinely independent network path so it is
+   * not mistaken for a block on this collector. Multiple clients on one host
+   * do not count when they share its resolver. The source stops being polled
+   * and the held capture becomes the only remaining copy, which is the case
+   * the archive was built for. `goneNote` records what was observed, not why.
    */
   gone?: boolean;
   gone_since?: string;
@@ -61,7 +62,7 @@ export function goneSources(): Source[] {
  * the poller.
  *
  * `tier` answers "how often should this be checked", a mechanism question about
- * mutability and value. The Evidence index was displaying tiers under content
+ * mutability and value. The record index was displaying tiers under content
  * headings, which crushed two unrelated axes together and produced nonsense: a
  * victim's Reddit thread filed under "Vendor advisories" because it is worth
  * polling often, and Block's technical disclosure, the most important primary
@@ -112,9 +113,45 @@ export interface XPost {
   posted?: string;
   why?: string;
   tag?: string;
+  /** A conversation captured by capture.py and reviewed like a web source. */
+  thread?: boolean;
+  tier?: Tier;
   /** Honoured on both registry block types: a withheld post renders neither
       its captured text nor its capture image. See withholdsCapturedMedia. */
   withhold_text?: boolean;
+  /** Status ids withheld from an otherwise published conversation, text and
+      image together. The per-status form of withhold_text; see withholdsPost. */
+  withhold_posts?: string[];
+}
+
+/**
+ * A registered nostr post. Mirrors [[x_post]]: the registry block names the
+ * post and why it is evidence, and captures live beside the X captures under
+ * `archive/nostr/<id>/<TS>/` (event.json, event.txt, meta.json, optionally
+ * replies.json), one directory per capture, exactly like `archive/x/`.
+ *
+ * `author` is the author's npub in full; shorten it for display with
+ * shortNpub(). `url` is the njump (or equivalent) permalink a reader can open.
+ */
+export interface NostrPost {
+  id: string;
+  title?: string;
+  url: string;
+  author: string;
+  org?: string;
+  posted?: string;
+  why?: string;
+  tag?: string;
+  withhold_text?: boolean;
+}
+
+/**
+ * npub1pfuvza…rvp9w2: long enough to recognise and to search against, short
+ * enough to scan on a card. The full npub stays in the registry and the JSON
+ * feeds.
+ */
+export function shortNpub(npub: string): string {
+  return npub.length > 20 ? `${npub.slice(0, 12)}…${npub.slice(-6)}` : npub;
 }
 
 const TITLE_WORDS: Record<string, string> = {
@@ -143,7 +180,7 @@ export function summary(text: string | undefined, words = 30): string {
   return flat.slice(0, words).join(' ').replace(/[,;:.]$/, '') + '\u2026';
 }
 
-export function displayTitle(item: Source | XPost): string {
+export function displayTitle(item: Source | XPost | NostrPost): string {
   if (item.title) return item.title;
   return item.id.split('-').map((word) =>
     TITLE_WORDS[word] ?? word.charAt(0).toUpperCase() + word.slice(1)
@@ -231,6 +268,58 @@ export function xArtifacts(post: XPost): XArtifact[] {
   return out.sort((a, b) => a.path.localeCompare(b.path));
 }
 
+export interface NostrCapture {
+  /** Capture directory timestamp: 20260801T001731Z. */
+  ts: string;
+  iso: string;
+  /** Every file in this capture directory (event.json, event.txt, meta.json,
+      optionally replies.json), repo-relative paths, sorted. */
+  files: XArtifact[];
+}
+
+/**
+ * Every capture held for one registered nostr post, oldest first.
+ *
+ * Same layout rule as the X lane: `archive/nostr/<id>/<TS>/`, a new directory
+ * per capture, so the append-only rule is a property of the layout rather
+ * than something a writer has to remember. `event.txt` is the flattened text
+ * the site excerpts; `event.json` is the raw signed event and stays the
+ * artefact a reader can recheck against any relay.
+ */
+export function nostrCaptures(post: NostrPost): NostrCapture[] {
+  const dir = join(ARCHIVE, 'nostr', post.id);
+  if (!existsSync(dir)) return [];
+  const out: NostrCapture[] = [];
+  for (const capture of readdirSync(dir, { withFileTypes: true })) {
+    if (!capture.isDirectory()) continue;
+    const captureDir = join(dir, capture.name);
+    const files: XArtifact[] = [];
+    for (const entry of readdirSync(captureDir, { withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      const path = join(captureDir, entry.name);
+      files.push({
+        path: `archive/nostr/${post.id}/${capture.name}/${entry.name}`,
+        name: entry.name,
+        format: entry.name.split('.').pop()?.toUpperCase() ?? 'FILE',
+        bytes: statSync(path).size,
+      });
+    }
+    files.sort((a, b) => a.path.localeCompare(b.path));
+    out.push({ ts: capture.name, iso: tsToIso(capture.name), files });
+  }
+  return out.sort((a, b) => a.ts.localeCompare(b.ts));
+}
+
+/**
+ * The flattened event text of one held nostr capture, '' when not held.
+ * This is what public pages excerpt, under the same rule as web snapshots:
+ * excerpts, not mirrors, and nothing at all when the post withholds text.
+ */
+export function nostrEventText(post: NostrPost, ts: string): string {
+  const p = join(ARCHIVE, 'nostr', post.id, ts, 'event.txt');
+  return existsSync(p) ? readFileSync(p, 'utf8') : '';
+}
+
 /**
  * Whether a source's captured text may be reproduced publicly.
  *
@@ -261,6 +350,33 @@ export function withholdsCapturedText(src?: { withhold_text?: boolean }): boolea
  */
 export function withholdsCapturedMedia(src?: { withhold_text?: boolean }): boolean {
   return withholdsCapturedText(src);
+}
+
+/**
+ * Per-status withholding inside a captured conversation.
+ *
+ * `withhold_text` withholds a whole source. `withhold_posts` is its per-status
+ * form: a list of status ids whose text and image are withheld from a thread
+ * that is otherwise published. One flag per source is too coarse for a
+ * conversation, where a single phishing reply would otherwise force the choice
+ * between publishing it and withholding the entire thread. A phishing reply
+ * rendered as a screenshot cannot be defanged by escaping its URL, because the
+ * URL is pixels.
+ *
+ * Withholding a whole source withholds every post in it, so the source-level
+ * answer wins. See docs/design/capture-display-policy.md section 1b.
+ *
+ * This is not muting. Muting de-emphasises a low-signal reply and keeps it on
+ * the page; this removes the post's text and image from the page entirely.
+ * Keeping them in separate functions is deliberate: a renderer that confuses
+ * them either buries evidence or publishes something held back.
+ */
+export function withholdsPost(
+  src: { withhold_text?: boolean; withhold_posts?: string[] } | undefined,
+  status: string,
+): boolean {
+  if (withholdsCapturedText(src)) return true;
+  return (src?.withhold_posts ?? []).includes(status);
 }
 
 export interface Snapshot {
@@ -338,8 +454,33 @@ export function xPostById(id: string): XPost | undefined {
   return xPosts().find((p) => p.id === id);
 }
 
+export function nostrPosts(): NostrPost[] {
+  return (config().nostr_post ?? []) as NostrPost[];
+}
+
+export function nostrPostById(id: string): NostrPost | undefined {
+  return nostrPosts().find((p) => p.id === id);
+}
+
 export function sourceById(id: string): Source | undefined {
-  return sources().find((s) => s.id === id);
+  const web = sources().find((s) => s.id === id);
+  if (web) return web;
+
+  // `capture.py` projects a thread-enabled [[x_post]] into a pollable source
+  // under the same id. Mirror that projection here so its snapshots, diffs
+  // and additive reviews remain one record all the way through the site.
+  const post = xPostById(id);
+  if (!post?.thread) return undefined;
+  return {
+    id: post.id,
+    title: post.title,
+    url: post.url,
+    org: post.org,
+    kind: 'social-thread',
+    tier: post.tier,
+    note: post.why,
+    published: post.posted,
+  };
 }
 
 export type RevisionReviewStatus =
@@ -681,6 +822,7 @@ export interface ArchiveStats {
   /** The subset our own poller caught live. */
   changes: number;
   xPosts: number;
+  nostrPosts: number;
   firstCapture: string | null;
   lastCapture: string | null;
   bytes: number;
@@ -710,6 +852,7 @@ export function stats(): ArchiveStats {
     ).length,
     changes: changeLog().filter((e) => e.event === 'changed').length,
     xPosts: xPosts().length,
+    nostrPosts: nostrPosts().length,
     firstCapture: first,
     lastCapture: last,
     bytes,

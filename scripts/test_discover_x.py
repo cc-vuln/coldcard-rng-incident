@@ -351,7 +351,7 @@ class StateAndQueueTests(unittest.TestCase):
     def run_discovery(self, directory, state, result, *, queue_initial=False):
         state_path = Path(directory) / "state.json"
         candidates_path = Path(directory) / "candidates.jsonl"
-        with mock.patch("discover_stackernews.update_intake") as update, \
+        with mock.patch("discovery_common.update_intake") as update, \
                 redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             attempted, queued, failures = discover_x.discover(
                 [self.watch],

@@ -13,7 +13,8 @@ captures we took and which we inherited.
 
     wayback.py list ID [--from YYYYMMDD] [--to YYYYMMDD]
     wayback.py backfill ID [--from ...] [--to ...] [--limit N]
-    wayback.py backfill-all [--from ...] [--to ...]
+    wayback.py backfill-all [--from ...] [--to ...] [--limit N]
+    wayback.py rebuild-diffs   # regenerate diffs after recovered snapshots
 """
 
 from __future__ import annotations

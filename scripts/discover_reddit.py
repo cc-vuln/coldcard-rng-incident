@@ -26,9 +26,8 @@ backfill: that is a one-off enumeration job, not this script's.
 `--show <post-id>` fetches one thread's post body through the same route.
 It exists for the intake agent, which cannot reach Reddit directly either.
 
-Zero dependencies: stdlib only (imports capture.py and
-discover_stackernews.py for the webbridge protocol, keyword list and intake
-file handling).
+Zero dependencies: stdlib only (imports capture.py for the webbridge protocol
+and discovery_common.py for the keyword list and intake file handling).
 """
 
 import argparse
@@ -36,7 +35,6 @@ import json
 import re
 import sys
 import time
-import tomllib
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,25 +42,26 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from capture import BrowserUnavailable, wb_available, wb_cmd  # noqa: E402
-from discover_stackernews import (  # noqa: E402
-    KEYWORDS, SOURCES, WORK, update_intake,
+from discovery_common import (  # noqa: E402
+    KEYWORDS, POLITE_DELAY, WORK,
+    load_state, persist_run, registered_urls, report_queued,
 )
 
 STATE = WORK / "reddit-discovery.json"
 CANDIDATES = WORK / "reddit-candidates.jsonl"
 
-POLITE_DELAY = 1.5
-SEEN_KEEP = 5000
 DEFAULT_SUBS = ["coldcard", "Bitcoin"]
 
 POST_URL_RE = re.compile(r"reddit\.com/r/[^/]+/comments/([a-z0-9]+)")
 
 
-def registered_urls() -> set[str]:
-    """URLs of every reddit source already in sources.toml."""
-    data = tomllib.loads(SOURCES.read_text(encoding="utf-8"))
-    return {s.get("url", "") for s in data.get("source", [])
-            if POST_URL_RE.search(s.get("url", ""))}
+def registered_urls_reddit() -> set[str]:
+    """URLs of every reddit source already in sources.toml.
+
+    Reddit permalinks are registered in the form the listing reports them, so
+    a matched URL is already canonical.
+    """
+    return registered_urls(lambda url: url if POST_URL_RE.search(url) else None)
 
 
 def fetch_new(sub: str, limit: int) -> list[dict]:
@@ -114,12 +113,6 @@ def fetch_post_body(post_id: str) -> None:
     }, indent=2, sort_keys=True))
 
 
-def load_state() -> dict:
-    if STATE.exists():
-        return json.loads(STATE.read_text(encoding="utf-8"))
-    return {"seen": []}
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -144,9 +137,9 @@ def main() -> int:
         return 1
 
     subs = args.subs or DEFAULT_SUBS
-    state = load_state()
+    state = load_state(STATE)
     seen = set(state.get("seen", []))
-    known = registered_urls()
+    known = registered_urls_reddit()
     now = datetime.now(timezone.utc)
 
     candidates = []
@@ -192,24 +185,16 @@ def main() -> int:
                     "matched": bool(KEYWORDS.search(haystack)),
                 })
 
-    WORK.mkdir(exist_ok=True)
-    if not args.no_state:
-        if candidates:
-            with CANDIDATES.open("a", encoding="utf-8") as fh:
-                for c in candidates:
-                    fh.write(json.dumps(c, sort_keys=True) + "\n")
-        state["seen"] = sorted(seen)[-SEEN_KEEP:]
-        STATE.write_text(json.dumps(state) + "\n", encoding="utf-8")
-        update_intake(candidates, known)
+    persist_run(state=state, seen=seen, candidates=candidates, known=known,
+                state_path=STATE, candidates_path=CANDIDATES,
+                save=not args.no_state)
 
     print(f"scanned {fetched} posts from r/{', r/'.join(subs)} "
           f"({requests} requests); {len(candidates)} new candidate(s)")
     for c in candidates:
         print(f"  {c['createdAt'][:16]}  {c['id']:>8}  [r/{c['sub']}] "
               f"c={c['ncomments']!s:<3} {c['author'] or '?':<20} {c['title']}")
-    if candidates and not args.no_state:
-        print(f"appended to {CANDIDATES.relative_to(ROOT)} and DISCOVERY.md; "
-              f"the intake agent assesses pending entries")
+    report_queued(candidates, CANDIDATES, not args.no_state)
     return 0
 
 

@@ -9,6 +9,18 @@ The site is the public record of the July 2026 COLDCARD predictable-RNG
 incident: it preserves what each party published and how it changed, organises
 the material, and explains it without adjudicating between the people involved.
 
+The record is intended to outlast the immediate incident. It preserves the
+contemporaneous public record for posterity, including material later edited or
+removed, while treating the incident's likely place among the most consequential
+in Bitcoin's history as a provisional editorial assessment rather than a
+settled ranking.
+
+Chronology applies to interpretation as well as source revisions. The timeline
+and response record should let readers follow changing explanations, opinions
+and speculation, including conspiracy theories, without promoting the theories
+into factual claims. Each remains attributed to the person who published it,
+dated, and connected to any later correction or change of view.
+
 The record is the product. Technical explanations and response pages are
 readings of it. They cite preserved material and carry the same evidence-basis
 contract as the register.

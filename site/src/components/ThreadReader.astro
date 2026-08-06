@@ -1,0 +1,246 @@
+---
+/**
+ * A captured X conversation, rendered as record.
+ *
+ * The display grant in docs/design/capture-display-policy.md section 1a covers
+ * the individual posts of a captured conversation, and names the four things
+ * that keep this from becoming a mirror of a thread. All four are structural
+ * here rather than editorial:
+ *
+ *   bounded reveal   the focal post and the author's own chain render open;
+ *                    replies sit behind a disclosure and reveal in pages
+ *   oldest first     the archive's order, never the platform's ranking
+ *   links out        every post links to its own original
+ *   declared gaps    a capture that stopped somewhere says so, in the reader
+ *
+ * Muting is presentation and withholding is publication; the two are answered
+ * by different functions and must not be conflated. A withheld post never
+ * reaches this component at all. A muted one is here, collapsed, with the
+ * mechanical rule that muted it printed beside it.
+ *
+ * No conditional markup returning elements: .astro's expression parser breaks
+ * on those and reports the error inside <style>. Visibility is driven by the
+ * `hidden` attribute over data computed in the frontmatter.
+ */
+import Timestamp from './Timestamp.astro';
+import { MUTE_SHORT_CHARS, REPLY_REVEAL, type ThreadCapture } from '../lib/x-thread';
+
+interface Props {
+  thread: ThreadCapture;
+}
+const { thread } = Astro.props;
+
+const lead = thread.posts.filter((p) => p.role !== 'reply');
+const replies = thread.posts.filter((p) => p.role === 'reply');
+const shown = replies.slice(0, REPLY_REVEAL);
+const rest = replies.slice(REPLY_REVEAL);
+
+const ROLE_LABEL: Record<string, string> = {
+  ancestor: 'the post this replies to',
+  focal: 'the registered post',
+  'self-thread': 'same author, continuing',
+  reply: 'reply',
+};
+
+const summary = [
+  thread.counts.selfThread ? `${thread.counts.selfThread} continuation posts` : '',
+  `${thread.counts.replies} replies held`,
+  thread.counts.muted ? `${thread.counts.muted} muted as low signal` : '',
+].filter(Boolean).join(', ');
+---
+
+<section class="tr" aria-labelledby="thread-heading">
+  <h2 class="tr__h" id="thread-heading">The conversation</h2>
+  <p class="tr__lede">
+    Captured <Timestamp iso={thread.iso} />. {summary}. Posts are in the
+    archive's own order, oldest first, not the order X ranks them in.
+  </p>
+
+  <ol class="tr__list">
+    {lead.map((p) => (
+      <li class="tr__item is-lead">
+        <div class="tr__meta">
+          <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
+          <span class="tr__role">{ROLE_LABEL[p.role]}</span>
+          <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
+        </div>
+        <img
+          class="tr__shot"
+          hidden={!p.shot}
+          src={p.shot?.src}
+          alt={`Captured screenshot of the post by @${p.author}`}
+          loading="lazy"
+          decoding="async"
+        />
+        <p class="tr__captured" hidden={!p.shot}>
+          capture taken <Timestamp iso={p.shot?.captured ?? thread.iso} />
+        </p>
+        <blockquote class="tr__text" hidden={!!p.shot}>{p.text}</blockquote>
+      </li>
+    ))}
+  </ol>
+
+  <div class="tr__note">
+    Replies are unmoderated third-party material, reproduced here as part of
+    the record. Inclusion is not endorsement, and nothing in them has been
+    checked by this project.
+  </div>
+
+  <details class="tr__replies" open={false}>
+    <summary>
+      <span>Replies held in this capture ({thread.counts.replies})</span>
+    </summary>
+
+    <p class="tr__rule">
+      Low-signal replies are collapsed to one line, never removed. A reply is
+      collapsed only on mechanical grounds: fewer than {MUTE_SHORT_CHARS}
+      characters, no text, mentions only, no letters or digits, a bare link, or
+      text identical to another reply in the same capture. What a reply argues
+      is never a reason. Each one says which rule collapsed it, and its
+      screenshot is one click away.
+    </p>
+
+    <ol class="tr__list">
+      {shown.map((p) => (
+        <li class:list={['tr__item', `is-${p.band}`]}>
+          <div class="tr__meta">
+            <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
+            <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
+            <span class="tr__why" hidden={!p.reason}>{p.reason}</span>
+          </div>
+          <img
+            class="tr__shot"
+            hidden={!p.shot || p.band === 'muted'}
+            src={p.shot?.src}
+            alt={`Captured screenshot of the reply by @${p.author}`}
+            loading="lazy"
+            decoding="async"
+          />
+          <p class="tr__captured" hidden={!p.shot || p.band === 'muted'}>
+            capture taken <Timestamp iso={p.shot?.captured ?? thread.iso} />
+          </p>
+          <blockquote class="tr__text" hidden={!!p.shot && p.band !== 'muted'}>{p.text}</blockquote>
+          <details class="tr__peek" hidden={!p.shot || p.band !== 'muted'}>
+            <summary>show the capture</summary>
+            <img
+              class="tr__shot"
+              src={p.shot?.src}
+              alt={`Captured screenshot of the reply by @${p.author}`}
+              loading="lazy"
+              decoding="async"
+            />
+            <p class="tr__captured">
+              capture taken <Timestamp iso={p.shot?.captured ?? thread.iso} />
+            </p>
+          </details>
+        </li>
+      ))}
+    </ol>
+
+    <details class="tr__more" hidden={rest.length === 0}>
+      <summary>The remaining {rest.length} replies</summary>
+      <ol class="tr__list">
+        {rest.map((p) => (
+          <li class:list={['tr__item', `is-${p.band}`]}>
+            <div class="tr__meta">
+              <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
+              <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
+              <span class="tr__why" hidden={!p.reason}>{p.reason}</span>
+            </div>
+            <blockquote class="tr__text">{p.text}</blockquote>
+            <details class="tr__peek" hidden={!p.shot}>
+              <summary>show the capture</summary>
+              <img
+                class="tr__shot"
+                src={p.shot?.src}
+                alt={`Captured screenshot of the reply by @${p.author}`}
+                loading="lazy"
+                decoding="async"
+              />
+              <p class="tr__captured">
+                capture taken <Timestamp iso={p.shot?.captured ?? thread.iso} />
+              </p>
+            </details>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </details>
+
+  <div class="tr__gaps" hidden={thread.gaps.length === 0}>
+    <span class="tr__gapsTitle">What this capture did not reach</span>
+    <ul>
+      {thread.gaps.map((g) => <li>{g}</li>)}
+    </ul>
+  </div>
+  <p class="tr__complete" hidden={thread.gaps.length > 0}>
+    This capture reached the end of the conversation as X served it: it stopped
+    because nothing further loaded, not because a limit was hit. X decides what
+    a reader is shown, so that is not the same as a guarantee of every reply.
+  </p>
+</section>
+
+<style>
+  .tr { margin-block: 2rem; }
+  .tr__h {
+    font-family: var(--font-display); font-size: 1.35rem; font-weight: 400;
+    letter-spacing: -.01em;
+  }
+  .tr__lede {
+    font-size: .9rem; color: var(--ink-2); margin-top: .4rem;
+    max-width: 70ch; line-height: 1.6;
+  }
+  .tr__list { list-style: none; padding: 0; margin: 1.2rem 0 0; }
+  .tr__item {
+    border-left: 2px solid var(--rule);
+    padding: .55rem 0 .55rem .9rem;
+    margin-bottom: .9rem;
+  }
+  .tr__item.is-lead { border-left-color: var(--accent); }
+  .tr__item.is-foreground { border-left-color: color-mix(in srgb, var(--accent) 55%, var(--rule)); }
+  /* Muted is quieter, never hidden: the material stays on the page and the
+     rule that quietened it is printed beside it. */
+  .tr__item.is-muted { opacity: .72; margin-bottom: .35rem; padding-block: .3rem; }
+  .tr__meta {
+    display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: baseline;
+    font-size: .78rem; color: var(--ink-3);
+  }
+  .tr__who { font-family: var(--font-mono); color: var(--ink-2); }
+  .tr__who:hover { color: var(--accent); }
+  .tr__role, .tr__why { font-style: italic; }
+  .tr__text {
+    margin: .4rem 0 0; font-size: .93rem; line-height: 1.6; max-width: 68ch;
+    white-space: pre-wrap; border: 0; padding: 0;
+  }
+  .tr__item.is-muted .tr__text { font-size: .85rem; color: var(--ink-2); }
+  .tr__shot {
+    display: block; margin-top: .6rem; max-width: min(100%, 34rem);
+    height: auto; border: 1px solid var(--rule); border-radius: var(--radius);
+  }
+  .tr__captured {
+    margin-top: .3rem; font-family: var(--font-mono);
+    font-size: .66rem; color: var(--ink-3);
+  }
+  .tr__note, .tr__rule {
+    font-size: .82rem; color: var(--ink-2); line-height: 1.6;
+    max-width: 70ch; margin-top: 1rem;
+    border-left: 2px solid var(--rule); padding-left: .9rem;
+  }
+  .tr__replies { margin-top: 1.4rem; }
+  .tr__replies > summary, .tr__more > summary, .tr__peek > summary {
+    cursor: pointer; font-size: .85rem; color: var(--ink-2);
+  }
+  .tr__replies > summary:hover, .tr__more > summary:hover,
+  .tr__peek > summary:hover { color: var(--accent); }
+  .tr__peek > summary { font-size: .72rem; margin-top: .4rem; }
+  .tr__more { margin-top: 1rem; }
+  .tr__gaps, .tr__complete {
+    margin-top: 1.4rem; font-size: .84rem; color: var(--ink-2);
+    line-height: 1.6; max-width: 70ch;
+  }
+  .tr__gapsTitle {
+    font-family: var(--font-mono); font-size: .64rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .tr__gaps ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+</style>

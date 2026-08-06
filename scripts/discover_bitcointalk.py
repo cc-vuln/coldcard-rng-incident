@@ -4,8 +4,8 @@
 The BitcoinTalk twin of discover_stackernews.py and discover_reddit.py.
 The forum is plain SMF 1.1 and answers anonymous requests from this host
 (robots.txt carries only a sitemap line), so this script fetches board index
-pages directly, no browser: one board page per run, 1.5s apart, fired twice
-a day by discover-community.timer.
+pages directly, no browser: one page per board per run (two boards by
+default), 1.5s apart, fired twice a day by discover-community.timer.
 
 Two routes worth knowing, found 4 Aug 2026:
 
@@ -21,17 +21,15 @@ Two routes worth knowing, found 4 Aug 2026:
 Volume discipline matches the other lanes: one page per board per run, twice
 a day. Do not page deeper to backfill; that is a one-off enumeration job.
 
-Zero dependencies: stdlib only (imports discover_stackernews.py for the
-keyword list and intake file handling).
+Zero dependencies: stdlib only (imports discovery_common.py for the keyword
+list and intake file handling).
 """
 
 import argparse
 import html
-import json
 import re
 import sys
 import time
-import tomllib
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,21 +37,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from discover_stackernews import (  # noqa: E402
-    KEYWORDS, SOURCES, WORK, update_intake,
+from discovery_common import (  # noqa: E402
+    KEYWORDS, POLITE_DELAY, TIMEOUT, UA, WORK,
+    load_state, persist_run, registered_urls, report_queued,
 )
 
 STATE = WORK / "bitcointalk-discovery.json"
 CANDIDATES = WORK / "bitcointalk-candidates.jsonl"
 
-UA = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36 "
-    "(+https://github.com/cc-vuln/coldcard-rng-incident; historical preservation)"
-)
-TIMEOUT = 45
-POLITE_DELAY = 1.5
-SEEN_KEEP = 5000
 DEFAULT_BOARDS = ["37", "1"]  # 37 = Wallet software; 1 = Bitcoin Discussion
                               # (the incident megathread, topic 5589927, is
                               # pinned in Bitcoin Discussion)
@@ -108,15 +99,17 @@ def parse_board(page: str) -> list[dict]:
     return topics
 
 
-def registered_urls() -> set[str]:
-    """Canonical topic URLs of every bitcointalk source in sources.toml."""
-    data = tomllib.loads(SOURCES.read_text(encoding="utf-8"))
-    urls = set()
-    for src in data.get("source", []):
-        m = TOPIC_URL_RE.search(src.get("url", ""))
-        if m:
-            urls.add(f"{BASE}?topic={m.group(1)}.0")
-    return urls
+def registered_urls_bct() -> set[str]:
+    """Canonical topic URLs of every bitcointalk source in sources.toml.
+
+    Rebuilt from the topic id rather than compared as written: SMF will hand
+    out a link to a post within a topic (?topic=N.msg123#msg123), and that
+    names the same thread a board index reports as ?topic=N.0.
+    """
+    def canonical(url: str) -> str | None:
+        m = TOPIC_URL_RE.search(url)
+        return f"{BASE}?topic={m.group(1)}.0" if m else None
+    return registered_urls(canonical)
 
 
 def print_view_text(topic_id: str) -> str:
@@ -127,12 +120,6 @@ def print_view_text(topic_id: str) -> str:
     text = re.sub(r"<[^>]+>", "\n", text)
     text = html.unescape(text)
     return re.sub(r"\n\s*\n+", "\n", text).strip()
-
-
-def load_state() -> dict:
-    if STATE.exists():
-        return json.loads(STATE.read_text(encoding="utf-8"))
-    return {"seen": []}
 
 
 def main() -> int:
@@ -153,9 +140,9 @@ def main() -> int:
         return 0
 
     boards = args.boards or DEFAULT_BOARDS
-    state = load_state()
+    state = load_state(STATE)
     seen = set(state.get("seen", []))
-    known = registered_urls()
+    known = registered_urls_bct()
     now = datetime.now(timezone.utc)
 
     candidates = []
@@ -190,24 +177,16 @@ def main() -> int:
                     "matched": bool(KEYWORDS.search(t["title"])),
                 })
 
-    WORK.mkdir(exist_ok=True)
-    if not args.no_state:
-        if candidates:
-            with CANDIDATES.open("a", encoding="utf-8") as fh:
-                for c in candidates:
-                    fh.write(json.dumps(c, sort_keys=True) + "\n")
-        state["seen"] = sorted(seen)[-SEEN_KEEP:]
-        STATE.write_text(json.dumps(state) + "\n", encoding="utf-8")
-        update_intake(candidates, known)
+    persist_run(state=state, seen=seen, candidates=candidates, known=known,
+                state_path=STATE, candidates_path=CANDIDATES,
+                save=not args.no_state)
 
     print(f"scanned {fetched} topics from board(s) {', '.join(boards)} "
           f"({requests} requests); {len(candidates)} new candidate(s)")
     for c in candidates:
         print(f"  {c['createdAt'][:16]}  {c['id']:>8}  [bct/{c['sub']}] "
               f"r={c['ncomments']!s:<3} {c['author'] or '?':<20} {c['title']}")
-    if candidates and not args.no_state:
-        print(f"appended to {CANDIDATES.relative_to(ROOT)} and DISCOVERY.md; "
-              f"the intake agent assesses pending entries")
+    report_queued(candidates, CANDIDATES, not args.no_state)
     return 0
 
 

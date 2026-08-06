@@ -818,7 +818,7 @@ def discover(
     candidates_path: Path = CANDIDATES,
 ) -> tuple[int, int, int]:
     """Return profiles attempted, candidates queued and failed profiles."""
-    from discover_stackernews import update_intake
+    from discovery_common import update_intake
 
     seen = {str(value) for value in state.get("seen", [])} - registered_ids
     watch_state = state.setdefault("watches", {})

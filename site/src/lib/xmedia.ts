@@ -10,6 +10,8 @@ import manifest from '../data/x-media.json';
 export interface XMediaFile {
   src: string;
   name: string;
+  /** When this project captured the screenshot, distinct from post time. */
+  captured: string;
 }
 
 const byPost = manifest as Record<string, XMediaFile[]>;

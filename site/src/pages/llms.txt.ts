@@ -9,17 +9,26 @@ export const GET: APIRoute = ({ site }) => {
   const archive = stats();
   const incident = meta();
   const lastCapture = archive.lastCapture ? tsToIso(archive.lastCapture) : 'none held';
+  // One extra line only while nostr posts exist, so an empty lane leaves the
+  // document byte-identical.
+  const nostrLine = archive.nostrPosts
+    ? `Registered nostr posts: ${archive.nostrPosts}\n`
+    : '';
 
   const body = `# cc-vuln.org
 
 > The site is the public record of the July 2026 COLDCARD predictable-RNG incident: it preserves what each party published and how it changed, organises the material, and explains it without adjudicating between the people involved.
+
+The scale already documented makes the incident likely to rank among the most consequential in Bitcoin's history. This is a provisional editorial assessment, not a settled ranking: attribution totals differ and the number of distinct people affected is unknown. The project's historical role is to preserve the contemporaneous public record for posterity, including material later edited or removed.
+
+The record also organises explanations, opinions and speculation chronologically so changes in public interpretation remain legible. Conspiracy theories alleging an inside job or that law-enforcement or intelligence agencies caused or directed the incident are dated and attributed as public reaction. Their inclusion is not evidence that they were true; later retractions, corrections and changes of view belong beside them.
 
 Archive last capture: ${lastCapture}
 Registered web sources: ${archive.sources}
 Snapshots held: ${archive.snapshots}
 Reviewed source-content changes: ${archive.sourceChanges}
 Registered social posts: ${archive.xPosts}
-
+${nostrLine}
 ## Interpretation rules
 
 - verified: checked against source code, a repository file or a captured snapshot
@@ -34,7 +43,7 @@ Registered social posts: ${archive.xPosts}
 
 ## Canonical human-readable pages
 
-- [Evidence index](${link('/record/')})
+- [The record: source register](${link('/record/')})
 - [Incident timeline](${link('/record/timeline/')})
 - [Funds accounting: each source's current total, what it counts and when it was read](${link('/record/funds/')})
 - [Source change record](${link('/record/changes/')})
@@ -43,22 +52,36 @@ Registered social posts: ${archive.xPosts}
 - [Technical reconstruction](${link('/how-it-broke/')})
 - [Published candidate models and model explorer](${link('/how-it-broke/entropy/#model-explorer')})
 - [Dice, passphrase and threshold-wallet conditions](${link('/how-it-broke/conditions/')})
+- [Blast radius: other uses of the affected generators](${link('/how-it-broke/blast-radius/')})
 - [Published responses](${link('/response/')})
 - [Public statements and actions](${link('/response/statements/')})
 - [Migration guidance record](${link('/response/migration/')})
 - [Incident-related scams and warnings](${link('/response/scams/')})
+- [Developer work: proposals, pull requests and commit reconstruction](${link('/response/developers/')})
+- [Claims of AI-assisted discovery and reproduction](${link('/response/ai/')})
+- [What was disclosed before: the vendor's disclosure history](${link('/response/disclosure-history/')})
+- [Legal context: terms, statutes and public claims activity](${link('/response/legal/')})
 - [Editorial standards and corrections](${link('/about/#editorial-standards')})
+- [How to cite this record](${link('/cite/')})
+- [Corrections to this site](${link('/corrections/')})
 
 ## Machine-readable records
 
 - [Source register JSON](${link('/record/sources.json')})
 - [Source register JSON Schema](${link('/schemas/source-register-v1.json')})
 - [Change feed JSON](${link('/record/changes.json')})
+- [Build and record state](${link('/version.json')})
 - [Sitemap](${link('/sitemap-index.xml')})
 
 ## Citation guidance
 
+Full guidance with worked examples: ${link('/cite/')}
+
 Cite the original publisher and link to its source URL. When a claim depends on a prior or revised state, also cite the corresponding cc-vuln.org source record so the capture time, revision window and origin of the held state can be checked. Public pages contain diffs and short excerpts; complete third-party captures remain held locally rather than republished as full mirrors.
+
+A held capture evidences publication, not truth: it establishes what was served from a URL when this archive read it, and the claim inside it is graded separately. Carry the evidence basis across rather than restating a reported claim as verified. States marked provenance wayback were recovered from the Internet Archive and belong to it, not to this project.
+
+This record changes. Every build publishes the commit it was made from at ${link('/version.json')}; cite that commit alongside the URL, because it is what makes a state recoverable. No DOI is minted.
 
 ## Incident registry description
 

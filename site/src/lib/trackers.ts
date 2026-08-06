@@ -177,7 +177,7 @@ export interface TrackerReading {
   checkedLabel: string;
   /** Empty when the source is answering normally. */
   healthLabel: string;
-  /** The same, compact and unqualified: "not resolving since 4 Aug 09:06 UTC". */
+  /** The same, compact: "not resolving here since 4 Aug 09:06 UTC". */
   healthShort: string;
   /** Set when the reading is not from the newest held capture. */
   stateShort: string;
@@ -199,7 +199,7 @@ const HEALTH_PHRASES: Record<string, (label: string) => string> = {
 
 // The card version of the same states, for a field rather than a sentence.
 const HEALTH_SHORT: Record<string, string> = {
-  unreachable: 'not resolving since',
+  unreachable: 'not resolving here since',
   challenged: 'serving a challenge since',
   'guard-miss': 'not matching its capture guard since',
   skipped: 'unread since',
@@ -216,7 +216,7 @@ const HEALTH_SHORT: Record<string, string> = {
  */
 const LIVENESS: Record<string, { label: string; tone: 'ok' | 'warn' | 'bad' }> = {
   ok: { label: 'live', tone: 'ok' },
-  unreachable: { label: 'offline', tone: 'bad' },
+  unreachable: { label: 'unreachable here', tone: 'bad' },
   challenged: { label: 'blocked', tone: 'bad' },
   'guard-miss': { label: 'guard miss', tone: 'warn' },
   skipped: { label: 'paused', tone: 'warn' },

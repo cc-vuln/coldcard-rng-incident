@@ -20,9 +20,14 @@ const claimFiles = new Set();
 const basisCounts = { verified: 0, reported: 0, derived: 0, unverified: 0 };
 let contestedCount = 0;
 
+// Apparatus rather than editorial: these pages describe how the record works
+// or index its own errors, and assert nothing about the incident. A Claim
+// marker on one would be a marker with nothing to scope.
 const markerExemptPages = new Set([
   '404.astro',
   'about.astro',
+  'cite.astro',
+  'corrections.astro',
   'record/changes/index.astro',
   'record/index.astro',
   'record/sources/[id].astro',

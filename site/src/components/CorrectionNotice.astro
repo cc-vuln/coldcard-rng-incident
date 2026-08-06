@@ -1,0 +1,63 @@
+---
+/**
+ * A compact marker on every page named by corrections.toml.
+ *
+ * The full before-and-after account belongs at /corrections/. This component
+ * makes the other half of the policy real: a reader encountering the page
+ * that carried a wrong claim sees that it was corrected, rather than needing
+ * to discover the central log independently.
+ */
+import { corrections } from '../lib/corrections';
+import { isoToHuman } from '../lib/archive';
+
+interface Props {
+  page: string;
+}
+
+const { page } = Astro.props;
+const entries = corrections()
+  .filter((entry) => entry.pages.includes(page))
+  .map((entry) => ({
+    ...entry,
+    when: isoToHuman(entry.date),
+  }));
+const empty = entries.length === 0;
+---
+
+<aside class="correction-notice" role="note" hidden={empty}>
+  <span class="correction-notice__tag">Corrected</span>
+  {entries.map((entry) => (
+    <p>
+      <time datetime={entry.date}>{entry.when}</time>: {entry.summary}
+      <a href="/corrections/">Full correction</a>.
+    </p>
+  ))}
+</aside>
+
+<style>
+  .correction-notice {
+    max-width: var(--w-text);
+    margin: 1.25rem 0;
+    padding: .8rem 1rem;
+    border-left: 3px solid var(--red);
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: .86rem;
+    line-height: 1.55;
+  }
+  .correction-notice[hidden] { display: none; }
+  .correction-notice__tag {
+    display: block;
+    margin-bottom: .25rem;
+    color: var(--red);
+    font-family: var(--font-mono);
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .correction-notice p { margin: 0; }
+  .correction-notice p + p { margin-top: .45rem; }
+  .correction-notice time { font-family: var(--font-mono); font-size: .78rem; }
+  .correction-notice a { white-space: nowrap; }
+</style>

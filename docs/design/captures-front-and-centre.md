@@ -1,8 +1,8 @@
 # Design: captures front and centre
 
 **Status:** decided 3 Aug 2026; P1 and most of P2 shipped the same day. Public
-hash presentation was retired 5 Aug 2026. R11 and two presentation duties
-remain, tracked in `BACKLOG.md` section 0a and
+hash presentation was retired 5 Aug 2026. The remaining capture-timestamp
+duty is tracked in `BACKLOG.md` section 0 and
 `design/capture-display-policy.md` section 8, not here.
 **Date:** 3 Aug 2026, revised 5 Aug 2026
 
@@ -105,8 +105,10 @@ P3, refinements:
   entries whose image actually rendered; the separate captured-tweet
   timeline idea converged into the feed rather than a new page.
 - **R10, register freshness stamp**, shipped with the /record/ wall.
-- **R11, per-source og images.** Deliberately parked until after a
-  public deploy settles.
+- **R11, per-source og images.** Not pursued after the record-first refit. The
+  canonical source page already carries the capture and its context; generating
+  a separate social card for every source is presentation polish rather than a
+  record gap.
 
 Also shipped from the policy outline: one withhold surface, with
 `withholdsCapturedMedia()` consulted by every media renderer, so the

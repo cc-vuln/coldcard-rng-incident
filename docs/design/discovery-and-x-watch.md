@@ -142,8 +142,9 @@ daemon on localhost. It is not used for X timeline discovery.
 1. **Registered browser sources.** Implemented. `capture.py` drives the
    capture browser over local HTTP for sources marked `capture = "browser"`,
    records the method in metadata, and treats an unavailable browser as an
-   incomplete poll. This path holds the Reddit victim thread and the
-   JS-hydrated chain tracker.
+   incomplete poll. This path holds the JS-hydrated chain tracker and the
+   other script-challenged pages; the Reddit threads moved to the
+   `reddit-json` method (see `design/reddit-json-capture.md`).
 2. **Individual X posts that gallery-dl cannot retrieve.** Implemented through
    `ingest-x.py`, which captures an element-only screenshot and text sidecar,
    then registers the post. It is interactive and is not the timeline watcher.
@@ -241,8 +242,10 @@ requiring a session inherits the staleness problem above:
   The known libngu pull requests and Optech #416 are already registered as
   ordinary `[[source]]` entries.
 - **Reddit**: not reliably searchable through the project's scripted methods as
-  of 1 Aug 2026. The known victim thread is captured through the browser backend;
-  topic-wide discovery remains a manual gap.
+  of 1 Aug 2026, and search remains unavailable. The held threads capture
+  through the `reddit-json` method, and `discover_reddit.py` reads the
+  r/coldcard and r/Bitcoin /new listings through the capture browser session on
+  the 12-hour community schedule.
 
 Hits land in the same `archive/inbox.jsonl` with a proposed `[[source]]`
 block. A `just promote <inbox-id>` helper appends it to `sources.toml` so
@@ -309,6 +312,21 @@ private individual gets published. Watching is not publishing.
    protection, restriction and authentication failure are distinguishable.
 5. Add GitHub and HN topic discovery, nightly audits and backup after their own
    alerting and retention decisions.
+
+### nostr inherits the same model (6 Aug 2026)
+
+The nostr lane adopts this probation design unchanged: live reads are manual
+and opt-in through `NOSTR_DISCOVERY_ENABLED`, per-run caps with fixed relay
+spacing bound each run, failure classes fail closed, and no timer exists
+until the gate is met. Two differences follow from the platform. Reads are
+anonymous NIP-50 queries against public search relays, with no credential
+and no platform automation policy in play, so queued candidates go to the
+standard community intake agent rather than a separate triage agent. And a
+capture is a signed event fetched through `nak`, self-authenticating rather
+than a session screenshot, so none of the screenshot provenance gating
+applies. The scheduling gate has the same shape as step 3: after a probation
+intake quality review, decide whether to add a separate nostr timer that
+preserves the caps, spacing and kill switch.
 
 ## 9. Honest limits
 

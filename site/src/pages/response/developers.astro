@@ -7,7 +7,7 @@ import Answer from '../../components/Answer.astro';
 <Article
   title="What the developer community did"
   description="Bitcoin Optech's coverage, the libngu and COLDCARD pull requests opened after the entropy incident, an independent commit-history reconstruction checked against the pinned clones, and attributed process and licensing observations."
-  standfirst="Four public incident-response proposals are tracked. Their state moved through 1 August 2026: one stayed open, two were closed by their own authors, and the firmware companion became a draft waiting on a new upstream proposal. A separate commit-history analysis is checked claim by claim below."
+  standfirst="Four public incident-response proposals are tracked. Their state moved through 1 August 2026: one stayed open, two were closed by their own authors, and the firmware companion became a draft waiting on a new upstream proposal. That upstream proposal was merged on 5 August 2026. A separate commit-history analysis is checked claim by claim below."
   depth="plain"
   kicker="Responses"
   next={{
@@ -22,7 +22,9 @@ import Answer from '../../components/Answer.astro';
       rather than shipped change. Three pull requests against the upstream
       <code>libngu</code> library and one companion COLDCARD firmware pull
       request were all still open and unreviewed or unmerged in the captures
-      checked on 1 August 2026, so none of them is present in a release. Bitcoin
+      checked on 1 August 2026. One has since moved: libngu #61 was merged
+      upstream on 5 August 2026, and the library publishes no releases, so no
+      proposal is present in a numbered release as of 6 August 2026. Bitcoin
       Optech carried the advisory to its technical readership, and an
       independent developer published a commit-history reconstruction whose
       assertions are graded one by one below. Nothing here changes what an owner
@@ -53,7 +55,7 @@ import Answer from '../../components/Answer.astro';
           Upstream libngu pull requests opened after disclosure
           <Claim
             basis="verified"
-            scope="The public contents of libngu pull requests #58, #59, #60 and #61, and the state each was in at every capture held: 03:25 to 17:41 UTC on 1 August 2026 for the first three, and 3 August 2026 for #61"
+            scope="The public contents of libngu pull requests #58, #59, #60 and #61, and the state each was in at every capture held: 03:25 to 17:41 UTC on 1 August 2026 for the first three, and 3 August to 5 August 2026 for #61"
             source="Captured switck/libngu pull-request pages and separate patch captures, 1 Aug 2026"
             href="/record/sources/libngu-pr-60/"
             compact
@@ -85,7 +87,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/libngu-pr-61/">#61</a><small>scgbckbone · <a href="/record/sources/libngu-pr-61-patch/">patch</a></small></td>
             <td class="wide"><strong>Replace the generator outright.</strong> Substitutes a SHA-256 Hash-DRBG for Yasmarang and requires a reseed seed of at least 32 bytes, so the old four-byte integer call is rejected rather than quietly accepted.</td>
-            <td class="wide"><span class="status status--warn">Open</span> Opened after the other three; first held capture is 3 August 2026, where it is open with no maintainer reply.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> Opened after the other three and open with no maintainer reply in the 3 August captures; merged by the maintainer on 5 August 2026.</td>
           </tr>
         </tbody>
       </table>
@@ -171,7 +173,7 @@ import Answer from '../../components/Answer.astro';
           <Claim
             basis="unverified"
             scope="The existence of a second contributing commit with a one-character message"
-            source="A 5 August 2026 search of reachable commit messages in the firmware clone found no such commit; a differently described commit could be missed"
+            source="A 6 August 2026 search of reachable commit messages in the firmware clone found no such commit; a differently described commit could be missed"
             compact
           />
         </caption>
@@ -240,7 +242,7 @@ import Answer from '../../components/Answer.astro';
       fallback so it cannot be linked at all.
       <Claim
         basis="verified"
-        scope="Every commit hash, date, message, line count and source quotation in the adjudication table and the reconciliation above"
+        scope="Every commit hash, date, message, line count and source quotation in the commit-check table and the reconciliation above"
         source="Coldcard/firmware and Coldcard/micropython clones held here, read at the cited commits and tags"
         href="https://github.com/Coldcard/firmware/commit/37e4af5451c260c1e7d429fe8972c4cb5e68ee59"
         compact
@@ -254,7 +256,7 @@ import Answer from '../../components/Answer.astro';
     <div class="table-scroll">
       <table class="data-table">
         <caption>
-          Public technical-discussion record checked on 1 August 2026
+          Public technical-discussion record checked on 1 August 2026, rechecked 5 August 2026
           <Claim
             basis="unverified"
             scope="Whether upstream libngu maintainers were consulted privately before integration"
@@ -263,7 +265,7 @@ import Answer from '../../components/Answer.astro';
           />
         </caption>
         <thead>
-          <tr><th scope="col" class="nw">Venue</th><th scope="col" class="wide">Record as of 1 August 2026</th></tr>
+          <tr><th scope="col" class="nw">Venue</th><th scope="col" class="wide">Record as of 5 August 2026</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -271,8 +273,20 @@ import Answer from '../../components/Answer.astro';
             <td class="wide"><a href="https://bitcoinops.org/en/newsletters/2026/07/31/" rel="noopener nofollow">Newsletter #416</a> led with the incident and placed "Move funds secured by COLDCARD-generated keys" in its <em>Action items</em> section.</td>
           </tr>
           <tr>
-            <td class="nw"><strong>bitcoin-dev, Delving Bitcoin and MicroPython upstream</strong></td>
-            <td class="wide">No thread or issue was found in any of the three in a search on 1 August. MicroPython provides the software fallback; the ineffective guard was in <code>libngu</code>.</td>
+            <td class="nw"><strong>bitcoin-dev and MicroPython upstream</strong></td>
+            <td class="wide">No thread or issue was found in either in a search on 1 August, nor in the 5 August recheck. MicroPython provides the software fallback; the ineffective guard was in <code>libngu</code>.</td>
+          </tr>
+          <tr>
+            <td class="nw"><strong>Delving Bitcoin</strong></td>
+            <td class="wide">Nothing in a search on 1 August. On 4 August, seed-cat opened <a href="/record/sources/delving-self-custody-best-practices/">Towards New Self-Custody Best Practices</a>, a draft of custody practices written in direct response to the incident: 2-of-2 multisig, multi-vendor signing and user-generated verifiable entropy. The prescriptions are the author's own.
+              <Claim
+                basis="reported"
+                scope="The existence, date and stated purpose of the Delving Bitcoin thread"
+                source="Delving Bitcoin topic 2768, captured 6 Aug 2026"
+                href="/record/sources/delving-self-custody-best-practices/"
+                compact
+              />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -323,7 +337,7 @@ import Answer from '../../components/Answer.astro';
     <div class="table-scroll">
       <table class="data-table">
         <caption>
-          Selected high-signal repository reactions checked on 1 August 2026
+          Selected high-signal repository reactions checked on 1 August 2026, states rechecked 5 August 2026
           <Claim
             basis="reported"
             captured="1 Aug 2026"
@@ -335,7 +349,7 @@ import Answer from '../../components/Answer.astro';
           <Claim
             basis="verified"
             scope="The open, merged or closed-unmerged states and timestamps displayed for the three pull requests"
-            source="Captured GitHub pull-request metadata checked 1 Aug 2026"
+            source="Captured GitHub pull-request metadata checked 1 Aug 2026, rechecked against newer captures 5 Aug 2026"
             href="/record/sources/seedsigner-pr-962/"
             compact
           />
@@ -356,7 +370,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/satsigner-pr-468/">SatSigner #468</a></td>
             <td class="wide">Reports an incident-prompted entropy audit. The author says the default OS-backed path was sound and proposes fixes for separate optional dice and coin paths.</td>
-            <td class="wide"><span class="status status--warn">Open</span> No review appears in the captured state.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> Open with no review in the 1 August captures; merged by Psycarlo on 3 August 2026.</td>
           </tr>
           <tr>
             <td class="nw"><a href="/record/sources/seedsigner-pr-962/">SeedSigner #962</a></td>
@@ -400,7 +414,7 @@ import Answer from '../../components/Answer.astro';
     question is recorded as open.
   </p>
 
-  <h2>Follow-up items as checked on 5 August 2026</h2>
+  <h2>Follow-up items as checked on 6 August 2026</h2>
 
   <ul class="node-list">
     <li><strong><a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">Coinkite promised a technical postmortem.</a></strong> The captured statement does not give a publication date or detailed scope.</li>
@@ -410,7 +424,7 @@ import Answer from '../../components/Answer.astro';
       <Claim
         basis="unverified"
         scope="The absence of a located formal Coinkite review, incident-specific CVE, audit announcement and public instagibbs reproduction scripts"
-        source="Bounded searches of the official Coinkite blog, current firmware repository, NVD keyword results and public instagibbs GitHub surfaces, checked 5 Aug 2026"
+        source="Bounded searches of the official Coinkite blog, current firmware repository, NVD keyword results and public instagibbs GitHub surfaces, checked 6 Aug 2026"
         compact
       />
     </li>

@@ -8,8 +8,8 @@ import Disclosure from '../../components/Disclosure.astro';
 import RecordSearch from '../../components/RecordSearch.astro';
 import { fig } from '../../lib/figures';
 import {
-  revisions, sources, xPosts, sourceById, displayTitle, summary,
-  tsToIso, withholdsCapturedMedia,
+  revisions, sources, xPosts, nostrPosts, sourceById, displayTitle, summary,
+  tsToIso, withholdsCapturedMedia, shortNpub,
 } from '../../lib/archive';
 import { xMedia } from '../../lib/xmedia';
 
@@ -86,7 +86,18 @@ const LANDMARKS: { sort: string; cites: string[] }[] = [
   { sort: '2026-08-02T20:44:00Z', cites: ['opensats-nvk-board-departure'] },
   { sort: '2026-08-02T21:13:00Z', cites: ['btcsessions-passphrase-loss-report'] },
   { sort: '2026-08-02T23:00:00Z', cites: ['coldcard-update-sunday'] },
-  { sort: '2026-08-03T01:37:00Z', cites: ['intangiblecoins-wave4-address-correction', 'intangiblecoins-wave4-multisig-correction'] },
+  {
+    sort: '2026-08-03T00:51:36Z',
+    cites: [
+      'intangiblecoins-wave4-announcement',
+      'intangiblecoins-wave4-confirmed-list',
+      'intangiblecoins-wave4-pending-list',
+      'intangiblecoins-wave4-confirmed-pastebin',
+      'intangiblecoins-wave4-pending-pastebin',
+      'intangiblecoins-wave4-address-correction',
+      'intangiblecoins-wave4-multisig-correction',
+    ],
+  },
   { sort: '2026-08-03T08:02:32Z', cites: ['kevinkelbie-tracker-move', 'coldcard-rip-tracker'] },
   {
     sort: '2026-08-03T15:57:46Z',
@@ -118,6 +129,7 @@ type Moment = {
   inherited: boolean;
   baselineInherited: boolean;
   imgSrc: string | undefined;
+  imgCapturedIso: string;
   hasShot: boolean;
   search: string;
 };
@@ -144,10 +156,35 @@ const postMoments: Moment[] = xPosts()
       inherited: false,
       baselineInherited: false,
       imgSrc: shot?.src,
+      imgCapturedIso: shot?.captured ?? '',
       hasShot: Boolean(shot),
       search: `${p.id} @${p.author} ${p.org ?? ''}`,
     };
   });
+
+// Registered nostr posts at their publication time, plotted like X posts.
+// This lane holds signed events rather than screenshots, so no thumbnail
+// gates apply.
+const nostrPostMoments: Moment[] = nostrPosts()
+  .filter((p) => p.posted && !citedIds.has(p.id))
+  .map((p) => ({
+    sort: p.posted!,
+    kind: 'post',
+    dateIso: p.posted!,
+    windowStartIso: '',
+    windowEndIso: '',
+    title: displayTitle(p),
+    href: `/record/sources/${p.id}/`,
+    label: 'nostr post',
+    orgLine: `${shortNpub(p.author)}${p.org ? ` · ${p.org}` : ''}`,
+    note: summary(p.why?.trim().split('\n').join(' '), 30),
+    inherited: false,
+    baselineInherited: false,
+    imgSrc: undefined,
+    imgCapturedIso: '',
+    hasShot: false,
+    search: `${p.id} ${p.author} ${p.org ?? ''}`,
+  }));
 
 // Sources with a publisher-displayed date, at that date (day precision).
 const publicationMoments: Moment[] = sources()
@@ -166,6 +203,7 @@ const publicationMoments: Moment[] = sources()
     inherited: false,
     baselineInherited: false,
     imgSrc: undefined,
+    imgCapturedIso: '',
     hasShot: false,
     search: `${s.id} ${s.org ?? ''}`,
   }));
@@ -194,13 +232,14 @@ const changeMoments: Moment[] = revisions()
       inherited: r.inherited,
       baselineInherited: r.baselineInherited,
       imgSrc: undefined,
+      imgCapturedIso: '',
       hasShot: false,
       search: `${r.sourceId} ${src.org ?? ''}`,
     };
   });
 
 const KIND_RANK: Record<Moment['kind'], number> = { post: 1, publication: 2, change: 3 };
-const moments = [...postMoments, ...publicationMoments, ...changeMoments]
+const moments = [...postMoments, ...nostrPostMoments, ...publicationMoments, ...changeMoments]
   .sort((a, b) => (a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : KIND_RANK[a.kind] - KIND_RANK[b.kind]));
 
 // UTC day headers across the incident window, month headers otherwise.
@@ -549,7 +588,7 @@ const FACET_SETS = [
               <div class="tl-date"><Timestamp iso="2026-07-31T13:43:05Z" seconds /></div>
               <div class="tl__title">Mk3 firmware 4.2.0 announced</div>
               <div class="tl-body">
-                The <a href="/record/sources/coldcard-mk3-hotfix-update/">official Mk3 update</a> announces firmware <strong>4.2.0</strong> as available. The 07:30 UTC advisory state had described a final Mk3 release as under evaluation rather than committed, contingent on validating a sufficiently safe upgrade path, and told users not to wait for it. The vendor downloads page checked on 1 August lists 4.2.0 as current for "COLDCARD Mk3 and Mk2". This archive has not installed the release on either model or independently checked the binary.
+                The <a href="/record/sources/coldcard-mk3-hotfix-update/">official Mk3 update</a> announces firmware <strong>4.2.0</strong> as available. The 07:30 UTC advisory state had described a final Mk3 release as under evaluation rather than committed, contingent on validating a sufficiently safe upgrade path, and told users not to wait for it. The vendor downloads page checked on 5 August lists 4.2.0 as current for "COLDCARD Mk3 and Mk2". This archive has not installed the release on either model or independently checked the binary.
                 <Claim basis="reported" scope="The vendor's availability announcement for Mk3 4.2.0 and downloads-page listing for Mk2 and Mk3" source="Captured official COLDCARD X update and vendor downloads page; source-level fix and binary limitations are documented separately" href="/record/firmware/" />
                 <CaptureThumb id="coldcard-mk3-hotfix-update" />
               </div>
@@ -765,13 +804,15 @@ const FACET_SETS = [
         <section class="tlgroup" data-gord={s.gord}>
           <h2 class="tlgroup__h">3 August 2026</h2>
           <div class="tl">
-            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-03T01:37:00Z') ? '' : undefined} hidden={lmBeyond('2026-08-03T01:37:00Z')}>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-03T00:51:36Z') ? '' : undefined} hidden={lmBeyond('2026-08-03T00:51:36Z')}>
               <div class="tl-date">
-                <Timestamp iso="2026-08-03T01:37:57Z" /> and <Timestamp iso="2026-08-03T03:22:16Z" />
+                <Timestamp iso="2026-08-03T00:51:36Z" /> to <Timestamp iso="2026-08-03T03:22:16Z" />
               </div>
-              <div class="tl__title">A claimed fourth wave is corrected twice</div>
+              <div class="tl__title">A claimed fourth wave is published, then corrected twice</div>
               <div class="tl-body">
-                A claimed fourth sweep wave, identified by pattern matching and circulated by Galaxy's intangiblecoins, is corrected twice in public. The <a href="/record/sources/intangiblecoins-wave4-address-correction/">first correction</a> removes six of 216 destination addresses whose years of history before block 960,183 made them unlikely attacker addresses, leaving 206 of the remainder freshly created to receive the sweeps.
+                Galaxy's intangiblecoins <a href="/record/sources/intangiblecoins-wave4-announcement/">publishes a pattern-matched fourth-wave claim</a>, followed by a <a href="/record/sources/intangiblecoins-wave4-confirmed-pastebin/">confirmed-transaction address list</a> and a second <a href="/record/sources/intangiblecoins-wave4-pending-pastebin/">pending-transaction list</a>. The opening post states 218 transactions, 462 victim addresses, 216 fresh destinations and 388.92748828 BTC across blocks 960,778 to 960,792. The pending list states another 104 sweeps, 199 victim addresses and 70.16757699 BTC, all signalling replace-by-fee. These are the author's classifications and figures, not this project's findings.
+                <Claim basis="reported" scope="The original wave-4 post's transaction, address, amount and block-range figures, and the pending Pastebin's stated replace-by-fee set" source="intangiblecoins, captured original thread posts and linked Pastebin pages, 3 Aug 2026" href="/record/sources/intangiblecoins-wave4-announcement/" />
+                The claim is then corrected twice in public. The <a href="/record/sources/intangiblecoins-wave4-address-correction/">first correction</a> removes six of 216 destination addresses whose years of history before block 960,183 made them unlikely attacker addresses, leaving 206 of the remainder freshly created to receive the sweeps.
                 <Claim basis="reported" scope="The removal of six historical destination addresses from the circulated wave-4 list and the 206 freshly created remainder" source="intangiblecoins, captured correction post, 3 Aug 2026" href="/record/sources/intangiblecoins-wave4-address-correction/" />
                 The <a href="/record/sources/intangiblecoins-wave4-multisig-correction/">second correction</a>, credited to Nunchuk, removes multisig addresses included in error: the post states wave 4 as circulated at 857 addresses and 486.11 BTC, an 89-address, 20.58 BTC multisig discount, and a surviving core of 709 addresses and 448.73 BTC, all as the author's own figures. It also states that waves 1 to 3 contain no multisig addresses, and stresses that wave 4 rests on pattern matching with no direct victim confirmation yet.
                 <Claim basis="reported" scope="The multisig correction, the stated wave-4 figures as circulated and as corrected, and the author's statement that wave 4 has no direct victim confirmation" source="intangiblecoins, captured correction post credited to Nunchuk, 3 Aug 2026" href="/record/sources/intangiblecoins-wave4-multisig-correction/" />
@@ -877,6 +918,7 @@ const FACET_SETS = [
                 <div class="tlc">
                   <a class="tlc__shot" href={e.href} hidden={!e.hasShot}>
                     <img src={e.imgSrc} alt={`Captured screenshot: ${e.title}`} loading="lazy" decoding="async" />
+                    <span class="tlc__captured">captured <Timestamp iso={e.imgCapturedIso} /></span>
                   </a>
                   <div class="tlc__bar">
                     <a class="tlc__title" href={e.href}>{e.title}</a>
@@ -979,7 +1021,7 @@ const FACET_SETS = [
 
   <Disclosure
     id="unresolved"
-    title="Unresolved as of 5 August 2026"
+    title="Unresolved as of 6 August 2026"
     note="nine questions the held record does not settle"
   >
 
@@ -1163,6 +1205,15 @@ const FACET_SETS = [
     max-height: 8.5rem;
     object-fit: cover;
     object-position: top;
+  }
+  .tlc__captured {
+    display: block;
+    padding: .3rem .45rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .54rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
   }
   .tlc__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
   .tlc__title { font-size: .9rem; font-weight: 600; text-decoration: none; }

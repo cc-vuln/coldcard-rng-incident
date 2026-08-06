@@ -9,7 +9,7 @@
  * the source page, where the capture state and revision history live.
  */
 import { xMedia } from '../lib/xmedia';
-import { sourceById, withholdsCapturedMedia, xPostById } from '../lib/archive';
+import { sourceById, withholdsCapturedMedia, xPostById, nostrPostById } from '../lib/archive';
 import Timestamp from './Timestamp.astro';
 
 interface Props {
@@ -55,16 +55,24 @@ const {
 // screenshot renders. No registered source sets the withhold flag today, so
 // this changes nothing visible, but a source page that must be held back
 // stays held back here too.
-const registered = xPostById(id) ?? sourceById(id);
+const registered = xPostById(id) ?? nostrPostById(id) ?? sourceById(id);
 const media = withholdsCapturedMedia(registered) ? null : (xMedia(id)[0] ?? null);
 const changeLabel = changes > 0
   ? `${changes} revision${changes === 1 ? '' : 's'}`
   : 'no changes held';
 ---
 
-<a class="ec" href={href} data-group={group} data-kind={kind} data-search={search || undefined}>
+<a
+  class="ec"
+  href={href}
+  data-group={group}
+  data-kind={kind}
+  data-search={search || undefined}
+  data-gone={gone ? '' : undefined}
+>
   <div class="ec__shot" hidden={!media}>
     <img src={media?.src} alt={`Captured screenshot: ${title}`} loading="lazy" />
+    <span class="ec__captured">captured <Timestamp iso={media?.captured ?? ''} /></span>
   </div>
   <div class="ec__excerpt" hidden={Boolean(media) || !excerpt}>
     <p>{excerpt}</p>
@@ -111,6 +119,15 @@ const changeLabel = changes > 0
     overflow: hidden;
   }
   .ec__shot img { display: block; width: 100%; height: auto; }
+  .ec__captured {
+    display: block;
+    padding: .35rem var(--inset-box);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .56rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
+  }
   .ec__excerpt {
     border-bottom: 1px solid var(--rule);
     background: var(--surface-2);

@@ -40,7 +40,11 @@ const ids = (route) => {
 };
 
 const failures = [];
-const SECTION_ROOTS = ['/response/', '/how-it-broke/', '/record/'];
+// /about/ is a section whose other two pages sit at the top level (/cite/ and
+// /corrections/ are cited from outside and keep short permanent URLs), so its
+// membership comes from the rendered section nav rather than from the URL
+// prefix. The coverage and sequence contracts below are the same either way.
+const SECTION_ROOTS = ['/response/', '/how-it-broke/', '/record/', '/about/'];
 
 const sectionNavItems = (html) => {
   const navBlock = html.match(/<nav\b(?=[^>]*\baria-label="Section")[^>]*>([\s\S]*?)<\/nav>/);

@@ -3,6 +3,7 @@ import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import Answer from '../../components/Answer.astro';
+import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import FigureFundsFlow from '../../components/figures/FigureFundsFlow.astro';
 import { fig } from '../../lib/figures';
 import { trackerReadings, trackerRange } from '../../lib/trackers';
@@ -21,6 +22,14 @@ const byId = Object.fromEntries(readings.map((r) => [r.id, r]));
 const watch = byId['coldcard-watch'];
 const rip = byId['coldcard-rip-tracker'];
 const hack = byId['coldcard-hack-tracker'];
+
+/*
+ * The KPI cards show the bare number beside a <sup>BTC</sup>, while fig()
+ * carries the unit for prose. Derived here so the cards and the prose share
+ * the single figures.ts source rather than typing the number twice.
+ */
+const galaxyConfirmedNum = fig('galaxyConfirmedBtc').replace(/\s*BTC$/, '').trim();
+const galaxyInclWave4Num = fig('galaxyInclWave4Btc').replace(/\s*BTC$/, '').trim();
 
 /*
  * What each tracker counts, which is editorial and does not come from the
@@ -79,7 +88,8 @@ const cards = readings.map((reading, i) => {
   <Answer>
   <p>
     Different sources now report different totals because they count different
-    sets, and the largest figures have moved within the last four days. Galaxy
+    sets, and Galaxy's top line moved three times between 31 July and
+    3 August. Galaxy
     Research puts confirmed losses at
     {fig('galaxyConfirmedBtc')} from {fig('galaxyConfirmedAddresses')} as of
     3 August, rising to {fig('galaxyInclWave4Btc')} if a suspected fourth wave
@@ -91,14 +101,16 @@ const cards = readings.map((reading, i) => {
   </p>
   </Answer>
 
+  <CorrectionNotice page="/record/funds/" />
+
   <div class="kpi-row">
     <div class="kpi-card" style="--i:0">
-      <div class="kpi-card__value" style="color:var(--red)"><span>1,596</span><sup>BTC</sup></div>
+      <div class="kpi-card__value" style="color:var(--red)"><span>{galaxyConfirmedNum}</span><sup>BTC</sup></div>
       <div class="kpi-card__label">Galaxy's confirmed total, 3 Aug</div>
-      <div class="kpi-card__note">High confidence, from about 7,300 addresses across three confirmed waves plus 14 smaller incidents, stated as exceeding US$100M. Galaxy's third top-line figure in four days: 1,082.65 BTC on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</div>
+      <div class="kpi-card__note">High confidence, from about 7,300 addresses across three confirmed waves plus 14 smaller incidents, stated as exceeding US$100M. Galaxy's third top-line figure in four days: {fig('galaxyGrossBtc')} on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</div>
     </div>
     <div class="kpi-card" style="--i:1">
-      <div class="kpi-card__value" style="color:var(--amber)"><span>2,055</span><sup>BTC</sup></div>
+      <div class="kpi-card__value" style="color:var(--amber)"><span>{galaxyInclWave4Num}</span><sup>BTC</sup></div>
       <div class="kpi-card__label">Galaxy including suspected wave 4</div>
       <div class="kpi-card__note">Stated as about US$130m. Not promoted into Galaxy's top line: no victim has confirmed a wave-4 loss, and Galaxy does not itemise the wave-4 component.</div>
     </div>
@@ -173,7 +185,7 @@ const cards = readings.map((reading, i) => {
             <td class="nw"><strong><a href="/record/sources/glxy-losses-exceed-100m/">Galaxy Research</a></strong><small>confirmed</small></td>
             <td class="nw" data-sort="1596">{fig('galaxyConfirmedBtc')}<small>exceeds US$100M</small></td>
             <td class="wide">Three confirmed waves plus 14 smaller incidents, {fig('galaxyConfirmedAddresses')}; confirmed through victim reports</td>
-            <td class="wide" data-sort="20260803225139">Published 3 Aug, 22:51 UTC. Third top line in four days: 1,082.65 BTC on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</td>
+            <td class="wide" data-sort="20260803225139">Published 3 Aug, 22:51 UTC. Third top line in four days: {fig('galaxyGrossBtc')} on 31 Jul, {fig('galaxyRevisedTotalBtc')} on 1 Aug.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/glxy-wave4-caveat/">Galaxy Research</a></strong><small>incl. suspected wave 4</small></td>
@@ -443,12 +455,12 @@ const cards = readings.map((reading, i) => {
           <tr>
             <td class="nw"><strong><a href="/record/sources/glxy-losses-exceed-100m/">Galaxy Research</a></strong><small>X, 3 Aug 2026</small></td>
             <td class="nw" data-sort="1596">{fig('galaxyConfirmedBtc')} confirmed<small>exceeds US$100M; {fig('galaxyInclWave4Btc')} with suspected wave 4</small></td>
-            <td class="nw">Three confirmed waves plus 14 smaller incidents across {fig('galaxyConfirmedAddresses')}; the 2,055 BTC form is not promoted for lack of victim confirmation</td>
+            <td class="nw">Three confirmed waves plus 14 smaller incidents across {fig('galaxyConfirmedAddresses')}; the {fig('galaxyInclWave4Btc')} form is not promoted for lack of victim confirmation</td>
             <td class="nw"><a href="/record/sources/glxy-losses-exceed-100m/">primary thread</a>, copy held; supersedes the 1 Aug row below</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/lookonchain-galaxy-2055-btc/">Lookonchain</a></strong><small>X, 4 Aug 2026</small></td>
-            <td class="nw" data-sort="2055">2,055 BTC<small>$130M; over 7,700 victim addresses</small></td>
+            <td class="nw" data-sort="2055">{fig('galaxyInclWave4Btc')}<small>$130M; over 7,700 victim addresses</small></td>
             <td class="nw">Relays Galaxy's unpromoted including-wave-4 figure as the headline total</td>
             <td class="nw"><a href="/record/sources/lookonchain-galaxy-2055-btc/">copy held</a>; a relay, not independent analysis</td>
           </tr>
@@ -471,10 +483,10 @@ const cards = readings.map((reading, i) => {
             <td class="nw"><a href={watch.href}>copy held</a>; moved to coldcardwatch.com, and unchanged since {watch.heldSinceShort}</td>
           </tr>
           <tr>
-            <td class="nw"><strong><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">@intangiblecoins wave 4</a></strong><small>X, 3 Aug 2026</small></td>
+            <td class="nw"><strong><a href="/record/sources/intangiblecoins-wave4-announcement/">@intangiblecoins wave 4</a></strong><small>X and Pastebin, 3 Aug 2026</small></td>
             <td class="nw" data-sort="448.73">448.73 BTC stated surviving core<small>486.11 BTC as circulated</small></td>
             <td class="nw">A circulated fourth-wave set, stated at 709 addresses after two corrections; pattern-matched, with no direct victim confirmation reported</td>
-            <td class="nw"><a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrections</a>, copies held; <a href="#wave-4">detailed below</a>, outside Galaxy's confirmed total</td>
+            <td class="nw"><a href="/record/sources/intangiblecoins-wave4-announcement/">original thread</a>, <a href="/record/sources/intangiblecoins-wave4-confirmed-pastebin/">address lists</a> and <a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrections</a> held; <a href="#wave-4">detailed below</a>, outside Galaxy's confirmed total</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/kevinkelbie-tracker-update/">Kevin Kelbie tracker</a></strong><small>X, 2 Aug 2026</small></td>
@@ -586,18 +598,21 @@ const cards = readings.map((reading, i) => {
   <Disclosure id="wave-4" title="A reported fourth wave, corrected twice, then assessed by Galaxy" note="pattern-matched; Galaxy suspects it but has not promoted it">
 
   <p>
-    On 2 and 3 August 2026 a fourth-wave claim circulated: pending mempool
-    sweeps of transactions that had opted into replace-by-fee, described as a
-    coordinated fourth wave. The destination list behind it was circulated by
-    the @intangiblecoins account, which then published two corrections to its
-    own material. Both corrections are held. The original thread the
-    corrections amend has not been captured; the corrections are the only held
-    text of the claim itself.
+    On 3 August 2026 the @intangiblecoins account published a pattern-matched
+    fourth-wave claim while transactions were still pending. The
+    <a href="/record/sources/intangiblecoins-wave4-announcement/">opening post</a>
+    states 218 transactions, 462 victim addresses, 216 fresh destinations and
+    388.92748828 BTC across blocks 960,778 to 960,792. Its two linked Pastebins
+    hold the <a href="/record/sources/intangiblecoins-wave4-confirmed-pastebin/">confirmed-transaction address set</a>
+    and a <a href="/record/sources/intangiblecoins-wave4-pending-pastebin/">pending set</a>
+    stated as another 104 sweeps, 199 victim addresses and 70.16757699 BTC,
+    all signalling replace-by-fee. The original three-post thread, both lists
+    and the account's two later corrections are held.
     <Claim
       basis="reported"
-      scope="The existence and description of the circulated fourth-wave claim, as restated in the author's own corrections"
-      source="The captured @intangiblecoins correction posts of 3 August 2026, which describe and amend the circulated wave-4 material"
-      href="/record/sources/intangiblecoins-wave4-address-correction/"
+      scope="The original wave-4 post's transaction, address, amount and block-range figures, and the pending Pastebin's stated replace-by-fee set"
+      source="The captured @intangiblecoins original thread posts and linked Pastebin pages, 3 Aug 2026"
+      href="/record/sources/intangiblecoins-wave4-announcement/"
     />
   </p>
 
@@ -798,7 +813,7 @@ const cards = readings.map((reading, i) => {
       href="/record/sources/coldcard-hack-tracker/"
     />
     No captured source reports a seizure, recovery or freeze for any of these
-    funds as of 4 August 2026. This is an absence of reported evidence, not a
+    funds as of 6 August 2026. This is an absence of reported evidence, not a
     prediction about future movement.
   </p>
 
@@ -902,7 +917,7 @@ const cards = readings.map((reading, i) => {
   <p>
     Nothing in the held captures records an exchange freeze, a flagging
     commitment or any other custodial action against the four consolidation
-    addresses as of 5 August 2026, and no captured source names an exchange or
+    addresses as of 6 August 2026, and no captured source names an exchange or
     service that has undertaken to stop or mark deposits from them. The tracker
     record does show deposits attributed to the later wave-4 park reaching
     Bullish.com, Coinbase Prime Custody and KuCoin, with no freeze or seizure
@@ -911,7 +926,7 @@ const cards = readings.map((reading, i) => {
     <Claim
       basis="unverified"
       scope="Whether any exchange or custodial service has frozen or committed to flagging deposits from the attributed addresses"
-      source="No captured source held by this project reports such a step as of 5 August 2026; the archive cannot observe unpublished compliance action"
+      source="No captured source held by this project reports such a step as of 6 August 2026; the archive cannot observe unpublished compliance action"
       href="/record/changes/"
     />
   </p>
@@ -923,8 +938,8 @@ const cards = readings.map((reading, i) => {
     received from victim reports on X, and that its analysis "should not be
     considered to be complete or definitive". Its identified set is therefore
     open to further reported attacker and victim addresses rather than closed;
-    its published top line has now moved twice in three days, both times
-    upward.
+    its published top line moved twice between 31 July and 3 August, both
+    times upward.
     <Claim
       basis="reported"
       scope="Galaxy's statement that some initial addresses came from victim reports on X and that its analysis is not complete or definitive"
@@ -996,7 +1011,7 @@ const cards = readings.map((reading, i) => {
       <Claim
         basis="unverified"
         scope="Whether the 14 smaller footprints and the earlier 695 transactions were controlled by the same operator as the mass waves"
-        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 5 August 2026 recheck"
+        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 6 August 2026 recheck"
         href="/record/sources/clay-earlier-waves-thread/"
       />
     </li>
@@ -1029,7 +1044,7 @@ const cards = readings.map((reading, i) => {
       <Claim
         basis="unverified"
         scope="Whether the reported 45.9 BTC cluster is in fact related to the principal incident set"
-        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship was captured in a 5 August 2026 recheck"
+        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship was captured in a 6 August 2026 recheck"
         href="/record/sources/kevinkelbie-later-wave/"
       />
     </li>
@@ -1037,13 +1052,13 @@ const cards = readings.map((reading, i) => {
       <strong>Whether the circulated fourth wave is part of the same incident.</strong>
       The corrected wave-4 set rests on pattern matching. Galaxy suspects it is
       real with medium-high confidence, and neither Galaxy nor its author
-      reports direct victim confirmation as of 5 August 2026. Its stated
+      reports direct victim confirmation as of 6 August 2026. Its stated
       figures, corrections and unreconciled arithmetic are recorded
       <a href="#wave-4">above</a>; it enters no total on this page.
       <Claim
         basis="unverified"
         scope="Whether the circulated wave-4 set belongs to the same incident as the attributed transaction sets"
-        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation; no later confirmation was captured in a 5 August 2026 recheck"
+        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation; no later confirmation was captured in a 6 August 2026 recheck"
         href="/record/sources/glxy-wave4-caveat/"
       />
     </li>
@@ -1056,7 +1071,7 @@ const cards = readings.map((reading, i) => {
     </li>
     <li>
       <strong>Any recovery, seizure or insurance payout.</strong> None has been
-      reported in any captured source as of 4 August 2026. A 3 August report of
+      reported in any captured source as of 6 August 2026. A 3 August report of
       white-hat drains underway, relayed by Bitcoin News from a community
       post, is unconfirmed and does not name recovered amounts.
       <Claim

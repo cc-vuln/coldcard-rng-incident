@@ -19,8 +19,8 @@ import { BITFIG } from '../../lib/entropy-models';
 
 // Checked against the firmware release histories, release commits and signed
 // signed-release record. Search-space figures remain attributed estimates.
-// Version boundaries interpolate from src/lib/firmware.ts, the same module the
-// risk overview table renders from, so the two cannot drift apart.
+// Version boundaries interpolate from src/lib/firmware.ts, the module that
+// owns the per-model ranges, so every table on this page states one set.
 const mk2 = modelRange('Mk2');
 const mk3 = modelRange('Mk3');
 const mk4 = modelRange('Mk4');
@@ -28,8 +28,8 @@ const mk5 = modelRange('Mk5');
 const q = modelRange('Q');
 
 // Where the vendor publishes a narrower range than this site classifies, the
-// same module carries the divergence, so the model table, the release-boundary
-// table and the risk overview all state one set of boundaries.
+// same module carries the divergence, so the model table and the
+// release-boundary table state one set of boundaries.
 const divergence = vendorDivergences().find((d) => d.models.includes('Mk3')) ?? null;
 const vendorRangeCell = divergence
   ? `<small><a href="#vendor-lower-bound">Coinkite states <code>${divergence.vendorAffectedFrom}</code> to <code>${divergence.affectedTo}</code></a></small>`
@@ -46,9 +46,9 @@ const vendorStartMark = divergence
  * that has room for both parties' reasons.
  */
 // The one-sentence summary of the chain-analysis corroboration travels with the
-// range in src/lib/firmware.ts, so the risk overview footnote and this callout
-// cannot end up stating it differently. What belongs here rather than in the
-// module is the verbatim wording. The three limits that bound it are a rung of
+// range in src/lib/firmware.ts, so the tables above and this callout state it
+// the same way. What belongs here rather than in the module is the verbatim
+// wording. The three limits that bound it are a rung of
 // their own below, so the callout states the corroboration once.
 const corroborationBlock = divergence?.corroboration
   ? `
@@ -107,7 +107,7 @@ const body = `<div class="table-wrap">
   <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="32"><code>&le;${BITFIG.mk4Reseed}</code> conditional scenario;<br><code>&lt;${BITFIG.mk4LooseCeiling}</code> loose ceiling</td>
 </tr>
 <tr class="row-detail row-gone">
-  <td colspan="4" class="detail">On the normal successful boot path, <code>rng_seeding()</code> derives a value from secure-element output but carries at most 32 bits into libngu. <a href="/how-it-broke/entropy/">Coinkite, LLFOURN and Talip publish different broader models.</a></td>
+  <td colspan="4" class="detail">On the normal successful boot path, <code>rng_seeding()</code> derives a value from secure-element output but carries at most 32 bits into libngu. <a href="/how-it-broke/entropy/">Coinkite, LLFOURN and otaliptus publish different broader models.</a></td>
 </tr>
 <tr class="row-gone">
   <td class="nw"><strong>Mk5</strong></td><td class="nw"><code>${mk5.affectedFrom}</code> to <code>${mk5.affectedTo}</code><small>5 Mar to 1 Jul 2026</small></td>
@@ -285,7 +285,7 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     <Claim
       basis="unverified"
       scope="The entropy implementation and runtime behaviour of TAPSIGNER and SATSCARD"
-      source="Coinkite reports separate codebases; those implementations are not independently available or reviewed here"
+      source="Coinkite reports separate codebases; those implementations were not independently available or reviewed here as of a 6 August 2026 recheck"
       href="/record/sources/robhamilton-opendime-tapsigner-scope/"
       compact
     />
@@ -343,7 +343,7 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     <Claim
       basis="unverified"
       scope="Whether the vendor-published 4.2.0, 5.6.0, 1.5.0Q and Edge binaries exactly reproduce the reviewed source fixes and provide the intended entropy at runtime"
-      source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 5 August 2026 recheck"
+      source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 6 August 2026 recheck"
       compact
     />
   </p>

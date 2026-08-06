@@ -66,10 +66,16 @@ The currently enabled rules suppress known non-editorial churn:
 - fiat conversions in the live chain tracker, while retaining BTC balances
 - repository navigation counters and reaction totals on tracked pull requests
 - TFTC's rotating related-content cards after the article
-- Reddit vote and collapsed-reply counters, while retaining post and comment text
+- un-inlined comment-branch counts in Reddit thread JSON, while retaining post
+  and comment text
 - the COLDCARD FAQ's page-wide rolling footer date, while retaining page edits
 - Slipstream's live block height and fee readings, while retaining portal terms
 - current blog chrome around the historical Android and Unciphered disclosures
+- live footer state on the community chain trackers: the hack tracker's
+  snapshot clock and fallback mirror, and CKTRIPWIRE's advancing honeypot ages
+- article bodies on tracked news pages (CoinDesk, ChainCatcher, crypto.news,
+  newsbit.com and NewsBTC), compared without rotating site chrome
+- Substack engagement counters and comment ages, while retaining post text
 
 An unknown normalizer, a duplicate ID in `[[source]]` or `[[x_post]]`, or an
 unsupported capture or JSON-extraction declaration makes the registry invalid
@@ -85,6 +91,41 @@ Failures are classified, and the class decides what happens:
 | `refused` | 403 | taken at face value; after three in a row, Wayback is replayed |
 | `absent` | 404, 410 | taken at face value; if permanent, mark the source `gone` |
 | `challenged` | consent wall, `min_chars` floor, missing required text | recorded, never stored |
+
+The class decides what the runner does. It is deliberately coarse, and it is
+not enough to fix anything: `challenged` covers a genuine bot wall, a thread
+shorter than a `min_chars` value copied in at registration, and a
+`required_text` marker anchored to a sentence the publisher has since
+rewritten. All three were live on 6 August 2026 and the record said the same
+word about each.
+
+So every failure event also carries a `diagnosis`, and `http_status` where the
+origin answered with one. These are additive: `failure` keeps its meaning and
+its effect on the gate, and `diagnosis` says which cause it was.
+
+| diagnosis | what it means | where to look |
+|---|---|---|
+| `origin-challenge` | an interstitial, detected in the refusal's own body | the collector's address or browser fingerprint |
+| `origin-rate-limit` | 429 | cadence, or a shared exit address |
+| `origin-refused` | 403 with no challenge markers | the origin's own policy |
+| `origin-absent` | 404, 410 | the publisher; candidate for `gone` |
+| `origin-server-error` | 5xx | the origin, usually temporary |
+| `dns-unresolved` | the name does not resolve | this host's resolver, not the origin |
+| `connect-timeout`, `connect-reset`, `connect-refused`, `connect-failed` | no usable response | the network path |
+| `content-below-floor` | parsed, valid, shorter than `min_chars` | usually the registry, not the source |
+| `content-marker-missing` | `required_text` absent, body not a challenge | usually a stale marker after a publisher rewrite |
+| `browser-tab-lost`, `browser-unavailable` | the capture browser | `webbridge.service` |
+
+Only the slug is stored. The headers that identify a challenge are not: a
+`cf-ray` ends in the code of the edge that answered, which names a city, and
+`response_headers.KEEP` exists to keep that out of the archive. A diagnosis
+obeys the same rule as a capture.
+
+`just diagnose` groups the sources currently failing by cause, with a
+consecutive-failure count and the timestamp of the last good poll, and leaves
+out anything already recorded `gone`. `just diagnose --json` is the same view
+for an automated triage pass. Events captured before this field existed report
+`unrecorded` rather than a guess.
 
 A failure on its own does not stop a publication. Exit 20 means a source has
 missed roughly three of its own polling cycles (90 minutes for tier 1, 18 hours

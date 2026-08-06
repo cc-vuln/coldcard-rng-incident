@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import {
-  displayTitle, kindLabel, lastPolled, revisions, snapshots, sources, stats,
-  tsToIso, xArtifacts, xPosts,
+  displayTitle, kindLabel, lastPolled, nostrCaptures, nostrPosts, revisions,
+  snapshots, sources, stats, tsToIso, xArtifacts, xPosts,
 } from '../../lib/archive';
 
 export const prerender = true;
@@ -65,23 +65,47 @@ export const GET: APIRoute = () => {
         })),
       };
     }),
-    social_posts: xPosts().map((post) => {
-      const artifacts = xArtifacts(post);
-      return {
-        id: post.id,
-        title: displayTitle(post),
-        url: post.url,
-        author: post.author,
-        organisation: post.org ?? null,
-        posted: post.posted ?? null,
-        role: post.tag ?? 'social-statement',
-        why_registered: post.why ?? null,
-        capture: {
-          status: artifacts.length ? 'held' : 'registered-only',
-          artefact_count: artifacts.length,
-        },
-      };
-    }),
+    social_posts: [
+      ...xPosts().map((post) => {
+        const artifacts = xArtifacts(post);
+        return {
+          id: post.id,
+          title: displayTitle(post),
+          url: post.url,
+          author: post.author,
+          platform: 'x',
+          organisation: post.org ?? null,
+          posted: post.posted ?? null,
+          role: post.tag ?? 'social-statement',
+          why_registered: post.why ?? null,
+          capture: {
+            status: artifacts.length ? 'held' : 'registered-only',
+            artefact_count: artifacts.length,
+          },
+        };
+      }),
+      // Nostr posts join the same array rather than a parallel one: a
+      // consumer that already reads social posts should see them, and the
+      // platform field says which lane each came from. author is the npub.
+      ...nostrPosts().map((post) => {
+        const held = nostrCaptures(post).length;
+        return {
+          id: post.id,
+          title: displayTitle(post),
+          url: post.url,
+          author: post.author,
+          platform: 'nostr',
+          organisation: post.org ?? null,
+          posted: post.posted ?? null,
+          role: post.tag ?? 'social-statement',
+          why_registered: post.why ?? null,
+          capture: {
+            status: held ? 'held' : 'registered-only',
+            artefact_count: held,
+          },
+        };
+      }),
+    ],
   };
 
   return new Response(JSON.stringify(body, null, 2) + '\n', {

@@ -1,0 +1,191 @@
+---
+/**
+ * The project's own corrections log.
+ *
+ * The site records how everyone else's pages changed. This is the page where
+ * it records how its own did. It is deliberately separate from
+ * /record/changes/: that page is about the sources, and folding our errors
+ * into it would bury them among four hundred entries about other people.
+ *
+ * Display data is precomputed here rather than branched in the template. Every
+ * conditional in this file drives a `hidden` attribute; markup-returning
+ * conditionals break Astro's expression parser and report the failure inside
+ * the <style> block, which sends you hunting in the wrong file.
+ */
+import Article from '../layouts/Article.astro';
+import { corrections, kindLabel, CORRECTIONS_SINCE } from '../lib/corrections';
+import { isoToHuman } from '../lib/archive';
+
+const CONTACT = import.meta.env.PUBLIC_CONTACT || 'info@cc-vuln.org';
+
+const KIND_CLASS: Record<string, string> = {
+  correction: 'status--bad',
+  clarification: 'status--info',
+  withdrawal: 'status--neutral',
+};
+
+const entries = corrections().map((c) => ({
+  ...c,
+  when: isoToHuman(c.date),
+  label: kindLabel(c.kind),
+  badgeClass: `status ${KIND_CLASS[c.kind] ?? 'status--neutral'}`,
+  hasSaid: Boolean(c.said),
+  hasSays: Boolean(c.says),
+  hasWhy: Boolean(c.why),
+  hasCredit: Boolean(c.credit),
+}));
+
+const empty = entries.length === 0;
+const openedOn = isoToHuman(CORRECTIONS_SINCE);
+const count = entries.length === 1 ? '1 correction' : `${entries.length} corrections`;
+---
+
+<Article
+  title="Corrections"
+  description="Every correction to a published claim on this site, with what it said, what it says now, and what established the change."
+  standfirst="What this project got wrong, what it says now, and what changed its mind."
+  depth="plain"
+  kicker="Corrections"
+  next={{
+    href: '/about/',
+    label: 'About',
+    note: 'Who publishes this, how evidence labels work, and where the evidence runs out.',
+  }}
+>
+  <p>
+    A record that grades its own claims has to be able to say where it got one
+    wrong. Every correction to a material claim on this site is listed here,
+    newest first, and marked on the page where the claim was. The two together
+    are the policy: a log nobody passing the claim would see, or a quiet edit
+    with no index, would each be half of it.
+  </p>
+
+  <p>
+    This is not where sources changing their own pages go. That is the record's
+    subject rather than an error of ours, and it is kept in the
+    <a href="/record/changes/">source change record</a>, with the underlying
+    captures preserved either way. Rewording, restructuring and tooling changes
+    are in <a href="https://github.com/cc-vuln/coldcard-rng-incident" rel="noopener">the repository history</a>.
+  </p>
+
+  <p>
+    Corrections are welcome and are the most useful thing anyone can send.
+    Name the page and the claim, say what is wrong, and include something
+    another reader can check: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+    Whoever reports a correction is credited here if they want to be. A claim
+    is never quietly deleted: what it said stays on this page.
+  </p>
+
+  <div class="ve-card ve-card--recessed" hidden={!empty}>
+    <div class="ve-card__label lbl-blue">Nothing logged yet</div>
+    <p>
+      This log opened on {openedOn} and holds no entries. That records the
+      state of the log, not a claim that the site has never been wrong: changes
+      made before it opened are in the repository history, where every edit to
+      every page is dated and attributable to a commit.
+    </p>
+  </div>
+
+  <p class="mono-label" hidden={empty}>{count} since {openedOn}</p>
+
+  <ol class="corr" hidden={empty}>
+    {entries.map((c) => (
+      <li class="corr__item">
+        <div class="corr__head">
+          <span class={c.badgeClass}>{c.label}</span>
+          <time datetime={c.date}>{c.when}</time>
+        </div>
+        <p class="corr__summary">{c.summary}</p>
+        <dl class="corr__detail">
+          <div class="corr__row" hidden={!c.hasSaid}>
+            <dt>It said</dt>
+            <dd>{c.said}</dd>
+          </div>
+          <div class="corr__row" hidden={!c.hasSays}>
+            <dt>It says now</dt>
+            <dd>{c.says}</dd>
+          </div>
+          <div class="corr__row" hidden={!c.hasWhy}>
+            <dt>Why</dt>
+            <dd>{c.why}</dd>
+          </div>
+          <div class="corr__row" hidden={!c.hasCredit}>
+            <dt>Reported by</dt>
+            <dd>{c.credit}</dd>
+          </div>
+          <div class="corr__row">
+            <dt>Where</dt>
+            <dd>
+              {c.pages.map((page) => (
+                <a class="corr__page" href={page}>{page}</a>
+              ))}
+            </dd>
+          </div>
+        </dl>
+      </li>
+    ))}
+  </ol>
+
+  <h2 id="how-corrections-are-handled">How a correction is handled</h2>
+
+  <ol>
+    <li>
+      The claim is rechecked against the artefact it cites, not against the
+      argument for it. If the artefact does not support the claim, the claim is
+      wrong however reasonable it sounded.
+    </li>
+    <li>
+      The page is changed where the claim was, keeping its
+      <a href="/about/#claim-statuses">evidence marker</a> honest: a claim that
+      turns out to rest on someone's say-so becomes reported, not verified.
+    </li>
+    <li>
+      An entry is added here with the published wording that was wrong, so the
+      correction can be checked rather than taken on trust.
+    </li>
+    <li>
+      Captures are never rewritten. The archive is append-only, so a correction
+      changes what this site says about a source and never what the source was
+      recorded as saying.
+    </li>
+  </ol>
+
+  <p>
+    Requests to remove correctly reported material are not corrections and are
+    not honoured: what a party published is the record. The limits of that are
+    set out on <a href="/about/#displayed-captures">the About page</a>.
+  </p>
+</Article>
+
+<style>
+  .corr { list-style: none; padding: 0; margin-top: 1.2rem; }
+  .corr__item {
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    background: var(--surface); padding: 1.1rem 1.2rem;
+  }
+  .corr__item + .corr__item { margin-top: .9rem; }
+  .corr__head {
+    display: flex; align-items: baseline; gap: .7rem;
+    font-family: var(--font-mono); font-size: .72rem; color: var(--ink-3);
+  }
+  .corr__summary { margin-top: .6rem; font-weight: 500; }
+  .corr__detail {
+    display: grid; grid-template-columns: max-content 1fr;
+    gap: .35rem .9rem; margin-top: .8rem;
+    font-size: .85rem; line-height: 1.6;
+  }
+  .corr__row { display: contents; }
+  .corr__row[hidden] { display: none; }
+  .corr__detail dt {
+    font-family: var(--font-mono); font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); padding-top: .25rem;
+  }
+  .corr__detail dd { margin: 0; color: var(--ink-2); }
+  .corr__page { font-family: var(--font-mono); font-size: .78rem; }
+  .corr__page + .corr__page { margin-left: .6rem; }
+  @media (max-width: 560px) {
+    .corr__detail { grid-template-columns: 1fr; gap: .1rem; }
+    .corr__detail dd { margin-bottom: .5rem; }
+  }
+</style>

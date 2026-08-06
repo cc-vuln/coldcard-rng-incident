@@ -3,16 +3,12 @@ import Base from '../layouts/Base.astro';
 import Claim from '../components/Claim.astro';
 import EvidenceRegister from '../components/EvidenceRegister.astro';
 import Timestamp from '../components/Timestamp.astro';
-import { stats, goneSources, tsToIso } from '../lib/archive';
+import CorrectionNotice from '../components/CorrectionNotice.astro';
+import { stats, goneSources, displayTitle, tsToIso } from '../lib/archive';
 import { latestEvents } from '../lib/latest-events';
 import { fig } from '../lib/figures';
 
 const s = stats();
-
-// The record band carries the one-line call for material; the full
-// Contribute block lives on the record pages beside the collection itself.
-const CONTACT = import.meta.env.PUBLIC_CONTACT || 'info@cc-vuln.org';
-const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
 
 /*
  * The record band (below): the archive shown rather than described. Display
@@ -41,10 +37,24 @@ if (s.lastCapture) {
       : `Last capture ${Math.round(hours / 24)} days ago.`;
 }
 
-const goneCount = goneSources().length;
+/*
+ * Sources whose originals no longer exist are the strongest single argument
+ * for holding captures, so the line names them and links to the copies rather
+ * than asserting a count. A few are listed inline; beyond that the register's
+ * own gone list (and its filter) takes over, because a landing line is not a
+ * place to grow an unbounded list.
+ */
+const GONE_NAMED = 3;
+const gone = goneSources();
+const goneCount = gone.length;
 const goneLine = goneCount === 1
-  ? '1 source has since disappeared from the web; the copy held here is the only public one left.'
-  : `${goneCount} sources have since disappeared from the web; the copies held here are the only public ones left.`;
+  ? '1 source has since disappeared from the web; the copy held here is the only public one left:'
+  : `${goneCount} sources have since disappeared from the web; the copies held here are the only public ones left:`;
+const goneLinks = gone.slice(0, GONE_NAMED).map((s) => ({
+  href: `/record/sources/${s.id}/`,
+  title: displayTitle(s),
+}));
+const goneRest = goneCount - goneLinks.length;
 
 ---
 
@@ -62,15 +72,15 @@ const goneLine = goneCount === 1
       <p class="hero__lede">
         A <strong>COLDCARD</strong> is a small device that keeps the keys to
         your bitcoin off the internet. Setting one up creates
-        <strong>seed words</strong>: they can rebuild the wallet, anyone who
+        <strong>seed words</strong>. They can rebuild the wallet, anyone who
         learns them can take the money, and they are supposed to be
-        impossible to guess. On affected firmware, released from March 2021
-        until the fixes on 31 July 2026, <a href="/how-it-broke/">they did
-        not come from the randomness the device was designed to use</a>.
-        <strong>Seed words made on that firmware can be worked out by
-        somebody with a computer and time.</strong> On the older models that
-        has been done; on the newer ones the researchers who have looked
-        disagree about how hard it would be.
+        impossible to guess. On firmware released from March 2021 until the
+        fixes on 31 July 2026, <a href="/how-it-broke/">they did not come from
+        the randomness the device was designed to use</a>, so
+        <strong>seed words made on that firmware can be worked out by somebody
+        with a computer and time</strong>. On the older models that has been
+        done; on the newer ones the researchers who have looked disagree about
+        how hard it would be.
         <Claim
           basis="reported"
           contested
@@ -89,7 +99,7 @@ const goneLine = goneCount === 1
       </p>
       <p class="hero__lede">
         On 30 July 2026 somebody did exactly that:
-        <a href="/record/funds/">{fig('sweptBtcApprox').replace('about ', 'about ')}</a>
+        <a href="/record/funds/">{fig('sweptBtcApprox')}</a>
         was emptied out of {fig('sweptAddresses')} in a matter of minutes,
         and researchers have since attributed more than 1,000 BTC of wider
         movements to the incident.
@@ -109,14 +119,31 @@ const goneLine = goneCount === 1
         />
       </p>
       <p class="hero__lede">
-        Since then the vendor's advisories have been revised, scope statements
-        have changed, and the people studying the theft
-        <a href="/record/funds/">publish different totals</a>. That is why
-        this site exists: every source is captured on a schedule, every
-        earlier version is kept and
-        <a href="/record/changes/">every change is published</a>, and every
-        material claim is graded and linked to evidence a reader can
-        re-check, rather than reconciled into one answer.
+        Taken together, the scale already documented makes this incident
+        likely to rank among the most consequential in Bitcoin's history.
+        That is a provisional assessment, not a settled ranking: totals differ,
+        the number of people affected is unknown, and public explanations and
+        opinions have shifted rapidly, sometimes within hours.
+        <Claim
+          basis="derived"
+          scope="The assessment on this page that the incident is likely to rank among the most consequential in Bitcoin's history"
+          source="Editorial assessment based on the documented 30 July loss, the wider movements researchers attribute to the incident, the number of addresses involved and the March 2021 to July 2026 exposure window. It is not a settled comparative ranking; attribution totals differ and the number of distinct people affected is unknown"
+          href="/record/"
+          compact
+        />
+      </p>
+      <p class="hero__lede">
+        That changing understanding is part of the incident record. Advisories
+        have been revised, scope statements have changed, the people studying
+        the theft <a href="/record/funds/">publish different totals</a>, and
+        public discussion has included speculation and conspiracy theories.
+        Preserving those successive states for posterity is a core purpose of
+        this project. The <a href="/record/timeline/">chronology dates and
+        attributes those views</a> rather than treating them as evidence. The
+        archive keeps every earlier version,
+        <a href="/record/changes/">publishes every change</a>, and grades each
+        material claim against evidence you can re-check, rather than
+        reconciling them into one answer.
       </p>
     </div>
   </section>
@@ -128,15 +155,9 @@ const goneLine = goneCount === 1
   <section class="wrap recordband">
     <h2 class="recordband__h">Inside the record</h2>
     <p class="recordband__lede">
-      An open source collection of what has been published about this
-      incident, kept by people who are not the vendor and preserved as it was
-      published. When a source changes what it says, the earlier version is
-      kept and <a href="/record/changes/">the difference is published</a>.
-      The figures held here are captures taken at stated moments, not live
-      numbers; two community trackers follow the movements continuously:
-      <a href="/record/sources/coldcard-watch/">COLDCARD Watch</a> and
-      <a href="/record/sources/coldcard-hack-tracker/">the recovery
-      tracker</a>.
+      An independent archive of what has been published about this incident,
+      preserved as it was published. Every figure here is a capture taken at a
+      stated moment, not a live number.
     </p>
     <p class="recordband__fresh" hidden={!freshness}>
       Sources are re-captured on a schedule. {freshness}
@@ -147,10 +168,6 @@ const goneLine = goneCount === 1
         <strong>{s.sources}</strong>
         <span>web sources tracked</span>
       </a>
-      <a class="rb-stat" href="/record/">
-        <strong>{s.snapshots}</strong>
-        <span>snapshots held</span>
-      </a>
       <a class="rb-stat" href="/record/changes/">
         <strong>{s.sourceChanges}</strong>
         <span>reviewed source changes</span>
@@ -159,9 +176,21 @@ const goneLine = goneCount === 1
         <strong>{s.xPosts}</strong>
         <span>X posts registered</span>
       </a>
+      <a class="rb-stat" href="/record/" hidden={s.nostrPosts === 0}>
+        <strong>{s.nostrPosts}</strong>
+        <span>nostr posts registered</span>
+      </a>
     </div>
 
-    <p class="recordband__gone" hidden={goneCount === 0}>{goneLine}</p>
+    <CorrectionNotice page="/" />
+
+    <p class="recordband__gone" hidden={goneCount === 0}>
+      {goneLine}
+      {goneLinks.map((g) => (
+        <a href={g.href}>{g.title}</a>
+      ))}
+      <a href="/record/#gone" hidden={goneRest <= 0}>and {goneRest} more</a>
+    </p>
 
     <h3 class="recordband__sub">Latest in the record</h3>
     <ol class="recordband__latest">
@@ -170,6 +199,7 @@ const goneLine = goneCount === 1
           <a class="rb-ev__link" href={e.href}>
             <span class="rb-ev__shot" hidden={!e.thumb}>
               <img src={e.thumb ?? undefined} alt={`Captured screenshot: ${e.title}`} loading="lazy" />
+              <span class="rb-ev__captured">captured <Timestamp iso={e.thumbCaptured ?? ''} /></span>
             </span>
             <span class="rb-ev__meta"><Timestamp iso={e.iso} /> &middot; {e.label}</span>
             <span class="rb-ev__title">{e.title}</span>
@@ -182,44 +212,21 @@ const goneLine = goneCount === 1
       <a href="/record/changes/">Everything captured, newest first &rarr;</a>
     </p>
 
-    <h3 class="recordband__sub">Start from a question</h3>
-    <ul class="recordband__journeys">
-      <li>
-        <a href="/record/changes/">What did Coinkite say, and when did it change?</a>
-      </li>
-      <li>
-        <a href="/record/reference/#analysis">Who did the primary analysis?</a>
-      </li>
-      <li>
-        <a href="/record/changes/">What was captured, in order?</a>
-      </li>
-    </ul>
-
-    <p class="recordband__contrib">
-      The collection is incomplete by nature, and a pointer to something we
-      have missed is the most useful thing you can send:
-      <a href={`mailto:${CONTACT}`}>{CONTACT}</a> or
-      <a href={`${REPO}/issues`}>open an issue</a>. Published material only;
-      never anything containing recovery words or private keys.
-    </p>
   </section>
 
   <section class="wrap paths">
-    <h2 class="paths__h">Explore the site</h2>
-    <p class="paths__sub">The source archive, technical explanation and published responses.</p>
-
     <div class="paths__grid">
       <a class="path" href="/record/reference/">
-        <h3>Reference index</h3>
+        <h2>Reference index</h2>
         <p>
-          Firmware releases, primary analysis, published code, advisories and
-          later revisions, organised by what each item establishes.
+          Primary analysis and published code, organised by what each item
+          establishes and what it asks a reader to supply.
         </p>
-        <span class="path__meta">Sources &middot; code &middot; releases</span>
+        <span class="path__meta">Analysis &middot; code</span>
       </a>
 
       <a class="path" href="/how-it-broke/">
-        <h3>How it broke</h3>
+        <h2>How it broke</h2>
         <p>
           The guard, the two generators, the truncated reseed, and how the fix
           works. Code claims cite checks against the source repositories.
@@ -228,11 +235,11 @@ const goneLine = goneCount === 1
       </a>
 
       <a class="path" href="/response/">
-        <h3>Published responses</h3>
+        <h2>Published responses</h2>
         <p>
           What Coinkite, Block, independent developers and researchers said and
-          shipped, the legal posture, and the evidence around claimed AI-assisted
-          discovery and post-disclosure reproduction.
+          shipped, the legal posture, and the evidence around claimed
+          AI-assisted discovery.
         </p>
         <span class="path__meta">Vendor &middot; community &middot; legal</span>
       </a>
@@ -270,8 +277,6 @@ const goneLine = goneCount === 1
 
 
   .paths { margin-top: 4.5rem; }
-  .paths__h { font-family: var(--font-display); font-weight: 400; font-size: 1.9rem; }
-  .paths__sub { color: var(--ink-3); margin-top: .45rem; font-size: .95rem; }
   .paths__grid {
     display: grid; gap: 1rem; margin-top: 1.7rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -294,7 +299,9 @@ const goneLine = goneCount === 1
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
   }
-  .path h3 { font-size: 1.12rem; margin-top: .55rem; }
+  /* Peers of "Inside the record" in the outline now that the section's own
+     heading is gone; sized as cards, not as section headings. */
+  .path h2 { font-size: 1.12rem; margin-top: .55rem; }
   .path p { font-size: .89rem; color: var(--ink-2); margin-top: .5rem; line-height: 1.6; flex: 1; }
   .path__meta {
     font-family: var(--font-mono); font-size: .64rem; color: var(--ink-3);
@@ -309,17 +316,12 @@ const goneLine = goneCount === 1
   .recordband__fresh {
     color: var(--ink-3); font-size: .92rem; margin-top: .5rem; max-width: 62ch;
   }
-  .recordband__contrib {
-    color: var(--ink-3); font-size: .9rem; line-height: 1.6;
-    margin-top: 1.6rem; max-width: var(--w-note);
-    border-top: 1px solid var(--rule); padding-top: 1rem;
-  }
   .recordband__stats {
     display: grid; gap: .8rem; margin-top: 1.3rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   @media (max-width: 720px) {
-    .recordband__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .recordband__stats { grid-template-columns: 1fr; }
   }
   .rb-stat {
     display: flex; flex-direction: column; gap: .2rem;
@@ -329,6 +331,8 @@ const goneLine = goneCount === 1
     transition: border-color .15s;
   }
   .rb-stat:hover { border-color: var(--accent); }
+  /* display:flex above would otherwise beat the hidden attribute. */
+  .rb-stat[hidden] { display: none; }
   .rb-stat strong {
     font-family: var(--font-display); font-weight: 400;
     font-size: 1.7rem; color: var(--ink); line-height: 1.1;
@@ -341,6 +345,11 @@ const goneLine = goneCount === 1
     font-size: .92rem; color: var(--ink-2); margin-top: 1rem; max-width: 62ch;
     border-left: 2px solid var(--rule); padding-left: .9rem;
   }
+  /* Separators are drawn rather than written, so the list reads correctly at
+     any count without the template branching on it. */
+  .recordband__gone a { color: var(--ink); }
+  .recordband__gone a:hover { text-decoration: underline; }
+  .recordband__gone a + a::before { content: ", "; color: var(--ink-3); }
   .recordband__sub {
     font-family: var(--font-mono); font-size: .68rem; font-weight: 600;
     color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase;
@@ -370,6 +379,15 @@ const goneLine = goneCount === 1
      thumb-less entry rendered an empty broken-image frame. */
   .rb-ev__shot[hidden] { display: none; }
   .rb-ev__shot img { display: block; width: 100%; height: auto; }
+  .rb-ev__captured {
+    display: block;
+    padding: .35rem .5rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .56rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
+  }
   .rb-ev__meta {
     font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3);
     letter-spacing: .06em; text-transform: uppercase;
@@ -377,11 +395,6 @@ const goneLine = goneCount === 1
   .rb-ev__title { font-weight: 600; font-size: .95rem; color: var(--ink); margin-top: .35rem; }
   .rb-ev__by { font-size: .78rem; color: var(--ink-3); margin-top: .2rem; }
   .recordband__feedlink { margin-top: .8rem; font-size: .9rem; }
-  .recordband__journeys {
-    list-style: none; margin: .8rem 0 0; padding: 0;
-    display: flex; flex-direction: column; gap: .45rem;
-  }
-  .recordband__journeys a { font-size: .98rem; }
 
   /* Holds only the evidence register the hero's inline references anchor
      to; the register renders its own heading. */

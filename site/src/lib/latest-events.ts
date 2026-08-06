@@ -16,8 +16,8 @@
  *   withholding is the publication decision, and both must pass
  */
 import {
-  revisions, snapshots, sources, xPosts, displayTitle, tsToIso,
-  withholdsCapturedMedia,
+  revisions, snapshots, sources, xPosts, nostrPosts, displayTitle, tsToIso,
+  withholdsCapturedMedia, shortNpub,
 } from './archive';
 import { xMedia } from './xmedia';
 
@@ -35,6 +35,8 @@ export interface LatestEvent {
   href: string;
   /** Staged screenshot path, or null when none may be shown. */
   thumb: string | null;
+  /** When the staged screenshot was captured, or null without a thumbnail. */
+  thumbCaptured: string | null;
 }
 
 /** The n most recent record events, newest first. */
@@ -59,6 +61,7 @@ export function latestEvents(n: number): LatestEvent[] {
       iso: tsToIso(rev.ts),
       href: `/record/sources/${src.id}/`,
       thumb: null,
+      thumbCaptured: null,
     });
   }
 
@@ -74,6 +77,7 @@ export function latestEvents(n: number): LatestEvent[] {
       iso: snaps[0].iso,
       href: `/record/sources/${src.id}/`,
       thumb: null,
+      thumbCaptured: null,
     });
   }
 
@@ -90,6 +94,23 @@ export function latestEvents(n: number): LatestEvent[] {
       iso: post.posted,
       href: `/record/sources/${post.id}/`,
       thumb: shots[0]?.src ?? null,
+      thumbCaptured: shots[0]?.captured ?? null,
+    });
+  }
+
+  // Registered nostr posts likewise. This lane holds signed events rather
+  // than screenshots, so there is never a thumbnail to gate.
+  for (const post of nostrPosts()) {
+    if (!post.posted) continue;
+    events.push({
+      id: post.id,
+      kind: 'post',
+      title: displayTitle(post),
+      by: shortNpub(post.author),
+      iso: post.posted,
+      href: `/record/sources/${post.id}/`,
+      thumb: null,
+      thumbCaptured: null,
     });
   }
 

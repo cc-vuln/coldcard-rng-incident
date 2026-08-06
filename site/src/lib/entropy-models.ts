@@ -7,7 +7,7 @@
  * disclosure, LLFOURN's posted model and follow-ups, and Coinkite's
  * technical backgrounder. Keeping the constants here, each attributed to
  * its source model, stops the same figure being retyped slightly
- * differently across the attack estimator, the firmware table and the
+ * differently across the model explorer, the firmware table and the
  * multisig arithmetic.
  */
 

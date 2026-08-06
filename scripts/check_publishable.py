@@ -41,9 +41,12 @@ ADDRESS = re.compile(r"\b(?:bc1[a-z0-9]{25,62}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})\
 
 
 def withheld_ids() -> set[str]:
+    # Both registry block types, because withhold_text is honoured on both.
+    # A thread-enabled [[x_post]] writes snapshot text under its own id, so
+    # reading only [[source]] would let a withheld conversation reach a commit.
     cfg = tomllib.loads((ROOT / "sources.toml").read_text())
     return {
-        s["id"] for s in cfg.get("source", [])
+        s["id"] for s in (*cfg.get("source", []), *cfg.get("x_post", []))
         if s.get("withhold_text") is True
     }
 

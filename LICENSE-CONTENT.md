@@ -34,11 +34,19 @@ media (everything under `archive/`) remain the copyright of their original
 authors. This project holds them for research, archival and documentation
 purposes, and its published output quotes them as excerpts with attribution.
 The published site displays screenshots of short, public, attributed social
-posts under the same rationale, with attribution and a link to the original,
-and honours removal requests from their authors. Media attached to those
-posts, material a source has asked to be withheld (`withhold_text` in the
-registry), and anything identifying a private individual are not published
-at all.
+posts under the same rationale, with attribution and a link to the original.
+Media attached to those posts, material held back at the registry
+(`withhold_text`), and anything identifying a private individual are not
+published at all.
+
+Publication here rests on that archival and documentary purpose, not on any
+claim that publicly posted material is unowned. Copyright subsists in a post
+or an article whether or not it was posted publicly. The project therefore
+quotes, excerpts and attributes rather than mirroring, and it does not
+undertake to withdraw published material at its author's request: what an
+author published is the record, and a record that can be edited by the people
+in it is not one. Corrections to what this project says about the material are
+a different matter and are welcome.
 
 Nothing in this repository grants you any right to republish that material
 beyond what its authors or applicable law allow. Links indexed by the

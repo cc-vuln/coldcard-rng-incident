@@ -3,10 +3,10 @@
  *
  * These values are the most normative facts on the site: which firmware, on
  * which model, generated affected seeds, and which release fixes generation.
- * They were previously maintained by hand in two places (the risk overview
- * table and the firmware record), which is how a correction lands on one page
- * and not the other. Both pages now read from here; presentation stays with
- * the page.
+ * They were previously maintained by hand in two places (the retired risk
+ * overview table and the firmware record), which is how a correction lands on
+ * one page and not the other. The firmware record now reads from here;
+ * presentation stays with the page.
  *
  * Values are checked against the firmware release histories, release commits
  * and the signed-release record; see /record/firmware/ for the evidence and
@@ -24,7 +24,7 @@ export interface ModelRange {
   /** Display name, e.g. 'Mk3'. */
   model: string;
   /**
-   * How the not-affected range reads on the risk overview. Where a last safe
+   * How the not-affected range reads on the firmware record. Where a last safe
    * release exists it is derived from `lastSafe`; models that launched inside
    * the affected window carry a phrase instead.
    */
@@ -247,9 +247,9 @@ function phrase(models: string[]): string {
 }
 
 /**
- * Every recorded vendor divergence, grouped. Both the risk overview and the
- * firmware record render from this, so the footnote and the table row cannot
- * state different boundaries.
+ * Every recorded vendor divergence, grouped. The firmware record renders both
+ * its table rows and its footnote from this, so the two cannot state
+ * different boundaries.
  */
 export function vendorDivergences(): VendorDivergence[] {
   const groups = new Map<string, VendorDivergence>();

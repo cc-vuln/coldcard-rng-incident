@@ -4,6 +4,7 @@
 // files under /public/fonts with the same families, weights and unicode-ranges.
 import '../styles/fonts.css';
 import '../styles/tokens.css';
+import { buildVersion } from '../lib/version';
 
 interface Props {
   title: string;
@@ -30,12 +31,28 @@ const INDEXABLE = import.meta.env.PUBLIC_INDEXABLE === 'true';
 // for corrections, sources and code rather than money.
 const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
 
+// The state this build is. Printed in the footer so a citation can name it,
+// and published as data at /version.json, which /cite/ tells readers to quote.
+const version = buildVersion();
+const buildStamp = version.short
+  ? `Built from commit ${version.short}`
+  : 'Build commit unavailable';
+const buildCommitHref = version.commit
+  ? `${REPO}/commit/${version.commit}`
+  : undefined;
+// A build carrying uncommitted edits is not reproducible from the commit it
+// names, and saying so is cheaper than a reader discovering it.
+const buildDirty = version.matchesCommit === false;
+
 const nav: { href: string; label: string; match?: string[] }[] = [
   { href: '/', label: 'Overview' },
   { href: '/record/timeline/', label: 'The record', match: ['/record/'] },
   { href: '/how-it-broke/', label: 'How it broke' },
   { href: '/response/', label: 'Responses' },
-  { href: '/about/', label: 'About' },
+  // /cite/ and /corrections/ are the About section's other two pages. They sit
+  // at the top level rather than under /about/ because both are cited and
+  // linked from outside, and a citation URL should be short and permanent.
+  { href: '/about/', label: 'About', match: ['/about/', '/cite/', '/corrections/'] },
 ];
 
 type NavItem = { href: string; match?: string[] };
@@ -84,9 +101,21 @@ const SUBNAV: Record<string, SubnavItem[]> = {
     { href: '/record/firmware/', label: 'Firmware releases' },
     { href: '/record/reference/', label: 'Reference' },
   ],
+  '/about/': [
+    { href: '/about/', label: 'About' },
+    { href: '/cite/', label: 'How to cite' },
+    { href: '/corrections/', label: 'Corrections' },
+  ],
 };
 
-const subKey = Object.keys(SUBNAV).find((k) => path.startsWith(k));
+// Sections are normally a URL prefix, and matching on one keeps the row stable
+// across a section's sub-pages. The About section is the exception: its other
+// two pages are cited from outside and keep short top-level URLs, so fall back
+// to membership. Prefix first, because a member lookup would otherwise have to
+// enumerate every source page under /record/.
+const subKey = Object.keys(SUBNAV).find((k) => path.startsWith(k))
+  ?? Object.keys(SUBNAV).find((k) => SUBNAV[k].some((n) =>
+    n.href === path || n.href === path + '/'));
 const subnav = subKey ? SUBNAV[subKey] : [];
 // Exact match: every sub-page starts with the section prefix, so a
 // startsWith test would light up the overview link on all of them.
@@ -270,16 +299,12 @@ const subCurrent = (n: SubnavItem) => subExact(n)
       standards it pointed at, instead of being repeated on every page.
     */}
     <div class="wrap foot__inner">
-      <div>
-        <p class="mono-label">Contact</p>
-        <p class="foot__dim">
-          Corrections, tips, legal notices and questions:
-          <a href={'mailto:' + CONTACT}>{CONTACT}</a>
-        </p>
-        <p class="foot__dim">
-          Project account: <a href={SOCIAL} rel="noopener">@cc_vuln</a>.
-        </p>
-      </div>
+      {/*
+        Two columns, not three. The contact address, the invitation to send
+        material and the correction route are one act described three times if
+        they are split up, and the footer said "correction" in all three
+        columns when they were.
+      */}
       <div>
         <p class="mono-label">Contribute</p>
         <p class="foot__dim">
@@ -290,7 +315,9 @@ const subCurrent = (n: SubnavItem) => subExact(n)
           nothing is solicited or sold here.
         </p>
         <p class="foot__dim">
-          <a href="/about/#editorial-standards">How to contribute and correct</a>
+          Sources, corrections, tips, legal notices and questions:
+          <a href={'mailto:' + CONTACT}>{CONTACT}</a>, or
+          <a href={SOCIAL} rel="noopener">@cc_vuln</a>.
         </p>
         <ul class="foot__social">
           <li>
@@ -311,6 +338,34 @@ const subCurrent = (n: SubnavItem) => subExact(n)
           </li>
         </ul>
       </div>
+      <div>
+        <p class="mono-label">Cite and check</p>
+        <p class="foot__dim">
+          Cite the publisher first and this archive second, and name the state
+          you read: <a href="/cite/">how to cite this record</a>.
+        </p>
+        <p class="foot__dim">
+          <a href="/about/#editorial-standards">Editorial standards</a> ·
+          <a href="/corrections/">Corrections to this site</a> ·
+          <a href="/record/changes/">Changes to the sources</a>
+        </p>
+        <p class="foot__dim">
+          Project writing and data: <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener license">CC BY 4.0</a>.
+          Captured material stays its authors' copyright.
+        </p>
+      </div>
+    </div>
+    <div class="wrap foot__build">
+      <p class="foot__dim">
+        <span hidden={!buildCommitHref}>
+          Built from commit <a href={buildCommitHref} rel="noopener">{version.short}</a>.
+        </span>
+        <span hidden={Boolean(buildCommitHref)}>{buildStamp}.</span>
+        <a href="/version.json">Build and record state as data</a>.
+        <span hidden={!buildDirty}>
+          This build carried changes that are not in that commit.
+        </span>
+      </p>
     </div>
   </footer>
 
@@ -556,6 +611,17 @@ const subCurrent = (n: SubnavItem) => subExact(n)
     }
     .foot__inner .mono-label { margin-bottom: .45rem; }
     .foot__dim { color: var(--ink-3); margin-top: .3rem; }
+
+    /* The build stamp is metadata about the page rather than part of the
+       footer's three subjects, so it sits below the rule at a smaller size. */
+    .foot__build {
+      margin-top: 1.8rem; padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+    }
+    .foot__build .foot__dim {
+      font-family: var(--font-mono); font-size: .68rem;
+      letter-spacing: .02em; margin-top: 0;
+    }
 
     .foot__social {
       list-style: none; margin: .9rem 0 0; padding: 0;

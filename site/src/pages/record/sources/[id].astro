@@ -1,18 +1,22 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import Timestamp from '../../../components/Timestamp.astro';
+import CorrectionNotice from '../../../components/CorrectionNotice.astro';
 import {
-  sources, xPosts, sourceById, xPostById, snapshots, diffText, parseDiff,
-  snapshotText, tsToIso, isoToHuman, lastPolled, displayTitle, kindLabel,
-  xArtifacts, reviewForRevision, withholdsCapturedText, withholdsCapturedMedia,
+  sources, xPosts, nostrPosts, sourceById, xPostById, nostrPostById, snapshots,
+  diffText, parseDiff, snapshotText, tsToIso, isoToHuman, lastPolled,
+  displayTitle, kindLabel, xArtifacts, nostrCaptures, nostrEventText,
+  shortNpub, reviewForRevision, withholdsCapturedText, withholdsCapturedMedia,
 } from '../../../lib/archive';
 import { xMedia } from '../../../lib/xmedia';
+import ThreadReader from '../../../components/ThreadReader.astro';
+import { threadCapture } from '../../../lib/x-thread';
 import { annotateHeldDeletionsText } from '../../../lib/reddit-deletions';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 export function getStaticPaths() {
-  return [...sources(), ...xPosts()].map((s) => ({ params: { id: s.id } }));
+  return [...sources(), ...xPosts(), ...nostrPosts()].map((s) => ({ params: { id: s.id } }));
 }
 
 const REVIEW_LABEL: Record<string, string> = {
@@ -33,21 +37,35 @@ const { id } = Astro.params;
 const sid = id as string;
 const webSource = sourceById(sid);
 const socialPost = xPostById(sid);
+const nostrPost = nostrPostById(sid);
 const isSocial = !!socialPost;
+const isNostr = !!nostrPost;
+// X and nostr posts share the post presentation: facts, registry note and
+// held-capture state lead, and the web-source revision timeline stays out.
+const isPost = isSocial || isNostr;
+// A thread-enabled post is polled like a web source, so it has a revision
+// history and poll health of its own. The post-only presentation below is
+// gated on being a post *without* a conversation, not on being a post.
+const thread = threadCapture(sid);
+const isPostOnly = isPost && !thread;
+const registeredPost = socialPost ?? nostrPost;
 const src = webSource ?? {
-  id: socialPost!.id,
-  title: socialPost!.title,
-  url: socialPost!.url,
-  org: socialPost!.org,
+  id: registeredPost!.id,
+  title: registeredPost!.title,
+  url: registeredPost!.url,
+  org: registeredPost!.org,
   kind: 'social-post',
   tier: undefined,
-  note: socialPost!.why,
-  published: socialPost!.posted,
+  note: registeredPost!.why,
+  published: registeredPost!.posted,
 };
 const title = displayTitle(src);
 const snaps = snapshots(sid);
-const polled = webSource ? lastPolled(sid) : null;
+const polled = webSource || thread ? lastPolled(sid) : null;
 const artifacts = socialPost ? xArtifacts(socialPost) : [];
+// The nostr lane holds directories of files (event.json, event.txt,
+// meta.json) rather than a flat artefact list, one directory per capture.
+const nostrHeld = nostrPost ? nostrCaptures(nostrPost) : [];
 // Chain monitors and first-hand victim accounts can contain addresses,
 // usernames or personal circumstances. Keep those snapshots in the local
 // evidence archive, but never reproduce their raw text or diffs on the public
@@ -62,7 +80,7 @@ const privacyBoundaryText = 'Snapshot and diff bodies for this chain monitor are
 // one.
 const LIVING = new Set(['repo-file', 'vendor-index', 'vendor-releases', 'chain-monitor', 'government-legal', 'government-record']);
 const publishedLabel = src.published
-  ? isSocial ? isoToHuman(src.published) : src.published
+  ? isPost ? isoToHuman(src.published) : src.published
   : LIVING.has(src.kind ?? '')
     ? 'continuously updated'
     : 'not established';
@@ -81,7 +99,7 @@ const shotView = shot ? {
   src: shot.src,
   author: '@' + socialPost!.author,
   alt: `Captured screenshot of the post by @${socialPost!.author}, posted ${publishedLabel}`,
-  capturedIso: tsToIso(shot.name.replace(/\.\w+$/, '')),
+  capturedIso: shot.captured,
 } : null;
 // An archive that asks to be taken on trust is not much of an archive. Every
 // source links out to its full Internet Archive history so a reader can check
@@ -221,12 +239,14 @@ const changeLead = latestChange ? {
   clipped: latestChange.lines.length > LEAD_DIFF_LINES,
 } : null;
 
-const facts = isSocial ? [
-  { label: 'Author', value: '@' + socialPost!.author },
-  { label: 'Organisation', value: socialPost!.org || 'independent' },
-  { label: 'Evidence role', value: socialPost!.tag || 'social statement' },
-  { label: 'Posted', value: publishedLabel, iso: socialPost!.posted ?? '' },
-  { label: 'Capture status', value: artifacts.length ? 'capture held' : 'registered only' },
+const facts = isPost ? [
+  // X handles get their conventional @; a nostr author is an npub, shown
+  // shortened on the page and in full in the registry and JSON feeds.
+  { label: 'Author', value: socialPost ? '@' + socialPost.author : shortNpub(nostrPost!.author) },
+  { label: 'Organisation', value: registeredPost!.org || 'independent' },
+  { label: 'Evidence role', value: registeredPost!.tag || 'social statement' },
+  { label: 'Posted', value: publishedLabel, iso: registeredPost!.posted ?? '' },
+  { label: 'Capture status', value: (artifacts.length + nostrHeld.length) ? 'capture held' : 'registered only' },
 ] : [
   { label: 'Organisation', value: src.org || 'unknown' },
   { label: 'Evidence role', value: kindLabel(src.kind) },
@@ -248,11 +268,49 @@ const noteParagraphs = (src.note ?? '')
   .map((para) => para.trim())
   .filter(Boolean);
 
-const methodologyText = isSocial
-  ? artifacts.length
-    ? 'This post is registered as evidence and has a locally held capture. The original remains the canonical publication.'
+const methodologyText = isNostr
+  ? nostrHeld.length
+    ? 'This post is registered as evidence and has a locally held capture: the signed nostr event as served by the relay, plus its flattened text. The original remains the canonical publication.'
     : 'This post is registered because it shaped the research or response, but no attributable local capture is currently held. The original link remains available while capture is pursued.'
-  : 'Every check is recorded, including checks that found no text change. A detected edit is therefore bounded between two checks. The publisher\'s exact save time is not observable from this record.';
+  : isSocial
+    ? artifacts.length
+      ? 'This post is registered as evidence and has a locally held capture. The original remains the canonical publication.'
+      : 'This post is registered because it shaped the research or response, but no attributable local capture is currently held. The original link remains available while capture is pursued.'
+    : 'Every check is recorded, including checks that found no text change. A detected edit is therefore bounded between two checks. The publisher\'s exact save time is not observable from this record.';
+
+// Held nostr captures, newest first, with everything the template needs
+// precomputed. The flattened event text renders under the same rule as web
+// snapshots: an excerpt unless PUBLIC_FULL_TEXT is on, and nothing at all
+// when the post withholds captured text. The signed event.json is named in
+// the file list but never served: it stays local, backing the excerpt.
+const nostrRows = nostrHeld.map((cap) => {
+  const full = withholdCapturedText ? '' : nostrEventText(nostrPost!, cap.ts);
+  const truncated = !withholdCapturedText && !FULL_TEXT &&
+    full.split('\n').length > EXCERPT_LINES;
+  const body = FULL_TEXT
+    ? full
+    : full.split('\n').slice(0, EXCERPT_LINES).join('\n');
+  return {
+    ts: cap.ts,
+    iso: cap.iso,
+    files: cap.files,
+    fileNames: cap.files.map((f) => f.name).join(', '),
+    body,
+    truncated,
+    hasBody: body.length > 0,
+  };
+}).reverse();
+
+const postCheckLead = isNostr
+  ? 'Compare the captured text or a quotation against '
+  : 'Compare the screenshot or a quotation against ';
+
+// The privacy-boundary wording names chain monitors because they are the
+// sources that set the flag today; a withheld nostr post needs the same
+// boundary stated without the monitor specifics.
+const privacyText = isNostr
+  ? 'The captured text of this post is held in the local evidence archive but withheld from the public site. Capture times and the registry note remain available on this page.'
+  : privacyBoundaryText;
 ---
 
 <Base
@@ -268,6 +326,8 @@ const methodologyText = isSocial
         <p class="src__url"><a href={src.url} rel="noopener nofollow">{src.url}</a></p>
       </div>
     </header>
+
+    <CorrectionNotice page={`/record/sources/${sid}/`} />
 
     {(src as any).gone && (
       <aside class="gone" role="note">
@@ -348,10 +408,33 @@ const methodologyText = isSocial
 
     <div class="callout is-info src__privacy" hidden={!withholdCapturedText}>
       <span class="callout__title">Public privacy boundary</span>
-      <p>{privacyBoundaryText}</p>
+      <p>{privacyText}</p>
     </div>
 
-    <ol class="timeline" hidden={isSocial}>
+    {thread && <ThreadReader thread={thread} />}
+
+    <section class="ncap" hidden={!isNostr || nostrRows.length === 0}>
+      <h2 class="ncap__h">Held captures</h2>
+      {nostrRows.map((r) => (
+        <div class="ncap__item" id={'snap-' + r.ts}>
+          <p class="ncap__meta">
+            <span class="hash">captured <Timestamp iso={r.iso} /></span>
+            <span class="hash">{r.fileNames}</span>
+          </p>
+          <details class="snap__text" hidden={!r.hasBody}>
+            <summary>Flattened event text as captured</summary>
+            <pre class="snap__pre"><code>{r.body}</code></pre>
+            <p class="snap__trunc" hidden={!r.truncated}>
+              Excerpt only. The complete copy is held offline and backs
+              quotations on this site. The original publication remains the
+              canonical public source.
+            </p>
+          </details>
+        </div>
+      ))}
+    </section>
+
+    <ol class="timeline" hidden={isPostOnly}>
       {mainRows.map((r) => (
         <li class="snap" id={'snap-' + r.ts}>
           <div class="snap__bar">
@@ -405,7 +488,7 @@ const methodologyText = isSocial
       ))}
     </ol>
 
-    <details class="noise" hidden={isSocial || noiseRows.length === 0}>
+    <details class="noise" hidden={isPost || noiseRows.length === 0}>
       <summary>{noiseHeading}</summary>
       <ul class="noise__list">
         {noiseRows.map((r) => (
@@ -421,7 +504,7 @@ const methodologyText = isSocial
       </ul>
     </details>
 
-    <aside class="verify" hidden={isSocial}>
+    <aside class="verify" hidden={isPostOnly}>
       <p class="verify__h">Independent cross-check</p>
       <p>
         Internet Archive copies provide a third-party comparison for the
@@ -439,7 +522,7 @@ const methodologyText = isSocial
       </p>
     </aside>
 
-    <div class="callout is-info src__foot" hidden={isSocial}>
+    <div class="callout is-info src__foot" hidden={isPostOnly}>
       <span class="callout__title">How to check this yourself</span>
       <p>
         The excerpts and plain unified diffs above show the text this project
@@ -455,10 +538,10 @@ const methodologyText = isSocial
       </p>
     </div>
 
-    <div class="callout is-info src__foot" hidden={!isSocial}>
+    <div class="callout is-info src__foot" hidden={!isPostOnly}>
       <span class="callout__title">How to check this yourself</span>
       <p>
-        Compare the screenshot or a quotation against
+        {postCheckLead}
         <a href={src.url} rel="noopener nofollow">the original</a> while it is
         available.
       </p>
@@ -597,6 +680,20 @@ const methodologyText = isSocial
 
   .timeline { list-style: none; padding: 0; margin-top: 2.2rem; display: grid; gap: 1.1rem; }
   .timeline[hidden] { display: none; }
+
+  /* Held nostr captures: the same card treatment as a snapshot row, reusing
+     the snapshot excerpt styles above. No screenshots exist in this lane, so
+     the flattened event text is the artefact on show. */
+  .ncap { margin-top: 2.2rem; display: grid; gap: 1.1rem; max-width: var(--w-text); }
+  .ncap[hidden] { display: none; }
+  .ncap__h { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; }
+  .ncap__item {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+  }
+  .ncap__meta { display: flex; flex-wrap: wrap; gap: .9rem; margin: 0; }
 
   /* Review-classified presentation churn, collapsed out of the timeline so
      it stays on the record without fronting for it. Muted throughout. */

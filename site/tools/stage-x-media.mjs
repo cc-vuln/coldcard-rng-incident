@@ -17,9 +17,10 @@
  *     files carrying a -media- infix are media *attached to* a post, and
  *     showing an attached photo where a reader expects the post would
  *     misrepresent the capture.
- *  2. Only X post screenshots are staged. Reddit captures live under
- *     archive/reddit/ and are shown through their own source pages, not as
- *     post-card images here.
+ *  2. Only X post screenshots are staged. Reddit threads are captured as
+ *     structured JSON under archive/snapshots/ and are shown through their own
+ *     source pages, not as post-card images here. (A legacy archive/reddit/
+ *     media tree was retired on 6 Aug 2026; nothing stages from there.)
  *  3. PUBLIC_X_MEDIA=false (the default) stages nothing at all, so a public
  *     build cannot ship media until that policy decision is made deliberately.
  */
@@ -31,11 +32,12 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const xDir = join(root, 'archive', 'x');
 const outDir = fileURLToPath(new URL('../public/x-media/', import.meta.url));
 const manifestPath = fileURLToPath(new URL('../src/data/x-media.json', import.meta.url));
+const threadManifestPath = fileURLToPath(new URL('../src/data/x-thread-media.json', import.meta.url));
 
 const enabled = process.env.PUBLIC_X_MEDIA === 'true';
 
 function registeredPosts() {
-  // Deliberately not a TOML parser: the two fields needed here are flat, and
+  // Deliberately not a TOML parser: the fields needed here are flat, and
   // a regex keeps this tool independent of the site's node_modules (smol-toml
   // is there for the build), so staging works even before npm install.
   const toml = readFileSync(join(root, 'sources.toml'), 'utf8');
@@ -44,7 +46,13 @@ function registeredPosts() {
     if (!block.startsWith('x_post]]')) continue;
     const id = block.match(/\bid\s*=\s*"([^"]+)"/)?.[1];
     const url = block.match(/\burl\s*=\s*"([^"]+)"/)?.[1];
-    if (id && url) posts.push({ id, url });
+    // Withholding is a publication decision, and a file copied into public/
+    // is published whether or not a page links to it. Renderers consult these
+    // too; staging is the earlier of the two gates, not a substitute for it.
+    const withheld = /\bwithhold_text\s*=\s*true/.test(block);
+    const withheldPosts = (block.match(/\bwithhold_posts\s*=\s*\[([^\]]*)\]/)?.[1] ?? '')
+      .match(/"(\d+)"/g)?.map((s) => s.slice(1, -1)) ?? [];
+    if (id && url) posts.push({ id, url, withheld, withheldPosts });
   }
   return posts;
 }
@@ -84,24 +92,77 @@ function screenshotsFor(postId) {
   return out.sort((a, b) => b.ts.localeCompare(a.ts));
 }
 
+/**
+ * Thread screenshots for one post: <post-id>/<TS>/thread-<status>.png.
+ *
+ * A capture directory holds the shots taken in that capture, not every shot
+ * for the thread, so the newest held image per status is composed across
+ * directories. Same two gates as the focal shot: the directory must be a
+ * timestamp, and it must be at or after the cutover.
+ */
+function threadShotsFor(postId, withheldPosts) {
+  const dir = join(xDir, postId);
+  if (!existsSync(dir)) return {};
+  const newest = {};
+  for (const capture of readdirSync(dir, { withFileTypes: true })) {
+    if (!capture.isDirectory()) continue;
+    if (!/^\d{8}T\d{6}Z$/.test(capture.name)) continue;
+    if (capture.name < OWN_HOST_FROM) continue;
+    for (const file of readdirSync(join(dir, capture.name))) {
+      const status = file.match(/^thread-(\d+)\.png$/)?.[1];
+      if (!status) continue;
+      if (withheldPosts.includes(status)) continue;
+      if (!newest[status] || capture.name > newest[status].ts) {
+        newest[status] = { ts: capture.name, path: join(dir, capture.name, file) };
+      }
+    }
+  }
+  return newest;
+}
+
+function tsToIso(ts) {
+  return `${ts.slice(0, 4)}-${ts.slice(4, 6)}-${ts.slice(6, 8)}T` +
+    `${ts.slice(9, 11)}:${ts.slice(11, 13)}:${ts.slice(13, 15)}Z`;
+}
+
 rmSync(outDir, { recursive: true, force: true });
 const manifest = {};
+const threadManifest = {};
 let skippedAttachments = 0;
+let withheldSources = 0;
+let withheldStatuses = 0;
 
 if (enabled) {
   for (const post of registeredPosts()) {
+    if (post.withheld) { withheldSources += 1; continue; }
     const mine = screenshotsFor(post.id);
-    if (!mine.length) continue;
+    const threadShots = threadShotsFor(post.id, post.withheldPosts);
+    withheldStatuses += post.withheldPosts.length;
+    if (!mine.length && !Object.keys(threadShots).length) continue;
     const destDir = join(outDir, post.id);
     mkdirSync(destDir, { recursive: true });
-    manifest[post.id] = mine.map(({ ts, path }) => {
-      const name = `${ts}.png`;
+    if (mine.length) {
+      manifest[post.id] = mine.map(({ ts, path }) => {
+        const name = `${ts}.png`;
+        copyFileSync(path, join(destDir, name));
+        return {
+          src: `/x-media/${post.id}/${name}`,
+          name,
+          captured: tsToIso(ts),
+        };
+      });
+    }
+    const staged = {};
+    for (const [status, { ts, path }] of Object.entries(threadShots)) {
+      const name = `thread-${status}.png`;
       copyFileSync(path, join(destDir, name));
-      return {
+      staged[status] = {
         src: `/x-media/${post.id}/${name}`,
         name,
+        captured: tsToIso(ts),
       };
-    });
+    }
+    if (Object.keys(staged).length) threadManifest[post.id] = staged;
   }
   // Reported for transparency: these exist and are deliberately not published.
   const walk = (dir) => existsSync(dir)
@@ -113,12 +174,18 @@ if (enabled) {
 
 mkdirSync(fileURLToPath(new URL('../src/data/', import.meta.url)), { recursive: true });
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
+writeFileSync(threadManifestPath, JSON.stringify(threadManifest, null, 1) + '\n');
 
 const count = Object.values(manifest).reduce((n, a) => n + a.length, 0);
+const threadCount = Object.values(threadManifest)
+  .reduce((n, byStatus) => n + Object.keys(byStatus).length, 0);
 const registered = registeredPosts().length;
 const published = Object.keys(manifest).length;
 console.log(enabled
-  ? `x media staged: ${count} post screenshot(s) across ${published} of ${registered} post(s); ` +
+  ? `x media staged: ${count} post screenshot(s) across ${published} of ${registered} post(s), ` +
+    `plus ${threadCount} conversation post screenshot(s) across ` +
+    `${Object.keys(threadManifest).length} thread(s); ` +
     `${registered - published} post(s) have no capture from this host yet and are withheld; ` +
+    `${withheldSources} source(s) and ${withheldStatuses} individual post(s) withheld by registry flag; ` +
     `${skippedAttachments} attached-media file(s) and all reddit captures never staged`
-  : 'x media staging disabled (PUBLIC_X_MEDIA not true); manifest emptied');
+  : 'x media staging disabled (PUBLIC_X_MEDIA not true); manifests emptied');

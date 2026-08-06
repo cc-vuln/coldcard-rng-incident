@@ -10,6 +10,17 @@ The site is the public record of the July 2026 COLDCARD predictable-RNG
 incident: it preserves what each party published and how it changed, organises
 the material, and explains it without adjudicating between the people involved.
 
+The scale already documented makes the incident likely to rank among the most
+consequential in Bitcoin's history. That is a provisional editorial assessment,
+not a settled ranking: attribution totals differ and the number of distinct
+people affected is unknown. The project's historical role is to preserve the
+contemporaneous public record for posterity, so future readers can assess the
+incident from what participants published at the time, including material later
+edited or removed. The record also organises explanations, opinions and
+speculation chronologically so readers can understand how public interpretation
+changed, sometimes within hours. Conspiracy theories are retained only as
+dated, attributed reaction, never as evidence that they were true.
+
 The material is scattered across vendor advisories that get edited, threads that
 scroll away, repositories, blog posts and reporting that restates other
 reporting. Collecting it and making it legible is the product. Everything here
@@ -65,6 +76,8 @@ mutability without coupling capture to publication.
 ```
 sources.toml              tracked sources, tiered by mutability and value
 revision-reviews.toml      additive review of detected differences
+corrections.toml          this project's own corrections, published at /corrections/
+CITATION.cff              repository citation metadata
 scripts/capture.py        fetch, extract text, hash, diff, log     (stdlib only)
 scripts/capture-x.sh      manual X post capture via gallery-dl
 scripts/notify.sh         capture, alert on change or incomplete poll
@@ -91,6 +104,9 @@ site/                     Astro front end, reads archive/ at build time
   /llms.txt               generated machine orientation and citation guidance
   /record/sources.json    generated source and capture-status register
   /record/changes.json    generated JSON Feed of detected differences
+  /version.json           the commit a build was made from, and the record's size
+  /cite/                  citation guidance and what a citation here asserts
+  /corrections/           corrections to published claims, from corrections.toml
   /schemas/source-register-v1
                            JSON Schema for the source register
 ```
@@ -179,6 +195,26 @@ third-party material under `archive/` remains its authors' copyright, held
 here for research and archival purposes. Mirror the code and the writing
 freely with attribution.
 
+## Citing this
+
+Cite the original publisher first and this archive second: what a party said is
+theirs, and what this project adds is the preserved state, the time it was
+observed and the record that the state existed. A citation naming only
+cc-vuln.org attributes someone else's statement to us.
+
+The record changes, so name the state you read. Every build stamps the commit it
+was made from in the page footer and at
+[/version.json](https://cc-vuln.org/version.json); quoting that commit alongside
+the URL makes the state recoverable from this repository. Worked examples,
+BibTeX and CSL-JSON, and what a citation here does and does not assert are at
+[cc-vuln.org/cite](https://cc-vuln.org/cite/). Repository citation metadata is
+in [CITATION.cff](CITATION.cff). No DOI is minted.
+
+Corrections to published claims are marked on the page and listed at
+[cc-vuln.org/corrections](https://cc-vuln.org/corrections/), from
+[corrections.toml](corrections.toml). Sources changing their own pages are not
+corrections: those are the record's subject and live in the change record.
+
 ## Provenance and limits
 
 - Snapshots are what a normal browser would have received from that URL at
@@ -189,7 +225,12 @@ freely with attribution.
   meaningful. Raw HTML changes constantly (nonces, timestamps, CDN headers) and
   is stored for changed captures only.
 - `index.jsonl` records every poll including unchanged ones, which is what lets
-  you bound when a change happened rather than only that it happened.
+  you bound when a change happened rather than only that it happened. One
+  documented gap: the 4 August 2026 reddit-json migration removed the earlier
+  poll records of five Reddit sources along with their captures, so those
+  sources begin on 4 August. It is logged at
+  [/corrections/](https://cc-vuln.org/corrections/), and the append-only rule
+  has been enforced without exception since 6 August 2026.
 - This is not a legal evidentiary chain. No timestamping authority, no
   signatures. If that matters for a given source, submit it to the Wayback
   Machine as well and record the permalink.

@@ -50,6 +50,69 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(capture.SourceConfigError, "duplicate source id"):
             capture.validate_sources(cfg)
 
+    def post(self, **overrides) -> dict:
+        post = {
+            "id": "p",
+            "url": "https://x.com/someone/status/2083247006139503065",
+            "author": "someone",
+        }
+        post.update(overrides)
+        return post
+
+    def test_thread_post_needs_a_tier_so_its_cadence_is_stated(self) -> None:
+        cfg = {"source": [], "x_post": [self.post(thread=True)]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "requires a tier"):
+            capture.validate_sources(cfg)
+
+    def test_tier_without_thread_is_rejected(self) -> None:
+        # A registered post that is not polled has no cadence to state, so a
+        # tier on it means someone expected polling that will not happen.
+        cfg = {"source": [], "x_post": [self.post(tier=3)]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "only to a polled"):
+            capture.validate_sources(cfg)
+
+    def test_thread_must_be_a_boolean(self) -> None:
+        cfg = {"source": [], "x_post": [self.post(thread="yes", tier=3)]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "true or false"):
+            capture.validate_sources(cfg)
+
+    def test_thread_capture_needs_an_x_status_url(self) -> None:
+        cfg = {"source": [],
+               "x_post": [self.post(thread=True, tier=3,
+                                    url="https://example.test/a")]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "X status"):
+            capture.validate_sources(cfg)
+
+    def test_thread_capture_needs_an_author(self) -> None:
+        # The author is what separates the self-thread from the replies.
+        post = self.post(thread=True, tier=3)
+        del post["author"]
+        with self.assertRaisesRegex(capture.SourceConfigError, "needs author"):
+            capture.validate_sources({"source": [], "x_post": [post]})
+
+    def test_a_plain_registered_post_still_validates(self) -> None:
+        capture.validate_sources({"source": [], "x_post": [self.post()]})
+
+    def test_pollable_sources_includes_thread_posts_only(self) -> None:
+        cfg = {
+            "source": [self.source(id="web")],
+            "x_post": [self.post(id="plain"),
+                       self.post(id="convo", thread=True, tier=3,
+                                 url="https://x.com/n/status/9", author="n")],
+        }
+        got = {s["id"]: s for s in capture.pollable_sources(cfg)}
+        self.assertEqual(sorted(got), ["convo", "web"])
+        self.assertEqual(got["convo"]["capture"], "x-thread")
+        self.assertEqual(got["convo"]["kind"], "social-thread")
+        self.assertEqual(got["convo"]["tier"], 3)
+        self.assertEqual(got["convo"]["x_author"], "n")
+
+    def test_pollable_sources_carries_the_withhold_flag(self) -> None:
+        # A withheld conversation must stay withheld once it becomes a source.
+        cfg = {"source": [], "x_post": [
+            self.post(id="c", thread=True, tier=3, withhold_text=True)]}
+        self.assertIs(capture.pollable_sources(cfg)[0]["withhold_text"], True)
+
     def test_gone_requires_a_timestamp_and_an_observation(self) -> None:
         """Retiring a source is a claim about the world, so it must be checkable."""
         with self.assertRaisesRegex(capture.SourceConfigError, "gone_since"):
@@ -322,14 +385,6 @@ class NormalizerTests(unittest.TestCase):
             self.canonical(before, "cktripwire-live-state"),
             self.canonical(edited, "cktripwire-live-state"),
         )
-
-    def test_reddit_engagement_does_not_hide_comment_edits(self) -> None:
-        a = "user\n<relative-time>\ncomment\n46\n7 more replies"
-        b = "user\n<relative-time>\ncomment\n47\n8 more replies"
-        c = "user\n<relative-time>\nedited comment\n47\n8 more replies"
-        rules = ("relative-time", "reddit-engagement")
-        self.assertEqual(self.canonical(a, *rules), self.canonical(b, *rules))
-        self.assertNotEqual(self.canonical(a, *rules), self.canonical(c, *rules))
 
     def test_reddit_more_stub_counts_are_live_engagement(self) -> None:
         before = "more-stub: parent t1_abc count 19\ncomment body"
@@ -1110,6 +1165,143 @@ class ResponseHeaderTests(unittest.TestCase):
         out, _ = scrub_geo(body)
         self.assertIn(GEO_REDACTED, out)
         self.assertEqual(geo_in_body(out), [])
+
+
+class FailureDiagnosisTests(unittest.TestCase):
+    """`failure` answers whether to retry. `diagnosis` answers what to fix."""
+
+    @staticmethod
+    def _http(code, body=b"", headers=None):
+        return urllib.error.HTTPError(
+            "https://example.test", code, "no", headers,
+            io.BytesIO(body) if body else None,
+        )
+
+    def test_an_interstitial_is_told_from_a_flat_refusal(self):
+        """Both are 403 and both are `refused`; only one is about our address."""
+        challenge = self._http(403, b"<title>Just a moment...</title>")
+        self.assertEqual(capture.diagnose_failure(challenge),
+                         ("origin-challenge", 403))
+        paywall = self._http(403, b"<h1>Subscribers only</h1>")
+        self.assertEqual(capture.diagnose_failure(paywall),
+                         ("origin-refused", 403))
+
+    def test_a_challenge_header_counts_without_a_body(self):
+        marked = self._http(403, headers={"cf-mitigated": "challenge"})
+        self.assertEqual(capture.diagnose_failure(marked),
+                         ("origin-challenge", 403))
+
+    def test_statuses_that_mean_different_work(self):
+        self.assertEqual(capture.diagnose_failure(self._http(404)),
+                         ("origin-absent", 404))
+        self.assertEqual(capture.diagnose_failure(self._http(429)),
+                         ("origin-rate-limit", 429))
+        self.assertEqual(capture.diagnose_failure(self._http(503)),
+                         ("origin-server-error", 503))
+
+    def test_an_unresolvable_name_is_not_weather(self):
+        """coldcard-watch was filtered by the resolver for 52 polls, all
+        recorded as `transient`, which reads as a site having a bad day."""
+        dns = urllib.error.URLError(
+            OSError(-2, "Name or service not known"))
+        self.assertEqual(capture.diagnose_failure(dns), ("dns-unresolved", None))
+        self.assertEqual(capture.classify_failure(dns), "transient")
+
+    def test_connection_failures_keep_their_shape(self):
+        self.assertEqual(capture.diagnose_failure(TimeoutError("timed out")),
+                         ("connect-timeout", None))
+        self.assertEqual(
+            capture.diagnose_failure(ConnectionResetError("reset by peer")),
+            ("connect-reset", None))
+
+    def test_a_short_healthy_thread_is_not_a_challenge(self):
+        """Four Reddit threads answered correctly for 39 polls each and were
+        recorded as `challenged` because a registration default was too high."""
+        thread = "post: 1vemsyq\nauthor: H8ckt1v1st\nbody: truly sad to see"
+        self.assertEqual(
+            capture.diagnose_content(thread, "content-below-floor"),
+            "content-below-floor")
+
+    def test_a_short_body_that_is_a_challenge_still_says_so(self):
+        self.assertEqual(
+            capture.diagnose_content(
+                "www.theblock.co\nPerforming security verification\n",
+                "content-below-floor"),
+            "origin-challenge")
+
+    def test_a_stale_marker_is_told_from_a_blocked_render(self):
+        page = "Receipts\nScreenshots of what the Coldcard side published"
+        self.assertEqual(
+            capture.diagnose_content(page, "content-marker-missing"),
+            "content-marker-missing")
+
+    def test_browser_faults_are_separated(self):
+        self.assertEqual(
+            capture.diagnose_browser(
+                "tab shows www.reddit.com, not slipstream.mara.com: target crashed?"),
+            "browser-tab-lost")
+        self.assertEqual(
+            capture.diagnose_browser("webbridge daemon or browser not reachable"),
+            "browser-unavailable")
+
+    def test_capture_records_the_diagnosis_and_status(self):
+        source = {"id": "challenged", "url": "https://example.test"}
+        challenge = self._http(403, b"Attention Required! | Cloudflare")
+        with contextlib.redirect_stdout(io.StringIO()), \
+                mock.patch.object(capture, "consecutive_refusals", return_value=0), \
+                mock.patch.object(capture, "fetch", side_effect=challenge):
+            result = capture.capture_one(source, dry=True)
+        self.assertEqual(result["failure"], "refused")
+        self.assertEqual(result["diagnosis"], "origin-challenge")
+        self.assertEqual(result["http_status"], 403)
+
+
+class FailingSourceTests(unittest.TestCase):
+    """A streak is the signal. One failure is weather."""
+
+    def test_streak_counts_back_to_the_last_good_poll(self):
+        events = [
+            {"id": "a", "ts": "20260801T000000Z", "event": "first"},
+            {"id": "a", "ts": "20260802T000000Z", "event": "unchanged"},
+            {"id": "a", "ts": "20260803T000000Z", "event": "error",
+             "failure": "refused", "diagnosis": "origin-challenge",
+             "http_status": 403},
+            {"id": "a", "ts": "20260804T000000Z", "event": "error",
+             "failure": "refused", "diagnosis": "origin-challenge",
+             "http_status": 403},
+        ]
+        rows = capture.failing_sources(events)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["streak"], 2)
+        self.assertEqual(rows[0]["failing_since"], "20260803T000000Z")
+        self.assertEqual(rows[0]["last_good"], "20260802T000000Z")
+        self.assertEqual(rows[0]["diagnosis"], "origin-challenge")
+
+    def test_a_source_that_recovered_is_not_listed(self):
+        events = [
+            {"id": "b", "ts": "20260801T000000Z", "event": "error",
+             "failure": "transient"},
+            {"id": "b", "ts": "20260802T000000Z", "event": "changed"},
+        ]
+        self.assertEqual(capture.failing_sources(events), [])
+
+    def test_events_from_before_diagnosis_say_so(self):
+        """Most of the record predates the field. Guessing a cause for it
+        would be worse than admitting the record does not carry one."""
+        events = [{"id": "c", "ts": "20260801T000000Z", "event": "blocked",
+                   "failure": "challenged"}]
+        self.assertEqual(capture.failing_sources(events)[0]["diagnosis"],
+                         "unrecorded")
+
+    def test_worst_streak_comes_first(self):
+        events = [
+            {"id": "short", "ts": "20260804T000000Z", "event": "error"},
+            {"id": "long", "ts": "20260801T000000Z", "event": "error"},
+            {"id": "long", "ts": "20260802T000000Z", "event": "error"},
+            {"id": "long", "ts": "20260803T000000Z", "event": "error"},
+        ]
+        self.assertEqual([r["id"] for r in capture.failing_sources(events)],
+                         ["long", "short"])
 
 
 if __name__ == "__main__":

@@ -49,7 +49,7 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
     <Claim
       basis="unverified"
       scope="Whether the vendor-published hotfix binaries provide the intended entropy at runtime"
-      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of a 5 August 2026 recheck"
+      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of a 6 August 2026 recheck"
       href="/record/firmware/"
       compact
     />
@@ -77,14 +77,73 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
       <Claim
         basis="reported"
         scope="The secondhand report that the new firmware upgrade was bricking some devices"
-        source="Bitcoin News, captured X post, 2 Aug 2026; no first-hand account or device count is cited there, and none is held here as of 3 Aug 2026"
+        source="Bitcoin News, captured X post, 2 Aug 2026; no first-hand account or device count is cited there"
         href="/record/sources/bitcoinnews-bricking-warning/"
         compact
       />
-      No first-hand bricking account is captured in this archive as of 3 August
-      2026, and neither post cites a device count. The reports are retained as a
-      qualification to the vendor's update and migration guidance, not as
-      independently verified evidence of a firmware installation failure.
+      A first-hand account is held since 4 August 2026:
+      <a href="/record/sources/reddit-mk4-bricked-hotfix/">an r/coldcard poster reported</a>
+      that the emergency hotfix crashed their Mk4 during passphrase testing and
+      left it showing a BRICKED screen, then edited the post days later to say
+      the device recovered after a full power drain, describing a temporary
+      hardware-RNG fault rather than permanent damage.
+      <Claim
+        basis="reported"
+        scope="The poster's first-hand account of the Mk4 crash and BRICKED screen after the hotfix, and their later edits reporting recovery after a full power drain and attributing a temporary hardware-RNG fault"
+        source="r/coldcard thread, first captured 4 Aug 2026; the recovery edits appear in the 5 Aug 2026 capture"
+        href="/record/sources/reddit-mk4-bricked-hotfix/"
+        compact
+      />
+      <a href="/record/sources/reddit-bricked-mid-transfer/">A second thread</a>
+      reports a device bricking mid-transfer during a multisig migration.
+      <Claim
+        basis="reported"
+        scope="The report of a device bricking mid-transfer during a multisig migration"
+        source="r/coldcard thread, captured 4 Aug 2026"
+        href="/record/sources/reddit-bricked-mid-transfer/"
+        compact
+      />
+      Coinkite answered the reports on 4 August:
+      <a href="/record/sources/coldcardwallet-2084632863756955661/">claims that the
+      current firmware permanently bricks devices are incorrect</a>, the fault
+      state is volatile with nothing written to flash and fails closed, and the
+      remedy is a full power cycle.
+      <Claim
+        basis="reported"
+        scope="Coinkite's statements that permanent-bricking claims are incorrect, that the fault state is volatile with nothing written to flash and fails closed, and that a full power cycle is the remedy"
+        source="COLDCARDwallet X post, 4 Aug 2026, captured 6 Aug 2026"
+        href="/record/sources/coldcardwallet-2084632863756955661/"
+        compact
+      />
+      The notice names
+      <a href="/record/sources/coldcard-firmware-pr-693/">firmware PR #693</a>
+      as the fix, and that pull request was merged on 5 August 2026.
+      <Claim
+        basis="verified"
+        scope="The content and merged state of firmware PR #693, merged 5 August 2026"
+        source="Captured Coldcard/firmware pull-request page and patch, 6 Aug 2026"
+        href="/record/sources/coldcard-firmware-pr-693/"
+        compact
+      />
+      In the fix pull request's discussion its author, scgbckbone, writing as a
+      repository collaborator on 4 August, went further: "we found no evidence
+      that already shipped RNG patch can brick user devices", citing an X post
+      by AVirgovic for that reading.
+      <Claim
+        basis="reported"
+        scope="scgbckbone's statement in the PR #693 discussion that they found no evidence the already shipped RNG patch can brick user devices"
+        source="scgbckbone comment on COLDCARD firmware PR #693, 4 Aug 2026, captured 6 Aug 2026"
+        href="/record/sources/coldcard-firmware-pr-693/"
+        compact
+      />
+      Neither the Lopp nor the Bitcoin News post cites a device count, and the
+      posters' accounts of cause are their own, not verified here. The
+      vendor-side accounts are likewise their own: the poster's screen read
+      BRICKED until a full power drain, Coinkite says nothing permanent is
+      written, and the fix's author says no evidence of bricking was found.
+      The reports are retained as a qualification to the vendor's update and
+      migration guidance, not as independently verified evidence of a firmware
+      installation failure.
     </p>
   </div>
 
@@ -176,32 +235,45 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
     <p>
       MARA describes Slipstream as a direct transaction-submission service backed
       by MARA Pool. At the 1 August 2026 check, its portal required a client code
-      and applied a minimum submission feerate. MARA's public material supports
-      describing it as direct submission, but the portal terms do not establish a
-      confidentiality or confirmation guarantee.
+      and applied a minimum submission feerate. On 3 August 2026 MARA
+      <a href="/record/sources/mara-slipstream-permissionless/">announced
+      Slipstream as a permissionless public good with no client-code
+      requirement</a>, and the portal text captured on 6 August 2026 no longer
+      carries the requirement: it presents the submission form, a minimum
+      submission feerate and the current mineable rate. MARA's public material
+      supports describing it as direct submission, but the portal terms do not
+      establish a confidentiality or confirmation guarantee.
+      <Claim
+        basis="reported"
+        scope="MARA's 3 August 2026 announcement that Slipstream is a permissionless public good with no client-code requirement"
+        source="MARAFoundation_ X post, 3 Aug 2026"
+        href="/record/sources/mara-slipstream-permissionless/"
+        compact
+      />
       <Claim
         basis="verified"
-        scope="The public Slipstream submission process and limitations described above"
-        source="MARA Slipstream portal, checked 1 Aug 2026"
+        scope="The portal text captured 6 August 2026: the submission form, minimum submission feerate and current mineable rate, no client-code requirement, and no confidentiality or confirmation guarantee in the portal terms; the 1 August 2026 state, when the portal required a client code, is preserved in this archive's earlier captures"
+        source="MARA Slipstream portal, captured 6 Aug 2026; 1 Aug 2026 state from this archive's captures of 1 and 3 Aug 2026"
         href="/record/sources/mara-slipstream-portal/"
         compact
       />
       The separately published
       <a href="/record/sources/mara-slipstream-api/">OpenAPI document</a>
       describes transaction handling as best effort and says admission does not
-      guarantee mining; its request schema marks <code>client_code</code> as
-      optional, while the portal says client codes are currently required.
+      guarantee mining. Its request schema marked <code>client_code</code> as
+      optional in every capture held here, which differed from the portal's
+      client-code requirement at the 1 August 2026 check; that difference closed
+      when the portal dropped the requirement after the 3 August announcement.
       <Claim
         basis="verified"
-        contested
-        scope="The differing public client-code descriptions and the API's best-effort, no-mining-guarantee language"
-        source="MARA Slipstream portal and OpenAPI document, checked 1 Aug 2026"
+        scope="The API's best-effort, no-mining-guarantee language, its optional client_code schema, the difference from the portal's client-code requirement at the 1 August 2026 check, and the closing of that difference with the 3 August 2026 permissionless change"
+        source="MARA Slipstream OpenAPI document, captured 3 Aug 2026 and unchanged through 5 Aug 2026; portal captures of 1, 3 and 6 Aug 2026"
         href="/record/sources/mara-slipstream-api/"
         compact
       />
       This
       archive did not submit a transaction to test which condition the service
-      enforced on 1 August 2026.
+      enforced at the 1 August 2026 check.
     </p>
 
     <p>

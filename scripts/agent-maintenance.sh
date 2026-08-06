@@ -16,8 +16,12 @@
 #   scripts/agent-maintenance.sh <command...>
 #   just agent-maintenance <command...>
 #
-# Exits 0 if the command did, 1 on wrapper failure (including a poll that
-# would not finish in time), otherwise the command's exit code.
+# Pass ONE executable and its arguments. A compound command must go in a
+# script; see the guards below for why that is not a style preference.
+#
+# Exits 0 if the command did, 2 on a caller mistake caught before the window
+# opens, 1 on wrapper failure (including a poll that would not finish in
+# time), otherwise the command's exit code.
 
 set -Eeuo pipefail
 
@@ -28,6 +32,56 @@ WAIT_BUDGET_S=180
 if [[ $# -eq 0 ]]; then
   echo "usage: $0 <command...>" >&2
   exit 1
+fi
+
+# Everything below runs BEFORE the timers are touched. A caller mistake must
+# not cost a quiet window, and must never leave the timers stopped.
+#
+# The failure this catches, observed 6 Aug 2026: `just` word-splits its *ARGS,
+# so `just agent-maintenance bash -c 'drop.py && test.py'` arrives here as six
+# separate arguments. bash -c then takes only "drop.py" as the command string
+# and binds the rest to $0 and $@, so it runs one word, exits 0, and the
+# wrapper reports success and closes the window having changed nothing. A
+# safety wrapper whose most likely misuse is a silent no-op is worse than no
+# wrapper, because the operator believes the work happened.
+
+die_usage() {
+  echo "agent-maintenance: $1" >&2
+  echo "agent-maintenance: put the compound command in a script and pass its path:" >&2
+  echo "    just agent-maintenance ./scripts/my-maintenance.sh [args...]" >&2
+  echo "agent-maintenance: timers untouched." >&2
+  exit 2
+}
+
+# A shell operator that arrived as its own argument was meant to be parsed by a
+# shell that never saw it.
+for arg in "$@"; do
+  case "$arg" in
+    '&&'|'||'|';'|'|'|'>'|'>>'|'<')
+      die_usage "argument $arg reached this script literally, so the command was split before it got here"
+      ;;
+  esac
+done
+
+# `<shell> -c` with more than one argument after the -c string: the extras
+# become $0 and positional parameters rather than part of the command, which
+# is legal, almost never intended, and silent.
+case "${1##*/}" in
+  bash|sh|zsh|dash|ksh)
+    for i in "${@:2}"; do
+      if [[ "$i" == "-c" ]]; then
+        # Arguments after the -c string itself.
+        if (( $# > 3 )); then
+          die_usage "$1 -c was given $(($# - 3)) argument(s) after the command string; they become \$0 and \$@, not part of the command"
+        fi
+        break
+      fi
+    done
+    ;;
+esac
+
+if ! command -v "$1" >/dev/null 2>&1; then
+  die_usage "$1 is not an executable on PATH"
 fi
 
 restart_timers() {

@@ -5,7 +5,7 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
 import Claim from '../../components/Claim.astro';
 import Timestamp from '../../components/Timestamp.astro';
 import {
-  xPosts, xPostById, sourceById, displayTitle, isoToHuman,
+  xPosts, nostrPosts, xPostById, nostrPostById, sourceById, displayTitle, isoToHuman,
 } from '../../lib/archive';
 import { fig } from '../../lib/figures';
 
@@ -238,9 +238,13 @@ const PRIMARY_GROUPS: PrimaryGroup[] = [
       {
         who: 'profedustream',
         what: 'A published mapping export and a two-actor hypothesis',
-        evidence: [{ href: '/record/sources/profedustream-mapping-export/', label: 'The JSON export' }],
+        evidence: [
+          { href: '/record/sources/profedustream-mapping-json/', label: 'The JSON graph export' },
+          { href: '/record/sources/profedustream-mapping-prompt/', label: 'The accompanying method prompt' },
+          { href: '/record/sources/profedustream-mapping-export/', label: 'The announcement post' },
+        ],
         detail: 'Published the JSON export of a multi-day on-chain mapping. It describes a scripted first wave whose consolidations remain untouched; a noisier, more erratic pattern whose movements reach clusters the author links to Chivo Wallet and Binance, six ChangeNOW transactions, and one CoinJoin service whose outputs were later connected to Binance; and further script-like waves that also remain unmoved. On that split the author offers a working hypothesis of two actors.',
-        status: 'Reported independent mapping; the export and its cluster attributions have not been rechecked here.',
+        status: 'Reported independent mapping; the JSON export and its accompanying schema prompt are held, but the graph and its cluster attributions have not been independently rechecked here.',
         scope: 'The exchange and service cluster labels are the author\'s attributions, and the two-actor reading is stated as a working hypothesis rather than a finding. Behavioural differences between waves do not by themselves establish separate operators.',
       },
       {
@@ -289,7 +293,7 @@ const PRIMARY_GROUPS: PrimaryGroup[] = [
 function evidenceMetadata(href: string): { id: string; label: string; iso: string } {
   const id = /^\/record\/sources\/([^/]+)\//.exec(href)?.[1] ?? '';
   if (!id) return { id: '', label: 'publication date not established here', iso: '' };
-  const iso = sourceById(id)?.published ?? xPostById(id)?.posted;
+  const iso = sourceById(id)?.published ?? xPostById(id)?.posted ?? nostrPostById(id)?.posted;
   return {
     id,
     label: iso ? isoToHuman(iso) : 'publication date not established',
@@ -337,6 +341,9 @@ const primaryGroups = PRIMARY_GROUPS.map((group) => ({
 const primaryCount = primaryGroups.reduce((n, g) => n + g.entries.length, 0);
 
 const posts = xPosts();
+// X and nostr together: the sentence below describes every registered social
+// post, whichever lane it arrived by.
+const socialPostCount = posts.length + nostrPosts().length;
 
 /* --- Published code ------------------------------------------------------ */
 
@@ -543,7 +550,7 @@ const held = HELD.map((e) => ({
       combined without carrying those assumptions with them.
       <Claim
         basis="reported"
-        scope="The differing Mk4-class candidate-space figures attributed below to Coinkite, LLFOURN, Talip and Block"
+        scope="The differing Mk4-class candidate-space figures attributed below to Coinkite, LLFOURN, otaliptus and Block"
         source="Each publisher's own stated estimate and assumptions, as captured; no independent measurement of a device is made here"
         href="/how-it-broke/entropy/"
       />
@@ -624,7 +631,7 @@ const held = HELD.map((e) => ({
       pages wearing the costume of content. They are one clause each now.
     */}
     <p>
-      Beyond this register, {posts.length} social posts are registered with
+      Beyond this register, {socialPostCount} social posts are registered with
       their own evidence records, on
       <a href="/record/#registered-posts">the registered-post wall</a>, and the
       chain monitors' current totals are read live out of the archive on
@@ -652,6 +659,16 @@ const held = HELD.map((e) => ({
     </p>
   </section>
 
+  <section id="firmware">
+    <h2>Firmware releases</h2>
+    <p>
+      The firmware release register moved to its own page:
+      <a href="/record/firmware/">which firmware, on which model, generated an
+      affected seed</a>, including the v4.0.0/v4.0.1 boundary dispute and the
+      vendor's stated lower bound.
+    </p>
+  </section>
+
   <section id="code">
     <h2>Published code</h2>
 
@@ -661,7 +678,7 @@ const held = HELD.map((e) => ({
       classified by what it asks the reader to supply rather than by who wrote it.
       Two accept no wallet material at all; the third reads a firmware source tree.
       Upstream files and the pull requests filed in response are listed separately,
-      as source and patches rather than tools a reader runs. As of 5 August 2026 no
+      as source and patches rather than tools a reader runs. As of 6 August 2026 no
       malicious seed-checker was found in public code indexes, which is a dated
       observation and not an all-clear.
     </p>
@@ -775,11 +792,11 @@ const held = HELD.map((e) => ({
     <h3>The negative finding, and its limits</h3>
 
     <p>
-      As of 5 August 2026, no malicious seed-checker was found in public code
+      As of 6 August 2026, no malicious seed-checker was found in public code
       indexes.
       <Claim
         basis="unverified"
-        scope="The absence of a malicious COLDCARD seed-checker in public code indexes as of 5 August 2026"
+        scope="The absence of a malicious COLDCARD seed-checker in public code indexes as of 6 August 2026"
         source="A GitHub public-code search on that date surfaced none; the search is not exhaustive, and a tool distributed outside code hosting would not appear in it"
       />
       That is a time-bounded observation and not an all-clear: it says

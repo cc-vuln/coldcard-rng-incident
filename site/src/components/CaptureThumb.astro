@@ -16,6 +16,7 @@
  */
 import { xMedia } from '../lib/xmedia';
 import { xPostById, withholdsCapturedMedia, isoToHuman } from '../lib/archive';
+import Timestamp from './Timestamp.astro';
 
 interface Props {
   /** Registry id of the cited x_post. */
@@ -33,6 +34,7 @@ const view = post && shot
   ? {
       href: `/record/sources/${id}/`,
       src: shot.src,
+      captured: shot.captured,
       alt: `Captured screenshot of the post by @${post.author}, posted ${postedLabel}`,
     }
   : null;
@@ -41,6 +43,7 @@ const view = post && shot
 {view && (
   <a class="ct" href={view.href}>
     <img src={view.src} alt={view.alt} loading="lazy" />
+    <span class="ct__captured">captured <Timestamp iso={view.captured} /></span>
   </a>
 )}
 
@@ -63,5 +66,14 @@ const view = post && shot
     max-height: 10rem;
     object-fit: cover;
     object-position: top;
+  }
+  .ct__captured {
+    display: block;
+    padding: .35rem .5rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .56rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
   }
 </style>

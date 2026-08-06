@@ -5,6 +5,7 @@ import Timestamp from '../../../components/Timestamp.astro';
 import {
   changeLog, sourceById, diffText, parseDiff,
   displayTitle, revisions, withholdsCapturedText, sources, snapshots, xPosts,
+  nostrPosts, nostrCaptures, shortNpub,
   groupOf, xArtifacts, summary, withholdsCapturedMedia,
 } from '../../../lib/archive';
 import { xMedia } from '../../../lib/xmedia';
@@ -69,6 +70,7 @@ type Entry = {
   orgLine: string;
   note: string;
   imgSrc: string | undefined;
+  imgCapturedIso: string;
   hasShot: boolean;
   lines: { cls: string; text: string }[];
   hasLines: boolean;
@@ -106,6 +108,7 @@ const revisionEntries: Entry[] = revList.map((revision) => {
     orgLine: `${revision.sourceId} · ${[src.org, src.kind].filter(Boolean).join(' / ')}`,
     note: revision.review.summary,
     imgSrc: undefined,
+    imgCapturedIso: '',
     hasShot: false,
     lines: parsed.map((l) => ({
       cls: 'dl dl--' + l.kind,
@@ -137,6 +140,7 @@ const firstEntries: Entry[] = sources().flatMap((src) => {
     orgLine: src.org ?? '',
     note: summary(src.note?.trim().split('\n').join(' '), 25),
     imgSrc: undefined,
+    imgCapturedIso: '',
     hasShot: false,
     lines: [],
     hasLines: false,
@@ -167,6 +171,7 @@ const postEntries: Entry[] = xPosts().map((post) => {
     orgLine: `@${post.author}${post.org ? ` · ${post.org}` : ''}`,
     note: summary(post.why, 25),
     imgSrc: shot?.src,
+    imgCapturedIso: shot?.captured ?? '',
     hasShot: Boolean(shot),
     lines: [],
     hasLines: false,
@@ -200,13 +205,43 @@ const opEntries: Entry[] = changeLog()
       orgLine: '',
       note: publicErrorSummary(e.error),
       imgSrc: undefined,
+      imgCapturedIso: '',
       hasShot: false,
       lines: [],
       hasLines: false,
     };
   });
 
-const ordered = [...revisionEntries, ...firstEntries, ...postEntries, ...opEntries]
+// Registered nostr posts. Same shape as the X entries, minus the screenshot:
+// this lane captures signed events, not images. The kind is deliberately not
+// 'post', so the "X posts" filter below never sweeps them up.
+const nostrEntries: Entry[] = nostrPosts().map((post) => {
+  const held = nostrCaptures(post).length;
+  return {
+    iso: post.posted ?? '',
+    kind: 'nostr-post',
+    group: 'nostr',
+    search: `${post.id} ${post.author} ${post.org ?? ''}`,
+    cls: 'chev ch ch--post',
+    href: `/record/sources/${post.id}/`,
+    title: displayTitle(post),
+    label: held ? 'nostr post captured' : 'nostr post registered, capture pending',
+    inherited: false,
+    baselineInherited: false,
+    showDelta: false,
+    added: 0,
+    removed: 0,
+    orgLine: `${shortNpub(post.author)}${post.org ? ` · ${post.org}` : ''}`,
+    note: summary(post.why, 25),
+    imgSrc: undefined,
+    imgCapturedIso: '',
+    hasShot: false,
+    lines: [],
+    hasLines: false,
+  };
+});
+
+const ordered = [...revisionEntries, ...firstEntries, ...postEntries, ...nostrEntries, ...opEntries]
   .filter((e) => e.iso)
   .sort((a, b) => (a.iso < b.iso ? 1 : a.iso > b.iso ? -1 : 0));
 
@@ -249,6 +284,11 @@ const FACET_SETS = [
       { value: 'collection', label: 'Collection differences', matchAttr: 'data-kind' },
       { value: 'first', label: 'First captures', matchAttr: 'data-kind' },
       { value: 'post', label: 'X posts', matchAttr: 'data-kind' },
+      // Present only while nostr posts exist, so an empty lane changes
+      // nothing about this page.
+      ...(nostrEntries.length
+        ? [{ value: 'nostr-post', label: 'Nostr posts', matchAttr: 'data-kind' }]
+        : []),
       { value: 'operational', label: 'Operational log', matchAttr: 'data-kind' },
     ],
   },
@@ -264,6 +304,7 @@ const FACET_SETS = [
       { value: 'monitor', label: 'Monitors' },
       { value: 'firsthand', label: 'First-hand' },
       { value: 'x', label: 'X posts' },
+      ...(nostrEntries.length ? [{ value: 'nostr', label: 'Nostr posts' }] : []),
     ],
   },
 ];
@@ -356,6 +397,7 @@ const FACET_SETS = [
               </div>
               <div class="ch__shot" hidden={!e.hasShot}>
                 <img src={e.imgSrc} alt={`Captured screenshot: ${e.title}`} loading="lazy" />
+                <span class="ch__captured">captured <Timestamp iso={e.imgCapturedIso} /></span>
               </div>
               <p class="ch__org" hidden={!e.orgLine}>{e.orgLine}</p>
               <p class="ch__prov" hidden={!e.baselineInherited}>compared against an Internet Archive baseline</p>
@@ -499,6 +541,15 @@ const FACET_SETS = [
     overflow: hidden; max-height: 260px; background: var(--surface-2);
   }
   .ch__shot img { display: block; width: 100%; height: auto; }
+  .ch__captured {
+    display: block;
+    padding: .35rem var(--inset-box);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .56rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
+  }
 
   .ch__org { font-size: .76rem; color: var(--ink-3); margin-top: .3rem; }
   .ch__org[hidden] { display: none; }

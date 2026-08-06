@@ -5,7 +5,9 @@
 reddit-ai-discovery-thread switched at 20260804T024121Z (raw JSON
 artefact plus 157 KB flattening, 469 comments, zero chrome lines).
 Path A still needs a maintainer-registered API app before it can be
-tested. The remaining four reddit sources switch after the pilot settles.
+tested. The remaining four render-era sources switched the same day, and
+every reddit source registered since captures as `reddit-json` from its
+first snapshot (129 sources as of 5 Aug 2026).
 **Date:** 4 Aug 2026
 
 The question this answers: the five held reddit sources are captured by
@@ -90,6 +92,37 @@ snapshot/diff/meta.json shape:
   (moderator), where the render today shows a vanished subthread that
   must be inferred.
 
+## What the migration actually deleted
+
+**Recorded 6 Aug 2026, after the fact.** This section did not exist while the
+migration ran, which is the root of the problem it describes.
+
+Switching the five sources deleted their pre-migration captures rather than
+leaving them beside the new ones: 134 captures taken between 1 and 4 Aug 2026,
+402 files, plus their diffs and every corresponding line in
+`archive/index.jsonl`. Those sources therefore begin on 4 Aug 2026 in the
+register, the change record and the poll log.
+
+| Source | Captures deleted | Range |
+|---|---|---|
+| `reddit-ai-discovery-thread` | 35 | 3 to 4 Aug |
+| `reddit-coldcard-letter-db-leak` | 30 | 3 to 4 Aug |
+| `reddit-june-letter-report` | 30 | 3 to 4 Aug |
+| `reddit-wallet-brand-link-warning` | 23 | 3 to 4 Aug |
+| `reddit-drained-timeline` | 16 | 1 to 3 Aug |
+
+A backup existed outside the repository until 6 Aug 2026 and was then deleted
+deliberately, not restored: it was duplicate rendered-page capture of threads
+the archive still holds in a better form, from before the capture process had
+settled. That is an operator decision about superseded material, and it is
+recorded rather than quiet: `/corrections/` carries it, because the site had
+claimed an append-only rule the archive did not meet.
+
+The rule that comes out of this, now in `AGENTS.md`: **a migration is not a
+licence to delete history.** When a capture method changes, the old captures
+stay and the new ones are added beside them. If a deletion is genuinely wanted,
+it is decided and written down before it happens.
+
 ## What this retires and what it costs
 
 - The `reddit-engagement`, `reddit-achievement-badges` and
@@ -97,6 +130,15 @@ snapshot/diff/meta.json shape:
   noise they filter is not in the data. They stay bound for replay of
   PDF-era snapshots (meta.json records the list per snapshot) and are
   simply not declared on the new captures.
+
+  Revised 6 Aug 2026: that was true of two of the three. `reddit-engagement`
+  turned out to be bound to nothing and recorded in no held sidecar, so
+  nothing ever replayed it, and it was removed with its test. The other two
+  are bound in `SOURCE_NORMALISERS` and stay. The distinction is the one that
+  matters for any future retirement: a normalizer is removable only when no
+  held `meta.json` names it, because the audit replays from those sidecars.
+  `reddit-more-stub-counts` appears in 153 of them and is not removable on
+  the grounds of being unbound.
 - The PDF and its "as rendered" provenance go away for reddit. Reddit
   sources have never used screenshot display (the capture-display policy
   covers staged X post images only), and excerpt discipline already
@@ -126,7 +168,9 @@ Arctic Shift (the maintained Pushshift successor, free, 2005 to present)
 can sometimes recover bodies of comments authors later deleted, and is
 also the natural replacement for the Wayback cross-check on reddit
 sources, since Reddit has blocked the Internet Archive beyond its
-homepage since August 2025. But the project honours removal requests, so
-recovering author-deleted bodies by default needs an explicit decision
-in `capture-display-policy.md` before any recovery source is wired in.
-Until then, deletions are recorded as deletions.
+homepage since August 2025. Recovering author-deleted bodies is a different
+act from preserving what was public when the archive read it: it reconstructs
+text this project never held, from a third party, after the author withdrew
+it. That needs an explicit decision in `capture-display-policy.md` before any
+recovery source is wired in, and the 6 Aug 2026 revision of section 5 does not
+settle it either way. Until then, deletions are recorded as deletions.

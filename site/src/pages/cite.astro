@@ -1,0 +1,157 @@
+---
+/**
+ * How to cite this record.
+ *
+ * Written because the two mistakes people make citing an archive both damage
+ * the thing the archive is for: attributing a source's claim to the archive
+ * that preserved it, and citing a living record with no way to say which state
+ * of it was read. The page answers both, and the second is why /version.json
+ * exists.
+ *
+ * Built as one HTML string like /about/, because the examples are full of
+ * braces and BibTeX backslashes and Astro's expression parser owns `{` inside
+ * templates. Backslashes are doubled here: this is a JavaScript template
+ * literal, where a bare \u would be read as a unicode escape.
+ */
+import Article from '../layouts/Article.astro';
+import CorrectionNotice from '../components/CorrectionNotice.astro';
+import { buildVersion } from '../lib/version';
+import { humanDate } from '../lib/updated';
+
+const CONTACT = import.meta.env.PUBLIC_CONTACT || 'info@cc-vuln.org';
+const NPUB = import.meta.env.PUBLIC_NOSTR_NPUB || '';
+const REPO = 'https://github.com/cc-vuln/coldcard-rng-incident';
+const version = buildVersion();
+const commit = version.short ?? 'unknown';
+const today = humanDate(version.built);
+const todayParts = version.built.slice(0, 10).split('-').map(Number);
+const accessedParts = `[${todayParts[0]}, ${todayParts[1]}, ${todayParts[2]}]`;
+
+// One line, in plain words, and only when the build carries the project's
+// nostr key: a fresh clone without PUBLIC_NOSTR_NPUB omits the block rather
+// than advertising an account it cannot name. The matching NIP-05 endpoint
+// at /.well-known/nostr.json serves an empty names map in that case.
+const nostrSection = NPUB
+  ? `<h2 id="nostr">Announcements on nostr</h2>
+<p>The project announces record updates on nostr as <code>${NPUB}</code>. The identifier <code>_@cc-vuln.org</code> verifies that key against this domain, so a client can confirm the account is this project's and not an impersonator's. Announcements point at the record; they are not part of it, and nothing cited here depends on one.</p>`
+  : '';
+
+const body = `<div class="ve-card ve-card--blue">
+<div class="ve-card__label lbl-blue">The short version</div>
+<p><strong>Cite the publisher first and this archive second.</strong> What Coinkite, Block, LLFOURN or anyone else said is theirs; what this project contributes is the preserved state, the time it was observed, and the record that the state existed. A citation that names only cc-vuln.org attributes someone else's statement to us, which is the one thing this record is built not to do.</p>
+</div>
+
+<h2 id="a-source-in-the-record">Citing a source held in the record</h2>
+
+<p>This is the normal case, and the reason to involve this archive at all is usually that the page has since changed or gone. Give the original publication, then the state and where it is preserved:</p>
+
+<pre class="code">Coinkite. "Mk3 security advisory." 30 July 2026.
+  https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/
+  State of 1 August 2026, 00:17:31 UTC preserved at
+  https://cc-vuln.org/record/sources/coinkite-mk3-advisory/</pre>
+
+<p>Every registered source has a page of that shape at <code>/record/sources/</code>, listing each state held, when it was observed, and what changed between one state and the next. Quote the capture time when the wording matters, which for a live incident it usually does: that advisory said three materially different things in thirty hours, and a citation without a time does not say which one you read.</p>
+
+<p><strong>Some held states were not collected by this project.</strong> The two earliest states of that advisory were recovered from the Internet Archive after the fact, and are marked <code>provenance: wayback</code> wherever they appear. Cite those to the Wayback Machine, which collected them, rather than to this project, which inherited them. The source page says which is which for every state it holds.</p>
+
+<h2 id="the-project">Citing the project itself</h2>
+
+<p>Appropriate when you are citing the collection, the change record, this project's own reading of the firmware source, or a figure it derived rather than one it reports.</p>
+
+<pre class="code">cc-vuln.org. COLDCARD predictable-RNG incident archive. 2026.
+  https://cc-vuln.org/ (commit ${commit}, accessed ${today})</pre>
+
+<p>The author is the project, not a person: the site is <a href="/about/#who-publishes-this">published pseudonymously</a>, and attribution to "cc-vuln.org" is both what the licence asks for and all there is.</p>
+
+<pre class="code">@misc{cc-vuln-coldcard-2026,
+  author       = {{cc-vuln.org}},
+  title        = {{COLDCARD} predictable-{RNG} incident archive},
+  year         = {2026},
+  howpublished = {\\url{https://cc-vuln.org/}},
+  note         = {Commit ${commit}, accessed ${today}}
+}</pre>
+
+<pre class="code">{
+  "id": "cc-vuln-coldcard-2026",
+  "type": "dataset",
+  "title": "COLDCARD predictable-RNG incident archive",
+  "author": [{ "literal": "cc-vuln.org" }],
+  "publisher": "cc-vuln.org",
+  "issued": { "date-parts": [[2026]] },
+  "URL": "https://cc-vuln.org/",
+  "accessed": { "date-parts": [${accessedParts}] },
+  "note": "commit ${commit}"
+}</pre>
+
+<p>A repository citation, including for the capture tooling, is in <a href="${REPO}/blob/main/CITATION.cff" rel="noopener">CITATION.cff</a>, which GitHub renders as a "Cite this repository" button.</p>
+
+<h2 id="naming-the-version">Naming the state you read</h2>
+
+<p>This record changes: sources are polled on a schedule, new material is registered, and pages are corrected. An "accessed" date alone therefore points at nothing recoverable. Every build stamps the commit it was made from, in the page footer and at <a href="/version.json">/version.json</a>, along with how much of the record existed at that commit. Quote that commit and the state you read can be reconstructed exactly from the <a href="${REPO}" rel="noopener">public repository</a>.</p>
+
+<p>There is no DOI. Citing the URL together with the commit identifies the state precisely, which a DOI on a moving record would not; if that changes it will be published here and in <code>CITATION.cff</code>.</p>
+
+<h2 id="what-a-citation-asserts">What citing this record does and does not assert</h2>
+
+<div class="ve-card ve-card--recessed">
+<div class="ve-card__label lbl-accent">Read the marker, not the site</div>
+<ul class="node-list" style="margin-bottom:0">
+<li><strong>A held capture evidences publication, not truth.</strong> It establishes that this text was served from that URL when the archive read it. Whether the claim inside it is correct is a separate question, and the site marks that separately.</li>
+<li><strong>Carry the evidence basis across.</strong> Every material claim here is marked <a href="/about/#claim-statuses">verified, reported, derived or unverified</a>, and separately <strong>contested</strong> where sources disagree. Citing a reported claim as though this site had verified it misrepresents both of us. Where the site presents several parties' incompatible figures, it is because it does not adjudicate between them, and a citation that picks one should say who published it.</li>
+<li><strong>This is not an evidentiary chain.</strong> There is no timestamping authority and no signature over any capture. Snapshot hashes are this project's own change-detection and audit data, and they are not published as proof of provenance or tamper resistance. Where independence matters, cite a Wayback Machine copy alongside, and where none exists, say so.</li>
+<li><strong>Published pages carry excerpts, not mirrors.</strong> Source pages show a diff, a short excerpt and a link. The complete captures stay local, so an excerpt is evidence of the passage quoted rather than of everything the source said.</li>
+</ul>
+</div>
+
+<h2 id="stable-identifiers">What is stable</h2>
+
+<p>Citations are made to last, so these are commitments rather than current behaviour:</p>
+
+<ul>
+<li><strong>Source identifiers are permanent and never reused.</strong> <code>coinkite-mk3-advisory</code> means one source for good, so <code>/record/sources/coinkite-mk3-advisory/</code> is safe to cite.</li>
+<li><strong>Retired routes redirect permanently rather than disappearing.</strong> Pages have been merged and rebuilt already; every published URL still resolves, and that is a build gate rather than an intention.</li>
+<li><strong>Snapshots are append-only, from 6 August 2026.</strong> A snapshot is not rewritten or deleted, including one this project later decides was wrong: a bad capture is corrected by a later capture or a classification beside it, never by editing the record. Redacting personal data this project itself leaked is the one standing exception. The rule is dated because the archive has not always met it: a capture-method migration on 4 August 2026 deleted the earlier captures of five Reddit sources, and two sets of duplicate media from the first days of collection were removed on 6 August. Both are recorded, the first in <a href="/corrections/">corrections</a> and both in the repository changelog with file sizes and hashes. Everything held now, and everything captured since, is covered by the rule as stated.</li>
+<li><strong>The register is published as data.</strong> <a href="/record/sources.json">/record/sources.json</a> against a versioned <a href="/schemas/source-register-v1.json">JSON Schema</a>, with the change record at <a href="/record/changes.json">/record/changes.json</a>. Machine consumers should read those rather than scraping the pages.</li>
+</ul>
+
+${nostrSection}
+
+<h2 id="licence">Licence and attribution</h2>
+
+<p>The project's own writing, diagrams and data are <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>: copy, mirror and adapt them, including commercially, with attribution to cc-vuln.org and a link. The capture tooling and the site code are MIT. Attribution is not only courtesy here: the claims are graded and linked to artefacts, and material stripped of its attribution and markers can no longer be rechecked, which turns a record into an assertion.</p>
+
+<p>Material captured from other people is neither of those licences. It remains its authors' copyright, held for research and archival purposes and quoted with attribution. Reusing it is between you and them. Full terms are in <a href="${REPO}/blob/main/LICENSE-CONTENT.md" rel="noopener">LICENSE-CONTENT.md</a>.</p>
+
+<h2 id="for-journalists">For journalists and researchers</h2>
+
+<p>The project is independent, pseudonymous, unfunded and not affiliated with any party in the record. It carries no advertising and sells nothing. Questions about method, requests for the reasoning behind a figure, and pointers to material the record is missing all go to <a href="mailto:${CONTACT}">${CONTACT}</a>.</p>
+
+<div class="ve-card">
+<div class="ve-card__label lbl-accent">What this project will and will not do</div>
+<p><strong>Will:</strong> point to the primary material behind anything published here; explain how a capture was taken, how a difference was classified or how a derived figure was calculated; say plainly where the evidence runs out, which is collected under <a href="/about/#known-limits">known limits</a>; and correct anything shown to be wrong, in public, at <a href="/corrections/">/corrections/</a>.</p>
+<p><strong>Will not:</strong> adjudicate between the parties, or supply a quote that does; assess an individual's wallet or holdings; recommend a course of action; or withdraw correctly reported material from the record because a party would prefer it gone.</p>
+</div>
+
+<p>The whole collection, the capture tooling, the review classifications and this site are public at <a href="${REPO}" rel="noopener">the source repository</a>. Anything asserted here can be re-derived from it, which is the point.</p>`;
+
+const renderedBody = body.replaceAll(
+  '<a class="ext" href=',
+  '<a class="ext" rel="noopener nofollow" href=',
+);
+---
+
+<Article
+  title="How to cite this record"
+  description="Citation guidance for the COLDCARD RNG incident archive: how to cite a preserved source state, how to name the version you read, and what a citation to this record does and does not assert."
+  standfirst="Cite the publisher first and this archive second, and name the state you read."
+  depth="plain"
+  kicker="Cite"
+  next={{
+    href: '/corrections/',
+    label: 'Corrections',
+    note: 'Every correction to a published claim here, with what it said and what changed its mind.',
+  }}
+>
+  <CorrectionNotice page="/cite/" />
+  <div class="ported" set:html={renderedBody} />
+</Article>

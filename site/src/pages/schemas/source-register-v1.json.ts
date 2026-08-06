@@ -46,6 +46,7 @@ const schema = {
           title: { type: 'string' },
           url: { type: 'string', format: 'uri' },
           author: { type: 'string' },
+          platform: { type: 'string', enum: ['x', 'nostr'] },
           organisation: { type: ['string', 'null'] },
           posted: { type: ['string', 'null'], format: 'date-time' },
           role: { type: 'string' },

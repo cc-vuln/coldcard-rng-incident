@@ -5,10 +5,11 @@ import RecordSearch from '../../components/RecordSearch.astro';
 import Contribute from '../../components/Contribute.astro';
 import Timestamp from '../../components/Timestamp.astro';
 import PageNext from '../../components/PageNext.astro';
+import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import {
-  sources, snapshots, stats, tsToIso, xPosts, groupOf,
-  lastPolled, revisions, displayTitle, kindLabel, xArtifacts, lastCaptureError,
-  summary, goneSources, withholdsCapturedMedia,
+  sources, snapshots, stats, tsToIso, xPosts, nostrPosts, groupOf,
+  lastPolled, revisions, displayTitle, kindLabel, xArtifacts, nostrCaptures,
+  shortNpub, lastCaptureError, summary, goneSources, withholdsCapturedMedia,
 } from '../../lib/archive';
 import { xMedia } from '../../lib/xmedia';
 
@@ -55,11 +56,9 @@ const wall = xPosts()
     whenIso: p.posted ?? '',
     whenFallback: 'posting time not established',
     src: shot!.src,
-    // The staged file is named for its capture timestamp, so "most recent"
-    // means most recently captured, not most recently posted.
-    capturedTs: shot!.name.replace(/\.[^.]+$/, ''),
+    capturedIso: shot!.captured,
   }))
-  .sort((a, b) => b.capturedTs.localeCompare(a.capturedTs))
+  .sort((a, b) => b.capturedIso.localeCompare(a.capturedIso))
   .slice(0, WALL_MAX);
 
 /*
@@ -141,9 +140,33 @@ const posts = xPosts().map((post) => {
   };
 }).sort((a, b) => (b.posted ?? '').localeCompare(a.posted ?? ''));
 
-const FACETS = [
+// Nostr posts sit on the same wall as X posts through the same card
+// component. The differences are the badge, the byline (a shortened npub
+// rather than an @handle) and the capture count, which is directories of
+// held event files rather than flat artefacts. There are no screenshots in
+// this lane, so nothing here touches the capture wall above.
+const nostrCards = nostrPosts().map((post) => {
+  const held = nostrCaptures(post).length;
+  return {
+    ...post,
+    title: displayTitle(post),
+    group: 'nostr',
+    excerpt: summary(post.why),
+    search: post.why ?? '',
+    byLine: `${shortNpub(post.author)}${post.org ? ` · ${post.org}` : ''}`,
+    postedLabel: 'posting time not established',
+    postedIso: post.posted ?? '',
+    held,
+    captured: held > 0,
+  };
+}).sort((a, b) => (b.posted ?? '').localeCompare(a.posted ?? ''));
+const hasNostr = nostrCards.length > 0;
+
+const GROUP_FACETS = [
   { value: 'vendor', label: 'Vendor' },
   { value: 'x', label: 'X posts' },
+  // Added only while nostr posts exist, so an empty lane changes nothing.
+  ...(hasNostr ? [{ value: 'nostr', label: 'Nostr posts' }] : []),
   { value: 'research', label: 'Research' },
   { value: 'analysis', label: 'Analysis' },
   { value: 'community', label: 'Community' },
@@ -152,10 +175,25 @@ const FACETS = [
   { value: 'monitor', label: 'Monitors' },
   { value: 'firsthand', label: 'First-hand' },
 ];
+
+/*
+ * Status is a second axis, not another kind: a gone source is still a vendor
+ * page or a repo file. It gets its own row so choosing it does not clear the
+ * type choice, and the row exists only while something is gone, so an empty
+ * state never advertises a filter that would show nothing. Cards carry
+ * `data-gone`, so this is a presence facet rather than an equality match.
+ */
+const STATUS_FACETS = vanished.length > 0
+  ? [{ attr: 'data-gone', label: 'Gone from the web' }]
+  : [];
+const FACET_SETS = [
+  { label: 'Type', facets: GROUP_FACETS },
+  ...(STATUS_FACETS.length ? [{ label: 'Status', facets: STATUS_FACETS }] : []),
+];
 ---
 <Base title="The record" description="Tracked sources, held captures and reviewed source revisions." kicker="The record">
   <div class="wrap">
-    <h1 class="rec__h1">Evidence</h1>
+    <h1 class="rec__h1">The record</h1>
     <p class="rec__lede">
       What each party said, when relevant source content changed, and what the
       archive classified as collection-only differences. {s.snapshots} snapshots
@@ -171,7 +209,8 @@ const FACETS = [
       <div><strong>{s.sources}</strong><span>sources tracked</span></div>
       <div><strong>{s.snapshots}</strong><span>snapshots held</span></div>
       <div><strong>{s.sourceChanges}</strong><span>source changes</span></div>
-      <div><strong>{s.xPosts}</strong><span>posts captured</span></div>
+      <div><strong>{s.xPosts}</strong><span>posts registered</span></div>
+      <div hidden={s.nostrPosts === 0}><strong>{s.nostrPosts}</strong><span>nostr posts registered</span></div>
     </div>
 
     <p class="rec__fresh" hidden={!hasFreshness}>
@@ -191,6 +230,7 @@ const FACETS = [
           <a class="wall__card" href={w.href}>
             <span class="wall__shot">
               <img src={w.src} alt={`Captured screenshot: ${w.title}`} loading="lazy" />
+              <span class="wall__captured">captured <Timestamp iso={w.capturedIso} /></span>
             </span>
             <span class="wall__title">{w.title}</span>
             <span class="wall__by">
@@ -212,15 +252,18 @@ const FACETS = [
 
     <div class="rec__links">
       <a href="/record/changes/">Reviewed source changes &rarr;</a>
-      <a href="/record/funds/">Theft accounting: what moved and where it went &rarr;</a>
+      <a href="/record/funds/">Funds accounting: what moved and where it went &rarr;</a>
       <a href="/record/timeline/">Incident timeline, and what was known when &rarr;</a>
-      <a href="/record/reference/">Reference: primary analysis, published code, firmware releases &rarr;</a>
+      <a href="/record/firmware/">Firmware releases: the affected ranges &rarr;</a>
+      <a href="/record/reference/">Reference: primary analysis and published code &rarr;</a>
       <a href="/record/sources.json">Source register as JSON &rarr;</a>
       <a href="/record/changes.json">Change feed as JSON &rarr;</a>
     </div>
 
+    <CorrectionNotice page="/record/" />
+
     {vanished.length > 0 && (
-      <p class="vanished" aria-label="Sources gone from the web">
+      <p class="vanished" id="gone" aria-label="Sources gone from the web">
         <span class="vanished__tag">Gone from the web</span>
         {vanished.length === 1
           ? 'One registered source no longer resolves; the capture held here is, as far as we can establish, the only remaining public copy: '
@@ -240,7 +283,7 @@ const FACETS = [
       target=".ec"
       section=".rec__tier"
       placeholder="Search sources, authors, orgs"
-      facets={FACETS}
+      facetSets={FACET_SETS}
     />
 
     {grouped.map((g) => (
@@ -291,6 +334,21 @@ const FACETS = [
             excerpt={p.excerpt}
             search={p.search}
             captures={p.captured ? 1 : 0}
+          />
+        ))}
+        {nostrCards.map((p) => (
+          <EvidenceCard
+            href={`/record/sources/${p.id}/`}
+            title={p.title}
+            kind="nostr post"
+            group="nostr"
+            id={p.id}
+            by={p.byLine}
+            when={p.postedLabel}
+            whenIso={p.postedIso}
+            excerpt={p.excerpt}
+            search={p.search}
+            captures={p.held}
           />
         ))}
       </div>
@@ -347,6 +405,15 @@ const FACETS = [
     background: var(--surface-2); border-bottom: 1px solid var(--rule);
   }
   .wall__shot img { display: block; width: 100%; height: auto; }
+  .wall__captured {
+    display: block;
+    padding: .3rem .45rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .54rem;
+    letter-spacing: .04em;
+    color: var(--ink-3);
+  }
   .wall__title {
     font-size: .74rem; font-weight: 600; color: var(--ink); line-height: 1.35;
     padding: .5rem .6rem .1rem;
