@@ -4,6 +4,21 @@ The site is the public record of the July 2026 COLDCARD predictable-RNG
 incident: it preserves what each party published and how it changed, organises
 the material, and explains it without adjudicating between the people involved.
 
+The scale already documented makes the incident likely to rank among the most
+consequential in Bitcoin's history. Treat that as a provisional editorial
+assessment, not a settled ranking: attribution totals differ and the number of
+distinct people affected is unknown. A core historical purpose of the project
+is to preserve the contemporaneous public record for posterity, including
+material later edited or removed.
+
+Organise explanations, opinions and speculation so a reader can understand how
+public interpretation changed over time, including rapid shifts during the
+first hours and days. Conspiracy theories alleging an inside job or that
+law-enforcement or intelligence agencies caused or directed the incident belong
+only as dated, attributed public reaction. Preserve their later retractions,
+corrections and changes of view, and never present their inclusion as evidence
+that a theory was true.
+
 Read `BACKLOG.md` before starting work. It is the current state of what is
 missing, wrong, or blocked.
 
@@ -12,6 +27,8 @@ missing, wrong, or blocked.
 ```
 sources.toml          the single source registry. Adding a source is one block.
 revision-reviews.toml additive classification of detected differences
+corrections.toml      this project's own corrections, published at /corrections/
+CITATION.cff          how to cite the repository; /cite/ is the fuller guidance
 scripts/
   archive_lock.py     one advisory lock shared by every archive writer
   capture.py          poll, extract text, hash, diff, log       (stdlib only)
@@ -21,22 +38,40 @@ scripts/
   notify.sh           capture, alert on change or incomplete poll
   scheduled_runner.py due-state runner for recurring known-URL capture
   check_publishable.py, check_reviews.py   audit gates run by `just audit`
+  discovery_common.py   keyword sieve, seen state and the DISCOVERY.md queue,
+                        shared by every discovery lane below
   discover_stackernews.py  find new incident threads on Stacker News (gentle)
   discover_reddit.py    find new incident threads on Reddit (via capture browser)
   discover_bitcointalk.py  find new incident threads on BitcoinTalk (direct)
   discover_x.py         find new posts from watched X accounts (manual probation)
+  ingest_nostr.py       capture one nostr note and its replies via nak
+  discover_nostr.py     find new incident notes via NIP-50 search (manual probation)
+  nostr_post.py         manual kind-1 post from the project key (--yes)
+  nostr_publish_profile.py  publish the kind-0 profile and kind-10002 relay list
   agent-discovery-intake.sh  community intake and explicit X triage agent
   agent-x-discovery-triage-prompt.md  read-only X recommendation prompt
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
+  build_manifest.py   describe every held capture without reproducing any
+  make_deposit.py     stage the archival deposit; stages and reports, never uploads
   agent-review.sh     classify new diffs via REVIEW_AGENT_BIN (optional)
   agent-maintenance.sh  run agent work with the capture timers paused
+  agent-run-common.sh   the containment every agent driver shares
+  run-agent.sh        run one agent deprivileged, with a built environment
+  agent-prompt-rules.md  standing rules injected into all four prompts
+  agent_guard.py      check what an agent run did; refuse if it overreached
+  check_registry.py   registry host, fetch_post and no-mutation rules
+  registry_hosts.toml hosts sources.toml may name; a human edit
+  hydrate_candidates.py  fetch candidate bodies so the agent needs no network
+  render_agent_prompt.py  join a trusted template to fenced untrusted evidence
+  agent-permissions.sh   apply and re-check the agent sandbox's file modes
   *.{service,timer}.example  systemd units for recurring capture and review
 archive/
   snapshots/<id>/<TS>.{html,txt,meta.json}
   diffs/<id>/<TS>.diff
   index.jsonl         append-only: every poll, changed or not
   runs/<TS>-p<PID>.json  structured result for every non-dry capture
+  nostr/<id>/<TS>/      one note capture: event.json/txt, replies.json, meta.json
 docs/
   README.md           document index and placement rules
   design/             future-facing technical designs
@@ -44,6 +79,9 @@ docs/
 site/                 Astro front end, reads archive/ at build time
   /llms.txt           generated machine orientation and citation guidance
   /record/*.json      generated source register and change feed
+  /cite/              how to cite the record, and what a citation asserts
+  /corrections/       this project's own corrections, from corrections.toml
+  /version.json       the commit a build was made from, and the record's size
 ```
 
 Keep only durable project knowledge in `docs/`. Put temporary audits,
@@ -53,9 +91,10 @@ Never commit assessment output.
 ## The two halves have different lifespans
 
 `scripts/` and `archive/` must still work in ten years: stdlib-only Python, no
-dependency tree to rot, with `gallery-dl` the one exception and confined to
-social capture. The site is a presentation layer and is rebuildable, so Astro and
-npm live entirely under `site/`. Do not let site dependencies leak outward.
+dependency tree to rot, with `gallery-dl` and `nak` the two exceptions, both
+confined to social capture and posting. The site is a presentation layer and is
+rebuildable, so Astro and npm live entirely under `site/`. Do not let site
+dependencies leak outward.
 
 ## Epistemic model
 
@@ -108,7 +147,7 @@ stay there.
 This has drifted twice, in both cases toward writing that is more accurate and
 less useful:
 
-- `594.51379184 BTC gross` is right on `/record/funds/`, where the arithmetic is
+- `594.47722484 BTC` is right on `/record/funds/`, where the arithmetic is
   the subject. On the hero it is noise. Use `sweptBtcApprox` and friends: the
   rounded forms live in `figures.ts` beside the exact ones for this reason
 - "the STM32 hardware random-number peripheral", "a compile-time guard",
@@ -139,11 +178,23 @@ can defend.
 - `capture.py` exits **10** only for a healthy run with changes, **20** when any
   source errored, was blocked, or was skipped, and **21** on writer-lock
   contention. Do not repurpose exit 10
-- `archive/` is append-only in spirit. Never rewrite or delete a snapshot: a
-  wrong capture is part of the record. Correct by adding a later capture or a
-  `revision-reviews.toml` entry. The one exception is redacting this
+- `archive/` is append-only. Never rewrite or delete a snapshot: a wrong
+  capture is part of the record. Correct by adding a later capture or a
+  `revision-reviews.toml` entry. The one standing exception is redacting this
   project's own leaked personal data; the sidecar hashes still record what
-  was held
+  was held.
+
+  This is a rule from 6 Aug 2026, not a description of the whole archive's
+  history, and the difference is why it is worth stating carefully. The
+  4 Aug 2026 reddit-json migration deleted 134 pre-migration captures of five
+  Reddit sources, their diffs and their lines in `archive/index.jsonl`, and
+  nothing recorded it at the time. That is logged at `/corrections/` and the
+  material was deliberately not restored: it was duplicate rendered-page
+  capture of threads still held in better form. **A migration is not a licence
+  to delete history.** If a capture method changes, the old captures stay and
+  the new ones are added beside them; if that is genuinely not wanted, it is
+  an operator decision that gets written down before it happens, not after
+  somebody notices
 - Response headers are stored through an allowlist (`scripts/response_headers.py`).
   Most of a response's headers describe the path from the origin to this
   collector, and several name the CDN edge that answered, which is a
@@ -152,6 +203,22 @@ can defend.
   built site
 - Wayback-recovered captures carry `provenance: wayback`. Never present an
   inherited capture as one this project took
+- A DNS failure on the capture host does not establish that a source is gone.
+  Multiple clients on that host are not independent when they share its
+  resolver. Before setting `gone = true` for a name-resolution failure,
+  corroborate it through public DNS or a genuinely independent network path;
+  otherwise keep polling and describe it as unreachable from this collector
+- A published material claim that turns out to be wrong is fixed on the page
+  where the claim was **and** appended to `corrections.toml`, which is
+  published at `/corrections/`. Both, or neither counts: a log nobody reading
+  the claim would see, and a quiet edit with no index, are each half a
+  corrections policy. Rewording, restructuring and tooling work are not
+  corrections and belong in `CHANGELOG.md`. A source editing its own page is
+  not our error and belongs in `revision-reviews.toml`
+- Every build stamps the commit it was made from, in the footer and at
+  `/version.json`, because `/cite/` tells readers to quote it. Nothing about
+  the version is hand-maintained; if you find yourself typing a version
+  string, that is the bug
 - Python runs through `.venv`. Never invoke system python here
 - No em-dashes in prose. Commas, colons, parentheses or full stops
 
@@ -241,12 +308,20 @@ ad-hoc replacements for either; restart the unit instead.
   runner, every 30 minutes, exit codes 10/20/21 treated as recorded outcomes
   rather than unit failures
 - `discover-community.timer` -> `discover-community.service`: community-thread
-  discovery and intake (Stacker News + Reddit), every 12 hours. Two feed
-  requests and two subreddit listing reads queue candidates in `DISCOVERY.md`,
+  discovery and intake (Stacker News, Reddit and BitcoinTalk), every 12 hours.
+  Two feed requests, two subreddit listing reads and two board indexes queue
+  candidates in `DISCOVERY.md`,
   then the intake agent assesses them, registers relevant threads in
   `sources.toml` (and may correct existing `stackernews-*`/`reddit-*`
   entries), and first-captures each registration with `just capture-one`,
   deferring to the next poll on writer-lock contention
+- `claim-sweep.timer` -> `claim-sweep.service`: the claim-verification sweep,
+  every 12 hours. Runs `scripts/claim-sweep.sh` (CLAIM_SWEEP_AGENT_BIN, the
+  same agent pattern as agent-review.sh), which rechecks unverified and
+  date-bounded current-state claims, promotes what can now be evidenced
+  (registering and first-capturing new sources), and refreshes recheck dates
+  on the rest. Reports land in `.work/claim-sweep/`; a failed run does not
+  advance the last-run marker
 
 There is exactly ONE archive writer on the capture host: capture.py, driven
 by the scheduled runner. Manual `just capture-one <id>` runs on the same host
@@ -284,6 +359,32 @@ and account-health signals stop the whole run with a persistent cooldown. It
 is manual during probation and must not be added to a timer until the gate in
 `docs/design/discovery-and-x-watch.md` is satisfied.
 
+## Capturing nostr posts
+
+`ingest_nostr.py` captures one note plus its replies through `nak` (the second
+sanctioned external binary beside gallery-dl, likewise confined to social
+capture and posting) into `archive/nostr/<id>/<TS>/`: `event.json` is the
+signed event, `event.txt` its flattened text, `replies.json` the fetched
+replies where any exist, `meta.json` the sidecar. A re-capture is a new
+timestamped directory, so the append-only rule is a property of the layout
+here too. Signed events are self-authenticating, so none of the screenshot
+provenance gating that X captures need applies.
+
+Discovery is a separate manual-probation lane: `just discover-nostr` runs
+bounded NIP-50 keyword searches against the configured search relays,
+requires `NOSTR_DISCOVERY_ENABLED=true`, and queues njump permalinks in
+`DISCOVERY.md`. Candidates are assessed by the standard community intake
+agent: nostr reads are anonymous public-relay queries, so no separate triage
+agent is needed. First capture of a registered note is
+`just ingest-nostr <note1>`, never `just capture-one`: `[[nostr_post]]`
+blocks are validated by capture.py but never polled. The lane must not go on
+a timer until the gate in `docs/design/discovery-and-x-watch.md` is met.
+
+The project posts from its own key: npub `npub1pfuvza2kkeqjqnp6l2tlqr2ewgx5ue0kc7rwztxvjr8p5wcec3zsrvp9w2`,
+NIP-05 `_@cc-vuln.org` served at `/.well-known/nostr.json` from the site
+build, the npub shown on `/cite/`. The nsec lives in `.env` as
+`NOSTR_SECRET_KEY`, and posting is manual only via `just nostr-post`.
+Operational detail is in `docs/operations.md`.
 
 ## Capturing Stacker News threads
 
@@ -291,8 +392,8 @@ Rendered stacker.news pages crash the capture tab, so every `stackernews-*`
 source polls the public GraphQL API instead: `capture = "http"` with
 `fetch_url`/`fetch_post` holding a fixed item query (title, text, two levels
 of comments, author and absolute timestamp on each). A new thread is added by
-copying that block shape and changing the item id; see the 4 Aug 2026 batch
-at the end of `sources.toml`. Reddit threads are `capture = "reddit-json"`:
+copying that block shape and changing the item id; see the 4 Aug 2026 sweep
+batch in `sources.toml`. Reddit threads are `capture = "reddit-json"`:
 the thread JSON is read through the capture browser's signed-in session
 (anonymous JSON from this host gets a 403 challenge) and flattened to a
 deterministic canonical text, so no normalizer binding is needed.
@@ -388,6 +489,52 @@ policy drift, and the copy that withholds nothing is the one that leaks.
   refuses this host must not block a deploy. `just publish-fresh` is the
   strict path: it captures first and refuses to deploy an incomplete poll
 
+## The unattended agents are contained, not trusted
+
+Four agents run here without anyone watching, and all four read text that
+strangers wrote. Assume the prompt injection in a captured thread works. The
+full reasoning and the residual gaps are in
+`docs/design/agent-sandbox.md`; the rules that bind new work are short.
+
+- **An agent never fetches its own evidence.** The driver hydrates first, as
+  the operator account, and the agent receives text. `render_review_packets.py`
+  and `hydrate_candidates.py` are the two ends of the same pattern. Adding a
+  fetch instruction to a prompt undoes it
+- **An agent never writes `archive/`.** It appends a source id to
+  `.work/capture-requests.txt` and the driver captures afterwards, only for
+  ids the guard confirmed this run registered. `capture.py` stays the one
+  writer, and a poisoned source is refused before anything fetches it
+- **An agent never holds a secret.** `run-agent.sh` builds its environment
+  from an allowlist and it runs as `cc-agent`, which cannot read `.env`,
+  `AGENTS.local.md` or `.capture-browser/`. Do not restore `set -a; source
+  .env` in a driver, and do not pass a credential through as an argument
+- **An agent never reaches the capture browser.** Its `evaluate` and `cdp`
+  actions are arbitrary JavaScript and raw DevTools inside a signed-in
+  session. Two units deny loopback; the third cannot, so the browser's token
+  in `.capture-browser/` separates them there
+- **Every run is checked afterwards, and a rejected run is left alone.**
+  `agent_guard.py` enforces the role's path allowlist, scans for secret
+  values, and hands `check_registry.py` the registry delta. Nothing is
+  reverted: what an injected run tried to do is the evidence, and a dirty
+  tree outside `archive/` already stops the scheduled publish
+- **A new host is a human edit, twice over.** `registry_hosts.toml` says what
+  `sources.toml` may name, and it plus `agent_egress_hosts.toml` say what an
+  agent may connect to at all: `scripts/agent_proxy.py` refuses every other
+  CONNECT and an nftables rule on the agent's uid drops every route that
+  bypasses it. Both files live in `scripts/`, which is read-only to the
+  agent, so a run cannot widen its own reach. Add a host in the same commit
+  as the source needing it, say why, and restart `agent-proxy`
+- **An agent may reach its model provider, and may read what the registry may
+  name.** That is the whole egress policy. It works because hydration moved
+  to the driver, so only the sweep reads the open web, and because anything
+  it reads has to be registerable to be worth reading. Do not add a second
+  list
+
+Prompt wording is the weakest layer and is kept anyway, in one copy at
+`scripts/agent-prompt-rules.md`, injected into all four prompts. Untrusted
+material is fenced with a per-run nonce; do not wrap it in a markdown fence
+instead, because content closes those.
+
 ## Exit codes and locks
 
 `capture.py` exits **21** on writer-lock contention, and `just audit` will hit
@@ -424,9 +571,15 @@ when the agent is wrong; never delete the underlying diff.
   is unnamed at its own request and Block found no evidence it participated
 - Material its author published is publishable here, including first-hand
   accounts and the address sets chain monitors enumerate (3 Aug 2026
-  decision). A removal request from an author is honoured. A source that must
-  be held back sets `withhold_text = true` in `sources.toml`, which keeps its
-  bodies off the site and out of any commit; none does today
+  decision). It stays in the record: this project does not undertake to
+  withdraw published material on its author's request (6 Aug 2026 decision,
+  superseding the removal undertaking). What still comes down is material
+  that was never public, personal data, and anything this project got wrong,
+  which is a correction. A complaint with a legal basis is not an author
+  preference: assess it and act where it is good, and never cite this bullet
+  as a reason to ignore one. A source that must be held back sets
+  `withhold_text = true` in `sources.toml`, which keeps its bodies off the
+  site and out of any commit; none does today
 - Do not add a source that forbids it in robots.txt without checking first
 
 ## Testing a change

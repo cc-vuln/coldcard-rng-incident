@@ -29,6 +29,18 @@ and answering `{"ok": true, "data": {"success": true, ...}}`, or
 `{"ok": false, "error": "..."}`. A `session` is an independent tab, so two
 callers do not fight over one page.
 
+**Requests carry a token where one is configured.** If
+`.capture-browser/token` exists, every request must repeat its contents in an
+`X-Bridge-Token` header or the daemon answers 403. This is not about the
+network: the port has always been loopback-only. It is about which local
+processes may drive it. `evaluate` runs arbitrary JavaScript and `cdp` speaks
+raw DevTools, both inside a browser signed in as a person, so reaching the
+port is enough to post as them. Unattended agents run on this host under
+their own account, and `.capture-browser/` is mode 700, so they cannot read
+the token. `scripts/agent-permissions.sh` creates it; the daemon reads it once
+at startup, so rotating it means restarting the service. An install with no
+token file keeps working unauthenticated, and says so in its startup log.
+
 | action | args | returns | used by |
 |---|---|---|---|
 | `list_tabs` | none | `tabs[]` | availability probe |
@@ -38,6 +50,8 @@ callers do not fight over one page.
 | `close_tab` | none | | both |
 | `cdp` | `method`, `params` | CDP result | element screenshots |
 | `close_session` | none | | `ingest-x.py` |
+| `fetch_json` | `url`, `fetch` | `status`, `content_type`, `body`, `json_ok` | Reddit thread JSON |
+| `blocklist_info` | none | blocklist mode, name, host count | capture metadata |
 
 Read-only by construction: there is no action that posts, follows, likes or
 sends anything. Keep it that way. A capture tool that can write to a borrowed

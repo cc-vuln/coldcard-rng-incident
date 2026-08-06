@@ -10,14 +10,24 @@ In scope:
 
 - The website (cc-vuln.org) and its build pipeline
 - The capture tooling under `scripts/`
+- The containment around the unattended agents. This project runs agents over
+  material other people wrote, so text in a captured thread reaching an agent
+  as an instruction is expected rather than surprising. What is in scope is a
+  way past the layers that answer it: reading a secret, reaching the capture
+  browser, writing outside a role's remit, registering a source the registry
+  rules should refuse, or getting a rejected run treated as a success. The
+  design and its known gaps are public in `docs/design/agent-sandbox.md`
 - The integrity of the published record: anything that could let the archive
   be silently altered, or make it misrepresent what a source said
 - Personal-information leakage in published output. This archive publishes
   what people published themselves, but not what they did not: if you find
   material that was never public, or anything identifying this project's
   operators, in the site or the repository, report it privately rather than
-  opening a public issue. An author who wants their own captured post taken
-  down should write to the same address
+  opening a public issue. That route is for material that was never public.
+  Material its author published publicly is part of the record and stays in
+  it; corrections to how this site presents it go to the contact address. A
+  complaint with a legal basis is different from a preference, and goes to the
+  same address
 
 ## The COLDCARD vulnerability itself
 
@@ -32,4 +42,6 @@ receive a response.
 
 Commits to `main` are SSH-signed. The archive's integrity model is documented
 in the repository: every capture is hashed at collection time, and published
-excerpts link back to those hashes so any claim can be re-checked.
+claims link to the held captures they rest on so any claim can be re-checked.
+The hashes themselves are internal capture and audit data; the public site
+does not present them as independent proof of provenance.

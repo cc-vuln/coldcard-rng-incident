@@ -1,0 +1,60 @@
+# Take this host's own services away from an agent run.
+#
+#   for u in archive-review claim-sweep; do
+#     sudo mkdir -p "/etc/systemd/system/$u.service.d"
+#     sudo cp agent-loopback-deny.conf.example \
+#         "/etc/systemd/system/$u.service.d/loopback.conf"
+#   done
+#   sudo systemctl daemon-reload
+#
+# For archive-review and claim-sweep only. The review agent classifies from
+# packets rendered before it starts and the sweep agent's reading is all
+# remote, so neither needs anything on this machine. discover-community
+# deliberately does NOT get this file: its own discovery steps and candidate
+# hydration read Reddit through the capture browser, and IPAddress* applies to
+# a whole unit rather than to one child. The browser's token separates the
+# agent from it there.
+#
+# What this shuts off:
+#
+#   127.0.0.1:10086   the capture browser, whose evaluate and cdp actions are
+#                     arbitrary JavaScript and raw DevTools inside sessions
+#                     signed in as a person
+#   169.254.169.254   the cloud metadata endpoint, which on most providers
+#                     hands out instance credentials to anything that asks
+#
+# THE TRAP, measured on this host on 6 Aug 2026. The obvious spelling
+#
+#     IPAddressAllow=any
+#     IPAddressDeny=localhost
+#
+# does nothing at all. An allow entry wins over a deny entry regardless of
+# prefix length, so `any` permits everything and the deny lines are dead
+# config that reads exactly like a working control. Verify, do not assume:
+#
+#     systemd-run --unit=probe --wait --collect --pipe -p User=<operator> \
+#       -p IPAddressDeny=any -p "IPAddressAllow=$(the list below)" \
+#       curl -sv -m 6 http://127.0.0.1:10086/command
+#
+# So the deny is total and the allow list is the complement: every IPv4 range
+# except 127.0.0.0/8 and 169.254.0.0/16, computed once with
+# ipaddress.address_exclude, plus two deliberate exceptions.
+#
+# 127.0.0.53/32 is systemd-resolved's stub listener. Without it the agent
+# cannot resolve a name at all, which looks like a broken model API rather
+# than a firewall rule. It is a resolver, not a service the agent can act
+# through.
+#
+# 2000::/3 is global-unicast IPv6, which excludes ::1 by construction. This
+# host has a global IPv6 address, and denying the family outright would leave
+# the agent silently falling back to IPv4 for everything.
+
+[Service]
+IPAddressDeny=any
+IPAddressAllow=0.0.0.0/2 64.0.0.0/3 96.0.0.0/4 112.0.0.0/5 120.0.0.0/6
+IPAddressAllow=124.0.0.0/7 126.0.0.0/8 128.0.0.0/3 160.0.0.0/5 168.0.0.0/8
+IPAddressAllow=169.0.0.0/9 169.128.0.0/10 169.192.0.0/11 169.224.0.0/12
+IPAddressAllow=169.240.0.0/13 169.248.0.0/14 169.252.0.0/15 169.255.0.0/16
+IPAddressAllow=170.0.0.0/7 172.0.0.0/6 176.0.0.0/4 192.0.0.0/2
+IPAddressAllow=127.0.0.53/32
+IPAddressAllow=2000::/3

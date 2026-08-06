@@ -1,0 +1,52 @@
+# Hosts the unattended agents may reach, beyond the record's own sources.
+#
+# scripts/agent_proxy.py allows a CONNECT only to a host named here or in
+# scripts/registry_hosts.toml. Everything else from the agent account is
+# refused by the proxy and, before that, dropped by the nftables rule keyed on
+# its uid. Both files live in scripts/, which is read-only to the agent, so a
+# run cannot widen its own reach.
+#
+# A leading dot means the domain and its subdomains: ".example.com" matches
+# api.example.com and counterexample.com does not. Bare names match exactly.
+#
+# The research half of the policy is deliberately not repeated here. A sweep
+# may read what the registry may name, because anything it finds has to be
+# registerable to be worth reading, and registry_hosts.toml is already the
+# human-maintained list for that. If the sweep needs a host that is not on
+# either list, the answer is a person adding it, which is the same answer the
+# sweep prompt already gives.
+
+# WHICH MODEL PROVIDER THIS PROJECT USES IS NOT IN THIS FILE, and must not be
+# added to it. Its API hostnames live in `agent-egress.local.toml` beside this
+# one, which is gitignored, for the same reason `REVIEW_AGENT_BIN` lives in
+# `.env` and the capture host's address lives in `AGENTS.local.md`: an archive
+# whose own agents read attacker-adjacent material should not publish which
+# models and CLIs those agents are, or a reader of this repository has a
+# specification for attacking them.
+#
+# The proxy reads both files and does not care which host came from which. A
+# missing local file is reported at startup rather than assumed away, because
+# an allowlist that silently lost the provider looks exactly like an outage.
+#
+# See `agent-egress.local.toml.example` for the shape.
+
+[hosts]
+
+# Provider telemetry is deliberately NOT listed, and the refusals in the proxy
+# log are the intended outcome rather than a gap to close. An agent here is
+# reading victim accounts, attribution disputes and community threads, and a
+# crash reporter is a channel for fragments of that to leave the host to a
+# party with no relationship to this archive.
+#
+# Measured on 6 Aug 2026: all three providers complete a full intake run with
+# their telemetry endpoints refused (one attempts a third-party log intake,
+# and the run succeeds anyway). If a future provider genuinely will not work without it,
+# that is a fact worth knowing before choosing that provider, which is another
+# reason to leave the refusal visible instead of quietly allowing it.
+
+# Public code and package indexes the sweep reads when checking whether a
+# reported reproduction, patch or script has been published.
+code_search = [
+  "api.github.com",
+  "objects.githubusercontent.com",
+]

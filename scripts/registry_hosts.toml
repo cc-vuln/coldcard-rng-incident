@@ -1,0 +1,119 @@
+# Hosts the source registry is allowed to name.
+#
+# `scripts/check_registry.py` refuses any `url` or `fetch_url` in
+# `sources.toml` whose host is not listed here. The point is not that these
+# hosts are trustworthy: it is that adding a new one is a deliberate act by a
+# person, recorded in a commit.
+#
+# The unattended agents cannot extend this list. `scripts/` is mounted
+# read-only for the agent phase (see docs/design/agent-sandbox.md), so an
+# injected intake run cannot register a source pointing at a host of its
+# choosing, and therefore cannot turn the 30-minute poll into a beacon.
+#
+# Baseline generated from the 308 sources registered on 6 Aug 2026 and
+# reviewed by hand. Adding a host here is normal maintenance; do it in the
+# same commit as the source that needs it, and say why in the message.
+
+[hosts]
+
+# Community platforms the discovery lanes feed. These are also bound to an id
+# prefix in check_registry.py: a `reddit-*` source may only name reddit.com,
+# and so on, so a poisoned candidate cannot register itself as a Reddit thread
+# that fetches from somewhere else.
+community = [
+  "bitcointalk.org",
+  "stacker.news",
+  "www.reddit.com",
+]
+
+# Social and nostr blocks ([[x_post]], [[nostr_post]]).
+social = [
+  "njump.me",
+  "x.com",
+]
+
+# The vendor, its firmware and its published record.
+vendor = [
+  "blog.coinkite.com",
+  "coinkite.com",
+  "coldcard.com",
+  "store.coinkite.com",
+]
+
+# Code, repositories and package indexes.
+code = [
+  "gist.github.com",
+  "github.com",
+  "raw.githubusercontent.com",
+]
+
+# Chain monitors and incident trackers.
+trackers = [
+  "cktripwire.com",
+  "coldcard-hack-tracker.vercel.app",
+  "coldcard.rip",
+  "coldcardwatch.com",
+]
+
+# Other vendors, wallet projects and their responses.
+industry = [
+  "bitkey.world",
+  "blog.bitbox.swiss",
+  "blog.blockstream.com",
+  "blog.casa.io",
+  "community.foundation.xyz",
+  "help.unchained.com",
+  "karma-x.io",
+  "keychainx.io",
+  "slipstream.mara.com",
+  "support.casa.io",
+  "trezor.io",
+  "wizardsardine.com",
+  "www.unciphered.com",
+]
+
+# Research, engineering write-ups and technical fora.
+research = [
+  "android-developers.googleblog.com",
+  "bitcoinops.org",
+  "delvingbitcoin.org",
+  "engineering.block.xyz",
+  "hn.algolia.com",
+  "lists.debian.org",
+  "milksad.info",
+  "news.ycombinator.com",
+  "newsletter.checkonchain.com",
+  "research.mempool.space",
+]
+
+# Press and newsletters.
+press = [
+  "bitcoinmagazine.com",
+  "coin360.com",
+  "crypto.news",
+  "insider.btcpp.dev",
+  "news.bitcoin.com",
+  "nvk.wtf",
+  "www.blockchainunmasked.com",
+  "www.chaincatcher.com",
+  "www.coindesk.com",
+  "www.newsbtc.com",
+  "www.tftc.io",
+  "www.theblock.co",
+  "www.therage.co",
+]
+
+# Official, legal and regulatory records.
+official = [
+  "ncfacanada.org",
+  "nvd.nist.gov",
+  "stoltmannlaw.com",
+  "www.ontario.ca",
+]
+
+# File drops referenced by held sources. Present because the record cites
+# them, not because they are dependable; both are ephemeral by design.
+dropbox = [
+  "fromsmash.com",
+  "pastebin.com",
+]

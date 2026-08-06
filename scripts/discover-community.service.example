@@ -13,10 +13,10 @@
 # discovery steps carry "-" so one platform being unreachable does not skip
 # the other or the intake. Nothing here writes to archive/ except the intake
 # agent's first captures via capture.py's own lock. Keep the cadence at the
-# timer's twice a day unless the site operators have been asked; see the
-# script docstrings and BACKLOG.md.
+# timer's twice a day unless the site operators have been asked; see AGENTS.md
+# and the script docstrings.
 [Unit]
-Description=community-thread discovery and intake (Stacker News + Reddit, gentle)
+Description=community-thread discovery and intake (Stacker News, Reddit and BitcoinTalk, gentle)
 Wants=network-online.target
 After=network-online.target webbridge.service
 
@@ -28,7 +28,21 @@ ExecStart=-REPO/.venv/bin/python scripts/discover_stackernews.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_reddit.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_bitcointalk.py
 ExecStart=REPO/scripts/agent-discovery-intake.sh
-NoNewPrivileges=true
+# NoNewPrivileges is not set: it would block the setuid transition the intake
+# driver uses to drop into the agent account. See
+# agent-hardening.conf.example, which this unit also needs installed.
+#
+# Unlike archive-review and claim-sweep, this unit cannot deny loopback. Two
+# of its four steps and the intake driver's own candidate hydration read
+# Reddit through the capture browser on 127.0.0.1, and IPAddressDeny applies
+# to the whole unit rather than to one child. So the agent inside it shares a
+# cgroup with processes that must reach that port.
+#
+# What separates them is the browser's own token: .capture-browser/ is mode
+# 700, the driver can read the secret inside it and the agent account cannot.
+# That is why the token exists at all. Run scripts/agent-permissions.sh and
+# restart webbridge.service before enabling this timer, or the agent has an
+# unauthenticated signed-in browser one HTTP request away.
 
 [Install]
 WantedBy=multi-user.target

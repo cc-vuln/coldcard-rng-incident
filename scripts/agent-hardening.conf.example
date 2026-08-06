@@ -1,0 +1,89 @@
+# Shared hardening for the three unattended agent units. Drop it in as a
+# unit override so one edit covers all three:
+#
+#   for u in archive-review claim-sweep discover-community; do
+#     sudo mkdir -p "/etc/systemd/system/$u.service.d"
+#     sudo cp agent-hardening.conf.example "/etc/systemd/system/$u.service.d/hardening.conf"
+#   done
+#   sudo systemctl daemon-reload
+#
+# Replace REPO with the checkout path and OPERATOR with the account that owns
+# it. Check the result with:
+#
+#   systemd-analyze security archive-review.service
+#
+# These units run an agent over text strangers wrote. The account boundary in
+# scripts/run-agent.sh is the main containment; this is the part systemd can
+# add on top, and the two are independent, which is the point.
+
+[Service]
+
+# The loopback deny is NOT here, because it cannot be the same for all three.
+# It is per unit: archive-review and claim-sweep carry it, discover-community
+# cannot, and each unit file says why. The capture browser's own token
+# (capture-browser/README.md) is what covers all three.
+
+# Not readable during an agent run, whatever the file modes say. The account
+# separation already covers these; this covers the case where it does not,
+# such as a manual run before scripts/agent-permissions.sh has been applied.
+InaccessiblePaths=-REPO/.env
+InaccessiblePaths=-REPO/AGENTS.local.md
+InaccessiblePaths=-REPO/site/tools/private-tokens.json
+InaccessiblePaths=-REPO/.capture-browser
+InaccessiblePaths=-/home/OPERATOR/.ssh
+InaccessiblePaths=-/home/OPERATOR/.aws
+InaccessiblePaths=-/home/OPERATOR/.config/wrangler
+InaccessiblePaths=-/home/OPERATOR/.config/gh
+InaccessiblePaths=-/home/OPERATOR/.local/share/wrangler
+
+# The tooling, including the tooling that checks the agent's work. A run that
+# could edit its own gate would not have one.
+ReadOnlyPaths=REPO/scripts
+ReadOnlyPaths=REPO/justfile
+ReadOnlyPaths=REPO/capture-browser
+ReadOnlyPaths=REPO/site/tools
+ReadOnlyPaths=REPO/.venv
+ReadOnlyPaths=REPO/.github
+
+# The one place the hardening gives something up, and it has to be stated
+# rather than merely omitted. NoNewPrivileges blocks the setuid transition
+# sudo needs, and sudo is how the driver drops from the operator account to
+# the agent account: measured on 6 Aug 2026, a unit with it on exits 1 at
+# `sudo -n -u cc-agent`. The units these drop-ins extend already set it true,
+# and several options below would default it to true anyway, so an explicit
+# false is required for the privilege drop to work at all.
+#
+# A unit that keeps the flag runs the agent with the operator's own access to
+# .env, AGENTS.local.md and the signed-in browser profile, which is the thing
+# this whole arrangement exists to prevent. The account boundary is worth more
+# than the flag. Verified afterwards with:
+#   systemctl show -p NoNewPrivileges --value archive-review.service   # -> no
+NoNewPrivileges=false
+
+ProtectSystem=full
+ProtectProc=invisible
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+# Denies setting the suid bit on a file. It does not stop executing one, so
+# the sudo transition still works.
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0002
+
+# CapabilityBoundingSet is deliberately left alone. The unit already runs as
+# an unprivileged account, so it holds no capabilities to drop; the bounding
+# set would only constrain the one intentional setuid step, sudo, whose exact
+# needs vary by distribution. Narrowing it here buys nothing and breaks the
+# privilege drop on the machine where the list turns out to be short.
+
+# MemoryDenyWriteExecute is not set: node and most model CLIs JIT, and the
+# unit would fail to start rather than fail safe.

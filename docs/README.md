@@ -15,11 +15,17 @@ Operator and deployment detail behind the root README's command reference.
   one-writer rule, notification delivery, Signal alerting and deployment
 - [`publication.md`](publication.md): what published builds show, the editorial
   claim-marker contract and the machine-readable outputs
+- [`deposit.md`](deposit.md): what an archival deposit of this project contains,
+  what it leaves out and why, and the capture manifest that describes the
+  material it does not carry
 
 ## Design
 
 Future-facing technical designs and implementation rationale.
 
+- [`design/agent-sandbox.md`](design/agent-sandbox.md): what an unattended
+  agent run can reach when the prompt injection in a captured thread works,
+  and the five layers that answer it without depending on the model
 - [`design/browser-capture-hygiene.md`](design/browser-capture-hygiene.md):
   keeping ad, consent and tracker noise out of browser captures by
   blocking it at the daemon, and why an extension is the wrong tool
@@ -38,6 +44,9 @@ Future-facing technical designs and implementation rationale.
   refit
 - [`design/site-information-architecture.md`](design/site-information-architecture.md):
   current record-first navigation, route ownership and progressive disclosure
+- [`design/x-thread-capture.md`](design/x-thread-capture.md): extending the
+  whole-conversation capture model from the community forums to X, and the
+  display policy revision it requires
 
 ## Research
 

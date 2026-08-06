@@ -1,0 +1,55 @@
+#!/usr/sbin/nft -f
+#
+# Drop every packet from the agent account except DNS and the egress proxy.
+#
+#   sudo cp agent-egress.nft.example /etc/nftables.d/agent-egress.nft
+#   sudo nft -f /etc/nftables.d/agent-egress.nft
+#   sudo systemctl enable nftables            # to survive a reboot
+#
+# Replace AGENT_UID with the numeric uid of the agent account:
+#   id -u cc-agent
+#
+# WHY A UID AND NOT A UNIT. The obvious place for this is systemd's
+# IPAddressDeny=, and for two of the three agent units that works. It cannot
+# work for discover-community: that unit runs the driver's own Reddit
+# hydration, which must reach the capture browser, and the agent, which must
+# not, in the same cgroup. IPAddress* applies to the whole unit and cannot
+# tell a parent from a child. The agent account can, and a uid rule also
+# covers a manual `just discovery-intake` run, which no unit setting reaches.
+#
+# WHAT IS LEFT OPEN, and why each one is safe:
+#
+#   127.0.0.2:8118   the egress proxy, which enforces the host allowlist. Not
+#                    127.0.0.1: the capture browser is there, holding
+#                    signed-in sessions, and this rule matches addresses
+#   127.0.0.53:53    systemd-resolved's stub. Without it nothing resolves and
+#                    every failure looks like a broken model API. A resolver
+#                    is not a channel: it answers queries and carries no
+#                    payload the proxy would not also see
+#
+# Everything else from that uid is dropped and counted. Check the counters
+# when a run misbehaves:
+#   sudo nft list table inet cc_agent_egress
+
+table inet cc_agent_egress {
+  chain output {
+    type filter hook output priority filter; policy accept;
+
+    # Everyone who is not the agent is none of this table's business. First
+    # rule, so the cost to every other process on the host is one comparison.
+    meta skuid != AGENT_UID accept
+
+    # Replies on connections already permitted below.
+    ct state established,related accept
+
+    ip daddr 127.0.0.2 tcp dport 8118 accept
+    ip daddr 127.0.0.53 udp dport 53 accept
+    ip daddr 127.0.0.53 tcp dport 53 accept
+
+    # Unix sockets and same-host IPC are not matched by this hook at all, so
+    # nothing here affects the agent reading or writing files.
+
+    counter comment "agent egress denied"
+    drop
+  }
+}

@@ -1,0 +1,25 @@
+# Let the capture-host account drop to the agent account without a password.
+#
+#   sudo install -m 0440 scripts/cc-agent.sudoers.example /etc/sudoers.d/cc-agent
+#   sudo visudo -c
+#
+# Replace OPERATOR with the account that owns the working tree and runs the
+# timers. cc-agent is the unprivileged account the unattended agents run as
+# (docs/operations.md, "The agent account").
+#
+# The rule is unrestricted in what it may run, and that is deliberate: every
+# use of it is a privilege *drop*. cc-agent has no sudo rights, cannot read
+# .env, AGENTS.local.md or the signed-in browser profile, and can write only
+# the few files its role is allowed to write. Enumerating commands here would
+# add no security over the account boundary itself, and would silently break
+# the moment a driver gained an argument.
+#
+# What matters is the direction: OPERATOR may become cc-agent. Nothing here
+# lets cc-agent become anyone.
+
+OPERATOR ALL=(cc-agent) NOPASSWD: ALL
+
+# Deny the reverse explicitly, in case cc-agent is ever given sudo for
+# something else later. A rule that is never reached today costs nothing and
+# is the one that would matter.
+cc-agent ALL=(ALL) !ALL

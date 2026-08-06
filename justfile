@@ -33,7 +33,8 @@ capture-gate:
 capture-one id:
     @{{py}} scripts/capture.py capture --id {{id}}
 
-# Only the tier-1 mutable vendor advisories
+# Only tier 1: the fastest-moving sources, the same slice the 30-minute
+# poll's tier1 job runs
 capture-urgent:
     @{{py}} scripts/capture.py capture --tier 1
 
@@ -58,26 +59,99 @@ discover-x *ARGS:
 discovery-intake *ARGS:
     @./scripts/agent-discovery-intake.sh {{ARGS}}
 
+# ---- nostr -----------------------------------------------------------------
+#
+# The project has its own nostr identity for announcements of record updates.
+# Posting is manual and operator-run only; discovery and ingest are read-only.
+# Keys and relays come from .env (NOSTR_SECRET_KEY, PUBLIC_NOSTR_PUBKEY_HEX,
+# PUBLIC_NOSTR_NPUB, NOSTR_WRITE_RELAYS). The one external binary is nak.
+
+# Generate a fresh nostr keypair and print it as npub/nsec.
+# Prints only, never writes .env; store the values by hand and back up offline.
+nostr-keygen:
+    @command -v nak >/dev/null 2>&1 || { echo "nak not found on PATH (expected ~/.local/bin/nak)" >&2; exit 1; }
+    @hex="$(nak key generate)"; pub="$(nak key public "$hex")"; \
+        echo "secret key (hex): $hex"; \
+        echo "nsec:             $(nak encode nsec "$hex")"; \
+        echo "public key (hex): $pub"; \
+        echo "npub:             $(nak encode npub "$pub")"; \
+        echo; \
+        echo "Store these in .env by hand (this recipe never writes it):"; \
+        echo "  NOSTR_SECRET_KEY=<the nsec above>"; \
+        echo "  PUBLIC_NOSTR_PUBKEY_HEX=<the public hex above>"; \
+        echo "  PUBLIC_NOSTR_NPUB=<the npub above>"; \
+        echo "Keep an offline backup of the nsec; it cannot be recovered."
+
+# Post a kind-1 note from the project identity: announcements of record
+# updates only, manual use, --yes or interactive confirmation required.
+nostr-post *ARGS:
+    @{{py}} scripts/nostr_post.py {{ARGS}}
+
+# Publish the project kind-0 profile and kind-10002 relay list (NIP-65).
+# Replaceable events, so re-running after a profile or relay change is fine.
+nostr-publish-profile *ARGS:
+    @{{py}} scripts/nostr_publish_profile.py {{ARGS}}
+
+# Discover new incident-relevant nostr posts (read-only)
+discover-nostr *ARGS:
+    @{{py}} scripts/discover_nostr.py {{ARGS}}
+
+# Ingest one nostr post into the archive
+ingest-nostr *ARGS:
+    @{{py}} scripts/ingest_nostr.py {{ARGS}}
+
 # What is tracked, and when each source last moved
 status:
     @{{py}} scripts/capture.py status
+
+# Sources failing their most recent poll, grouped by cause and streak.
+# `just diagnose --json` is the same view for an automated triage pass.
+diagnose *ARGS:
+    @{{py}} scripts/capture.py diagnose {{ARGS}}
 
 # Verify every held capture against the unified record contract
 audit:
     @{{py}} scripts/capture.py audit
     @{{py}} scripts/check_publishable.py
+    # Before the review gate: an unreviewed diff between a poll and the review
+    # timer is routine and would otherwise mask a registry problem, which is
+    # not.
+    @{{py}} scripts/check_registry.py
+    @{{py}} scripts/agent_proxy.py --check
     @{{py}} scripts/check_reviews.py
+
+# Is the agent sandbox still in place? Reports only; run the script without
+# --check to apply. Separate from `audit` because it is a property of the
+# machine rather than of the record, so a clone should not fail on it.
+audit-sandbox:
+    @./scripts/agent-permissions.sh --check
+
+# This carried three hand-maintained lists: every test to run, every module to
+# byte-compile, every shell script to parse. Two files had already fallen off
+# them by 6 Aug 2026, and one of them was publish-scheduled.sh, which the
+# publish timer runs unattended. Globs cannot forget, so a new script is
+# checked from the moment it exists.
+#
+# Each test file still runs in its own interpreter rather than through
+# `unittest discover`, because several of them monkeypatch module state and
+# sharing one process would couple them. test_scheduler.py is the one
+# exclusion: `test` runs it separately through test-scheduler.
+#
+# The shell check loops one file per bash rather than passing them all at
+# once. `bash -n a.sh b.sh` parses only a.sh and makes the rest positional
+# parameters, so the list form this replaced had been checking capture-x.sh
+# and nothing else since it was written, agent drivers included.
 
 # Focused capture regression tests
 test-capture:
-    @{{py}} -m unittest scripts/test_capture.py
-    @{{py}} -m unittest scripts/test_discover_x.py
-    @{{py}} -m unittest scripts/test_agent_discovery_intake.py
+    @set -e; for t in scripts/test_*.py; do \
+        case "$t" in scripts/test_scheduler.py) continue ;; esac; \
+        PYTHONPATH=scripts {{py}} -m unittest "$t"; \
+    done
     @{{py}} scripts/discover_x.py --list >/dev/null
-    @PYTHONPATH=scripts {{py}} -m unittest scripts/test_list_unreviewed_diffs.py
-    @PYTHONPATH=scripts {{py}} -m unittest scripts/test_review_packets.py
-    @{{py}} -m py_compile scripts/discover_x.py scripts/render_review_packets.py scripts/render_agent_review_prompt.py scripts/auto_classify_noise.py
-    @/bin/bash -n scripts/capture-x.sh scripts/notify.sh
+    @{{py}} scripts/discover_nostr.py --check >/dev/null
+    @{{py}} -m py_compile scripts/*.py
+    @set -e; for s in scripts/*.sh; do /bin/bash -n "$s"; done
 
 # Rank sources by how much capture noise reaches the review layer.
 review-signal *ARGS:
@@ -187,22 +261,53 @@ check-trackers:
 check-links:
     @node site/tools/check-links.mjs
 
-# Local preview with hot reload
+# Known broken: vite fails on chunk splitting, so preview a production build
+# from dist/ instead.
+
+# Local preview with hot reload.
 dev:
     @cd site && npx astro dev
 
-# Build the public site (diffs and excerpts, full captures stay local)
-build-site: test audit check-claims
+# ---- building -------------------------------------------------------------
+#
+# Four named builds, one body. They differ only in the environment Astro is
+# given and in whether the output gates run, so the body lives in _astro and
+# _gates and each build is the pair of them plus its own environment. The
+# reason to keep it that way: when these were four copies, the gate list had
+# to be added to each of them by hand, and the copy that matters most is the
+# one that gets published.
+#
+# SITE_URL is resolved by the shell at recipe time, not by just, because it
+# comes from .env. The three expressions below are the whole difference
+# between a local build, a review build and a publication build.
+
+site_url_local := '${SITE_URL:-https://example.invalid}'
+site_url_preview := 'https://${CF_PAGES_PROJECT:?set CF_PAGES_PROJECT}.pages.dev'
+site_url_public := '${SITE_URL:?set SITE_URL}'
+
+# Stage the publishable X media, then build. `env` is any extra environment
+# the build needs, as a shell assignment prefix.
+_astro site_url env="":
     @node site/tools/stage-x-media.mjs
-    @cd site && SITE_URL="${SITE_URL:-https://example.invalid}" npx astro build
-    @node site/tools/check-public-output.mjs
+    @cd site && {{env}} SITE_URL="{{site_url}}" npx astro build
+
+# What every publishable build must survive: nothing operational in the
+# output, every tracker total still read from a capture rather than the pin,
+# no broken internal link. Takes site_url because check-public-output decides
+# from it whether a pages.dev reference is expected or is a leak.
+_gates site_url:
+    @SITE_URL="{{site_url}}" node site/tools/check-public-output.mjs
     @node site/tools/check-trackers.mjs
     @node site/tools/check-links.mjs
 
+# Build the public site (diffs and excerpts, full captures stay local)
+build-site: test audit check-claims (_astro site_url_local) (_gates site_url_local)
+
+# Deliberately does not run _gates: this build embeds captured text that the
+# public-output gate exists to reject, so it must never be a deploy input.
+
 # Build with complete snapshot bodies embedded. Local or gated use only.
-build-site-full: test audit check-claims
-    @node site/tools/stage-x-media.mjs
-    @cd site && PUBLIC_FULL_TEXT=true SITE_URL="${SITE_URL:-https://example.invalid}" npx astro build
+build-site-full: test audit check-claims (_astro site_url_local "PUBLIC_FULL_TEXT=true")
 
 # ---- deploying ------------------------------------------------------------
 #
@@ -217,25 +322,23 @@ build-site-full: test audit check-claims
 # Indexing is opt-in in the layout, so a build that forgets the flag is a build
 # search engines are told to ignore. That is the safe way round.
 
-# Review build for pages.dev. Not indexable, and its sitemap advertises the
-# pages.dev host rather than a domain that is not serving the site yet.
-build-preview: test audit check-claims
-    @node site/tools/stage-x-media.mjs
-    @cd site && SITE_URL="https://${CF_PAGES_PROJECT:?set CF_PAGES_PROJECT}.pages.dev" npx astro build
-    @SITE_URL="https://${CF_PAGES_PROJECT}.pages.dev" node site/tools/check-public-output.mjs
-    @node site/tools/check-trackers.mjs
-    @node site/tools/check-links.mjs
+# Not indexable, and its sitemap advertises the pages.dev host rather than a
+# domain that is not serving the site yet.
+
+# Review build for pages.dev, for assessing changes before any deploy.
+build-preview: test audit check-claims (_astro site_url_preview) (_gates site_url_preview)
 
 # Capture, audit, build and push a review copy to pages.dev.
 preview: capture-gate audit build-preview deploy
     @echo "review copy live at https://${CF_PAGES_PROJECT}.pages.dev (noindex)"
 
-# Audit, rebuild and publish for real. The 30-minute poll keeps the record
-# fresh on its own, so there is no pre-publish capture here: every content
-# gate (test, audit, check-claims, public-output, links) still runs via
-# build-site-indexable, and a source that intermittently refuses this host
-# cannot block a deploy. Only run this once the content is settled: unlike
-# preview, the output invites indexing.
+# The 30-minute poll keeps the record fresh on its own, so there is no
+# pre-publish capture here: every content gate (test, audit, check-claims,
+# public-output, links) still runs via build-site-indexable, and a source that
+# intermittently refuses this host cannot block a deploy. Only run this once
+# the content is settled: unlike preview, the output invites indexing.
+
+# Audit, rebuild and publish for real.
 publish: audit build-site-indexable deploy
 
 # Publish only if the tree is clean and the record has actually moved. This is
@@ -247,14 +350,11 @@ publish-scheduled *ARGS:
 # Exit 10 (healthy changes) does not block; a source erroring does.
 publish-fresh: capture-gate audit build-site-indexable deploy
 
-# The public build, marked indexable. Separated from build-site so that
-# nothing indexable is ever produced without asking for it by name.
-build-site-indexable: test audit check-claims
-    @node site/tools/stage-x-media.mjs
-    @cd site && PUBLIC_INDEXABLE=true SITE_URL="${SITE_URL:?set SITE_URL}" npx astro build
-    @node site/tools/check-public-output.mjs
-    @node site/tools/check-trackers.mjs
-    @node site/tools/check-links.mjs
+# Separated from build-site so that nothing indexable is ever produced
+# without asking for it by name.
+
+# The public build, marked indexable.
+build-site-indexable: test audit check-claims (_astro site_url_public "PUBLIC_INDEXABLE=true") (_gates site_url_public)
 
 # Push the built site to Cloudflare Pages by direct upload, so no source repo
 # is ever exposed. Needs CF_PAGES_PROJECT set, and `npx wrangler login` once.
@@ -262,6 +362,15 @@ deploy:
     @cd site && npx wrangler pages deploy dist \
         --project-name "${CF_PAGES_PROJECT:?set CF_PAGES_PROJECT}" \
         --commit-dirty=true
+
+# Describe every held capture without reproducing any of it.
+manifest *ARGS:
+    @{{py}} scripts/build_manifest.py --summary {{ARGS}}
+
+# Stage the archival deposit under .work/. Stages and reports only: there is
+# no upload path here, and the captured bodies are deliberately not included.
+deposit *ARGS:
+    @{{py}} scripts/make_deposit.py {{ARGS}}
 
 # Total archive size and snapshot count
 stats:
@@ -278,6 +387,12 @@ clean:
 # Run a command with the capture and review timers paused, for agent work
 # that edits scripts/capture.py. Timers always restart afterwards, even on
 # failure: just agent-maintenance <agent-command>
+#
+# Pass ONE executable and its arguments. just word-splits *ARGS, so a quoted
+# compound command (`just agent-maintenance bash -c 'a && b'`) is split at
+# every space: bash then runs only the first word and exits 0, and the window
+# closes having done nothing while reporting success. Observed 6 Aug 2026.
+# For anything with a pipe, && or a loop, put it in a script and pass the path.
 agent-maintenance *ARGS:
     @./scripts/agent-maintenance.sh {{ARGS}}
 

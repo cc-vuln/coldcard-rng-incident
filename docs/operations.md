@@ -157,6 +157,219 @@ state before retrying. `--clear-cooldown` removes only the local stop state and
 performs no X request; it must not be used to push through an unresolved API
 response.
 
+## nostr identity, posting and discovery
+
+The project holds one nostr key, generated on the capture host 6 Aug 2026.
+The public half is
+`npub1pfuvza2kkeqjqnp6l2tlqr2ewgx5ue0kc7rwztxvjr8p5wcec3zsrvp9w2`, carried in
+`.env` as `PUBLIC_NOSTR_NPUB` and `PUBLIC_NOSTR_PUBKEY_HEX`; the site build
+serves its NIP-05 record as `_@cc-vuln.org` at `/.well-known/nostr.json` and
+shows the npub on `/cite/`. The secret half lives only in the untracked
+`.env` as `NOSTR_SECRET_KEY` (nsec), and the operator holds the offline
+backup. nostr has no key revocation: rotation means generating a new key,
+repointing the NIP-05 record and publishing the new npub.
+
+All relay traffic goes through `nak`, the second sanctioned external binary
+beside gallery-dl, pinned at v0.20.2 and installed at `~/.local/bin/nak`
+(linux-amd64 sha256
+`424db88043d26d9c2f1cbd2d9bc06582c39526f91f8e5523590439d4257da087`). Verify
+the hash after any reinstall. `scripts/capture.py` stays stdlib-only and
+never touches nostr.
+
+First-time setup, in order:
+
+1. `just nostr-keygen` prints a fresh keypair. It never writes `.env`; copy
+   the values across by hand and store the nsec backup offline.
+2. Set `NOSTR_SECRET_KEY`, `PUBLIC_NOSTR_PUBKEY_HEX` and `PUBLIC_NOSTR_NPUB`
+   in `.env`.
+3. `just nostr-publish-profile` publishes the kind-0 profile (name
+   "cc-vuln", nip05 `_@cc-vuln.org`, website `https://cc-vuln.org`) and the
+   kind-10002 relay list to `NOSTR_WRITE_RELAYS`. Both kinds are replaceable
+   events, so re-running after a profile or relay change is fine. Publishing
+   requires `--yes`, or an interactive confirmation on a terminal.
+4. After the next site build, confirm that
+   `https://cc-vuln.org/.well-known/nostr.json` resolves the npub.
+
+Posting is a manual act: `just nostr-post` publishes a kind-1 note from the
+project key and requires `--yes`, or an interactive confirmation on a
+terminal. Use it for announcements of record updates only. There is no
+scheduled or agent-driven posting.
+
+Discovery is manual during probation, the same posture as `discover-x`:
+
+```bash
+NOSTR_DISCOVERY_ENABLED=true just discover-nostr
+```
+
+It runs bounded NIP-50 keyword searches against `NOSTR_SEARCH_RELAYS` and
+queues njump permalinks in `DISCOVERY.md`, where the standard community
+intake agent assesses them. `NOSTR_DISCOVERY_ENABLED=false` is the default
+and the kill switch. There is no global nostr search: each relay answers
+from its own index. The default search set (all verified with a live query
+from this host, 6 Aug 2026, via the NIP-66 kind-30166 monitor events on
+`relay.damus.io`): `search.nos.today`, `nostrja-kari-nip50.heguro.com`,
+`antiprimal.net`, `relay.ditto.pub` and `nostr.wine`. Relays that connect
+but return nothing here: `relay.noswhere.com`, `relay.nostrcheck.me`,
+`relay.vertexlab.io`, `filter.nostr.wine`, `relay.orly.dev`,
+`relay.mleku.dev`; `relay.nostr.band` is unreachable at TCP.
+`relay.damus.io`, `nos.lol` and `relay.primal.net` all work for read and
+write and are the default write set.
+
+Capture one note with:
+
+```bash
+just ingest-nostr <note1|nevent1|hex> [slug] [tag] [why]
+```
+
+It writes `archive/nostr/<id>/<TS>/` with the signed event (`event.json`),
+its flattened text (`event.txt`), the fetched replies where any exist
+(`replies.json`) and a sidecar (`meta.json`). A re-capture is a new
+timestamped directory. Registration is a `[[nostr_post]]` block in
+`sources.toml` (schema comment at the end of the file); `capture.py`
+validates the section but never polls it, so first capture is always
+`just ingest-nostr`, never `just capture-one`.
+
+Troubleshooting: an occasional connect failure against `search.nos.today`
+is transient; the discoverer retries once per relay, and a manual retry of
+the run is fine. `just discover-nostr --check` prints the local
+configuration without touching the network, and `--show <note1-or-hex>`
+fetches one candidate's body for inspection. A search relay returning
+nothing for known
+notes has usually fallen out of sync rather than proving absence, because
+indexes are per-relay. To find fresh NIP-50 candidates, query the NIP-66
+monitor events (`nak req -k 30166 -t N=50 wss://relay.damus.io`) and test
+each with a live query before adding it to `NOSTR_SEARCH_RELAYS`;
+`relay.nostr.band` does not answer this host at all.
+
+## The agent account
+
+The unattended agents (`agent-review.sh`, `agent-discovery-intake.sh`,
+`claim-sweep.sh`) read text strangers wrote, so they do not run as the account
+that owns the tree. The reasoning is in
+[design/agent-sandbox.md](design/agent-sandbox.md); this is the setup.
+
+Until it is done the drivers refuse to run, and a refusal is cheap: the queue
+waits and the next tick retries. `AGENT_SANDBOX=off` in `.env` is the recorded
+opt-out for a clone with no agent account.
+
+One-time, as root:
+
+```bash
+sudo useradd --system --user-group --home-dir /var/lib/cc-agent \
+    --create-home --shell /usr/sbin/nologin cc-agent
+sudo usermod -aG cc-agent "$(id -un)"        # so you can edit what it writes
+sudo install -m 0440 scripts/cc-agent.sudoers.example /etc/sudoers.d/cc-agent
+sudo visudo -c                                # replace OPERATOR first
+```
+
+Edit `/etc/sudoers.d/cc-agent` to name your account in place of `OPERATOR`.
+The rule only lets your account become `cc-agent`, which is a privilege drop;
+nothing lets `cc-agent` become anyone.
+
+Then, as the tree's owner:
+
+```bash
+./scripts/agent-permissions.sh          # apply the modes and create the token
+sudo systemctl restart webbridge.service   # pick up the new browser token
+just audit-sandbox                      # re-check at any time
+```
+
+The group change needs a fresh login (or a `systemctl restart` of the timers)
+before it takes effect.
+
+### The provider, and swapping between them
+
+Three providers are installed in `/usr/local/bin` as `cc-agent-<name>`, each
+speaking the same `<bin> -p "<prompt>"` contract the drivers expect, each
+authenticating from its own credential directory under `/var/lib/cc-agent`.
+
+Which providers those are is not recorded here. It lives in `AGENTS.local.md`
+alongside the capture host's address, and their API hostnames live in
+`scripts/agent-egress.local.toml`, for the reason `.env` exists: an archive
+whose agents read attacker-adjacent material should not publish which models
+and CLIs those agents are.
+
+Swapping is one line in `.env` and nothing else:
+
+```bash
+REVIEW_AGENT_BIN=/usr/local/bin/cc-agent-<name>
+```
+
+`REVIEW_AGENT_BIN`, `X_REVIEW_AGENT_BIN` and `CLAIM_SWEEP_AGENT_BIN` are
+independent, so the sweep can run on one provider while intake runs on
+another. That is also how to compare them: point two lanes at two providers
+and read the reports side by side.
+
+They live in `/usr/local/bin` rather than an operator's `~/.local/bin`
+because `cc-agent` cannot traverse a 700 home. The wrappers hold no secret;
+each authenticates from `$HOME`, which `run-agent.sh` sets to
+`/var/lib/cc-agent`. Adding one is a wrapper plus a credential directory,
+both owned by `cc-agent` and mode 600, plus its API hostnames in the local
+egress file.
+
+Keeping the credentials there rather than in your home is the point: the model
+credential stops sharing a directory with the nostr key and the Cloudflare
+token. Copy only what authenticates. Prompt history, session databases and
+caches carry material from your other work and do not belong on the agent
+account.
+
+The provider CLIs create a scratch directory inside the workspace and each
+picks its own name, so the repository root is `3775`: group-writable so they
+can, sticky so the agent can only remove entries it owns. Those directory
+names are excluded in `.git/info/exclude` rather than `.gitignore`, because a
+tracked ignore rule naming a provider discloses the tooling too.
+
+### Egress
+
+An agent reaches the network through one proxy and nothing else.
+
+```bash
+sudo cp scripts/agent-proxy.service.example /etc/systemd/system/agent-proxy.service
+# replace USER and REPO, then:
+sudo systemctl daemon-reload && sudo systemctl enable --now agent-proxy
+
+sudo mkdir -p /etc/nftables.d
+sed "s/AGENT_UID/$(id -u cc-agent)/" scripts/agent-egress.nft.example \
+  | sudo tee /etc/nftables.d/agent-egress.nft >/dev/null
+sudo nft -c -f /etc/nftables.d/agent-egress.nft     # check before applying
+sudo nft -f /etc/nftables.d/agent-egress.nft
+```
+
+To survive a reboot, `/etc/nftables.conf` needs `include "/etc/nftables.d/*.nft"`
+and `nftables.service` needs enabling.
+
+The allowlist is `scripts/registry_hosts.toml` plus
+`scripts/agent_egress_hosts.toml`, both read-only to the agent. Adding a host
+is a human edit followed by `sudo systemctl restart agent-proxy`, because the
+policy is read once at startup.
+
+What each run reached, and what it was refused:
+
+```bash
+sudo journalctl -u agent-proxy --since -1h | grep -E 'allowed|REFUSED'
+sudo nft list table inet cc_agent_egress | grep counter   # direct attempts
+```
+
+A refusal is a finding, not noise. Either a provider moved an endpoint, or a
+run tried to reach somewhere it should not, and those are worth telling apart.
+Provider telemetry is refused deliberately and will show up here.
+
+### When a run is rejected
+
+`agent-guard: the <role> run is REJECTED` in the journal means the agent wrote
+outside its remit, or something it wrote tripped the secret, registry or queue
+checks. Nothing was reverted and no first capture was made. The run directory
+under `.work/agent-guard/` holds the before-copies, so:
+
+```bash
+git diff -- sources.toml DISCOVERY.md revision-reviews.toml site/src/pages
+```
+
+is the whole of what happened. Read it before deciding. A rejection is more
+often a person editing during a run than an attack, and the report names the
+file either way. Revert or keep by hand; the queue entries stay pending and
+the next tick retries.
+
 ## Signal alerting (not enabled)
 
 `NOTIFY=relay` routes through an internal notification relay reached over

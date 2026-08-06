@@ -1,0 +1,44 @@
+# The agent egress proxy: the only route out for an unattended agent run.
+#   sudo cp agent-proxy.service.example /etc/systemd/system/agent-proxy.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now agent-proxy
+#
+# Replace USER and REPO with the account and checkout path. It must NOT run as
+# the agent account: a proxy the agent could stop, or whose config it could
+# read and rewrite, is not a control. Running as the operator is fine, because
+# the operator already has the network access this hands out selectively.
+#
+# Pair it with the nftables rule in agent-egress.nft.example. Neither half is
+# any use alone: without the firewall the agent ignores the proxy and connects
+# directly, and without the proxy the firewall has nothing to allow.
+[Unit]
+Description=egress allowlist proxy for the unattended agents
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python scripts/agent_proxy.py
+Restart=always
+RestartSec=2
+
+# It reads two policy files and opens sockets. Nothing else.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

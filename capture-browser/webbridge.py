@@ -5,12 +5,26 @@ Speaks the small action vocabulary the archive's capture scripts use over
 POST http://127.0.0.1:10086/command:
 
     {"action": "list_tabs"|"navigate"|"evaluate"|"save_as_pdf"|"close_tab"
-               |"cdp"|"close_session",
+               |"cdp"|"close_session"|"fetch_json"|"blocklist_info",
      "args": {...}, "session": "<name>"}
   -> {"ok": true, "data": {"success": true, ...}}
 
-Read-only by construction: nothing in the vocabulary can post, follow or
-like.
+Read-only by construction in the sense that matters for capture: nothing in
+the vocabulary posts, follows or likes. It is not read-only in the sense of
+"safe to expose", and the difference became load-bearing once unattended
+agents started running on this host. `evaluate` runs arbitrary JavaScript and
+`cdp` speaks raw DevTools, inside a browser signed in as a person. Anything
+that can reach this port can act as that person.
+
+So the port is not the boundary. If a token file exists beside the profile
+(.capture-browser/token, mode 600 and owned by the operator), every request
+must carry it as X-Bridge-Token. The capture scripts read the same file, and
+the unattended agent account cannot: .capture-browser/ is mode 700. An
+injected agent therefore has a port it can connect to and no way to use it.
+
+The check is skipped when the file is absent, so an existing install keeps
+working until the operator creates one. `scripts/agent-permissions.sh` creates
+it, and `just audit-sandbox` reports its absence rather than assuming it away.
 
 Robustness model: this process may idle for days between captures.
   1. Every action that touches the browser relaunches it once on failure.
@@ -19,6 +33,7 @@ Robustness model: this process may idle for days between captures.
 State worth keeping (challenge cookies) lives in the persistent profile dir
 and survives all three layers.
 """
+import hmac
 import json
 import os
 import sys
@@ -43,6 +58,24 @@ PROFILE = Path(
 )
 NAV_TIMEOUT_MS = 60_000
 PDF_TIMEOUT_MS = 120_000
+
+# The shared secret described at the top of this file. Read once at startup:
+# a token that could be swapped underneath a running daemon would be a way to
+# change who may drive the browser without anyone restarting anything.
+TOKEN_FILE = Path(
+    os.environ.get('CAPTURE_BROWSER_TOKEN_FILE')
+    or Path(__file__).resolve().parent.parent / '.capture-browser' / 'token'
+)
+
+
+def load_token() -> str:
+    try:
+        return TOKEN_FILE.read_text().strip()
+    except OSError:
+        return ""
+
+
+TOKEN = load_token()
 
 # Ad and tracker request blocking. The list is the committed
 # capture-browser/ad-hosts.txt, curated from Peter Lowe's ad and tracking
@@ -331,6 +364,13 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/command":
             self._reply(404, {"ok": False, "error": "unknown path"})
             return
+        # hmac.compare_digest rather than ==, because the port answers anyone
+        # on this host and a timing oracle is a cheap thing to remove.
+        if TOKEN and not hmac.compare_digest(
+                self.headers.get("X-Bridge-Token", ""), TOKEN):
+            log(f"rejected an unauthenticated {self.client_address[0]} request")
+            self._reply(403, {"ok": False, "error": "bad or missing token"})
+            return
         try:
             body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
             req = json.loads(body)
@@ -347,12 +387,21 @@ class Handler(BaseHTTPRequestHandler):
                 # One relaunch-and-retry: covers a crashed or wedged browser.
                 # A dead current tab is not retried for stateful actions,
                 # since a fresh browser has no equivalent tab to act on.
+                #
+                # Relaunch ONLY where the retry follows. HOST.start() tears
+                # down the whole context and clears every session's pages, so
+                # relaunching before a re-raise destroys live tabs to no end
+                # and starts a fresh Chromium each time. On 5-6 Aug 2026 that
+                # self-fed: one stale evaluate cleared the pages, the caller's
+                # next evaluate found no current tab and relaunched again, and
+                # the browser was oom-killed against MemoryMax with 26 tab
+                # errors in 24h. Fail the stateful action instead; capture.py
+                # opens its own tab with navigate on the next poll.
+                if action not in ("list_tabs", "navigate"):
+                    raise
                 log(f"{action} failed ({e}); relaunching browser")
                 HOST.start()
-                if action in ("list_tabs", "navigate"):
-                    data = fn(session, args)
-                else:
-                    raise
+                data = fn(session, args)
             self._reply(200, {"ok": True, "data": data})
         except Exception as e:
             log(f"error: {type(e).__name__}: {e}")
@@ -371,6 +420,12 @@ def main() -> None:
     HOST.start()
     srv = HTTPServer(("127.0.0.1", PORT), Handler)
     log(f"capture browser listening on 127.0.0.1:{PORT}")
+    if TOKEN:
+        log(f"token auth on, from {TOKEN_FILE}")
+    else:
+        log(f"token auth OFF: no {TOKEN_FILE}. Any local process can drive "
+            f"this browser, including an unattended agent. See "
+            f"scripts/agent-permissions.sh")
     try:
         srv.serve_forever()
     finally:

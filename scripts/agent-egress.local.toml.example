@@ -1,0 +1,16 @@
+# Copy to agent-egress.local.toml and fill in. Never commit the copy.
+#
+# The API hostnames of whichever model provider runs the unattended agents.
+# They live here, outside the tracked tree, so this repository does not
+# publish which models and CLIs read its archived material. A leading dot
+# means the domain and its subdomains.
+#
+# Find them from a run rather than from memory: start the proxy, run one
+# agent, and read the refusals out of the journal.
+#   sudo journalctl -u agent-proxy | grep REFUSED
+#
+# Provider telemetry and crash reporting belong in the refusals, not here.
+[hosts]
+model_api = [
+  ".example-provider.com",
+]

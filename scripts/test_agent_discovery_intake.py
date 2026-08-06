@@ -10,32 +10,36 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class XProbationTests(unittest.TestCase):
     def make_checkout(self, raw: str) -> Path:
+        """A checkout complete enough for the driver's containment to run.
+
+        The driver no longer just renders a prompt and shells out. It records
+        the tree, drops privilege, and checks what came back, so the fixture
+        needs the whole of scripts/, an interpreter, and a git repository for
+        the guard to enumerate. Copying less would test a driver that does
+        not exist.
+        """
         root = Path(raw)
-        scripts = root / "scripts"
-        scripts.mkdir()
-        shutil.copy2(
-            ROOT / "scripts/agent-discovery-intake.sh",
-            scripts / "agent-discovery-intake.sh",
-        )
-        shutil.copy2(
-            ROOT / "scripts/agent-discovery-intake-prompt.md",
-            scripts / "agent-discovery-intake-prompt.md",
-        )
-        shutil.copy2(
-            ROOT / "scripts/agent-x-discovery-triage-prompt.md",
-            scripts / "agent-x-discovery-triage-prompt.md",
-        )
+        shutil.copytree(ROOT / "scripts", root / "scripts",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        (root / ".venv").symlink_to(ROOT / ".venv")
+        (root / ".work").mkdir()
         (root / ".env").write_text(
             "REVIEW_AGENT_BIN=/bin/false\n"
-            "X_REVIEW_AGENT_BIN=/bin/false\n",
+            "X_REVIEW_AGENT_BIN=/bin/false\n"
+            # No agent account in a test tree, so the privilege drop is
+            # deliberately opted out of rather than silently skipped.
+            "AGENT_SANDBOX=off\n",
             encoding="utf-8",
         )
+        (root / ".gitignore").write_text(".work/\n.env\n", encoding="utf-8")
         (root / "DISCOVERY.md").write_text(
             "# Discovery intake\n\n## Pending\n\n"
             "- 2026-08-05 [candidate](https://x.com/researcher/status/123) "
             "(X @researcher)\n\n## Assessed\n",
             encoding="utf-8",
         )
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        subprocess.run(["git", "add", "-A"], cwd=root, check=True)
         return root
 
     def run_intake(self, root: Path, *args: str) -> subprocess.CompletedProcess:

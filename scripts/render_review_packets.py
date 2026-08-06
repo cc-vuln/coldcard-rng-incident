@@ -35,10 +35,13 @@ def main() -> int:
         context = source.get("note") or source.get("why") or ""
         if context:
             print("Context: " + " ".join(str(context).split()))
+        # No markdown fence around the diff lines. A fence is closed by text
+        # anybody can write, and these lines are exactly that: whatever the
+        # source published. The whole packet file is wrapped once by
+        # render_agent_prompt.py in a marker unique to the run, which is the
+        # boundary that content cannot guess its way out of.
         print("Changed lines:")
-        print("```diff")
         print("\n".join(lines) if lines else "(no added or removed text lines)")
-        print("```")
         print(f"Packet truncated: {'yes' if truncated else 'no'}")
         print()
     return 0

@@ -7,6 +7,11 @@
 #
 # Replace USER and REPO with the account and checkout path. Requires
 # REVIEW_AGENT_BIN in REPO/.env (see .env.example).
+#
+# This unit runs an agent over diffs the sources wrote, so install the shared
+# hardening drop-in beside it (scripts/agent-hardening.conf.example) and the
+# agent account it drops to (docs/operations.md, "The agent account"). Without
+# them agent-review.sh refuses to run rather than running unprotected.
 [Unit]
 Description=archive agent review of newly captured diffs
 Wants=network-online.target
@@ -18,7 +23,17 @@ User=USER
 WorkingDirectory=REPO
 ExecStart=REPO/scripts/agent-review.sh
 TimeoutStartSec=3600
-NoNewPrivileges=true
+# NoNewPrivileges is not set: it would block the setuid transition the driver
+# uses to drop into the agent account. See agent-hardening.conf.example.
+#
+# Nothing in this unit talks to anything on this host: the diffs are rendered
+# from files, so the only outbound traffic is the agent CLI reaching its model
+# API. So it also takes the loopback drop-in,
+# scripts/agent-loopback-deny.conf.example, which puts the capture browser and
+# the cloud metadata endpoint out of reach. Do not write that rule inline as
+# `IPAddressAllow=any` plus `IPAddressDeny=localhost`: an allow entry beats a
+# deny entry whatever its prefix, so that spelling silently permits
+# everything. The drop-in explains it and carries the measurement.
 
 [Install]
 WantedBy=multi-user.target

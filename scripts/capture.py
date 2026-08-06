@@ -8,21 +8,25 @@ advice change, and what did it say before". So a snapshot is written only when
 the extracted text differs from the last one held. Every poll is logged either
 way, which is what lets you say "unchanged as of 03:00 UTC" with evidence.
 
-One front door, three fetch backends, one record shape. A source declares its
-method with `capture = "http"` (the default, a plain scripted fetch),
+One front door, one record shape. A registry source declares its method with
+`capture = "http"` (the default, a plain scripted fetch),
 `capture = "browser"` (rendered through the capture browser,
-for JS-challenged or JS-hydrated pages), or gallery-dl for social posts via
-scripts/capture-x.sh. Whichever method fetched it, a capture lands as the same
-artefacts: <TS>.txt, a rendered artefact (.html or .pdf), <TS>.meta.json with
-the method recorded, a diff on change, and an index.jsonl event.
+for JS-challenged or JS-hydrated pages), or `capture = "reddit-json"` (thread
+JSON read through the capture browser session, flattened to canonical text).
+gallery-dl captures of social posts via scripts/capture-x.sh land in the same
+record shape. Whichever method fetched it, a capture lands as the same
+artefacts: <TS>.txt, a raw artefact (.html, .pdf or .json), <TS>.meta.json
+with the method recorded, a diff on change, and an index.jsonl event.
 
     capture.py capture [--id ID] [--tier N] [--kind KIND]
                        [--exclude-kind KIND] [--dry-run]
+                       [--result-file PATH]
     capture.py status
     capture.py audit          # verify every capture against the record contract
     capture.py log [--limit N]
     capture.py show ID
-    capture.py import-dir DIR   # absorb an ad-hoc snapshot directory
+    capture.py import-dir DIR [--ts TS]  # absorb an ad-hoc snapshot directory
+    capture.py record-run RESULT_FILE    # append a run's changes to CHANGES.md
 
 Exit 0 is a healthy unchanged run, 10 is a healthy run with changes, 20 is an
 incomplete run, and 21 is archive-writer lock contention.
@@ -54,6 +58,7 @@ from archive_lock import (
     archive_lock,
 )
 from response_headers import safe_headers, scrub_geo
+import x_thread
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "sources.toml"
@@ -73,6 +78,8 @@ POLITE_DELAY = 1.5
 INCOMPLETE_EXIT = 20
 # Snapshot-style UTC stamp, the same shape every capture filename uses.
 TS_RE = re.compile(r"\d{8}T\d{6}Z")
+# A thread capture needs the focal status id and the author out of the URL.
+X_STATUS_URL = re.compile(r"https?://(?:www\.)?x\.com/([^/]+)/status/(\d+)")
 
 # A poll that failed and a record that is stale are different things, and only
 # the second should stop a publication. These control the first: a transient
@@ -313,29 +320,18 @@ def _normalise_rolling_last_update(text: str) -> str:
     )
 
 
-def _normalise_reddit_engagement(text: str) -> str:
-    # Vote totals and collapsed-reply counts change independently of what the
-    # victim or commenters wrote.  Standalone numbers inside prose are left
-    # alone unless Reddit rendered them as their own line between comments.
-    text = re.sub(
-        r"(?m)^-?[0-9][0-9,.]*[kKmM]?$", "<engagement-count>", text
-    )
-    text = re.sub(
-        r"(?m)^\d+ more repl(?:y|ies)$", "<more-replies>", text
-    )
-    return re.sub(
-        r"(?m)^\d+Name$", "<engagement-count>\nName", text
-    )
-
 
 def _normalise_reddit_achievement_badges(text: str) -> str:
     # Achievement badges are publisher chrome Reddit recomputes between polls;
     # they appear, disappear and swap label under the same comment. Drop the
     # whole line: masking it in place would still diff when a badge appears
     # where none was rendered before. Nobody writes "Top 1% Commenter" as a
-    # standalone comment line. Kept separate from reddit-engagement because
-    # held snapshots record that name in meta.json and the archive audit
-    # replays them with the function as it was at capture time.
+    # standalone comment line. Kept a separate filter because held snapshots
+    # record each name in meta.json and the archive audit replays them with
+    # the function as it was at capture time, so a merged filter would
+    # recompute old change hashes. (The former reddit-engagement filter it was
+    # split from was removed on 6 Aug 2026: nothing bound it and no held
+    # snapshot recorded it, so nothing replays it.)
     return re.sub(
         r"(?m)^[ \t]*Top \d+% (?:Commenter|Poster)\n?", "", text
     )
@@ -518,8 +514,24 @@ def _normalise_chaincatcher_article(text: str) -> str:
     return text
 
 
+def _normalise_hn_api_points(text: str) -> str:
+    """Suppress the vote total in a Hacker News API item.
+
+    The rendered HN page needed `relative-time` because it dates everything in
+    "3 hours ago"; the Algolia item API dates everything absolutely instead and
+    is the reason those two sources moved to it on 6 Aug 2026, after HN began
+    answering this collector with a persistent 429. One volatile field is left:
+    `points` on a story node, which moves with voting and would otherwise
+    report a source-content change on every poll. Comment nodes carry a null
+    and are untouched, so a comment appearing or being edited stays loud.
+    """
+
+    return re.sub(r'^(\s*"points":\s*)\d+(,?)$', r"\1null\2", text, flags=re.M)
+
+
 NORMALISERS = {
     "relative-time": _normalise_relative_time,
+    "hn-api-points": _normalise_hn_api_points,
     "fiat-values": _normalise_fiat_values,
     "github-repo-counters": _normalise_github_repo_counters,
     "github-reactions": _normalise_github_reactions,
@@ -527,7 +539,6 @@ NORMALISERS = {
     "theblock-tickers": _normalise_theblock_tickers,
     "theblock-ticker-shell": _normalise_theblock_ticker_shell,
     "rolling-last-update": _normalise_rolling_last_update,
-    "reddit-engagement": _normalise_reddit_engagement,
     "reddit-achievement-badges": _normalise_reddit_achievement_badges,
     "reddit-chrome": _normalise_reddit_chrome,
     "reddit-more-stub-counts": _normalise_reddit_more_stub_counts,
@@ -611,7 +622,7 @@ def validate_sources(cfg: dict) -> None:
     # pages, splits its captures between them, and reads to a visitor as two
     # independent records of one thing. This happened once, on 2 Aug 2026.
     seen_urls: dict[str, str] = {}
-    for section in ("source", "x_post"):
+    for section in ("source", "x_post", "nostr_post"):
         for pos, item in enumerate(cfg.get(section, []), 1):
             sid = item.get("id")
             if not isinstance(sid, str) or not sid.strip():
@@ -772,6 +783,54 @@ def validate_sources(cfg: dict) -> None:
                         "non-empty strings"
                     )
 
+            if section == "x_post":
+                # A registered post is captured once and never polled. Setting
+                # thread = true makes its conversation a polled source under
+                # the same id, so every downstream consumer (snapshots, diffs,
+                # revision reviews, the change feed, poll health) picks it up
+                # without learning a new concept.
+                thread = item.get("thread", False)
+                if not isinstance(thread, bool):
+                    raise SourceConfigError(
+                        f"x_post {sid!r}: thread must be true or false"
+                    )
+                tier = item.get("tier")
+                if thread:
+                    if type(tier) is not int or tier not in (1, 2, 3):
+                        raise SourceConfigError(
+                            f"x_post {sid!r}: thread capture requires a tier "
+                            "from 1 to 3, so its cadence is stated"
+                        )
+                    if not X_STATUS_URL.match(item["url"]):
+                        raise SourceConfigError(
+                            f"x_post {sid!r}: thread capture needs an X status "
+                            f"URL, got {item['url']!r}"
+                        )
+                    author = item.get("author")
+                    if not isinstance(author, str) or not author.strip():
+                        raise SourceConfigError(
+                            f"x_post {sid!r}: thread capture needs author, "
+                            "which identifies the self-thread"
+                        )
+                elif tier is not None:
+                    raise SourceConfigError(
+                        f"x_post {sid!r}: tier applies only to a polled "
+                        "thread; add thread = true or drop the tier"
+                    )
+                # Per-status withholding: one flag per source is too coarse
+                # for a conversation, where a single phishing reply should not
+                # force the choice between publishing it and withholding the
+                # whole thread. See docs/design/capture-display-policy.md 1b.
+                withheld = item.get("withhold_posts", [])
+                if not isinstance(withheld, list) or any(
+                    not isinstance(status, str) or not status.isdigit()
+                    for status in withheld
+                ):
+                    raise SourceConfigError(
+                        f"x_post {sid!r}: withhold_posts must be a list of "
+                        "numeric status id strings"
+                    )
+
 
 def classify_failure(exc: BaseException) -> str:
     """What kind of failure this is, because they deserve different responses.
@@ -794,6 +853,162 @@ def classify_failure(exc: BaseException) -> str:
     if isinstance(exc, (TimeoutError, ConnectionError, urllib.error.URLError, OSError)):
         return "transient"
     return "transient"
+
+
+# Text an interstitial serves instead of the document. Matched against the
+# refusal's own body, lowercased. These are the visible words of a challenge
+# page, not vendor header names: `cf-ray` would identify the edge that
+# answered, which names a city, and `response_headers.KEEP` exists to keep
+# that out of the archive. A diagnosis has to survive the same rule, so what
+# gets stored is the slug this produces and never the evidence behind it.
+CHALLENGE_MARKERS = (
+    "just a moment",
+    "performing security verification",
+    "attention required!",
+    "checking your browser",
+    "enable javascript and cookies to continue",
+    "challenges.cloudflare.com",
+    "verifying you are human",
+    "ddos protection by",
+)
+
+# Resolver failures arrive as a generic URLError wrapping a socket.gaierror,
+# so the text is all there is to go on. Kept narrow: an unresolvable name is a
+# statement about this host's resolver, and on this collector it has already
+# meant a filtered name rather than a dead domain.
+_DNS_MARKERS = (
+    "name or service not known",
+    "nodename nor servname provided",
+    "temporary failure in name resolution",
+    "no address associated with hostname",
+    "getaddrinfo failed",
+)
+
+
+def diagnose_failure(exc: BaseException) -> tuple[str, int | None]:
+    """A finer cause than `classify_failure`, and the status behind it.
+
+    `classify_failure` answers "may this be retried, and does it block
+    publication". That is the right question for the gate and the wrong one
+    for whoever has to fix the source: it lumps a Cloudflare interstitial in
+    with a paywall, and a filtered DNS name in with a timeout. Both pairs
+    were live on this collector on 6 August 2026 and both cost an hour of
+    re-probing to tell apart, because the record had recorded only the
+    coarse word.
+
+    So this is additive. `failure` keeps its exact meaning and its effect on
+    the gate; `diagnosis` says which of the several things that word covers
+    actually happened. Returns the slug and the HTTP status if the origin
+    answered with one.
+    """
+
+    if isinstance(exc, urllib.error.HTTPError):
+        code = exc.code
+        body = ""
+        try:
+            # HTTPError is itself the response. Reading it is what
+            # distinguishes an interstitial from a flat refusal, and the
+            # bytes are dropped as soon as the markers have been checked.
+            body = exc.read()[:4096].decode("utf-8", errors="ignore").lower()
+        except Exception:
+            body = ""
+        challenged = any(m in body for m in CHALLENGE_MARKERS)
+        if not challenged:
+            try:
+                challenged = any(
+                    name.lower() == "cf-mitigated" for name in (exc.headers or {})
+                )
+            except Exception:
+                challenged = False
+        if challenged:
+            return "origin-challenge", code
+        if code in (404, 410):
+            return "origin-absent", code
+        if code == 429:
+            return "origin-rate-limit", code
+        if code == 403:
+            return "origin-refused", code
+        if 500 <= code < 600:
+            return "origin-server-error", code
+        return "origin-refused", code
+
+    text = str(exc).lower()
+    if isinstance(exc, urllib.error.URLError) and any(m in text for m in _DNS_MARKERS):
+        return "dns-unresolved", None
+    if any(m in text for m in _DNS_MARKERS):
+        return "dns-unresolved", None
+    if isinstance(exc, TimeoutError) or "timed out" in text:
+        return "connect-timeout", None
+    if isinstance(exc, ConnectionResetError) or "reset by peer" in text:
+        return "connect-reset", None
+    if isinstance(exc, ConnectionRefusedError) or "connection refused" in text:
+        return "connect-refused", None
+    if isinstance(exc, (ConnectionError, urllib.error.URLError, OSError)):
+        return "connect-failed", None
+    return "unknown", None
+
+
+def diagnose_content(text: str, shortfall: str) -> str:
+    """Why a capture that parsed was refused: an interstitial, or just short.
+
+    Both callers record `failure = "challenged"`, which asserts something
+    about the origin. On 6 August 2026 that assertion was wrong for five of
+    the six sources carrying it: four Reddit threads were answering perfectly
+    and were merely shorter than a `min_chars` value copied in at
+    registration, and nvk.wtf had rewritten the sentence a `required_text`
+    marker was anchored to. Only the sixth had met an actual challenge. The
+    coarse word cannot tell those apart; reading the body can.
+    """
+
+    if any(m in text.lower() for m in CHALLENGE_MARKERS):
+        return "origin-challenge"
+    return shortfall
+
+
+def diagnose_browser(message: str) -> str:
+    """Which browser-route failure this is: the daemon, or one wedged tab."""
+
+    lowered = message.lower()
+    if "target crashed" in lowered or "no current tab" in lowered:
+        return "browser-tab-lost"
+    return "browser-unavailable"
+
+
+def thread_source(post: dict) -> dict:
+    """One thread-enabled [[x_post]] as a source capture.py can poll.
+
+    The registry keeps posts and web sources in separate blocks because they
+    are different things, but a conversation being polled is a source in every
+    way that matters here. Synthesising it in one place keeps that translation
+    from being spread across the call sites that would each get it slightly
+    wrong.
+    """
+    return {
+        "id": post["id"],
+        "url": post["url"],
+        "kind": "social-thread",
+        "tier": post.get("tier"),
+        "capture": "x-thread",
+        "x_author": post["author"],
+        "gone": post.get("gone", False),
+        "withhold_text": post.get("withhold_text", False),
+        "note": post.get("why"),
+        "title": post.get("title"),
+        "withhold_posts": list(post.get("withhold_posts", [])),
+    }
+
+
+def pollable_sources(cfg: dict) -> list[dict]:
+    """Every source the poll owns: web sources plus thread-enabled posts.
+
+    One function, because the alternative is several call sites each deciding
+    whether threads count, and the one that says no is the one that silently
+    stops capturing them.
+    """
+    return list(cfg.get("source", [])) + [
+        thread_source(p) for p in cfg.get("x_post", [])
+        if p.get("thread") is True
+    ]
 
 
 def load_sources() -> dict:
@@ -878,12 +1093,31 @@ class BrowserUnavailable(RuntimeError):
     pass
 
 
+def wb_token() -> str:
+    """The capture browser's shared secret, if one has been set up.
+
+    The browser holds signed-in sessions and its protocol can run arbitrary
+    JavaScript in them, so reaching the port is not supposed to be enough.
+    The token lives in .capture-browser/, which is mode 700, so the account
+    the unattended agents run as cannot read it. Absent means the daemon is
+    running without auth and this sends nothing, which keeps an install that
+    predates the token working. See capture-browser/webbridge.py.
+    """
+    try:
+        return (ROOT / ".capture-browser" / "token").read_text().strip()
+    except OSError:
+        return ""
+
+
 def wb_cmd(action: str, args: dict | None = None, timeout: int = 60) -> dict:
     payload = json.dumps(
         {"action": action, "args": args or {}, "session": WB_SESSION}
     ).encode()
-    req = urllib.request.Request(
-        WB_URL, data=payload, headers={"Content-Type": "application/json"})
+    headers = {"Content-Type": "application/json"}
+    token = wb_token()
+    if token:
+        headers["X-Bridge-Token"] = token
+    req = urllib.request.Request(WB_URL, data=payload, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         out = json.loads(resp.read())
     data = out.get("data", {})
@@ -1003,6 +1237,118 @@ def fetch_reddit_json(url: str) -> tuple[str, dict]:
             f"type {str(data.get('content_type'))[:40]}")
     return data.get("body", ""), {"_status": data.get("status"),
                                   "content-type": data.get("content_type")}
+
+
+X_CAPTURES = ROOT / "archive" / "x"
+
+
+def held_thread_statuses(sid: str) -> frozenset[str]:
+    """Status ids whose screenshot this archive already holds, across captures.
+
+    A capture directory holds the shots taken in that capture, not every shot
+    for the thread, so this composes across directories. Without it a tier-3
+    poll of a fifty-reply thread rewrites images it already has, every time.
+    """
+    held: set[str] = set()
+    directory = X_CAPTURES / sid
+    if not directory.is_dir():
+        return frozenset()
+    for capture in directory.iterdir():
+        if not capture.is_dir() or not TS_RE.fullmatch(capture.name):
+            continue
+        for shot in capture.glob("thread-*.png"):
+            held.add(shot.stem[len("thread-"):])
+    return frozenset(held)
+
+
+def write_thread_shots(sid: str, ts: str, shots: dict[str, bytes]) -> int:
+    """Write this capture's screenshots under archive/x/<id>/<TS>/.
+
+    A capture directory holds the shots taken in that capture, not every shot
+    for the thread; the site composes across directories to find the newest
+    held image per status. Nothing is ever overwritten, so the append-only
+    rule stays a property of the layout rather than something to remember.
+    """
+    if not shots:
+        return 0
+    directory = X_CAPTURES / sid / ts
+    directory.mkdir(parents=True, exist_ok=True)
+    for status, png in shots.items():
+        (directory / f"thread-{status}.png").write_bytes(png)
+    return len(shots)
+
+
+# A poll that collected far less than the one before it is under-collection
+# until proven otherwise. Absence is not deletion, and a thread capture cannot
+# tell the two apart, so the archive refuses the capture rather than write a
+# snapshot whose diff reads as mass deletion. Measured 6 Aug 2026: one capture
+# of a 146-reply thread returned 45 replies and declared nothing.
+THREAD_SHRINK_FLOOR = 0.75
+THREAD_SHRINK_MIN = 20
+
+
+def previous_thread_replies(sid: str) -> int | None:
+    """replies_observed from the newest held structured record, if any."""
+    directory = snap_dir(sid)
+    if not directory.is_dir():
+        return None
+    records = sorted(p for p in directory.glob("*.json")
+                     if not p.name.endswith(".meta.json"))
+    for record in reversed(records):
+        try:
+            depth = json.loads(record.read_text(encoding="utf-8"))["depth"]
+        except (OSError, ValueError, KeyError):
+            continue
+        count = depth.get("replies_observed")
+        if isinstance(count, int):
+            return count
+    return None
+
+
+def fetch_x_thread(url: str, author: str, sid: str, dry: bool) -> tuple[str, bytes, dict]:
+    """Capture one X conversation. Returns (canonical text, JSON artefact, shots).
+
+    The browser work happens here, before any lock is taken: a first capture
+    runs for a minute or more and the single archive writer must not be
+    blocked on it.
+    """
+    if not wb_available():
+        raise BrowserUnavailable("webbridge daemon or browser not reachable")
+    match = X_STATUS_URL.match(url)
+    if not match:
+        raise ValueError(f"not an X status URL: {url}")
+    bridge = x_thread.make_bridge(
+        "http://127.0.0.1:" + os.environ.get("WEBBRIDGE_PORT", "10086")
+        + "/command",
+        "coldcard-archive-thread",
+        wb_token(),
+    )
+    try:
+        thread, depth, shots = x_thread.capture_thread(
+            url, match.group(2), author,
+            bridge=bridge,
+            held_statuses=held_thread_statuses(sid),
+            # A dry run must leave nothing behind, and screenshots are the
+            # expensive half of the capture.
+            want_screenshots=not dry,
+        )
+    finally:
+        try:
+            bridge("close_tab", {}, fatal=False)
+        except Exception:
+            pass
+    previous = previous_thread_replies(sid)
+    observed = depth.get("replies_observed", 0)
+    if (previous is not None and previous >= THREAD_SHRINK_MIN
+            and observed < previous * THREAD_SHRINK_FLOOR):
+        raise x_thread.ThreadCaptureError(
+            f"collected {observed} replies against {previous} last time; "
+            "refusing to write a capture whose diff would read as mass "
+            "deletion when it is more likely under-collection"
+        )
+    text = x_thread.flatten_thread(thread)
+    record = x_thread.structured_record(thread, depth)
+    return text, json.dumps(record, indent=1, sort_keys=True).encode(), shots
 
 
 def flatten_reddit_thread(raw: str) -> str:
@@ -1189,6 +1535,7 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     # the record. Refusals and 404s are the origin's decision, so they are taken
     # at face value the first time: retrying them is pointless and impolite.
     browser_info: dict = {}
+    thread_shots: dict[str, bytes] = {}
     while True:
         attempts += 1
         try:
@@ -1208,6 +1555,14 @@ def capture_one(src: dict, dry: bool = False) -> dict:
                 raw, headers = fetch_reddit_json(url)
                 body = raw.encode("utf-8")
                 text = flatten_reddit_thread(raw)
+            elif method == "x-thread":
+                # The conversation around a registered post: focal, ancestor,
+                # the author's own continuation posts and replies to a
+                # declared cap. The structured record is the artefact, the
+                # deterministic flattening is the text.
+                text, body, thread_shots = fetch_x_thread(
+                    url, src["x_author"], sid, dry
+                )
             else:
                 body, headers = fetch(fetch_url, src.get("fetch_post"))
                 text = extract_source_text(body, fetch_url, src)
@@ -1225,6 +1580,7 @@ def capture_one(src: dict, dry: bool = False) -> dict:
             result.update(
                 event="skipped", failure="unavailable",
                 attempts=attempts, error=str(e)[:300],
+                diagnosis=diagnose_browser(str(e)),
             )
             print(f"  {sid:<24} SKIPPED  {str(e)[:70]}")
             if not dry:
@@ -1242,13 +1598,18 @@ def capture_one(src: dict, dry: bool = False) -> dict:
                 detail = str(e)[:300]
             else:
                 detail = f"{type(e).__name__}: {e}"[:300]
+            # Read the refusal for its cause only once the retry decision is
+            # settled: diagnose_failure consumes an HTTPError's body, and a
+            # transient that is about to be retried has nothing to explain yet.
+            diagnosis, status = diagnose_failure(e)
             recovered = _try_wayback(src, result, kind, dry)
             if recovered is not None:
                 body, headers, text = recovered
                 break
-            result.update(event="error", failure=kind, attempts=attempts, error=detail)
+            result.update(event="error", failure=kind, attempts=attempts, error=detail,
+                          diagnosis=diagnosis, **({} if status is None else {"http_status": status}))
             suffix = f" (after {attempts} attempts)" if attempts > 1 else ""
-            print(f"  {sid:<24} ERROR  [{kind}] {detail[:60]}{suffix}")
+            print(f"  {sid:<24} ERROR  [{kind}/{diagnosis}] {detail[:60]}{suffix}")
             if not dry:
                 append_event(result)
             return result
@@ -1260,8 +1621,10 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     if floor and len(text) < floor:
         if tmp_pdf is not None:
             tmp_pdf.unlink(missing_ok=True)
-        result.update(event="blocked", failure="challenged", chars=len(text), min_chars=floor)
-        print(f"  {sid:<24} BLOCKED  {len(text)} chars < {floor} floor, not stored")
+        diagnosis = diagnose_content(text, "content-below-floor")
+        result.update(event="blocked", failure="challenged", chars=len(text),
+                      min_chars=floor, diagnosis=diagnosis)
+        print(f"  {sid:<24} BLOCKED  [{diagnosis}] {len(text)} chars < {floor} floor, not stored")
         if not dry:
             append_event(result)
         return result
@@ -1272,10 +1635,11 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     if missing_markers:
         if tmp_pdf is not None:
             tmp_pdf.unlink(missing_ok=True)
+        diagnosis = diagnose_content(text, "content-marker-missing")
         result.update(event="blocked", failure="challenged",
-                      missing_required_text=missing_markers)
+                      missing_required_text=missing_markers, diagnosis=diagnosis)
         print(
-            f"  {sid:<24} BLOCKED  required rendered content did not load"
+            f"  {sid:<24} BLOCKED  [{diagnosis}] required rendered content did not load"
         )
         if not dry:
             append_event(result)
@@ -1312,6 +1676,11 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     if prev and sha256(canonical_text(prev[1], src).encode()) == stable_hash:
         if tmp_pdf is not None:
             tmp_pdf.unlink(missing_ok=True)
+        if not dry:
+            # Normally empty here: an unchanged thread has no new posts to
+            # shoot. Non-empty means a shot that failed on an earlier poll
+            # succeeded on this one, which is worth keeping.
+            write_thread_shots(sid, ts, thread_shots)
         result["event"] = "unchanged"
         print(f"  {sid:<24} same   {t_hash[:12]}")
         if not dry:
@@ -1371,6 +1740,13 @@ def capture_one(src: dict, dry: bool = False) -> dict:
         # audit expect a PDF that JSON captures never produce.
         (d / f"{ts}.json").write_bytes(body)
         result["transport"] = "capture-browser/fetch_json"
+    elif method == "x-thread":
+        # The structured conversation record is the held artefact. Its
+        # screenshots live under archive/x/<id>/<TS>/, beside the ones
+        # ingest-x.py writes, so the site reads one layout for both.
+        (d / f"{ts}.json").write_bytes(body)
+        result["transport"] = "capture-browser/x-thread"
+        result["shots"] = write_thread_shots(sid, ts, thread_shots)
     else:
         (d / f"{ts}.html").write_bytes(body)
     (d / f"{ts}.meta.json").write_text(
@@ -1509,7 +1885,7 @@ def cmd_capture(args) -> int:
             print(f"run result: {result_path}")
         return 2
 
-    srcs = cfg.get("source", [])
+    srcs = pollable_sources(cfg)
     if args.id:
         srcs = [s for s in srcs if s["id"] == args.id]
         if not srcs:
@@ -1730,7 +2106,7 @@ def cmd_audit(args) -> int:
     problems: list[str] = []
     try:
         cfg = load_sources()
-        by_id = {source["id"]: source for source in cfg.get("source", [])}
+        by_id = {source["id"]: source for source in pollable_sources(cfg)}
     except (OSError, tomllib.TOMLDecodeError, SourceConfigError) as exc:
         problems.append(f"sources.toml: {type(exc).__name__}: {exc}")
         by_id = {}
@@ -1763,12 +2139,13 @@ def cmd_audit(args) -> int:
                 if meta["change_sha256"] != stable:
                     problems.append(f"{d.name}/{ts}: change_sha256 mismatch")
             method = meta.get("method", "http")
-            if method not in ("http", "browser", "gallery-dl", "reddit-json"):
+            if method not in ("http", "browser", "gallery-dl", "reddit-json",
+                              "x-thread"):
                 problems.append(f"{d.name}/{ts}: nonstandard method {method!r}")
             if method == "browser" or meta.get("renderer"):
                 if not (d / f"{ts}.pdf").exists():
                     problems.append(f"{d.name}/{ts}: browser capture without PDF")
-            elif method == "reddit-json":
+            elif method in ("reddit-json", "x-thread"):
                 if not (d / f"{ts}.json").exists():
                     problems.append(f"{d.name}/{ts}: JSON capture without artefact")
             elif method == "http" and not meta.get("imported_from") \
@@ -1825,7 +2202,7 @@ def cmd_status(args) -> int:
     cfg = load_sources()
     print(f"{'ID':<24} {'TIER':<5} {'WATCH':<7} {'SNAPS':<6} {'LAST CHANGE':<18} ORG")
     print("-" * 86)
-    for s in cfg.get("source", []):
+    for s in pollable_sources(cfg):
         d = snap_dir(s["id"])
         snaps = sorted(d.glob("*.txt")) if d.is_dir() else []
         last = snaps[-1].stem if snaps else "never"
@@ -1838,6 +2215,9 @@ def cmd_status(args) -> int:
     xs = cfg.get("x_post", [])
     if xs:
         print(f"\n{len(xs)} X posts registered (capture via scripts/capture-x.sh)")
+    ns = cfg.get("nostr_post", [])
+    if ns:
+        print(f"{len(ns)} nostr posts registered (capture via scripts/ingest_nostr.py)")
     return 0
 
 
@@ -1856,6 +2236,112 @@ def cmd_log(args) -> int:
         elif e["event"] == "error":
             extra = f"  {e.get('error','')[:60]}"
         print(f"{e['ts']}  {tag}  {e['id']}{extra}")
+    return 0
+
+
+NOMINAL_EVENTS = ("first", "changed", "unchanged")
+
+
+def failing_sources(events: list[dict]) -> list[dict]:
+    """Every source whose most recent poll failed, worst streak first.
+
+    A single failure is weather. What matters is the streak: on 6 August 2026
+    one source had been failing for 105 consecutive polls and the record said
+    the same word about it as about a source that had failed twice. Counting
+    back to the last good poll is what separates a source that needs fixing
+    from one that needs leaving alone.
+    """
+
+    latest: dict[str, dict] = {}
+    history: dict[str, list[dict]] = {}
+    for e in events:
+        sid = e.get("id")
+        if not sid:
+            continue
+        latest[sid] = e
+        history.setdefault(sid, []).append(e)
+
+    out = []
+    for sid, last in latest.items():
+        if last.get("event") in NOMINAL_EVENTS:
+            continue
+        streak, since, good = 0, last.get("ts"), None
+        for e in reversed(history[sid]):
+            if e.get("event") in NOMINAL_EVENTS:
+                good = e.get("ts")
+                break
+            streak += 1
+            since = e.get("ts")
+        out.append({
+            "id": sid,
+            "event": last.get("event"),
+            "failure": last.get("failure"),
+            # Absent on anything captured before diagnosis existed, which is
+            # most of the record. Say so rather than guessing a cause.
+            "diagnosis": last.get("diagnosis") or "unrecorded",
+            "http_status": last.get("http_status"),
+            "streak": streak,
+            "failing_since": since,
+            "last_good": good,
+            "detail": (last.get("error") or "")[:70],
+        })
+    out.sort(key=lambda r: (-r["streak"], r["id"]))
+    return out
+
+
+def cmd_diagnose(args) -> int:
+    """Group the current failures by cause, so triage starts from the cause."""
+
+    if not INDEX.exists():
+        print("no events yet")
+        return 0
+    events = [
+        json.loads(l)
+        for l in INDEX.read_text(encoding="utf-8").splitlines()
+        if l.strip()
+    ]
+    rows = failing_sources(events)
+
+    # A source marked `gone` keeps its last failure in the index forever,
+    # because the index is append-only and that 404 is how the withdrawal was
+    # established. It is settled, not outstanding, so it does not belong in a
+    # list of things to fix.
+    try:
+        registry = load_sources()
+    except SourceConfigError:
+        registry = {"source": []}
+    settled = {s["id"] for s in registry.get("source", []) if s.get("gone")}
+    resolved = [r for r in rows if r["id"] in settled]
+    rows = [r for r in rows if r["id"] not in settled]
+
+    if not rows:
+        print("every source's most recent poll succeeded")
+        if resolved:
+            print(f"({len(resolved)} recorded gone, excluded)")
+        return 0
+
+    if args.json:
+        print(json.dumps(rows, indent=2, sort_keys=True))
+        return 0
+
+    groups: dict[str, list[dict]] = {}
+    for r in rows:
+        groups.setdefault(r["diagnosis"], []).append(r)
+
+    settled_note = f", {len(resolved)} recorded gone and excluded" if resolved else ""
+    print(f"{len(rows)} source(s) failing their most recent poll, "
+          f"in {len(groups)} group(s){settled_note}:\n")
+    for diagnosis, members in sorted(
+        groups.items(), key=lambda kv: (-len(kv[1]), kv[0])
+    ):
+        print(f"{diagnosis}  ({len(members)})")
+        for r in members:
+            status = f" {r['http_status']}" if r["http_status"] else ""
+            print(f"  {r['id']:<44} {r['event']}/{r['failure']}{status}"
+                  f"  x{r['streak']} since {r['failing_since']}")
+            if r["detail"]:
+                print(f"  {'':<44} {r['detail']}")
+        print()
     return 0
 
 
@@ -1886,7 +2372,7 @@ def cmd_import_dir(args) -> int:
         print(f"cannot infer timestamp from {ts!r}; pass --ts", file=sys.stderr)
         return 2
     cfg = load_sources()
-    by_id = {s["id"]: s for s in cfg.get("source", [])}
+    by_id = {s["id"]: s for s in pollable_sources(cfg)}
     alias = {"coinkite-backgrounder": "coinkite-backgrounder",
              "coinkite-mk3-advisory": "coinkite-mk3-advisory",
              "coinkite-blog-index": "coinkite-blog-index",
@@ -1995,6 +2481,11 @@ def main() -> int:
     l = sub.add_parser("log", help="chronological change events")
     l.add_argument("--limit", type=int, default=40)
     l.set_defaults(fn=cmd_log)
+
+    dg = sub.add_parser("diagnose", help="current failures grouped by cause")
+    dg.add_argument("--json", action="store_true",
+                    help="machine-readable, for an automated triage pass")
+    dg.set_defaults(fn=cmd_diagnose)
 
     sh = sub.add_parser("show", help="snapshot history for one source")
     sh.add_argument("id"); sh.set_defaults(fn=cmd_show)

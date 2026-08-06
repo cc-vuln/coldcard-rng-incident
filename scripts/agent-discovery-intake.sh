@@ -4,8 +4,8 @@
 # Community discovery and the manual X watcher queue candidates in DISCOVERY.md.
 # This script owns the assessment layer: when pending entries exist it asks the
 # agent to judge each one and record every verdict. Community intake registers
-# and first-captures accepted threads. Explicit X intake uses a separate
-# read-only triage prompt and stops at a recommendation for a person.
+# accepted threads; explicit X intake uses a separate read-only triage prompt
+# and stops at a recommendation for a person.
 #
 # A backlog (for example the first reddit enumeration) is assessed in
 # bounded chunks: --max N caps how many pending entries one agent run sees.
@@ -16,9 +16,20 @@
 # falls through to the general community review provider.
 # Assessed entries leave Pending, so successive runs work through the rest.
 #
+# Candidate bodies are text strangers wrote, so three things happen around the
+# agent rather than inside it (docs/design/agent-sandbox.md):
+#
+#   this script fetches each body, so the agent needs no network and, for X,
+#   never holds the bearer token
+#   the agent runs as its own account, with none of .env in its environment
+#   whatever it wrote is checked before the run counts as a success, and the
+#   first captures it asked for happen here, only for sources this run
+#   actually registered and only after the registry passed check_registry.py
+#
 # Exit codes:
 #   0  assessment completed, the selected agent is unset, or no candidates
-#   1  agent run failed (entries stay pending; next tick retries)
+#   1  agent run failed, or the run wrote outside its remit (entries stay
+#      pending; next tick retries)
 #
 # An unset selected agent is supported: candidates wait in DISCOVERY.md.
 
@@ -27,12 +38,9 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-if [[ -f "$ROOT/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$ROOT/.env"
-  set +a
-fi
+# shellcheck disable=SC1091
+source "$ROOT/scripts/agent-run-common.sh"
+agent_load_env
 
 MAX=15
 INCLUDE_X=false
@@ -47,6 +55,8 @@ done
 INTAKE="$ROOT/DISCOVERY.md"
 STATE_DIR="$ROOT/.work/agent-discovery-intake"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
+CANDIDATE_LIST="$STATE_DIR/candidates.txt"
+HYDRATED="$STATE_DIR/hydrated.md"
 
 mkdir -p "$STATE_DIR"
 
@@ -77,6 +87,7 @@ if [[ "$INCLUDE_X" == true ]]; then
   AGENT_BIN="${X_REVIEW_AGENT_BIN:-}"
   AGENT_ENV_NAME="X_REVIEW_AGENT_BIN"
   PROMPT_TEMPLATE="$ROOT/scripts/agent-x-discovery-triage-prompt.md"
+  ROLE=xtriage
 else
   for candidate in "${RAW_PENDING[@]}"; do
     if [[ "$candidate" != *"https://x.com/"* ]]; then
@@ -86,6 +97,7 @@ else
   AGENT_BIN="${REVIEW_AGENT_BIN:-}"
   AGENT_ENV_NAME="REVIEW_AGENT_BIN"
   PROMPT_TEMPLATE="$ROOT/scripts/agent-discovery-intake-prompt.md"
+  ROLE=intake
 fi
 PENDING=("${ALL_PENDING[@]:0:$MAX}")
 
@@ -108,14 +120,44 @@ fi
 
 echo "agent-discovery-intake: assessing ${#PENDING[@]} of ${#ALL_PENDING[@]} pending candidate(s)"
 
-awk -v candidates="$(printf -- '%s\n' "${PENDING[@]}")" '
-  $0 ~ /{CANDIDATES}/ { printf "%s", candidates; next } { print }
-' "$PROMPT_TEMPLATE" > "$PROMPT_RENDERED"
+agent_begin "$ROLE"
 
-if "$AGENT_BIN" -p "$(cat "$PROMPT_RENDERED")"; then
-  echo "agent-discovery-intake: run complete"
-  exit 0
-else
+printf -- '%s\n' "${PENDING[@]}" > "$CANDIDATE_LIST"
+
+# Fetch every body here, as the operator account, one request per candidate.
+# The X lane needs the bearer token to read a post; exporting it for this step
+# keeps it in this process, because run-agent.sh builds the agent's
+# environment from nothing rather than inheriting ours.
+hydrate_args=()
+if [[ "$INCLUDE_X" == true ]]; then
+  hydrate_args+=(--include-x)
+  export X_API_BEARER_TOKEN
+fi
+echo "agent-discovery-intake: hydrating ${#PENDING[@]} candidate body(ies)"
+.venv/bin/python scripts/hydrate_candidates.py --nonce "$AGENT_NONCE" \
+  "${hydrate_args[@]}" < "$CANDIDATE_LIST" > "$HYDRATED"
+
+agent_render "$PROMPT_TEMPLATE" "$PROMPT_RENDERED" \
+  --untrusted "CANDIDATES=$CANDIDATE_LIST" \
+  --file "HYDRATED=$HYDRATED" \
+  --value "CAPTURE_REQUESTS=.work/capture-requests.txt"
+
+rc=0
+agent_invoke "$AGENT_BIN" "$PROMPT_RENDERED" || rc=$?
+
+grc=0
+agent_finish "$ROLE" || grc=$?
+
+if [[ $grc -ne 0 ]]; then
+  echo "agent-discovery-intake: the run was rejected by the guard; no first" \
+       "capture was made and the entries stay as the agent left them" >&2
+  exit 1
+fi
+if [[ $rc -ne 0 ]]; then
   echo "agent-discovery-intake: agent run failed; entries stay pending" >&2
   exit 1
 fi
+
+agent_run_captures
+echo "agent-discovery-intake: run complete"
+exit 0

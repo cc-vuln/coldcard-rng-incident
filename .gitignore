@@ -33,14 +33,12 @@ archive/x/**/*.webm
 # which scripts/check_publishable.py then keeps out of any commit.
 # A repository is publication too, and a clone outlives a deletion.
 
-# One machine's local tool permissions, not project content.
-.claude/settings.local.json
-
 
 # Pre-overwrite safety tarballs from the backup-before-clobbering workflow.
 # Local safety net only, never project content.
 .backups/
 
-# Editor launch configuration: one machine's local tooling, matching the
-# settings.local.json exclusion above.
-.claude/launch.json
+# Local tool permissions, editor configuration and the scratch directories the
+# agent CLIs create in the tree are excluded in .git/info/exclude instead of
+# here. An ignore rule that names a provider discloses which tooling this
+# project runs, and that belongs with .env and AGENTS.local.md.

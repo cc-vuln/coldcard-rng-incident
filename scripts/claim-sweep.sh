@@ -5,12 +5,19 @@
 # verified, reported, derived or unverified. Absence and outstanding-action
 # claims go stale as the world publishes; this script periodically asks the
 # agent to recheck them, promote what can now be evidenced, and refresh
-# recheck dates on the rest. It owns no archive writes itself: new sources
-# enter archive/ only through `just capture-one`, which the agent runs.
+# recheck dates on the rest. It owns no archive writes itself, and neither
+# does the agent: a source the sweep registers is first-captured here, after
+# the guard has accepted the registry change.
+#
+# This is the one agent that reads the open web, so it is the one whose
+# reading cannot be pre-fetched. It is contained the other three ways
+# (docs/design/agent-sandbox.md): its own account, an environment built from
+# nothing, and a gate over everything it wrote.
 #
 # Exit codes:
 #   0  sweep completed
-#   1  agent run failed (marker not advanced; next tick retries)
+#   1  agent run failed, or the run wrote outside the sweep remit (marker not
+#      advanced; next tick retries)
 #
 # State lives in .work/claim-sweep/: last-run marker, rendered prompts and
 # per-run reports. .work/ is ignored and never committed.
@@ -20,12 +27,9 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-if [[ -f "$ROOT/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$ROOT/.env"
-  set +a
-fi
+# shellcheck disable=SC1091
+source "$ROOT/scripts/agent-run-common.sh"
+agent_load_env
 
 # The sweep agent is any non-interactive CLI that takes a rendered prompt as
 # `<bin> -p "<prompt>"`, reads and edits the working tree, and exits non-zero
@@ -54,22 +58,34 @@ fi
 
 echo "claim-sweep: rechecking unverified claims; last successful sweep: $SINCE"
 
-export SINCE REPORT_PATH
-awk '{
-  gsub(/{SINCE}/, ENVIRON["SINCE"])
-  gsub(/{REPORT_PATH}/, ENVIRON["REPORT_PATH"])
-  print
-}' "$PROMPT_TEMPLATE" > "$PROMPT_RENDERED"
+agent_begin sweep
 
-if "$AGENT_BIN" -p "$(cat "$PROMPT_RENDERED")"; then
-  if [[ ! -f "$ROOT/$REPORT_PATH" ]]; then
-    echo "claim-sweep: WARNING - agent succeeded but wrote no report to $REPORT_PATH" >&2
-  fi
-  touch "$MARKER"
-  chmod 600 "$MARKER"
-  echo "claim-sweep: run complete; marker advanced to $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  exit 0
-else
+agent_render "$PROMPT_TEMPLATE" "$PROMPT_RENDERED" \
+  --value "SINCE=$SINCE" \
+  --value "REPORT_PATH=$REPORT_PATH" \
+  --value "CAPTURE_REQUESTS=.work/capture-requests.txt"
+
+rc=0
+agent_invoke "$AGENT_BIN" "$PROMPT_RENDERED" || rc=$?
+
+grc=0
+agent_finish sweep || grc=$?
+
+if [[ $grc -ne 0 ]]; then
+  echo "claim-sweep: the run was rejected by the guard; marker NOT advanced" >&2
+  exit 1
+fi
+if [[ $rc -ne 0 ]]; then
   echo "claim-sweep: agent run failed; marker NOT advanced" >&2
   exit 1
 fi
+
+agent_run_captures
+
+if [[ ! -f "$ROOT/$REPORT_PATH" ]]; then
+  echo "claim-sweep: WARNING - agent succeeded but wrote no report to $REPORT_PATH" >&2
+fi
+touch "$MARKER"
+chmod 600 "$MARKER"
+echo "claim-sweep: run complete; marker advanced to $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+exit 0

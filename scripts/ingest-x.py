@@ -41,7 +41,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from archive_lock import ArchiveLockBusy, archive_lock
-from capture import load_sources
+from capture import load_sources, wb_token
+from x_thread import expand_truncated
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "archive" / "x"
@@ -57,9 +58,15 @@ HYDRATE_SECONDS = 12
 
 def bridge(action: str, args: dict, fatal: bool = True) -> dict | None:
     body = json.dumps({"action": action, "args": args, "session": SESSION}).encode()
-    req = urllib.request.Request(
-        DAEMON, data=body, headers={"Content-Type": "application/json"}
-    )
+    headers = {"Content-Type": "application/json"}
+    # The capture browser's shared secret, where the operator has set one up.
+    # It lives in .capture-browser/ at mode 700, so the account the unattended
+    # agents run as cannot read it: reaching the port is not enough to drive a
+    # signed-in browser. See capture-browser/webbridge.py.
+    token = wb_token()
+    if token:
+        headers["X-Bridge-Token"] = token
+    req = urllib.request.Request(DAEMON, data=body, headers=headers)
     with urllib.request.urlopen(req, timeout=60) as resp:
         payload = json.load(resp)
     if not payload.get("ok"):
@@ -147,6 +154,9 @@ EXTRACT_JS = r"""
   el.id = "cc-ingest-target";
   return JSON.stringify({
     found: true,
+    // Set while any of this post's text is still behind a show-more control.
+    // The capture refuses rather than record a body that stops mid-sentence.
+    truncated: !!el.querySelector("[data-testid=tweet-text-show-more-link]"),
     user: u ? u.innerText : null,
     time: t ? t.getAttribute("datetime") : null,
     timeLink: t && t.closest("a") ? t.closest("a").getAttribute("href") : null,
@@ -220,6 +230,33 @@ ISOLATE_JS = r"""
 """
 
 
+TS_DIR = re.compile(r"^\d{8}T\d{6}Z$")
+BODY_MARK = "--- post text (verbatim) ---"
+
+
+def newest_held_body(slug: str) -> str | None:
+    """Post text from the newest held capture of this post, if any.
+
+    Used by --skip-unchanged so a repair pass writes a capture only where the
+    text actually differs. A directory whose name is not a timestamp is
+    rejected explicitly: "undated" sorts after digits, so a plain max() would
+    pick it.
+    """
+    directory = OUT / slug
+    if not directory.is_dir():
+        return None
+    stamps = sorted(p for p in directory.iterdir()
+                    if p.is_dir() and TS_DIR.match(p.name))
+    for capture in reversed(stamps):
+        sidecar = capture / "post.txt"
+        if not sidecar.is_file():
+            continue
+        text = sidecar.read_text(encoding="utf-8", errors="replace")
+        if BODY_MARK in text:
+            return text.split(BODY_MARK, 1)[1].strip()
+    return None
+
+
 def registered_id(tweet_id: str) -> str | None:
     """The id this status is already registered under, if any.
 
@@ -272,6 +309,9 @@ def main() -> None:
     ap.add_argument("--no-register", action="store_true",
                     help="artefacts only, do not touch sources.toml")
     ap.add_argument("--keep-tab", action="store_true")
+    ap.add_argument("--skip-unchanged", action="store_true",
+                    help="write nothing if the post text matches the newest "
+                         "held capture; for repair passes over many posts")
     a = ap.parse_args()
 
     handle, tweet_id = parse_tweet(a.url)
@@ -293,20 +333,46 @@ def main() -> None:
             sys.exit("navigate failed after resetting the WebBridge session")
     time.sleep(HYDRATE_SECONDS)
 
+    # X serves a long post cut off, with the remainder behind a show-more
+    # control and genuinely absent from the DOM. Until 6 Aug 2026 this tool
+    # read the truncated body and filed it as the post: a probed post held 275
+    # characters where the full text is 397, and the missing clause was the
+    # one its registry entry cites. Expand before reading, every time.
+    expanded = expand_truncated(bridge)
+    if expanded:
+        time.sleep(2)
+
     # X hydrates slowly; poll until the article renders.
     info = {}
     for _ in range(10):
         raw = bridge("evaluate", {"code": EXTRACT_JS % (handle, tweet_id)})
         info = json.loads(raw["value"])
         if (info.get("found") and info.get("text")
-                and info.get("mediaReady")):
+                and info.get("mediaReady") and not info.get("truncated")):
             break
+        # A post that scrolled or re-rendered can come back truncated again.
+        expanded += expand_truncated(bridge)
         time.sleep(2)
     if not info.get("found") or not info.get("text"):
         sys.exit(f"tweet article not found for @{handle} (deleted? wrong URL?)")
     if not info.get("mediaReady"):
         sys.exit(f"tweet media did not hydrate for @{handle}; refusing a blank "
                  "attachment capture")
+    if info.get("truncated"):
+        # Capturing a body that stops mid-sentence and presenting it as what
+        # someone said is worse than capturing nothing.
+        sys.exit(f"tweet text stayed truncated for @{handle} after "
+                 f"{expanded} expansion attempts; refusing a partial capture")
+
+    # Checked before the screenshot pass, which is the expensive part.
+    if a.skip_unchanged:
+        held = newest_held_body(slug)
+        if held is not None and held == info["text"].strip():
+            print(f"{slug}: unchanged since the newest held capture; "
+                  "nothing written")
+            if not a.keep_tab:
+                bridge("close_tab", {})
+            return
 
     # X permalink pages keep shifting while replies and media hydrate. Retag
     # the exact status if X re-renders it, then isolate a static rendered clone
@@ -320,9 +386,13 @@ def main() -> None:
         # compositing reliable (without it the author header can be missing).
         bridge("cdp", {"method": "Page.bringToFront", "params": {}}, fatal=False)
         if attempt:
+            # A re-render collapses an expanded post again, and the screenshot
+            # must show the same text the sidecar records.
+            expand_truncated(bridge)
             raw = bridge("evaluate", {"code": EXTRACT_JS % (handle, tweet_id)})
             refreshed = json.loads(raw["value"])
-            if not refreshed.get("found") or not refreshed.get("mediaReady"):
+            if (not refreshed.get("found") or not refreshed.get("mediaReady")
+                    or refreshed.get("truncated")):
                 time.sleep(1)
                 continue
         time.sleep(1.5)
@@ -358,6 +428,11 @@ def main() -> None:
         f"captured: {captured} via the capture browser (authenticated,",
         "          read-only. Element-only screenshot; no session chrome.",
     ]
+    if expanded:
+        lines.append("expanded: this post was served truncated; its show-more "
+                     "control was")
+        lines.append("          expanded before reading, so the text below is "
+                     "the whole post")
     if len(user_lines) > 1:
         lines.insert(2, f"handle:   {user_lines[1]}")
     media = info.get("media") or []
