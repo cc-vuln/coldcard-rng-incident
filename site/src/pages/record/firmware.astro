@@ -100,7 +100,7 @@ const body = `<div class="table-wrap">
   <td><span class="status status--bad">Affected</span></td><td class="nw" data-sort="40">Block: <code>2^0</code> fixed state;<br><code>&lt;${BITFIG.mk23LooseCeiling}</code> loose ceiling</td>
 </tr>
 <tr class="row-detail row-gone">
-  <td colspan="4" class="detail"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite described the entropy as approximately 40 bits</a>; LLFOURN published a separate <code>~${BITFIG.llfournMk3}</code> model. Firmware v4.1.9 remained the last published Mk3 release until v4.2.0 was published on 31 July 2026. <a href="/how-it-broke/entropy/">The model register states each assumption.</a></td>
+  <td colspan="4" class="detail"><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite described the entropy as approximately 40 bits</a>; LLFOURN published a separate <code>~${BITFIG.llfournMk3}</code> model. Firmware v4.1.9 remained the last published Mk3 release until v4.2.0 was published on 31 July 2026, <a href="#mk3-update-status">after the advisory had described the platform as deprecated and a further release as conditional</a>. <a href="/how-it-broke/entropy/">The model register states each assumption.</a></td>
 </tr>
 <tr class="row-gone">
   <td class="nw"><strong>Mk4</strong></td><td class="nw"><code>${mk4.affectedFrom}</code> to <code>${mk4.affectedTo}</code><small>14 Mar 2022 to 1 Jul 2026</small></td>
@@ -285,7 +285,7 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     <Claim
       basis="unverified"
       scope="The entropy implementation and runtime behaviour of TAPSIGNER and SATSCARD"
-      source="Coinkite reports separate codebases; those implementations were not independently available or reviewed here as of a 6 August 2026 recheck"
+      source="Coinkite reports separate codebases; those implementations were not independently available or reviewed here as of a 7 August 2026 recheck, in which every held source repeating the not-affected finding traces it to the vendor"
       href="/record/sources/robhamilton-opendime-tapsigner-scope/"
       compact
     />
@@ -343,13 +343,101 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
     <Claim
       basis="unverified"
       scope="Whether the vendor-published 4.2.0, 5.6.0, 1.5.0Q and Edge binaries exactly reproduce the reviewed source fixes and provide the intended entropy at runtime"
-      source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 6 August 2026 recheck"
+      source="The signed release images had not been independently reproduced, compared with local builds or disassembled by this project as of a 7 August 2026 recheck; one third-party instrumented device test of 5.6.0 on Mk4 is reported further down and was not reproduced here"
       compact
     />
   </p>
   </Answer>
 
   <div class="ported" set:html={body} />
+
+  <div class="callout callout--amber" id="mk3-update-status">
+    <span class="callout__title">The Mk2 and Mk3 line: deprecated, then given a hotfix</span>
+    What the vendor published about whether the older line would be fixed at all
+    changed twice in under two days, and the held states record each position. In
+    the advisory state of 31 July at 01:56 UTC no fixed Mk3 build is named: it
+    gives v5.0.3 as "the final release that supported Mk3" and offers Mk3-only
+    users a BIP-39 passphrase or a dice-only seed entered on 4.1.9, with
+    migration to an unaffected model as the outcome to work toward. By the 07:30
+    UTC state that morning a section headed "Investigation and Mk3 Firmware
+    Status" says Coinkite is "exploring whether we can safely publish one final
+    firmware release for the deprecated Mk3", that "updating this legacy
+    platform carries a significant risk of bricking some units", and that it
+    would publish one "only if we can validate a sufficiently safe upgrade
+    path" — while telling users not to wait for it. Both of those states come
+    from the Internet Archive. This project's own capture begins at 00:17 UTC on
+    1 August, by which point the official 13:43 UTC update of 31 July had
+    announced 4.2.0, the conditional passage had been removed, and the advisory
+    described the fixed release as made. The wording covering the Mk2 as well as
+    the Mk3 followed at 18:35 UTC on 1 August.
+    <Claim
+      basis="verified"
+      captured="1 Aug 2026"
+      scope="The three published positions on a Mk2 and Mk3 fix in sequence: no fixed build named at 01:56 UTC on 31 July, a conditional undertaking to publish one final release at 07:30 UTC the same day, and 4.2.0 described as released in the states held from 1 August"
+      source="Held captures of the Coinkite Mk3 advisory and the diffs between them: the 01:56 and 07:30 UTC states of 31 July recovered from the Internet Archive, this project's capture at 00:17 UTC on 1 August in which the deprecation and bricking-risk passage is removed, and the 18:44 UTC state that extends the wording to the Mk2"
+      href="/record/sources/coinkite-mk3-advisory/"
+    />
+    <br /><br />
+    Karma-X, a security firm publishing its own post-hotfix disclosure on
+    2 August, wrote that "Coinkite has stated Mk3 will not receive further
+    firmware updates" and told Mk3 users to treat a passphrase as a stopgap and
+    plan for migration. On 6 August it appended to that item: "UPDATE:
+    Apparently Coinkite has issued a 4.2.0 for Mk2 and Mk3 after previously
+    saying they wouldn't." No capture held here contains a vendor statement in
+    those terms. What the held vendor states contain is the deprecation wording
+    and the conditional undertaking above, and the release itself, which had
+    been announced two days before the Karma-X post was published.
+    <Claim
+      basis="reported"
+      captured="6 Aug 2026"
+      scope="Karma-X's statement that Coinkite had said the Mk3 would receive no further firmware updates, and its 6 August update recording that 4.2.0 was issued for Mk2 and Mk3 after that"
+      source="Karma-X post-hotfix disclosure, published 2 August 2026 and captured here on 4, 5 and 6 August, the last of which adds the update; no held vendor capture states in those terms that the line would receive no further updates, so the earlier position stands as Karma-X describes it"
+      href="/record/sources/karmax-post-hotfix-disclosure/"
+    />
+    The bricking risk the vendor named before publishing, the reports of devices
+    showing a BRICKED screen after the hotfix and Coinkite's answer to them are
+    recorded on <a href="/response/migration/">the migration page</a> rather
+    than here.
+  </div>
+
+  <p>
+    No firmware release after the 31 July hotfixes appears in the vendor's
+    published change log or in any of the three per-model release histories,
+    which were polled without change through 7 August 2026.
+    <Claim
+      basis="verified"
+      captured="7 Aug 2026"
+      scope="That no release later than the 31 July 2026 hotfixes appears in the vendor's published ChangeLog or in the Mk3, Mk4/Mk5 and Q release histories"
+      source="Held captures of ChangeLog.md, History-Mk3.md, History-Mk.md and History-Q.md, each polled without a text change through 7 August 2026"
+      href="/record/sources/cc-changelog/"
+      compact
+    />
+    The COLDCARD account said on 6 August that readers can follow the next
+    firmware updates on GitHub and that it is "focusing the next release and
+    customer key migration", naming no version, model line or date.
+    <Claim
+      basis="reported"
+      captured="7 Aug 2026"
+      scope="Coinkite's statement that it is focusing on the next release and customer key migration"
+      source="COLDCARD account post of 6 August 2026 at 19:45 UTC, captured here on 7 August; it names no version, model line or date, and no such release appears in the held release histories"
+      href="/record/sources/coldcardwallet-2085452152458080731/"
+      compact
+    />
+    On the fixed builds themselves, one X account with no stated affiliation
+    reports instrumenting the Mk4 firmware where it reads the STM32 hardware
+    RNG and observing eight hardware reads on 5.6.0 for the same 32 bytes that
+    seed generation requests, which the poster presents as a real-device path test
+    rather than a statistical one. That account is reported here; this project
+    has not reproduced it, and it bears on one model and one release.
+    <Claim
+      basis="reported"
+      captured="7 Aug 2026"
+      scope="The reported instrumented device test showing eight hardware-RNG reads for the seed request on Mk4 firmware 5.6.0"
+      source="X post of 7 August 2026 by an account with no affiliation stated in the held capture; a single first-hand account of one device and one release, not reproduced here and not a check of the published binary against the reviewed source"
+      href="/record/sources/bigshiny0-2085547011743338845/"
+      compact
+    />
+  </p>
 
   <Disclosure
     id="galaxy-boundary-limits"
@@ -402,7 +490,8 @@ The <a href="/record/sources/coinkite-mk3-advisory/">30 July Mk3 advisory</a> de
       Coinkite publishes builds on its own downloads page, and this archive holds
       a <a href="/record/sources/coldcard-downloads/">capture of that page</a>. At
       the 1 August 2026 capture it listed 4.2.0 for Mk3 and Mk2, 5.6.0 for Mk4 and
-      Mk5, 1.5.0Q for Q, and 6.6.0X and 6.6.0QX for the Edge line. The vendor's
+      Mk5, 1.5.0Q for Q, and 6.6.0X and 6.6.0QX for the Edge line; polls through
+      7 August 2026 record that page unchanged. The vendor's
       documentation describes the upgrade itself as copying the firmware file onto
       a MicroSD card. On verification the record is thinner still: the release
       history documents on-device verification of detached Bitcoin signature files

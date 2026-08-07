@@ -63,6 +63,8 @@ const summary = [
           <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
           <span class="tr__role">{ROLE_LABEL[p.role]}</span>
           <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
+          <a class="tr__rec" href={p.record ? `/record/sources/${p.record.id}/` : undefined}
+             hidden={!p.record}>also held as its own record</a>
         </div>
         <img
           class="tr__shot"
@@ -107,6 +109,8 @@ const summary = [
             <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
             <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
             <span class="tr__why" hidden={!p.reason}>{p.reason}</span>
+            <a class="tr__rec" href={p.record ? `/record/sources/${p.record.id}/` : undefined}
+               hidden={!p.record}>also held as its own record</a>
           </div>
           <img
             class="tr__shot"
@@ -146,6 +150,8 @@ const summary = [
               <a class="tr__who" href={p.url} rel="noopener nofollow">@{p.author}</a>
               <span class="tr__when" hidden={!p.createdHuman}>{p.createdHuman}</span>
               <span class="tr__why" hidden={!p.reason}>{p.reason}</span>
+              <a class="tr__rec" href={p.record ? `/record/sources/${p.record.id}/` : undefined}
+                 hidden={!p.record}>also held as its own record</a>
             </div>
             <blockquote class="tr__text">{p.text}</blockquote>
             <details class="tr__peek" hidden={!p.shot}>
@@ -208,6 +214,8 @@ const summary = [
   .tr__who { font-family: var(--font-mono); color: var(--ink-2); }
   .tr__who:hover { color: var(--accent); }
   .tr__role, .tr__why { font-style: italic; }
+  .tr__rec { color: var(--accent); text-decoration: none; }
+  .tr__rec:hover { text-decoration: underline; }
   .tr__text {
     margin: .4rem 0 0; font-size: .93rem; line-height: 1.6; max-width: 68ch;
     white-space: pre-wrap; border: 0; padding: 0;

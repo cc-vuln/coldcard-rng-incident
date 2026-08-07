@@ -21,8 +21,10 @@ the current absence is already documented and should change only when new
 public material appears · **BLOCKED** needs an operator choice, external access
 or evidence from a third party.
 
-Last reviewed: 6 Aug 2026, after the record-first refit, the 5 August intake,
-the citation and corrections work, and the first X-thread extractor.
+Last reviewed: 7 Aug 2026, after the site-wide prose pass against the 6 and
+7 August record: 143 new registrations read into the editorial pages, three
+corrections published, and the placeholder registry notes on the new X posts
+replaced.
 
 Ordered by value, not effort.
 
@@ -53,12 +55,25 @@ Ordered by value, not effort.
   rather than a repair of held material. Detail in
   `docs/design/x-thread-capture.md`.
 
-- **FIX: isolate dry-run browser activity from live capture.** Dry runs and
-  community discovery share the webbridge browser session with scheduled polls.
-  A concurrent run can navigate or close a tab that the writer is reading. The
-  maintenance wrapper prevents the overlap it owns, but an independently
-  started dry run can still interfere. Add session isolation or serialization
-  without starting an ad hoc replacement for `webbridge.service`.
+- **DONE 7 Aug 2026: isolate dry-run browser activity from live capture.**
+  Dry runs and community discovery no longer share a webbridge browser
+  session with scheduled polls. The daemon keys one current tab per session
+  name, and `navigate` and `close_tab` act on that session's tab, so the fix
+  is namespacing rather than locking: live polls keep `coldcard-archive`,
+  X-thread polls derive `coldcard-archive-thread` from the active session, a
+  dry run uses `coldcard-archive-dry-<pid>` (which also separates two dry
+  runs from each other), and Reddit discovery drives
+  `coldcard-archive-discover`. `ingest-x.py` already had its own. The
+  session name is recorded in no artefact, so nothing a capture records
+  changes. Verified live: a full dry run and a `capture-one` of a browser
+  source ran overlapping and both completed clean. Six regression tests in
+  `scripts/test_capture.py` (`WebBridgeSessionTests`); the session names are
+  written down in `docs/capture.md` so the next browser client picks its
+  own.
+
+  Residual, not fixed: a failed `navigate` or `list_tabs` still relaunches
+  the whole daemon browser, tearing down every session's tabs. That is a
+  failure path, not concurrency, and it predates this change.
 
 ---
 
@@ -107,28 +122,57 @@ Ordered by value, not effort.
   assumptions. The privacy-preserving measurement plan is in
   `docs/research/uid-distribution-measurement.md`.
 
+  Two sources registered on 6 and 7 August bear on the term without filling it,
+  and the difference matters. The honeypot operator's methodology reports one
+  instrumented sacrificial Mk3 whose UID word held packed die coordinates rather
+  than a uniform value, with SysTick in a narrow early-boot range and the RTC
+  registers reading zero; that is one device, and it describes the field's shape,
+  not its distribution. A 7 August community derivation bounds the word at
+  roughly 23 bits from an assumed wafer yield, which is an assumption rather
+  than a measurement. A population sample is still the thing that is missing.
+
 - **GAP: incident population denominators.** The number of distinct human
   victims and the number of seeds generated under vulnerable firmware remain
   unknown. Address counts overstate owners, and no captured unit-sales or seed
   count supplies the denominator. These are published limitations, not numbers
   for this project to estimate.
 
+- **DONE 7 Aug 2026: register the code artefacts the record was describing at
+  second hand.** The libngu #62/#63/#64 stack and COLDCARD firmware PR #707
+  were registered and captured during the site pass, and the later claim sweep
+  added libngu #56 and #68 and firmware #697 and #713, so every proposal the
+  pages name is now held with its own patch capture rather than read off a
+  title rendered on another repository's page. The last of those matters: #707
+  was open at 15:45 UTC on 7 August and closed by 19:22 UTC the same day, its
+  author opening #713 to replace it. Registering the successors is what stopped
+  `/response/developers/` shipping a page that pointed at the withdrawn
+  version.
+
+- **GAP: the Bitcoin Security Consortium.** One held X post is the only source
+  in the record that mentions it at all, and it carries a US$15M pledge figure
+  and a claim that only two named firms visibly responded. Nothing primary is
+  held: no announcement, membership list or pledge document. Register a primary
+  if one is public, or leave the single post standing as the only evidence and
+  say so wherever it is used.
+
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** As of the bounded 6 August check,
-  Coinkite's promised technical postmortem had no publication date or detailed
-  scope, no captured source announced a post-incident independent audit of the
-  fixed firmware, and NVD keyword searches identified no incident-specific CVE.
-  The March 2022 paid pre-release review in Coinkite's chronology is historical
-  context and does not answer the post-incident audit question. Recheck these
-  together through the claim-verification sweep.
+- **MONITOR: official technical follow-up.** Checked 7 August 2026.
+  Coinkite's promised technical postmortem still has no publication date or
+  detailed scope, no captured source announces a post-incident independent audit
+  of the fixed firmware, and NVD/MITRE remained unreachable from this host so
+  the CVE question could not be re-queried directly. The firmware repository
+  did move: PR #707 was closed unmerged and replaced by PR #713, and the libngu
+  changes it referenced (#68 and #56) were merged on 7 and 6 August 2026.
+  Those developments are registered and requested for capture; they describe a
+  proposal, not a shipped release, audit or postmortem.
 
-- **MONITOR: filings, regulator statements and compensation decisions.** The
-  legal page records organising activity, not a commenced proceeding, as of 6
-  August. A statement of claim, arbitration notice, regulator or insurer
-  statement, or a vendor refund or replacement decision would change that
-  section. Keep private legal activity outside the claim until a document is
-  public.
+- **MONITOR: filings, regulator statements and compensation decisions.** Checked
+  7 August 2026. Coinkite's 7 August customer-data retention post states that
+  records are being preserved for "ongoing and anticipated legal proceedings,"
+  which is the first public vendor acknowledgement of legal activity, but it is
+  not a filing, regulator statement, insurer decision or compensation offer.
+  The legal page's absence claim still holds for those document types.
 
 ---
 
@@ -170,22 +214,32 @@ Ordered by value, not effort.
   asymmetrically, rejecting a clean intake with eleven false positives. Each
   is now covered by a test or by `just audit-sandbox`.
 
-- **BLOCKED: two sources are unreachable from this collector's VPN exit.**
-  Both need an operator choice, not a registry edit. `theblock-galaxy-total`
+- **BLOCKED: one source is unreachable from this collector's VPN exit.**
+  It needs an operator choice, not a registry edit. `theblock-galaxy-total`
   gets a Cloudflare managed block on the whole theblock.co domain: 403 with
   `cf-mitigated: challenge` to a scripted fetch, and an interstitial that never
-  clears in the capture browser after 60 seconds. `coldcard-watch` remains live
-  but is subject to the DNS block already written up in `AGENTS.local.md`:
-  public DNS and a direct HTTPS check through its public address both succeeded
-  on 6 August, while an ordinary request from this host still cannot resolve
-  the name. The exit uses a shared hosting ASN, which is also why the Internet
-  Archive answers this host with 429, so
-  the Wayback fallback below cannot rescue either one from here. Options are to
-  move the VPN exit, allowlist at the resolver for the DNS case, or accept the
+  clears in the capture browser after 60 seconds; a 7 Aug poll still records
+  `origin-challenge`. The exit uses a shared hosting ASN, which is also why the
+  Internet Archive answers this host with 429, so the Wayback fallback below
+  cannot rescue it from here. Options are to move the VPN exit or accept the
   gap. Do not use `watch = "frozen"`: the material is neither exhausted nor
   withdrawn, and there is no registry state for "live but unreachable from
   here". Eight captures of the Block article are held to 3 Aug 2026, so this
   is a monitoring gap rather than lost material.
+
+  **Resolved 7 Aug 2026: `coldcard-watch` resolves from this host again.** The
+  `dns-unresolved` streak that began 4 Aug 09:06Z ended at 7 Aug 03:32Z with a
+  `changed` capture, and every poll from 08:19Z through the afternoon returned
+  200. Nothing here was changed to achieve that, so the cause was upstream of
+  this project and the same failure can recur; the 105 error events stay in the
+  poll record because they accurately record what this collector experienced.
+  What the recovered capture carries is not small: the tracker renamed itself
+  from Coldcard Sweep Watch to Coldcard Watch, split its view filter into
+  Verified, Attested and Suspected, and moved its verified total from
+  1,366.5774 to 1,405.0671 BTC across 4,580 to 4,925 addresses. The site pages
+  that described it as unreachable here were updated on 7 Aug; the published
+  6 Aug correction about it stands unedited, because it was accurate when
+  published.
 
 - **OPEN: make the manual builds take the build lock.** `AGENTS.md` says every
   build serialises on `flock /tmp/cc-build.lock`, and the documented recovery
@@ -216,17 +270,109 @@ Ordered by value, not effort.
   stable: the last poll pair was +55 -0, six new replies and nothing leaving
   the capture.
 
-  Remaining: `ingest-x.py --thread` and a `just capture-thread` recipe;
-  `trustwallet-wasm-update` and `bitcoindevs-explainer-thread` added to the
-  pilot; per-status `withhold_posts`; staging and source-page presentation
+  `ingest-x.py --thread --tier N` and `just capture-thread <id>` landed 7 Aug
+  2026: the manual first capture registers the block and then hands the
+  conversation to `capture.py capture --id <slug>`, so there is one snapshot
+  write path rather than two. Enabling a thread on an already-registered post
+  stays a human edit of `sources.toml`, because appending a second block would
+  give one conversation two registry entries.
+
+  `trustwallet-wasm-update` and `bitcoindevs-explainer-thread` joined the
+  pilot on 7 Aug 2026, both at tier 3, which takes the curated tier to five
+  sources. Both first captures converged with no gaps declared and nothing
+  capped: TrustWallet 51 posts (the whole 1/10 to 10/10 chain the entry's own
+  note said was missing, plus 41 replies), Bitcoin_Devs 30 posts with 8 that
+  arrived truncated and had to be expanded. Neither produced a diff, because a
+  first capture has nothing to diff against.
+
+  Remaining: per-status `withhold_posts`; staging and source-page presentation
   including the reply muting rules; and the X-thread absence case added to the
   review agent prompt, so a stalled or capped capture classifies without a
   human reading every one.
+
+  Settled 7 Aug 2026: `part_of = "<head-id>"` on a member's `[[x_post]]`
+  block. Several conversations are already held as N separate entries, one per
+  post — Galaxy's updated accounting is eight consecutive status ids, its
+  third-wave revision five, Dhruv Bansal's response three — and threading
+  those heads would otherwise put the same post on two pages with nothing
+  connecting them. The member entries stay: their `title` and `why` are
+  curation the capture does not reproduce, and retiring them would break
+  citable URLs. Both ends of the relation now say so, `just audit` reports an
+  undeclared one, and a head may no longer withhold a status that is
+  separately registered, because that withholds nothing. Design record section
+  4. The first live case, `opensats-2085363706255573313` inside
+  `afilini-2085269060028170742`, was found by the new gate rather than by
+  reading.
+
+  Still to do before extending the tier to those groups: split LLFOURN's
+  fourteen entries into the conversations they actually belong to. The status
+  ids span 31 July to 6 August, so that is not one thread.
 
   Watch the pilot's diff shape for several days. Additions-only is the healthy
   state. Any removal means either a real deletion or under-collection, and the
   two are not distinguishable from the text alone, so read the depth record in
   the capture's `<TS>.json` before classifying.
+
+- **The nostr lane is the noisiest discovery source by a wide margin, and
+  deferral does not reach it.** Of 38 nostr candidates assessed, 36 were
+  dismissed; the two that were not were both first dismissed on their title
+  and only recovered on a body-read re-check, and one of them was a first-hand
+  victim letter. The cause is structural: `discover_nostr.py` sieves the note
+  body, and a note is tweet-length, so "mentions coldcard" is close to a null
+  filter. The comment-count bar the community lanes now use has no nostr
+  equivalent, so those candidates are never deferred. Options worth measuring
+  before picking one: a substance proxy (reply or repost count) as the second
+  signal; requiring tier-1 vocabulary plus a claim-shaped signal rather than a
+  bare mention; or accepting that the lane's value is replies to already
+  registered notes rather than standalone discovery. Do not tighten it on the
+  title alone: on this lane that is exactly the judgement that was wrong twice,
+  and it erred toward discarding primary material. Fold this into the nostr
+  probation quality review below rather than doing it separately.
+
+- **A quarantined registration is a source the record wanted and is not
+  capturing, and nothing surfaces it.** `quarantine_registry.py` keeps the
+  tree working after a rejected registration (7 Aug 2026), which is the right
+  trade, but it makes the failure quiet: the block sits in
+  `quarantine/registry-YYYY-MM.toml` and no gate, page or report mentions it
+  again. That is the same shape as the silent-truncation problem the rest of
+  this project refuses. Worth adding: a line in `just status` or the audit
+  summary naming how many registrations are held and which hosts they wanted,
+  so the queue is visible without blocking anything. The host decision stays a
+  human edit; only the prompt to make it is missing.
+
+- **Measure whether the coverage index actually moves the "already
+  represented" dismissals.** The index shipped on 7 Aug 2026
+  (`scripts/build_coverage_index.py`, `docs/DISCOVERY.md`), addressing the
+  largest class of dismissals: 88 of 248 read "already represented by `<id>`",
+  and the agent was re-deriving them, once naming a thread it had itself
+  dismissed weeks earlier as the precedent. It is unmeasured in use. What to
+  read after a few scheduled runs: whether dismissals now name their referent
+  more often (an unnamed "repetitive" verdict never becomes an `absorbed`
+  count, so it teaches nothing), whether the agent registers fewer duplicates
+  of saturated themes, and whether the 57KB index crowds the candidate bodies
+  in a 72KB prompt. If it does crowd them, the cut to try first is dropping
+  the 465 social posts to those with an absorbed count, since only 6 of 72
+  named referents were social posts; say so in the file rather than truncating
+  silently.
+
+  **Do not replace it with lexical near-duplicate matching, which was measured
+  and does not work.** IDF-weighted cosine over titles, leave-one-out against
+  the 425-entry assessed corpus, put the verdict's own named referent top-1 in
+  4 of 76 cases (top-3 in 7) while flagging 93 of 174 registered entries as
+  near-duplicates: more false alarms than hits. The evaluation was winnable,
+  so this is a real negative result rather than a missing corpus: 78% of the
+  referents were present as registered entries. The failures are semantic, not
+  lexical ("Every influencoor and podcaster who took Coinkite's money" ->
+  `basedlayer-influencers-vs-engineers`; "Why does CC still have my email
+  address?" -> `coldcard-pii-policy`), so no threshold tunes into working.
+
+- **Decide whether X triage should get the coverage index too.** It was left
+  out deliberately: it is read-only, under probation, and runs a separate
+  prompt and agent binary. Its prompt does ask the agent to check
+  `sources.toml` for duplicates and to dismiss "repeated promotion of material
+  already registered", against 465 registered X posts, which is the same
+  recall problem the index exists to remove. Fold this into the X probation
+  gate rather than changing that prompt while it is being assessed.
 
 - **BLOCKED: finish X discovery probation before scheduling it.** Manual
   watched-account discovery and read-only triage exist. Unattended use still
@@ -300,6 +446,20 @@ Ordered by value, not effort.
 
 ## 3. Publication and corpus usability
 
+- **OPEN: two figures on `/record/funds/` are typed literals that should be
+  read from the archive.** The page now carries the tracker's MOVED total and
+  its still-held percentage as prose dated to two named captures, because
+  `site/src/lib/trackers.ts` reads headline totals only. That is the failure
+  mode the module exists to end, one level down. Add readers for the sub-figures
+  rather than leaving a hand-typed number to go stale on the next poll.
+
+- **OPEN: `/how-it-broke/entropy/` does not import `entropy-models.ts`.** Every
+  candidate-space figure on that page is hand-typed and every one currently
+  agrees with the module, which `/record/firmware/`, `/how-it-broke/conditions/`
+  and `ModelExplorer` all import. It is the page most exposed to silent drift.
+  A 7 August community model putting the Mk3 seeding word nearer 2^23 than 2^32
+  is on the page as a table row and is not in the module either.
+
 - **OPEN: publish a corpus-methods page.** Turn the relevant parts of
   `docs/capture.md` into a reader-facing account of source registration,
   sampling frame, normalizers, capture cadences and known coverage bias. Keep it
@@ -311,11 +471,21 @@ Ordered by value, not effort.
   Define denominators and machine-readable fields before designing charts.
   `/version.json` already supplies top-level totals.
 
-- **OPEN: explain the cited dice entropy arithmetic.** Add a short
-  derived-basis explanation near `/how-it-broke/conditions/#dice`: why a fair
-  six-sided roll contributes `log2(6)` bits, how independent rolls accumulate,
-  and why fairness and secrecy are assumptions. Keep it incident-specific and
-  do not turn it into a seed generator or general wallet procedure.
+- **DONE 7 Aug 2026: explain the cited dice entropy arithmetic.** A
+  derived-basis block now sits after the roll-count table on
+  `/how-it-broke/conditions/`, before the running-digest callout, so the `#dice`
+  anchor and the section order are unchanged. It derives log2(6) per fair roll,
+  why independent rolls add, both table totals, that 50 is the smallest count
+  reaching 128 bits and that 99 falls about 0.09 bits short of 256, and states
+  that fairness and secrecy are physical assumptions the firmware cannot check,
+  with the non-uniform case given as Shannon entropy strictly below log2(6). It
+  carries no procedure and no seed-generation guidance. Beside it, the held
+  material that publishes the same per-roll figure and the argument over what
+  bias costs: the honeypot methodology's 2.585 bits per roll, the reddit
+  explainer's worked bad-die case, a second-hand relay of a claimed 1971 study
+  of 219 dice, and a first-hand casino account that retail casino dice are not
+  guaranteed balanced. This archive has tested no die and picks between none of
+  them.
 
 - **OPEN: submit published project pages to the Wayback Machine on publish.**
   Archive the site's own public state after a successful deploy and record the

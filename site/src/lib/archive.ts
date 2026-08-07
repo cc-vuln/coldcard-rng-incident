@@ -83,6 +83,9 @@ const KIND_GROUP: Record<string, SourceGroup> = {
   'vendor-index': 'vendor',
   'vendor-releases': 'vendor',
   'custody-guidance': 'vendor',
+  // A named organisation speaking for itself without being a vendor in the
+  // record's sense: a nonprofit, a trade body, a funder.
+  'org-statement': 'vendor',
   'government-legal': 'legal',
   'government-record': 'public-record',
   'research': 'research',
@@ -116,6 +119,14 @@ export interface XPost {
   /** A conversation captured by capture.py and reviewed like a web source. */
   thread?: boolean;
   tier?: Tier;
+  /** The id of a thread-enabled post whose captured conversation also holds
+      this post. Some posts are held twice: as their own registered record,
+      with this project's own note on why they matter, and again inside a
+      conversation captured around them. This states the relation so the two
+      copies are one declared thing rather than two unconnected ones.
+      Validated in capture.py: the target must exist and hold a conversation,
+      and a conversation's head can never be a member of anything. */
+  part_of?: string;
   /** Honoured on both registry block types: a withheld post renders neither
       its captured text nor its capture image. See withholdsCapturedMedia. */
   withhold_text?: boolean;
@@ -197,6 +208,7 @@ const KIND_LABELS: Record<string, string> = {
   'vendor-index': 'Vendor publication index',
   'vendor-releases': 'Firmware release index',
   'custody-guidance': 'Custody guidance',
+  'org-statement': 'Organisation statement',
   'government-legal': 'Government legislation',
   'government-record': 'Government vulnerability record',
   'research': 'Primary technical research',

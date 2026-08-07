@@ -4,6 +4,284 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-07
+
+### Record
+
+- Say when a post is held twice. A post can be both its own registered record,
+  with this project's note on why it matters, and a post inside a conversation
+  captured around it. Until now the record held both copies with nothing
+  connecting them, and the reader met the same material twice. `part_of =
+  "<head-id>"` on the member's `[[x_post]]` block states the relation, and both
+  ends read it: the member's page names the conversation it also sits in, and
+  the thread reader links the post to its own record and foregrounds it rather
+  than risking collapsing as applause a post that stands as evidence
+  elsewhere. Three rules are enforced in `validate_sources`: `part_of` must
+  name a registered post that actually holds a conversation; `part_of` and
+  `thread` are exclusive, because a head is not a member of itself; and a head
+  may not withhold a status that is separately registered, since withholding
+  it from the conversation withholds nothing while it publishes one link away.
+  The registry cannot see this relation on its own — whether a post is inside a
+  conversation depends on what a capture collected, and that changes as a
+  thread grows — so `just audit` now reads the newest structured record of
+  every thread source and reports a registered post held inside one without
+  `part_of` to declare it. The first live case,
+  `opensats-2085363706255573313` inside `afilini-2085269060028170742`, was
+  found by the gate rather than by reading, and is now declared. Display reads
+  the declared key and not the capture, because a reply can drop out of a
+  capture on X's ranking alone and the relation should not blink with it.
+  Design record `docs/design/x-thread-capture.md` section 4, which also records
+  why retiring the duplicate entries was rejected: their titles and notes are
+  curation the capture does not reproduce, and their URLs are citable.
+- Add `trustwallet-wasm-update` and `bitcoindevs-explainer-thread` to the
+  curated X-thread tier, which now holds five conversations at tier 3. Both
+  entries said in their own registry notes that only the first post of a
+  thread was held, which is the gap the thread lane exists to close. Trust
+  Wallet's 2023 browser-extension advisory now holds the whole 1/10 to 10/10
+  chain and 41 replies; the Bitcoin_Devs explainer holds 30 posts, 8 of which
+  arrived truncated and had to be expanded before they could be read. Both
+  first captures converged with nothing capped and no gaps declared, and
+  neither produced a diff, a first capture having nothing to diff against.
+  Their `why` notes are updated to say what is held now and from when, rather
+  than continuing to describe the single-post capture they replaced.
+
+### The site
+
+- Bring every editorial page back into agreement with the record. The prose was
+  written on 5 and 6 August; since then 143 registrations were added and 214
+  detected differences were classified, and the pages had drifted behind both.
+  Each page was read against the new material rather than topped up: what
+  changed, what a source revised, and above all what the pages assert is
+  *absent*, because a stated absence that has since been filled is the failure
+  mode this site is least able to notice on its own. Three of them had been
+  filled. The largest is on `/response/statements/`, which said no held source
+  reconciled the 2 August exchange over customer-data retention; Coinkite has
+  since published its own account, so the sentence is gone and the vendor's
+  120-day practice, its suspension and the opt-out are recorded, along with what
+  the document does not settle. Every re-dated bound on the site was rechecked
+  rather than incremented; several were left at their old date because the
+  recheck needed a network search this pass could not repeat, and those say so.
+
+- Publish three entries in the corrections log, the first since it opened.
+  `/record/funds/` said neither Galaxy nor the tracker itemised a reconciliation
+  between the two published wave-4 figures; the tracker had itemised one, in a
+  capture already held when the claim was published, and the page now carries
+  the tracker's derivation as the tracker's reading of Galaxy rather than as
+  Galaxy's own. `/response/scams/` counted three post-disclosure scam reports
+  when four more were already held on the day it was published; the fix is not a
+  larger number but no number, because a count of our own holdings goes stale on
+  the next capture and invites exactly that error. Two clarifications: `/` and
+  `/how-it-broke/entropy/` said no confirmed drain of an Mk4-class wallet had
+  been captured without saying they meant this incident's July waves, while the
+  archive held a catalogue of an earlier confirmed Mk4 theft whose cause is
+  unproven; and `/how-it-broke/` dated two claims about libngu #58 to 6 August
+  while the newest capture behind them was from 4 August, and the request was
+  merged on the 6th. That second one is worth stating plainly: the error was not
+  the reading but the bound. A claim belongs to the capture that supports it,
+  not to the day it was typed.
+
+- Write the dice arithmetic out, closing a standing backlog item. A derived
+  block after the roll-count table on `/how-it-broke/conditions/` shows why a
+  fair six-sided roll contributes log2(6) bits, why independent rolls add, that
+  50 rolls is the smallest count reaching 128 bits and that 99 falls about 0.09
+  bits short of 256 — and that fairness and secrecy are physical assumptions the
+  firmware cannot check. Beside it, the held argument over what bias costs: a
+  worked bad-die case, a second-hand relay of a claimed 1971 study of 219 dice,
+  and a first-hand casino account that retail casino dice are not guaranteed
+  balanced. No procedure, no seed-generation guidance, and no die tested here.
+
+### The registry
+
+- Replace the placeholder notes on the newly registered X posts. A bulk intake
+  had left 119 entries whose `why` was the post's own first line with
+  "(TODO: expand)" appended, and no `title`. Both are published: `why` renders
+  as this project's note on why a post is in the record, and a missing title
+  leaves the source page headed with a machine-mangled slug. Each note is now
+  written from the capture, says what the post claims and why it is held, states
+  a commercial or competitive interest where one exists, and attributes rather
+  than adopts. Where a post's text does not stand on its own, the rendered
+  screenshot was read for the quoted card, which is the only way several of them
+  are legible at all. Where a post alleges something about a named individual
+  that no held source supports, the note records that an allegation was made and
+  against whom, without restating it.
+
+- Register the code the pages had been describing at second hand. The libngu
+  #62, #63 and #64 stack and COLDCARD firmware PR #707 were being written about
+  from titles rendered on other repositories' pages; all four are now registered
+  and captured with their patches. #707 matters most: it is a vendor-repository
+  proposal, unmerged, that would mix secure-element entropy into seed
+  generation, reseed with the full digest, require user-supplied entropy for
+  every new wallet and warn before dice-only generation.
+
+- Also registered: Coinkite's own customer-data-retention post, which the record
+  had been holding only as a row in the vendor's blog index and as a relay
+  through the vendor's X account. Three source kinds were corrected so entries
+  land in the right register, and `org-statement` was added for a named
+  organisation speaking for itself without being a vendor.
+
+### Tooling
+
+- Finish the manual half of X thread capture: `ingest-x.py --thread --tier N`
+  and `just capture-thread <id>`. Registering a conversation and taking its
+  first capture was the last step of the capture path that still had to be
+  done by hand in two parts. `--thread` does the focal-post ingest as before,
+  writes `thread = true` and the tier into the `[[x_post]]` block, and then
+  hands the conversation to `capture.py capture --id <slug>`, which is the
+  same poll the tier's timer runs from then on. Deliberately one write path
+  and not two: change detection, the diff, the `index.jsonl` event and the run
+  record all come from the first capture *being* a poll rather than
+  resembling one. It is a separate process because the archive writer lock is
+  not reentrant. `just capture-thread` is that poll on its own, for
+  re-capturing a registered conversation without waiting for its tier.
+  Enabling a thread on a post that is already registered stays a human edit of
+  `sources.toml`, refused with the exact keys to add: this script appends
+  blocks and does not rewrite them, and a second block for the same post would
+  give one conversation two registry entries. Fixed on the way through: the
+  lookup that resolves a status to its registry entry tested `tweet_id in
+  url`, a substring match, so a shorter X id could match inside a longer one
+  and file a capture under another post's id. It now compares the id parsed
+  out of the registered URL. 28 offline tests in
+  `scripts/test_ingest_x.py`, wired into `just test-capture`. Design record
+  `docs/design/x-thread-capture.md`, step 3 of section 9.
+- Let `ingest-x.py` capture an image-only post. Its readiness gate required a
+  text body, so a post whose whole content is an attached image — no
+  `tweetText` node, X's own page title showing only the media `t.co` link —
+  could never be ingested and was misreported as "tweet article not found
+  (deleted? wrong URL?)". The gate now accepts a found article with media and
+  no text, still refuses one with neither, and the sidecar says plainly "no
+  text body; the attached image is the whole post" above an empty verbatim
+  section rather than inventing a body. First used for
+  `matteopelleg-2085300048120668211`, the Satoshi announcement-email
+  screenshot. Extraction itself is unchanged: posts with text follow the same
+  path byte for byte.
+- Stop a rejected registration from stopping the tree. `agent_guard.py`
+  deliberately reverts nothing when it refuses a run, which is right for
+  judging the run and wrong for an invalid `sources.toml`: the registry is
+  checked by `just audit`, `just test` and the publish gate, so one unlistable
+  host fails all three until a person edits the file by hand. On 7 Aug 2026
+  that was a single OpenSats article and it held the tree for most of a day.
+  `agent_finish` now runs `scripts/quarantine_registry.py` after a rejection,
+  which moves any block **that run added** and the rules refuse into
+  `quarantine/registry-YYYY-MM.toml`, verbatim, with its reason and run id.
+  The rejection still stands and no capture is approved; the evidence is kept
+  and greppable, just not in the file that decides what is fetched every 30
+  minutes. Two properties make it safe unattended, both tested: it only ever
+  removes, never adds a host or edits a surviving block; and only what the run
+  added is eligible, so a pre-existing source cannot be evicted by an agent
+  breaking a rule on purpose, and with no `--before` baseline it refuses to
+  move anything at all. It is not an approval mechanism: restoring a block is
+  still a human edit, twice over. What changed is that nothing waits on it.
+  The intake prompt is now given `registry_hosts.toml` as well, so the
+  ordinary case is that the agent reports an unlistable host in its run report
+  instead of registering it and having the run thrown away.
+- Add `opensats.org` to `scripts/registry_hosts.toml` for `opensats-code-red`,
+  the registration that had been holding the tree. OpenSats is a bitcoin
+  funding nonprofit already in this project's incident vocabulary, and the
+  post is its own statement about supporting incident responders.
+- Put a coverage index in front of the intake agent, so "already represented
+  by `<id>`" is a lookup rather than recall over `sources.toml`. That verdict
+  is the largest single class of dismissals (88 of 248 in the assessed
+  corpus), the agent was reaching it from memory of a long prompt, and it
+  re-derived them: one dismissal names a thread the agent had itself dismissed
+  weeks earlier as the precedent. `just coverage-index`
+  (`scripts/build_coverage_index.py`) emits one line per registered entry
+  across all four tables, because a candidate can duplicate an X post or a
+  chain monitor's page and not only another thread. Each carries an
+  `absorbed N` count of candidates already dismissed as duplicates of it, read
+  out of past verdicts and validated against the registry so that hyphenated
+  prose in a dismissal reason scores nothing; blocks are sorted most-absorbed
+  first. The corpus is self-labelling, so nothing here is hand-maintained.
+  The index decides nothing: the lexical alternative was measured first and
+  put a verdict's own named referent top-1 in 4 of 76 cases while flagging 93
+  of 174 registered entries as near-duplicates, so judgement stays with the
+  agent and only recall was replaced. The driver builds it as the operator
+  account before dropping privilege and now refuses to start an agent without
+  one, because an agent that cannot see what is covered registers duplicates
+  of it. Thread titles are text other people wrote, so the index goes through
+  the untrusted channel with the candidate bodies and the framing prose stays
+  in the trusted template. X triage is unchanged: it is read-only and under
+  probation.
+- Defer the lowest-yield discovery candidates instead of putting them in front
+  of the intake agent. The lanes' incident vocabulary is now two tiers: tier 1
+  (`coldcard`, `coinkite`, `nvk`, `rng`, `slipstream`, `btcrecover`, the BTC
+  figures) names this incident, tier 2 is the bitcoin-security vocabulary it
+  borrows. The tiers do not decide what is queued. Measured against the 425
+  assessed candidates, refusing tier-2-only titles would have removed 58
+  dismissals and lost 33 registered sources, which is the wrong trade for a
+  preservation record, so the sieve is unchanged and every `--all` still
+  reports everything new. What the tier decides is where a candidate waits,
+  and only together with a second weak signal: a title that never names the
+  incident *and* two comments or fewer sends it to a new `## Deferred`
+  section. Of the 24 such candidates in the assessed corpus, none were ever
+  registered (r/coldcard 20, none registered; r/Bitcoin 21, two registered).
+  Deferral is reversible and nothing leaves the record: the lane re-reports a
+  deferred candidate while it is in the listing window, keeps its comment
+  count current, and promotes it to Pending by itself once the thread grows.
+  A candidate with no comment count to read (X, nostr) is never deferred.
+  `agent_guard.py` treats Deferred as a queue and not a verdict on both sides
+  of a run, so an agent that moved a pending line into it is rejected for
+  disposing of a candidate without recording why, while a lane appending
+  there mid-run is not mistaken for an invented verdict. On the 12 candidates
+  the Reddit lane found on 7 Aug, one deferred.
+- Add verdict rotation for the discovery intake queue: `just rotate-discovery`
+  (`scripts/rotate_discovery.py`) moves `DISCOVERY.md` verdicts older than
+  `--keep-days` (31 by default) into `discovery/assessed-YYYY-MM.md`, verbatim
+  and append-only, under the same intake lock the lanes and the intake agent
+  take. A hand-entered verdict without a UTC stamp never rotates, and the
+  queue's third section ("Link review, held for a human decision") is
+  preserved untouched. The discover-community unit runs it after each intake
+  pass, so the queue stays bounded without anyone remembering. The
+  destination is the top-level `discovery/`
+  directory, not `archive/`: the deposit gate refuses unclassified archive
+  trees and the manifest describes every archive tree as captures, while
+  rotated verdicts are project records, so they ride the deposit's ordinary
+  inclusion path. The queue stops growing without bound; nothing rotates on
+  the day it ships because every held verdict is days old.
+- Preserve the file mode across atomic queue writes in
+  `discovery_common.atomic_text`: `mkstemp` makes the replacement 0600, so
+  every lane rewrite stripped the group access the intake agent needs, and a
+  6 Aug lane run left `DISCOVERY.md` unreadable to the agent account. The
+  failure was observed on 7 Aug, when an intake run assessed 15 candidates,
+  registered 6, and could not record a single verdict. The registrations
+  survived the rejected run (the registry check had passed them), so the
+  verdicts were recorded by hand from the agent's report and the six first
+  captures were run directly.
+- Move the kimi agent binary out of the credential directory: the wrapper
+  `/usr/local/bin/cc-agent-kimi` exec'd `~/.kimi-code/bin/kimi`, which is
+  unreachable the moment the sandbox permissions keep the credential dir at
+  700 as intended. The binary and its bundled `fd`/`rg` now live at
+  `/usr/local/libexec/cc-agent-kimi/` (re-sync after a kimi update; the
+  wrapper comment says how), and `~/.kimi-code` stays 700 with
+  `just audit-sandbox` clean.
+- Fix two deposit-gate false positives that kept `just deposit` red: the
+  hardening example's literal `/home/OPERATOR/` paths (now an
+  `OPERATOR_HOME` substitution token) and a guard test fixture simulating a
+  home-path leak (now split so the scanner's own needle is not in source).
+- Merge `docs/CAPTURE.md` away: the capture-host material moves to
+  `operations.md`, the social-capture procedures to `capture.md`, and the
+  screenshot-provenance gate to `publication.md`. Two files differing only
+  in case collide on case-insensitive checkouts, and the split overlapped
+  both established documents.
+- Set `X_REVIEW_AGENT_BIN` to the kimi wrapper, so operator-approved X
+  triage no longer falls back to the community review provider.
+- Isolate dry-run and discovery browser activity from live capture by
+  session namespace rather than by lock. The webbridge daemon keys one
+  current tab per session name and `navigate`/`close_tab` act on that
+  session's tab, but every `capture.py` browser read — live poll, dry run —
+  and every Reddit discovery read used the one name `coldcard-archive`, so
+  an independently started dry run could close the tab a scheduled poll was
+  mid-read on. Live polls keep the name; a dry run now drives
+  `coldcard-archive-dry-<pid>` (which also separates two dry runs), the
+  X-thread session is derived from the active one, and Reddit discovery
+  drives `coldcard-archive-discover`. No artefact records the session name,
+  so nothing a capture records changes; the maintenance wrapper's pause is
+  still what protects a mid-edit capture. Verified with a full dry run
+  overlapping a live `capture-one` of a browser source, both clean. Six
+  `WebBridgeSessionTests` in `scripts/test_capture.py`; session names
+  documented in `docs/capture.md`. One residual: a failed `navigate` still
+  relaunches the whole daemon browser, which tears down every session —
+  pre-existing failure path, not concurrency.
+
 ## 2026-08-06
 
 ### The record

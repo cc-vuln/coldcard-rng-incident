@@ -75,13 +75,16 @@ export interface ModelRange {
 }
 
 /**
- * Date pin for the vendor-stated boundaries recorded above: the newest held
- * capture in which the vendor still publishes this range. Vendor advisories are
- * mutable during an incident, and this one has already been revised once. The
- * advisory's last held state is 1 August 2026 at 18:44 UTC and the
- * backgrounder's is 4 August 2026; both give 4.0.1 through 4.1.9.
+ * Date pin for the vendor-stated boundaries recorded above: the date through
+ * which the record establishes that the vendor still publishes this range.
+ * Vendor advisories are mutable during an incident, and this one has already
+ * been revised once. Snapshots are written only when the extracted text
+ * changes, so the pin moves on unchanged polls as well as on new states: the
+ * advisory's last changed state is 1 August 2026 at 18:44 UTC and the
+ * backgrounder's is 4 August 2026, both giving 4.0.1 through 4.1.9, and both
+ * pages were polled without change through 7 August 2026.
  */
-export const VENDOR_RANGE_AS_OF = '4 August 2026';
+export const VENDOR_RANGE_AS_OF = '7 August 2026';
 
 /**
  * The Mk2 and Mk3 lower-bound divergence, stated once. Neither boundary is a

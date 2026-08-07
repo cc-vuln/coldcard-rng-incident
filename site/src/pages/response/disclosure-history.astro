@@ -204,6 +204,22 @@ import Disclosure from '../../components/Disclosure.astro';
       carries the same limit: without the prompts and scope, a miss is not
       measurable.
     </p>
+
+    <p>
+      On 7 August the COLDCARD account added a claim about how the defect was
+      eventually found rather than about what its own review had covered: it
+      said it believes it took the latest LLM models to find it.
+      <Claim
+        basis="reported"
+        contested
+        scope="Coinkite's 7 August statement that it believes the latest LLM models were needed to find the defect"
+        source="The COLDCARD account's captured 7 August reply; the discovery claim is the vendor's and no test, prompt or transcript supporting it is published. The same post's companion claim, that third-party researchers did not find the bug, is disputed and is set out below"
+        href="/record/sources/coldcardwallet-2085572285608366139/"
+        compact
+      />
+      Nothing in that post adds prompts, scope or transcripts to the 26 June
+      entry, so it does not move the grading above.
+    </p>
   </Disclosure>
 
   <Disclosure
@@ -296,6 +312,54 @@ import Disclosure from '../../components/Disclosure.astro';
         captured="5 Aug 2026"
         compact
       />
+      It is unchanged on that point: the page has been polled through 7 August
+      and its text hash has not moved since capture.
+    </p>
+
+    <p>
+      O'Beirne's account widened on 7 August. Replying to a Coinkite correction about
+      where the weak generator came from, O'Beirne wrote that COLDCARD did fall
+      back to weak entropy, that the copy in libngu was weaker still because it
+      used hardcoded constants, and that "you were warned about this particular
+      issue by me and at least one other person 4 years before me". That is a
+      claim of a second, earlier report, around 2021, by someone he does not
+      name. He linked the libngu source lines carrying the constants; he
+      attached no report or correspondence for either warning.
+      <Claim
+        basis="reported"
+        contested
+        scope="O'Beirne's 7 August claim that Coinkite was warned about this issue by him and by at least one other person about four years earlier"
+        source="James O'Beirne's captured 7 August reply to the COLDCARD account; the earlier warning names no person, gives no date beyond four years before his own, and no report or correspondence is attached for either"
+        href="/record/sources/jamesob-2085555839797166530/"
+        compact
+      />
+    </p>
+
+    <p>
+      Coinkite's public position the same day runs the other way. Answering a
+      critic, the COLDCARD account wrote that "the bug lived in public for
+      5yrs, even third party researchers didn't find it", adding that it
+      believes the latest models were needed to find it.
+      <Claim
+        basis="reported"
+        contested
+        scope="Coinkite's 7 August statement that the defect went unfound by third-party researchers for five years"
+        source="The COLDCARD account's captured 7 August reply, which does not address O'Beirne's account directly; the two statements are irreconcilable as read, and no artefact settles which is right"
+        href="/record/sources/coldcardwallet-2085572285608366139/"
+        compact
+      />
+      A third prior-warning claim, unrelated to O'Beirne's and made by neither
+      party, is also held: a 2 August thread pointing to a video said to show
+      the BTCRecover maintainer warning about COLDCARD entropy two years before
+      the incident. The video is not captured here, and nothing establishes
+      that any such warning reached Coinkite.
+      <Claim
+        basis="unverified"
+        scope="Whether the video described in that thread exists as characterised, whether it warned about COLDCARD entropy, and whether any warning it contained reached Coinkite"
+        source="A captured Stacker News thread whose author makes the claim; the linked video is not held by this archive and the thread attaches no correspondence"
+        href="/record/sources/stackernews-prior-warning-video/"
+        compact
+      />
     </p>
 
     <p>
@@ -305,14 +369,15 @@ import Disclosure from '../../components/Disclosure.astro';
       assembled. By the same token a first-person recollection published
       during an incident, with no contemporaneous artefact attached, is not a
       document either. What can be said is narrow and worth saying plainly:
-      one party describes a report, the other party's published history of
-      reports does not contain it, and no artefact has surfaced that would
-      decide it.
+      one party describes a report and now a second, earlier one by another
+      person, the other party's published history of reports contains neither
+      and says researchers did not find the bug at all, and no artefact has
+      surfaced that would decide it.
       <Claim
         basis="unverified"
         contested
-        scope="Whether a randomness concern was reported to Coinkite in May 2025 and how it was handled"
-        source="Two accounts that do not reconcile, with no contemporaneous report, correspondence or ticket captured on either side as of a 6 August 2026 recheck"
+        scope="Whether a randomness concern was reported to Coinkite in May 2025, whether an earlier warning was made around 2021, and how either was handled"
+        source="Accounts that do not reconcile, with no contemporaneous report, correspondence or ticket captured on any side as of a 7 August 2026 recheck of the chronology and of both parties' captured posts"
         compact
       />
     </p>
@@ -357,6 +422,35 @@ import Disclosure from '../../components/Disclosure.astro';
       />
       Reception is not something either document can settle. Both are held.
     </p>
+
+    <p>
+      The reception question resurfaced on 7 August, with the vendor invoking
+      the standard itself. Answering a critic, the COLDCARD account wrote: "As
+      promised we are doing all the investigation we can to get to the bottom
+      of it. We are devastated. The hacker could have done the right thing and
+      responsibly disclosed."
+      <Claim
+        basis="reported"
+        scope="That the COLDCARD account published that statement, including its appeal to responsible disclosure, on 7 August 2026, and that this archive holds several 7 August posts quoting the line back at the company"
+        source="The COLDCARD account's captured 7 August reply, and the captured replies and quote-posts registered the same day"
+        href="/record/sources/coldcardwallet-2085551118164132316/"
+        compact
+      />
+      The line was quoted back at the company repeatedly through the day, and
+      more than one reply turned it into the reception question this section is
+      about, one asking whether roughly five separate researchers had disclosed
+      to Coinkite and been mocked for it. No captured artefact enumerates pre-incident
+      disclosures of this defect, so that number is a characterisation and not
+      a count this archive can check.
+      <Claim
+        basis="reported"
+        contested
+        scope="The claim that several researchers responsibly disclosed this defect to Coinkite before the incident and were ridiculed"
+        source="A captured 7 August reply to the COLDCARD account; the figure and the characterisation are the poster's, no researcher is named and no disclosure artefact is attached"
+        href="/record/sources/fractalencrypt-2085584132420043263/"
+        compact
+      />
+    </p>
   </Disclosure>
 
   <h2>Claim register</h2>
@@ -377,7 +471,7 @@ import Disclosure from '../../components/Disclosure.astro';
           <Claim
             basis="reported"
             scope="The rows below marked Reported, each attributed to the party that published it"
-            source="Coinkite's chronology, O'Beirne's 4 August posts and Costea's 31 July thread, all captured"
+            source="Coinkite's chronology, O'Beirne's 4 and 7 August posts, the COLDCARD account's 7 August replies and Costea's 31 July thread, all captured"
             href="/record/sources/jamesob-2084624605969350915/"
             compact
           />
@@ -422,6 +516,16 @@ import Disclosure from '../../components/Disclosure.astro';
             <td class="wide">O'Beirne's first-person account, with no contemporaneous artefact attached, against a vendor history that does not record it.</td>
           </tr>
           <tr>
+            <td class="wide">Coinkite was also warned about this issue by another person around 2021.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">O'Beirne's 7 August reply, which names no one and attaches no report for either warning. A second, unrelated prior-warning claim, about a video said to predate the incident by two years, is held and is likewise unverified.</td>
+          </tr>
+          <tr>
+            <td class="wide">No third-party researcher found the bug in the five years it was public.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">The COLDCARD account's 7 August reply. It does not address O'Beirne's account, which contradicts it, and no artefact settles the two.</td>
+          </tr>
+          <tr>
             <td class="wide">Coinkite's handling of past disclosures shows an adverse pattern.</td>
             <td class="nw"><span class="status status--neutral">Unverified</span></td>
             <td class="wide">Costea's characterisation, contested by the chronology's own tagging of the same events. Reception is not recorded by either document.</td>
@@ -435,7 +539,9 @@ import Disclosure from '../../components/Disclosure.astro';
     <div class="ve-card__label lbl-blue">What would change the status</div>
     <p>
       A contemporaneous report, ticket or correspondence from May 2025 would
-      settle the O'Beirne question in one direction or the other. The 2022
+      settle the O'Beirne question in one direction or the other, as would the
+      earlier warning he now says another person made, or the name of the
+      person who made it. The 2022
       review's written recommendations, or a statement of which were declined
       and why, would move that entry from vendor summary to document. The AI
       review's scope definition would show whether the seed path was ever in
@@ -444,7 +550,7 @@ import Disclosure from '../../components/Disclosure.astro';
       <Claim
         basis="unverified"
         scope="Whether pre-incident reviews or reports covered the seed-generation path, and how any such report was handled"
-        source="Every relevant entry rests on private material that had not been published; no artefact in the captured record resolved them as of a 6 August 2026 recheck"
+        source="Every relevant entry rests on private material that had not been published; no artefact in the captured record resolved them as of a 7 August 2026 recheck, which added two further statements but no document"
         compact
       />
     </p>

@@ -2,6 +2,7 @@
 import Article from '../../layouts/Article.astro';
 import Claim from '../../components/Claim.astro';
 import Answer from '../../components/Answer.astro';
+import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import ModelExplorer from '../../components/ModelExplorer.astro';
 import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.astro';
@@ -20,6 +21,7 @@ import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
     note: 'How those conditions changed the assessments published during the incident.',
   }}
 >
+  <CorrectionNotice page="/how-it-broke/entropy/" />
   <Answer>
     <p>
       Nobody has measured how much entropy an affected COLDCARD seed actually
@@ -59,7 +61,7 @@ import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
           basis="reported"
           contested
           scope="The candidate-space estimates and attribution in the comparison table above"
-          source="Published models from Block, Coinkite, LLFOURN and otaliptus; the 58.3 to 62.3-bit row is arithmetic on LLFOURN's follow-up"
+          source="Published models from Block, Coinkite, LLFOURN, otaliptus and a 7 Aug community derivation; the 58.3 to 62.3-bit row is arithmetic on LLFOURN's follow-up"
           href="/record/reference/#analysis"
         /></caption>
         <thead>
@@ -113,6 +115,12 @@ import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
             <td class="nw"><code>~2^52</code> to <code>~2^63</code> if RTC is problematic; <code>~2^77</code> to <code>~2^88</code> otherwise, or <code>~2^75</code> on the author's most pessimistic aside</td>
             <td class="wide">Assumes a remote attacker does not know the UID, estimates 20 to 21 bits from the wafer-coordinate word, narrows practical SysTick positions, and treats the Mk4 RTC contribution as unresolved. The author explicitly labels the post brainstorming and lists details that may be wrong.</td>
           </tr>
+          <tr>
+            <td class="nw"><strong><a href="/record/sources/reddit-mk3-seed-entropy-worse/">ineedanamegenerator, 7 August</a></strong></td>
+            <td class="nw">Mk3 seeding word: <code>~2^23</code></td>
+            <td class="nw">not stated</td>
+            <td class="wide">A bound on one term rather than a full candidate space: it narrows the same 32-bit UID-XOR-SysTick word Block bounds at <code>2^32</code>. The argument is that SysTick's roughly 16.3 bits sit in the low 17 bits, so the UID's low half adds nothing under the XOR, and that the upper wafer-coordinate half carries about 7.2 bits given a stated ceiling of 20,000 chips per wafer. The wafer ceiling is the author's own assumption, and the post corrects itself mid-way to withdraw an earlier BCD-encoding argument.</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -147,12 +155,42 @@ d = RTC-&gt;SSR;</pre>
       words as wafer and lot information. That field layout explains why an
       analyst might model fewer than <code>2^32</code> possible first words, but it
       does not by itself establish a COLDCARD-specific range. This project holds
-      no population sample of device UIDs as of a 6 August 2026 recheck, so
+      no population sample of device UIDs as of a 7 August 2026 recheck, so
       <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code>2^20</code> assumption</a>
       remains unchecked here.<Claim
         basis="unverified"
         scope="The practical distribution of the 32-bit UID word across shipped COLDCARD devices"
-        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices had not been measured here as of a 6 August 2026 recheck"
+        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices had not been measured here as of a 7 August 2026 recheck"
+      />
+    </p>
+
+    <p>
+      Two sources published since narrow the term without supplying that sample.
+      The <a href="/record/sources/cktripwire-methodology/">CKTRIPWIRE methodology page</a>
+      describes an instrumented firmware build flashed to one sacrificial Mk3
+      and a boot battery that captured the device's actual seeding registers.
+      The operator reports that it found the UID word packed with die
+      coordinates rather than uniform across 32 bits, SysTick confined to a
+      narrow early-boot range, and the Mk3 real-time-clock registers reading
+      zero because that clock is disabled and has no backup battery. That is a
+      single device described by the experiment's own operator: it speaks to the
+      field's shape, not to its distribution across shipped devices.<Claim
+        basis="reported"
+        scope="The single-Mk3 instrumented boot-battery observations about UID packing, the SysTick range and zero Mk3 RTC registers"
+        source="CKTRIPWIRE methodology page, captured 5 Aug 2026; the operator's own account of one sacrificial device, not reproduced here"
+        href="/record/sources/cktripwire-methodology/"
+      />
+      Separately, on 7 August
+      <a href="/record/sources/reddit-mk3-seed-entropy-worse/">ineedanamegenerator put the whole Mk3 seeding word at about 23 bits</a>
+      rather than 32, by the reasoning set out in the table above. That is one
+      poster's derivation from a stated wafer-size assumption, not a measurement,
+      and it is narrower than the <code>2^32</code> ceiling Block gives for the
+      same word.<Claim
+        basis="reported"
+        contested
+        scope="The roughly 23-bit bound on the Mk3 UID-XOR-SysTick seeding word and the 7.2-bit wafer-coordinate estimate behind it"
+        source="ineedanamegenerator, captured Reddit thread of 7 Aug 2026; the poster's own derivation, not recomputed here, and narrower than Block's 2^32 ceiling for the same word"
+        href="/record/sources/reddit-mk3-seed-entropy-worse/"
       />
     </p>
 
@@ -221,6 +259,56 @@ d = RTC-&gt;SSR;</pre>
     </div>
   </div>
 
+  <p>
+    Published rate and cost figures sit beside that model, none of them
+    reproduced here. The
+    <a href="/record/sources/bitcoindevs-explainer-thread/">Bitcoin Dev Project's explainer thread</a>
+    put a <code>2^40</code> Mk3 search at 20 to 45 minutes on rented specialised
+    GPUs, for under a dollar of compute.<Claim
+      basis="reported"
+      scope="The 20-to-45-minute, under-a-dollar rented-GPU figure for a 2^40 Mk3 search"
+      source="Bitcoin Dev Project, captured X thread, 3 Aug 2026; a simplified public explainer, with no benchmark or hardware detail published"
+      href="/record/sources/bitcoindevs-explainer-thread/"
+    />
+    CKTRIPWIRE, which funds deliberately weak honeypot wallets and watches which
+    ones are swept, published an estimated GPU crack time of about 88 minutes
+    for its zero-added-entropy control band, then on 6 August revised its
+    estimates sharply downward across every band, the control to about two
+    minutes.<Claim
+      basis="reported"
+      scope="CKTRIPWIRE's published estimated GPU crack time for the zero-added-entropy control band before and after its 6 August revision"
+      source="CKTRIPWIRE live monitor, captures of 6 Aug 2026 either side of the revision; the operator publishes no benchmark behind the estimates"
+      href="/record/sources/cktripwire-honeypot-monitor/"
+    />
+    Between those two states, kTimesG posted in the BitcoinTalk compromise
+    thread that the control's seed was one of 16,777,216 candidates and had been
+    found in 4.2 seconds on an RTX 4090 rather than 88 minutes, that the site's
+    estimate was about 352 times too high, and that the control's inputs could
+    not arise on a real device, so its outcome says nothing about how real
+    compromised seeds were computed. Neither the 4.2-second run nor the 352-fold
+    factor is reconciled here against the site's figures, and CKTRIPWIRE's
+    published method states that its reproduction was checked word-for-word
+    against a real Mk3.<Claim
+      basis="reported"
+      contested
+      scope="kTimesG's 16,777,216-candidate and 4.2-second RTX 4090 figures, the claimed 352-fold overstatement, and the dispute over whether the control honeypot's inputs are reachable on a real device"
+      source="kTimesG, captured BitcoinTalk thread, 6 Aug 2026, against CKTRIPWIRE's own published estimates and methodology; neither side's work is reproduced here"
+      href="/record/sources/bitcointalk-large-scale-compromise-thread/"
+    />
+  </p>
+
+  <p>
+    In the same exchange Greg Maxwell asked participants not to publish
+    reductions of the COLDCARD search space while vulnerable funds remained
+    unswept, and kTimesG replied that the point was only that the honeypot did
+    not reflect real conditions.<Claim
+      basis="reported"
+      scope="Maxwell's 6 August request not to publish search-space reductions, and kTimesG's reply"
+      source="Greg Maxwell and kTimesG, captured BitcoinTalk thread, 6 Aug 2026"
+      href="/record/sources/bitcointalk-large-scale-compromise-thread/"
+    />
+  </p>
+
   <ModelExplorer />
 
   <h2 id="model-loss-record">What the held record established by model</h2>
@@ -237,15 +325,27 @@ d = RTC-&gt;SSR;</pre>
       href="/record/sources/robhamilton-mk4-confirmation-question/"
       compact
     />
-    As of 4 August 2026, no captured source in this archive demonstrated a
-    confirmed drain of a wallet generated on one of those models. That is a
-    dated archive limit, not a finding that those models were safe, and the
-    published candidate-space estimates above remain in disagreement.
+    As of a 7 August 2026 recheck, no captured source in this archive
+    demonstrates a Mk4, Mk5 or Q wallet drained in this incident's July 2026
+    waves. That is a dated archive limit, not a finding that those models were
+    safe, and the published candidate-space estimates above remain in
+    disagreement.
     <Claim
       basis="unverified"
-      scope="Whether any Mk4, Mk5 or Q wallet had lost funds in this incident by 4 August 2026"
-      source="No captured source demonstrated a confirmed Mk4-class drain by that date; absence from this bounded archive is not evidence of safety"
+      scope="Whether any Mk4, Mk5 or Q wallet lost funds in this incident's July 2026 waves, as of a 7 August 2026 recheck"
+      source="No captured source demonstrates a Mk4-class drain in those waves; absence from this bounded archive is not evidence of safety"
       compact
+    />
+    One held source reports an earlier case outside those waves. ChuckSRQ's
+    4 August catalogue of pre-July drain reports lists a July 2023 theft of
+    3.73118785 BTC from an Mk4 whose owner described a device-generated seed,
+    with the theft and amount cited to a transaction. The author calls it the
+    best public candidate for the firmware defect while stating that its exact
+    cause is not proven and its firmware version is unknown.<Claim
+      basis="reported"
+      scope="The July 2023 Mk4 theft of 3.73118785 BTC catalogued by ChuckSRQ, and the author's own statement that its cause is unproven"
+      source="ChuckSRQ, captured X post of 4 Aug 2026; the theft and amount are cited to a transaction, the attribution to this defect is established neither there nor here"
+      href="/record/sources/chucksrq-2084628592760164385/"
     />
   </p>
 

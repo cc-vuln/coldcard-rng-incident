@@ -37,7 +37,7 @@ const galaxyInclWave4Num = fig('galaxyInclWave4Btc').replace(/\s*BTC$/, '').trim
  * it are fields, not prose, and the source page carries the full description.
  */
 const SCOPE_NOTE: Record<string, string> = {
-  'coldcard-watch': 'Self-described verified floor, three clusters',
+  'coldcard-watch': 'Self-described verified floor, drains of 30 and 31 Jul',
   'coldcard-rip-tracker': 'Ten block-indexed waves, AI-compiled',
   'coldcard-hack-tracker': 'Known waves only, includes a likely wave 4',
 };
@@ -208,8 +208,8 @@ const cards = readings.map((reading, i) => {
           <tr>
             <td class="nw"><strong><a href={watch.href}>coldcard-watch</a></strong><small>anonymous tracker</small></td>
             <td class="nw" data-sort={watch.btcSort}>{watch.btc} BTC<small>{watch.addresses} addresses</small></td>
-            <td class="wide">Self-described verified minimums: a floor, three clusters from 30 Jul to 1 Aug</td>
-            <td class="wide" data-sort={watch.readAt}>Anonymously operated. Moved from coldcard-watch.vercel.app to coldcardwatch.com on 3 to 4 Aug. {watch.provenance}</td>
+            <td class="wide">Self-described verified minimums over the drain window it gives as 30 and 31 Jul: a floor. Since 7 Aug the page splits its view into Verified, Attested and Suspected, and the figure here is the verified one</td>
+            <td class="wide" data-sort={watch.readAt}>Anonymously operated. Moved from coldcard-watch.vercel.app to coldcardwatch.com on 3 to 4 Aug, and renamed itself from Coldcard Sweep Watch to Coldcard Watch on 7 Aug. {watch.provenance}</td>
           </tr>
         </tbody>
       </table>
@@ -387,7 +387,10 @@ const cards = readings.map((reading, i) => {
     This supersedes Galaxy's 1 August statement of {fig('attackerHoldingsBtc')}
     under attacker control with every endpoint address fully unspent, and the
     four holdings Galaxy published for the 30 July waves, listed below, fall
-    inside the waves Galaxy describes as unmoved. It also states
+    inside the waves Galaxy describes as unmoved. Galaxy's statement is fixed
+    to 3 August: a community tracker has since recorded a spend on 7 August
+    from a wave 2 collector address inside that set, which is
+    <a href="#holdings-check">recorded with the holdings below</a>. It also states
     that <a href="/record/sources/glxy-attack-ongoing/">the attack is ongoing</a>,
     which is outside this accounting page and remains preserved in the linked
     source record.
@@ -479,8 +482,8 @@ const cards = readings.map((reading, i) => {
           <tr>
             <td class="nw"><strong><a href={watch.href}>coldcard-watch</a></strong><small>anonymous · capture of {watch.readAtShort}</small></td>
             <td class="nw" data-sort={watch.btcSort}>{watch.btc} BTC</td>
-            <td class="nw">Self-described verified minimums across {watch.addresses} addresses in three clusters, 30 Jul to 1 Aug</td>
-            <td class="nw"><a href={watch.href}>copy held</a>; moved to coldcardwatch.com, and unchanged since {watch.heldSinceShort}</td>
+            <td class="nw">Self-described verified minimums across {watch.addresses} addresses drained on 30 and 31 Jul; the verified one of the three views the page split out on 7 Aug</td>
+            <td class="nw"><a href={watch.href}>copy held</a>; moved to coldcardwatch.com, and first read at this figure in the capture of {watch.heldSinceShort}</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/intangiblecoins-wave4-announcement/">@intangiblecoins wave 4</a></strong><small>X and Pastebin, 3 Aug 2026</small></td>
@@ -591,6 +594,20 @@ const cards = readings.map((reading, i) => {
       source="Captured snapshots and diffs for coldcard-watch, coldcard-hack-tracker and Kelbie's tracker, each classified in revision-reviews.toml"
       href="/record/changes/"
     />
+    Then both trails went quiet for different reasons. coldcard-watch stood at
+    1,366.58 BTC for three days, not because the tracker held still but because
+    the name stopped resolving through this collector's DNS on 4 August; when
+    polling resumed on 7 August the first capture read 1,405.07 BTC across
+    4,925 addresses, and carried the rename and the three-way view filter with
+    it. coldcard-hack-tracker's headline has not moved since 4 August, while
+    the holdings, movement feed and still-held share underneath it have changed
+    on most polls since.
+    <Claim
+      basis="verified"
+      scope="That coldcard-watch's figure was unread rather than unchanged from 4 to 7 August, the figure and address count its 7 August capture carries, and that coldcard-hack-tracker's headline has stood since 4 August while its detail rows have not"
+      source="This archive's poll record for coldcard-watch, which logs name-resolution failures from 4 August and HTTP 200 from 7 August, and the held snapshots and classified diffs for both trackers"
+      href="/record/changes/"
+    />
   </p>
 
   </Disclosure>
@@ -653,13 +670,18 @@ const cards = readings.map((reading, i) => {
     of an attacker, a total of {fig('galaxyInclWave4Btc')} if it is included,
     and no promotion into the top-line numbers because no victim has confirmed
     inclusion. coldcard-hack-tracker carries the wave at 443.34 BTC across 703
-    addresses, applying both @intangiblecoins corrections to the circulated
-    list. Neither Galaxy nor the tracker itemises a reconciliation between
-    those two wave-4 figures.
+    addresses, and states its own derivation for that figure: it starts from
+    448.73 BTC, which it attributes to Galaxy rather than to @intangiblecoins,
+    and drops six further destinations that already had prior on-chain history,
+    a cut of 5.39 BTC. It also reads Galaxy's approximately 2,055 BTC ceiling
+    as the 1,596 BTC high-confidence figure plus that 448.73 BTC candidate.
+    Galaxy's own thread publishes neither 448.73 BTC nor any itemised wave-4
+    component, so the reconciliation is the tracker's reading of Galaxy rather
+    than Galaxy's own.
     <Claim
       basis="reported"
-      scope="Galaxy's medium-high-confidence wave-4 statement and the tracker's 443.34 BTC, 703-address wave-4 line"
-      source="Galaxy Research's captured 3 August thread and the coldcard-hack-tracker capture of 4 Aug 2026, 03:05 UTC"
+      scope="Galaxy's medium-high-confidence wave-4 statement, and the tracker's 443.34 BTC, 703-address wave-4 line with its stated derivation from 448.73 BTC and its reading of Galaxy's 2,055 BTC ceiling"
+      source="Galaxy Research's captured 3 August thread, which states 2,055 BTC and no wave-4 component, and the coldcard-hack-tracker captures of 4 Aug 2026, 03:05 UTC and 7 Aug 2026, 13:20 UTC, which carry the same wave-4 figures and derivation; the attribution of 448.73 BTC to Galaxy is the tracker's own"
       href="/record/sources/coldcard-hack-tracker/"
     />
   </p>
@@ -802,18 +824,28 @@ const cards = readings.map((reading, i) => {
     <a href="/record/sources/glxy-law-enforcement-handoff/">Galaxy stated on 3 August</a>
     that 100 percent of coins in waves 1 to 3 have not moved and 90 percent of
     stolen coins overall have not moved, a statement that covers these four
-    holdings. The movement reported since sits outside them, in the suspected
-    wave-4 park and the smaller incidents: coldcard-hack-tracker records
-    6.81368697 BTC moved, including deposits it attributes to Bullish.com,
-    Coinbase Prime Custody and KuCoin, with the last movement at block 960,832.
+    holdings. All four are still recorded as held in the newest
+    coldcard-hack-tracker capture. Movement has since been recorded inside the
+    wider set that statement covered, though not in these four addresses: on
+    7 August the tracker recorded the wave 2 collector
+    <code>bc1qmd5m5k&hellip;9n8jp6</code> emptied, 30.18476329 BTC leaving in a
+    93-input consolidation confirmed at block 961,368, and qualified its own
+    Galaxy source note to say that waves 1 to 3 coins were then still unmoved.
+    Its moved total ran from 6.81368697 BTC in the capture of 4 Aug 03:05 UTC
+    to 118.60759628 BTC in the capture of 7 Aug 13:20 UTC, and its still-held
+    share from 99.5 to 92.0 percent. The rest of the movement it records sits
+    outside the four holdings, in the suspected wave-4 park, the later Taproot
+    wave and the smaller incidents: deposits it attributes to Bullish.com,
+    Coinbase Prime Custody, KuCoin and Binance, and an ETH leg it says ran
+    through THORChain into Tornado Cash, credited on the page to @osint_based.
     <Claim
       basis="reported"
-      scope="Galaxy's 3 August unmoved-coins statements and the tracker's record of 6.81368697 BTC moved from the wave-4 park, including exchange-attributed deposits"
-      source="Galaxy Research's captured 3 August thread and the coldcard-hack-tracker capture of 4 Aug 2026, 03:05 UTC; the exchange attributions are the tracker's own and are not independently checked here"
+      scope="Galaxy's 3 August unmoved-coins statements, and the tracker's record of the wave 2 collector spend at block 961,368, of its moved total and still-held share at the two captures named, and of the exchange-attributed deposits and the THORChain-to-Tornado ETH leg"
+      source="Galaxy Research's captured 3 August thread and the coldcard-hack-tracker captures of 4 Aug 2026, 03:05 UTC and 7 Aug 2026, 13:20 UTC; the wave labelling, the exchange attributions and the ETH tracing are the tracker's own and are not independently checked here"
       href="/record/sources/coldcard-hack-tracker/"
     />
     No captured source reports a seizure, recovery or freeze for any of these
-    funds as of 6 August 2026. This is an absence of reported evidence, not a
+    funds as of 7 August 2026. This is an absence of reported evidence, not a
     prediction about future movement.
   </p>
 
@@ -893,7 +925,7 @@ const cards = readings.map((reading, i) => {
     on third-party claims as policy, but offered a one-time exception if the
     victim signs a message from a drained address, signs an affidavit and
     shows Duel the evidence trail. No outcome of that offer appears in
-    captures held to 4 August 2026.
+    captures held to 7 August 2026.
     <Claim
       basis="reported"
       scope="Duel's stated no-freeze policy and the conditions of its one-time exception for the reported THORChain-peeled victim funds"
@@ -917,16 +949,17 @@ const cards = readings.map((reading, i) => {
   <p>
     Nothing in the held captures records an exchange freeze, a flagging
     commitment or any other custodial action against the four consolidation
-    addresses as of 6 August 2026, and no captured source names an exchange or
+    addresses as of 7 August 2026, and no captured source names an exchange or
     service that has undertaken to stop or mark deposits from them. The tracker
     record does show deposits attributed to the later wave-4 park reaching
-    Bullish.com, Coinbase Prime Custody and KuCoin, with no freeze or seizure
+    Bullish.com, Coinbase Prime Custody and KuCoin, and deposits attributed to
+    the later Taproot wave reaching Binance, with no freeze or seizure of any
     of those reported either. That is an absence in what has been published and
     collected here, not a finding that no such step has been taken.
     <Claim
       basis="unverified"
       scope="Whether any exchange or custodial service has frozen or committed to flagging deposits from the attributed addresses"
-      source="No captured source held by this project reports such a step as of 6 August 2026; the archive cannot observe unpublished compliance action"
+      source="No captured source held by this project reports such a step as of 7 August 2026; the archive cannot observe unpublished compliance action"
       href="/record/changes/"
     />
   </p>
@@ -1011,7 +1044,7 @@ const cards = readings.map((reading, i) => {
       <Claim
         basis="unverified"
         scope="Whether the 14 smaller footprints and the earlier 695 transactions were controlled by the same operator as the mass waves"
-        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 6 August 2026 recheck"
+        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 7 August 2026 recheck"
         href="/record/sources/clay-earlier-waves-thread/"
       />
     </li>
@@ -1044,7 +1077,7 @@ const cards = readings.map((reading, i) => {
       <Claim
         basis="unverified"
         scope="Whether the reported 45.9 BTC cluster is in fact related to the principal incident set"
-        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship was captured in a 6 August 2026 recheck"
+        source="The tracker integration is the reporter's own assessment; no independent confirmation of the relationship was captured in a 7 August 2026 recheck"
         href="/record/sources/kevinkelbie-later-wave/"
       />
     </li>
@@ -1052,32 +1085,39 @@ const cards = readings.map((reading, i) => {
       <strong>Whether the circulated fourth wave is part of the same incident.</strong>
       The corrected wave-4 set rests on pattern matching. Galaxy suspects it is
       real with medium-high confidence, and neither Galaxy nor its author
-      reports direct victim confirmation as of 6 August 2026. Its stated
+      reports direct victim confirmation as of 7 August 2026. The
+      coldcard-hack-tracker capture of that date still labels the wave
+      "pattern-match only (no victim report yet)". Its stated
       figures, corrections and unreconciled arithmetic are recorded
       <a href="#wave-4">above</a>; it enters no total on this page.
       <Claim
         basis="unverified"
         scope="Whether the circulated wave-4 set belongs to the same incident as the attributed transaction sets"
-        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation; no later confirmation was captured in a 6 August 2026 recheck"
+        source="The author's own second correction and Galaxy's captured 3 August thread, both stating the lack of victim confirmation, and the coldcard-hack-tracker capture of 7 Aug 2026, 13:20 UTC, which still records no victim report; no later confirmation was captured in a 7 August 2026 recheck"
         href="/record/sources/glxy-wave4-caveat/"
       />
     </li>
     <li>
       <strong>Whether the consolidated funds will move further, and where.</strong>
-      Movement has already been reported outside the four-address cluster, from
-      the suspected wave-4 park. No forward statement is possible; the cluster
-      finding above is fixed to its stated 06:48 UTC check time, and Galaxy's
-      unmoved-coins statement is fixed to 3 August.
+      Movement has been reported outside the four-address cluster, from the
+      suspected wave-4 park and the later Taproot wave, and on 7 August from a
+      wave 2 collector inside the set Galaxy described as unmoved. No forward
+      statement is possible; the four holdings above are Galaxy's as published
+      on 31 July, their held status is read from the tracker capture named
+      beside them, and Galaxy's unmoved-coins statement is fixed to 3 August.
     </li>
     <li>
       <strong>Any recovery, seizure or insurance payout.</strong> None has been
-      reported in any captured source as of 6 August 2026. A 3 August report of
+      reported in any captured source as of 7 August 2026. A 3 August report of
       white-hat drains underway, relayed by Bitcoin News from a community
-      post, is unconfirmed and does not name recovered amounts.
+      post, is unconfirmed and does not name recovered amounts. In the
+      6 August capture of
+      <a href="/record/sources/reddit-white-hat-drains-relay/">a Reddit thread carrying the same claim</a>,
+      a commenter writes that they have seen only rumours, nothing concrete.
       <Claim
         basis="reported"
-        scope="The reported but unconfirmed claim that white-hat drains are underway"
-        source="Bitcoin News's captured 3 August post citing a community report; no recovered amounts are named and no victim confirmation is held"
+        scope="The reported but unconfirmed claim that white-hat drains are underway, and the commenter's 6 August statement that only rumours have been seen"
+        source="Bitcoin News's captured 3 August post, which cites @coinjoined, and the captured Reddit thread carrying the same claim, 6 Aug 2026; no recovered amounts are named and no victim confirmation is held"
         href="/record/sources/bitcoinnews-whitehat-drains/"
       />
     </li>

@@ -7,7 +7,7 @@ import Answer from '../../components/Answer.astro';
 <Article
   title="What the developer community did"
   description="Bitcoin Optech's coverage, the libngu and COLDCARD pull requests opened after the entropy incident, an independent commit-history reconstruction checked against the pinned clones, and attributed process and licensing observations."
-  standfirst="Four public incident-response proposals are tracked. Their state moved through 1 August 2026: one stayed open, two were closed by their own authors, and the firmware companion became a draft waiting on a new upstream proposal. That upstream proposal was merged on 5 August 2026. A separate commit-history analysis is checked claim by claim below."
+  standfirst="Four public incident-response proposals are tracked. Their state moved through 1 August 2026: one stayed open, two were closed by their own authors, and the firmware companion became a draft waiting on a new upstream proposal. Two are now merged upstream, on 5 and 6 August 2026; one of the closed proposals continues as a three-part stack, and a Coinkite collaborator has opened a firmware proposal that would require user-supplied entropy for every new seed. A separate commit-history analysis is checked claim by claim below."
   depth="plain"
   kicker="Responses"
   next={{
@@ -18,13 +18,18 @@ import Answer from '../../components/Answer.astro';
 >
   <Answer>
     <p>
-      Outside Coinkite's own repository, the community response was proposals
-      rather than shipped change. Three pull requests against the upstream
-      <code>libngu</code> library and one companion COLDCARD firmware pull
-      request were all still open and unreviewed or unmerged in the captures
-      checked on 1 August 2026. One has since moved: libngu #61 was merged
-      upstream on 5 August 2026, and the library publishes no releases, so no
-      proposal is present in a numbered release as of 6 August 2026. Bitcoin
+      Outside Coinkite's own repository, the community response began as
+      proposals rather than shipped change. Three pull requests against the
+      upstream <code>libngu</code> library and one companion COLDCARD firmware
+      pull request were all still open and unreviewed or unmerged in the captures
+      checked on 1 August 2026. Two have since been merged into the library's
+      <code>master</code>: #61 on 5 August 2026 and #58 on 6 August 2026, the
+      second of which changed the ineffective guard itself so that the
+      configuration now fails the build. The library publishes no releases, so no
+      proposal is present in a numbered release as of 6 August 2026. A third,
+      closed by its author on 1 August, was split the same day into three
+      smaller proposals; two were still open on 7 August, and the third was
+      closed by its author as overtaken by #61. Bitcoin
       Optech carried the advisory to its technical readership, and an
       independent developer published a commit-history reconstruction whose
       assertions are graded one by one below. Nothing here changes what an owner
@@ -38,9 +43,28 @@ import Answer from '../../components/Answer.astro';
     <a href="/how-it-broke/#the-fix">The COLDCARD hotfix</a> replaces the linked
     <code>rng_get()</code> implementation for the affected boards. It does not
     change <code>libngu</code>'s original <code>#ifndef
-    MICROPY_HW_ENABLE_RNG</code> guard. An integrator can encounter the same
-    condition if it defines that macro as <code>(0)</code> and links a software
+    MICROPY_HW_ENABLE_RNG</code> guard. An integrator could encounter the same
+    condition if it defined that macro as <code>(0)</code> and linked a software
     <code>rng_get()</code> fallback.
+  </p>
+
+  <p>
+    That is no longer the state of the library. <code>ngu/random.c</code> on
+    <code>master</code> changed on <strong>6 August 2026</strong> when libngu
+    #58 was merged: the guard now reads <code>#if MICROPY_HW_ENABLE_RNG ==
+    0</code> rather than <code>#ifndef</code>, so a board that defines the macro
+    as zero fails the build with <code>#error "get a HW TRNG plz"</code> instead
+    of passing silently. The same commit routes the Linux target through
+    <code>getrandom()</code> in place of <code>random()</code> and rejects a
+    negative byte count in <code>random_bytes()</code>. The captures do not show
+    what any downstream integrator has done with that change.
+    <Claim
+      basis="verified"
+      scope="The text of libngu ngu/random.c on master before and after 6 August 2026: the guard change from #ifndef to #if MICROPY_HW_ENABLE_RNG == 0, the Linux getrandom() helper, and the negative-count check in random_bytes()"
+      source="Captured raw ngu/random.c at switck/libngu master, 1 Aug and 6 Aug 2026, and the diff between them"
+      href="/record/sources/libngu-random-c/"
+      compact
+    />
   </p>
 
   <p>
@@ -55,8 +79,8 @@ import Answer from '../../components/Answer.astro';
           Upstream libngu pull requests opened after disclosure
           <Claim
             basis="verified"
-            scope="The public contents of libngu pull requests #58, #59, #60 and #61, and the state each was in at every capture held: 03:25 to 17:41 UTC on 1 August 2026 for the first three, and 3 August to 5 August 2026 for #61"
-            source="Captured switck/libngu pull-request pages and separate patch captures, 1 Aug 2026"
+            scope="The public contents of libngu pull requests #58, #59, #60 and #61, and the state each was in at every capture held: 03:25 to 17:41 UTC on 1 August 2026 for the first three, 3 to 5 August 2026 for #61, and rechecks on 6 and 7 August 2026 for #58, #59 and #61"
+            source="Captured switck/libngu pull-request pages and separate patch captures, 1 Aug to 7 Aug 2026"
             href="/record/sources/libngu-pr-60/"
             compact
           />
@@ -72,12 +96,12 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/libngu-pr-58/">#58</a><small>btchip · <a href="/record/sources/libngu-pr-58-patch/">patch</a></small></td>
             <td class="wide"><strong>Enforce a hardware TRNG.</strong> Make an unsupported board configuration fail at build time rather than use the software path.</td>
-            <td class="wide"><span class="status status--warn">Open</span> Still open in the last capture of the day, 08:11 UTC. No maintainer reply appears in any of them.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> Still open in the last capture of 1 August, 08:11 UTC, with no maintainer reply in any capture; merged by the maintainer as commit <code>e9d5e80</code> on 6 August 2026, with no review recorded on the page.</td>
           </tr>
           <tr>
             <td class="nw"><a href="/record/sources/libngu-pr-59/">#59</a><small>jgmontoya · <a href="/record/sources/libngu-pr-59-patch/">patch</a></small></td>
             <td class="wide"><strong>Fail-closed entropy backends and HMAC_DRBG.</strong> The branch includes tests against official NIST CAVP vectors, deterministic health-rule tests and negative compile gates.</td>
-            <td class="wide"><span class="status status--info">Closed by its author</span> Open at 03:25 UTC, closed by 16:08. The maintainer replied "diff too big"; the author offered a three-PR split and then closed this one.</td>
+            <td class="wide"><span class="status status--info">Closed by its author</span> Open at 03:25 UTC, closed by 16:08. The maintainer replied "diff too big"; the author offered a three-PR split and then closed this one. The split was opened the same day as libngu #62, #63 and #64, all three held here.</td>
           </tr>
           <tr>
             <td class="nw"><a href="/record/sources/libngu-pr-60/">#60</a><small>ballance · <a href="/record/sources/libngu-pr-60-patch/">patch</a></small></td>
@@ -87,7 +111,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/libngu-pr-61/">#61</a><small>scgbckbone · <a href="/record/sources/libngu-pr-61-patch/">patch</a></small></td>
             <td class="wide"><strong>Replace the generator outright.</strong> Substitutes a SHA-256 Hash-DRBG for Yasmarang and requires a reseed seed of at least 32 bytes, so the old four-byte integer call is rejected rather than quietly accepted.</td>
-            <td class="wide"><span class="status status--ok">Merged</span> Opened after the other three and open with no maintainer reply in the 3 August captures; merged by the maintainer on 5 August 2026.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> Opened after the other three and open with no maintainer reply in the 3 August captures; merged by the maintainer on 5 August 2026. The 7 August capture adds a referenced-by block naming the #62, #63 and #64 stack.</td>
           </tr>
         </tbody>
       </table>
@@ -96,7 +120,58 @@ import Answer from '../../components/Answer.astro';
 
   <p>
     For #59, the proposed split is: the DRBG and CAVP-vector tests, the entropy
-    health rule, and a smaller final <code>random.c</code> rework.
+    health rule, and a smaller final <code>random.c</code> rework. All three were
+    opened on 1 August as libngu <a href="/record/sources/libngu-pr-62/">#62</a>,
+    <a href="/record/sources/libngu-pr-63/">#63</a> and
+    <a href="/record/sources/libngu-pr-64/">#64</a>, and each is held here with
+    its patch, captured on <strong>7 August 2026</strong>.
+  </p>
+
+  <ul class="node-list">
+    <li><strong><a href="/record/sources/libngu-pr-62/">#62</a>, the HMAC_DRBG core, is closed.</strong> Its single commit added an HMAC_DRBG built directly on the SHA-256 backend libngu already uses, rather than mbedtls' HMAC layer, which the author says allocates; the author states it was checked by a host-compiled harness against official NIST CAVP vectors through both backends. The author closed it on 7 August with the comment "No longer relevant given #61" — the proposal the maintainer had merged two days earlier.</li>
+    <li><strong><a href="/record/sources/libngu-pr-63/">#63</a>, the entropy health rule, is open</strong> with one commit. It rejects a source word that is zero or that matches either of the two most recently accepted words, so that a stuck source and an exact two-word cycle are caught, and a rejected word does not advance the history. The author states a steady-state false-rejection probability of 2<sup>-31</sup> per word and says the rule detects no cycle longer than two words.</li>
+    <li><strong><a href="/record/sources/libngu-pr-64/">#64</a>, the platform-boundary rework, is open</strong> with three commits and is stacked on #63. It centralises backend selection so unknown targets fail to build, permits STM32 builds only with <code>MICROPY_HW_ENABLE_RNG=1</code>, requires an explicit ESP32 attestation, uses <code>getrandom(2)</code> on Linux and <code>arc4random()</code> on macOS and FreeBSD, refuses thread-enabled builds without a GIL, corrects the rejection mask in <code>uniform()</code>, and adds negative compile gates that assert each misconfiguration fails.</li>
+  </ul>
+
+  <p>
+    What the stack proposes has narrowed since #59 closed. #59 offered to replace
+    Yasmarang with the author's own HMAC_DRBG; #64 now states that the generator
+    "remains Cifra Hash_DRBG" as merged in #61, and hardens the entropy boundary
+    around that generator rather than substituting for it. Both #63 and #64 were
+    force-pushed and retitled on 7 August. Each of the three carries a disclosure
+    from its author that it was developed with substantial LLM assistance, then
+    adversarially reviewed, and that maintainer review is still required.
+    <Claim
+      basis="verified"
+      scope="The titles, open or closed states, commit counts, stated scope and stated verification steps of libngu #62, #63 and #64, the closing comment on #62, and the 7 August force-pushes and retitles, as displayed in the captures held"
+      source="Captured switck/libngu pull-request pages #62, #63 and #64 and their separate patch captures, 7 Aug 2026"
+      href="/record/sources/libngu-pr-64/"
+      compact
+    />
+    <Claim
+      basis="reported"
+      scope="The authors' own statements about CAVP verification, false-rejection rates, compile-gate coverage and LLM assistance; none of these test runs has been repeated by this archive"
+      source="jgmontoya's pull-request descriptions on libngu #62, #63 and #64, captured 7 Aug 2026"
+      href="/record/sources/libngu-pr-62/"
+      compact
+    />
+  </p>
+
+  <p>
+    #63 also drew a substantive review, from the author of the merged #61. On 7
+    August 2026 scgbckbone, writing as a repository contributor, questioned the
+    rule: nothing in NIST SP 800-90B or STM32 guidance that he could find
+    recommends rejecting a single A, B, A sequence, a healthy 32-bit generator
+    will produce one about once in four billion words, and without a documented
+    two-word cycle failure mode the check "seems arbitrary" and only adds an
+    eventual false failure. The capture records no reply. #64 shows no reviews.
+    <Claim
+      basis="reported"
+      scope="scgbckbone's review comment on libngu #63 and the absence of a reply or of any review on #64 in the capture held"
+      source="scgbckbone review comment on libngu #63, 7 Aug 2026, captured the same day"
+      href="/record/sources/libngu-pr-63/"
+      compact
+    />
   </p>
 
   <p>
@@ -119,6 +194,74 @@ import Answer from '../../components/Answer.astro';
     />
     Its
     <a href="/record/sources/coldcard-firmware-pr-691-patch/">patch is held separately</a>.
+  </p>
+
+  <p>
+    A larger firmware proposal followed from inside the repository. On
+    <strong>5 August 2026</strong> scgbckbone, writing as a repository
+    collaborator, opened
+    <a href="/record/sources/coldcard-firmware-pr-707/">COLDCARD firmware PR #707</a>,
+    "Improve seed gen &amp; require external entropy for each new wallet", from
+    the branch <code>improve_seed_gen-public</code>. It is a proposal, not
+    shipped firmware: it was open, labelled an enhancement by doc-hex, and
+    carried no review in the first capture held, taken at 15:45 UTC on 7 August
+    2026. By the next capture, at 19:22 UTC the same day, it was closed in
+    favour of a successor by the same author; that is set out below. Its seven
+    commits are held as a
+    <a href="/record/sources/coldcard-firmware-pr-707-patch/">separate patch capture</a>,
+    and what they change is readable there:
+  </p>
+
+  <ul class="node-list">
+    <li><strong>Seed generation mixes the two secure elements with the TRNG.</strong> <code>generate_seed()</code> in <code>shared/seed.py</code> previously hashed 32 TRNG bytes alone; the patch appends 32 bytes read from SE1 and 8 from SE2 before the SHA256d.</li>
+    <li><strong>The four-byte reseed truncation is removed.</strong> <code>mk4.rng_seeding()</code> drops the <code>ustruct.unpack('I', n[0:4])</code> line and passes the whole 256-bit digest, which is the change firmware PR #691 proposed from outside the repository.</li>
+    <li><strong>Every new master seed would require user-supplied entropy.</strong> The changelog entry states that key mashing, physical dice rolls or physical coin flips must be chosen, that TRNG, SE1 and SE2 randomness is mixed in as well, and that the user-supplied results are checked for obviously bad distribution. A later commit extends the requirement to CCC keys and temporary seeds.</li>
+    <li><strong>The dice-only path would gain a warning screen</strong> stating that the rolls are the only source of randomness, that no hardware randomness is mixed in, and that the hash shown while rolling is secret. A UX test asserts the screen appears. This describes a proposed code change; what the shipped firmware does today is set out under <a href="/how-it-broke/conditions/#dice">the dice conditions</a>.</li>
+    <li><strong>The <code>libngu</code> submodule is bumped</strong> so the SHA-256 Hash-DRBG merged as libngu #61 replaces Yasmarang. A seventh commit then excludes schnorr and musig from the build to save flash and adds an <code>NGU_STM32_EXTERNAL_RNG_GET</code> macro; the author states on 7 August that this commit requires a further upstream proposal, <a href="/record/sources/libngu-pr-68/">libngu #68</a>, and another submodule bump after it merges. That proposal was merged upstream the same day.</li>
+  </ul>
+
+  <p>
+    The proposal is unmerged in the capture held, and each of its changelog
+    entries is added to <code>releases/Next-ChangeLog.md</code>, the file the
+    repository uses for changes not yet published in a normal release. Nothing
+    held here states that it will be adopted. It is recorded as what was
+    proposed, and where it stood on 7 August 2026.
+    <Claim
+      basis="verified"
+      scope="The title, author, branch, enhancement label, absence of review, commit list and the code and changelog changes quoted above, as held in the pull-request and patch captures of 7 August 2026"
+      source="Captured Coldcard/firmware pull-request page #707 and its separate patch capture, 7 Aug 2026"
+      href="/record/sources/coldcard-firmware-pr-707/"
+      compact
+    />
+    <Claim
+      basis="unverified"
+      scope="Whether any part of this proposal is adopted, and what a released firmware would do at seed generation"
+      source="No captured source states that #707 or its successor will be merged or shipped"
+      compact
+    />
+  </p>
+
+  <p>
+    It did not stand for long. Between the two captures held of that page, both
+    taken on 7 August 2026, #707 moved from open to closed, and the same author
+    opened
+    <a href="/record/sources/coldcard-firmware-pr-713/">firmware PR #713</a>,
+    "Improve seed generation - mash timing with microsecond-resolution", stating
+    that it replaces #707. It carries seven commits and was open in the capture
+    held. What it changes about its predecessor is the mash path rather than the
+    entropy requirement: timing is hashed at microsecond resolution at the raw
+    key edge, 128 presses are required, and one bit of entropy is credited per
+    press, which the proposal attributes to Peter Todd's push-button generator
+    model. A proposal replaced by its own author within two days is worth
+    stating plainly rather than leaving the record pointing at the version that
+    was withdrawn.
+    <Claim
+      basis="verified"
+      scope="That firmware PR #707 was open at 15:45 UTC and closed at 19:22 UTC on 7 August 2026, and that PR #713, opened by the same author with seven commits, states that it replaces it"
+      source="Captured Coldcard/firmware pull-request pages #707 and #713, both 7 Aug 2026"
+      href="/record/sources/coldcard-firmware-pr-713/"
+      compact
+    />
   </p>
 
   <h2>A process observation on the firmware repository</h2>
@@ -250,6 +393,32 @@ import Answer from '../../components/Answer.astro';
     </p>
   </div>
 
+  <p>
+    One further code-level assertion was made on <strong>7 August 2026</strong>,
+    in an exchange <a href="/response/disclosure-history/">the disclosure
+    history</a> records: replying to a Coinkite correction about where the weak
+    generator came from, James O'Beirne linked a specific <code>libngu</code>
+    blob and said the Yasmarang copy in that library was weaker still because it
+    used hardcoded constants. The characterisations on both sides are contested
+    and are set out there; the source lines he pointed at can be checked here.
+    The held capture of <code>ngu/random.c</code> from before the 6 August merge
+    does define a second Yasmarang inside libngu, with fixed initial state
+    (<code>0x0a8ce26f</code>, <code>69</code>, <code>233</code>), XORed into
+    every output alongside <code>CHIP_TRNG_32()</code>, and a
+    <code>reseed()</code> that assigns only the 32-bit
+    <code>yasmarang_pad</code>. That is a second generator, distinct from
+    MicroPython's; <a href="/how-it-broke/">how it broke</a> sets out how the two
+    combine. Whether one is weaker than the other is a comparative judgement this
+    archive does not make.
+    <Claim
+      basis="verified"
+      scope="The presence of a second Yasmarang generator inside libngu with the initial state values quoted, its XOR into every output, and the 32-bit assignment in reseed(), as of the pre-merge capture"
+      source="Captured raw ngu/random.c at switck/libngu master, 1 Aug 2026, lines 47 to 56 and the reseed function"
+      href="/record/sources/libngu-random-c/"
+      compact
+    />
+  </p>
+
   <h2>Where public discussion was found</h2>
 
   <div class="table-wrap">
@@ -337,7 +506,7 @@ import Answer from '../../components/Answer.astro';
     <div class="table-scroll">
       <table class="data-table">
         <caption>
-          Selected high-signal repository reactions checked on 1 August 2026, states rechecked 5 August 2026
+          Selected high-signal repository reactions checked on 1 August 2026, states rechecked 5 August 2026, with a fourth registered on 7 August 2026
           <Claim
             basis="reported"
             captured="1 Aug 2026"
@@ -353,6 +522,13 @@ import Answer from '../../components/Answer.astro';
             href="/record/sources/seedsigner-pr-962/"
             compact
           />
+          <Claim
+            basis="verified"
+            scope="The stated purpose, detection method, review state and author-declared LLM assistance of Sparrow pull request #2047, as displayed in the single capture held"
+            source="Captured sparrowwallet/sparrow pull-request page, 7 Aug 2026"
+            href="/record/sources/sparrow-pr-2047/"
+            compact
+          />
         </caption>
         <thead>
           <tr>
@@ -365,7 +541,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/bitcoinorg-pr-4905/">Bitcoin.org #4905</a></td>
             <td class="wide">Removed the COLDCARD and COLDCARD Q wallet listings under the site's criterion concerning evidence that users were harmed by a listed wallet issue.</td>
-            <td class="wide"><span class="status status--ok">Merged</span> 1 Aug at 02:13 UTC.</td>
+            <td class="wide"><span class="status status--ok">Merged</span> 1 Aug at 02:13 UTC. A separate issue opened on 2 August, "Actual live website is stuck behind master", references this pull request; it showed open in the 4 August capture and closed in the 6 August one. The merge is into the repository, and the archive holds no capture of the deployed site.</td>
           </tr>
           <tr>
             <td class="nw"><a href="/record/sources/satsigner-pr-468/">SatSigner #468</a></td>
@@ -376,6 +552,11 @@ import Answer from '../../components/Answer.astro';
             <td class="nw"><a href="/record/sources/seedsigner-pr-962/">SeedSigner #962</a></td>
             <td class="wide">Proposed camera-entropy health checks, then withdrew them after the author concluded the thresholds did not measure sensor entropy and the synthetic tests were not valid evidence.</td>
             <td class="wide"><span class="status status--info">Closed unmerged</span> No SeedSigner product change resulted from this proposal.</td>
+          </tr>
+          <tr>
+            <td class="nw"><a href="/record/sources/sparrow-pr-2047/">Sparrow #2047</a></td>
+            <td class="wide">Adds a warning row and a link to Coinkite's advisory wherever a COLDCARD is selected as a device, placed in the shared pane header so it covers import, airgapped keystore, USB and export flows at once. The author states that Sparrow does not generate the COLDCARD seed, so this is not a Sparrow flaw, and that detection is on the exact wallet model so that devices subclassing the COLDCARD importers do not trigger it. The description says the branch was drafted with an LLM coding tool and that the author could not run a local build, and asks a maintainer to verify.</td>
+            <td class="wide"><span class="status status--warn">Open</span> Opened 6 August 2026 by nrobi144 and approved by skwp the same day; open and unmerged in the single capture held, taken 7 August 2026. A second commit corrected the firmware and model details to match the advisory, and a reviewer asked whether existing wallets would also be warned.</td>
           </tr>
         </tbody>
       </table>
@@ -414,13 +595,21 @@ import Answer from '../../components/Answer.astro';
     question is recorded as open.
   </p>
 
-  <h2>Follow-up items as checked on 6 August 2026</h2>
+  <h2>Follow-up items as checked on 6 August 2026, except where a later date is given</h2>
 
   <ul class="node-list">
-    <li><strong><a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">Coinkite promised a technical postmortem.</a></strong> The captured statement does not give a publication date or detailed scope.</li>
-    <li><strong>No captured source announces an independent audit of the fixed firmware.</strong> This is an archive limitation, not proof that no private review exists.</li>
+    <li><strong><a href="https://x.com/nvk/status/2083216713693151552" rel="noopener nofollow">Coinkite promised a technical postmortem.</a></strong> The captured statement does not give a publication date or detailed scope. The company's blog index captured on 7 August 2026 lists no postmortem; its newest incident post is "Update on Customer Data Retention", and the most recent incident write-up remains the 4 August "Adding to the Public Record on Our Ongoing Investigation".
+      <Claim
+        basis="verified"
+        scope="What the Coinkite blog index displayed on 7 August 2026: the titles and dates of the listed posts, and the absence of a post presented as the promised technical postmortem"
+        source="Captured Coinkite blog index, 7 Aug 2026"
+        href="/record/sources/coinkite-blog-index/"
+        compact
+      />
+    </li>
+    <li><strong>No captured source announces an independent audit of the fixed firmware.</strong> This is an archive limitation, not proof that no private review exists. It still holds against material registered to 7 August 2026: the incident-funded review effort captured on <a href="/response/ai/">the AI page</a> scans Bitcoin repositories at large and is not presented as an audit of the fixed COLDCARD firmware.</li>
     <li><strong>No incident-specific CVE record was identified.</strong> NVD keyword searches for COLDCARD and Coinkite returned only the earlier <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-14356" rel="noopener nofollow">CVE-2019-14356</a> OLED side-channel record. A differently worded or unpublished request could be missed.</li>
-    <li><strong>The two reproduction scripts described by Gregory Sanders (instagibbs) remain unavailable here.</strong> A dated search of his public GitHub repositories, code results and gist index found no matching publication, so the archive still cannot inspect the test conditions or method.
+    <li><strong>The two reproduction scripts described by Gregory Sanders (instagibbs) remain unavailable here.</strong> A dated search of his public GitHub repositories, code results and gist index found no matching publication, so the archive still cannot inspect the test conditions or method. Nothing registered up to 7 August 2026 supplies them.
       <Claim
         basis="unverified"
         scope="The absence of a located formal Coinkite review, incident-specific CVE, audit announcement and public instagibbs reproduction scripts"

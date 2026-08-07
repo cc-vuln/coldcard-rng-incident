@@ -86,7 +86,7 @@ const SPECS: TrackerSpec[] = [
       const addresses = /^([\d,]+)\naddresses drained, verified$/m.exec(text)?.[1];
       return { btc, addresses };
     },
-    pin: { btc: '1,366.5774', addresses: '4,580', at: '20260804T080612Z' },
+    pin: { btc: '1,405.0671', addresses: '4,925', at: '20260807T033234Z' },
   },
   {
     id: 'coldcard-rip-tracker',

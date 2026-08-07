@@ -24,7 +24,11 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
       31 July. Competing wallet vendors published their own scope and scam
       warnings. On 2 August Coinkite reported halting shipments, destroying
       affected stock, contacting customers and supporting migration, then
-      acknowledged lasting damage in a Sunday update. Community participants
+      acknowledged lasting damage in a Sunday update. By 6 and 7 August it was
+      describing continuing firmware work while saying it will very likely not
+      be around, and had published a temporary suspension of its customer-data
+      blanking; a custody provider had begun telling customers to replace the
+      device. Community participants
       also described outreach and organisational changes. Unless the underlying
       action is independently visible, these are records of what each publisher
       said, not confirmation that every described action occurred.
@@ -46,9 +50,9 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
   >
     <p>
       These statements answer different questions. Unchained and Casa described
-      changes to customer policies. Ledger described its own implementation and
-      said it was not affected. None is treated as a neutral comparison of
-      custody products.
+      changes to customer policies. Ledger and Trezor described their own
+      implementations and said they were not affected. None is treated as a
+      neutral comparison of custody products.
     </p>
 
     <ol class="statement-list">
@@ -106,6 +110,98 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
             scope="Ledger's not-affected statement and its description of its entropy architecture"
             source="Ledger's captured primary post; implementation not independently assessed here"
             href="/record/sources/ledger-not-affected-response/"
+            compact
+          />
+        </p>
+      </li>
+
+      <li>
+        <p class="statement-list__meta">5 August 2026 · Trezor</p>
+        <h3><a href="/record/sources/trezor-coldcard-not-affected/">A second competing vendor says its devices are not affected</a></h3>
+        <p>
+          Trezor said wallets originally generated on a Trezor are unaffected,
+          described its own generation as drawing on several independent
+          sources of randomness including the connected host and, on newer
+          models, a Secure Element, and told anyone who restored a
+          Coldcard-generated backup onto a Trezor to migrate to a newly
+          generated wallet. This archive has not independently reviewed that
+          implementation. Trezor is a competing hardware-wallet vendor.
+          <Claim
+            basis="reported"
+            captured="6 Aug 2026"
+            scope="Trezor's not-affected statement, its description of its own entropy sources and its instruction to holders of restored Coldcard backups"
+            source="Trezor's captured article; implementation not independently assessed here"
+            href="/record/sources/trezor-coldcard-not-affected/"
+            compact
+          />
+          On 6 August Trezor edited that article: where it had told affected
+          readers to follow Coinkite's official guidance, it now points them at
+          Trezor's own instructions.
+          <Claim
+            basis="verified"
+            scope="The 6 August wording change from Coinkite's official guidance to Trezor's own instructions"
+            source="Diff between the held 6 August captures of the same article"
+            href="/record/sources/trezor-coldcard-not-affected/"
+            compact
+          />
+        </p>
+      </li>
+
+      <li>
+        <p class="statement-list__meta">6 August 2026 · Casa</p>
+        <h3><a href="/record/sources/casa-support-coldcard-troubleshooting/">A support page starts recommending device replacement</a></h3>
+        <p>
+          Casa added a security advisory to its Coldcard troubleshooting page
+          saying that funds generated on affected firmware may be at risk and
+          that it does recommend replacing the device as soon as the owner is
+          able. Casa dates the advisory 1 August; this collector held the page
+          without it on 3 August and with it on 6 August, so the record fixes
+          only when it appeared here. Casa sells a multi-key service that
+          Coldcard devices can be part of, and has a commercial interest in
+          the advice it gives about them.
+          <Claim
+            basis="reported"
+            captured="6 Aug 2026"
+            scope="Casa's advisory text and its recommendation to replace the device"
+            source="Casa's captured support page; the advisory is absent from the 3 August capture and present in the 6 August one, and Casa's own banner date is 1 August; commercial interest stated above"
+            href="/record/sources/casa-support-coldcard-troubleshooting/"
+            compact
+          />
+          The same day Casa's chief security officer published
+          <a href="/record/sources/casa-rise-of-machines/">an account of what the company did after 30 July</a>:
+          reviewing every place its own systems touch entropy and key
+          generation, running its automated pentest out of cycle weighted
+          toward this class of defect, contacting members with affected devices
+          below their vault quorum, and offering free security consultations to
+          non-members migrating off an affected setup. None of those internal
+          actions is observable from this archive, and the consultation offer
+          is an offer to prospective customers.
+          <Claim
+            basis="reported"
+            captured="7 Aug 2026"
+            scope="Casa's account of its own post-incident review, its out-of-cycle scan, its member outreach and its consultation offer"
+            source="Casa's captured 6 August blog post, written by its co-founder and chief security officer; the internal actions it describes are not independently visible here"
+            href="/record/sources/casa-rise-of-machines/"
+            compact
+          />
+        </p>
+      </li>
+
+      <li>
+        <p class="statement-list__meta">7 August 2026, 00:00 UTC · Casa</p>
+        <h3><a href="/record/sources/casahodl-2085516292904432051/">A free multisig workshop offered to people reconsidering their setup</a></h3>
+        <p>
+          Casa announced a live session on moving from one key to multiple keys
+          across different hardware vendors, addressed to people whom the
+          incident has prompted to reconsider how they hold bitcoin. The
+          session promotes the company's own product area, and the workshop
+          itself is not something this archive observed.
+          <Claim
+            basis="reported"
+            captured="7 Aug 2026"
+            scope="Casa's announcement of the workshop and what it said the session would cover"
+            source="Casa's captured post of 7 Aug 2026; commercial interest stated above"
+            href="/record/sources/casahodl-2085516292904432051/"
             compact
           />
         </p>
@@ -169,7 +265,75 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
         </p>
         <CaptureThumb id="coldcard-update-sunday" />
       </li>
+
+      <li>
+        <p class="statement-list__meta">6 August 2026, 19:45 UTC · Coinkite</p>
+        <h3><a href="/record/sources/coldcardwallet-2085452152458080731/">Firmware work pointed at GitHub, and customer key migration</a></h3>
+        <p>
+          The vendor said its next firmware updates can be followed on GitHub
+          and that it was focusing on the next release and on customer key
+          migration. What that work consists of is visible in the firmware
+          repositories the record already tracks; the description of priorities
+          is the vendor's own.
+          <Claim
+            basis="reported"
+            captured="7 Aug 2026"
+            scope="Coinkite's statement of where its firmware work can be followed and what it says it is focusing on"
+            source="COLDCARD's captured post of 6 Aug 2026"
+            href="/record/sources/coldcardwallet-2085452152458080731/"
+            compact
+          />
+        </p>
+      </li>
+
+      <li>
+        <p class="statement-list__meta">7 August 2026, 02:12–02:19 UTC · Coinkite</p>
+        <h3><a href="/record/sources/coldcardwallet-2085551349962334324/">More releases promised, alongside doubt that the company survives</a></h3>
+        <p>
+          Replying to a question and to two critics in three posts within seven
+          minutes, the vendor said it had
+          <a href="/record/sources/coldcardwallet-2085549723981672841/">multiple pull requests under review with new versions coming</a>,
+          that it was
+          <a href="/record/sources/coldcardwallet-2085551118164132316/">doing all the investigation it can and was devastated</a>,
+          adding that the hacker could have disclosed responsibly, and that it
+          was
+          <a href="/record/sources/coldcardwallet-2085551349962334324/">very likely not going to be around</a>
+          but should keep trying to give people the best firmware it can. The
+          2 August Sunday update had put the same subject as hard questions
+          remaining about the company; the 7 August reply states an expectation
+          rather than a question.
+          <Claim
+            basis="reported"
+            captured="7 Aug 2026"
+            scope="Coinkite's statements on pending firmware releases, its own investigation, responsible disclosure and the company's likely continuation"
+            source="COLDCARD's three captured replies of 7 Aug 2026, linked in the sentence above"
+            href="/record/sources/coldcardwallet-2085551349962334324/"
+            compact
+          />
+        </p>
+      </li>
     </ol>
+
+    <p class="statement-note">
+      No held source carries Coinkite's own words on the scale of customer
+      losses. Two held sources relay a Bloomberg report of 6 August that the
+      vendor will publish a post-mortem once its investigation is complete and
+      declines to estimate those losses: a
+      <a href="/record/sources/cointelegraph-2085597045734203509/">Cointelegraph post of 7 August</a>
+      and a
+      <a href="/record/sources/bitcointalk-large-scale-compromise-thread/">BitcoinTalk post of the same day</a>
+      that quotes the report at greater length. The Bloomberg article itself is
+      not held here, and neither relay is a capture of anything Coinkite
+      published.
+      <Claim
+        basis="reported"
+        captured="7 Aug 2026"
+        scope="That two held sources relay a Bloomberg report of Coinkite declining to estimate customer losses, and that the report itself is not held"
+        source="Cointelegraph's captured post and the captured BitcoinTalk thread; both are relays of a Bloomberg article this archive does not hold"
+        href="/record/sources/cointelegraph-2085597045734203509/"
+        compact
+      />
+    </p>
 
     <h3 id="outreach">The outreach and data-retention exchange</h3>
 
@@ -195,8 +359,29 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
         compact
       />
       Coinkite's separate June paper-spam statement gives 120 days for deletion
-      of customer data including physical addresses. No held source reconciles
-      the exchange.
+      of customer data including physical addresses. On 7 August Coinkite
+      published an update on customer data retention that states the same
+      period: its standard practice is to blank customer records automatically
+      after 120 days, retaining only email addresses and country of residence,
+      with accelerated blanking available on request after delivery. The same
+      post says that automated blanking has been temporarily suspended because
+      of legal obligations arising from the incident, and that a customer who
+      does not want their data preserved may ask for the standard policy to be
+      applied instead.
+      <Claim
+        basis="verified"
+        captured="7 Aug 2026"
+        scope="Coinkite's stated 120-day blanking period, what that blanking retains, and the temporary suspension of the automated process"
+        source="Held capture of Coinkite's own 7 August post; it is also listed on the captured blog index, dated 6 August there before the publisher retimestamped it to 7 August"
+        href="/record/sources/coinkite-data-retention-update/"
+        compact
+      />
+      That account puts the period at 120 days rather than the 90 days
+      Satochip's question assumed, and puts email addresses among the fields
+      the blanking keeps rather than among those it removes. Both the 2 August
+      reply and the 7 August post are the vendor's own accounts of its own
+      systems, and no held source tests either against what was actually
+      stored.
     </p>
   </Disclosure>
 
@@ -219,6 +404,25 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
         scope="NCFA Canada's vendor-layer position and its secondhand use of Galaxy Research's loss figures"
         source="NCFA Canada's captured 3 August commentary; affiliation stated above"
         href="/record/sources/ncfacanada-self-custody-commentary/"
+        compact
+      />
+    </p>
+
+    <p>
+      On 7 August Ledger published an argument by its chief technology officer
+      that open source is valuable but is not itself a security property,
+      quoting the line that a security model resting on the crowd saving you is
+      a hope rather than a model. That is a position about how review works,
+      prompted by this incident rather than settled by it, and the linked
+      article is not held here: the record holds the post and the line it
+      quotes. Ledger is a competing hardware-wallet vendor whose not-affected
+      statement is recorded above.
+      <Claim
+        basis="reported"
+        captured="7 Aug 2026"
+        scope="Ledger's published open-source position and the line it quotes from its CTO"
+        source="Ledger's captured post of 7 Aug 2026; the article it links is not held here; competing interest stated above"
+        href="/record/sources/ledger-2085659114617581865/"
         compact
       />
     </p>
@@ -284,6 +488,28 @@ import CaptureThumb from '../../components/CaptureThumb.astro';
             scope="The OpenSats board departure and interim board size; no causal link to the incident"
             source="OpenSats' captured statement of 2 Aug 2026"
             href="/record/sources/opensats-nvk-board-departure/"
+            compact
+          />
+        </p>
+      </li>
+
+      <li>
+        <p class="statement-list__meta">6 August 2026 · OpenSats</p>
+        <h3><a href="/record/sources/opensats-code-red/">Code RED: priority funding for people red teaming Bitcoin software</a></h3>
+        <p>
+          The same organisation announced a funding path for people auditing
+          critical Bitcoin software after the incident, including reimbursement
+          of past LLM token costs, and said it would prioritise those
+          applications for the foreseeable future. The post frames the
+          programme as support for the people who spent the days after
+          disclosure triaging and red teaming. Whether any grant was made is
+          not visible from this archive.
+          <Claim
+            basis="verified"
+            captured="7 Aug 2026"
+            scope="The Code RED post's stated terms, its displayed 6 August publication date and its wording as held"
+            source="Held capture of the OpenSats blog post, announced the same day on the organisation's X account"
+            href="/record/sources/opensats-code-red/"
             compact
           />
         </p>

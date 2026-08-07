@@ -128,6 +128,10 @@ const posts = xPosts().map((post) => {
     ...post,
     title: displayTitle(post),
     group: 'x',
+    // A thread entry is a whole captured conversation, not one post. The badge
+    // says so; the facet stays 'x', because a reader filtering for X posts
+    // wants the conversations too.
+    badge: post.thread ? 'x thread' : 'x post',
     excerpt: summary(post.why),
     search: post.why ?? '',
     byLine: `@${post.author}${post.org ? ` \u00b7 ${post.org}` : ''}`,
@@ -139,6 +143,22 @@ const posts = xPosts().map((post) => {
     captured: artifacts.length > 0,
   };
 }).sort((a, b) => (b.posted ?? '').localeCompare(a.posted ?? ''));
+
+/*
+ * Two facts about the post register that a reader cannot see from the cards,
+ * both read from the registry rather than typed: how many entries are whole
+ * captured conversations rather than single posts, and how many posts are
+ * declared as also being held inside one of those conversations. Counted here
+ * so the sentence below cannot drift from `sources.toml`.
+ */
+const threadCount = posts.filter((p) => p.thread).length;
+const memberCount = posts.filter((p) => p.part_of).length;
+const threadNote = threadCount === 1
+  ? 'One entry is a whole captured conversation rather than a single post:'
+  : `${threadCount} entries are whole captured conversations rather than single posts:`;
+const memberNote = memberCount === 1
+  ? 'One registered post is also held inside one of those conversations.'
+  : `${memberCount} registered posts are also held inside those conversations.`;
 
 // Nostr posts sit on the same wall as X posts through the same card
 // component. The differences are the badge, the byline (a shortened npub
@@ -319,13 +339,23 @@ const FACET_SETS = [
       <p class="rec__tiersub">
         Social posts that shaped the research or response. Each has a local
         evidence record showing whether a text or image capture is actually held.
+        <span hidden={threadCount === 0}>
+          {threadNote} the reply chain is captured and re-checked like a web
+          page, so a reply arriving later is a change to the record rather than
+          a new entry in it.
+        </span>
+        <span hidden={memberCount === 0}>
+          {memberNote} A post can be held twice, once as its own registered
+          record and again inside a conversation captured around it; the
+          registry declares that relation and both records name the other.
+        </span>
       </p>
       <div class="rec__grid">
         {posts.map((p) => (
           <EvidenceCard
             href={`/record/sources/${p.id}/`}
             title={p.title}
-            kind="x post"
+            kind={p.badge}
             group="x"
             id={p.id}
             by={p.byLine}

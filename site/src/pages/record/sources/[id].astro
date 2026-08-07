@@ -268,6 +268,16 @@ const noteParagraphs = (src.note ?? '')
   .map((para) => para.trim())
   .filter(Boolean);
 
+// A post can be held twice: here, as its own record with this project's note
+// on why it matters, and again inside a conversation captured around it. The
+// registry states the relation with part_of, and both ends of it say so, so a
+// reader who arrives at either copy can see the other rather than meeting the
+// same material twice with nothing connecting them.
+const partOfId = socialPost?.part_of ?? null;
+const partOfHead = partOfId ? xPostById(partOfId) : undefined;
+const partOfTitle = partOfHead?.title ?? partOfHead?.author ?? partOfId ?? '';
+const partOfHref = partOfId ? `/record/sources/${partOfId}/` : undefined;
+
 const methodologyText = isNostr
   ? nostrHeld.length
     ? 'This post is registered as evidence and has a locally held capture: the signed nostr event as served by the relay, plus its flattened text. The original remains the canonical publication.'
@@ -405,6 +415,16 @@ const privacyText = isNostr
       {methodologyText}
       <span hidden={!polled}> Last checked <Timestamp iso={polled ? tsToIso(polled) : ''} />.</span>
     </p>
+
+    <div class="callout is-info src__partof" hidden={!partOfId}>
+      <span class="callout__title">Also held inside a captured conversation</span>
+      <p>
+        This post is held twice: here, with this project's own note on why it
+        matters, and again as part of the conversation captured at
+        <a href={partOfHref}>{partOfTitle}</a>, which is polled for changes.
+        Both copies are the same post; neither is a separate event.
+      </p>
+    </div>
 
     <div class="callout is-info src__privacy" hidden={!withholdCapturedText}>
       <span class="callout__title">Public privacy boundary</span>

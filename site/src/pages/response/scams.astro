@@ -1,6 +1,7 @@
 ---
 import Article from '../../layouts/Article.astro';
 import Answer from '../../components/Answer.astro';
+import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import Timestamp from '../../components/Timestamp.astro';
@@ -73,12 +74,15 @@ const VENDOR_RULES = [
     note: 'Pull requests, commit reconstruction and the difference between proposals and shipped fixes.',
   }}
 >
+  <CorrectionNotice page="/response/scams/" />
   <Answer>
     <p>
-      The held record contains a Telegram impersonation artefact, Trezor's report
-      of increased phishing attempts and a first-person account of a migration
-      into an impostor wallet app. Four vendors also published warnings about
-      anticipated scams. Those warnings are preserved as statements by their
+      The held record contains a Telegram impersonation artefact, four first-hand
+      reports of phishing email sent to COLDCARD and Trezor owners, a repository
+      that offered to reproduce the defect and was reported to carry an
+      infostealer, an impersonation account on X, Trezor's report of increased
+      phishing attempts and a first-person account of a migration into an impostor
+      wallet app. Four vendors also published warnings about anticipated scams. Those warnings are preserved as statements by their
       publishers, not evidence that every described event occurred. Coinkite's
       own urgent migration language closely resembled the pretext an impersonator
       could use.
@@ -109,8 +113,10 @@ const VENDOR_RULES = [
   <h2>What is documented</h2>
 
   <p>
-    Three post-disclosure reports are held. One includes the underlying image,
-    while the other two remain attributed reports with the limits stated below.
+    The post-disclosure reports below are held as captures. One includes the
+    underlying image, reproduced here from the archive. The rest are attributed
+    reports whose screenshots are held inside the captured posts rather than
+    reproduced on this page, and each carries the limits stated with it.
   </p>
 
   <h3>A dated prediction, then a dated artefact</h3>
@@ -197,6 +203,195 @@ const VENDOR_RULES = [
     </p>
   </div>
 
+  <h3>Phishing email reported first-hand</h3>
+
+  <p>
+    Four separate first-hand reports of incident-themed phishing email are held,
+    dated 3 to 5 August. On 3 August a poster on r/coldcard reported a security
+    advisory email from coinkite@coldcardblog.org, a lookalike domain, offering
+    to schedule a ten-minute session, and a second from
+    colcoldteam@airgappedmemo.com. A commenter in the same thread reported mail
+    purporting to come from Ledger and claiming that Ledger was also affected
+    because it used shared code libraries.
+    <Claim
+      basis="reported"
+      scope="The r/coldcard reports of security-advisory email from the lookalike domains named, and the reported Ledger-branded mail in the same thread"
+      source="BarAdministrative999 and commenters, r/coldcard, 3 August 2026, as captured; the sender addresses and the classification as phishing are the posters' own, and no message is held here"
+      href="/record/sources/reddit-phishing-advisory-email/"
+      captured="4 Aug 2026"
+      compact
+    />
+  </p>
+
+  <p>
+    On 4 August at 03:24 UTC American HODL published four screenshots of a
+    message urging him to download a "Coldcard Desktop App MK3 4.2.0", writing
+    that "there never was, is or will be a coldcard desktop app". The screenshots
+    show a message headed "Important Security Update — Coldcard MK3 4.2.0 Release
+    and Required Action" and opening "Dear Coldcard Community", which
+    apologises, numbers its instructions, tells the reader to "generate a
+    brand-new seed phrase within the updated application" and then to "carefully
+    migrate your assets from your previous wallet to the newly created wallet",
+    directs anyone needing assistance to "our official support channels", and
+    ends in a red button reading "Download MK3 4.2.0 Update".
+    <Claim
+      basis="reported"
+      scope="The existence and visible content of the COLDCARD desktop-app phishing screenshots, and the statement that no COLDCARD desktop application exists"
+      source="americanhodl8's captured X post of 4 August 2026 with four attached screenshots, read off the held capture; the message itself is not held, the report of receiving it is his own, and Coinkite has not commented on it in any held capture"
+      href="/record/sources/americanhodl-desktop-app-phishing/"
+      captured="4 Aug 2026"
+      compact
+    />
+    The two instructions it numbers — generate a new seed, then carefully move
+    the funds across — are the two instructions in Coinkite's own migration
+    appeal quoted at the top of this page.
+  </p>
+
+  <p>
+    Twelve minutes later Bitcoin Rothbard published a fifth screenshot with the
+    caption "I got this one from 'Trezor'", quote-showing American HODL's images
+    beneath it. The held capture shows an email headed "Message From Our Ceo"
+    under a Trezor logo, addressed to "Hello Trezor Users", which links a Fortune
+    article about the COLDCARD losses and then states that "CoinKite is a
+    hardware wallet company which we were partnered with. We shared source code,
+    internal tools, and updates. While our Suite was not directly effected, a lot
+    of our infrastructure relied on CoinKite." It closes with a link to "our
+    latest version in our web suite" and the sign-off "CEO - Matej Zak".
+    <Claim
+      basis="reported"
+      scope="The existence and visible content of the screenshot presented as an email from Trezor's chief executive"
+      source="BitcoinRothbard's captured X post of 4 August 2026, read off the held capture; the post text says only that he received it, the message is not held, and Trezor has neither confirmed nor denied this specific item in any held capture"
+      href="/record/sources/bitcoinrothbard-trezor-phishing/"
+      captured="4 Aug 2026"
+      compact
+    />
+    The shared-source-code claim in that screenshot runs against Trezor's own
+    published position: the incident email Trezor sent its users, as reproduced
+    by a poster in a held r/Bitcoin thread, states that "Trezor does not use
+    Coldcard's firmware or code", and Trezor's own captured posts of 4 and
+    5 August say its devices are not affected.
+    <Claim
+      basis="reported"
+      scope="That the Trezor incident email, as reproduced by a poster, states Trezor does not use Coldcard's firmware or code"
+      source="Text of the Trezor email as reproduced in the captured r/Bitcoin thread; the reproduction is the poster's and the message itself is not held, while Trezor's captured posts of 4 and 5 August state the same not-affected scope in the vendor's own voice"
+      href="/record/sources/reddit-trezor-user-alert-email/"
+      captured="7 Aug 2026"
+      compact
+    />
+  </p>
+
+  <p>
+    On 5 August at 20:02 UTC Margot Paez published a screenshot of a further
+    email posing as Trezor support, named the sending address as
+    editor@montagnasiti.com and told readers not to click its green button. The
+    held capture shows a "CRITICAL SECURITY BULLETIN" headed "TROPIC01 CHIP
+    SECURITY PROTOCOL UPDATE", dated 5 August 2026 and given the reference
+    TB-SEC-2026-00796, asserting an anomaly in the secure element verification
+    protocol of "ALL Trezor hardware wallet models" and requiring readers to run
+    a diagnostic test through a support portal, ending in a green button reading
+    "ACCESS SUPPORT PORTAL NOW".
+    <Claim
+      basis="reported"
+      scope="The existence and visible content of the screenshot presented as a critical Trezor security bulletin, and the sending address named for it"
+      source="jyn_urso's captured X post of 5 August 2026, read off the held capture; the address, the receipt and the classification are as published by the reporter, and the message is not held here"
+      href="/record/sources/jyn_urso-2085094085795233911/"
+      captured="6 Aug 2026"
+      compact
+    />
+    This one carries no COLDCARD pretext at all: it is a Trezor-branded alarm
+    about a Trezor part, reported six days after the COLDCARD disclosure.
+  </p>
+
+  <p>
+    These are reports with artefacts attached, not captures of the messages
+    themselves: this archive holds the posts, and the screenshots inside them,
+    not the underlying email. Two of the four name Trezor rather than Coinkite.
+    In the same r/Bitcoin thread about the incident email Trezor sent its own
+    users, one commenter wrote that they had received "3 or 4 scam 'Trezor'
+    emails before I got the real one".
+    <Claim
+      basis="reported"
+      scope="The commenter's report of receiving several scam emails branded as Trezor before the genuine one"
+      source="Comment in the captured r/Bitcoin thread on Trezor's incident email; a single unverified account, held as a capture and not corroborated elsewhere in this archive"
+      href="/record/sources/reddit-trezor-user-alert-email/"
+      captured="7 Aug 2026"
+      compact
+    />
+  </p>
+
+  <h3>A repository baited with the defect itself</h3>
+
+  <p>
+    On 5 August jrakibi warned that a repository which had gained many stars in
+    24 hours, and which claimed to reproduce the vulnerable COLDCARD RNG, pulled
+    a dependency that downloaded and executed an infostealer searching for wallet
+    seeds, private keys and passwords. The finding is described as LLM-assisted.
+    The repository is not named or linked here, and this archive has neither run
+    nor reviewed it.
+    <Claim
+      basis="reported"
+      scope="The report that a repository claiming to reproduce the vulnerable RNG pulled a dependency executing an infostealer"
+      source="jrakibi's captured X post of 5 August 2026; the finding is the reporter's LLM-assisted review, is not verified here, and no independent confirmation is held"
+      href="/record/sources/jrakibi-2084947141202768295/"
+      captured="6 Aug 2026"
+      compact
+    />
+    Later the same day satsie described having starred that repository while
+    using an LLM to understand the attack, then unstarring it once it was
+    identified, and wrote that "the attacks are coming in from all angles".
+    <Claim
+      basis="reported"
+      scope="satsie's first-person account of starring and then unstarring the repository while researching the attack"
+      source="satsie's captured X post of 5 August 2026, crediting jrakibi for the check; a first-person account, not verified here"
+      href="/record/sources/satsie-2084982723609768045/"
+      captured="6 Aug 2026"
+      compact
+    />
+    The bait in this case is reproduction of the defect, so the people reached
+    are those investigating the incident rather than the owners moving funds.
+  </p>
+
+  <h3>Impersonation during the response</h3>
+
+  <p>
+    On 5 August Rob Hamilton, an AnchorWatch co-founder whose chain analysis and
+    migration warning are part of this record, wrote that he
+    was no longer reachable by direct message because of "way too many scammers
+    pretending to be media and even sometimes fake victims trying to get me to
+    click links", and named colleagues as the contact route instead.
+    <Claim
+      basis="reported"
+      scope="Rob Hamilton's statement that he closed his direct messages because of impersonators posing as media and as victims"
+      source="Rob1Ham's captured X post of 5 August 2026; his own account of messages he received, none of which is held here. He co-founded AnchorWatch and originated the Slipstream migration recommendation this record holds elsewhere"
+      href="/record/sources/rob1ham-2085047535807180895/"
+      captured="6 Aug 2026"
+      compact
+    />
+    Hours later, early on 6 August, SoapMiner posted "I'm a complete idiot. I
+    just got scammed", warned others and linked an account whose handle is a near
+    miss of Hamilton's.
+    <Claim
+      basis="reported"
+      scope="SoapMiner's first-person report of being scammed and the linked account whose handle closely resembles Rob Hamilton's"
+      source="soapminer1's captured X post of 6 August 2026; the post does not state what was taken or by what means, and the linked account is not held as a capture here"
+      href="/record/sources/soapminer1-2085157332518900180/"
+      captured="6 Aug 2026"
+      compact
+    />
+    Separately, on 3 August, Joe Carlasare published a screenshot captioned
+    "Scummy people trying to prey on fear" and "THIS IS FAKE. SHARE". The post's
+    text does not say what the screenshot shows, so what was being called fake is
+    legible only in the attached image.
+    <Claim
+      basis="reported"
+      scope="Joe Carlasare's 3 August warning that a post preying on holder fears was fake"
+      source="JoeCarlasare's captured X post of 3 August 2026 with one attached screenshot; the post text identifies neither the account nor the content it calls fake, and nothing else in this archive identifies it"
+      href="/record/sources/joecarlasare-fake-post-warning/"
+      captured="4 Aug 2026"
+      compact
+    />
+  </p>
+
   <h3>Trezor reports increased phishing attempts</h3>
 
   <p>
@@ -280,6 +475,29 @@ const VENDOR_RULES = [
     </p>
 
     <p>
+      The 120-day practice named in that June statement has since changed. On
+      7 August 2026, first listed on its blog index as 6 August and then
+      retimestamped, Coinkite published "Update on Customer Data Retention",
+      which says that records are normally blanked automatically after 120 days
+      with only email address and country of residence retained, and that this
+      automated blanking has been temporarily suspended because of legal
+      obligations arising from the incident. Customers who want the standard
+      policy applied to their own data are asked to confirm that by contacting
+      support@coinkite.com. The retention change belongs to the vendor's
+      statements and to the legal record and is treated there; it is noted here
+      because the June statement quoted above rests on the practice that changed,
+      and because the vendor's stated channel for the request is an email address.
+      <Claim
+        basis="verified"
+        scope="Coinkite's 7 August 2026 statement that automated 120-day blanking is temporarily suspended, and that customers wanting the standard policy applied should contact the support address"
+        source="Coinkite, 'Update on Customer Data Retention', as captured; the displayed publication date moved from 6 to 7 August between two captures of the blog index"
+        href="/record/sources/coinkite-data-retention-update/"
+        captured="7 Aug 2026"
+        compact
+      />
+    </p>
+
+    <p>
       <strong>This is a separate event, five weeks before the entropy disclosure.</strong>
       Presenting the June letter as post-disclosure phishing is a date error. As of
       2 August 2026 this archive has found no evidence of a fresh letter wave posted
@@ -354,6 +572,40 @@ const VENDOR_RULES = [
     />
     The distinction it draws is between recovering a lost key and reversing a
     completed spend, which the page says no service can do.
+  </p>
+
+  <p>
+    The same question runs through the held community threads, in both
+    directions. On 5 August, commenters on a first-hand loss thread described a
+    paid-recovery pattern that escalates fee after fee, and argued that its real
+    product is identity data: one wrote that victims would be asked to "verify
+    their ownership of the bitcoin or coldcard hardware by providing those kinds
+    of details, when in reality they cannot help the victims in any way", and
+    another that a genuine whitehat would not charge for a recovery service.
+    <Claim
+      basis="reported"
+      scope="The community descriptions of a paid-recovery and identity-harvesting pattern in the captured loss thread"
+      source="Comments dated 5 August 2026 in the captured r/Bitcoin thread on a 0.7 BTC loss; assertions by named posters about a pattern, with no instance evidenced, and not adopted here"
+      href="/record/sources/reddit-0-7-btc-drained/"
+      captured="6 Aug 2026"
+      compact
+    />
+    On 6 August, in a captured r/coldcard thread about keeping affected devices,
+    a commenter wrote "I love how people think that money can't be clawed back",
+    without naming a mechanism, a case or a party who could do it.
+    <Claim
+      basis="unverified"
+      scope="The assertion that swept funds can be clawed back"
+      source="Comment by DeepAd8888 dated 6 August 2026 in the captured r/coldcard thread on device disposal; the comment gives no mechanism and nothing else in this archive supports or refutes it"
+      href="/record/sources/reddit-do-not-dispose-device/"
+      captured="6 Aug 2026"
+      compact
+    />
+    Both are recorded as the form the recovery question takes in the record, and
+    neither is adopted. What the archive holds on recovery itself is set out on
+    the <a href="/record/funds/">funds page</a>: no recovery, seizure or payout
+    has been reported in any captured source, and a 3 August relay of white-hat
+    drains said to be underway is unconfirmed and names no amounts.
   </p>
 
   <Disclosure
@@ -436,7 +688,11 @@ const VENDOR_RULES = [
         this archive holds no capture of the message. Internal inconsistencies in
         the screenshot have been noted by others. This archive does not adjudicate
         it, and it is recorded here only so that it is not repeated as an
-        established case.
+        established case. Two further Trezor-branded phishing reports, dated
+        4 and 5 August, are described above and are held as captures; this
+        archive has not established whether the screenshot described here is one
+        of them or a separate item, so it is kept recorded separately rather than
+        merged into them.
         <Claim
           basis="unverified"
           scope="The Swan Bitcoin withdrawal-pause email and the emailed Trezor advisory screenshot"

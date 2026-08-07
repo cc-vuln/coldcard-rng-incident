@@ -7,7 +7,7 @@ import Answer from '../../components/Answer.astro';
 <Article
   title="Did AI find this bug?"
   description="What Coinkite said about AI, the pre-incident and post-publication prompt attempts now on record, and why the original discovery method remains unknown."
-  standfirst="AI-assisted reproduction is reported. Whether AI found the bug in the first place is disputed: Coinkite says it has to assume someone used AI on its firmware, while a pre-incident audit prompt that missed the defect and a worked human route to the same code are also on record. This page sets out who says what."
+  standfirst="AI-assisted reproduction is reported. Whether AI found the bug in the first place is disputed: Coinkite first said it had to assume someone used AI on its firmware and now says it believes the latest models were needed, while a pre-incident audit prompt that missed the defect, a worked human route to the same code and a community argument that no AI found it are also on record. This page sets out who says what."
   depth="plain"
   kicker="Responses"
   next={{
@@ -24,7 +24,10 @@ import Answer from '../../components/Answer.astro';
       event. It does not establish the second. The record now also holds
       documented prompt attempts that failed to find the defect, one made
       seven weeks before the incident and one repeating that same prompt after
-      publication; the authors' stated reasons are reported below.
+      publication; the authors' stated reasons are reported below. Since
+      6 August the vendor has put the discovery claim more firmly, published
+      commentary has adopted it, and a community argument that no AI found the
+      bug has been posted against it. All three are set out below.
     </p>
   </Answer>
 
@@ -69,6 +72,27 @@ import Answer from '../../components/Answer.astro';
     about how this defect was originally found.
   </p>
 
+  <p>
+    On 7 August 2026 the COLDCARD account put the claim more firmly. Replying
+    to a critic on X, it wrote: "The bug lived in public for 5yrs, even third
+    party researchers didn't find it. We believe if took the lastest LLM models
+    to find it." The wording is quoted as posted, typing errors included.
+    <Claim
+      basis="verified"
+      contested
+      scope="The wording of COLDCARD's 7 August reply, quoted verbatim from the capture"
+      source="COLDCARD's 7 Aug 2026 reply, preserved as an X capture; the quotation was checked against it"
+      href="/record/sources/coldcardwallet-2085572285608366139/"
+      compact
+    />
+    The statement moves from what the backgrounder said the company had to
+    assume to what it says it believes, and adds a second proposition: that the
+    defect was beyond the third-party researchers who could read the firmware
+    across five years. Neither statement is accompanied by a transcript, model
+    identifier or discovery date, so what is established here is the wording,
+    not the finding.
+  </p>
+
   <h2>What the post-incident tests do and do not show</h2>
 
   <p>
@@ -99,8 +123,40 @@ import Answer from '../../components/Answer.astro';
       href="/record/sources/rob1ham-2084523368783438198/"
       compact
     />
+    Those were his figures on 4 August, and the campaign's own later reports
+    are larger: on 5 August calle, coordinating the same effort, reported
+    sixteen people, 4,962 findings across 390 projects, 85 of them critical and
+    635 high severity, 27.5 hours in. Bitcoin Magazine carried those numbers
+    the same day and put the compute bill above US$40,000, funded by OpenSats.
+    <Claim
+      basis="reported"
+      scope="calle's 5 August counts for the same campaign, and the larger compute figure in the secondary report of them"
+      source="calle's captured 5 August status post and Bitcoin Magazine's 5 August report of the same figures, both held here; the findings are said to be held for responsible disclosure, so none of the counts can be rechecked"
+      href="/record/sources/callebtc-2085024458012586286/"
+      compact
+    />
     Those figures describe a reported defensive campaign, not evidence about
     the original finder or the theft operator.
+  </p>
+
+  <p>
+    On 6 August calle added a claim about which models were doing that work:
+    that not a single vulnerability had been found by a US frontier model, and
+    that the effort was spending about US$10,000 a day on open-weights models,
+    naming Kimi K3 and Qwen 3.8.
+    <Claim
+      basis="reported"
+      contested
+      scope="calle's claim that no vulnerability in the campaign was found by a US frontier model, and his stated daily spend on open-weights models"
+      source="calle's captured 6 August post; no finding-by-model breakdown is published in the held record"
+      href="/record/sources/callebtc-2085329159094489183/"
+      compact
+    />
+    Hamilton's own harness description names a mixture, with K3 doing the heavy
+    lifting and GPT Sol, Fable, Opus and GLM 5.2 in supporting roles, so the
+    two accounts describe the same campaign from different angles rather than
+    contradicting each other outright. Both are participants' characterisations
+    of unpublished output.
   </p>
 
   <p>
@@ -215,6 +271,29 @@ import Answer from '../../components/Answer.astro';
   </p>
 
   <p>
+    Further reported successes have accumulated on the same terms. A
+    6 August Bitcoin Magazine op-ed states that since the attack began
+    researchers have shown several frontier models locating the same flaw in
+    minutes from a single prompt, without naming them; a commenter in the
+    6 August r/Bitcoin thread that argues against the AI framing reports a
+    success of his own, saying a small locally run model found the exact bug in
+    about fifteen minutes and a few million tokens from a prompt that named no
+    flaw; and the r/Bitcoin discovery thread's own
+    opening post links a second reproduction on GLM 5.2.
+    <Claim
+      basis="reported"
+      contested
+      scope="Three further accounts of models locating the flaw after disclosure: the op-ed's unnamed frontier models, a commenter's locally run small model, and the linked GLM 5.2 attempt"
+      source="Colin Crossman's 6 Aug Bitcoin Magazine op-ed, a 6 Aug comment in the r/Bitcoin 'It's not an AI hack' thread, and the r/Bitcoin discovery thread's opening post, all captured here; none publishes a prompt, transcript or checkout state"
+      href="/record/sources/bitcoinmag-closed-source-era/"
+      compact
+    />
+    Not one of them is accompanied by a prompt, a transcript or a statement of
+    which files the model was given, which is the difference between them and
+    the negative result above.
+  </p>
+
+  <p>
     The two results do not test the same thing. The reported successes used
     prompts and context this archive has not captured; the controlled failure
     reused the original prompt on a stronger model. What the captured record
@@ -246,6 +325,154 @@ import Answer from '../../components/Answer.astro';
     captured as evidence of how the claim circulated, not of what happened.
   </p>
 
+  <p>
+    That thread has been edited on the source since. Captures on 6 and
+    7 August record comments deleted and added, among them one whose three
+    links to earlier COLDCARD drain reports were removed and whose account now
+    shows as deleted, and a later reshuffle in which a subthread on whether
+    development teams should pay for AI code review became visible while
+    several short comments disappeared. The title and opening post this page
+    quotes are still present in the current capture; the withdrawn material is
+    preserved in the earlier ones.
+    <Claim
+      basis="verified"
+      scope="That the r/Bitcoin discovery thread has had comments deleted and added since 6 August, and that the title and opening post quoted above remain in the current capture"
+      source="Successive captures of the thread held here and the diffs between them"
+      href="/record/sources/reddit-ai-discovery-thread/"
+      compact
+    />
+  </p>
+
+  <p>
+    The framing is also contested in the same venue. On 6 August, in a thread
+    titled "It's not an 'AI Hack'", CBpegasus argued that no evidence shows an
+    AI found the vulnerability, that the defect is an ordinary integration
+    mistake in which a wrong define routes execution to the wrong function,
+    that static analysis by a language model would likely have missed it just
+    as Coinkite's own pre-incident review did, and that a more plausible route
+    is statistical testing of generated seeds followed by dynamic analysis of
+    what the firmware actually executes.
+    <Claim
+      basis="reported"
+      contested
+      scope="CBpegasus's argument against the AI-discovery framing and his proposed alternative route to the defect"
+      source="The r/Bitcoin thread 'It's not an AI Hack', 6 Aug 2026, captured here; the reasoning is the poster's own and no discovery artefact supports or refutes it"
+      href="/record/sources/reddit-not-an-ai-hack/"
+      compact
+    />
+    The thread does not settle on that view: its own replies include the
+    locally run model result noted above, a poster arguing that any model would
+    have flagged the define that disables the hardware generator, and one
+    saying plainly that nobody knows.
+  </p>
+
+  <p>
+    Published commentary has meanwhile adopted the framing as a premise. Casa,
+    a competing collaborative-custody provider whose post closes by offering
+    free consultations to people moving off an affected COLDCARD, wrote on
+    6 August that researchers now believe the vulnerability was most likely
+    found by a frontier model, and that whether the attribution is ever
+    confirmed does not matter, because it is plausible today and will be normal
+    tomorrow.
+    <Claim
+      basis="reported"
+      contested
+      scope="Casa's statement that researchers believe a frontier model most likely found the vulnerability, and its stated position that confirmation does not matter"
+      source="Jameson Lopp for Casa, 6 Aug 2026, captured here; the researchers are not named and Casa sells the multi-key custody the post recommends"
+      href="/record/sources/casa-rise-of-machines/"
+      compact
+    />
+    The post names no researchers, and its own text treats confirmation as
+    unnecessary. That is commentary on the claim, not evidence for it.
+  </p>
+
+  <h2>Public source and whether it was ever a defence</h2>
+
+  <p>
+    Underneath the discovery question is a second dispute the incident
+    reopened: whether publishing the source was supposed to prevent this, and
+    what the licence had to do with it. Coinkite's own 7 August wording, quoted
+    above, puts one position — the bug lived in public for five years and
+    third-party researchers did not find it. Three published responses pull in
+    different directions. This archive sets them beside each other and does not
+    adjudicate.
+  </p>
+
+  <p>
+    Colin Crossman's 6 August Bitcoin Magazine op-ed, a guest post whose author
+    is identified there as Wyoming's Deputy Secretary of State, argues that the
+    licence never bore on readability: Coinkite's move from a free-software
+    licence to source-available terms, made in his account after another vendor
+    used the code in a competing product, changed the economics of finding the
+    bug rather than the ability to read it, because a machine that decompiles a
+    binary is unaffected by what a licence permits. He also puts the plainer
+    point that the code was open to human review for five years and, on his
+    reading, no human caught it, and describes Coinkite's AI-discovery
+    assumption as its working position "with wide agreement on X".
+    <Claim
+      basis="reported"
+      scope="Crossman's argument that the licence change altered the economics of finding the bug rather than its readability, and his characterisation of the discovery claim's acceptance"
+      source="Colin Crossman's 6 Aug 2026 Bitcoin Magazine op-ed, captured here; its address and loss figures are the author's own and are not adopted by this record"
+      href="/record/sources/bitcoinmag-closed-source-era/"
+      compact
+    />
+  </p>
+
+  <p>
+    Ledger, a competing hardware-wallet vendor, published its CTO on 7 August
+    arguing the reverse emphasis: that open source is valuable but is not a
+    security property, and that a security model resting on "the crowd will
+    save us" is "a hope" rather than a model.
+    <Claim
+      basis="reported"
+      contested
+      scope="Ledger's published position that open source is not a security property, and the quoted line about relying on the crowd"
+      source="Ledger's captured 7 Aug 2026 post presenting its CTO's argument; Ledger is a competing hardware-wallet vendor and the underlying argument is its own"
+      href="/record/sources/ledger-2085659114617581865/"
+      compact
+    />
+    Casa's post makes the observational version of the same point about this
+    firmware: the source was viewable throughout, reviewers confirmed the
+    hardware generator existed, and nobody checked whether the seed path called
+    it correctly.
+    <Claim
+      basis="reported"
+      scope="Casa's account that the source was viewable throughout and that reviewers confirmed the hardware generator existed without checking that the seed path called it"
+      source="Jameson Lopp for Casa, 6 Aug 2026, captured here; the account is Casa's and names no reviewer"
+      href="/record/sources/casa-rise-of-machines/"
+      compact
+    />
+  </p>
+
+  <p>
+    The community version of the question is held here too, and part of it has
+    since been withdrawn. The r/coldcard thread asking whether COLDCARD is
+    really open source, and whether the code was locked away or merely unread,
+    shows its opening question as removed at source in the 7 August capture;
+    the title and replies remain, and the question as originally posted is
+    preserved in the earlier captures.
+    <Claim
+      basis="verified"
+      scope="That the r/coldcard open-source thread's opening post shows as removed at source in the 7 August capture and is preserved in earlier captures held here"
+      source="Successive captures of the thread held here and the diff between them"
+      href="/record/sources/reddit-coldcard-open-source-question/"
+      compact
+    />
+    The licence terms themselves, and the forkability question they raise, are
+    recorded on
+    <a href="/response/developers/">the developer-response page</a> rather than
+    here. What the captured record establishes on this page's question is
+    narrower than any of the positions above: the source was public throughout,
+    and no held source identifies anyone who found the defect in it before the
+    theft.
+    <Claim
+      basis="unverified"
+      scope="Whether anyone read the defect out of the public source before the theft"
+      source="No captured source identifies a pre-theft finder, and absence of a captured account is not evidence that none existed"
+      compact
+    />
+  </p>
+
   <h2>Claim register</h2>
 
   <div class="table-wrap">
@@ -266,6 +493,14 @@ import Answer from '../../components/Answer.astro';
             scope="The pre-incident prompt failure and the frontier-model prompt failure in the third and fourth rows below"
             source="utxoclub's 2 Aug account and LLFOURN's 3 Aug reproduction thread, both preserved as X captures"
             href="/record/sources/llfourn-prompt-reproduction-thread/"
+            compact
+          />
+          <Claim
+            basis="reported"
+            contested
+            scope="The vendor's 7 August restatement and the community counter-argument in the two rows added at the foot of the table"
+            source="COLDCARD's captured 7 Aug reply and the captured r/Bitcoin thread arguing the bug was not found by AI"
+            href="/record/sources/coldcardwallet-2085572285608366139/"
             compact
           />
           <Claim
@@ -313,7 +548,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="wide">AI originally found the defect.</td>
             <td class="nw"><span class="status status--neutral">Unverified</span></td>
-            <td class="wide">Coinkite inferred this from the source being public. The original finder and method remain unidentified.</td>
+            <td class="wide">Coinkite inferred this from the source being public, and on 7 August restated it as a belief that the latest models were needed. The original finder and method remain unidentified.</td>
           </tr>
           <tr>
             <td class="wide">The theft operator used AI.</td>
@@ -324,6 +559,16 @@ import Answer from '../../components/Answer.astro';
             <td class="wide">The faulty path was reachable by manual code and commit reading.</td>
             <td class="nw"><span class="status status--ok">Verified</span></td>
             <td class="wide">Dettmer's published walkthrough does it, and this archive reproduced its central commit and source findings. This concerns reachability after disclosure, not the original discovery.</td>
+          </tr>
+          <tr>
+            <td class="wide">Coinkite believes the latest models were needed to find the bug, and that third-party researchers did not find it in five years.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">COLDCARD's 7 August reply on X, quoted verbatim above. No transcript, model identifier or discovery date accompanies it.</td>
+          </tr>
+          <tr>
+            <td class="wide">The defect was not found by AI, or not by a straightforward model pass over the source.</td>
+            <td class="nw"><span class="status status--info">Reported</span></td>
+            <td class="wide">CBpegasus's 6 August r/Bitcoin argument, which proposes statistical seed testing plus dynamic analysis instead. The reasoning is the poster's own and the thread's own replies do not agree with it.</td>
           </tr>
         </tbody>
       </table>

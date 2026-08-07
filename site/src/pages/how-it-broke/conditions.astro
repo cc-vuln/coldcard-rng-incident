@@ -101,6 +101,70 @@ import { BITFIG } from '../../lib/entropy-models';
       </div>
     </div>
 
+    <details class="collapsible">
+      <summary>Where the roll-entropy figures come from</summary>
+      <div class="collapsible__body">
+        <p style="margin-bottom:11px">
+          Entropy in bits is the base-2 logarithm of the number of equally
+          likely possibilities. A fair six-sided die has six of them, so one
+          roll contributes log2(6), which is 2.5849 bits and a little more.
+          Rolls that are independent multiply their possibility counts: n rolls
+          of that die can land 6 to the power n ways, and because the logarithm
+          of a product is the sum of the logarithms, the bits add. That is the
+          whole of the table above. Fifty times log2(6) is 129.25; ninety-nine
+          times log2(6) is 255.91.
+        </p>
+        <p style="margin-bottom:11px">
+          Those are figures for the roll sequence, not for the seed. What
+          survives is the smaller of the roll entropy and the size of the
+          output it is encoded into. Fifty is the smallest roll count that
+          reaches the 128-bit entropy field of a 12-word mnemonic, since 49
+          rolls give about 126.7 bits, and it clears that field by about 1.2
+          bits. Ninety-nine rolls fall about 0.09 bits short of a 24-word
+          mnemonic's 256, so a 24-word result built from exactly 99 rolls
+          carries about 255.91 bits of roll entropy rather than a full 256.
+        </p>
+        <p style="margin-bottom:11px">
+          Fairness and secrecy are assumptions about the physical world, not
+          properties the device can check. The firmware counts rolls; it cannot
+          weigh a die or see the room. If the faces are not equally likely, the
+          per-roll figure is the Shannon entropy of the distribution the die
+          actually has, the negated sum over the six faces of each face's
+          probability times the base-2 logarithm of that probability, and that
+          value is below log2(6) for any distribution that is not uniform. If
+          the sequence was seen or recorded, it contributes nothing against
+          whoever saw it, whatever its arithmetic says.
+          <Claim
+            basis="derived"
+            scope="The per-roll log2(6) value, the addition of independent rolls, the 129.25 and 255.91 totals, the 49-roll and clearance comparisons, and the statement that a non-uniform face distribution yields less than log2(6) per roll"
+            source="Base-2 logarithm of the six equally likely outcomes of a fair die, summed over independent rolls; Shannon entropy over six outcomes is maximised, at log2(6), only by the uniform distribution. The output sizes and the enforced roll minimums are the firmware readings cited in the tables above"
+            compact
+          />
+        </p>
+        <p style="margin-bottom:0">
+          Held material puts the same per-roll figure in public. The CKTRIPWIRE
+          methodology page states that dice contribute about 2.585 bits per
+          roll, and a Reddit explainer written after the incident gives 50
+          times 2.585 as 129.25 and 99 times 2.585 as 255.915. What an unfair
+          die costs is argued over in that same material and is not settled
+          here: the explainer works a deliberately bad die through Shannon's
+          formula, gets 2.575 bits a roll and about one bit lost over 99 rolls;
+          a BitcoinTalk thread relays a claimed 1971 study of 219 commercial
+          dice as bounding the loss at about one bit on a 24-word seed; and a
+          Reddit poster describing years of casino work says retail casino dice
+          are not guaranteed balanced, and that a casino machine-tests each die
+          before it is allowed on a table. This archive has not tested any die.
+          <Claim
+            basis="reported"
+            scope="The per-roll and dice-bias figures attributed above to the CKTRIPWIRE methodology page, the Reddit dice explainer, the BitcoinTalk dice thread and the Reddit casino account"
+            source="CKTRIPWIRE methodology, captured 5 Aug 2026; AdEuphoric5133 on r/Bitcoin, captured 7 Aug 2026; babo and replies on BitcoinTalk, captured 7 Aug 2026; cheesymod on r/Bitcoin, captured 7 Aug 2026. The 1971 study is relayed at second hand in that thread and is not held here"
+            href="/record/sources/reddit-dice-entropy-explainer/"
+            compact
+          />
+        </p>
+      </div>
+    </details>
+
     <div class="callout callout--red">
       <span class="callout__title">The screen shows the answer while you roll</span>
       Every roll threshold here assumes the rolls were never recorded or exposed,
@@ -283,19 +347,86 @@ import { BITFIG } from '../../lib/entropy-models';
     </p>
 
     <p>
-      A live CKTRIPWIRE experiment adds an early observation, not a threshold.
-      At this archive's first capture, its control honeypot was reported swept
+      A live CKTRIPWIRE experiment adds observations, not a threshold. It funds
+      decoy wallets carrying the same defect, some of them hardened with extra
+      dice rolls or a passphrase, and records which are swept and how fast. At
+      this archive's first capture, its control honeypot was reported swept
       after 1 hour 18 minutes while seven cases spanning stepped added-entropy
-      bands were still live.
+      bands were still live. By the state captured on 6 August 2026 the board
+      reported 17 honeypots, 15 live and 2 swept. A sixth low-dice case, rated
+      at 5 added bits, was funded on 6 August and moved from pending to live.
+      Both swept entries carried no added entropy: the operator's own control,
+      and a community-submitted wallet the board records as swept in 2 minutes.
+      No dice-hardened or passphrase-hardened case is recorded as swept in any
+      state held here.
       <Claim
         basis="reported"
-        scope="The CKTRIPWIRE states visible at the first held capture"
-        source="CKTRIPWIRE live monitor, captured 5 Aug 2026; the experiment is ongoing and the source's elapsed-age fields are normalised for revision tracking"
+        scope="The CKTRIPWIRE honeypot counts, band composition and sweep outcomes described above, at the first held capture and at the state captured 6 Aug 2026"
+        source="CKTRIPWIRE live monitor, captured 5 and 6 Aug 2026; the experiment is ongoing, the source's elapsed-age fields are normalised for revision tracking, and it re-randomised its anonymised handles on 6 August so rows cannot be followed between captures"
         href="/record/sources/cktripwire-honeypot-monitor/"
         compact
       />
-      A single control outcome and seven then-live cases cannot establish a safe
-      number of added bits or a general time-to-sweep distribution.
+      On 6 August the operator also revised the board's estimated GPU crack
+      times sharply downward, 5 added bits moving from about 2 days to about 66
+      minutes and 13 bits from about 476 days to about 10 days, without any
+      honeypot changing state.
+      <Claim
+        basis="reported"
+        scope="That CKTRIPWIRE revised its estimated GPU crack times downward on 6 Aug 2026 by the amounts given, with no change to any honeypot's live or swept state"
+        source="CKTRIPWIRE live monitor, held captures of 5 and 6 Aug 2026 and the diff between them; the estimates are the operator's and their model is not published on the page"
+        href="/record/sources/cktripwire-honeypot-monitor/"
+        compact
+      />
+      The board attaches its own caution to the live rows: the attack began well
+      before the honeypots existed, so a case that is still live should be read
+      as not taken yet and nothing more. A control outcome and a set of unswept
+      cases cannot establish a safe number of added bits or a general
+      time-to-sweep distribution.
+    </p>
+
+    <p>
+      A held source argues the opposite conclusion from the chain rather than
+      from honeypots. On 7 August 2026, in the BitcoinTalk compromise thread,
+      kTimesG wrote that the attack was already over by 2 August, that about
+      2,050 compromised accounts were detected as having held a balance on 30
+      July, and that dice wallets "do exist, and are also gone". The post gives
+      no roll counts for those wallets and no method for identifying them as
+      dice-generated, and its account figure is that poster's own detection
+      count, not a chain monitor's published total. It stands against the
+      vendor's dice exception above and against the unswept dice cases on the
+      CKTRIPWIRE board. This archive holds all three and does not resolve
+      between them.
+      <Claim
+        basis="reported"
+        contested
+        scope="kTimesG's claims that the attack ended by 2 August, that about 2,050 compromised accounts were detected, and that dice-generated wallets were also swept"
+        source="kTimesG, BitcoinTalk large-scale compromise thread, posted 7 Aug 2026 and captured the same day; unverified here, and disputed by the vendor's dice exception and by CKTRIPWIRE's unswept dice honeypots"
+        href="/record/sources/bitcointalk-large-scale-compromise-thread/"
+        compact
+      />
+    </p>
+
+    <p>
+      A second challenge reaches the record through a journalist rather than a
+      forum. On 6 August 2026 Laura Shin relayed the security researcher Taylor
+      Monahan's claim that the dice rolling being recommended to COLDCARD owners
+      "is the same thing that got the earliest hack victims drained", and that
+      the device warns the user but does not stop them. It is a claim about the
+      workflow rather than about the arithmetic, and one held source is
+      consistent with it: ChuckSRQ's catalogue of pre-July drain reports
+      describes an owner swept after selecting the device's automated dice
+      rolls, and another who later said they had entered a single roll. A single
+      roll is about 2.6 bits. The relay itself carries no roll counts, no victim set
+      and no identification method, and Monahan's own words are not held here.
+      It stands beside the vendor's 50-roll carve-out, not on top of it.
+      <Claim
+        basis="reported"
+        contested
+        scope="Taylor Monahan's claim, as relayed by Laura Shin, that the dice rolling recommended to owners is what drained the earliest victims"
+        source="Laura Shin, captured X post of 6 Aug 2026, relaying Taylor Monahan; the underlying statement and the linked article are not held here"
+        href="/record/sources/laurashin-2085473420742176994/"
+        compact
+      />
     </p>
 
     <div class="callout callout--amber">
@@ -333,7 +464,29 @@ import { BITFIG } from '../../lib/entropy-models';
     </div>
 
     <p>
-      The public guidance did not establish a universal passphrase threshold.
+      A community summary moved the same way, five days later. On the Stacker
+      News thread that carried the first drain report, Murch has maintained a
+      running situation summary; the version posted on 5 August 2026 and held
+      in this archive from the capture of 6 August narrows what he had written
+      on 31 July. Where the earlier summary said that wallets pairing device
+      entropy with a strong passphrase "should not be exposed", the later one
+      says such wallets are "only as secure as the passphrase", and attaches a
+      figure to weak: fewer than 25 random characters, or fewer than seven
+      BIP39 words, with funds at risk where no external entropy of at least
+      fifty dice throws was added. Both versions are held.
+      <Claim
+        basis="reported"
+        scope="Murch's 31 July and 5 August situation summaries as characterised and quoted above, including the 25-character and seven-word figures"
+        source="Murch, Stacker News first-drain thread; the 31 July summary and the 5 August revision are both present in the capture held from 6 Aug 2026"
+        href="/record/sources/stackernews-first-drain-report/"
+        compact
+      />
+    </p>
+
+    <p>
+      The held guidance still stops short of a single stated passphrase
+      threshold, and where numbers appear they do not say how the words or
+      characters were chosen.
       <a href="https://x.com/PraveenPerera/status/2082995029467942947" rel="noopener nofollow">Praveen Perera recommended more than seven BIP39 words as a passphrase</a>
       while still advising migration, but did not state how those words were
       selected.
@@ -359,6 +512,31 @@ import { BITFIG } from '../../lib/entropy-models';
     </p>
 
     <FigurePassphraseDerivation />
+
+    <p>
+      One live experiment tests this condition directly, and what it has
+      produced so far is a set of non-events. On 5 August 2026 Cole (@ColeTU)
+      funded five outputs from a single COLDCARD Mk3 seed generated on affected
+      firmware: the seed phrase alone, the same seed with one-, two- and
+      three-word passphrases, and the same seed on a different account number.
+      The following day the poster reported that 14 hours on, only the
+      seed-phrase-only wallet had been swept. The same five wallets appear on
+      the CKTRIPWIRE board as community-submitted watch-only rows, where the
+      unprotected one is recorded as swept in 2 minutes and the other four as
+      still live in the state captured on 6 August 2026; a BitcoinTalk poster
+      relaying the experiment reads that as showing the attackers search
+      default accounts only.
+      <Claim
+        basis="reported"
+        scope="The five-wallet experiment described above, its reported outcome after 14 hours, and the corresponding CKTRIPWIRE rows"
+        source="Cole (@ColeTU), captured X posts of 5 and 6 Aug 2026; CKTRIPWIRE live monitor, captured 6 Aug 2026; relayed with the default-account reading by a poster in the BitcoinTalk compromise thread, whose interpretation is their own"
+        href="/record/sources/coletu-2085256973923029482/"
+        compact
+      />
+      A wallet that has not been swept records only that nobody has taken it
+      yet. It puts no floor under a one-word passphrase, and the derivation
+      above still holds only for phrases selected uniformly.
+    </p>
 
     <h3>What a passphrase does not change</h3>
 

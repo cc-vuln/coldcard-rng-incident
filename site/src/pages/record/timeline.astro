@@ -108,9 +108,55 @@ const LANDMARKS: { sort: string; cites: string[] }[] = [
     cites: ['glxy-losses-exceed-100m', 'glxy-victim-count', 'glxy-wave4-caveat', 'glxy-law-enforcement-handoff', 'glxy-attack-ongoing'],
   },
   { sort: '2026-08-03T23:00:00Z', cites: ['ncfacanada-self-custody-commentary'] },
+  {
+    sort: '2026-08-04T06:14:34Z',
+    cites: ['rob1ham-2084523368783438198', 'callebtc-2084561246305542617', 'rob1ham-2084642112482496515'],
+  },
   { sort: '2026-08-04T12:56:51Z', cites: ['jamesob-2084624605969350915'] },
   { sort: '2026-08-04T20:02:40Z', cites: ['coldcardwallet-2084731768632991801', 'coinkite-historical-disclosures'] },
   { sort: '2026-08-04T20:11:46Z', cites: ['chainalysis-2084734055858282986'] },
+  {
+    sort: '2026-08-05T08:58:34Z',
+    cites: ['mariusoffchain-2084892387445244196', 'tanuki42_-2084927029430870179', 'intcyberdigest-2085013507913687508'],
+  },
+  {
+    sort: '2026-08-05T15:25:43Z',
+    cites: ['callebtc-2085024458012586286', 'callebtc-2085101769500377193', 'bitcoinmag-red-team-390-repos'],
+  },
+  { sort: '2026-08-06T13:53:46Z', cites: ['opensats-2085363706255573313', 'opensats-code-red'] },
+  {
+    sort: '2026-08-06T14:25:55Z',
+    cites: ['cktripwire-honeypot-monitor', 'laurashin-2085473420742176994'],
+  },
+  { sort: '2026-08-06T16:14:52Z', cites: ['skwp-2085399213563593083', 'sparrow-pr-2047'] },
+  { sort: '2026-08-06T16:26:26Z', cites: ['libngu-pr-58', 'libngu-random-c'] },
+  { sort: '2026-08-06T22:57:51Z', cites: ['casa-support-coldcard-troubleshooting'] },
+  {
+    sort: '2026-08-07T01:38:24Z',
+    cites: [
+      'coldcardwallet-2085541034243600805',
+      'jamesob-2085555839797166530',
+      'coldcardwallet-2085549723981672841',
+      'coldcardwallet-2085551118164132316',
+      'coldcardwallet-2085551349962334324',
+      'coldcardwallet-2085572285608366139',
+      'cointelegraph-2085597045734203509',
+    ],
+  },
+  { sort: '2026-08-07T03:32:34Z', cites: ['coldcard-watch'] },
+  { sort: '2026-08-07T05:40:07Z', cites: ['coldcard-hack-tracker'] },
+  {
+    sort: '2026-08-07T10:38:01Z',
+    cites: [
+      'orangesurfbtc-2085676831320035381',
+      'orangesurfbtc-2085513982043963560',
+      '_checkonchain-2085614739720400967',
+    ],
+  },
+  {
+    sort: '2026-08-07T11:09:51Z',
+    cites: ['coldcardwallet-2085684845204635694', 'coinkite-blog-index'],
+  },
 ];
 
 const citedIds = new Set(LANDMARKS.flatMap((l) => l.cites));
@@ -865,7 +911,18 @@ const FACET_SETS = [
         <section class="tlgroup" data-gord={s.gord}>
           <h2 class="tlgroup__h">4 August 2026</h2>
           <div class="tl">
-            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-04T12:56:51Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T12:56:51Z')}>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-04T06:14:34Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T06:14:34Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-04T06:14:34Z" /></div>
+              <div class="tl__title">A "Bitcoin Red Team" scanning effort gets going</div>
+              <div class="tl-body">
+                Rob Hamilton <a href="/record/sources/rob1ham-2084523368783438198/">posts a first status update</a> for what becomes known as the Bitcoin Red Team: about US$20,000 spent so far across different services, with funding secured and donations described as unnecessary, 150 repositories scanned, more than a dozen private disclosures made and critical issues found, plus a first pass on an agent harness he says the team intends to open source. Two and a half hours later calle <a href="/record/sources/callebtc-2084561246305542617/">posts his own update</a>: multiple harnesses written and a large wave of reviews launching against core Bitcoin projects, critical vulnerabilities reported to several projects in the previous 12 hours at what he describes as roughly one critical exploit per person per hour, and about US$10,000 per day in compute, with thanks to OpenSats for covering the bill. None of the findings is itemised publicly, so the counts stand as the participants' own figures. That afternoon Hamilton <a href="/record/sources/rob1ham-2084642112482496515/">adds a reassurance</a>: nothing in four days of vulnerability scanning around hardware wallets specifically, whether reviewed by him or shared with him, indicated those wallets are unsafe, a time-bounded statement about reviewed reports rather than a comprehensive security finding.
+                <Claim basis="reported" captured="5 Aug 2026" scope="Hamilton's and calle's 4 August Red Team status figures: spend, repositories scanned, disclosure counts and finding rates, all self-reported with no findings itemised publicly" source="Rob Hamilton and calle, captured X posts, 4 Aug 2026" href="/record/sources/rob1ham-2084523368783438198/" />
+                <Claim basis="reported" captured="5 Aug 2026" scope="Hamilton's statement that four days of hardware-wallet scanning had shown no vulnerability, a time-bounded account of reviewed reports rather than a comprehensive finding" source="Rob Hamilton, captured X post, 4 Aug 2026" href="/record/sources/rob1ham-2084642112482496515/" />
+                <CaptureThumb id="rob1ham-2084523368783438198" />
+                <CaptureThumb id="callebtc-2084561246305542617" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2026-08-04T12:56:51Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T12:56:51Z')}>
               <div class="tl-date"><Timestamp iso="2026-08-04T12:56:51Z" /></div>
               <div class="tl__title">James O'Beirne describes a May 2025 audit</div>
               <div class="tl-body">
@@ -874,7 +931,7 @@ const FACET_SETS = [
                 <CaptureThumb id="jamesob-2084624605969350915" />
               </div>
             </div>
-            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2026-08-04T20:02:40Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T20:02:40Z')}>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={2} data-beyond={lmBeyond('2026-08-04T20:02:40Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T20:02:40Z')}>
               <div class="tl-date"><Timestamp iso="2026-08-04T20:02:40Z" /></div>
               <div class="tl__title">Coinkite publishes a security disclosure history</div>
               <div class="tl-body">
@@ -884,13 +941,153 @@ const FACET_SETS = [
                 <CaptureThumb id="coldcardwallet-2084731768632991801" />
               </div>
             </div>
-            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={2} data-beyond={lmBeyond('2026-08-04T20:11:46Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T20:11:46Z')}>
+            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={3} data-beyond={lmBeyond('2026-08-04T20:11:46Z') ? '' : undefined} hidden={lmBeyond('2026-08-04T20:11:46Z')}>
               <div class="tl-date"><Timestamp iso="2026-08-04T20:11:46Z" /></div>
               <div class="tl__title">Chainalysis attributes losses geographically</div>
               <div class="tl-body">
                 <a href="/record/sources/chainalysis-2084734055858282986/">Chainalysis reports</a> that bitcoin holders in Canada account for 25 percent of the losses it could geographically attribute, with Australia, the United States and Thailand also seeing major losses, citing Galaxy Research's dataset for estimates ranging as high as US$110M. The post does not publish its dataset or method, so the attribution cannot be rechecked from what is held here.
                 <Claim basis="reported" captured="5 Aug 2026" scope="Chainalysis's geographic attribution of losses and its stated national shares; the underlying dataset and method are not published" source="Chainalysis, captured X post, 4 Aug 2026" href="/record/sources/chainalysis-2084734055858282986/" />
                 <CaptureThumb id="chainalysis-2084734055858282986" />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+      if (s.key === '2026-08-05') return (
+        <section class="tlgroup" data-gord={s.gord}>
+          <h2 class="tlgroup__h">5 August 2026</h2>
+          <div class="tl">
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-05T08:58:34Z') ? '' : undefined} hidden={lmBeyond('2026-08-05T08:58:34Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-05T08:58:34Z" /></div>
+              <div class="tl__title">Stolen funds are seen entering a CoinJoin, and a dispute over coordinator responsibility opens</div>
+              <div class="tl-body">
+                Marius OffChain <a href="/record/sources/mariusoffchain-2084892387445244196/">traces one attacker beginning to mix 64 BTC</a>: a 64 BTC input against a roughly 54 BTC output, so about 10 BTC mixed at the first hop, with the change then split into roughly 7 BTC pieces that are themselves mixed again. He names the receiving address and asks other on-chain analysts whether they have seen the pattern before; the transactions are checkable on chain but are not reproduced here. Just over two hours later tanuki42_ <a href="/record/sources/tanuki42_-2084927029430870179/">identifies the round</a> as a Wasabi Wallet CoinJoin coordinated by Kruw's centralised coordinator server, and argues that the coordinator could at any time choose to exclude the stolen coins but consistently chooses not to. That afternoon International Cyber Digest <a href="/record/sources/intcyberdigest-2085013507913687508/">reports the dispute</a>, quoting Kruw's answer, "you can't prove you've been robbed. The attacker and the legitimate owner share the same entropy", alongside ZachXBT's quoted reply to Kruw. Both positions are attributed here; the archive does not adjudicate between them.
+                <Claim basis="reported" captured="6 Aug 2026" scope="Marius OffChain's 64 BTC mixing trace: the stated amounts, hops and named address; the transactions are checkable on chain but not reproduced here" source="Marius OffChain, captured X post, 5 Aug 2026" href="/record/sources/mariusoffchain-2084892387445244196/" />
+                <Claim basis="reported" contested captured="6 Aug 2026" scope="The coordinator-responsibility dispute: tanuki42_'s argument that Kruw's centralised coordinator could exclude the stolen coins, against Kruw's quoted reply that the theft cannot be proved because attacker and owner share the same entropy" source="tanuki42_, captured X post, 5 Aug 2026; Kruw's reply as quoted by International Cyber Digest, 5 Aug 2026" href="/record/sources/tanuki42_-2084927029430870179/" />
+                <CaptureThumb id="mariusoffchain-2084892387445244196" />
+                <CaptureThumb id="tanuki42_-2084927029430870179" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2026-08-05T15:25:43Z') ? '' : undefined} hidden={lmBeyond('2026-08-05T15:25:43Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-05T15:25:43Z" /></div>
+              <div class="tl__title">The Red Team reports 4,962 findings across 390 projects</div>
+              <div class="tl-body">
+                calle <a href="/record/sources/callebtc-2085024458012586286/">reports the effort has grown</a> to 16 globally distributed people working around the clock: 27.5 hours in, 4,962 findings filed across 390 projects, of which 85 critical and 635 high severity, at a stated rate of 2.31 findings per person per hour. The findings themselves are not public and are described as held for disclosure, so none of the counts can be rechecked here. That evening calle <a href="/record/sources/callebtc-2085101769500377193/">directs would-be donors to OpenSats</a>, which he says paid the team's AI bill, describing donations there as converting directly into AI tokens for bug hunting; that characterisation of how donations are applied is his. A <a href="/record/sources/bitcoinmag-red-team-390-repos/">Bitcoin Magazine report</a> dated 5 August carries the same figures and adds more than US$40,000 of compute funded by OpenSats and a harness stated at 171,599 lines, all attributed to the participants' own posts.
+                <Claim basis="reported" captured="6 Aug 2026" scope="calle's 5 August Red Team figures: 16 people, 27.5 hours, 4,962 findings across 390 projects, 85 critical and 635 high severity; self-reported, with the findings not public and held for disclosure" source="calle, captured X post, 5 Aug 2026" href="/record/sources/callebtc-2085024458012586286/" />
+                <Claim basis="reported" captured="6 Aug 2026" scope="The stated funding route: OpenSats paying the team's AI bill and donations converting into inference, in the participant's own characterisation" source="calle, captured X post, 5 Aug 2026" href="/record/sources/callebtc-2085101769500377193/" />
+                <Claim basis="reported" captured="6 Aug 2026" scope="Bitcoin Magazine's secondary report of the same figures plus the stated US$40,000 compute spend and 171,599-line harness" source="Bitcoin Magazine, held capture of 6 Aug 2026; article dated 5 Aug 2026" href="/record/sources/bitcoinmag-red-team-390-repos/" />
+                <CaptureThumb id="callebtc-2085024458012586286" />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+      if (s.key === '2026-08-06') return (
+        <section class="tlgroup" data-gord={s.gord}>
+          <h2 class="tlgroup__h">6 August 2026</h2>
+          <div class="tl">
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-06T13:53:46Z') ? '' : undefined} hidden={lmBeyond('2026-08-06T13:53:46Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-06T13:53:46Z" /></div>
+              <div class="tl__title">OpenSats launches Code RED</div>
+              <div class="tl-body">
+                OpenSats <a href="/record/sources/opensats-2085363706255573313/">announces Code RED</a>: priority support for people red teaming Bitcoin software, including reimbursement of past LLM token costs. The linked blog post, <a href="/record/sources/opensats-code-red/">Code RED: Supporting First Responders</a>, displays a 6 August 2026 publication date and frames the programme as support for the people who have been fire fighting, triaging and red teaming as the industry digests what the exploit revealed, naming opensats.org/red as a priority path to funding and committing to prioritise red team applications for the foreseeable future. The launch formalises the funding route the Red Team's participants had pointed donors to the previous day.
+                <Claim basis="reported" captured="7 Aug 2026" scope="The Code RED announcement and its stated terms: priority support for people red teaming Bitcoin software, including reimbursement of past LLM token costs" source="OpenSats, captured official X post, 6 Aug 2026" href="/record/sources/opensats-2085363706255573313/" />
+                <Claim basis="verified" captured="7 Aug 2026" scope="The Code RED blog post's displayed 6 August 2026 publication date, its stated terms and its wording as held" source="Held capture of opensats.org/blog/code-red-supporting-first-responders, 7 Aug 2026" href="/record/sources/opensats-code-red/" />
+                <CaptureThumb id="opensats-2085363706255573313" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2026-08-06T14:25:55Z') ? '' : undefined} hidden={lmBeyond('2026-08-06T14:25:55Z')}>
+              <div class="tl-date">detected <Timestamp iso="2026-08-06T14:25:55Z" /></div>
+              <div class="tl__title">A honeypot monitor cuts its estimate of what extra entropy buys</div>
+              <div class="tl-body">
+                The <a href="/record/sources/cktripwire-honeypot-monitor/">CKTRIPWIRE honeypot scoreboard</a>, which funds deliberately vulnerable Mk3 v4 wallets on mainnet with different amounts of added dice-roll or passphrase entropy and records whether and how fast each is swept, revises its published GPU crack-time estimates sharply downward across every difficulty band between the states held at 02:55 and 14:25 UTC. A honeypot with 5 added bits of dice entropy moves from about 2 days to about 66 minutes, 11 added bits of passphrase entropy from about 125 days to about 3 days, 13 added bits of dice entropy from about 476 days to about 10 days, 22 bits from about 703 years to about 15, and 90 bits from about 1e23 years to about 1e21. No honeypot's live-or-swept state changes with the estimates. The scoreboard stood at 17 honeypots, 15 of them live and 2 swept, after the operator added and funded HP-8DA1, described as a low-dice-entropy Mk3 v4 honeypot, at 01:54 UTC that morning. The anonymised handles were re-randomised in the same revision, so rows cannot be followed from one capture to the next. That evening the journalist Laura Shin <a href="/record/sources/laurashin-2085473420742176994/">relays the security researcher Taylor Monahan's claim</a> that the dice rolling being recommended to COLDCARD owners "is the same thing that got the earliest hack victims drained", and that the device warns the user but never stops them. Coinkite's own advisory carves out seeds made with at least 50 fair, independent, private dice rolls; the incident-specific conditions are set out in <a href="/how-it-broke/conditions/#dice">the technical record</a>. The estimates and the claim are their authors', not this project's.
+                <Claim basis="verified" captured="6 Aug 2026" scope="The CKTRIPWIRE scoreboard's revised GPU crack-time estimates across every difficulty band, its 17-honeypot state and the addition of HP-8DA1, as held in the captures of 6 August 2026; the experiment's setup and entropy model have not been reproduced here" source="Held captures of cktripwire.com, 6 Aug 2026" href="/record/sources/cktripwire-honeypot-monitor/" />
+                <Claim basis="reported" contested captured="7 Aug 2026" scope="Taylor Monahan's claim, as relayed by Laura Shin, that the dice rolling recommended to owners is what drained the earliest victims, against the dice carve-out published in Coinkite's own advisory" source="Laura Shin, captured X post, 6 Aug 2026, relaying Taylor Monahan" href="/record/sources/laurashin-2085473420742176994/" />
+                <CaptureThumb id="laurashin-2085473420742176994" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={2} data-beyond={lmBeyond('2026-08-06T16:14:52Z') ? '' : undefined} hidden={lmBeyond('2026-08-06T16:14:52Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-06T16:14:52Z" /></div>
+              <div class="tl__title">Wallet software is asked to warn its own users</div>
+              <div class="tl-body">
+                Posting as Yan at Swan, @skwp <a href="/record/sources/skwp-2085399213563593083/">says his group is opening pull requests</a> against several popular wallets so that users see a warning about the COLDCARD disclosure, on the reasoning that many owners are not on X and will not otherwise know. The post links four: Sparrow 2047, Liana 2242, Electrum 10805 and Wasabi's documentation 2113. Only the first is held here. <a href="/record/sources/sparrow-pr-2047/">Sparrow pull request 2047</a>, opened by nrobi144 on 6 August and approved by @skwp the same day, adds a warning row and a link to Coinkite's advisory wherever a COLDCARD is selected as a device, covering import, airgapped keystore, USB and multisig-export flows through one shared pane, and is careful to trigger on the COLDCARD wallet model rather than on the importer classes that other vendors subclass. In the state held on 7 August the pull request is still open, its author notes he could not run a full local build, and the description records that it was drafted with an AI coding tool. Nothing held here establishes what any of the four wallets shipped.
+                <Claim basis="reported" captured="7 Aug 2026" scope="The stated wallet-warning pull-request effort and the four pull requests named in the post; three of the four are not held here" source="Yan at Swan (@skwp), captured X post, 6 Aug 2026" href="/record/sources/skwp-2085399213563593083/" />
+                <Claim basis="verified" captured="7 Aug 2026" scope="Sparrow pull request 2047 as held: its opening comment and approval both dated 6 August 2026, its stated detection rule and covered flows, its open status and its author's build caveat" source="Held capture of github.com/sparrowwallet/sparrow/pull/2047, 7 Aug 2026" href="/record/sources/sparrow-pr-2047/" />
+                <CaptureThumb id="skwp-2085399213563593083" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-good" data-kind="landmark" data-eord={3} data-beyond={lmBeyond('2026-08-06T16:26:26Z') ? '' : undefined} hidden={lmBeyond('2026-08-06T16:26:26Z')}>
+              <div class="tl-date">6 Aug 2026, merged; detected <Timestamp iso="2026-08-06T16:26:26Z" /></div>
+              <div class="tl__title">The guard at the centre of the incident is changed upstream</div>
+              <div class="tl-body">
+                The <code>#ifndef MICROPY_HW_ENABLE_RNG</code> guard recorded in the January 2021 entry above is replaced on <a href="/record/sources/libngu-random-c/">libngu's master branch</a> with <code>#if MICROPY_HW_ENABLE_RNG == 0</code>, so a build configured without a hardware TRNG now fails at compile time instead of falling through. The change arrives as <a href="/record/sources/libngu-pr-58/">pull request #58, "Enforce HW TRNG"</a>, opened by an outside contributor on 31 July with a link to Block's disclosure and the note "You don't know me but this should be easy enough to validate :)", and merged by switck as commit <code>e9d5e80</code> on 6 August. The same master state moves the Linux build off glibc <code>random()</code> to <code>getrandom()</code> through a checked helper, carrying the comment "glibc random() is not a TRNG and is typically unseeded here — never use for keys", and makes <code>random_bytes()</code> reject negative counts. This is the upstream library rather than a COLDCARD firmware release: nothing held here establishes which shipped firmware, if any, carries it. <a href="/how-it-broke/">How it broke</a> documents the guard's earlier form from source.
+                <Claim basis="verified" captured="6 Aug 2026" scope="The replacement of the ifndef guard on libngu master, the Linux getrandom() helper and the negative-count rejection, and the merge of pull request #58 as commit e9d5e80 on 6 August 2026" source="Held captures of libngu ngu/random.c on master and of pull request #58, 6 Aug 2026" href="/record/sources/libngu-random-c/" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={4} data-beyond={lmBeyond('2026-08-06T22:57:51Z') ? '' : undefined} hidden={lmBeyond('2026-08-06T22:57:51Z')}>
+              <div class="tl-date">detected <Timestamp iso="2026-08-06T22:57:51Z" /></div>
+              <div class="tl__title">Casa adds a replacement recommendation to its COLDCARD support page</div>
+              <div class="tl-body">
+                Casa, which sells multisig collaborative custody and so has a commercial interest in the alternative, adds a security advisory banner to <a href="/record/sources/casa-support-coldcard-troubleshooting/">its COLDCARD troubleshooting support page</a>: Coinkite has identified a seed-generation flaw affecting certain COLDCARD firmware versions, funds may be at risk if the seed was generated on affected firmware, and "We do recommend replacing this device as soon as you are able." The page's displayed date moves from 4 March 2026 to 6 August 2026 in the same edit, while the banner carries its own date of "Updated August 1, 2026". No banner is present in the state this archive held on 3 August, so the date the banner states for itself and the dates the captures bound do not agree. The rest of the page still describes Mk3 and later devices as compatible with Casa vaults.
+                <Claim basis="verified" captured="6 Aug 2026" scope="The wording of Casa's security advisory banner, its stated 1 August update date, the page date's move from 4 March to 6 August 2026, and the banner's absence from the state held on 3 August 2026" source="Held captures of Casa's COLDCARD troubleshooting support page, 3 and 6 Aug 2026" href="/record/sources/casa-support-coldcard-troubleshooting/" />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+      if (s.key === '2026-08-07') return (
+        <section class="tlgroup" data-gord={s.gord}>
+          <h2 class="tlgroup__h">7 August 2026</h2>
+          <div class="tl">
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={0} data-beyond={lmBeyond('2026-08-07T01:38:24Z') ? '' : undefined} hidden={lmBeyond('2026-08-07T01:38:24Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-07T01:38:24Z" /></div>
+              <div class="tl__title">The vendor disputes the word "fallback", and is disputed back</div>
+              <div class="tl-body">
+                COLDCARD posts what it calls an <a href="/record/sources/coldcardwallet-2085541034243600805/">"Extremely important correction"</a>, addressed to Jack Mallers, whose post is not held here: "there wasn't a weak entropy fallback." The Yasmarang generator, it writes, was MicroPython's built-in general-purpose RNG introduced upstream in May 2018 and did not enter COLDCARD seed generation until the libngu migration of March 2021; the design intent was the opposite of a software fallback, with <code>MICROPY_HW_ENABLE_RNG=0</code> meant to disable that path; and what people call a fallback was "inherited behavior from the underlying platform that became active because of a link-time error". An hour later James O'Beirne, whose May 2025 audit account is in the 4 August entry above, <a href="/record/sources/jamesob-2085555839797166530/">replies that this is "wild hairsplitting and misdirection"</a>: the vendor did fall back to weak entropy, the Yasmarang implementation in libngu was weaker than MicroPython's because it used hardcoded constants, and the vendor was warned about the issue by him and by at least one other person four years before him. Both statements are held; this archive does not adjudicate between them, and the source evidence for the guard and its call sites is set out on <a href="/how-it-broke/">how it broke</a>.
+                <Claim basis="reported" contested captured="7 Aug 2026" scope="Coinkite's 7 August correction: its account of the Yasmarang generator's origin and arrival date, its stated design intent and its link-time-error characterisation, against James O'Beirne's reply that the libngu implementation was weaker and that the vendor had been warned four years earlier" source="COLDCARD and James O'Beirne, captured X posts, 7 Aug 2026" href="/record/sources/coldcardwallet-2085541034243600805/" />
+                In the same overnight exchange of replies the vendor says it has <a href="/record/sources/coldcardwallet-2085549723981672841/">"multiple pull requests under review and will have new versions coming out"</a>; that it is <a href="/record/sources/coldcardwallet-2085551118164132316/">"devastated"</a> and that "the hacker could have done the right thing and responsibly disclosed"; that <a href="/record/sources/coldcardwallet-2085551349962334324/">"very likely we won't be around"</a>, but that this is no reason to stop trying to give people the best firmware it can; and that <a href="/record/sources/coldcardwallet-2085572285608366139/">"the bug lived in public for 5yrs, even third party researchers didn't find it. We believe if took the lastest LLM models to find it"</a>, quoted as posted. Later that morning Cointelegraph <a href="/record/sources/cointelegraph-2085597045734203509/">reports, citing Bloomberg</a>, that Coinkite says it is working on a post-mortem rather than speculating on the extent of customer losses; the Bloomberg report itself is not held here.
+                <Claim basis="reported" captured="7 Aug 2026" scope="The vendor's other overnight replies: further firmware versions under review, its statement that it will very likely not be around, its responsible-disclosure remark, and its stated belief that the latest LLM models were needed to find the bug" source="COLDCARD, captured official X replies, 7 Aug 2026" href="/record/sources/coldcardwallet-2085551349962334324/" />
+                <Claim basis="reported" captured="7 Aug 2026" scope="Cointelegraph's report, attributed to Bloomberg, that Coinkite is working on a post-mortem rather than estimating customer losses; the Bloomberg report is not held here" source="Cointelegraph, captured X post, 7 Aug 2026" href="/record/sources/cointelegraph-2085597045734203509/" />
+                <CaptureThumb id="coldcardwallet-2085541034243600805" />
+                <CaptureThumb id="jamesob-2085555839797166530" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={1} data-beyond={lmBeyond('2026-08-07T03:32:34Z') ? '' : undefined} hidden={lmBeyond('2026-08-07T03:32:34Z')}>
+              <div class="tl-date">detected <Timestamp iso="2026-08-07T03:32:34Z" /></div>
+              <div class="tl__title">The coldcard-watch tracker renames itself and raises its verified total</div>
+              <div class="tl-body">
+                The community <a href="/record/sources/coldcard-watch/">coldcard-watch tracker</a>, which had not resolved for this archive since 4 August 09:06 UTC, answers again. Between the state held on 4 August at 08:06 UTC and the state held on 7 August at 03:32 UTC it has renamed itself from "Coldcard Sweep Watch" to "Coldcard Watch", split its view filter from Confirmed and Potential into Verified, Attested and Suspected, and raised its verified drained figure from 1,366.5774 BTC across 4,580 addresses to 1,405.0671 BTC across 4,925 addresses. Its most-recent-drain row is unchanged and still dated 31 July, and the page does not say what accounts for the increase. It continues to describe its figures as verified minimums rather than totals, and to warn that undiscovered clusters are near certain. Nearly three days separate the two held states and the tracker publishes no edit time, so nothing here dates the change more precisely. The current reading of this and the other monitors is carried on <a href="/record/funds/">the funds-accounting page</a>, read out of the newest parsing capture rather than typed.
+                <Claim basis="verified" captured="7 Aug 2026" scope="The coldcard-watch tracker's rename, its Verified/Attested/Suspected filter split, and the movement of its stated verified figures between the states held on 4 and 7 August 2026" source="Held captures of coldcardwatch.com, 4 and 7 Aug 2026" href="/record/sources/coldcard-watch/" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={2} data-beyond={lmBeyond('2026-08-07T05:40:07Z') ? '' : undefined} hidden={lmBeyond('2026-08-07T05:40:07Z')}>
+              <div class="tl-date">detected <Timestamp iso="2026-08-07T05:40:07Z" /></div>
+              <div class="tl__title">A watched collector address is emptied</div>
+              <div class="tl-body">
+                The community <a href="/record/sources/coldcard-hack-tracker/">COLDCARD hack tracker</a> records one of the collector addresses it watches being emptied. Between the states held at 03:39 and 05:40 UTC, 30.18476329 BTC leaves the Wave 2 collector <code>bc1qmd5m5k…9n8jp6</code> in a 93-input consolidation, first seen unconfirmed and then confirmed at block 961,368 at a stated fee of about 2.4 sat/vB, leaving about 0.00002 BTC of dust behind and the address marked PARTIAL. The tracker's MOVED figure rises from 88.42 to 118.61 BTC and its STILL HELD share falls from 94.0 to 92.0 percent of the 1,485.78 BTC it counts as consolidated; the coins sit in a single hop address it now follows. Later the same day the tracker rewrites its own note on Galaxy Research's 3 August update, which had stated that waves 1 to 3 coins were unmoved, to say that they were then unmoved and that the Wave 2 collector was later emptied on 7 August. The tracker is a community compilation and the figures are its own; the transactions it names are checkable on chain but are not reproduced here.
+                <Claim basis="verified" captured="7 Aug 2026" scope="The Wave 2 collector's emptying as the tracker records it: the 30.18476329 BTC spend, its confirmation at block 961,368, the dust remainder, the movement of the tracker's MOVED and STILL HELD figures, and its later requalification of the Galaxy note, all between the states held on 7 August 2026" source="Held captures of the COLDCARD hack tracker, 7 Aug 2026" href="/record/sources/coldcard-hack-tracker/" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm" data-kind="landmark" data-eord={3} data-beyond={lmBeyond('2026-08-07T10:38:01Z') ? '' : undefined} hidden={lmBeyond('2026-08-07T10:38:01Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-07T10:38:01Z" /></div>
+              <div class="tl__title">Two attempts to measure the migration itself</div>
+              <div class="tl-body">
+                orangesurf, who has been tracking movements submitted through MARA's Slipstream private-broadcast service, <a href="/record/sources/orangesurfbtc-2085676831320035381/">reports that at least 5,681 BTC have been migrated out of multisig wallets</a> that way, and says the plot now separates the multisig quorums, with the large majority of the migrated coin coming from 2-of-3 wallets. Eleven hours earlier the same account <a href="/record/sources/orangesurfbtc-2085513982043963560/">put the figure at at least 5,371 BTC</a>. Earlier that morning Checkonchain <a href="/record/sources/_checkonchain-2085614739720400967/">states that the incident cut long-term-holder supply by about 233,000 BTC</a>, a 1.38 percent fall from its recent high, and links a newsletter piece assessing how the emergency migration has skewed the on-chain metrics analysts use; that newsletter is not held here. Both figures measure the response rather than the theft, and both are their authors' attributions: neither publishes the address set behind it, so neither can be rechecked from what is held here.
+                <Claim basis="reported" captured="7 Aug 2026" scope="orangesurf's stated Slipstream migration totals of at least 5,371 and at least 5,681 BTC and the stated 2-of-3 majority; the underlying address set is not published" source="orangesurf, captured X posts, 6 and 7 Aug 2026" href="/record/sources/orangesurfbtc-2085676831320035381/" />
+                <Claim basis="reported" captured="7 Aug 2026" scope="Checkonchain's stated fall of about 233,000 BTC, or 1.38 percent, in long-term-holder supply attributed to the incident; the linked newsletter analysis is not held here" source="Checkonchain, captured X post, 7 Aug 2026" href="/record/sources/_checkonchain-2085614739720400967/" />
+                <CaptureThumb id="orangesurfbtc-2085676831320035381" />
+                <CaptureThumb id="_checkonchain-2085614739720400967" />
+              </div>
+            </div>
+            <div class="tl-item tle tle--lm is-key" data-kind="landmark" data-eord={4} data-beyond={lmBeyond('2026-08-07T11:09:51Z') ? '' : undefined} hidden={lmBeyond('2026-08-07T11:09:51Z')}>
+              <div class="tl-date"><Timestamp iso="2026-08-07T11:09:51Z" /></div>
+              <div class="tl__title">Coinkite suspends its customer-data blanking, and restamps the post</div>
+              <div class="tl-body">
+                Coinkite publishes <a href="/record/sources/coldcardwallet-2085684845204635694/">"Update on Customer Data Retention"</a>. It states that its standard practice has been to blank customer records automatically after 120 days, keeping only email address and country of residence, with accelerated blanking available on request after delivery; that legal obligations arising from the incident, including the preservation of records that may be relevant to ongoing and anticipated legal proceedings, have caused it to suspend that automated blanking until further notice; and that customers who do not want their data preserved can ask support to exempt them. It says the retained data will be stored securely with restricted access, used only for compliance, and that standard blanking will resume as soon as the company is legally permitted to resume it.
+                <Claim basis="reported" captured="7 Aug 2026" scope="Coinkite's stated data-retention change: the 120-day blanking practice, its suspension for legal preservation, the opt-out route and the commitment to resume; the underlying legal obligations are not inspectable here" source="COLDCARD, captured official X post, 7 Aug 2026" href="/record/sources/coldcardwallet-2085684845204635694/" />
+                The publication also shows in this archive's own captures. <a href="/record/sources/coinkite-blog-index/">The Coinkite blog index</a> read the same on every poll from 4 August at 20:36 UTC until 7 August at 10:19 UTC. The post is present in the capture taken at 11:19 UTC, dated "Aug 6, 2026"; in the capture two hours later, at 13:19 UTC, the same entry is dated "Aug 7, 2026", with nothing else on the index changed. The publisher restamped its own post. The record notes the change and does not infer a reason for it.
+                <Claim basis="verified" captured="7 Aug 2026" scope="The post's appearance in this archive's captures of the Coinkite blog index and the change of its displayed date from Aug 6, 2026 to Aug 7, 2026 between the captures at 11:19 and 13:19 UTC on 7 August 2026, with the index otherwise unchanged since 4 August" source="Held captures of blog.coinkite.com, 4 and 7 Aug 2026" href="/record/sources/coinkite-blog-index/" />
+                <CaptureThumb id="coldcardwallet-2085684845204635694" />
               </div>
             </div>
           </div>
@@ -1021,7 +1218,7 @@ const FACET_SETS = [
 
   <Disclosure
     id="unresolved"
-    title="Unresolved as of 6 August 2026"
+    title="Unresolved as of 7 August 2026"
     note="nine questions the held record does not settle"
   >
 
@@ -1030,8 +1227,8 @@ const FACET_SETS = [
     <li><strong>Backgrounder ordering.</strong> The page displays a 30 July publication date, but the first appearance of its expanded model scope relative to the 31 July 05:19 UTC hotfix commit remains unknown.</li>
     <li><strong>The wider transaction attribution.</strong> Block's captured preliminary thread and the privacy-safe recheck support the 695-transaction counts and arithmetic, but no complete primary transaction list is published here and the arithmetic does not establish common control.</li>
     <li><strong>Later clusters.</strong> In their states checked on 1 August, two community trackers included a separately reported 45.9 BTC cluster in wider headlines. Its relationship to the principal incident set remains an attributed lead rather than a verified extension of the total.</li>
-    <li><strong>Original discovery method.</strong> AI-assisted discovery remains an inference; AI-assisted post-disclosure reproduction is separately reported. The vendor's 4 August statement, that its own AI-assisted review and several frontier models tested since did not catch the bug, bears on review rather than on how the defect was first found.</li>
-    <li><strong>The May 2025 audit account.</strong> James O'Beirne's <a href="/record/sources/jamesob-2084624605969350915/">4 August account</a> of auditing the firmware in May 2025 and reporting doubts about the RNG path to the COLDCARD team carries no contemporaneous report artefact. Nothing held here corroborates or contradicts it, and no captured vendor statement addresses it.</li>
+    <li><strong>Original discovery method.</strong> AI-assisted discovery remains an inference; AI-assisted post-disclosure reproduction is separately reported. The vendor's 4 August statement, that its own AI-assisted review and several frontier models tested since did not catch the bug, bears on review rather than on how the defect was first found. On 7 August the vendor <a href="/record/sources/coldcardwallet-2085572285608366139/">stated a belief about the discovery for the first time</a>, that the bug "lived in public for 5yrs, even third party researchers didn't find it" and that it "took the lastest LLM models to find it", but offers it as a belief and publishes nothing about the attacker to check it against, so the question stands.</li>
+    <li><strong>The May 2025 audit account.</strong> James O'Beirne's <a href="/record/sources/jamesob-2084624605969350915/">4 August account</a> of auditing the firmware in May 2025 and reporting doubts about the RNG path to the COLDCARD team carries no contemporaneous report artefact. Nothing held here corroborates or contradicts it, and no captured vendor statement addresses it. He <a href="/record/sources/jamesob-2085555839797166530/">restated it on 7 August</a>, adding that at least one other person warned the vendor about the same issue four years before him; that earlier warning is not identified and nothing held here corroborates it either.</li>
     <li><strong>Number of affected people and seeds.</strong> Addresses are not people, and no captured source supplies the total number of seeds generated on affected firmware.</li>
     <li><strong>The claimed fourth wave.</strong> The pattern-matched wave-4 set circulated on 2 and 3 August was <a href="/record/sources/intangiblecoins-wave4-multisig-correction/">corrected twice by its own compiler</a>, who states there is no direct victim confirmation yet. Whether the surviving core belongs to the incident at all is not settled by anything held here.</li>
     <li><strong>The reported passphrase-wallet loss.</strong> BTC Sessions' <a href="/record/sources/btcsessions-passphrase-loss-report/">2 August report</a> of a drained Mk3 with a two-word passphrase cites no transaction or address, so it can be neither corroborated nor refuted from the held record.</li>

@@ -63,6 +63,13 @@ export interface ThreadPost {
   /** Why this post is muted, or why it is foregrounded. Shown on the page. */
   reason: string | null;
   shot: { src: string; captured: string; capturedHuman: string } | null;
+  /** This post's own record on this site, where it has one. Some posts are
+      held twice: inside this conversation and as their own registered entry
+      carrying this project's note on why they matter. Read from the member's
+      declared part_of rather than from the mere presence of a registration,
+      because a reply can drop out of a capture and the relation should not
+      blink with it. */
+  record: { id: string; title: string | null } | null;
 }
 
 export interface ThreadCapture {
@@ -80,6 +87,23 @@ export interface ThreadCapture {
 const byPost = threadMediaManifest as Record<
   string, Record<string, { src: string; name: string; captured: string }>
 >;
+
+/**
+ * Status id to the registered entry that declares itself part of `head`.
+ *
+ * Built from the registry, not from the capture: membership is a stated
+ * relation, so a post keeps its link to its own record even in a capture that
+ * happened not to reach it.
+ */
+function membersOf(head: string): Map<string, XPost> {
+  const out = new Map<string, XPost>();
+  for (const post of xPosts()) {
+    if (post.part_of !== head) continue;
+    const status = /x\.com\/[^/]+\/status\/(\d+)/.exec(post.url ?? '')?.[1];
+    if (status) out.set(status, post);
+  }
+  return out;
+}
 
 /** Every handle registered anywhere in this project's own source register. */
 let _registered: Set<string> | null = null;
@@ -151,6 +175,7 @@ export function threadCapture(id: string): ThreadCapture | null {
   const raw: any[] = held.record.posts ?? [];
   const focalAuthor = (held.record.author ?? '').toLowerCase();
   const staged = byPost[id] ?? {};
+  const members = membersOf(id);
 
   // Duplicate detection needs the whole set first: bot amplification is only
   // visible by comparing replies against each other.
@@ -183,6 +208,13 @@ export function threadCapture(id: string): ThreadCapture | null {
       // most load-bearing material in it.
       band = 'foreground';
       reason = 'the thread author answering in their own thread';
+    } else if (members.has(status)) {
+      // This project registered the post in its own right, which is a
+      // stronger form of the same lookup as the author test below: a post
+      // with its own record must not be collapsed as applause on this page
+      // while standing as evidence on another.
+      band = 'foreground';
+      reason = 'held as its own record in this archive';
     } else if (registeredAuthors().has(author.toLowerCase())) {
       // A lookup in this project's register, not a judgement of merit.
       band = 'foreground';
@@ -210,6 +242,12 @@ export function threadCapture(id: string): ThreadCapture | null {
             src: shotEntry.src,
             captured: shotEntry.captured,
             capturedHuman: isoToHuman(shotEntry.captured),
+          }
+        : null,
+      record: members.has(status)
+        ? {
+            id: members.get(status)!.id,
+            title: members.get(status)!.title ?? null,
           }
         : null,
     });

@@ -49,12 +49,111 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
     <Claim
       basis="unverified"
       scope="Whether the vendor-published hotfix binaries provide the intended entropy at runtime"
-      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of a 6 August 2026 recheck"
+      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of a 7 August 2026 recheck"
       href="/record/firmware/"
       compact
     />
     Updating firmware changes future generation; the published explanations do
     not describe it as altering words that already exist.
+  </p>
+
+  <p>
+    Other vendors and custody providers published the same replacement line for
+    anyone whose keys came from an affected device, and one of them revised how
+    it said it.
+    <a href="/record/sources/trezor-coldcard-not-affected/">Trezor</a>, a
+    competing hardware-wallet vendor, published an article dated 5 August 2026
+    stating that its own devices are not affected and that restoring a
+    COLDCARD-generated backup onto a Trezor does not repair the weak randomness
+    used when the wallet was created: a new wallet has to be generated and the
+    funds moved to it. In this archive's first capture of that page, at 08:09
+    UTC on 6 August, the migration sentence told affected readers to follow
+    Coinkite's official guidance and linked Coinkite's Mk3 advisory. In the
+    16:38 UTC capture the same day it reads "follow these instructions" and
+    links Trezor's own guide to moving to a Trezor from another wallet;
+    "wallet backup" was shortened to "wallet" in the same edit.
+    <Claim
+      basis="verified"
+      scope="The wording and link of Trezor's migration sentence in the 6 August 2026 08:09 UTC capture, and its replacement in the 16:38 UTC capture the same day"
+      source="Two captures of Trezor's article held in this archive, 6 Aug 2026; the link target is read from the captured HTML"
+      href="/record/sources/trezor-coldcard-not-affected/"
+      compact
+    />
+    Trezor's own reason for the change is not published in the article, and this
+    archive does not infer one.
+  </p>
+
+  <p>
+    <a href="/record/sources/casa-support-coldcard-troubleshooting/">Casa</a>,
+    which sells collaborative multi-key custody and supports the COLDCARD as a
+    key in its vaults, added a security advisory banner to its COLDCARD
+    troubleshooting page: funds generated on affected firmware may be at risk,
+    and "we do recommend replacing this device as soon as you are able". The
+    banner carries the date "Updated August 1, 2026", but the page was unchanged
+    in this archive's 16:27 UTC poll on 6 August and carried the banner at the
+    22:57 UTC poll the same day; the page's own date moved from 4 March 2026 to
+    6 August 2026 in the same change.
+    <Claim
+      basis="verified"
+      scope="The banner text and its August 1 date, and that the page was unchanged at the 6 August 2026 16:27 UTC poll and carried the banner at the 22:57 UTC poll"
+      source="Casa support page, captured 3 and 6 Aug 2026, with the intervening unchanged polls recorded in this archive's poll log"
+      href="/record/sources/casa-support-coldcard-troubleshooting/"
+      compact
+    />
+    A vendor's stated update date and the date a change becomes visible to a
+    collector are different things, and both are recorded here.
+  </p>
+
+  <p>
+    <a href="/record/sources/adam3us-2084972334180421669/">Adam Back</a> told
+    owners on 5 August to move coins to a different hardware wallet, naming
+    Blockstream Jade first and then Trezor and Ledger. He is Blockstream's chief
+    executive and Blockstream sells Jade, a competing signing device, which is
+    stated because the post is in part a product recommendation. Coinkite's own
+    <a href="/record/sources/coldcard-update-sunday/">2 August update</a> had
+    already named other devices and collaborative-custody providers for owners
+    who wanted an alternative or needed a device sooner than it could supply.
+    <Claim
+      basis="reported"
+      scope="Adam Back's recommendation to move to a different hardware wallet and the devices he names, and Coinkite's naming of alternative devices and custody providers"
+      source="Adam Back, captured X post, 5 Aug 2026; Coinkite's captured 'Update, Sunday' post, 2 Aug 2026; the affiliation is disclosed, and no inference about motive is made"
+      href="/record/sources/adam3us-2084972334180421669/"
+      compact
+    />
+  </p>
+
+  <p>
+    The published guidance also addressed what to do with the old device.
+    Coinkite's 2 August update asked owners of an affected device not to dispose
+    of it, saying it may become essential if funds are recovered and that its
+    legal team would coordinate as warranted with law enforcement across
+    multiple jurisdictions. Adam Back made a narrower version of the same point
+    in the post above, for owners who had already been swept: do not smash the
+    device or throw it away, because it may weakly prove ownership to a whitehat
+    sweeper, while telling readers not to get their hopes up. The advice
+    circulated in the community too, in
+    <a href="/record/sources/reddit-do-not-dispose-device/">an r/coldcard thread
+    titled "Do not dispose of affected device"</a> that cited Coinkite's post.
+    <Claim
+      basis="reported"
+      scope="Coinkite's request that affected devices not be disposed of, Adam Back's whitehat-sweeper version of it, and the community thread relaying the same advice"
+      source="Coinkite's captured 'Update, Sunday' post, 2 Aug 2026; Adam Back, captured X post, 5 Aug 2026; r/coldcard thread first captured 4 Aug 2026"
+      href="/record/sources/coldcard-update-sunday/"
+      compact
+    />
+    Commenters in that thread asked how possession of a device would establish
+    original ownership at all, given that a recovered seed can be loaded onto
+    any device afterwards, and suggested it would have to be combined with
+    exchange records. No source held here sets out a procedure by which a
+    retained device would be accepted as proof, and no recovery process that
+    uses one is recorded in this archive.
+    <Claim
+      basis="unverified"
+      scope="Whether a retained affected device can establish original ownership to a sweeper, recovery process or court"
+      source="No held source describes such a procedure or an instance of one being used; the question is raised and left open in the captured thread"
+      href="/record/sources/reddit-do-not-dispose-device/"
+      compact
+    />
   </p>
 
   <div class="callout callout--amber">
@@ -146,6 +245,153 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
       installation failure.
     </p>
   </div>
+
+  <p>
+    Alongside the vendor guidance, a large body of community guidance published
+    from 5 August turns on sourcing the randomness for the replacement keys by
+    hand, with physical dice, rather than from any device. On Stacker News,
+    BitcoinHandsOn2 published
+    <a href="/record/sources/stackernews-dice-worksheet/">a printable
+    dice-to-seed-phrase worksheet</a> on 7 August, saying the motivation was
+    that they would no longer trust entropy from hardware wallets, and asking
+    readers whether the logic had holes. On r/coldcard, fanatic75 published
+    <a href="/record/sources/reddit-dice-entropy-pi-tool/">a dice-to-BIP39 tool
+    and a network-less Pi Zero image</a>, with test vectors and an explicit
+    warning that it is a personal project and not audited. In r/Bitcoin,
+    AdEuphoric5133 wrote
+    <a href="/record/sources/reddit-dice-entropy-explainer/">a long-form entropy
+    explainer</a> giving 2.585 bits per roll, 50 rolls for 128 bits and 99 for
+    256, arguing that a badly balanced die costs about one bit over 99 rolls,
+    and warning that rolling several same-coloured dice together and recording
+    them in sorted order costs entropy.
+    <Claim
+      basis="reported"
+      scope="The existence and stated contents of the dice worksheet, the dice-to-BIP39 tool and image, and the entropy explainer, including its roll counts and its balanced-dice and ordering arguments"
+      source="Stacker News item captured 7 Aug 2026; two r/Bitcoin and r/coldcard threads captured 7 Aug 2026. This archive has not run the tool, checked the worksheet or reproduced the arithmetic"
+      href="/record/sources/reddit-dice-entropy-explainer/"
+      compact
+    />
+  </p>
+
+  <p>
+    The published roll counts do not agree. In
+    <a href="/record/sources/reddit-dice-coleman-guidance-critique/">a thread on
+    Ian Coleman's converter</a>, the commenter orbag wrote on 6 August that it
+    depends on the algorithm, that Coleman's yields only 2 bits per roll, and
+    that a 24-word seed therefore needs at least 160 rolls. The author of the Pi
+    Zero tool draws a related distinction, describing his own conversion as
+    compatible with Coleman's Hex and Base 10 modes but not its Dice [1-6] mode.
+    Separately,
+    <a href="/record/sources/reddit-casino-dice-myths/">a poster describing
+    years of casino work</a> pushed back on the video guidance appearing at the
+    same time: the number of shakes in the hand is irrelevant, the throwing
+    surface matters more, and retail "casino dice" are not guaranteed balanced
+    because casinos machine-test each die before it reaches a table and replace
+    them regularly.
+    <Claim
+      basis="reported"
+      contested
+      scope="The competing published figures for how many dice rolls a 24-word seed needs, and the first-hand casino account of dice handling and balance"
+      source="r/Bitcoin and r/coldcard threads captured 6 and 7 Aug 2026. The figures depend on the conversion each author assumes and are not reconciled or adjudicated here"
+      href="/record/sources/reddit-dice-coleman-guidance-critique/"
+      compact
+    />
+  </p>
+
+  <p>
+    The tooling that grew around this guidance drew a named objection. On 7
+    August <a href="/record/sources/slush-2085628203268252036/">slush called it
+    an over-reaction</a> and "absolutely terrible advice - using custom,
+    vibe-coded software on a standard computer to generate recovery seeds",
+    quoting a post that showed a single-file offline page converting 60 dice
+    rolls into a 12-word phrase. He is a co-founder of SatoshiLabs, which makes
+    Trezor, a competing hardware-wallet vendor, and the objection is to
+    seed-generation software rather than to any COLDCARD finding.
+    <Claim
+      basis="reported"
+      scope="slush's characterisation of the dice-tooling advice as an over-reaction and as terrible advice, and the content of the post he quoted"
+      source="slush, captured X post, 7 Aug 2026; the quoted post and its screenshot are read from this archive's capture of slush's post and are not separately registered. The SatoshiLabs affiliation is from his public profile rather than a held capture, and is disclosed because the post criticises guidance about a competitor's failure; no inference about motive is made"
+      href="/record/sources/slush-2085628203268252036/"
+      compact
+    />
+    This archive records the objection as a published position alongside the
+    guidance it criticises. The dice arithmetic itself, and what each figure
+    assumes, is worked through on
+    <a href="/how-it-broke/conditions/#dice">the technical conditions record</a>.
+  </p>
+
+  <p>
+    Whether the replacement should add a passphrase or add keys was argued
+    rather than settled. In
+    <a href="/record/sources/reddit-duosig-versus-passphrase/">one r/Bitcoin
+    thread</a>, bullett007 set out a case for a 2-of-2 multisig over single-sig
+    with a passphrase: two secrets each carrying at least 128 bits with
+    checksums, and no long passphrase typed on a small device screen, weighed
+    against higher fees and a descriptor to back up. In
+    <a href="/record/sources/reddit-multisig-only-way/">an r/coldcard
+    thread</a>, a commenter
+    called the push to multisig an overreaction, warned that a 2-of-3 also needs
+    all three public keys to spend, and argued a dice-generated key with a
+    strong passphrase is enough.
+    <Claim
+      basis="reported"
+      contested
+      scope="The published arguments for a 2-of-2 multisig over single-sig with a passphrase, and against the general push to multisig"
+      source="r/Bitcoin thread captured 7 Aug 2026 and r/coldcard thread whose 6 Aug 2026 comment appears in the 7 Aug 2026 capture; the trade-offs are the posters' own and are not adjudicated here"
+      href="/record/sources/reddit-duosig-versus-passphrase/"
+      compact
+    />
+    A first-hand worked example is held from the cohort whose multisig absorbed
+    the compromise:
+    <a href="/record/sources/reddit-new-wallet-after-hack/">blackjackn described
+    rebuilding a 2-of-3</a> after one COLDCARD Q key was compromised while the
+    coins stayed safe, using the same device on the fixed firmware with a seed
+    from 150 physical dice rolls, one six-word dice-generated passphrase applied
+    to all three keys, and trusted contacts holding keys and passphrase backups.
+    An earlier example of the same kind, posted on 2 August, describes
+    <a href="/record/sources/reddit-multisig-migration-plan/">a mixed-vendor
+    rebuild of an Unchained collaborative-custody setup</a>. Both are the
+    posters' accounts of their own setups; this archive
+    records them as published examples and does not assess whether either is
+    sound.
+    <Claim
+      basis="reported"
+      scope="The two first-hand accounts of post-incident wallet rebuilds and the configurations they describe"
+      source="r/Bitcoin thread posted 6 Aug and captured 7 Aug 2026; r/coldcard thread posted 2 Aug and captured 4 Aug 2026; no independent confirmation of either setup is held"
+      href="/record/sources/reddit-new-wallet-after-hack/"
+      compact
+    />
+  </p>
+
+  <p>
+    One published warning concerns migration that is not finished. On 6 August
+    an
+    <a href="/record/sources/reddit-auto-dca-drained-addresses/">r/Bitcoin
+    poster raised owners who buy on a schedule at an exchange</a> and have
+    automatic withdrawals to a COLDCARD address, naming River as a service that
+    offers it: unless those settings are changed, funds keep arriving at
+    addresses derived from affected keys for as long as the owner does not look.
+    The poster said they had not seen the point discussed and suggested
+    exchanges screen withdrawal destinations against the published address
+    lists.
+    <Claim
+      basis="reported"
+      scope="The warning that scheduled exchange buys with automatic withdrawal may keep sending funds to addresses derived from affected keys, and the suggestion that exchanges screen destinations"
+      source="r/Bitcoin thread captured 7 Aug 2026; the poster cites no case, count or exchange response"
+      href="/record/sources/reddit-auto-dca-drained-addresses/"
+      compact
+    />
+    No source held here records an exchange screening withdrawal destinations
+    against the incident address lists, or an instance of funds arriving at a
+    drained address this way.
+    <Claim
+      basis="unverified"
+      scope="Whether any exchange screens withdrawal destinations against the incident address lists, and whether the described ongoing-loss vector has occurred"
+      source="Not established by any source held in this archive as of 7 August 2026"
+      href="/record/sources/reddit-auto-dca-drained-addresses/"
+      compact
+    />
+  </p>
 
   <Disclosure
     id="threshold-wallets"

@@ -135,3 +135,138 @@ resolver rather than the publisher. The 53 failed archive polls remain in the
 append-only poll record because they accurately record what this collector
 experienced; only the site's interpretation of them was wrong.
 """
+
+[[correction]]
+date = "2026-08-07"
+pages = ["/record/funds/"]
+kind = "correction"
+summary = """
+The page said no source itemised a reconciliation between the two published
+wave-4 figures. The tracker had itemised one, in a capture this archive
+already held when the claim was published.
+"""
+said = """
+coldcard-hack-tracker carries the wave at 443.34 BTC across 703 addresses,
+applying both @intangiblecoins corrections to the circulated list. Neither
+Galaxy nor the tracker itemises a reconciliation between those two wave-4
+figures.
+"""
+says = """
+The tracker states its own derivation: it starts from 448.73 BTC, which it
+attributes to Galaxy rather than to @intangiblecoins, and drops six further
+destinations that already had prior on-chain history, 5.39 BTC, to reach
+443.34. It also reads Galaxy's approximately 2,055 BTC ceiling as its
+high-confidence 1,596 plus that 448.73 candidate. Galaxy's own thread publishes
+neither 448.73 nor any itemised wave-4 component, so the reconciliation is the
+tracker's reading of Galaxy rather than Galaxy's own, and its arithmetic is not
+adopted here: 1,596 plus 448.73 is 2,044.73, not the 2,055 Galaxy states.
+"""
+why = """
+Found on 7 August 2026 while rechecking the funds page against 6 and 7 August
+captures. The itemised derivation is in the tracker's own wave-4 source note,
+first captured at 20260803T131304Z, refined at 20260804T130740Z and unchanged
+through 20260807T132028Z. It was therefore in this archive before the claim was
+published, which makes this an error of reading rather than a source that moved
+underneath the page. Galaxy's side is confirmed by the held capture of its
+wave-4 caveat post, which states only that including the wave would bring the
+total to 2,055 BTC.
+"""
+
+[[correction]]
+date = "2026-08-07"
+pages = ["/response/scams/"]
+kind = "correction"
+summary = """
+The page counted three post-disclosure scam reports in the archive. Four
+further reports were already held and registered on the day it was published.
+"""
+said = """
+Three post-disclosure reports are held.
+"""
+says = """
+The section no longer states a count. It says what kind of material is held and
+which artefacts are reproduced here rather than described, and the page now
+carries the phishing-email reports, the baited repository and the impersonation
+accounts it had left out.
+"""
+why = """
+Found on 7 August 2026 while bringing the page up to date. A count of this
+project's own holdings is a claim in this project's voice, and it was wrong
+when published on 5 August: reddit-phishing-advisory-email,
+americanhodl-desktop-app-phishing, bitcoinrothbard-trezor-phishing and
+joecarlasare-fake-post-warning were all captured on 4 August 2026 and named no
+report on the page. The fix is not a larger number. A count of holdings goes
+stale on the next capture and invites exactly this error, so the page now
+describes the material instead of counting it.
+"""
+
+[[correction]]
+date = "2026-08-07"
+pages = ["/how-it-broke/entropy/", "/"]
+kind = "clarification"
+summary = """
+Two pages said no confirmed drain of an Mk4-class wallet had been captured,
+without saying they meant this incident's July 2026 waves. One held source
+describes an earlier confirmed Mk4 theft whose cause is unproven.
+"""
+said = """
+As of 4 August 2026, no captured source in this archive demonstrated a
+confirmed drain of a wallet generated on one of those models.
+"""
+says = """
+The claim is now bounded to this incident's July 2026 waves, on both pages, and
+the entropy page records the earlier case beside it: ChuckSRQ's 4 August
+catalogue of pre-July drain reports lists a July 2023 theft of 3.73118785 BTC
+from an Mk4 owner who described a device-generated seed, with the theft and
+amount cited to a transaction and the author stating plainly that its exact
+cause is not proven.
+"""
+why = """
+Found on 7 August 2026 while rechecking the candidate-space pages. Both
+statements were defensible against their own evidence markers, which said "in
+this incident", and the entropy page carried a 4 August bound while the
+ChuckSRQ capture is dated 5 August. Neither reads that way on the page: a
+sentence saying no Mk4-class drain has been captured, with no incident named,
+asserts more than the archive establishes, and the archive held a contradicting
+case before the pages were last edited on 6 August. Logged as a clarification
+rather than a correction because the graded claim was accurate and the prose
+around it was not, which is the distinction this log exists to keep. Nothing
+here establishes that the 2023 theft was caused by this defect; the source says
+it is the best public candidate and that the cause is unproven, and this project
+adds nothing to that.
+"""
+
+[[correction]]
+date = "2026-08-07"
+pages = ["/how-it-broke/"]
+kind = "clarification"
+summary = """
+The page dated two claims about an upstream pull request to 6 August while the
+newest capture behind them was from 4 August. The request was merged on
+6 August, and the guard it changes was replaced the same day.
+"""
+said = """
+libngu's #ifndef guard is unchanged in the public repository: it still tests
+the macro's presence rather than its value ... Pull request #58, which proposes
+the value check, remains open as of 6 August 2026.
+"""
+says = """
+Pull request #58 was merged upstream on 6 August 2026 as commit e9d5e80, and
+the guard in ngu/random.c now reads #if MICROPY_HW_ENABLE_RNG == 0, so a
+zero-valued macro no longer passes it. The page states both merges, #61 on
+5 August and #58 on 6 August, and adds what they do not change: these are
+commits on the library's public branch, released firmware builds against a
+pinned revision, and the board macro is still defined as zero.
+"""
+why = """
+Found on 7 August 2026 while rechecking the technical pages. The page was
+committed at 09:25 UTC on 6 August; the merge was captured at 16:26 UTC the
+same day, so the sentence was true against the evidence held when it was
+written and false by the end of the day it named. That is why this is logged.
+The error was not the reading but the bound: the newest capture behind the
+claim was from 4 August, and dating it to 6 August asserted a currency the
+archive had not checked. A claim of this kind should be dated to the capture
+that supports it, not to the day of writing. Established by the held captures
+of libngu-pr-58 and libngu-random-c, both at 20260806T162628Z and
+20260806T162626Z.
+"""
