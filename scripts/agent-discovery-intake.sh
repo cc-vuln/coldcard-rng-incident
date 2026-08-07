@@ -57,6 +57,7 @@ STATE_DIR="$ROOT/.work/agent-discovery-intake"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
 CANDIDATE_LIST="$STATE_DIR/candidates.txt"
 HYDRATED="$STATE_DIR/hydrated.md"
+COVERAGE="$STATE_DIR/coverage.md"
 
 mkdir -p "$STATE_DIR"
 
@@ -137,9 +138,24 @@ echo "agent-discovery-intake: hydrating ${#PENDING[@]} candidate body(ies)"
 .venv/bin/python scripts/hydrate_candidates.py --nonce "$AGENT_NONCE" \
   "${hydrate_args[@]}" < "$CANDIDATE_LIST" > "$HYDRATED"
 
+# What the record already holds, so "already represented by <id>" is a lookup
+# rather than recall over sources.toml. Built here, as the operator account,
+# from the registry and the assessed verdicts; the agent is handed the text.
+#
+# A run without it is worse than no run: an agent that cannot see what is
+# already covered registers duplicates of it, and duplicates in the registry
+# are far more work to undo than a skipped tick.
+if ! .venv/bin/python scripts/build_coverage_index.py --out "$COVERAGE"; then
+  echo "agent-discovery-intake: could not build the coverage index; not" \
+       "starting the agent. Entries stay pending." >&2
+  exit 1
+fi
+
 agent_render "$PROMPT_TEMPLATE" "$PROMPT_RENDERED" \
   --untrusted "CANDIDATES=$CANDIDATE_LIST" \
+  --untrusted "COVERAGE=$COVERAGE" \
   --file "HYDRATED=$HYDRATED" \
+  --file "REGISTRY_HOSTS=scripts/registry_hosts.toml" \
   --value "CAPTURE_REQUESTS=.work/capture-requests.txt"
 
 rc=0

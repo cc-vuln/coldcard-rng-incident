@@ -15,9 +15,8 @@ Two consequences:
 - the session is signed in to Reddit as the project account; this script only
   ever reads listing and thread JSON, the same read-only vocabulary capture
   uses
-- the session is shared with live polls. Two listing reads every 12 hours
-  keep the collision window tiny; the known dry-run overlap issue is BACKLOG
-  section 2
+- it drives the browser under its own session name (DISCOVER_SESSION), so a
+  listing read during a live poll closes no tab the writer is reading
 
 Volume discipline: one 100-post page per subreddit per run, 1.5s apart,
 fired twice a day by discover-community.timer. Do not page deeper to
@@ -43,12 +42,18 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from capture import BrowserUnavailable, wb_available, wb_cmd  # noqa: E402
 from discovery_common import (  # noqa: E402
-    KEYWORDS, POLITE_DELAY, WORK,
-    load_state, persist_run, registered_urls, report_queued,
+    POLITE_DELAY, WORK,
+    deferred_urls, load_state, match_tier, persist_run, queue_mark,
+    registered_urls, report_queued,
 )
 
 STATE = WORK / "reddit-discovery.json"
 CANDIDATES = WORK / "reddit-candidates.jsonl"
+
+# Own webbridge session name: the daemon keys one tab per session and this
+# lane can run while a live poll is mid-capture, so sharing capture.py's
+# "coldcard-archive" session would close the writer's tab.
+DISCOVER_SESSION = "coldcard-archive-discover"
 
 DEFAULT_SUBS = ["coldcard", "Bitcoin"]
 
@@ -67,10 +72,11 @@ def registered_urls_reddit() -> set[str]:
 def fetch_new(sub: str, limit: int) -> list[dict]:
     url = f"https://www.reddit.com/r/{sub}/new.json?limit={limit}&raw_json=1"
     try:
-        data = wb_cmd("fetch_json", {"url": url}, timeout=180)
+        data = wb_cmd("fetch_json", {"url": url}, timeout=180,
+                      session=DISCOVER_SESSION)
     finally:
         try:
-            wb_cmd("close_tab")
+            wb_cmd("close_tab", session=DISCOVER_SESSION)
         except Exception:
             pass
     if not data.get("json_ok"):
@@ -87,10 +93,11 @@ def fetch_post_body(post_id: str) -> None:
     JSON, the two-element [post, comments] listing."""
     url = f"https://www.reddit.com/comments/{post_id}/.json?raw_json=1"
     try:
-        data = wb_cmd("fetch_json", {"url": url}, timeout=180)
+        data = wb_cmd("fetch_json", {"url": url}, timeout=180,
+                      session=DISCOVER_SESSION)
     finally:
         try:
-            wb_cmd("close_tab")
+            wb_cmd("close_tab", session=DISCOVER_SESSION)
         except Exception:
             pass
     if not data.get("json_ok"):
@@ -140,6 +147,7 @@ def main() -> int:
     state = load_state(STATE)
     seen = set(state.get("seen", []))
     known = registered_urls_reddit()
+    deferred = deferred_urls()
     now = datetime.now(timezone.utc)
 
     candidates = []
@@ -161,16 +169,22 @@ def main() -> int:
                 continue
             fetched += 1
             url = "https://www.reddit.com" + d.get("permalink", "")
-            if pid in seen or url in known:
+            if url in known:
+                continue
+            # A deferred candidate is re-reported for as long as it is in the
+            # listing window, so its comment count stays current and it can
+            # promote itself once the thread grows.
+            if pid in seen and url not in deferred:
                 continue
             seen.add(pid)
             title = d.get("title") or "(untitled)"
             selftext = d.get("selftext") or ""
             haystack = title + "\n" + selftext
+            tier = match_tier(title, haystack)
             # r/coldcard is low-volume and, since the incident, on-topic by
             # default: every new post there is worth the agent's assessment.
             # Larger subs need the keyword sieve.
-            if args.all or sub.lower() == "coldcard" or KEYWORDS.search(haystack):
+            if args.all or sub.lower() == "coldcard" or tier:
                 candidates.append({
                     "id": pid,
                     "url": url,
@@ -182,7 +196,8 @@ def main() -> int:
                         d.get("created_utc", 0), timezone.utc).isoformat(),
                     "ncomments": d.get("num_comments"),
                     "foundAt": now.strftime("%Y%m%dT%H%M%SZ"),
-                    "matched": bool(KEYWORDS.search(haystack)),
+                    "matched": bool(tier),
+                    "tier": tier,
                 })
 
     persist_run(state=state, seen=seen, candidates=candidates, known=known,
@@ -193,7 +208,8 @@ def main() -> int:
           f"({requests} requests); {len(candidates)} new candidate(s)")
     for c in candidates:
         print(f"  {c['createdAt'][:16]}  {c['id']:>8}  [r/{c['sub']}] "
-              f"c={c['ncomments']!s:<3} {c['author'] or '?':<20} {c['title']}")
+              f"c={c['ncomments']!s:<3} {queue_mark(c):<9} "
+              f"{c['author'] or '?':<20} {c['title']}")
     report_queued(candidates, CANDIDATES, not args.no_state)
     return 0
 

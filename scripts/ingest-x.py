@@ -13,6 +13,14 @@ One command, three artefacts:
   3. a [[x_post]] block in sources.toml (skipped if the id or URL is
                            already registered, or --no-register is given).
 
+With --thread, a fourth: the first capture of the conversation around the
+post. That is a different kind of artefact and it is written by a different
+tool. A thread-enabled post is a polled source under this same id, so its
+conversation belongs in the snapshot, diff, review and change-feed contract
+that capture.py owns; this script registers the entry and then hands the
+capture to `capture.py capture --id <slug>`, which is the same poll its tier's
+timer will run from then on. See docs/design/x-thread-capture.md.
+
 Uses the capture browser (http://127.0.0.1:10086), which holds the
 project's signed-in sessions. READ-ONLY on X: navigate, evaluate,
 screenshot. Nothing is posted, followed or liked. Complements the
@@ -22,10 +30,13 @@ is the tool that captures the rendered post itself.
 Stdlib only, per repo policy. Run through the venv:
 
   .venv/bin/python scripts/ingest-x.py <url> --id <slug> [--tag t] [--why "..."]
+  .venv/bin/python scripts/ingest-x.py <url> --id <slug> --thread --tier 3
 
 or via just:
 
   just ingest-x <url> <slug>
+  just ingest-x <url> <slug> "" "" --thread --tier 3
+  just capture-thread <slug>      # re-capture the conversation later
 """
 
 import argparse
@@ -34,6 +45,7 @@ import json
 import tomllib
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -41,7 +53,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from archive_lock import ArchiveLockBusy, archive_lock
-from capture import load_sources, wb_token
+from capture import X_STATUS_URL, load_sources, wb_token
 from x_thread import expand_truncated
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -257,6 +269,41 @@ def newest_held_body(slug: str) -> str | None:
     return None
 
 
+def registered_x_posts() -> list[dict]:
+    """Every [[x_post]] block, or an empty list if the registry will not parse.
+
+    Deliberately tolerant, and deliberately not load_sources(): this is read
+    before anything is written, to decide where a capture goes, and a registry
+    that is mid-edit should not stop a capture from being taken.
+    """
+    try:
+        cfg = tomllib.loads(SOURCES.read_text())
+    except Exception:
+        return []
+    return [p for p in cfg.get("x_post", []) if isinstance(p, dict)]
+
+
+def status_in(url: str) -> str | None:
+    """The status id a registered URL names, or None if it names none.
+
+    Compared exactly, never as a substring. `tweet_id in url` reads like the
+    same test and is not: X ids vary in length, so a shorter id can appear
+    inside a longer one and resolve this post to somebody else's registry
+    entry. A capture filed under the wrong id is the failure the id
+    resolution here exists to prevent.
+    """
+    match = X_STATUS_URL.search(url or "")
+    return match.group(2) if match else None
+
+
+def registered_post(tweet_id: str) -> dict | None:
+    """The [[x_post]] block this status is already registered as, if any."""
+    for post in registered_x_posts():
+        if status_in(post.get("url", "")) == tweet_id:
+            return post
+    return None
+
+
 def registered_id(tweet_id: str) -> str | None:
     """The id this status is already registered under, if any.
 
@@ -264,26 +311,31 @@ def registered_id(tweet_id: str) -> str | None:
     registry, looks in the directory the capture actually wrote. A slug derived
     from the handle would be right often enough to be dangerous.
     """
-    try:
-        cfg = tomllib.loads(SOURCES.read_text())
-    except Exception:
-        return None
-    for post in cfg.get("x_post", []):
-        if tweet_id in post.get("url", ""):
-            return post.get("id")
-    return None
+    post = registered_post(tweet_id)
+    return post.get("id") if post else None
+
+
+def thread_enabled(slug: str) -> bool:
+    """Whether sources.toml holds a thread-enabled [[x_post]] under this id.
+
+    Checked after the write phase rather than predicted before it. The thread
+    capture polls by id, and an id that resolves to something other than this
+    post's conversation would file a capture under the wrong source.
+    """
+    return any(p.get("id") == slug and p.get("thread") is True
+               for p in registered_x_posts())
 
 
 def already_registered(tweet_id: str, slug: str) -> bool:
     cfg = load_sources()
     for p in cfg.get("source", []) + cfg.get("x_post", []):
-        if p.get("id") == slug or tweet_id in p.get("url", ""):
+        if p.get("id") == slug or status_in(p.get("url", "")) == tweet_id:
             return True
     return False
 
 
 def register(slug: str, url: str, handle: str, posted: str, tag: str | None,
-             why: str) -> None:
+             why: str, thread: bool = False, tier: int | None = None) -> None:
     block = f'''
 [[x_post]]
 id = "{slug}"
@@ -293,9 +345,101 @@ posted = "{posted}"
 '''
     if tag:
         block += f'tag = "{tag}"\n'
+    if thread:
+        # thread = true makes this post's conversation a polled source under
+        # the same id; tier states its cadence, and validate_sources requires
+        # the pair. See docs/design/x-thread-capture.md section 4.
+        block += f"thread = true\ntier = {int(tier)}\n"
     block += f'why = """\n{why.rstrip()}\n"""\n'
     with open(SOURCES, "a") as fh:
         fh.write(block)
+
+
+TIERS = (1, 2, 3)
+# capture.py's "a healthy run found a change" exit. See README, Usage.
+CHANGE_EXIT = 10
+
+
+def resolve_tier(want_thread: bool, tier: int | None, existing: dict | None,
+                 no_register: bool) -> int | None:
+    """The tier this run should register, or None when nothing is registered.
+
+    Raises ValueError with the operator's next step. Turning threading on for a
+    post that is already registered is a registry semantics change and stays a
+    human edit of sources.toml: this script appends blocks, it does not rewrite
+    them, and quietly appending a second block for the same post would give one
+    conversation two entries.
+    """
+    if not want_thread:
+        if tier is not None:
+            raise ValueError(
+                "--tier applies only to a polled thread; add --thread or drop "
+                "--tier"
+            )
+        return None
+    if tier is not None and tier not in TIERS:
+        raise ValueError(f"--tier must be 1, 2 or 3, got {tier}")
+    if existing is None:
+        if no_register:
+            raise ValueError(
+                "--thread has nothing to poll with --no-register: the "
+                "conversation is captured as a registered source, under this "
+                "post's id"
+            )
+        if tier is None:
+            raise ValueError(
+                "--thread requires --tier 1, 2 or 3, so the conversation's "
+                "polling cadence is stated rather than assumed"
+            )
+        return tier
+    if existing.get("thread") is not True:
+        raise ValueError(
+            f"{existing.get('id')!r} is registered as a single post. Add\n"
+            "    thread = true\n"
+            "    tier = 3\n"
+            "to its [[x_post]] block in sources.toml, then re-run. Enabling a "
+            "poll is a registry edit, not something an ingest run should do "
+            "on its own"
+        )
+    held = existing.get("tier")
+    if tier is not None and tier != held:
+        raise ValueError(
+            f"{existing.get('id')!r} is registered at tier {held!r}; --tier "
+            f"{tier} would disagree with the registry. Edit sources.toml or "
+            "drop --tier"
+        )
+    return held
+
+
+def capture_thread_now(slug: str) -> int:
+    """Take the first conversation capture, through capture.py's poll path.
+
+    Not a second write path, on purpose. capture.py owns snapshot writing,
+    change detection, the diff, the index.jsonl event and the run record, and a
+    manual first capture that wrote its own would be a second implementation of
+    the one thing this repo must not get wrong. It is a separate process
+    because the archive writer lock is not reentrant and this script has just
+    released it; the browser work then happens under capture.py's lock, exactly
+    as it does on every scheduled poll of the same source.
+    """
+    if not thread_enabled(slug):
+        print(f"thread: {slug!r} is not a thread-enabled [[x_post]] in "
+              "sources.toml, so there is no conversation source to poll; "
+              "the focal post was captured and the conversation was not",
+              file=sys.stderr)
+        return 2
+    cmd = [sys.executable, str(ROOT / "scripts" / "capture.py"), "capture",
+           "--id", slug, "--kind", "social-thread"]
+    print(f"thread: capturing the conversation as source {slug!r}")
+    code = subprocess.run(cmd, cwd=ROOT).returncode
+    # capture.py exits 10 when a healthy run found a change, and a first
+    # capture of a conversation is a change by definition: reporting the
+    # outcome this command was run for as a non-zero exit would make every
+    # successful ingest look like a failure. Everything else passes through
+    # unchanged, so 20 still means the poll was incomplete and 21 that another
+    # writer holds the lock. Same mapping as `just capture-gate`, for the same
+    # reason.
+    return 0 if code == CHANGE_EXIT else code
 
 
 def main() -> None:
@@ -312,12 +456,26 @@ def main() -> None:
     ap.add_argument("--skip-unchanged", action="store_true",
                     help="write nothing if the post text matches the newest "
                          "held capture; for repair passes over many posts")
+    ap.add_argument("--thread", action="store_true",
+                    help="also capture the conversation around the post, as a "
+                         "polled source under the same id")
+    ap.add_argument("--tier", type=int,
+                    help="polling cadence 1-3 for --thread; required when the "
+                         "post is being registered now")
     a = ap.parse_args()
 
     handle, tweet_id = parse_tweet(a.url)
     # An explicit --id wins, then the id this status is already registered
     # under, then a slug from the handle for a post being registered now.
-    slug = a.slug or registered_id(tweet_id) or f"{handle.lower()}-{tweet_id}"
+    existing = registered_post(tweet_id)
+    slug = a.slug or (existing.get("id") if existing else None) \
+        or f"{handle.lower()}-{tweet_id}"
+    # Settled before any browser work, so a run that cannot end in a thread
+    # capture says so before it spends two minutes finding out.
+    try:
+        tier = resolve_tier(a.thread, a.tier, existing, a.no_register)
+    except ValueError as exc:
+        sys.exit(str(exc))
 
     print(f"navigating: {a.url}")
     nav = bridge("navigate", {"url": a.url, "newTab": True,
@@ -347,14 +505,23 @@ def main() -> None:
     for _ in range(10):
         raw = bridge("evaluate", {"code": EXTRACT_JS % (handle, tweet_id)})
         info = json.loads(raw["value"])
-        if (info.get("found") and info.get("text")
+        if (info.get("found")
+                and (info.get("text") or info.get("mediaSlots"))
                 and info.get("mediaReady") and not info.get("truncated")):
             break
         # A post that scrolled or re-rendered can come back truncated again.
         expanded += expand_truncated(bridge)
         time.sleep(2)
-    if not info.get("found") or not info.get("text"):
+    if not info.get("found"):
         sys.exit(f"tweet article not found for @{handle} (deleted? wrong URL?)")
+    if not info.get("text") and not info.get("mediaSlots"):
+        sys.exit(f"tweet article for @{handle} has neither text nor media; "
+                 "refusing an empty capture")
+    if not info.get("text"):
+        # An image-only post carries no tweetText node: the attached image IS
+        # the post. Normalise the absent body to empty so the sidecar and
+        # registry paths below can assume a string.
+        info["text"] = ""
     if not info.get("mediaReady"):
         sys.exit(f"tweet media did not hydrate for @{handle}; refusing a blank "
                  "attachment capture")
@@ -372,6 +539,11 @@ def main() -> None:
                   "nothing written")
             if not a.keep_tab:
                 bridge("close_tab", {})
+            # The focal post has not moved, but the conversation around it is
+            # a separate source with its own history and moves on its own, so
+            # --thread still runs.
+            if a.thread:
+                sys.exit(capture_thread_now(slug))
             return
 
     # X permalink pages keep shifting while replies and media hydrate. Retag
@@ -453,6 +625,8 @@ def main() -> None:
     if info.get("replyTo") and info["replyTo"].get("user"):
         rt = info["replyTo"]
         lines.append(f"reply-to: {rt['user']} -- {rt['text']!r}")
+    if not info["text"]:
+        lines.append("note:     no text body; the attached image is the whole post")
     lines += ["", "--- post text (verbatim) ---", "", info["text"], ""]
     try:
         with archive_lock("ingest-x"):
@@ -471,14 +645,25 @@ def main() -> None:
                 print("sources.toml: already registered (or --no-register), untouched")
             else:
                 posted = (info["time"] or "").replace(".000Z", "Z")
-                why = a.why or info["text"].splitlines()[0][:200] + " (TODO: expand)"
-                register(slug, a.url, handle, posted, a.tag, why)
-                print(f"sources.toml: registered [[x_post]] id = \"{slug}\"")
+                first_line = (info["text"].splitlines()[0][:200]
+                              if info["text"]
+                              else f"image-only post by @{handle}")
+                why = a.why or first_line + " (TODO: expand)"
+                register(slug, a.url, handle, posted, a.tag, why,
+                         thread=a.thread, tier=tier)
+                suffix = f", thread = true, tier = {tier}" if a.thread else ""
+                print(f"sources.toml: registered [[x_post]] id = \"{slug}\""
+                      f"{suffix}")
     except ArchiveLockBusy as exc:
         sys.exit(f"archive writer lock busy: {exc}")
 
     if not a.keep_tab:
         bridge("close_tab", {})
+
+    # Last, and outside the lock: the conversation capture takes the archive
+    # writer lock itself and opens its own tab in its own browser session.
+    if a.thread:
+        sys.exit(capture_thread_now(slug))
 
 
 if __name__ == "__main__":

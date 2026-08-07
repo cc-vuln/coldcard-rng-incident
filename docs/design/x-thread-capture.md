@@ -1,9 +1,10 @@
 # Design: X thread capture
 
-**Status:** designed 6 Aug 2026, not built. Decisions in section 3 are taken.
-Section 8 requires a revision to `capture-display-policy.md` before any of the
-presentation layer ships.
-**Date:** 6 Aug 2026
+**Status:** designed 6 Aug 2026. The capture half is built: steps 1 to 3 of
+section 9 shipped, and three posts are live on the pilot tier. The presentation
+half is not, and section 8 requires a revision to `capture-display-policy.md`
+before any of it ships. Decisions in section 3 are taken.
+**Date:** 6 Aug 2026, capture path completed 7 Aug 2026
 
 The question this answers: the archive captures a Reddit, Stacker News or
 BitcoinTalk thread as a whole conversation, with canonical text, diffs, review
@@ -97,6 +98,59 @@ why = """..."""
 `thread = true` makes the entry pollable. `tier` gives it a cadence in the
 existing scheduler lanes. An `x_post` without `thread` is exactly what it is
 today: registered, ingested once, never polled.
+
+### `part_of`, added 7 Aug 2026
+
+A third optional key, on the other side of the relation. A post can be held
+twice: as its own registered record, carrying this project's note on why it
+matters, and again inside a conversation captured around it.
+
+```toml
+[[x_post]]
+id = "opensats-2085363706255573313"
+url = "https://x.com/OpenSats/status/2085363706255573313"
+author = "OpenSats"
+part_of = "afilini-2085269060028170742"
+why = """..."""
+```
+
+This was not in the original design because the original design assumed a head
+registered once. It is not an edge case: the first live instance appeared
+within a day of the lane going up, and the wider candidate set is full of them.
+Galaxy's updated accounting is eight consecutive status ids registered as eight
+entries, its third-wave revision five, Dhruv Bansal's response three. Threading
+any of those heads without a way to state the relation would put the same post
+on two pages with nothing connecting them.
+
+The alternatives were considered and rejected. Retiring the member entries and
+redirecting their URLs reaches "one conversation, one id", but it discards the
+per-post `title` and `why` — real curation the capture does not reproduce —
+and breaks citable URLs. Declaring the relation in `why` prose is the cheapest
+option and is what the registry already does in five places, but prose is
+invisible to `/record/sources.json` and `/llms.txt`, which exist so a machine
+reader does not misread the record. Keeping the members and declaring nothing
+was the state being fixed.
+
+Rules, in `validate_sources` and `validate_thread_membership`:
+
+- `part_of` names a registered `x_post` that has `thread = true`. Pointing at a
+  plain post promises a conversation that is never captured.
+- `part_of` and `thread` are exclusive. A conversation's head is not a member
+  of itself, and nesting would give one post two containers.
+- A head's `withhold_posts` may not name a status that is separately
+  registered. Withholding it from the conversation withholds nothing while it
+  stands as its own published record, one link away; the two decisions have to
+  agree and only a person can decide which way.
+
+And one audit rule, because the registry cannot see this on its own: whether a
+post sits inside a captured conversation is a fact about what a capture
+collected, and it changes as a thread grows. `audit_thread_membership` reads
+the newest structured record of every thread source and reports a registered
+post held inside one without `part_of` to say so. A finding is a one-line
+registry edit, never a capture fault.
+
+Display reads the declared key, not the capture. A reply can drop out of a
+capture on ranking alone, and the relation should not blink with it.
 
 One id is the point of this shape. Every downstream consumer in this repo is
 keyed by source id, so a thread-enabled post gets snapshots, `index.jsonl`
@@ -438,9 +492,16 @@ Three bands:
 
 - **Foregrounded**, screenshot expanded by default. Any of: the reply is by the
   focal post's own author, which is how a thread's questions get answered and is
-  often the most load-bearing material in it; the author is registered elsewhere
+  often the most load-bearing material in it; the post declares `part_of` and so
+  is registered in its own right, which is the strongest form of the same
+  lookup and keeps a post from being collapsed as applause here while standing
+  as evidence on its own page; the author is registered elsewhere
   in `sources.toml`, which is a lookup rather than a judgement of merit; or a
   page on this site cites that status id.
+
+  A foregrounded post that has its own record also links to it, and its record
+  says the same thing in the other direction. Both ends of the relation are
+  read from `part_of`, so a reader arriving at either copy can see the other.
 - **Standard**, screenshot inside the bounded progressive reveal.
 - **Muted**, collapsed to the one-line row.
 
@@ -562,7 +623,29 @@ conversation, not a reason to revisit the posture.
    feeding all four call sites that previously read `cfg["source"]` directly,
    and a fix to `check_publishable.py`, which read `withhold_text` from
    `[[source]]` only and so would not have covered a withheld conversation.
-3. `ingest-x.py --thread`, and a `just capture-thread <id>` recipe.
+3. ~~`ingest-x.py --thread`, and a `just capture-thread <id>` recipe.~~
+   **Done 7 Aug 2026.** `--thread --tier N` registers the block with
+   `thread = true` and then hands the first conversation capture to
+   `capture.py capture --id <slug> --kind social-thread`, which is the same
+   poll the tier's timer runs afterwards. One write path, not two: the manual
+   first capture gets change detection, the diff, the `index.jsonl` event and
+   the run record because it *is* a poll. It is a separate process because the
+   archive writer lock is not reentrant and `ingest-x.py` has just released
+   it. `just capture-thread <id>` is that poll on its own, with `--kind` as a
+   guard so a plain post id or a web source id cannot silently match.
+
+   Two decisions worth keeping. Enabling a thread on an already-registered
+   post is refused with the exact keys to add: this script appends blocks and
+   does not rewrite them, and appending a second block for the same post would
+   give one conversation two registry entries and two source pages, which is
+   the shape section 4 rejected. And `--tier` is required when registering, so
+   a pollable entry always states its cadence at the moment it becomes
+   pollable rather than failing `validate_sources` afterwards.
+
+   Fixed on the way through: `registered_id()` resolved a status to a registry
+   entry with `tweet_id in url`, a substring test. X ids vary in length, so a
+   shorter id could match inside a longer one and file a capture under another
+   post's id. It now compares the id parsed out of the registered URL.
 4. Pilot: **`clay-attribution` registered and live at tier 3 since 6 Aug 2026**;
    `trustwallet-wasm-update` and `bitcoindevs-explainer-thread` still to add.
    Watch the diff shape across several days before adding more: additions-only

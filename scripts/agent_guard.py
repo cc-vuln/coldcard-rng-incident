@@ -273,15 +273,23 @@ def discovery_integrity(run_dir: Path) -> list[str]:
                 out[current].append(line)
         return out
 
-    # Everything that is not Pending counts as settled, on both sides. Reading
+    # Everything that is not a queue counts as settled, on both sides. Reading
     # the sections asymmetrically is a bug this check shipped with: "Link
     # review, held for a human decision" was counted as settled in the new
     # file and not in the old, so every line already sitting there looked like
     # a verdict invented during the run, and a clean intake was rejected with
     # eleven false positives.
+    #
+    # Deferred is a queue and not a verdict, so it is excluded on both sides
+    # too. That is what makes a pending line moved into it a problem rather
+    # than an exit: an agent that could defer a candidate could decline to
+    # assess one without ever recording why, and the check below would see the
+    # line survive and pass it.
+    queues = ("Pending", "Deferred")
+
     def settled(parsed: dict[str, list[str]]) -> list[str]:
         return [line for name, lines in parsed.items()
-                if name != "Pending" for line in lines]
+                if name not in queues for line in lines]
 
     old, new = sections(read_text(before)), sections(read_text(after))
     old_pending = old.get("Pending", [])

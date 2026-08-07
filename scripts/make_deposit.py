@@ -101,9 +101,13 @@ GROUPS = (
     ("method and documentation", ("docs/",)),
     ("project", (
         "README.md", "AGENTS.md", "BACKLOG.md", "CHANGELOG.md",
-        "CONTRIBUTING.md", "SECURITY.md", "DISCOVERY.md", "LICENSE",
-        "LICENSE-CONTENT.md", "CITATION.cff", ".github/", ".gitignore",
-        ".env.example",
+        "CONTRIBUTING.md", "SECURITY.md", "DISCOVERY.md", "discovery/",
+        # Registrations the registry rules refused, kept verbatim. A project
+        # record like discovery/, and part of how the record shows its own
+        # working: what was proposed and not taken in.
+        "quarantine/",
+        "LICENSE", "LICENSE-CONTENT.md", "CITATION.cff", ".github/",
+        ".gitignore", ".env.example",
     )),
 )
 

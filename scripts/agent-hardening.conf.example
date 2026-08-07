@@ -7,8 +7,10 @@
 #   done
 #   sudo systemctl daemon-reload
 #
-# Replace REPO with the checkout path and OPERATOR with the account that owns
-# it. Check the result with:
+# Replace REPO with the checkout path, OPERATOR with the account that owns
+# it, and OPERATOR_HOME with that account's home directory (written without
+# a leading slash so this example trips no machine-path scanner). Check the
+# result with:
 #
 #   systemd-analyze security archive-review.service
 #
@@ -30,11 +32,11 @@ InaccessiblePaths=-REPO/.env
 InaccessiblePaths=-REPO/AGENTS.local.md
 InaccessiblePaths=-REPO/site/tools/private-tokens.json
 InaccessiblePaths=-REPO/.capture-browser
-InaccessiblePaths=-/home/OPERATOR/.ssh
-InaccessiblePaths=-/home/OPERATOR/.aws
-InaccessiblePaths=-/home/OPERATOR/.config/wrangler
-InaccessiblePaths=-/home/OPERATOR/.config/gh
-InaccessiblePaths=-/home/OPERATOR/.local/share/wrangler
+InaccessiblePaths=-OPERATOR_HOME/.ssh
+InaccessiblePaths=-OPERATOR_HOME/.aws
+InaccessiblePaths=-OPERATOR_HOME/.config/wrangler
+InaccessiblePaths=-OPERATOR_HOME/.config/gh
+InaccessiblePaths=-OPERATOR_HOME/.local/share/wrangler
 
 # The tooling, including the tooling that checks the agent's work. A run that
 # could edit its own gate would not have one.

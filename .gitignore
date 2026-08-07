@@ -8,6 +8,15 @@ site/dist/
 site/.astro/
 site/.wrangler/
 .env
+# .env holds the deploy token and the nostr secret key. A bare `.env` does not
+# match `.env.bak` or `.env.20260806`, and an editor or a hurried operator makes
+# those without thinking. Ignore every variant and re-admit the tracked example.
+.env.*
+!.env.example
+# Editor and hand-made backups. They duplicate what git already holds, and a
+# backup of a secrets file is a secrets file.
+*.bak
+*.bak-*
 .work/
 
 # Operator kill switch for the scheduled publish timer: while this exists,

@@ -178,6 +178,36 @@ available, which is what the injection tried to do, and a dirty tree outside
 `archive/` already stops `publish-scheduled.sh`. The failure is loud, the
 evidence is intact, and a person decides.
 
+**With one exception: an invalid registry is not evidence, it is a stopped
+tree.** `sources.toml` is checked by `just audit`, by `just test` and by the
+publish gate, so a single unlistable host in it fails all three until somebody
+edits the file. On 7 Aug 2026 that was one OpenSats article, and it held the
+tree for most of a day. "A person decides" is the right rule for judging a
+run; it is the wrong rule for clearing a jam, because the person is then in
+the loop for something that has no decision in it.
+
+So `agent_finish` runs `scripts/quarantine_registry.py` after a rejection.
+Any block **this run added** that the registry rules refuse is moved, verbatim
+and with its reason and run id, into `quarantine/registry-YYYY-MM.toml`. The
+rejection still stands, no capture is approved, and the evidence is preserved
+and greppable — it is simply not in the file that decides what gets fetched
+every 30 minutes.
+
+Two properties keep that safe to do unattended, and both are tested:
+
+- **it only removes.** No path in it adds a host, relaxes a rule, or edits a
+  block that survives. The strictest thing it can produce is a smaller registry
+- **it only removes what the run added.** Eligibility is "absent from this
+  run's `before` registry", so a pre-existing source can never be evicted by
+  an agent that breaks a rule on purpose. Without a `--before` baseline it
+  refuses to move anything at all, because then everything would look new
+
+It is not an approval mechanism. A quarantined source stays out until somebody
+adds the host to `registry_hosts.toml` and moves the block back, which is
+still a human edit, twice over. What changed is that nothing waits on them.
+The intake prompt is also given the allowlist now, so the ordinary case is
+that the agent reports the host instead of registering it.
+
 `archive/` is outside the manifest on purpose: the capture timer writes there
 throughout an agent run, so a change under it carries no signal about the
 agent. The agent is kept out of it by ownership and by never being the process

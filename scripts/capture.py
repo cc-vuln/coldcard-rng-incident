@@ -831,6 +831,78 @@ def validate_sources(cfg: dict) -> None:
                         "numeric status id strings"
                     )
 
+                # A post can be held twice: as its own registered record, and
+                # inside a captured conversation it belongs to. part_of says
+                # which conversation, so the duplication is a stated relation
+                # rather than the same material appearing in two places with
+                # nothing connecting them.
+                part_of = item.get("part_of")
+                if part_of is not None:
+                    if not isinstance(part_of, str) or not part_of.strip():
+                        raise SourceConfigError(
+                            f"x_post {sid!r}: part_of must be the id of a "
+                            "thread-enabled post"
+                        )
+                    if thread:
+                        raise SourceConfigError(
+                            f"x_post {sid!r}: part_of and thread are "
+                            "exclusive. A conversation's head is not a member "
+                            "of itself, and nesting conversations would give "
+                            "one post two containers"
+                        )
+
+    validate_thread_membership(cfg)
+
+
+def validate_thread_membership(cfg: dict) -> None:
+    """Cross-entry rules for posts held inside a captured conversation.
+
+    Separate from the per-entry pass because both rules need the whole
+    registry: one resolves an id, the other compares a head's withholding
+    against what else is registered.
+    """
+    posts = {p["id"]: p for p in cfg.get("x_post", [])
+             if isinstance(p.get("id"), str)}
+    status_owner = {}
+    for pid, post in posts.items():
+        match = X_STATUS_URL.search(post.get("url", "") or "")
+        if match:
+            status_owner[match.group(2)] = pid
+
+    for pid, post in posts.items():
+        target = post.get("part_of")
+        if target is None:
+            continue
+        head = posts.get(target)
+        if head is None:
+            raise SourceConfigError(
+                f"x_post {pid!r}: part_of names {target!r}, which is not a "
+                "registered x_post"
+            )
+        if head.get("thread") is not True:
+            raise SourceConfigError(
+                f"x_post {pid!r}: part_of names {target!r}, which holds no "
+                "conversation. Set thread = true and a tier on it, or drop "
+                "part_of"
+            )
+
+    # Withholding a post from a conversation while it stands as its own
+    # published record withholds nothing: the material is still on the site,
+    # one link away. The two decisions have to agree, and only a person can
+    # decide which way.
+    for pid, post in posts.items():
+        if post.get("thread") is not True:
+            continue
+        for status in post.get("withhold_posts", []):
+            owner = status_owner.get(status)
+            if owner and owner != pid:
+                raise SourceConfigError(
+                    f"x_post {pid!r}: withhold_posts names status {status}, "
+                    f"which is separately registered as {owner!r} and would "
+                    "still publish. Withhold that entry too, or unregister "
+                    "it, rather than withholding only its copy in the thread"
+                )
+
 
 def classify_failure(exc: BaseException) -> str:
     """What kind of failure this is, because they deserve different responses.
@@ -1083,6 +1155,17 @@ def fetch(url: str, post: str | None = None) -> tuple[bytes, dict]:
 WB_PORT = os.environ.get("WEBBRIDGE_PORT", "10086")
 WB_URL = f"http://127.0.0.1:{WB_PORT}/command"
 WB_SESSION = "coldcard-archive"
+# The daemon keys one current page per session name, and navigate/close_tab
+# act on the session's page, so every caller class needs its own name: a dry
+# run or a discovery read on the live poll's name would close the tab the
+# writer is mid-read on. Live polls keep WB_SESSION; dry runs and discovery
+# pick their own below and in discover_reddit.py.
+_wb_session = WB_SESSION
+
+
+def use_wb_session(name: str) -> None:
+    global _wb_session
+    _wb_session = name
 # Ceiling on the wait for required_text to appear, not a fixed delay: a page
 # that satisfies its markers returns on the first poll. Client-rendered sources
 # that fetch chain data per row can take well over half a minute under a full
@@ -1109,9 +1192,11 @@ def wb_token() -> str:
         return ""
 
 
-def wb_cmd(action: str, args: dict | None = None, timeout: int = 60) -> dict:
+def wb_cmd(action: str, args: dict | None = None, timeout: int = 60,
+           session: str | None = None) -> dict:
     payload = json.dumps(
-        {"action": action, "args": args or {}, "session": WB_SESSION}
+        {"action": action, "args": args or {},
+         "session": session if session is not None else _wb_session}
     ).encode()
     headers = {"Content-Type": "application/json"}
     token = wb_token()
@@ -1287,8 +1372,8 @@ THREAD_SHRINK_FLOOR = 0.75
 THREAD_SHRINK_MIN = 20
 
 
-def previous_thread_replies(sid: str) -> int | None:
-    """replies_observed from the newest held structured record, if any."""
+def newest_thread_record(sid: str) -> dict | None:
+    """The newest structured conversation record held for a source, if any."""
     directory = snap_dir(sid)
     if not directory.is_dir():
         return None
@@ -1296,13 +1381,58 @@ def previous_thread_replies(sid: str) -> int | None:
                      if not p.name.endswith(".meta.json"))
     for record in reversed(records):
         try:
-            depth = json.loads(record.read_text(encoding="utf-8"))["depth"]
-        except (OSError, ValueError, KeyError):
+            data = json.loads(record.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
             continue
-        count = depth.get("replies_observed")
-        if isinstance(count, int):
-            return count
+        if isinstance(data, dict) and isinstance(data.get("posts"), list):
+            return data
     return None
+
+
+def previous_thread_replies(sid: str) -> int | None:
+    """replies_observed from the newest held structured record, if any."""
+    record = newest_thread_record(sid)
+    if record is None:
+        return None
+    count = (record.get("depth") or {}).get("replies_observed")
+    return count if isinstance(count, int) else None
+
+
+def audit_thread_membership(cfg: dict) -> list[str]:
+    """Registered posts that a held conversation also contains, undeclared.
+
+    The registry cannot see this on its own: whether a post sits inside a
+    captured conversation is a fact about what the capture collected, and it
+    changes as threads grow. Left unreported the record accumulates posts held
+    twice with nothing connecting the two, which is the state part_of exists
+    to end. A finding here is a one-line registry edit, never a capture fault.
+    """
+    posts = [p for p in cfg.get("x_post", []) if isinstance(p.get("id"), str)]
+    owner: dict[str, dict] = {}
+    for post in posts:
+        match = X_STATUS_URL.search(post.get("url", "") or "")
+        if match:
+            owner[match.group(2)] = post
+
+    problems: list[str] = []
+    for head in posts:
+        if head.get("thread") is not True:
+            continue
+        record = newest_thread_record(head["id"])
+        if record is None:
+            continue
+        for held in record.get("posts", []):
+            member = owner.get(str(held.get("status") or ""))
+            if member is None or member["id"] == head["id"]:
+                continue
+            if member.get("part_of") == head["id"]:
+                continue
+            problems.append(
+                f"{member['id']}: held inside the conversation at "
+                f"{head['id']} as a {held.get('role', 'post')}, without "
+                f'part_of = "{head["id"]}" to say so'
+            )
+    return problems
 
 
 def fetch_x_thread(url: str, author: str, sid: str, dry: bool) -> tuple[str, bytes, dict]:
@@ -1320,7 +1450,9 @@ def fetch_x_thread(url: str, author: str, sid: str, dry: bool) -> tuple[str, byt
     bridge = x_thread.make_bridge(
         "http://127.0.0.1:" + os.environ.get("WEBBRIDGE_PORT", "10086")
         + "/command",
-        "coldcard-archive-thread",
+        # Derived from the active session so a dry run gets its own thread
+        # tab too: live polls keep "coldcard-archive-thread".
+        _wb_session + "-thread",
         wb_token(),
     )
     try:
@@ -2107,6 +2239,7 @@ def cmd_audit(args) -> int:
     try:
         cfg = load_sources()
         by_id = {source["id"]: source for source in pollable_sources(cfg)}
+        problems.extend(audit_thread_membership(cfg))
     except (OSError, tomllib.TOMLDecodeError, SourceConfigError) as exc:
         problems.append(f"sources.toml: {type(exc).__name__}: {exc}")
         by_id = {}
@@ -2499,6 +2632,11 @@ def main() -> int:
     rr.set_defaults(fn=cmd_record_run)
 
     args = ap.parse_args()
+    # A dry run shares the capture browser with any live poll in flight.
+    # Give it a session name of its own (per process, so two dry runs also
+    # miss each other) or its navigate would close the writer's tab.
+    if args.cmd == "capture" and args.dry_run:
+        use_wb_session(f"{WB_SESSION}-dry-{os.getpid()}")
     exclusive = args.cmd in ("import-dir", "record-run") or (
         args.cmd == "capture" and not args.dry_run
     )

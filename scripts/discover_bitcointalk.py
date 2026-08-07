@@ -38,8 +38,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from discovery_common import (  # noqa: E402
-    KEYWORDS, POLITE_DELAY, TIMEOUT, UA, WORK,
-    load_state, persist_run, registered_urls, report_queued,
+    POLITE_DELAY, TIMEOUT, UA, WORK,
+    deferred_urls, load_state, match_tier, persist_run, queue_mark,
+    registered_urls, report_queued,
 )
 
 STATE = WORK / "bitcointalk-discovery.json"
@@ -143,6 +144,7 @@ def main() -> int:
     state = load_state(STATE)
     seen = set(state.get("seen", []))
     known = registered_urls_bct()
+    deferred = deferred_urls()
     now = datetime.now(timezone.utc)
 
     candidates = []
@@ -160,10 +162,15 @@ def main() -> int:
         for t in parse_board(page):
             fetched += 1
             url = f"{BASE}?topic={t['id']}.0"
-            if t["id"] in seen or url in known:
+            if url in known:
+                continue
+            # A deferred topic is re-reported while it is still on the board
+            # page, so it can promote itself once the thread grows.
+            if t["id"] in seen and url not in deferred:
                 continue
             seen.add(t["id"])
-            if args.all or KEYWORDS.search(t["title"]):
+            tier = match_tier(t["title"])
+            if args.all or tier:
                 candidates.append({
                     "id": t["id"],
                     "url": url,
@@ -174,7 +181,8 @@ def main() -> int:
                     "createdAt": t["lastPostAt"],
                     "ncomments": t["replies"],
                     "foundAt": now.strftime("%Y%m%dT%H%M%SZ"),
-                    "matched": bool(KEYWORDS.search(t["title"])),
+                    "matched": bool(tier),
+                    "tier": tier,
                 })
 
     persist_run(state=state, seen=seen, candidates=candidates, known=known,
@@ -185,7 +193,8 @@ def main() -> int:
           f"({requests} requests); {len(candidates)} new candidate(s)")
     for c in candidates:
         print(f"  {c['createdAt'][:16]}  {c['id']:>8}  [bct/{c['sub']}] "
-              f"r={c['ncomments']!s:<3} {c['author'] or '?':<20} {c['title']}")
+              f"r={c['ncomments']!s:<3} {queue_mark(c):<9} "
+              f"{c['author'] or '?':<20} {c['title']}")
     report_queued(candidates, CANDIDATES, not args.no_state)
     return 0
 

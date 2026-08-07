@@ -169,14 +169,32 @@ as paths rather than as substrings: this repository documents those very tokens,
 and a scanner that cannot tell a leak from its own specification fails on every
 honest run, which teaches an operator to disable it.
 
-## Still to decide
+## Decided, 7 Aug 2026
 
-- **Open or restricted.** Zenodo supports restricted records: public DOI and
-  metadata, files behind request-access. That is the natural home if the
-  captures themselves are ever to be deposited, because it separates
-  preservation from redistribution and leaves the access decision with the
-  operator.
-- **Release tags.** The deposit takes its version from `git describe`, and
-  falls back to a short commit because nothing is tagged yet.
-- **Software Heritage** carries the same question as Zenodo, since it archives
-  the whole repository rather than a curated subset.
+- **Open, on Zenodo.** The deposit is open access, not restricted. Restriction
+  buys nothing for a corpus that is already this project's own work, published
+  under CC BY 4.0 and MIT and already served from the site; it would only add a
+  request-access step between a reader and material they can already fetch.
+  Restriction remains the right shape *if* the captures themselves are ever
+  deposited, because it separates preservation from redistribution — but that
+  is a different deposit, and this one does not contain them.
+- **Dated release tags, `vYYYY.MM.DD`.** The archive has no feature versions to
+  number; it has states on days, which is what a citation of it needs to name.
+  A date sorts, reads unambiguously in a reference list, and cannot drift out of
+  step with the record the way a hand-kept semantic version would. `git describe
+  --tags --abbrev=0` picks it up with no change to `make_deposit.py`, and the
+  short commit remains the fallback. Tag at deposit time, not before: a tag that
+  names a state nobody deposited is a version with no artefact behind it.
+- **No Software Heritage.** It archives the whole repository rather than a
+  curated subset, which would undo the split this document exists to make and
+  publish every held capture under a permanent identifier. Skipped deliberately,
+  not overlooked. Revisit only if it grows a path-exclusion mechanism.
+
+### What still has to happen at deposit time
+
+1. Land a commit; staging refuses a dirty tree.
+2. Tag it `vYYYY.MM.DD` and re-run `just deposit`.
+3. Read the report, then upload by hand. This tool has no upload path and will
+   not grow one.
+4. Put the minted DOI into `CITATION.cff` (`doi`, `version`, `date-released`)
+   and into `/cite/`, and note the deposit in `CHANGELOG.md`.

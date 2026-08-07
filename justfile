@@ -59,6 +59,21 @@ discover-x *ARGS:
 discovery-intake *ARGS:
     @./scripts/agent-discovery-intake.sh {{ARGS}}
 
+# Rotate old DISCOVERY.md verdicts into discovery/assessed-YYYY-MM.md
+rotate-discovery *ARGS:
+    @{{py}} scripts/rotate_discovery.py {{ARGS}}
+
+# What the record already covers, as the intake agent is shown it. The driver
+# builds this itself before every run; this is for reading it by hand.
+coverage-index *ARGS:
+    @{{py}} scripts/build_coverage_index.py {{ARGS}}
+
+# Move a rejected registration out of sources.toml into quarantine/, so an
+# invalid registry does not stop the tree. agent_finish runs this by itself
+# after a guard rejection; by hand it needs --before to know what a run added.
+quarantine-registry *ARGS:
+    @{{py}} scripts/quarantine_registry.py {{ARGS}}
+
 # ---- nostr -----------------------------------------------------------------
 #
 # The project has its own nostr identity for announcements of record updates.
@@ -183,9 +198,21 @@ show id:
 capture-x:
     @./scripts/capture-x.sh
 
+# Trailing ARGS reach the script, which is how --thread --tier N is passed:
+#   just ingest-x <url> <slug> "" "" --thread --tier 3
+
 # Ingest one X post: element-only screenshot + sidecar + register (browser bridge)
-ingest-x url slug="" tag="" why="":
-    @{{py}} scripts/ingest-x.py "{{url}}" {{ if slug != "" { "--id " + slug } else { "" } }} {{ if tag != "" { "--tag " + tag } else { "" } }} {{ if why != "" { "--why \"" + why + "\"" } else { "" } }}
+ingest-x url slug="" tag="" why="" *ARGS="":
+    @{{py}} scripts/ingest-x.py "{{url}}" {{ if slug != "" { "--id " + slug } else { "" } }} {{ if tag != "" { "--tag " + tag } else { "" } }} {{ if why != "" { "--why \"" + why + "\"" } else { "" } }} {{ARGS}}
+
+# --kind is a guard, not decoration: a plain [[x_post]] id or a web source id
+# matches nothing here, so a typo cannot silently poll a different source. To
+# enable a thread, set thread = true and a tier on the post's block in
+# sources.toml; ingest-x.py --thread does that for a post being registered now.
+
+# Capture one thread-enabled X post's conversation now, not on its tier's timer
+capture-thread id:
+    @{{py}} scripts/capture.py capture --id {{id}} --kind social-thread
 
 # Install the capture browser: its own venv and Chromium, under
 # .capture-browser/. Needed only for sources that render client-side.

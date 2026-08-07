@@ -242,7 +242,9 @@ class Exfiltration(GuardCase):
         self.assertRejected("contains the literal value of CLOUDFLARE_API_TOKEN")
 
     def test_a_home_path_in_added_text_is_rejected(self):
-        self.append("DISCOVERY.md", "\n/home/someone/coldcard-rng-incident\n")
+        # The literal is split so the deposit leak scan, which reads source
+        # text, does not match the very token this fixture simulates.
+        self.append("DISCOVERY.md", "\n/home/" + "someone/coldcard-rng-incident\n")
         self.assertRejected("a filesystem path under /home")
 
     def test_a_missing_env_is_reported_rather_than_skipped(self):
@@ -278,6 +280,35 @@ class QueueIntegrity(GuardCase):
                    if line.startswith("- 2026-08-05")][0]
         self.write("DISCOVERY.md", text.replace(pending + "\n", ""))
         self.assertRejected("left the queue without its text surviving")
+
+    def test_deferring_a_pending_candidate_is_rejected(self):
+        """Deferral is the lanes' mechanism, not an exit the agent may take.
+
+        Deferred is a queue rather than a verdict, so moving a line into it
+        leaves the candidate unassessed with no reason recorded. If the guard
+        counted Deferred as settled, that would read as a clean disposal.
+        """
+        text = (self.tmp / "DISCOVERY.md").read_text()
+        pending = [line for line in text.splitlines()
+                   if line.startswith("- 2026-08-05")][0]
+        moved = text.replace(pending + "\n", "")
+        self.write("DISCOVERY.md",
+                   moved + f"\n## Deferred\n\n{pending}\n")
+        self.assertRejected("left the queue without its text surviving")
+
+    def test_a_lane_adding_a_deferred_candidate_is_accepted(self):
+        """A discovery lane runs on its own timer and may append to Deferred
+        while an agent run is in flight. That is not the agent's doing and
+        must not be read as an invented verdict."""
+        # The agent records its verdict into ## Assessed, which the prompt
+        # names explicitly; the lane's append lands after it.
+        self.assess_candidate()
+        self.append("DISCOVERY.md", (
+            "\n## Deferred\n\n"
+            "- 2026-08-06 [a quiet thread](https://www.reddit.com/r/Bitcoin/"
+            "comments/zzz999/a_quiet_thread/) by nobody, 1 comments "
+            "(r/Bitcoin) [topical]\n"))
+        self.assertAccepted()
 
 
 class CaptureRequests(GuardCase):

@@ -54,8 +54,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from discovery_common import (  # noqa: E402
-    KEYWORDS, POLITE_DELAY, TIMEOUT, UA, WORK,
-    load_state, persist_run, registered_urls, report_queued,
+    POLITE_DELAY, TIMEOUT, UA, WORK,
+    deferred_urls, load_state, match_tier, persist_run, queue_mark,
+    registered_urls, report_queued,
 )
 
 STATE = WORK / "stackernews-discovery.json"
@@ -147,6 +148,7 @@ def main() -> int:
     state = load_state(STATE)
     seen = set(state.get("seen", []))
     known = registered_urls_sn()
+    deferred = deferred_urls()
     cutoff = datetime.now(timezone.utc)
 
     candidates = []
@@ -172,11 +174,17 @@ def main() -> int:
                 fetched += 1
                 iid = str(it.get("id"))
                 url = f"https://stacker.news/items/{iid}"
-                if iid in seen or url in known:
+                if url in known:
+                    continue
+                # A deferred candidate is re-reported while it is still in
+                # the listing window, so it can promote itself once the
+                # thread grows.
+                if iid in seen and url not in deferred:
                     continue
                 seen.add(iid)
                 title = it.get("title") or "(comment or untitled)"
-                if args.all or KEYWORDS.search(title):
+                tier = match_tier(title)
+                if args.all or tier:
                     candidates.append({
                         "id": iid,
                         "url": url,
@@ -187,7 +195,8 @@ def main() -> int:
                         "createdAt": it.get("createdAt"),
                         "ncomments": it.get("ncomments"),
                         "foundAt": cutoff.strftime("%Y%m%dT%H%M%SZ"),
-                        "matched": bool(KEYWORDS.search(title)),
+                        "matched": bool(tier),
+                        "tier": tier,
                     })
             if not cursor:
                 break
@@ -200,7 +209,8 @@ def main() -> int:
           f"({requests} requests); {len(candidates)} new candidate(s)")
     for c in candidates:
         print(f"  {c['createdAt'][:16]}  {c['id']:>8}  [~{c['sub']}] "
-              f"c={c['ncomments']:<3} {c['author'] or '?':<20} {c['title']}")
+              f"c={c['ncomments']:<3} {queue_mark(c):<9} "
+              f"{c['author'] or '?':<20} {c['title']}")
     report_queued(candidates, CANDIDATES, not args.no_state)
     return 0
 

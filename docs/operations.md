@@ -5,6 +5,33 @@ one-writer rule, notification delivery and deployment. What a single capture
 does is covered in [capture.md](capture.md); what a build publishes is covered
 in [publication.md](publication.md).
 
+## The capture host
+
+There is one canonical working tree, on one machine, and capture runs there on
+a schedule. Everything about where that machine is and how to reach it is
+operational and stays out of this tracked file: see `AGENTS.local.md`
+(gitignored) beside this file on a machine that has access.
+
+Two long-running services are owned by the init system there. Never start
+ad-hoc replacements for either; restart the unit instead.
+
+- `webbridge.service`: the capture browser on 127.0.0.1:10086, which is
+  `capture-browser/webbridge.py` in this repository, running headless Chromium
+  from its own virtual environment. capture.py and ingest-x.py use it
+  unmodified. It relaunches a crashed browser itself, systemd restarts it on
+  failure and recycles it daily. Sessions and challenge cookies persist in
+  `.capture-browser/profile`, which is gitignored. See
+  `capture-browser/README.md` for the protocol and the setup a clone needs
+- the site preview service: serves the built site from `site/dist`, for
+  assessing changes before any deploy. To see changes: rebuild
+  (`npx astro build` in `site/` with `.env` exported), the service picks up
+  the new `dist` without a restart. The Astro dev server stays broken on the
+  VM too; do not try it there
+
+Manual `just capture-one <id>` runs on this host (including the intake agent
+first-capturing its own registrations) use the same writer and lock as the
+schedule below. Never run non-dry captures anywhere else.
+
 ## Scheduled capture
 
 One timer wakes every 30 minutes and invokes `scheduled_runner.py`: a systemd

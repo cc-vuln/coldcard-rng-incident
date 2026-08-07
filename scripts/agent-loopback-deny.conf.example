@@ -48,6 +48,15 @@
 # 2000::/3 is global-unicast IPv6, which excludes ::1 by construction. This
 # host has a global IPv6 address, and denying the family outright would leave
 # the agent silently falling back to IPv4 for everything.
+#
+# 127.0.0.2/32 is the egress allowlist proxy (agent-proxy.service, port 8118).
+# It is loopback, so the complement above denies it, but it is the ONLY route
+# out the agent has: the nftables rule on the agent's uid denies its direct
+# egress, so with the proxy blocked every model API call hangs until the
+# client gives up. Measured 7 Aug 2026: the review agent failed every run
+# with a provider timeout at ~476 s while making zero connections to the
+# proxy; the same invocation outside the unit succeeded in seconds. The
+# capture browser stays denied: it listens on 127.0.0.1, not this address.
 
 [Service]
 IPAddressDeny=any
@@ -57,4 +66,5 @@ IPAddressAllow=169.0.0.0/9 169.128.0.0/10 169.192.0.0/11 169.224.0.0/12
 IPAddressAllow=169.240.0.0/13 169.248.0.0/14 169.252.0.0/15 169.255.0.0/16
 IPAddressAllow=170.0.0.0/7 172.0.0.0/6 176.0.0.0/4 192.0.0.0/2
 IPAddressAllow=127.0.0.53/32
+IPAddressAllow=127.0.0.2/32
 IPAddressAllow=2000::/3

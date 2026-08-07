@@ -36,7 +36,7 @@ agent_load_env() {
   # .env into the agent process: the nostr posting key, the Cloudflare deploy
   # token, the X bearer token. The driver still needs those names to decide
   # which binary to run; the agent never does.
-  if [[ -f "$ROOT/.env" ]]; then
+  if [[ -r "$ROOT/.env" ]]; then
     # shellcheck disable=SC1091
     source "$ROOT/.env"
   fi
@@ -77,8 +77,27 @@ agent_finish() {
     cp "$CAPTURE_REQUESTS" "$AGENT_RUN_DIR/capture-requests.txt"
     rm -f "$CAPTURE_REQUESTS"
   fi
+  local rc=0
   "$ROOT/.venv/bin/python" "$ROOT/scripts/agent_guard.py" after \
-    --role "$role" --run-dir "$AGENT_RUN_DIR"
+    --role "$role" --run-dir "$AGENT_RUN_DIR" || rc=$?
+
+  # A rejected run keeps its edits: what an injected run tried to do is the
+  # evidence, and reverting it would throw that away. But an invalid registry
+  # is not evidence, it is a stopped tree. `just audit`, `just test` and the
+  # scheduled publish all fail while sources.toml names a host that
+  # registry_hosts.toml does not, and they stay failing until a person edits
+  # the file. So anything this run added that the registry rules refuse is
+  # moved out of the way, verbatim and with its reason, into quarantine/.
+  #
+  # Only what this run added, and only ever out of the registry: the tool
+  # cannot add a host or restore a block. The rejection stands either way,
+  # and its exit code is the one this function returns.
+  if [[ $rc -ne 0 && -f "$AGENT_RUN_DIR/before/sources.toml" ]]; then
+    "$ROOT/.venv/bin/python" "$ROOT/scripts/quarantine_registry.py" \
+      --before "$AGENT_RUN_DIR/before/sources.toml" \
+      --run-id "$AGENT_RUN_ID" || true
+  fi
+  return $rc
 }
 
 agent_run_captures() {

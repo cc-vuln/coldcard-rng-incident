@@ -27,6 +27,16 @@ each browser snapshot's meta.json records the list name, mechanism and
 retrieval date, and first-party promotions (Reddit's Promoted slots) are
 unaffected by design. `WEBBRIDGE_BLOCK_MODE=off` disables the blocking.
 
+The daemon keys one current tab per **session name**, and `navigate` and
+`close_tab` act on that session's tab, so every caller class drives the
+browser under its own name and concurrent callers cannot close each other's
+pages mid-read: live polls use `coldcard-archive`, X-thread polls derive
+`coldcard-archive-thread` from it, a dry run uses
+`coldcard-archive-dry-<pid>` (and `-dry-<pid>-thread`), Reddit discovery
+uses `coldcard-archive-discover`, and `ingest-x.py` uses
+`coldcard-archive-x`. A new browser client picks a new name; sharing one is
+the bug this list exists to prevent.
+
 HTTP and browser sources managed by `capture.py` land as the same artefacts:
 `<TS>.txt`, a rendered artefact, `<TS>.meta.json`, a diff on change, and an
 `index.jsonl` event. Registered X posts use the separate `capture-x.sh` or
@@ -47,6 +57,16 @@ readable document, or
 `json_pretty = true` to retain deterministic, line-oriented JSON. Positive
 `min_chars` and `required_text` guards remain mandatory for these sources so a
 changed API shape cannot be archived as valid content.
+
+Rendered stacker.news pages crash the capture tab, so every `stackernews-*`
+source polls the public GraphQL API through the `fetch_post` shape above, with
+a fixed item query (title, text, two levels of comments, author and absolute
+timestamp on each). A new thread is added by copying that block and changing
+the item id; see the 4 Aug 2026 sweep batch in `sources.toml`. Reddit threads
+are `capture = "reddit-json"`: the thread JSON is read through the capture
+browser's signed-in session (anonymous JSON from this host gets a 403
+challenge) and flattened to a deterministic canonical text, so no normalizer
+binding is needed.
 
 Every non-dry capture writes an atomic JSON result under `archive/runs/`. It
 contains the selected sources, per-source events, counts, outcome and exit
@@ -175,12 +195,22 @@ earlier version never existed.
 
 ## X capture
 
-X blocks unauthenticated reads. `gallery-dl` borrows a logged-in session from
-Chrome:
+X blocks unauthenticated reads. Two tools capture posts, and they are not
+interchangeable: `capture-x.sh` drives gallery-dl, which downloads **media
+only**, so a post with no image or video reports "No results" and produces
+nothing (that is what the tool does, not a failure to fix), while
+`ingest-x.py` takes the element-only screenshot of the post itself plus a
+text sidecar, which is what a text-only post needs and what the site
+displays. gallery-dl borrows a logged-in session from Chrome:
 
 ```bash
 just capture-x        # Chrome must be CLOSED for cookie extraction on macOS
 ```
+
+`capture-x.sh` reads its cookie source from `X_COOKIES_BROWSER`. `just
+capture-x` loads `.env` and gets it; running the script directly does not, and
+it will silently fall back to a browser profile that does not exist. Export it
+or use the recipe.
 
 This is read-only: it fetches URLs already listed in `sources.toml` and posts,
 follows and likes nothing. If cookie extraction fails, export cookies to a
@@ -192,7 +222,9 @@ staging directory and is accepted only if gallery-dl produced an artefact whose
 name contains the requested post ID. A zero-result exit is a failure, not a
 successful capture. Accepted captures land in `archive/x/<post-id>/<TS>/`, with media named
 `attachment-N`, so an earlier capture is never overwritten and an attachment
-is never mistaken for the post itself.
+is never mistaken for the post itself. `post.png` and `post.txt` are the
+post, `attachment-N.<ext>` is media it carried and `meta.json` is the fetching
+tool's own sidecar.
 
 For posts that gallery-dl cannot retrieve, the authenticated-browser bridge can
 capture the rendered post without browser navigation, account or trend chrome:
@@ -213,6 +245,62 @@ Registered posts are first-class public evidence records under
 capture material is held. When a screenshot passes the publication gates, the
 record displays it with its capture time and a link to the original post.
 
+### Capturing the conversation, not just the post
+
+Where the thread around a post is itself the evidence, the post can be
+registered as a polled conversation. `thread = true` and a `tier` on its
+`[[x_post]]` block make it a source under the same id, so it gets snapshots,
+diffs, review classification and change-feed entries without anything
+downstream learning a new concept. Design and rationale:
+[design/x-thread-capture.md](design/x-thread-capture.md).
+
+```bash
+# register a new post and take the first capture of its conversation
+just ingest-x 'https://x.com/example/status/123' example-thread "" "" --thread --tier 3
+
+# re-capture the conversation of an already-registered thread, now
+just capture-thread example-thread
+```
+
+`--thread` does the focal-post ingest exactly as above, then hands the
+conversation to `capture.py capture --id <slug>`, which is the same poll the
+tier's timer runs from then on. That is deliberate: `capture.py` owns snapshot
+writing, change detection, the diff and the `index.jsonl` event, and a manual
+first capture with its own write path would be a second implementation of the
+part of this repo that must not be got wrong. It runs as a separate process
+because the archive writer lock is not reentrant.
+
+`--tier` states the cadence and is required when the post is being registered
+now. Turning threading on for a post that is **already** registered is a
+registry edit: add the two keys to its block in `sources.toml` by hand, then
+run `just capture-thread <id>`. `ingest-x.py` appends blocks and does not
+rewrite them, and appending a second block for the same post would give one
+conversation two registry entries and two source pages.
+
+`just ingest-x --thread` exits 0 when the conversation captured, because a
+first capture is a change and a change is what the command was run for; a
+poll that came back incomplete still exits 20 and a busy writer lock 21. `just
+capture-thread` is the raw poll and keeps `capture.py`'s exit codes as the
+README states them, exit 10 included.
+
+Some posts are held twice: as their own registered record, with this project's
+note on why they matter, and again inside a conversation captured around them.
+`part_of = "<head-id>"` on the member's block states that, and both ends of the
+relation say so — the member's page names the conversation, and the thread
+reader links the post to its own record. The registry cannot notice this by
+itself, because whether a post is inside a conversation depends on what a
+capture collected, so `just audit` reports a registered post held inside a
+thread without `part_of` to declare it. That finding is a one-line registry
+edit, never a capture fault.
+
+A thread capture writes the canonical thread text, a structured `<TS>.json`
+recording the depth it reached, and one element-only screenshot per post it
+saw for the first time, under `archive/x/<id>/<TS>/`. It declares what it did
+not reach rather than implying it saw the whole conversation, and it refuses
+outright when it collects far less than the previous capture: absence on X is
+not deletion, and a capture that under-collected is indistinguishable in the
+record from replies having been removed.
+
 ### Finding X posts before capture
 
 `scripts/discover_x.py` watches the small `[[x_watch]]` registry for new
@@ -227,6 +315,20 @@ The command is manual and opt-in while its account-health outcomes are being
 proved. See `docs/design/discovery-and-x-watch.md` for the safety model and
 `docs/operations.md` for the exact probation commands. Do not add it to the
 community timer merely because the manual command returns successfully once.
+
+## nostr capture
+
+`ingest_nostr.py` captures one note plus its replies through `nak` (the second
+sanctioned external binary beside gallery-dl, likewise confined to social
+capture and posting) into `archive/nostr/<id>/<TS>/`: `event.json` is the
+signed event, `event.txt` its flattened text, `replies.json` the fetched
+replies where any exist, `meta.json` the sidecar. A re-capture is a new
+timestamped directory, so the append-only rule is a property of the layout
+here too. Signed events are self-authenticating, so none of the screenshot
+provenance gating that X captures need applies. Registered notes are
+`[[nostr_post]]` blocks, validated by capture.py but never polled. The
+identity, posting and discovery operations are in
+[operations.md](operations.md).
 
 ## Reviewing detected differences
 

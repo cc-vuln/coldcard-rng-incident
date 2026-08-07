@@ -107,6 +107,64 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(got["convo"]["tier"], 3)
         self.assertEqual(got["convo"]["x_author"], "n")
 
+    # ---- part_of: a post held both as its own record and inside a thread ----
+    #
+    # The registry states the relation so the two copies are one declared
+    # thing. See docs/design/x-thread-capture.md section 4.
+
+    def head(self, **overrides) -> dict:
+        return self.post(id="head", url="https://x.com/h/status/111",
+                         author="h", thread=True, tier=3, **overrides)
+
+    def member(self, **overrides) -> dict:
+        return self.post(id="m", url="https://x.com/b/status/222",
+                         author="b", **overrides)
+
+    def test_a_declared_member_validates(self) -> None:
+        capture.validate_sources({"source": [], "x_post": [
+            self.head(), self.member(part_of="head")]})
+
+    def test_part_of_must_name_a_registered_post(self) -> None:
+        cfg = {"source": [], "x_post": [self.member(part_of="nobody")]}
+        with self.assertRaisesRegex(capture.SourceConfigError,
+                                    "not a registered x_post"):
+            capture.validate_sources(cfg)
+
+    def test_part_of_must_name_a_post_that_holds_a_conversation(self) -> None:
+        # Pointing at a plain post promises a conversation that is never
+        # captured, so the member's page would link to nothing.
+        cfg = {"source": [], "x_post": [
+            self.post(id="plain"), self.member(part_of="plain")]}
+        with self.assertRaisesRegex(capture.SourceConfigError,
+                                    "holds no conversation"):
+            capture.validate_sources(cfg)
+
+    def test_a_head_cannot_be_a_member(self) -> None:
+        cfg = {"source": [], "x_post": [
+            self.head(), self.post(id="h2", url="https://x.com/c/status/333",
+                                   author="c", thread=True, tier=3,
+                                   part_of="head")]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "exclusive"):
+            capture.validate_sources(cfg)
+
+    def test_part_of_must_be_a_string(self) -> None:
+        cfg = {"source": [], "x_post": [self.head(), self.member(part_of=3)]}
+        with self.assertRaisesRegex(capture.SourceConfigError, "part_of must"):
+            capture.validate_sources(cfg)
+
+    def test_withholding_a_separately_registered_post_is_refused(self) -> None:
+        # Withholding it from the conversation withholds nothing while it
+        # stands as its own published record, one link away.
+        cfg = {"source": [], "x_post": [
+            self.head(withhold_posts=["222"]), self.member(part_of="head")]}
+        with self.assertRaisesRegex(capture.SourceConfigError,
+                                    "separately registered"):
+            capture.validate_sources(cfg)
+
+    def test_withholding_an_unregistered_status_is_fine(self) -> None:
+        capture.validate_sources({"source": [], "x_post": [
+            self.head(withhold_posts=["999"])]})
+
     def test_pollable_sources_carries_the_withhold_flag(self) -> None:
         # A withheld conversation must stay withheld once it becomes a source.
         cfg = {"source": [], "x_post": [
@@ -850,6 +908,64 @@ class BrowserReadinessTests(unittest.TestCase):
                          capture.INCOMPLETE_EXIT)
 
 
+class ThreadMembershipAuditTests(unittest.TestCase):
+    """Undeclared duplicates must surface, because the registry cannot see them.
+
+    Whether a registered post sits inside a captured conversation is a fact
+    about what the capture collected, and it changes as a thread grows. Left
+    unreported, the record accumulates posts held twice with nothing
+    connecting the two copies.
+    """
+
+    HEAD = {"id": "head", "url": "https://x.com/h/status/111", "author": "h",
+            "thread": True, "tier": 3}
+    MEMBER = {"id": "m", "url": "https://x.com/b/status/222", "author": "b"}
+
+    def audit(self, cfg: dict, posts: list[dict]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            snapshots = Path(tmp) / "snapshots"
+            held = snapshots / "head"
+            held.mkdir(parents=True)
+            (held / "20260807T000000Z.json").write_text(
+                json.dumps({"posts": posts}), encoding="utf-8")
+            with mock.patch.object(capture, "SNAPSHOTS", snapshots):
+                return capture.audit_thread_membership(cfg)
+
+    def test_an_undeclared_member_is_reported(self) -> None:
+        problems = self.audit(
+            {"x_post": [self.HEAD, self.MEMBER]},
+            [{"status": "222", "role": "reply"}],
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("m: held inside the conversation at head", problems[0])
+        self.assertIn('part_of = "head"', problems[0])
+
+    def test_a_declared_member_is_not_reported(self) -> None:
+        self.assertEqual(self.audit(
+            {"x_post": [self.HEAD, {**self.MEMBER, "part_of": "head"}]},
+            [{"status": "222", "role": "reply"}],
+        ), [])
+
+    def test_the_head_is_not_a_member_of_itself(self) -> None:
+        self.assertEqual(self.audit(
+            {"x_post": [self.HEAD]},
+            [{"status": "111", "role": "focal"}],
+        ), [])
+
+    def test_an_unregistered_reply_is_not_a_finding(self) -> None:
+        # Most replies in a conversation are nobody's registered record.
+        self.assertEqual(self.audit(
+            {"x_post": [self.HEAD]},
+            [{"status": "999", "role": "reply"}],
+        ), [])
+
+    def test_a_thread_with_no_capture_yet_is_not_a_finding(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(capture, "SNAPSHOTS", Path(tmp)):
+                self.assertEqual(capture.audit_thread_membership(
+                    {"x_post": [self.HEAD, self.MEMBER]}), [])
+
+
 class DryRunDiffTests(unittest.TestCase):
     def test_changed_source_reports_diff_counts_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1302,6 +1418,96 @@ class FailingSourceTests(unittest.TestCase):
         ]
         self.assertEqual([r["id"] for r in capture.failing_sources(events)],
                          ["long", "short"])
+
+
+class WebBridgeSessionTests(unittest.TestCase):
+    """The daemon keys one tab per session name, and navigate/close_tab act
+    on the session's tab: two callers on one name close each other's pages
+    mid-read. Every caller class gets its own name."""
+
+    def setUp(self) -> None:
+        self.addCleanup(capture.use_wb_session, capture.WB_SESSION)
+
+    def sent_payload(self) -> dict:
+        resp = mock.MagicMock()
+        resp.read.return_value = json.dumps(
+            {"ok": True, "data": {"success": True}}).encode()
+        resp.__enter__ = lambda s: s
+        resp.__exit__ = mock.Mock(return_value=False)
+        with mock.patch.object(
+                capture.urllib.request, "urlopen", return_value=resp) as uo:
+            capture.wb_cmd("list_tabs")
+        return json.loads(uo.call_args.args[0].data)
+
+    def test_default_session_is_the_live_poll_name(self) -> None:
+        self.assertEqual(self.sent_payload()["session"], "coldcard-archive")
+
+    def test_use_wb_session_switches_the_payload_session(self) -> None:
+        capture.use_wb_session("coldcard-archive-dry-123")
+        self.assertEqual(
+            self.sent_payload()["session"], "coldcard-archive-dry-123")
+
+    def test_session_kwarg_overrides_for_one_call(self) -> None:
+        resp = mock.MagicMock()
+        resp.read.return_value = json.dumps(
+            {"ok": True, "data": {"success": True}}).encode()
+        resp.__enter__ = lambda s: s
+        resp.__exit__ = mock.Mock(return_value=False)
+        with mock.patch.object(
+                capture.urllib.request, "urlopen", return_value=resp) as uo:
+            capture.wb_cmd("fetch_json", {"url": "https://x.test"},
+                           session="coldcard-archive-discover")
+        self.assertEqual(json.loads(uo.call_args.args[0].data)["session"],
+                         "coldcard-archive-discover")
+        # The module session is untouched by the one-off override.
+        self.assertEqual(self.sent_payload()["session"], "coldcard-archive")
+
+    def capture_thread_session(self, active: str) -> str:
+        capture.use_wb_session(active)
+        with mock.patch.object(capture, "wb_available", return_value=True), \
+                mock.patch.object(capture, "held_thread_statuses",
+                                  return_value=frozenset()), \
+                mock.patch.object(capture, "previous_thread_replies",
+                                  return_value=None), \
+                mock.patch.object(capture.x_thread, "make_bridge") as mb, \
+                mock.patch.object(capture.x_thread, "capture_thread",
+                                  return_value=(object(),
+                                                {"replies_observed": 1}, [])), \
+                mock.patch.object(capture.x_thread, "flatten_thread",
+                                  return_value="t"), \
+                mock.patch.object(capture.x_thread, "structured_record",
+                                  return_value={}):
+            capture.fetch_x_thread(
+                "https://x.com/a/status/2083247006139503065", "a", "sid",
+                dry=True)
+        return mb.call_args.args[1]
+
+    def test_live_thread_capture_keeps_its_session_name(self) -> None:
+        self.assertEqual(
+            self.capture_thread_session("coldcard-archive"),
+            "coldcard-archive-thread")
+
+    def test_dry_thread_capture_gets_its_own_session_name(self) -> None:
+        self.assertEqual(
+            self.capture_thread_session("coldcard-archive-dry-99"),
+            "coldcard-archive-dry-99-thread")
+
+    def test_reddit_discovery_drives_its_own_session(self) -> None:
+        import discover_reddit
+        listing = {"data": {"children": []}}
+        calls = []
+
+        def command(action, args=None, timeout=60, session=None):
+            calls.append((action, session))
+            return {"json_ok": True, "body": json.dumps(listing)}
+
+        with mock.patch.object(discover_reddit, "wb_cmd",
+                               side_effect=command):
+            discover_reddit.fetch_new("coldcard", 5)
+        self.assertEqual(
+            calls,
+            [("fetch_json", "coldcard-archive-discover"),
+             ("close_tab", "coldcard-archive-discover")])
 
 
 if __name__ == "__main__":

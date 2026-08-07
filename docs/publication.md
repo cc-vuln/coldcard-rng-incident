@@ -42,6 +42,20 @@ A complaint with a legal basis is not an author preference and is not answered
 by the paragraph above. A copyright complaint, a court order or a demonstrated
 legal obligation is assessed on its merits and acted on where it is good.
 
+Screenshot publication is gated on when a capture was taken, never on what it
+looks like. A screenshot taken in a signed-in browser carries that session:
+on a whole-window capture the account name sits in the site's own navigation,
+and on an element-only capture the account's avatar still appears in the reply
+row, which no image measurement detects reliably. So `stage-x-media.mjs`
+publishes only captures from the dedicated capture profile, gated on
+`OWN_HOST_FROM`, and reports how many posts it withheld. Do not add an
+image-inspection heuristic and call a capture cleared, and reject a capture
+directory that is not a timestamp explicitly: `"undated" < "20260802..."` is
+false, because letters sort after digits. Anything that could reproduce
+captured text asks `withholdsCapturedText()` in `lib/archive.ts`, including
+diffs and excerpts; keep that rule in one function, because copies of a policy
+drift and the copy that withholds nothing is the one that leaks.
+
 ## Editorial claim markers
 
 The public site separates evidence basis from dispute state. Each editorial
@@ -79,11 +93,15 @@ not contain, which is normal for a review build and worth noticing for a
 published one. Nothing here is hand-maintained: `src/lib/version.ts` reads git,
 for the same reason `src/lib/updated.ts` does.
 
-No DOI is minted. Before minting one, note that the obvious route deposits the
-whole repository, which would publish third-party captures under an identifier
-designed to be hard to retract. A deposit limited to project-created material
-(the registry, the review classifications, the poll index, the tooling and the
-site) carries no such problem.
+No DOI is minted yet, and the route to one was decided on 7 Aug 2026: an open
+Zenodo record of project-created material only, tagged `vYYYY.MM.DD`, with
+Software Heritage deliberately skipped. The obvious route — depositing the whole
+repository — is the one not taken, because it would publish third-party captures
+under an identifier designed to be hard to retract. A deposit limited to the
+registry, the review classifications, the poll index, the tooling and the site
+carries no such problem, and `scripts/build_manifest.py` describes every capture
+left out so the deposit never understates the corpus. The reasoning, the
+exclusions and the steps are in [`deposit.md`](deposit.md).
 
 ## Corrections
 
