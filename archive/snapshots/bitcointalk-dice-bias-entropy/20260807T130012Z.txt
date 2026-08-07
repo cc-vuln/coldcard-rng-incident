@@ -1,0 +1,168 @@
+Bitcoin Forum
+Bitcoin => Bitcoin Discussion => Topic started by: babo on August 06, 2026, 07:25:08 AM
+Title: dice or not dice
+Post by: babo on August 06, 2026, 07:25:08 AM
+There's a lot of confusion about this and people are really going crazy after the COLDCARD issue, I just wanted to share with you the discussion I had with some people on Telegram
+On Telegram, as I was saying earlier, there's a lot of excitement in the serious Bitcoin groups and all they do is talk about dice and bullshit like that... always related to seed generation.
+There are people who are sick and overdo it and recommend the AAA grade dice from the casino because they are perfect and balanced.
+but could something like this ever be true?
+If they ask you, the answer is no.
+I had it calculated and the deviation would be 1% in the case of cheap commercial dice... that is to say a die that has a percentage on one face not of 16,..% but of 17/19% maximum... (otherwise it is rigged)
+Another user went to look through the statistical mathematics literature
+Quote
+I found a Harvard University study published in 1971, when Bitcoin didn't even exist. The researchers analyzed 219 commercial dice from four different brands, rolling each die 20,000 times, for a total of 4,380,000 rolls.
+The study found small statistical biases in some commercial dice, but if we translate those results into the entropy of a 24-word BIP39 seed, the loss is on the order of a few tenths of a bit, at most about 1 bit under the most pessimistic assumptions.
+In practice, a 256-bit seed would still be a seed with approximately 255-256 bits of effective entropy.
+This difference is theoretically measurable, but completely irrelevant from a security perspective: the search space remains astronomical and impossible to explore with any existing technology.
+so commercial dice are more than fine, this is the conclusion about dice
+Title: Re: dice or not dice
+Post by: pooya87 on August 06, 2026, 08:41:18 AM
+There is no such thing as perfect in this world. There will always be some flaw or bias in anything you can find. The real question is does it matter?
+In case of a 256-bit entropy, you are already overdoing it by 2x since you only needed 128 bits of entropy to be secure. So a little bias in it doesn't affect anything.
+I also think in this case people are overreacting to the news. Lets see some statistics... how many bitcoin keys were created so far? Some sources say 1.5 billion. How many of them were created using a dice? 10? 1000? I doubt it is any more than that. How many of the rest of the 99.9999% of the addresses that were created by a computer were vulnerable? 0 as long as the code didn't have bugs! The CSPRNG people are trying to replace by rolling a dice is safe enough as it has been proven by bitcoin for 17 years.
+Title: Re: dice or not dice
+Post by: Catenaccio on August 06, 2026, 09:54:00 AM
+Quote from: pooya87 on August 06, 2026, 08:41:18 AM
+There is no such thing as perfect in this world. There will always be some flaw or bias in anything you can find. The real question is does it matter?
+In case of a 256-bit entropy, you are already overdoing it by 2x since you only needed 128 bits of entropy to be secure. So a little bias in it doesn't affect anything.
+Could you explain why we only need 128 bits of entropy to be secure, please.
+Because I know that there are 24 seed words for 256 bits of entropy and it is available to use easily so why we don't use 24 seed words for better security?
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+I am considering to create a new wallet with a passphrase to use but not sure I should use 12 seed words or 24 seed words.
+Title: Re: dice or not dice
+Post by: Zoomic on August 06, 2026, 10:46:15 AM
+One mistake we do sometimes is confusing "not perfect" with "not usable". The truth is there are some level of bias or imperfection in almost everything we use.
+What we should be concerned about is wether that bias actually reduce the entropy enough to make a brute force attack more practical.
+If the loss of entropy is very small, then it is still practically impossible for a 24-word BIP39 seed to crack.
+Instead of chasing mathematical perfection, why not we focus on real world security?
+Title: Re: dice or not dice
+Post by: babo on August 06, 2026, 11:42:36 AM
+Quote from: Zoomic on August 06, 2026, 10:46:15 AM
+One mistake we do sometimes is confusing "not perfect" with "not usable". The truth is there are some level of bias or imperfection in almost everything we use.
+What we should be concerned about is wether that bias actually reduce the entropy enough to make a brute force attack more practical.
+If the loss of entropy is very small, then it is still practically impossible for a 24-word BIP39 seed to crack.
+Instead of chasing mathematical perfection, why not we focus on real world security?
+good... exactly what I told him
+ok you get a super safe seed with the perfect AAA grade dice from the casino
+olk everything is beautiful
+then the classic robber comes along with a nice big wrench and beats you up until you make the TX... he doesn't even have to ask you for the seed... too much effort... he gives you an address and tells you to send all the money here...
+end
+Title: Re: dice or not dice
+Post by: Alvin_talk on August 06, 2026, 01:18:34 PM
+Quote from: pooya87 on August 06, 2026, 08:41:18 AM
+I also think in this case people are overreacting to the news. Lets see some statistics... how many bitcoin keys were created so far? Some sources say 1.5 billion. How many of them were created using a dice? 10? 1000? I doubt it is any more than that. How many of the rest of the 99.9999% of the addresses that were created by a computer were vulnerable? 0 as long as the code didn't have bugs! The CSPRNG people are trying to replace by rolling a dice is safe enough as it has been proven by bitcoin for 17 years.
+Well, I don't think people are necessarily over reacting. View it as though people are trying to be self dependant instead of relying completely on these organisations for their security. Remember, it is always better to be SURE than to be ASSURED. Nobody has a trust issue regarding CSPRNG but the companies that claim to use this technology but never did, thereby causing individuals their hard earned coins. What they do is to market security to audience so they can sell out quickly, but providing real security becomes a problem when danger comes. Call it overreaction but I call it precaution, that an attack didn't affect your address or wallet today doesn't assure you it want be affected in the nearest future, just like coldcard, other companies might have similar flaws in their security setup but has not just been unmasked yet, most of these companies are scams because they are only interested in the bag.
+Title: Re: dice or not dice
+Post by: Lucius on August 06, 2026, 01:43:09 PM
+Quote from: Catenaccio on August 06, 2026, 09:54:00 AM
+~snip~
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+I am considering to create a new wallet with a passphrase to use but not sure I should use 12 seed words or 24 seed words.
+For me personally, it's not just about the number of words in the seed, because if the seed happens to be generated like in the CC case, then it doesn't matter if it has 12 or 24 words. If each of the hacked seeds had a strong/moderate passphrase, not a single wallet would have been hacked, and that's the essence of everything we're talking about these days.
+Those who haven't created their own wallets in combination with passphrase are clearly among those who blindly believe everything someone presents to them.
+Title: Re: dice or not dice
+Post by: Zaguru12 on August 06, 2026, 01:56:48 PM
+Quote from: Catenaccio on August 06, 2026, 09:54:00 AM
+Quote from: pooya87 on August 06, 2026, 08:41:18 AM
+In case of a 256-bit entropy, you are already overdoing it by 2x since you only needed 128 bits of entropy to be secure. So a little bias in it doesn't affect anything.
+Could you explain why we only need 128 bits of entropy to be secure, please.
+Because I know that there are 24 seed words for 256 bits of entropy and it is available to use easily so why we don't use 24 seed words for better security?
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+I am considering to create a new wallet with a passphrase to use but not sure I should use 12 seed words or 24 seed words.
+Pooya87 isn�t saying directly that 24 seeds words entropy which is 256 bits isn�t higher and indirectly should be stronger than the 12 seed words which is actually 128 bits.
+The reason why technically you would be told today that 128 bits of entropy you generate from 12 word seed is enough is because the private key can only generate this same 128 bits of security regardless of the amount of bits it�s seed phrase actually generates.
+This means that even if you have 256 bits of entropy or even more depending on your seed phrase and checksum, if they can actually be a possible way to brute force 128 bits of security tomorrow then your 256 bits of entropy wouldn�t be able to save you because the attacker can just brute force your private key which is that 128 bits of entropy.
+12 seed words = 128 bits of entropy = 128 bits of security from the private key
+24 seed words = 256 bits of entropy = 128 bits of security from the private key
+Title: Re: dice or not dice
+Post by: hmbdofficial on August 06, 2026, 02:03:53 PM
+Quote from: Catenaccio on August 06, 2026, 09:54:00 AM
+Could you explain why we only need 128 bits of entropy to be secure, please.
+Because I know that there are 24 seed words for 256 bits of entropy and it is available to use easily so why we don't use 24 seed words for better security?
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+I am considering to create a new wallet with a passphrase to use but not sure I should use 12 seed words or 24 seed words.
+Based on my understanding, A 12 word seed already provides an entropy of 128 bits, which is far beyond what anyone would actually brute force. This is practically saying that the security margin of the 12 word seed is so large already that increasing it to 256 bits doesn�t protect you from the attack that you�re likely to face.
+The bigger risk is someone getting access to your seed backup. That is where strong passphrase will help, because even if someone eventually finds your 12 word seed, they will still not be able to access your wallet without the passphrase.
+That is why most people just prefer A 12 word seed phrase with a very strong unique passphrase, rather than a 24 word seed without passphrase.
+Title: Re: dice or not dice
+Post by: KiaKia on August 06, 2026, 02:37:59 PM
+Quote from: Catenaccio on August 06, 2026, 09:54:00 AM
+Quote from: pooya87 on August 06, 2026, 08:41:18 AM
+There is no such thing as perfect in this world. There will always be some flaw or bias in anything you can find. The real question is does it matter?
+In case of a 256-bit entropy, you are already overdoing it by 2x since you only needed 128 bits of entropy to be secure. So a little bias in it doesn't affect anything.
+Could you explain why we only need 128 bits of entropy to be secure, please.
+Because I know that there are 24 seed words for 256 bits of entropy and it is available to use easily so why we don't use 24 seed words for better security?
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+I am considering to create a new wallet with a passphrase to use but not sure I should use 12 seed words or 24 seed words.
+Yes exactly, I've been doing some research on this as well and it turned out that 24 seed words are more stronger than 12 seed words, I don't want to hear that sentence that 12 seed words will do just fine, not in my own book.
+I'm open to learning more, maybe there is a part that I am leaving out on this, but 24 beats 12 since it's 256 bits of entropy, I will wait for more enlightenment in this thread, maybe Ive mistaken something.
+That Dice thing isn't going to be easy, have anyone tried it? Roll some dice in 100 times because you want to create strong recovery seed? Anyways, 12 or 24, if your seed got leaked it's over, which is why I still believe that Passphrase can make a difference.
+Title: Re: dice or not dice
+Post by: buwaytress on August 06, 2026, 02:58:25 PM
+I've always liked a good set of dice but that's because I played RPGs and you can truly appreciate how well a 3-sided or 20-sided die can roll even on rough surfaces as opposed to cheaper plastic ones. In 1971, was it possible for those researchers to buy China-made plastic ones that actually degraded within a few throws on a hard surface? =)
+Still, though the point remains for entropy, there is negligible loss... but I would consider everything else you can control. Surface. How you throw the die. For example.
+P.S. 12 word seed phrase is good enough, but my irrational mind always wants to add a custom word in my native language (actually discussed just yesterday in another thread) in the unlikely event someone overhears me mumble my mnemonic song in my sleep.
+Title: Re: dice or not dice
+Post by: Ambatman on August 06, 2026, 05:25:51 PM
+Quote from: babo on August 06, 2026, 07:25:08 AM
+On Telegram, as I was saying earlier, there's a lot of excitement in the serious Bitcoin groups and all they do is talk about dice and bullshit like that... always related to seed generation.
+I might be wrong but won't they have to trust that the converter has no bug
+Quite similar to implementation risk if CSPRNG are used.
+On another note: I tested picking random words on my way to work
+To generate a seedphrase and looking at it
+I realised there was a pattern. Biased sipped in without me knowing.
+Quote from: Catenaccio on August 06, 2026, 09:54:00 AM
+Could you explain why we only need 128 bits of entropy to be secure, please.
+Because I know that there are 24 seed words for 256 bits of entropy and it is available to use easily so why we don't use 24 seed words for better security?
+128bits is currently nigh impossible to crack through brute force
+The number of possibilities is so enormous that it is computationally infeasible with current technology.
+256 bits is more like an icing to the cake.
+Quote
+Between 12 seed words with 128 bits of entropy and passphrase, and 24 seed words with 256 bits of entropy without passphrase, which one is more secure?
+24 seedphrase protects only On brute force while a pasphrase with great entropy can do much more
+Passphrase creates another wallet which helps protect your funds even if the attacker knows your 12 seedphrase.
+The bottom line is that the passphrase should be random with great entropy.
+Quote from: buwaytress on August 06, 2026, 02:58:25 PM
+irrational mind always wants to add a custom word in my native language (actually discussed just yesterday in another thread) in the unlikely event someone overhears me mumble my mnemonic song in my sleep.
+I had this too recently but I read somewhere is better to make use of the 95 printable ASCII
+Due to compatibility and risk of recovery. :)
+Title: Re: dice or not dice
+Post by: Satofan44 on August 06, 2026, 07:12:57 PM
+Quote from: babo on August 06, 2026, 07:25:08 AM
+There's a lot of confusion about this and people are really going crazy after the COLDCARD issue, I just wanted to share with you the discussion I had with some people on Telegram
+On Telegram, as I was saying earlier, there's a lot of excitement in the serious Bitcoin groups and all they do is talk about dice and bullshit like that... always related to seed generation.
+There are people who are sick and overdo it and recommend the AAA grade dice from the casino because they are perfect and balanced.
+Anyone who is arguing in favor of the dice method is committing the same error that they are accusing those that demand perfect dice, you are doing something that is completely unnecessary and prone to errors when there is a better and simpler solution available. Throw the dice away, stop hallucinating and set a fucking passphrase and forget about this topic. The reason for which casino dice is being even talked about is because stupid people who have no idea what they are talking about are injecting themselves in topics like this, and then introducing the only things that they know (that normal dice are not perfect compared to casino dice) that has any kind of relevance to the topic: exactly because they literally don't know anything really relevant about it.
+It does not matter what dice is used, ordinary people should never use this method because the process introduces a lot of opportunities for human error -- you know, the most fucking common type of error. Misreading, writing it wrong, skipping some step, converting wrong, misunderstanding verification or completely failing to do it, and so forth. Any kind of setup that involves a lot of steps creates a lot of fallibility, do not use it unless you are a very advanced user and even then it is questionable if you should use it when there is a superior method by all means: Just use a passphrase.
+Quote from: babo on August 06, 2026, 07:25:08 AM
+but could something like this ever be true?
+It can, but the error is almost always insignificant and completely irrelevant for a targeted attack. You guys need to learn the difference between the concepts of measurable and exploitable, some tiny bias in millions of dice throws has no relevance to a targeted seed phrase extraction based off of one sample of your personal seed. It is literally not relevant at all, therefore discussing the margin of error is a complete waste of time. It is like assigning a weight to nothingness.
+Quote from: buwaytress on August 06, 2026, 02:58:25 PM
+P.S. 12 word seed phrase is good enough, but my irrational mind always wants to add a custom word in my native language (actually discussed just yesterday in another thread) in the unlikely event someone overhears me mumble my mnemonic song in my sleep.
+More is better, don't be cheap with cryptography.  8)
+Title: Re: dice or not dice
+Post by: babo on August 07, 2026, 08:05:49 AM
+These are all interesting discussions, and they are all more or less paranoid methods.
+However, as a cybersecurity expert I always remind people that the strength of a chain is always measured by weighing its weakest link.
+that's the strength index of a chain
+if you generated the seed using fairy farts which are random, good
+but if you then keep it on a sheet of paper... bad
+if you don't put the passphrase, bad
+it's a whole journey, not a single mega paranoid action
+Title: Re: dice or not dice
+Post by: Satofan44 on August 07, 2026, 12:13:21 PM
+Quote from: babo on Today at 08:05:49 AM
+These are all interesting discussions, and they are all more or less paranoid methods.
+However, as a cybersecurity expert I always remind people that the strength of a chain is always measured by weighing its weakest link.
+that's the strength index of a chain
+if you generated the seed using fairy farts which are random, good
+but if you then keep it on a sheet of paper... bad
+if you don't put the passphrase, bad
+it's a whole journey, not a single mega paranoid action
+Sure, but you need to think about it more simply and especially in the context of what happened recently. One should not invest $100k to create a vault that takes 5 days of verification to enter in order to protect $5000. Most users should neither do dice setups, nor multisignatures. The security setup must be as practical as it is safe in relation to the value that it is supposed to be protecting, everything else is wrong for one reason or another. A good passphrase solves:
+1) Weak seed generation by the user.
+2) Weak seed generation by the company.
+3) Any other potential human error that could be introduced in these advanced setups.
+It just works, and it does not need any special knowledge. The same knowledge regarding the backing up of your seed applies to the seedphrase, redundancy, avoid keeping the whole thing in a single place, etc. This is the best setup for most users.Being paranoid is never warranted, advanced setups should stay primarily for hobby users who are personally interested in them and those that are protecting very high values.
+Powered by SMF 1.1.19 |
+SMF © 2006-2009, Simple Machines

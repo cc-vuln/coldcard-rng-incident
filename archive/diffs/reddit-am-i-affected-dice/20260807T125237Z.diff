@@ -1,0 +1,48 @@
+--- reddit-am-i-affected-dice@20260806T162932Z
++++ reddit-am-i-affected-dice@20260807T125237Z
+@@ -1,11 +1,9 @@
+ post: 1vewq6y
+-author: Individual_Gate9375
++author: [deleted]
+ created_utc: 1785807996
+ title: Am I affected?
+ body:
+-I switched from trezor to coldcard back in early january of 2021. It was a mk3 at the time and I remember I bought dice to roll when setting up the wallet. I remember sitting there forever just rolling over and over until like 100+. I know I made the seed phrase late december 2020 or early january 2021 because the first transaction (was dca at the time so buying some off cashapp and immediately transfering every day or two) was january 5th 2021. I also have a fairly long bip39 passphrase on top of this that I generated offline also using dice with a physical eff wordlist book. I went sort of crackpot tinfoil hat with the security when I did this. My coins are all still there. Am I good until I can get another hardware wallet?  
+-  
+-I think someone dusted my wallet in early april, sent me 294 satoshis out of the blue. My wallet hasn't been active since 2021 so I guess they flagged inactive wallets with funds for potential targeting or something?
++[deleted]
+ 
+ comment: p1khl27
+ parent: t3_1vewq6y
+@@ -250,14 +248,6 @@
+ body:
+ It seems all Mk3 are affected, so don't take any chances. It doesn't matter how many dice rolls you've, it's a matter of time for attackers. [Someone else reported](https://www.reddit.com/r/Bitcoin/comments/1ja3uua/coldcard_mk4_ux_flaw/) on Reddit 50+ rolls and it was already gone like 2+ years ago.
+ 
+-comment: p1qe3zh
+-parent: t1_p1po8lz
+-author: Individual_Gate9375
+-created_utc: 1785878908
+-edited: false
+-body:
+-Apparently I created my wallet before the bugged firmware ever existed. Saw that mentioned here and went to look. March 2021 was the first time the bugged firmware was pushed out and I had my first transaction on my wallet in January 2021. So I generated my seed with the actual randomizer chip on the device. I would have apparently been unaffected even if I didn't have the dice rolls or the passphrase.
+-
+ comment: p1qrgcs
+ parent: t1_p1po8lz
+ author: adequate_redditor
+@@ -277,16 +267,6 @@
+ So it's another variable to take into the account stored somewhere in memory, so I think it doesn't help in overall to secure the broken low entropy key and it's most likely part of the broken process.  
+ Here is some good [technical article](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware), so I think once attacker can brutal force UID and similar, then potentially it's easier to brutal force other variables (including dice rolls).
+ 
+-comment: p1szxc1
+-parent: t1_p1runuq
+-author: Individual_Gate9375
+-created_utc: 1785911487
+-edited: false
+-body:
+-There are two ways to roll dice. One where you add dice rolls to the generated seed, and one where you determine the seed with only dice rolls and bypass the rng entirely. I did the second method. I basically booted up the device and went through the setup. Then went into the settings and made a seed completely with dice rolls only and sha256 and wrote it down. Wiped the device and imported that seed I generated only with dicerolls. What I did bypassed all of the on device rng generation entirely.   
+-  
+-My point though in my last comment was apparently I wasn't affected by any of this at all because the broken firmware that introduced this rng bug came out in march 2021, and I generated my seed in January of 2021. So none of the precautions I took really mattered in this case. I would have been unaffected regardless of if I did the dice rolls or put the passphrase on the wallet.
+-
+ comment: p2168q8
+ parent: t3_1vewq6y
+ author: Javanaut018

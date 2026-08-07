@@ -1,0 +1,164 @@
+{
+ "author": "afilini",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 6,
+  "posts_observed": 16,
+  "replies_observed": 10,
+  "reply_cap": 500,
+  "screenshots_taken": 5,
+  "scroll_rounds": 11
+ },
+ "gaps": [],
+ "posts": [
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:40Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "focal",
+   "status": "2085269060028170742",
+   "text": "Seeing lots of people say coinkite should have tested entropy better. I don\u2019t think they could\u2019ve done much there.\n\nWhat I think they could\u2019ve done was to build a proper emulator. That might have caught the issue "
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:41Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269063517839714",
+   "text": "The existing coldcard emulator runs micropython on Unix (Linux / macOS) systems. It\u2019s not emulating the hardware at all. For entropy, it just reads it from /dev/urandom"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:42Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269067099701267",
+   "text": "For Portal, which compared to the scale of coldcard is effectively a garage toy project, I took the time to fork QEMU and implement a few missing STM32 peripherals I needed"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:43Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269070350328032",
+   "text": "This was before AI, it was a pain in the ass but that allowed me to run the exact same binary on device and in the emulator. Not cycle perfect, but still same exact instructions"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:44Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269073793880517",
+   "text": "Why I think that could have caught the bug? The UID would have likely been fixed to some constant like 0xB00B5 (yeah engineers do that all the time) and while developing there\u2019s a good chance they might have started getting collisions and seeing the same mnemonic multiple times"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:45Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269077052764499",
+   "text": "I\u2019m not the first to point out the sloppy work (I consider the one-letter commit messages in libngu also sloppy work) and this just adds to that"
+  },
+  {
+   "author": "peterktodd",
+   "created": "2026-08-06T10:26:09Z",
+   "media": 0,
+   "name": "Peter Todd",
+   "role": "reply",
+   "status": "2085311458879971338",
+   "text": "No need to write an emulator. Just design a TRNG that you can actually test and independently verify on real hardware: \nhttps://\npetertodd.org/2014/push-butt\non-rng\n\u2026\n\nEverything else can be done deterministically."
+  },
+  {
+   "author": "bigshiny0",
+   "created": "2026-08-06T10:42:33Z",
+   "media": 0,
+   "name": "Shiny",
+   "role": "reply",
+   "status": "2085315585479483716",
+   "text": "Yes they could have. I took an afternoon after the new firmware was released to test the old and new firmware - specifically to test that the hardware rang was being used, by testing the firmware on a real device (I just added some debug functions that allowed me to query what the hardware was doing).took me a few hours to do.  No emulator needed."
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T10:47:48Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "reply",
+   "status": "2085316907658330372",
+   "text": "Yes but that is very specific instrumentation added for one single feature. And presumably you removed them after confirming it worked. An emulator allows ongoing checks as the codebase progresses"
+  },
+  {
+   "author": "FreedomIsntSafe",
+   "created": "2026-08-06T12:52:23Z",
+   "media": 0,
+   "name": "LazyNinja",
+   "role": "reply",
+   "status": "2085348260122677395",
+   "text": "1000%"
+  },
+  {
+   "author": "OpenSats",
+   "created": "2026-08-06T13:53:46Z",
+   "media": 0,
+   "name": "OpenSats",
+   "role": "reply",
+   "status": "2085363706255573313",
+   "text": "Code RED is live. Priority support for people red teaming Bitcoin software, including reimbursement of past LLM token costs."
+  },
+  {
+   "author": "wk057",
+   "created": "2026-08-06T21:34:43Z",
+   "media": 0,
+   "name": "Jason Hughes",
+   "role": "reply",
+   "status": "2085479707445789137",
+   "text": "Since we're about 48 hrs away from the BIP-110 \"mandatory\" signaling height, I wanted to quickly share my private node crawler stats.\n\nOver the past several weeks, I gave a program of mine more spending power than is probably reasonable. It spent a not insignificant amount of BTC deduplicating nodes. Enjoy.\n\nRaw node counts (% of total)\n Total: 131,762\n Bitcoin Core: 99,401 (75.4%)\n Bitcoin Knots: 30,755 (23.3%)\n Other: 1,606 (1.2%)\n\nRaw BIP-110 signaling counts (% of total)\n Bitcoin Core: 17 (0.01%)\n Bitcoin Knots: 19,388 (14.7%)\n Other: 0 (Unknown)\n Total: 19,405 (14.7%)\n\nNodes found to be duplicates (% of version)\n Bitcoin Core: 17,892 (17.8%)\n Bitcoin Knots: 18,049 (58.7%)\n Other: Unknown\n Total duplicates: 35,941 (27.2% of total)\n\nDeduplicated node counts (% of unique)\n Bitcoin Core: 81,672 (85.1%)\n Bitcoin Knots: 12,706 (9.6%)\n Other: 1,606 (1.7%)\n Total unique: 95,984 (72.8% of total)\n\nOf the 19,388 Bitcoin Knots BIP-110 nodes discovered signaling for BIP-110, 71% of them were eliminated as duplicates, above average for the Knots nodes, leaving only 5,663 BIP-110 signaling nodes.\n\nThat puts non-duplicate BIP-110 signaling nodes at 5.9% of non-duplicate nodes.\n\nMy criteria for deduplication includes the basics (same IP) and some additional more advanced sleuthing of available data. Additionally, you may have already surmised from my intro that part of it also involves strategically sending real transactions.\n\nWill keep the exact details private so that it can't be easily gamed in the future. It is impossible to find ALL duplicate nodes, however false positives are somewhat unlikely with my methodology. If my software has flagged a group of nodes as duplicate, there's an extremely high probability that its either the exact same node (with multiple IPs) or in the exact same location.\n\nIf a node wasn't able to be tested thoroughly enough to be confident for whatever reason, and isn't deemed duplicate by conventional means (same IP, for example) then it isn't considered a duplicate and gives it the benefit of the doubt.\n\nIf I get more time, I may start publishing some more detailed stats more regularly, since it seems my crawler successfully finds a large amount of nodes beyond those listed every public crawler. Unfortunately it's not cheap to handle the deduplication aspect, so will need to figure out how feasible that is to continue. It also involves operating from dozens of IPs to get connected to a supermajority of the network, which is pretty bandwidth intense.\n\nAnyway, figured I'd share, since I don't think anyone is actually doing this at all at this level. There's a lot more to this, too. Some of it might scare privacy conscious people... so I'll probably keep my publicly shared info limited to node stats."
+  },
+  {
+   "author": "LucasBean91",
+   "created": "2026-08-07T00:56:02Z",
+   "media": 0,
+   "name": "Adiney  BIP-110",
+   "role": "reply",
+   "status": "2085530373337804976",
+   "text": "Thanks to coinkite, some people lost decades of hardwork money. Your defense is meaningless."
+  },
+  {
+   "author": "niftynei",
+   "created": "2026-08-07T01:58:17Z",
+   "media": 0,
+   "name": "nifty, ideas guy",
+   "role": "reply",
+   "status": "2085546037633007716",
+   "text": "the last few months have been a lot"
+  },
+  {
+   "author": "ZeusLN",
+   "created": "2026-08-07T03:16:41Z",
+   "media": 1,
+   "name": "ZEUS",
+   "role": "reply",
+   "status": "2085565765189505095",
+   "text": "UPDATE (Aug. 6, 2026): ZEUS Pay Lightning Addresses are back online.\n\nZEUS White, block source, and graph data services remained operational throughout the incident. Currency exchange rate services experienced brief disruptions but are now fully stable."
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-07T06:46:17Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "reply",
+   "status": "2085618516112097433",
+   "text": "Does my tweet sound like I\u2019m defending them?"
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2085269060028170742",
+ "url": "https://x.com/afilini/status/2085269060028170742"
+}

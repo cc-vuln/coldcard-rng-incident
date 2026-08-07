@@ -1,0 +1,2872 @@
+<!--
+=========================================================
+* Soft UI Design System - v1.0.9
+=========================================================
+
+* Product Page:  https://www.creative-tim.com/product/soft-ui-design-system 
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+* Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
+
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="apple-touch-icon" sizes="76x76" href="/static/img/karma_logo_main.png">
+<link rel="icon" type="image/png" href="/static/img/karma_logo_main.png">
+
+<title>
+  Karma-X - Protection &gt; Detection
+</title>
+<!--     Fonts and icons     -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
+<!-- Nucleo Icons -->
+<link href="/static/css/nucleo-icons.css" rel="stylesheet" />
+<link href="/static/css/nucleo-svg.css" rel="stylesheet" />
+
+<!-- Font Awesome Icons -->
+<script src="https://kit.fontawesome.com/d4c9e0c618.js" crossorigin="anonymous" defer></script>
+<link href="/static/css/nucleo-svg.css" rel="stylesheet" />
+
+<!-- CSS Files -->
+<link id="pagestyle" href="/static/css/soft-design-system.css" rel="stylesheet" />
+
+
+<!-- Open Graph (LinkedIn, Facebook, etc.) -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings">
+<meta property="og:description" content="On July 31, 2026, Coinkite released Coldcard firmware v5.6.0 as an urgent hotfix for a &quot;limited entropy bug&quot; that produced roughly $90M in user losses. This post presents a technical …">
+<meta property="og:url" content="https://www.karma-x.io/blog/post/75/">
+<meta property="og:site_name" content="Karma-X">
+
+<meta property="og:image" content="https://www.karma-x.io/static/img/coldcardvuln.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:type" content="image/png">
+
+
+<!-- Twitter/X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Karma_X_Inc">
+<meta name="twitter:title" content="Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings">
+<meta name="twitter:description" content="On July 31, 2026, Coinkite released Coldcard firmware v5.6.0 as an urgent hotfix for a &quot;limited entropy bug&quot; that produced roughly $90M in user losses. This post presents a technical …">
+
+<meta name="twitter:image" content="https://www.karma-x.io/static/img/coldcardvuln.png">
+
+
+
+</head>
+
+<body  class="index-page bg-gray-200"  >
+
+  
+
+    
+
+
+
+<!-- Navbar Light -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+  <div class="container">
+    <a class="navbar-brand" href="/" rel="tooltip" title="Karma-X: Protection &gt; Detection" data-placement="bottom">
+	    <img src="/static/img/karma_logo_main.png" style="width: 40px; height: 40px;">
+      Karma-X 
+    </a>
+    <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon mt-2">
+        <span class="navbar-toggler-bar bar1"></span>
+        <span class="navbar-toggler-bar bar2"></span>
+        <span class="navbar-toggler-bar bar3"></span>
+      </span>
+    </button>
+    <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0 ms-lg-12 ps-lg-5" id="navigation">
+      <ul class="navbar-nav navbar-nav-hover w-100">
+        <li class="nav-item dropdown dropdown-hover mx-2 ms-lg-5">
+          <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center" id="dropdownMenuPages5" data-bs-toggle="dropdown" aria-expanded="false">
+            Company 
+            <img src="/static/img/down-arrow-dark.svg" alt="down-arrow" class="arrow ms-1">
+          </a>
+          <div class="dropdown-menu dropdown-menu-animation dropdown-md p-3 border-radius-lg mt-0 mt-lg-3" aria-labelledby="dropdownMenuPages5">
+            <div class="d-none d-lg-block">
+              <div class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center px-0">
+                <div class="d-inline-block">
+                  <div class="icon icon-shape icon-xs border-radius-md bg-gradient-primary text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <title>shop </title>
+                      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                          <g transform="translate(1716.000000, 291.000000)">
+                            <g transform="translate(0.000000, 148.000000)">
+                              <path d="M46.7199583,10.7414583 L40.8449583,0.949791667 C40.4909749,0.360605034 39.8540131,0 39.1666667,0 L7.83333333,0 C7.1459869,0 6.50902508,0.360605034 6.15504167,0.949791667 L0.280041667,10.7414583 C0.0969176761,11.0460037 -1.23209662e-05,11.3946378 -1.23209662e-05,11.75 C-0.00758042603,16.0663731 3.48367543,19.5725301 7.80004167,19.5833333 L7.81570833,19.5833333 C9.75003686,19.5882688 11.6168794,18.8726691 13.0522917,17.5760417 C16.0171492,20.2556967 20.5292675,20.2556967 23.494125,17.5760417 C26.4604562,20.2616016 30.9794188,20.2616016 33.94575,17.5760417 C36.2421905,19.6477597 39.5441143,20.1708521 42.3684437,18.9103691 C45.1927731,17.649886 47.0084685,14.8428276 47.0000295,11.75 C47.0000295,11.3946378 46.9030823,11.0460037 46.7199583,10.7414583 Z" opacity="0.598981585"></path>
+                              <path d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"></path>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+                Karma-X Inc.
+              </div>
+              <a href="/" class="dropdown-item border-radius-md">
+                <span class="ps-3">Main</span>
+              </a>
+              <a href="/about-us/" class="dropdown-item border-radius-md">
+                <span class="ps-3">About Us</span>
+              </a>
+              <a href="/contact-us/" class="dropdown-item border-radius-md">
+                <span class="ps-3">Contact Us</span>
+              </a>
+            </div>
+            <div class="d-lg-none">
+              <div class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center px-0">
+                <div class="d-inline-block">
+                  <div class="icon icon-shape icon-xs border-radius-md bg-gradient-primary text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <title>shop </title>
+                      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                          <g transform="translate(1716.000000, 291.000000)">
+                            <g transform="translate(0.000000, 148.000000)">
+                              <path d="M46.7199583,10.7414583 L40.8449583,0.949791667 C40.4909749,0.360605034 39.8540131,0 39.1666667,0 L7.83333333,0 C7.1459869,0 6.50902508,0.360605034 6.15504167,0.949791667 L0.280041667,10.7414583 C0.0969176761,11.0460037 -1.23209662e-05,11.3946378 -1.23209662e-05,11.75 C-0.00758042603,16.0663731 3.48367543,19.5725301 7.80004167,19.5833333 L7.81570833,19.5833333 C9.75003686,19.5882688 11.6168794,18.8726691 13.0522917,17.5760417 C16.0171492,20.2556967 20.5292675,20.2556967 23.494125,17.5760417 C26.4604562,20.2616016 30.9794188,20.2616016 33.94575,17.5760417 C36.2421905,19.6477597 39.5441143,20.1708521 42.3684437,18.9103691 C45.1927731,17.649886 47.0084685,14.8428276 47.0000295,11.75 C47.0000295,11.3946378 46.9030823,11.0460037 46.7199583,10.7414583 Z" opacity="0.598981585"></path>
+                              <path d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"></path>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+                Karma-X Inc.
+              </div>
+              <a href="/" class="dropdown-item border-radius-md">
+                <span class="ps-3">Main</span>
+              </a>
+              <a href="/about-us/" class="dropdown-item border-radius-md">
+                <span class="ps-3">About Us</span>
+              </a>
+              <a href="/contact-us/" class="dropdown-item border-radius-md">
+                <span class="ps-3">Contact Us</span>
+              </a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item dropdown dropdown-hover mx-2">
+          <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center" id="dropdownMenuDocs" data-bs-toggle="dropdown" aria-expanded="false">
+            Products 
+            <img src="/static/img/down-arrow-dark.svg" alt="down-arrow" class="arrow ms-1">
+          </a>
+          <ul class="dropdown-menu dropdown-menu-animation dropdown-lg mt-0 mt-lg-3 p-3 border-radius-lg" aria-labelledby="dropdownMenuDocs">
+            <div class="d-none d-lg-block">
+              <ul class="list-group">
+                <li class="nav-item list-group-item border-0 p-0">
+                  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/getstarted/">
+                    <div class="d-flex">
+                      <div class="icon h-10 me-3 d-flex mt-1">
+                        <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                          <title>spaceship</title>
+                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g transform="translate(-1720.000000, -592.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                              <g transform="translate(1716.000000, 291.000000)">
+                                <g transform="translate(4.000000, 301.000000)">
+                                  <path class="color-background" d="M39.3,0.706666667 C38.9660984,0.370464027 38.5048767,0.192278529 38.0316667,0.216666667 C14.6516667,1.43666667 6.015,22.2633333 5.93166667,22.4733333 C5.68236407,23.0926189 5.82664679,23.8009159 6.29833333,24.2733333 L15.7266667,33.7016667 C16.2013871,34.1756798 16.9140329,34.3188658 17.535,34.065 C17.7433333,33.98 38.4583333,25.2466667 39.7816667,1.97666667 C39.8087196,1.50414529 39.6335979,1.04240574 39.3,0.706666667 Z M25.69,19.0233333 C24.7367525,19.9768687 23.3029475,20.2622391 22.0572426,19.7463614 C20.8115377,19.2304837 19.9992882,18.0149658 19.9992882,16.6666667 C19.9992882,15.3183676 20.8115377,14.1028496 22.0572426,13.5869719 C23.3029475,13.0710943 24.7367525,13.3564646 25.69,14.31 C26.9912731,15.6116662 26.9912731,17.7216672 25.69,19.0233333 L25.69,19.0233333 Z">
+                                  </path>
+                                  <path class="color-background" d="M1.855,31.4066667 C3.05106558,30.2024182 4.79973884,29.7296005 6.43969145,30.1670277 C8.07964407,30.6044549 9.36054508,31.8853559 9.7979723,33.5253085 C10.2353995,35.1652612 9.76258177,36.9139344 8.55833333,38.11 C6.70666667,39.9616667 0,40 0,40 C0,40 0,33.2566667 1.855,31.4066667 Z">
+                                  </path>
+                                  <path class="color-background" d="M17.2616667,3.90166667 C12.4943643,3.07192755 7.62174065,4.61673894 4.20333333,8.04166667 C3.31200265,8.94126033 2.53706177,9.94913142 1.89666667,11.0416667 C1.5109569,11.6966059 1.61721591,12.5295394 2.155,13.0666667 L5.47,16.3833333 C8.55036617,11.4946947 12.5559074,7.25476565 17.2616667,3.90166667 L17.2616667,3.90166667 Z" opacity="0.598539807"></path>
+                                  <path class="color-background" d="M36.0983333,22.7383333 C36.9280725,27.5056357 35.3832611,32.3782594 31.9583333,35.7966667 C31.0587397,36.6879974 30.0508686,37.4629382 28.9583333,38.1033333 C28.3033941,38.4890431 27.4704606,38.3827841 26.9333333,37.845 L23.6166667,34.53 C28.5053053,31.4496338 32.7452344,27.4440926 36.0983333,22.7383333 L36.0983333,22.7383333 Z" opacity="0.598539807"></path>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </svg>
+                      </div>
+                      <div>
+                        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma-X Endpoint</h6>
+                        <span class="text-sm">Upgrade your security with Karma-X</span>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li class="nav-item list-group-item border-0 p-0">
+                  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/timecapsule/">
+                    <div class="d-flex">
+                      <div class="icon h-10 me-3 d-flex mt-1">
+                        <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                          <title>document</title>
+                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                              <g transform="translate(1716.000000, 291.000000)">
+                                <g transform="translate(154.000000, 300.000000)">
+                                  <path class="color-background" d="M40,40 L36.3636364,40 L36.3636364,3.63636364 L5.45454545,3.63636364 L5.45454545,0 L38.1818182,0 C39.1854545,0 40,0.814545455 40,1.81818182 L40,40 Z" opacity="0.603585379"></path>
+                                  <path class="color-background" d="M30.9090909,7.27272727 L1.81818182,7.27272727 C0.814545455,7.27272727 0,8.08727273 0,9.09090909 L0,41.8181818 C0,42.8218182 0.814545455,43.6363636 1.81818182,43.6363636 L30.9090909,43.6363636 C31.9127273,43.6363636 32.7272727,42.8218182 32.7272727,41.8181818 L32.7272727,9.09090909 C32.7272727,8.08727273 31.9127273,7.27272727 30.9090909,7.27272727 Z M18.1818182,34.5454545 L7.27272727,34.5454545 L7.27272727,30.9090909 L18.1818182,30.9090909 L18.1818182,34.5454545 Z M25.4545455,27.2727273 L7.27272727,27.2727273 L7.27272727,23.6363636 L25.4545455,23.6363636 L25.4545455,27.2727273 Z M25.4545455,20 L7.27272727,20 L7.27272727,16.3636364 L25.4545455,16.3636364 L25.4545455,20 Z">
+                                  </path>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </svg>
+                      </div>
+                      <div>
+                        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma-X TimeCapsule</h6>
+                        <span class="text-sm">Secure passphrases to Digital Assets with TimeCapsule</span>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li class="nav-item list-group-item border-0 p-0">
+                  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/vitamin-k/">
+                    <div class="d-flex">
+                      <div class="icon h-10 me-3 d-flex mt-1">
+                        <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                          <title>box-3d-50</title>
+                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g transform="translate(-2319.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                              <g transform="translate(1716.000000, 291.000000)">
+                                <g transform="translate(603.000000, 0.000000)">
+                                  <path class="color-background" d="M22.7597136,19.3090182 L38.8987031,11.2395234 C39.3926816,10.9925342 39.592906,10.3918611 39.3459167,9.89788265 C39.249157,9.70436312 39.0922432,9.5474453 38.8987261,9.45068056 L20.2741875,0.1378125 L20.2741875,0.1378125 C19.905375,-0.04725 19.469625,-0.04725 19.0995,0.1378125 L3.1011696,8.13815822 C2.60720568,8.38517662 2.40701679,8.98586148 2.6540352,9.4798254 C2.75080129,9.67332903 2.90771305,9.83023153 3.10122239,9.9269862 L21.8652864,19.3090182 C22.1468139,19.4497819 22.4781861,19.4497819 22.7597136,19.3090182 Z">
+                                  </path>
+                                  <path class="color-background" d="M23.625,22.429159 L23.625,39.8805372 C23.625,40.4328219 24.0727153,40.8805372 24.625,40.8805372 C24.7802551,40.8805372 24.9333778,40.8443874 25.0722402,40.7749511 L41.2741875,32.673375 L41.2741875,32.673375 C41.719125,32.4515625 42,31.9974375 42,31.5 L42,14.241659 C42,13.6893742 41.5522847,13.241659 41,13.241659 C40.8447549,13.241659 40.6916418,13.2778041 40.5527864,13.3472318 L24.1777864,21.5347318 C23.8390024,21.7041238 23.625,22.0503869 23.625,22.429159 Z" opacity="0.7"></path>
+                                  <path class="color-background" d="M20.4472136,21.5347318 L1.4472136,12.0347318 C0.953235098,11.7877425 0.352562058,11.9879669 0.105572809,12.4819454 C0.0361450918,12.6208008 6.47121774e-16,12.7739139 0,12.929159 L0,30.1875 L0,30.1875 C0,30.6849375 0.280875,31.1390625 0.7258125,31.3621875 L19.5528096,40.7750766 C20.0467945,41.0220531 20.6474623,40.8218132 20.8944388,40.3278283 C20.963859,40.1889789 21,40.0358742 21,39.8806379 L21,22.429159 C21,22.0503869 20.7859976,21.7041238 20.4472136,21.5347318 Z" opacity="0.7"></path>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </svg>
+                      </div>
+                      <div>
+                        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Vitamin-K for Free</h6>
+                        <span class="text-sm">Stop advanced actors with a daily vitamin!</span>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+                <li class="nav-item list-group-item border-0 p-0">
+                  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/blog/post/27/">
+                    <div class="d-flex">
+                      <div class="icon h-10 me-3 d-flex mt-1">
+                        <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                          <title>switches</title>
+                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g transform="translate(-1870.000000, -440.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                              <g transform="translate(1716.000000, 291.000000)">
+                                <g transform="translate(154.000000, 149.000000)">
+                                  <path class="color-background" d="M10,20 L30,20 C35.4545455,20 40,15.4545455 40,10 C40,4.54545455 35.4545455,0 30,0 L10,0 C4.54545455,0 0,4.54545455 0,10 C0,15.4545455 4.54545455,20 10,20 Z M10,3.63636364 C13.4545455,3.63636364 16.3636364,6.54545455 16.3636364,10 C16.3636364,13.4545455 13.4545455,16.3636364 10,16.3636364 C6.54545455,16.3636364 3.63636364,13.4545455 3.63636364,10 C3.63636364,6.54545455 6.54545455,3.63636364 10,3.63636364 Z" opacity="0.6"></path>
+                                  <path class="color-background" d="M30,23.6363636 L10,23.6363636 C4.54545455,23.6363636 0,28.1818182 0,33.6363636 C0,39.0909091 4.54545455,43.6363636 10,43.6363636 L30,43.6363636 C35.4545455,43.6363636 40,39.0909091 40,33.6363636 C40,28.1818182 35.4545455,23.6363636 30,23.6363636 Z M30,40 C26.5454545,40 23.6363636,37.0909091 23.6363636,33.6363636 C23.6363636,30.1818182 26.5454545,27.2727273 30,27.2727273 C33.4545455,27.2727273 36.3636364,30.1818182 36.3636364,33.6363636 C36.3636364,37.0909091 33.4545455,40 30,40 Z">
+                                  </path>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </svg>
+                      </div>
+                      <div>
+                        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma Browser</h6>
+                        <span class="text-sm">Add Karma protection to your browser!</span>
+                      </div>
+                    </div>
+                  </a>
+		</li>
+		<li class="nav-item list-group-item border-0 p-0">
+  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/vpn/">
+    <div class="d-flex">
+      <div class="icon h-10 me-3 d-flex mt-1">
+	<svg class="text-secondary" width="20px" height="20px" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <title>lock</title>
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g transform="translate(-1869.000000, -441.000000)" fill="#FFFFFF" fill-rule="nonzero">
+              <g transform="translate(1716.000000, 291.000000)">
+                <g transform="translate(153.000000, 150.000000)">
+                  <path class="color-background" d="M12,2 C13.6568542,2 15,3.34314575 15,5 L15,7 L9,7 L9,5 C9,3.34314575 10.3431458,2 12,2 Z M17,7 L7,7 C5.8954305,7 5,7.8954305 5,9 L5,19 C5,20.1045695 5.8954305,21 7,21 L17,21 C18.1045695,21 19,20.1045695 19,19 L19,9 C19,7.8954305 18.1045695,7 17,7 Z M12,15 C11.4477153,15 11,14.5522847 11,14 C11,13.4477153 11.4477153,13 12,13 C12.5522847,13 13,13.4477153 13,14 C13,14.5522847 12.5522847,15 12,15 Z"></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get KarmaVPN</h6>
+        <span class="text-sm">Browse the Internet with Privacy!</span>
+      </div>
+    </div>
+  </a>
+</li>
+<li class="nav-item list-group-item border-0 p-0">
+  <a class="dropdown-item py-2 ps-3 border-radius-md" href="/utilities/">
+    <div class="d-flex">
+      <div class="icon h-10 me-3 d-flex mt-1">
+	<svg class="text-secondary" width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <title>tools</title>
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g fill="#FFFFFF" fill-rule="nonzero">
+              <path class="color-background" d="M19.287 2.73l-1.87-1.87a.999.999 0 0 0-1.414 0L14.59 3.267c-.264.263-.62.39-.978.366l-1.766-1.215a1.001 1.001 0 0 0-1.273 1.545l1.214 1.765c.022.36-.102.717-.365.98L2.084 16.287a.999.999 0 1 0 1.414 1.414l7.552-7.553c.264-.263.62-.388.979-.366l1.765 1.214a1.001 1.001 0 1 0 1.545-1.273l-1.215-1.765c-.024-.358.103-.714.366-.978l1.764-1.764a1 1 0 0 0 0-1.414zM7.994 16.952a2.5 2.5 0 1 1 3.536-3.536l-3.536 3.536z"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Free Karma Internet Tools</h6>
+        <span class="text-sm">Check out our free Internet tools!</span>
+      </div>
+    </div>
+  </a>
+</li>
+              </ul>
+            </div>
+            <div class="row d-lg-none">
+              <div class="col-md-12 g-0">
+                <a class="dropdown-item py-2 ps-3 border-radius-md" href="/getstarted">
+                  <div class="d-flex">
+                    <div class="icon h-10 me-3 d-flex mt-1">
+                      <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>spaceship</title>
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                          <g transform="translate(-1720.000000, -592.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                              <g transform="translate(4.000000, 301.000000)">
+                                <path class="color-background" d="M39.3,0.706666667 C38.9660984,0.370464027 38.5048767,0.192278529 38.0316667,0.216666667 C14.6516667,1.43666667 6.015,22.2633333 5.93166667,22.4733333 C5.68236407,23.0926189 5.82664679,23.8009159 6.29833333,24.2733333 L15.7266667,33.7016667 C16.2013871,34.1756798 16.9140329,34.3188658 17.535,34.065 C17.7433333,33.98 38.4583333,25.2466667 39.7816667,1.97666667 C39.8087196,1.50414529 39.6335979,1.04240574 39.3,0.706666667 Z M25.69,19.0233333 C24.7367525,19.9768687 23.3029475,20.2622391 22.0572426,19.7463614 C20.8115377,19.2304837 19.9992882,18.0149658 19.9992882,16.6666667 C19.9992882,15.3183676 20.8115377,14.1028496 22.0572426,13.5869719 C23.3029475,13.0710943 24.7367525,13.3564646 25.69,14.31 C26.9912731,15.6116662 26.9912731,17.7216672 25.69,19.0233333 L25.69,19.0233333 Z">
+                                </path>
+                                <path class="color-background" d="M1.855,31.4066667 C3.05106558,30.2024182 4.79973884,29.7296005 6.43969145,30.1670277 C8.07964407,30.6044549 9.36054508,31.8853559 9.7979723,33.5253085 C10.2353995,35.1652612 9.76258177,36.9139344 8.55833333,38.11 C6.70666667,39.9616667 0,40 0,40 C0,40 0,33.2566667 1.855,31.4066667 Z">
+                                </path>
+                                <path class="color-background" d="M17.2616667,3.90166667 C12.4943643,3.07192755 7.62174065,4.61673894 4.20333333,8.04166667 C3.31200265,8.94126033 2.53706177,9.94913142 1.89666667,11.0416667 C1.5109569,11.6966059 1.61721591,12.5295394 2.155,13.0666667 L5.47,16.3833333 C8.55036617,11.4946947 12.5559074,7.25476565 17.2616667,3.90166667 L17.2616667,3.90166667 Z" opacity="0.598539807"></path>
+                                <path class="color-background" d="M36.0983333,22.7383333 C36.9280725,27.5056357 35.3832611,32.3782594 31.9583333,35.7966667 C31.0587397,36.6879974 30.0508686,37.4629382 28.9583333,38.1033333 C28.3033941,38.4890431 27.4704606,38.3827841 26.9333333,37.845 L23.6166667,34.53 C28.5053053,31.4496338 32.7452344,27.4440926 36.0983333,22.7383333 L36.0983333,22.7383333 Z" opacity="0.598539807"></path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+                    <div>
+                      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma-X Endpoint</h6>
+                      <span class="text-sm">Upgrade your security with Karma-X</span>
+                    </div>
+                  </div>
+                </a>
+                <a class="dropdown-item py-2 ps-3 border-radius-md" href="/timecapsule/">
+                  <div class="d-flex">
+                    <div class="icon h-10 me-3 d-flex mt-1">
+                      <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>document</title>
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                          <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                              <g transform="translate(154.000000, 300.000000)">
+                                <path class="color-background" d="M40,40 L36.3636364,40 L36.3636364,3.63636364 L5.45454545,3.63636364 L5.45454545,0 L38.1818182,0 C39.1854545,0 40,0.814545455 40,1.81818182 L40,40 Z" opacity="0.603585379"></path>
+                                <path class="color-background" d="M30.9090909,7.27272727 L1.81818182,7.27272727 C0.814545455,7.27272727 0,8.08727273 0,9.09090909 L0,41.8181818 C0,42.8218182 0.814545455,43.6363636 1.81818182,43.6363636 L30.9090909,43.6363636 C31.9127273,43.6363636 32.7272727,42.8218182 32.7272727,41.8181818 L32.7272727,9.09090909 C32.7272727,8.08727273 31.9127273,7.27272727 30.9090909,7.27272727 Z M18.1818182,34.5454545 L7.27272727,34.5454545 L7.27272727,30.9090909 L18.1818182,30.9090909 L18.1818182,34.5454545 Z M25.4545455,27.2727273 L7.27272727,27.2727273 L7.27272727,23.6363636 L25.4545455,23.6363636 L25.4545455,27.2727273 Z M25.4545455,20 L7.27272727,20 L7.27272727,16.3636364 L25.4545455,16.3636364 L25.4545455,20 Z">
+                                </path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+                    <div>
+                      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma-X TimeCapsule</h6>
+                      <span class="text-sm">Secure passphrases to Digital Assets with TimeCapsule</span>
+                    </div>
+                  </div>
+                </a>
+                <a class="dropdown-item py-2 ps-3 border-radius-md" href="/vitamin-k/">
+                  <div class="d-flex">
+                    <div class="icon h-10 me-3 d-flex mt-1">
+                      <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>box-3d-50</title>
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                          <g transform="translate(-2319.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                              <g transform="translate(603.000000, 0.000000)">
+                                <path class="color-background" d="M22.7597136,19.3090182 L38.8987031,11.2395234 C39.3926816,10.9925342 39.592906,10.3918611 39.3459167,9.89788265 C39.249157,9.70436312 39.0922432,9.5474453 38.8987261,9.45068056 L20.2741875,0.1378125 L20.2741875,0.1378125 C19.905375,-0.04725 19.469625,-0.04725 19.0995,0.1378125 L3.1011696,8.13815822 C2.60720568,8.38517662 2.40701679,8.98586148 2.6540352,9.4798254 C2.75080129,9.67332903 2.90771305,9.83023153 3.10122239,9.9269862 L21.8652864,19.3090182 C22.1468139,19.4497819 22.4781861,19.4497819 22.7597136,19.3090182 Z">
+                                </path>
+                                <path class="color-background" d="M23.625,22.429159 L23.625,39.8805372 C23.625,40.4328219 24.0727153,40.8805372 24.625,40.8805372 C24.7802551,40.8805372 24.9333778,40.8443874 25.0722402,40.7749511 L41.2741875,32.673375 L41.2741875,32.673375 C41.719125,32.4515625 42,31.9974375 42,31.5 L42,14.241659 C42,13.6893742 41.5522847,13.241659 41,13.241659 C40.8447549,13.241659 40.6916418,13.2778041 40.5527864,13.3472318 L24.1777864,21.5347318 C23.8390024,21.7041238 23.625,22.0503869 23.625,22.429159 Z" opacity="0.7"></path>
+                                <path class="color-background" d="M20.4472136,21.5347318 L1.4472136,12.0347318 C0.953235098,11.7877425 0.352562058,11.9879669 0.105572809,12.4819454 C0.0361450918,12.6208008 6.47121774e-16,12.7739139 0,12.929159 L0,30.1875 L0,30.1875 C0,30.6849375 0.280875,31.1390625 0.7258125,31.3621875 L19.5528096,40.7750766 C20.0467945,41.0220531 20.6474623,40.8218132 20.8944388,40.3278283 C20.963859,40.1889789 21,40.0358742 21,39.8806379 L21,22.429159 C21,22.0503869 20.7859976,21.7041238 20.4472136,21.5347318 Z" opacity="0.7"></path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+                    <div>
+                      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Vitamin-K for Free</h6>
+                      <span class="text-sm">Stop advanced actors with a daily vitamin!</span>
+                    </div>
+                  </div>
+                </a>
+                <a class="dropdown-item py-2 ps-3 border-radius-md" href="/blog/post/27/">
+                  <div class="d-flex">
+                    <div class="icon h-10 me-3 d-flex mt-1">
+                      <svg class="text-secondary" width="16px" height="16px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>switches</title>
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                          <g transform="translate(-1870.000000, -440.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                              <g transform="translate(154.000000, 149.000000)">
+                                <path class="color-background" d="M10,20 L30,20 C35.4545455,20 40,15.4545455 40,10 C40,4.54545455 35.4545455,0 30,0 L10,0 C4.54545455,0 0,4.54545455 0,10 C0,15.4545455 4.54545455,20 10,20 Z M10,3.63636364 C13.4545455,3.63636364 16.3636364,6.54545455 16.3636364,10 C16.3636364,13.4545455 13.4545455,16.3636364 10,16.3636364 C6.54545455,16.3636364 3.63636364,13.4545455 3.63636364,10 C3.63636364,6.54545455 6.54545455,3.63636364 10,3.63636364 Z" opacity="0.6"></path>
+                                <path class="color-background" d="M30,23.6363636 L10,23.6363636 C4.54545455,23.6363636 0,28.1818182 0,33.6363636 C0,39.0909091 4.54545455,43.6363636 10,43.6363636 L30,43.6363636 C35.4545455,43.6363636 40,39.0909091 40,33.6363636 C40,28.1818182 35.4545455,23.6363636 30,23.6363636 Z M30,40 C26.5454545,40 23.6363636,37.0909091 23.6363636,33.6363636 C23.6363636,30.1818182 26.5454545,27.2727273 30,27.2727273 C33.4545455,27.2727273 36.3636364,30.1818182 36.3636364,33.6363636 C36.3636364,37.0909091 33.4545455,40 30,40 Z">
+                                </path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+                    <div>
+                      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get Karma Browser</h6>
+                      <span class="text-sm">Add Karma protection to your browser!</span>
+                    </div>
+                  </div>
+		</a>
+		<a class="dropdown-item py-2 ps-3 border-radius-md" href="/vpn/">
+  <div class="d-flex">
+    <div class="icon h-10 me-3 d-flex mt-1">
+      <svg class="text-secondary" width="20px" height="20px" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <title>lock</title>
+        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g transform="translate(-1869.000000, -441.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <g transform="translate(1716.000000, 291.000000)">
+              <g transform="translate(153.000000, 150.000000)">
+                <path class="color-background" d="M12,2 C13.6568542,2 15,3.34314575 15,5 L15,7 L9,7 L9,5 C9,3.34314575 10.3431458,2 12,2 Z M17,7 L7,7 C5.8954305,7 5,7.8954305 5,9 L5,19 C5,20.1045695 5.8954305,21 7,21 L17,21 C18.1045695,21 19,20.1045695 19,19 L19,9 C19,7.8954305 18.1045695,7 17,7 Z M12,15 C11.4477153,15 11,14.5522847 11,14 C11,13.4477153 11.4477153,13 12,13 C12.5522847,13 13,13.4477153 13,14 C13,14.5522847 12.5522847,15 12,15 Z"></path>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div>
+      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Get KarmaVPN</h6>
+      <span class="text-sm">Browse the Internet with Privacy!</span>
+    </div>
+  </div>
+</a>
+<a class="dropdown-item py-2 ps-3 border-radius-md" href="/utilities/">
+  <div class="d-flex">
+    <div class="icon h-10 me-3 d-flex mt-1">
+      <svg class="text-secondary" width="20px" height="20px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <title>tools</title>
+        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g fill="#FFFFFF" fill-rule="nonzero">
+            <path class="color-background" d="M19.287 2.73l-1.87-1.87a.999.999 0 0 0-1.414 0L14.59 3.267c-.264.263-.62.39-.978.366l-1.766-1.215a1.001 1.001 0 0 0-1.273 1.545l1.214 1.765c.022.36-.102.717-.365.98L2.084 16.287a.999.999 0 1 0 1.414 1.414l7.552-7.553c.264-.263.62-.388.979-.366l1.765 1.214a1.001 1.001 0 1 0 1.545-1.273l-1.215-1.765c-.024-.358.103-.714.366-.978l1.764-1.764a1 1 0 0 0 0-1.414zM7.994 16.952a2.5 2.5 0 1 1 3.536-3.536l-3.536 3.536z"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div>
+      <h6 class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">Free Karma Internet Tools</h6>
+      <span class="text-sm">Check out our free Internet tools!</span>
+    </div>
+  </div>
+</a>
+              </div>
+            </div>
+          </ul>
+        </li>
+	<li class="nav-item dropdown dropdown-hover mx-2">
+          <a href="/blog/" class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center" aria-expanded="false">
+            Blog
+          </a>
+	</li>
+	<li class="nav-item dropdown dropdown-hover mx-2">
+          <a href="/blog/news/" class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center" aria-expanded="false">
+            News
+          </a>
+	</li>
+	
+	<li class="nav-item dropdown dropdown-hover mx-2">
+          <a href="/top-ten/" class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center" aria-expanded="false">
+	    Top Ten Threats
+          </a>
+        </li>
+
+        
+        <li class="nav-item ms-lg-auto">
+          <a class="nav-link nav-link-icon me-2" href="/accounts/login/">
+            <i class="fa fa-sign-in me-1"></i>
+            <p class="d-inline text-sm z-index-1 font-bold" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Login">Login</p>
+          </a>
+        </li>
+        
+
+        <li class="nav-item my-auto ms-3 ms-lg-0">
+          <a href="/account/" target="_blank" class="btn btn-sm  bg-gradient-primary  btn-round mb-0 me-1 mt-2 mt-md-0">Download</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="/static/js/jquery-3.5.1.min.js" defer></script>
+  <script src="/static/js/bootstrap-4.5.2.min.js" defer></script>
+
+
+  <!-- Modal HTML -->
+  <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <img src="https://www.karma-x.io/static/img/karma_logo_main.png" alt="Karma-X Logo" style="max-width: 100px; margin-right: 10px;">
+          <h5 class="modal-title" id="emailModalLabel">Stay Informed with Karma-X</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="color: darkblue;">Subscribe to our newsletter to hear more about Karma-X products!</p>
+          <form id="emailForm" method="POST" action="/subscribe/">
+            <input type="hidden" name="csrfmiddlewaretoken" value="5bfP524WhIjrVnjeeI0srGa96u5j4gYhg7oFR5uxKAeAzSYtwCBVRjWlNjW7Qpc8">
+            <div class="form-group">
+              <label for="email">Email address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+            </div>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+            <p style="color: gray; font-size: 0.6em; margin-top: 10px;">By submitting this form, you agree to our <a href="/terms/" target="_blank">Terms of Service</a> and <a href="/privacy/" target="_blank">Privacy Policy</a>, and agree to receive emails from Karma-X.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script to manage modal display and cookies -->
+  <script>
+    //$(document).ready(function() {
+    //  if (!getCookie('emailModalShown')) {
+    //    setTimeout(function() {
+    //      $('#emailModal').modal('show');
+    //    }, 8000);
+    //  }
+
+    //  $('#emailModal').on('shown.bs.modal', function () {
+    //    setCookie('emailModalShown', 'true', 20);
+    //  });
+
+      // Event listener for the close button
+    //  $('.modal .close').on('click', function() {
+    //    $('#emailModal').modal('hide');
+    //  });
+
+      // Event listener for the backdrop click
+    //  $(document).on('click', '.modal-backdrop', function() {
+    //    $('#emailModal').modal('hide');
+    //  });
+
+    //  function setCookie(name, value, days) {
+    //    var expires = "";
+    //    if (days) {
+    //      var date = new Date();
+    //      date.setTime(date.getTime() + (days*24*60*60*1000));
+    //      expires = "; expires=" + date.toUTCString();
+    //    }
+    //    document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
+    //  }
+
+    //  function getCookie(name) {
+    //    var nameEQ = name + "=";
+    //    var ca = document.cookie.split(';');
+    //    for(var i=0;i < ca.length;i++) {
+    //      var c = ca[i];
+    //      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+    //      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    //    }
+    //    return null;
+    //  }
+    //});
+  </script>
+  
+
+</nav>
+<!-- End Navbar -->
+
+
+  
+
+  
+
+
+
+<header class="header-2">
+  <div class="page-header min-vh-50 relative" style="position: relative; overflow: hidden;">
+        <video autoplay muted loop playsinline style="position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%, -50%); z-index: -1;">
+            <source src="https://www.karma-x.io/static/img/blog.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 0;"></div>
+        <div class="container" style="position: relative; z-index: 1;">
+      <div class="row">
+        <div class="col-lg-7 text-center mx-auto" style="margin-top: -80px;">
+                <img style="height: 200px; width: 200px; margin: 10px;" src="/static/img/karma_logo_main.png">
+                <strong><h1 class="text-white pt-3 mt-n5">Karma-X Blog</h1>
+			<p class="lead text-white mt-3">Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings</p></strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="position-absolute w-100 z-index-1 bottom-0">
+      <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 40" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+          <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="moving-waves">
+          <use xlink:href="#gentle-wave" x="48" y="-1" fill="rgba(255,255,255,0.40" />
+          <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.35)" />
+          <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.25)" />
+          <use xlink:href="#gentle-wave" x="48" y="8" fill="rgba(255,255,255,0.20)" />
+          <use xlink:href="#gentle-wave" x="48" y="13" fill="rgba(255,255,255,0.15)" />
+          <use xlink:href="#gentle-wave" x="48" y="16" fill="rgba(255,255,255,0.95" />
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+
+  
+<style>
+    .paywall-container {
+    position: relative;
+    margin-top: -50px;
+    padding-top: 100px;
+}
+
+.paywall-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 1) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.paywall-content {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 15px;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.paywall-icon {
+    color: #007bff;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.paywall-benefits {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.badge-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+    /* Improved responsive spacing */
+    .blog-content-wrapper {
+        padding: 2rem 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .blog-content-wrapper {
+            padding: 3rem 2rem;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .blog-content-wrapper {
+            padding: 3rem 3rem;
+        }
+    }
+
+    /* Better mobile margins for main content */
+    @media (max-width: 767px) {
+	.paywall-content .card-body {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .paywall-icon svg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .paywall-benefits .col-md-6 {
+        margin-bottom: 0.75rem;
+    }
+    
+    .paywall-benefits span {
+        font-size: 0.875rem;
+    }
+        .blog-main-section {
+            margin-left: 0.5rem !important;
+            margin-right: 0.5rem !important;
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .blog-card-container {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+
+        /* Reduce container padding on mobile */
+        .container.my-sm-5 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            margin-top: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* Better image sizing on mobile */
+        .col-lg-3.col-10.mx-lg-0.mx-auto {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            margin-bottom: 1rem;
+        }
+
+        /* Adjust content column padding */
+        .col-lg-8.col-10 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+    }
+
+    /* Code block improvements */
+    pre {
+        background-color: #2f2f2f;
+        border: 1px solid #ddd;
+        padding: 1.5rem;
+        overflow-x: auto;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    @media (max-width: 767px) {
+        pre {
+            padding: 1rem;
+            margin: 0.75rem 0;
+            border-radius: 6px;
+        }
+    }
+
+    code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85em !important;
+        color: #efefef !important;
+    }
+
+    @media (max-width: 767px) {
+        code {
+            font-size: 0.75em !important;
+        }
+    }
+
+    /* Improved text readability on mobile */
+    .lead {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 767px) {
+        .lead {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        h2 {
+            font-size: 1.5rem !important;
+        }
+
+        h3 {
+            font-size: 1.25rem !important;
+        }
+    }
+
+    /* Takeaway Toggle Styles - Improved for mobile */
+    .content-toggle-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 1.5rem 0;
+        gap: 12px;
+        padding: 0 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .content-toggle-container {
+            margin: 2rem 0;
+            gap: 15px;
+        }
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: 0.4s;
+        border-radius: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(30px);
+    }
+
+    .toggle-label {
+        font-weight: 500;
+        font-size: 14px;
+        color: #666;
+        transition: all 0.3s ease;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    @media (max-width: 767px) {
+        .toggle-label {
+            font-size: 13px;
+        }
+    }
+
+    .toggle-label.active {
+        color: #007bff;
+        font-weight: 600;
+        transform: scale(1.05);
+    }
+
+    .content-view {
+        display: none;
+        padding: 0 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .content-view {
+            padding: 0;
+        }
+    }
+
+    .content-view.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .takeaway-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 10px rgba(240, 147, 251, 0.3);
+    }
+
+    @media (max-width: 767px) {
+        .takeaway-badge {
+            font-size: 12px;
+            padding: 5px 14px;
+            margin-bottom: 12px;
+        }
+    }
+
+    .takeaway-content {
+        background: linear-gradient(135deg, #fff5f5 0%, #fef5ff 100%);
+        border-left: 4px solid #f5576c;
+        padding: 1.5rem;
+        border-radius: 10px;
+        font-size: 17px;
+        line-height: 1.8;
+        color: #333;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+
+    @media (max-width: 767px) {
+        .takeaway-content {
+            padding: 1rem;
+            font-size: 15px;
+            line-height: 1.6;
+            border-radius: 8px;
+            border-left-width: 3px;
+        }
+    }
+
+    .takeaway-content h1, .takeaway-content h2, .takeaway-content h3 {
+        color: #f5576c;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 767px) {
+        .takeaway-content h1, .takeaway-content h2, .takeaway-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    .takeaway-content ul, .takeaway-content ol {
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 767px) {
+        .takeaway-content ul, .takeaway-content ol {
+            margin-left: 1rem;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .takeaway-content li {
+        margin-bottom: 12px;
+    }
+
+    @media (max-width: 767px) {
+        .takeaway-content li {
+            margin-bottom: 8px;
+        }
+    }
+
+    .takeaway-content strong {
+        color: #d63384;
+    }
+
+    /* Improved features section spacing */
+    .info-section {
+        padding: 2rem 0;
+    }
+
+    @media (min-width: 768px) {
+        .info-section {
+            padding: 3rem 0;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .info .icon {
+            margin-bottom: 0.5rem;
+        }
+
+        .info h5 {
+            font-size: 1.1rem;
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.75rem;
+        }
+
+        .info p {
+            font-size: 0.9rem;
+            padding-right: 0 !important;
+        }
+    }
+
+    /* Card improvements */
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    @media (max-width: 767px) {
+        .card {
+            border-radius: 8px;
+        }
+    }
+
+    /* Article body — long-form technical content */
+    .article-body {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    /* Override theme styles that make text invisible on light backgrounds */
+    .article-body * {
+        color: inherit;
+    }
+
+    .article-body [aria-label],
+    .article-body .text-gradient,
+    .article-body .text-white,
+    .article-body .text-light,
+    .article-body .text-muted {
+        color: #333 !important;
+        -webkit-text-fill-color: #333 !important;
+        background-clip: unset !important;
+        -webkit-background-clip: unset !important;
+    }
+
+    .article-body em {
+        color: #555;
+    }
+
+    .article-body h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #344767;
+    }
+
+    .article-body h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: #344767;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.4rem;
+    }
+
+    .article-body h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #344767;
+    }
+
+    .article-body h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    .article-body p {
+        margin-bottom: 1rem;
+    }
+
+    .article-body ul, .article-body ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .article-body li {
+        margin-bottom: 0.4rem;
+    }
+
+    .article-body strong {
+        color: #222;
+    }
+
+    .article-body hr {
+        border: none;
+        border-top: 1px solid #dee2e6;
+        margin: 2rem 0;
+    }
+
+    /* Tables */
+    .article-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        display: block;
+    }
+
+    .article-body thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .article-body tbody td {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: top;
+    }
+
+    .article-body tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    .article-body tbody tr:hover {
+        background-color: #e3f2fd;
+    }
+
+    /* Code blocks */
+    .article-body pre {
+        background-color: #1e1e2e;
+        border: 1px solid #313244;
+        padding: 1.25rem;
+        overflow-x: auto;
+        border-radius: 8px;
+        margin: 1.25rem 0;
+    }
+
+    .article-body pre code {
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.85rem !important;
+        color: #cdd6f4 !important;
+        line-height: 1.6;
+    }
+
+    .article-body code {
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.88em !important;
+        color: #e83e8c !important;
+        background: #f8f0f4;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .article-body pre code {
+        background: none;
+        padding: 0;
+    }
+
+    /* Blockquotes */
+    .article-body blockquote {
+        border-left: 4px solid #667eea;
+        padding: 0.75rem 1.25rem;
+        margin: 1.25rem 0;
+        background: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+        color: #495057;
+    }
+
+    /* Links */
+    .article-body a {
+        color: #007bff;
+        text-decoration: none;
+        border-bottom: 1px dotted #007bff;
+    }
+
+    .article-body a:hover {
+        color: #0056b3;
+        border-bottom-style: solid;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 767px) {
+        .article-body {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .article-body h1 { font-size: 1.4rem; }
+        .article-body h2 { font-size: 1.25rem; }
+        .article-body h3 { font-size: 1.1rem; }
+
+        .article-body table {
+            font-size: 0.8rem;
+        }
+
+        .article-body thead th,
+        .article-body tbody td {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .article-body pre {
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .article-body pre code {
+            font-size: 0.75rem !important;
+        }
+    }
+</style>
+
+  <section class="py-5 blog-main-section" style="margin-left: 3rem; margin-right: 3rem;">
+          <div class="card">
+    <div class="container my-sm-5 blog-card-container">
+      <div class="row">
+        
+        <!-- Image Column (regular blog posts only) -->
+        <div class="col-lg-3 col-10 mx-lg-0 mx-auto px-lg-0 px-md-0 my-auto">
+                <img class="w-100 border-radius-lg shadow" style="margin-top: 15px;" src="https://www.karma-x.io/static/img/coldcardvuln.png" alt="Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings">
+        </div>
+        
+
+	<!-- Content Column -->
+        <div class="col-lg-8 col-10 d-flex justify-content-center flex-column mx-auto text-lg-start text-center">
+          <h2 class="mb-0 mt-lg-0 mt-4 text-gradient text-info">Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings</h2>
+          <small class="text-muted">
+            Aug. 3, 2026 | Categories:
+            
+              <a href="/blog/category/Research/">Research</a>
+              , 
+            
+              <a href="/blog/category/Threats/">Threats</a>
+              , 
+            
+              <a href="/blog/category/Vulnerabilities/">Vulnerabilities</a>
+              
+            
+          </small>
+          <p class="lead mt-3"><p>On July 31, 2026, Coinkite released Coldcard firmware v5.6.0 as an urgent hotfix for a "limited entropy bug" that produced roughly $90M in user losses. This post presents a technical analysis of what that hotfix actually addresses, what it does not, and additional security findings that users need to know about when deciding how to proceed.</p>
+</p>
+        </div>
+
+        <!-- Toggle Switch (only show if takeaway exists) -->
+        
+
+        <!-- Technical Content -->
+        <div id="technical-content" class="content-view active">
+          
+          <p class="lead mt-4"><article class="kx-post" style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif; line-height:1.6; color:#0f172a; max-width:900px; margin:2rem auto; padding:0 1rem;">
+  <style>
+    .kx-post code {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+      padding: 0.15em 0.35em !important;
+      border-radius: 4px !important;
+      font-size: 0.95em !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    }
+    .kx-post pre {
+      background-color: #f1f5f9 !important;
+      padding: 1rem !important;
+      border-radius: 6px !important;
+      overflow-x: auto !important;
+      margin: 1rem 0 !important;
+    }
+    .kx-post pre code {
+      background-color: transparent !important;
+      padding: 0 !important;
+    }
+    .vulnerability-alert {
+      background: #fef2f2;
+      border-left: 4px solid #dc2626;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #7f1d1d;
+    }
+    .disclosure-box {
+      background: #fefce8;
+      border-left: 4px solid #eab308;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #713f12;
+    }
+    .mitigation-box {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #14532d;
+    }
+    .info-box {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #0c4a6e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.5rem;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+    }
+  </style>
+
+  <header style="border-bottom:1px solid #e2e8f0; margin-bottom:1rem; padding-bottom:.5rem;">
+    <h1 style="margin:0 0 .25rem; font-size:2rem;">Full Disclosure: Coldcard v5.6.0 Post-Hotfix Analysis and 39 Unpatched Findings</h1>
+    <p style="margin:.25rem 0; color:#475569; font-style:italic;">
+      The recent $90M-loss vector is closed for new seeds. The class of bug that produced it is still architecturally present. Plus additional high-severity findings not addressed by the hotfix.
+    </p>
+    <p style="margin:.25rem 0; color:#475569;">
+      <strong>Date:</strong> August 2, 2026 &middot; <strong>Author:</strong> Karma-X Security Research Team
+    </p>
+    <p style="margin:.25rem 0; color:#475569;">
+      <strong>Severity:</strong> Multiple High/Critical (5 Critical, ~20 High still open) &middot; <strong>Status:</strong> Comprehensive disclosure delivered to Coinkite in parallel with publication &middot; <strong>Affected Versions:</strong> Mk3 (all), Mk4/Mk5 &le; v5.6.0, Q &le; v1.5.0Q
+    </p>
+    <p style="margin:.25rem 0; color:#475569;">
+      <strong>References:</strong>
+      <a href="https://github.com/Coldcard/firmware" target="_blank" rel="noopener noreferrer">Coldcard Firmware Repository</a>
+      &middot;
+      <a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" target="_blank" rel="noopener noreferrer">Coinkite v5.6.0 Hotfix Announcement</a>
+      &middot;
+      <a href="https://karma-x.io/" target="_blank" rel="noopener noreferrer">Karma-X</a>
+    </p>
+  </header>
+
+  <section>
+    <div class="disclosure-box">
+      <strong>⚠️ DUAL DISCLOSURE:</strong> A comprehensive private disclosure covering every finding referenced in this post &mdash; with full reproduction detail and specific fix recommendations &mdash; is being delivered to Coinkite in parallel with the publication of this article. Detailed exploit mechanics for the kleptography channel (KLP-C-1) remain private under a standard 90-day coordinated-disclosure window. All other findings are described at a level sufficient for users to make informed decisions about their own devices.
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Why I'm publishing this now</h2>
+    <p>
+      On July 31, 2026 Coinkite released Coldcard firmware v5.6.0 as an "urgent hotfix to correct a limited entropy bug." The bug the hotfix addresses caused catastrophically low seed entropy on Mk3 (~40 bits, versus a 256-bit target) and on Mk4/Mk5/Q (~72 bits, versus a 128-bit minimum). Public reporting has attributed roughly ~$90M in user losses to this vulnerability.
+    </p>
+    <p>
+      Users are already migrating off Coldcards. Everyone I've spoken with in the Bitcoin community over the last 48 hours has one of two questions: <em>"Am I safe?"</em> and <em>"Should I still trust this device?"</em>
+    </p>
+    <p>
+      The public narrative is that Coinkite has "fixed the entropy bug." That claim is technically true for the specific bug that caused this incident. It is misleading for users trying to assess whether the underlying architecture has been strengthened enough to prevent a recurrence.
+    </p>
+    <p>I'm publishing this now because:</p>
+    <ol style="line-height:1.8;">
+      <li>Users are making migration decisions this week and deserve accurate technical information about what the hotfix does and does not fix.</li>
+      <li>There are two additional high-severity findings &mdash; one of them (Delta-mode message signing) with immediate user-facing implications &mdash; not addressed by the hotfix that users need to know about.</li>
+      <li>The July 2026 incident is a specific instance of a bug class that remains architecturally present in the code. Users evaluating whether to keep using their device should understand the difference between "this specific vector is closed" and "this class of bug can't recur."</li>
+    </ol>
+
+    <div class="info-box">
+      <strong>Threat-landscape consideration:</strong> In 2026, no security researcher should assume findings they've analyzed in AI-assisted workflows, cloud-hosted development environments, or any tool with third-party service integration are held solely by them. Conversation transcripts, telemetry, logs, and adjacent data flows exist; researcher goodwill is not the only barrier between a finding and a well-resourced adversary. The "I'll sit on this and it stays quiet" assumption is weaker than it was even a few years ago. State actors and well-funded criminal groups have both the resources and the infrastructure to independently discover &mdash; or independently <em>observe</em> &mdash; the same class of findings researchers work on. Public disclosure of a class-of-bug finding after a public incident does not meaningfully help attackers who already have access to equivalent capability; it does help users whose only source of accurate information is what vendors and independent researchers publish.
+    </div>
+
+    <p>
+      I want to be transparent about my own history with these findings, because it matters for interpreting what follows.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">A note on my own disclosure history</h2>
+    <p>
+      In September 2025 I completed a broad audit of Coldcard firmware. <strong>One finding &mdash; VULN-023, a Delta PIN key-recovery issue &mdash; I submitted to Coinkite privately.</strong> They responded technically and shipped a fix within hours (commit <code>fcd848d8</code> "deltamode timing fix," dated the same day, September 29, 2025). Credit where it's due: their engineering turnaround was fast.
+    </p>
+    <p>
+      But no CVE was filed. No security advisory was published. No public acknowledgment of the vulnerability was issued. Users had no way to know a vulnerability had existed in their device, that a fix was in the firmware they should update to, or that other researchers had found the vulnerability worth reporting through their channel. Coinkite is under no obligation to publicly credit external researchers &mdash; that's a matter of good ecosystem practice, not a strict duty &mdash; but the absence of CVE and advisory is a broader problem than credit. Users lose visibility into their own device's security state. Other researchers lose a signal about whether reporting through the channel produces public benefit. Regulators and downstream integrators lose an audit trail.
+    </p>
+    <p>
+      Reading the lack of any public trail as a signal that further submissions would land the same way, I did not send the rest of my findings &mdash; including <strong>VULN-109</strong>, which flagged the exact class of bug that would later cause the July 2026 catastrophic loss: single-source RNG in critical paths, with the Secure Element's independent TRNG disabled at the source (<code>#if 0</code>) in the bootloader. That finding sat in my private research notes for ten months without being fully analyzed.
+    </p>
+    <p>
+      Due to the circumstances, I lost interest in providing further free and unacknowledged analysis and research. Vendors and researchers each hold half of the disclosure feedback loop; when either side stops participating in good faith, users pay the price. My half is that I lost interest in the side-project and moved on to other priorities. Coinkite's half is that the interaction produced no public artifact that would have told me &mdash; or any other researcher &mdash; the channel was working as intended.
+    </p>
+    <p>Two things follow, and both are happening in parallel with this post:</p>
+    <ul>
+      <li><strong>The full comprehensive September 2025 audit &mdash; including all 28 findings never previously submitted &mdash; is being sent to Coinkite today</strong>, alongside the new August 2026 kleptography findings and my cross-check of which items remain in the current v5.6.0 code. They will have every detail I have, with reproduction context, in a form they can act on.</li>
+      <li><strong>This post publishes the high-level shape publicly</strong>, because users need actionable information now, and because in the current threat landscape the assumption that private research remains solely private is untenable regardless.</li>
+    </ul>
+    <p>
+      Vendor disclosure and public disclosure at the same time, both delivered honestly. Coinkite gets what they need to fix. Users get what they need to decide.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">What the v5.6.0 hotfix actually fixes</h2>
+    <p>
+      Give Coinkite credit where it's due: the fix, as far as it goes, is defensively engineered.
+    </p>
+    <p>
+      Coldcard's crypto operations route through libngu, Coinkite's low-level binding library. libngu expects the host build system to provide a <code>rng_get()</code> function. In v5.5.1's build, the linker resolved <code>rng_get()</code> against a symbol in MicroPython's stock <code>stm32/rng.c</code> &mdash; which implements a fallback Marsaglia "yasmarang" PRNG intended for platforms without a hardware RNG. Byte-level randomness in libngu (including seed generation, ephemeral keypairs, session keys) drew from this Marsaglia PRNG rather than the STM32 hardware TRNG. Result: catastrophically weak entropy.
+    </p>
+    <p>The v5.6.0 fix does two things:</p>
+    <ol style="line-height:1.8;">
+      <li>Forces MicroPython's <code>stm32/rng.o</code> object file to be empty (via a Makefile trick that compiles <code>/dev/null</code> with a poison macro), removing the yasmarang symbol from the linker's search path.</li>
+      <li>Adds a build-time <code>nm</code>-based verifier in <code>stm32/shared.mk:57-74</code> that inspects the compiled objects and fails the build if <code>rng.o</code> defines any symbols or if the board-specific rng.o fails to define <code>T rng_get</code>.</li>
+    </ol>
+
+    <div class="mitigation-box">
+      <strong>✅ CREDIT WHERE DUE:</strong> The linker workaround plus the build-time verifier is genuine defensive engineering for the specific bug. It prevents that exact class of silent symbol-resolution accident from recurring. For users generating new seeds on v5.6.0 or later, the specific catastrophic-entropy vector that caused the July 2026 disclosure is closed.
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">What the v5.6.0 hotfix does NOT fix</h2>
+    <p>Two things worth understanding.</p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">1. The libngu library itself was not updated.</h3>
+    <p>
+      The libngu submodule pointer in v5.6.0 is identical to v5.5.1 (<code>537519a8...</code>). Later commits on other Coinkite branches (<code>b987de50 "Use hardware RNG for Mk and Q libngu"</code>, <code>76f6b9d0 "bump to fixed libngu"</code>) contain the actual library-level fix that resolves the issue at the source rather than at the link stage. Those commits are not in v5.6.0.
+    </p>
+    <p>
+      The current fix relies on the specific way libngu references <code>rng_get()</code> staying stable across future updates. If libngu's ABI changes &mdash; for example, adds a <code>rng_bytes</code> symbol not covered by the <code>nm</code> verifier &mdash; the workaround can silently break in a future firmware version.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">2. Seed generation is still single-source.</h3>
+    <p><strong>This is the important one.</strong></p>
+    <p><code>shared/seed.py:602-609</code>:</p>
+    <pre><code>def generate_seed():
+    seed = ngu.random.bytes(32)
+    assert len(set(seed)) &gt; 4       # TRNG failure heuristic
+    return ngu.hash.sha256d(seed)</code></pre>
+    <p>
+      <code>ngu.random.bytes(32)</code> now correctly draws from the STM32 hardware RNG. <strong>But that is the only source.</strong> Coldcard has two additional TRNGs available and unused at this critical moment:
+    </p>
+    <ul>
+      <li><strong>SE1 (ATECC secure element).</strong> <code>callgate.read_rng(1)</code> returns 32 bytes of authenticated randomness via <code>ae_secure_random</code> in <code>stm32/mk4-bootloader/ae.c:694-714</code>. The authentication is MitM-resistant via <code>ae_gendig_slot(KEYNUM_pairing) + ae_is_correct_tempkey</code>.</li>
+      <li><strong>SE2.</strong> <code>callgate.read_rng(2)</code> returns 8 bytes of additional randomness from the second secure element.</li>
+    </ul>
+    <p>
+      Neither is mixed into <code>generate_seed()</code>. Both are used at boot in <code>shared/mk4.py:rng_seeding()</code> to reseed the ngu PRNG, but not at seed-generation time.
+    </p>
+    <p>The class fix is a single-file, three-line change:</p>
+    <pre><code>def generate_seed():
+    import callgate
+    a = ngu.random.bytes(32)         # STM32 HW RNG
+    b = callgate.read_rng(1)         # SE1 authenticated
+    c = callgate.read_rng(2)         # SE2
+    return ngu.hash.sha256(a + b + c)</code></pre>
+    <p>
+      Added latency: milliseconds. Imperceptible to users. Defensive benefit: substantial. Any future STM32 RNG issue (silicon errata, another linker accident, supply-chain compromise of the STM32 sourcing) no longer produces catastrophic seed compromise, because two independent authenticated sources would need to fail simultaneously.
+    </p>
+
+    <div class="vulnerability-alert">
+      <strong>⚠️ CLASS-OF-BUG PERSISTS:</strong> The recent hotfix corrected the specific linker accident that caused the incident. It did not add the cross-source mixing that would have prevented the class of bug the linker accident manifested. <strong>A future STM32 RNG anomaly reproduces the exact same class of catastrophic loss.</strong>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Additional finding: Delta-mode message signing leaks a valid signature</h2>
+    <p>
+      A separate finding, not part of the entropy story but user-facing enough to warrant urgent attention.
+    </p>
+    <p>
+      Delta mode is Coldcard's duress-signing feature: a user coerced into unlocking their wallet can enter the Delta PIN (a variant of their real PIN) instead of the real PIN. The device unlocks visibly but internally corrupts transaction signatures so they don't confirm on-chain. The intent is plausible deniability: the coercer sees a working wallet and signs a transaction; only later discovers it never went through.
+    </p>
+    <p>
+      The mechanism at <code>shared/psbt.py:2244-2248</code> double-hashes the digest under <code>sv.deltamode</code> so the resulting signature is invalid for the intended transaction. This works for transaction signing.
+    </p>
+    <p><strong>It does not exist for message signing.</strong></p>
+    <p>
+      At <code>shared/msgsign.py:395</code>, there is no <code>sv.deltamode</code> check. A coerced user who enters the Delta PIN and is then asked to sign a message &mdash; via BIP-137, BIP-322 proof-of-reserves, NFC message signing, QR message signing, <code>sign_export_contents</code>, <code>sign_with_own_address</code>, or any other message-signing entry point &mdash; produces a real, cryptographically-verifiable signature over the requested message using the real master seed's derived key.
+    </p>
+
+    <div class="vulnerability-alert">
+      <strong>⚠️ DELTAMODE DENIABILITY BREAK:</strong> The coercer now has ground truth: this address is real, and the user really controls it. All plausible deniability collapses. Message signing under duress is a common coercion vector &mdash; exchange KYC requests, "prove ownership of this Bitcoin address for our AML process," proof-of-reserves attestations. Any user relying on Delta mode's protection needs to understand this gap is present today.
+    </div>
+
+    <p>
+      The fix is a single line matching the existing PSBT guard. Or, more conservatively, refuse to sign messages at all under Delta mode.
+    </p>
+    <p>
+      This finding has been submitted privately to Coinkite today alongside publication of this post. It's included here at a high level because the mitigation ("don't use message signing under Delta mode") is knowable now and requires no vendor cooperation to act on.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Additional finding: Kleptography channel via R-value grinding</h2>
+    <p>
+      This one requires a compromised firmware image to exploit &mdash; it is not exploitable by an accidental bug. But because it explains why RNG bugs alone aren't the whole story, and because neither Coinkite nor any other production hardware wallet vendor has deployed the structural defenses that would neutralize this class, it is worth understanding.
+    </p>
+    <p>
+      Every ECDSA signature contains a nonce that must be truly random. If the nonce is predictable or reused, the private key is recoverable. But the nonce is not observable to any on-chain observer &mdash; only the resulting signature <code>(r, s)</code> is.
+    </p>
+    <p>
+      That gap is a covert channel. A malicious signer can pick specific "random" nonces that secretly encode information &mdash; for example, bits of the seed. The resulting signature verifies normally on-chain and appears statistically random to any observer without the leak function. But an attacker who wrote the firmware, watching the blockchain, can read bits out of every signature the victim produces.
+    </p>
+    <p>
+      This is called <strong>kleptography</strong> (Young &amp; Yung, 1997) or in the modern Bitcoin-specific instantiation, <strong>Dark Skippy</strong> (Fournier, Farrow, Linus, August 2024).
+    </p>
+    <p>
+      RFC-6979 deterministic nonces &mdash; used by Coldcard, Passport, and virtually every modern hardware wallet &mdash; protects against <em>accidental</em> biased nonces. It does not protect against a <em>malicious</em> signer, because a malicious signer just ignores RFC-6979 and picks whatever nonce leaks the most information. The victim cannot tell &mdash; nonces are not observable, only signatures are.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">The Coldcard-specific channel</h3>
+    <p>
+      Coldcard's <code>ecdsa_grind_sign</code> at <code>shared/psbt.py:2098-2126</code> is a low-R-grinding routine. It iterates <code>n = 0, 1, 2, ...</code> and stops at the first <code>n</code> for which the resulting signature has <code>R[0] &lt; 0x80</code> (low-R produces a signature that serializes one byte shorter in DER encoding).
+    </p>
+    <p>
+      The honest firmware always stops at the first low-R hit. A malicious firmware image could grind further and select a specific higher-<code>n</code> low-R candidate whose R-value bit pattern encodes seed bits. Every signature is still an RFC-6979 signature (libsecp256k1 produced it), verifies normally on-chain, and appears statistically random without the leak function.
+    </p>
+
+    <div class="vulnerability-alert">
+      <strong>⚠️ EXFILTRATION THROUGHPUT:</strong> Approximately 4-6 bits per input signature (bounded by grinding cost). A 10-input consolidation transaction produces 40-60 bits per transaction. <strong>Full 256-bit master seed exfiltration in approximately 5-6 transactions.</strong> In HSM mode this becomes vastly worse: attacker-supplied challenges &mdash; including the BIP-322 message signing challenges added in v5.5.1 &mdash; drive automated signature production over attacker-chosen inputs. Exfiltration is limited only by attacker patience and network latency.
+    </div>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">What this requires to exploit</h3>
+    <ul>
+      <li>A malicious Coldcard firmware image. Getting one installed requires: Coinkite's signing keys being compromised (theft, insider, coerced release under legal process), interdiction of a physical device between Coinkite and the user, or exploitation of a firmware-update-flow bug.</li>
+      <li>On the victim side: at least one PSBT signing operation (5-6 for full exfiltration). HSM mode reduces this to minutes.</li>
+    </ul>
+    <p>
+      Detailed exploit mechanics remain private under coordinated disclosure with Coinkite (a 90-day window). This high-level description is sufficient for users to understand the risk and make decisions. It is also public enough that any competent security researcher can independently verify the class of issue from the referenced source.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">Why this needs a structural fix, not a spot fix</h3>
+    <p>
+      The one-line workaround (always emit <code>n = 0</code>, accepting slightly larger DER signatures) closes this specific channel. But any signer with control over any non-fully-deterministic aspect of signature output has a covert channel &mdash; multi-input signing order, DER encoding variance, low-s vs high-s selection, and so on all offer bits per signature under a compromised firmware. Playing whack-a-mole with individual channels is not a durable defense.
+    </p>
+    <p>
+      The durable defense is <strong>anti-exfil (sign-to-contract)</strong>: the host-side coordinator supplies a random challenge that the signer must incorporate into the nonce and prove it did so. The signer loses unilateral control over the nonce, and nonce-choice covert channels stop working. Trezor has partially deployed this. Coldcard has not. Passport has not.
+    </p>
+    <p>
+      The cheaper immediate defense is <strong>host-side reproducibility tooling</strong>: a standalone Python tool that takes the user's exported seed and recomputes the expected RFC-6979 signatures, comparing against what the device produced. Any deviation is evidence of firmware tampering. Roughly 100-200 lines of Python. Neither Coinkite nor any other production hardware wallet vendor ships this.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">The full list: 39 additional unfixed findings in the current v5.6.0 code</h2>
+    <p>
+      My September 2025 audit produced 28 numbered findings plus a critical addendum. Only one (VULN-023) was submitted to Coinkite at that time. In preparing this post I cross-checked every finding from that audit against the current v5.6.0 source tree to determine which remain in the code today.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%;">Status</th>
+          <th>Count and description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>FIXED / AS-DESIGNED</strong></td>
+          <td>4 items &mdash; mostly dev-mode features never intended for production (VULN-001/101 USB EVAL/EXEC only in DEBUG_BUILD, VULN-019 false positive on further review, VULN-021 already mitigated at time of reporting)</td>
+        </tr>
+        <tr>
+          <td><strong>PARTIALLY FIXED</strong></td>
+          <td>6 items &mdash; VULN-023 (Delta PIN key recovery, missing message-signing path), VULN-011 (USB command length: consistency check but no upper bound), VULN-013 (notes JSON: key-presence check and size cap added but no schema validation), VULN-018 (Duress-mode sig corruption, superseded by VULN-023 partial fix), VULN-121 (VDisk path traversal: basename strip on one caller only), VULN-122 (backup restore: some keys handled specially, others still applied verbatim)</td>
+        </tr>
+        <tr>
+          <td><strong>UNFIXED</strong></td>
+          <td><strong>39 items</strong></td>
+        </tr>
+        <tr>
+          <td><strong>UNCLEAR</strong></td>
+          <td>2 items &mdash; required source in a submodule not vendored in the tree</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="disclosure-box">
+      <strong>Delivered to vendor in parallel:</strong> None of the following findings were previously reported to Coinkite. <strong>They are being reported to Coinkite in parallel with the publication of this post</strong> &mdash; the vendor is receiving the full comprehensive audit with reproduction detail as this goes live. Each finding is present in the current v5.6.0 source and could be independently identified by any competent security review. Every entry has a file:line reference to the current firmware &mdash; the code is the code, verifiable by any reader with the source tree at hand.
+    </div>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">CRITICAL (5 items, all still open)</h3>
+
+    <h4 style="margin-top:1rem;">1. VULN-024 / VULN-106 &mdash; Multisig <code>disable_checks</code> global bypass, user-exposed via menu</h4>
+    <p>
+      <strong>File:</strong> <code>shared/multisig.py:130</code> (class variable), 1403 ("Skip Checks?" menu item), consumed at 336, 536, 828, 842, 851, 1041.
+    </p>
+    <p>
+      <strong>What it does:</strong> sets <code>MultisigWallet.disable_checks = True</code>, disabling every multisig validation until power cycle. Menu-exposed. A user talked through "toggle this and try again" flips a global that silently permits everything a compromised or misconfigured multisig PSBT could ask for.
+    </p>
+    <p><strong>Fix:</strong> remove the menu, or gate the toggle behind a warning that actually explains what it does.</p>
+
+    <h4 style="margin-top:1rem;">2. VULN-025 / VULN-123 &mdash; Stack VLA in bootloader SE path</h4>
+    <p>
+      <strong>File:</strong> <code>stm32/bootloader/ae.c:539</code> &mdash; <code>uint8_t tmp[1+len+2];</code>
+    </p>
+    <p>
+      <strong>What it does:</strong> <code>len</code> is a value from the SE bus. Physical MitM on the SE bus can drive stack allocation of arbitrary size. Stack overflow at bootloader privilege is theoretically possible.
+    </p>
+    <p><strong>Fix:</strong> replace with fixed-size stack buffer sized to the maximum protocol payload, add explicit <code>len</code> bound check.</p>
+
+    <h4 style="margin-top:1rem;">3. VULN-026 &mdash; SIGHASH_NONE allowed with <code>sighshchk</code> setting</h4>
+    <p><strong>File:</strong> <code>shared/psbt.py:1745-1759</code></p>
+    <p>
+      <strong>What it does:</strong> SIGHASH_NONE (signature covers no outputs) is a well-known output-substitution vector. Coldcard shows only a "Danger" warning if the <code>sighshchk</code> setting is on. Sophisticated users can enable the setting; less sophisticated users can be talked through it. Not blocked unconditionally.
+    </p>
+    <p><strong>Fix:</strong> reject SIGHASH_NONE outright, or require an unmistakable confirmation with a specific security warning.</p>
+
+    <h4 style="margin-top:1rem;">4. VULN-027 / VULN-105 &mdash; Change-address validation bypass</h4>
+    <p><strong>File:</strong> <code>shared/psbt.py:1766-1792</code> (<code>consider_dangerous_change</code>)</p>
+    <p>
+      <strong>What it does:</strong> three early-exit conditions bypass the change-validation logic &mdash; <code>if inp.fully_signed: continue</code> (line 1775), <code>if not in_paths: return</code> (line 1782), <code>if shortest != longest or shortest &lt;= 2: return</code> (line 1789). In multisig, an attacker co-signer can fabricate <code>part_sigs</code> fields to flip <code>fully_signed = True</code> on the victim's device, causing change-output derivation-path validation to be skipped entirely. Attacker's "change" address is silently accepted.
+    </p>
+    <p><strong>Fix:</strong> remove <code>fully_signed</code> bypass; validate change paths regardless of signature completeness.</p>
+
+    <h4 style="margin-top:1rem;">5. VULN-102 / VULN-028 &mdash; Fee-calc integer overflow</h4>
+    <p><strong>File:</strong> <code>shared/psbt.py:1973-1977</code> (<code>calculate_fee</code>); accumulation at 1641, 1920.</p>
+    <p>
+      <strong>What it does:</strong> <code>return self.total_value_in - self.total_value_out</code> with no <code>MAX_MONEY</code> bound on accumulation. Python's arbitrary-precision integers mitigate memory-level overflow, but the <code>fee_limit</code> percentage check is applied post-computation. Crafted PSBTs with unusually large or negative-effective fees can pass sanity checks that assume bounded values.
+    </p>
+    <p><strong>Fix:</strong> enforce <code>MAX_MONEY</code> (21e14 sats) at each accumulation step; reject any partial sum exceeding it.</p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">HIGH (approximately 20 items still open)</h3>
+
+    <h4 style="margin-top:1rem;">Directly relevant to the July 2026 disclosure:</h4>
+    <ul>
+      <li><strong>VULN-109 &mdash; Secure Element TRNG disabled.</strong> <code>stm32/bootloader/ae.c:666-687</code> &mdash; <code>ae_random()</code> wrapped in <code>#if 0</code> on Mk3. Fix on Mk4 (<code>ae_secure_random</code> at <code>stm32/mk4-bootloader/ae.c:694-714</code>) exists but is not consumed by <code>shared/seed.py:602-609 generate_seed()</code>. Class-of-bug finding covered in depth earlier in the post.</li>
+      <li><strong>VULN-005 &mdash; Weak RNG validation.</strong> <code>stm32/bootloader/rng.c:27-38</code> &mdash; same two-sample stuck-at check, no statistical validation (no NIST SP 800-90B startup/continuous health tests, no chi-square, no min-entropy estimator). A silently degraded TRNG passing the two-sample check would still be accepted. Directly relevant to the class of concern that produced the July 2026 disclosure.</li>
+      <li><strong>VULN-110 &mdash; Nonce reuse in SE operations.</strong> <code>stm32/bootloader/ae.c:798-830</code> &mdash; <code>ae_pick_nonce</code> unchanged. 32-byte "random" values still transmitted cleartext on the single-wire SE bus with no authentication or integrity protection. A physical MitM could observe, log, or in some SE command modes influence these nonces. In ECDSA-adjacent SE operations, nonce reuse is catastrophic.</li>
+      <li><strong>VULN-111 &mdash; Integer overflow in dispatch bounds check.</strong> <code>stm32/mk4-bootloader/dispatch.c:48</code> &mdash; <code>if ((x &gt;= SRAM1_BASE) &amp;&amp; ((x+len) &lt;= BL_SRAM_BASE))</code> allows <code>x + len</code> to wrap and pass the upper bound.</li>
+    </ul>
+
+    <h4 style="margin-top:1rem;">Signing and PSBT surface:</h4>
+    <ul>
+      <li><strong>VULN-002 &mdash; Fault-injection bypass of signature verify.</strong> <code>stm32/bootloader/verify.c:233</code> &mdash; single <code>if (!verify_signature(...)) goto fail;</code> with no redundant checks. A single glitched branch decision defeats bootloader signature enforcement.</li>
+      <li><strong>VULN-010 &mdash; Integer overflow in PSBT <code>deser_string</code>.</strong> <code>shared/serializations.py:72-74</code> &mdash; <code>return f.read(nit)</code> with no upper bound on <code>nit</code>.</li>
+      <li><strong>VULN-014 &mdash; Missing PSBT input/output count limits.</strong> <code>shared/psbt.py:2017-2020</code> &mdash; no <code>MAX_INPUTS</code>/<code>MAX_OUTPUTS</code> constants.</li>
+      <li><strong>VULN-015 &mdash; Insufficient multisig path validation.</strong> <code>shared/multisig.py:1032</code> &mdash; <code>xfp, *path = ustruct.unpack_from('&lt;%dI' % (len(k)//4), k, 0)</code> with no <code>MAX_PATH_DEPTH</code> check.</li>
+      <li><strong>VULN-107 &mdash; Delta-mode stores real PIN digits in SE2 slot.</strong> <code>shared/trick_pins.py:63-72</code> &mdash; real BCD digits packed into <code>tc_arg</code> and stored in SE2 slot. The <code>record</code> written to settings is masked to <code>0xffff</code>, but the SE2 slot content itself is not masked. Anyone able to read SE2 slot content (physical SE compromise) recovers the real PIN prefix.</li>
+    </ul>
+
+    <h4 style="margin-top:1rem;">Authentication / login / PIN surface:</h4>
+    <ul>
+      <li><strong>VULN-104 &mdash; HMAC token comparison timing attack.</strong> <code>shared/users.py:206-208</code> &mdash; <code>if expect != token: return 'mismatch'</code>, not <code>hmac.compare_digest</code>.</li>
+      <li><strong>VULN-116 &mdash; Non-constant-time TOTP compare.</strong> <code>shared/users.py:245</code> &mdash; <code>if expect == token:</code> &mdash; same class as VULN-104.</li>
+      <li><strong>VULN-118 &mdash; TOTP replay window.</strong> <code>shared/users.py:226-238</code> &mdash; replay-window logic allows re-use of TOTP codes within the acceptance window under certain race conditions.</li>
+      <li><strong>VULN-016 &mdash; PIN prefix info disclosure without rate limiting.</strong> <code>shared/pincodes.py:275-308</code> &mdash; <code>prefix_words</code> can be probed without rate limiting.</li>
+      <li><strong>VULN-117 &mdash; Insufficient PIN rate-limiting UX.</strong> <code>shared/pincodes.py:338-351</code> &mdash; relies on SE hardware counter only, no progressive UX delays.</li>
+    </ul>
+
+    <h4 style="margin-top:1rem;">Bootloader and low-level:</h4>
+    <ul>
+      <li><strong>VULN-006 &mdash; Timing attack in version compare.</strong> <code>stm32/bootloader/verify.c:163</code> &mdash; <code>return (memcmp(timestamp, min, 8) &lt; 0);</code> &mdash; non-constant-time compare.</li>
+      <li><strong>VULN-007 &mdash; Integer overflow in version parsing.</strong> <code>stm32/bootloader/verify.c:152</code> &mdash; version-parsing shortcut mishandles unusual version strings.</li>
+      <li><strong>VULN-008 &mdash; Sensitive data not wiped on error paths.</strong> <code>stm32/bootloader/pins.c:757-761</code> &mdash; returns <code>EPIN_AUTH_FAIL</code> without zeroing <code>digest</code> or <code>mid_digest</code>.</li>
+      <li><strong>VULN-009 &mdash; Weak XOR encryption for PIN cache.</strong> <code>stm32/bootloader/pins.c:220</code> &mdash; <code>xor_mixin(value, digest, 32)</code> uses XOR-based obfuscation, not a proper cipher.</li>
+      <li><strong>VULN-012 &mdash; Race condition in secret cache.</strong> <code>shared/stash.py:265-272</code> &mdash; <code>save_to_cache</code> has no lock.</li>
+    </ul>
+
+    <h4 style="margin-top:1rem;">File and interface surface:</h4>
+    <ul>
+      <li><strong>VULN-003 / VULN-103 &mdash; Calculator eval blacklist bypass.</strong> <code>shared/calc.py:23-24, 90-93</code> &mdash; blacklist-based sandbox on <code>eval(ln, state.copy())</code>. Historically-bypassable pattern. Pre-login toy calculator, only reachable when <code>calc=1</code> setting is on for Q.</li>
+      <li><strong>VULN-004 &mdash; Path traversal in <code>files.py abs_path</code>.</strong> <code>shared/files.py:350-351</code> &mdash; <code>return self.mountpt + "/" + fname</code> with no sanitization.</li>
+    </ul>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">MEDIUM (14 items, comprehensive listing)</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>VULN-ID</th>
+          <th>Title</th>
+          <th>File:line</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>VULN-011</td>
+          <td>USB command length validation</td>
+          <td><code>shared/usb.py:453-454</code></td>
+          <td>Partial &mdash; consistency check only, no upper bound</td>
+        </tr>
+        <tr>
+          <td>VULN-013</td>
+          <td>Notes JSON deserialization</td>
+          <td><code>shared/notes.py:855-857</code></td>
+          <td>Partial &mdash; key presence + size cap added, no schema validation</td>
+        </tr>
+        <tr>
+          <td>VULN-112</td>
+          <td>Weak 7z KDF (<code>rounds_pow=13</code> = 8192 iters)</td>
+          <td><code>shared/compat7z.py:214,328</code></td>
+          <td>Standard 7z uses 19 (524288)</td>
+        </tr>
+        <tr>
+          <td>VULN-114</td>
+          <td>AES-CTR without authentication</td>
+          <td><code>stm32/mk4-bootloader/aes.c:56-69</code></td>
+          <td>CTR without HMAC or GCM</td>
+        </tr>
+        <tr>
+          <td>VULN-115</td>
+          <td>CHECKMAC MITM vulnerability</td>
+          <td><code>stm32/bootloader/ae.c:917-926</code></td>
+          <td>Vendor-documented but unfixed</td>
+        </tr>
+        <tr>
+          <td>VULN-119</td>
+          <td>SIGHASH_SINGLE edge cases</td>
+          <td><code>shared/psbt.py:1761-1764</code></td>
+          <td>Proceeds with "Caution" warning when <code>sighshchk</code> set</td>
+        </tr>
+        <tr>
+          <td>VULN-120</td>
+          <td>PSBTv2 amount validation</td>
+          <td><code>shared/psbt.py:365-366</code></td>
+          <td><code>PSBT_OUT_AMOUNT</code> read with no bounds check</td>
+        </tr>
+        <tr>
+          <td>VULN-121</td>
+          <td>VDisk path traversal</td>
+          <td><code>shared/vdisk.py:108</code></td>
+          <td>Partial &mdash; basename strip on <code>import_file</code> only</td>
+        </tr>
+        <tr>
+          <td>VULN-122</td>
+          <td>Backup restore validation</td>
+          <td><code>shared/backups.py:175-256</code></td>
+          <td>Partial &mdash; some keys applied verbatim</td>
+        </tr>
+        <tr>
+          <td>VULN-124</td>
+          <td>VLA in <code>se2.c</code></td>
+          <td><code>stm32/mk4-bootloader/se2.c:132</code></td>
+          <td>Same class as VULN-025</td>
+        </tr>
+        <tr>
+          <td>VULN-125</td>
+          <td>Zero-XFP auto-replace</td>
+          <td><code>shared/psbt.py:306-310</code></td>
+          <td>Only warning added</td>
+        </tr>
+        <tr>
+          <td>VULN-126</td>
+          <td>RNG entropy display on factory init</td>
+          <td><code>stm32/bootloader/storage.c:257-276</code></td>
+          <td>Factory-only path</td>
+        </tr>
+        <tr>
+          <td>VULN-128</td>
+          <td>Information disclosure in error strings</td>
+          <td><code>shared/users.py:192-251</code></td>
+          <td>Specific messages leak state</td>
+        </tr>
+        <tr>
+          <td>VULN-129</td>
+          <td>Directory listing filtering</td>
+          <td><code>shared/actions.py:1738-1786</code></td>
+          <td>Basic character-blocking on rename only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">LOW / INFORMATIONAL</h3>
+    <p>
+      Available in the full audit; nothing security-critical individually, but adds to the picture: VULN-017 (7ZIP variable-length decoding str/bytes bug), VULN-020 (system module imports advisory), VULN-022 (7ZIP password stretching documentation), VULN-127 (aggregation of non-constant-time comparisons across the codebase).
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">Two items marked UNCLEAR</h3>
+    <ul>
+      <li><strong>VULN-108</strong> (Trick PIN management missing auth) &mdash; the original audit was vague; no specific missing-auth code path is obvious in the current tree.</li>
+      <li><strong>VULN-113</strong> (Insufficient PBKDF2 iterations) &mdash; <code>shared/users.py:58</code> uses <code>PBKDF2_ITER_COUNT</code> from <code>public_constants.py</code>, which is a symlink to the external ckcc-protocol submodule (not populated in this tree). Historical value was 2048.</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>Note on pattern:</strong> The one item that landed a fix (VULN-023 Delta PIN) is the one item that was disclosed privately, and Coinkite did fix it same-day. Everything else remains in the code, ten months on. This is not a claim of vendor negligence &mdash; none of the other findings were reported to them until today, and much of this list should ideally be caught by the vendor's own internal review process. But it is a data point about the current security state of shipping firmware, and users making decisions about whether to keep using their device deserve to know what's actually in the code they're running.
+    </div>
+
+    <p>
+      As noted above, the full comprehensive audit with detailed reproduction steps for each finding is being delivered to Coinkite in parallel with the publication of this post. I hope this time it goes somewhere that produces both fixes and public advisories, so that users get both a safer device and visibility into the security state of the device they own.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">What you should do</h2>
+
+    <div class="vulnerability-alert">
+      <strong>⚠️ IMMEDIATE ACTION (all users):</strong>
+      <ul style="margin:.5rem 0; padding-left:1.5rem;">
+        <li><strong>Coldcard Mk3:</strong> regenerate your seed immediately following <a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" target="_blank" rel="noopener noreferrer">Coinkite's blog post instructions</a>. Coinkite has stated Mk3 will not receive further firmware updates; if you keep using it, add a BIP-39 passphrase as a stopgap and plan for migration. UPDATE: Apparently Coinkite has issued a 4.2.0 for Mk2 and Mk3 after previously saying they wouldn't.</li>
+        <li><strong>Coldcard Mk4/Mk5/Q:</strong> update to v5.6.0 (Mk4/Mk5) or v1.5.0Q (Q). Regenerate any seeds created on pre-v5.6.0 firmware. Regenerate any long-lived derived material &mdash; backup files, USB session keys, teleport pairings, web2fa keys, multisig receive-key derivation indices. All of these used the affected RNG on pre-v5.6.0 firmware.</li>
+      </ul>
+    </div>
+
+    <div class="disclosure-box">
+      <strong>If you use Delta mode as part of your security model:</strong> do not use Coldcard's message-signing feature until the Delta-mode message-signing gap is patched. If a coercer asks you to sign a message, the signature is real. Avoid workflows that require message signatures for authentication (some exchange KYC processes, proof-of-reserves attestations) if you rely on Delta-mode plausible deniability.
+    </div>
+
+    <div class="disclosure-box">
+      <strong>If you use HSM mode:</strong> understand that HSM mode maximizes exposure to the kleptography channel described above. In HSM mode, a compromised firmware exfiltrates faster and more thoroughly than a user-driven scenario. This is a consideration even setting aside kleptography &mdash; HSM mode inherently trades security for convenience.
+    </div>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">If you're evaluating whether to keep using Coldcard</h3>
+    <p>The honest picture:</p>
+    <ol style="line-height:1.8;">
+      <li>The immediate entropy vector is closed for new seeds generated on v5.6.0.</li>
+      <li>The class of bug that produced the disclosure is architecturally still present in seed generation.</li>
+      <li>Additional findings above are not addressed and Delta-mode message signing has real user-facing impact today.</li>
+      <li>The vendor's public response has been narrow.</li>
+    </ol>
+    <p>
+      Any of the following is a defensible decision: keep using Coldcard while watching for further fixes, migrate to a different single-vendor solution (Trezor, Passport), or move to multi-vendor multisig.
+    </p>
+
+    <div class="mitigation-box">
+      <strong>✅ THE STRONGEST PRACTICAL DEFENSE:</strong> If you have significant value on any single-vendor hardware wallet &mdash; Coldcard, Passport, Trezor, Ledger, or anything else &mdash; multi-vendor multisig is the strongest practical defense against any single vendor being compromised via any of the classes of bug discussed here. A 2-of-3 multisig across three different vendors requires simultaneous compromise of all three, which raises the attacker's cost to effectively infinite.
+    </div>
+
+    <div class="info-box">
+      <strong>Protect your seed phrase:</strong> For additional protection of your seed phrase and recovery information, consider using secure time-locked encryption solutions that can protect your backup from both theft and loss.
+      <br /><br />
+      Learn more: <a href="https://karma-x.io/timecapsule/" target="_blank" rel="noopener noreferrer">https://karma-x.io/timecapsule/</a>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">What Coinkite needs to do</h2>
+    <p>For the immediate incident:</p>
+    <ol style="line-height:1.8;">
+      <li>Fix the class of bug that caused the entropy loss, not just the specific vector. The three-line change above (mixing SE1 + SE2 + STM32 entropy in <code>generate_seed()</code>) closes the class.</li>
+      <li>Bump libngu to the version containing the source-level fix (already exists on other branches) rather than relying on the linker workaround.</li>
+      <li>Fix the Delta-mode message-signing gap in <code>shared/msgsign.py</code>. One line, matches the existing PSBT pattern.</li>
+    </ol>
+    <p>Structurally:</p>
+    <ol style="line-height:1.8;">
+      <li>Publish a public security disclosure page with a proper contact address, acknowledgment expectations, and coordination process. Currently there is no obvious channel for security submissions.</li>
+      <li>Establish a written coordinated-disclosure policy: acknowledgment time, expected triage response, timeline expectations, credit norms. <strong>Credit norms matter more than the industry often acknowledges</strong> &mdash; the whole disclosure economy runs on researcher trust that findings will be handled seriously and researchers will be credited for their work. When a vendor treats researchers as if they are invisible, they stop hearing from those researchers, and users pay the price.</li>
+      <li>Ship a host-side signature reproducibility tool. It would be roughly 100-200 lines of Python. It would detect kleptography-channel exploitation in the field within one transaction. It's a defense you can ship faster than a firmware update.</li>
+      <li>Consider anti-exfil / sign-to-contract for signing. This is the structural defense that stops the entire kleptographic-channel class. Requires coordinator-side cooperation. Would be industry-leading.</li>
+    </ol>
+    <p>
+      None of the above is punitive. All of it is what a hardware wallet vendor's engineering process should already do. If Coinkite delivers on this list, they earn a serious portion of the trust they've lost. If they don't, users have the information they need to route around them.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">The broader lesson</h2>
+    <p>
+      The July 2026 disclosure would not have caused $90M in losses if the SE-mixing fix had shipped a year earlier. That fix would have been an obvious response to the class of concern raised by anyone auditing the seed-generation path. Multiple researchers have independently observed this class of issue in hardware wallet firmware over the last five years; the pattern is not obscure.
+    </p>
+    <p>Why didn't a fix ship? Some combination of:</p>
+    <ul>
+      <li>Coinkite's own engineering process not surfacing it internally.</li>
+      <li>External researchers (myself included) who noticed it in independent review not communicating it through channels where it would land.</li>
+      <li>The disclosure ecosystem's dependence on volunteer researcher goodwill, which vendors deplete faster than they replenish it.</li>
+    </ul>
+    <p>
+      I want to be direct about the second point: my choice not to submit the class-of-RNG finding after Coinkite did not publicly acknowledge the Delta PIN disclosure was mine to make, and users bore the cost. The lesson I take from that is not "always submit no matter what" &mdash; vendors who won't engage don't magically become better with more submissions &mdash; but rather that when a vendor is unresponsive to the point of leaving no public trail, publishing publicly and early serves users better than sitting on findings. That's the model I'm using now. Others in the research community should feel encouraged to do the same when a vendor has demonstrated it won't engage constructively.
+    </p>
+    <p>
+      The Bitcoin community, for its part, would benefit from clearer public signals about which vendors have healthy security-research relationships and which don't. When users pick a hardware wallet, they are picking not only the hardware but the engineering culture behind it &mdash; and that culture is much more predictive of future safety than any particular version's audit score.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Disclosure Timeline</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%;">Date</th>
+          <th>Event</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>September 29, 2025</td>
+          <td>Comprehensive private security audit of Coldcard firmware completed by Karma-X Research Team. 28 numbered findings plus critical addendum. Only VULN-023 (Delta PIN key recovery) submitted to Coinkite; fix commit <code>fcd848d8</code> shipped same-day. No CVE filed; no security advisory published.</td>
+        </tr>
+        <tr>
+          <td>September 30, 2025 &mdash; July 30, 2026</td>
+          <td>Remaining 27+ findings held in private research notes.</td>
+        </tr>
+        <tr>
+          <td>July 31, 2026</td>
+          <td>Coinkite releases v5.6.0 (Mk4/Mk5) and v1.5.0Q (Q) as "urgent hotfix" for a "limited entropy bug." Public reporting attributes ~$90M in losses.</td>
+        </tr>
+        <tr>
+          <td>August 2, 2026</td>
+          <td>Independent cross-check confirms 39 of ~40 distinct findings from the September 2025 audit remain unfixed in v5.6.0. Two additional high-severity findings (kleptographic exfiltration channel; Delta-mode message signing gap) identified.</td>
+        </tr>
+        <tr>
+          <td>August 2, 2026</td>
+          <td>Comprehensive private disclosure &mdash; including all previously-unreported findings from September 2025 audit plus the new August 2026 findings &mdash; delivered to Coinkite.</td>
+        </tr>
+        <tr>
+          <td>August 2, 2026</td>
+          <td>Public disclosure of high-level findings (this document). Detailed exploit mechanics for KLP-C-1 (kleptography channel) held back under 90-day coordinated-disclosure window.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Q&amp;A anticipated</h2>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"Why publish now instead of coordinating disclosure with Coinkite first?"</h3>
+    <p>
+      The full comprehensive audit &mdash; including all previously-unreported findings and the new August 2026 kleptography findings &mdash; is being delivered to Coinkite in parallel with this post going live. Both disclosures happen together. The rationale for simultaneous release rather than a private-first-then-public sequence:
+    </p>
+    <ul>
+      <li>For the VULN-109 class finding, ten months have passed and users have already lost ~$90M to the class of bug; publishing now serves users making migration decisions this week.</li>
+      <li>For the Delta-mode message signing gap, the user-actionable mitigation ("avoid Delta-mode message signing") is knowable now and requires no vendor cooperation to act on.</li>
+      <li>Detailed exploit mechanics for the kleptography channel remain private under a 90-day window even in the public post.</li>
+      <li>When a vendor has demonstrated a pattern of accepting bugs privately without producing public advisories or CVE filings, coordinated silence disserves users by delaying the moment they can make informed decisions about their own devices.</li>
+    </ul>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"You said above you never submitted VULN-109 to Coinkite. Isn't that on you?"</h3>
+    <p>
+      Yes. I own it. Users would have been better served if I'd pushed through and submitted anyway. My assessment at the time was that a channel producing no CVE and no public advisory was not a channel serving users; that assessment was defensible but the cost fell on users, not on me or Coinkite. The lesson I take is that a private-only channel &mdash; even one that produces engineering fixes &mdash; is not sufficient when it produces no public artifact. Vendors who want a working research feedback loop need to complete the loop with public advisories and CVE filings so that researchers can see the channel is working as intended. That's what I hope changes going forward; today's dual disclosure (full vendor package + this public post) is my attempt to model it.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"Isn't publishing exploit details irresponsible?"</h3>
+    <p>
+      Detailed exploit mechanics for the kleptography channel remain under coordinated disclosure with Coinkite on a 90-day timeline. This post describes the mechanism at a level sufficient for users to make risk decisions and for other researchers to verify the class of issue independently. It does not publish a copy-paste malicious firmware patch. Any competent security researcher can independently derive the details from what is here; users cannot exploit anything from what is here. Additionally, in the modern threat landscape it is not safe to assume that findings a researcher has analyzed in AI-assisted workflows or other cloud-connected tools are held solely by that researcher &mdash; well-resourced adversaries have equivalent capability. Public disclosure raises defenders' awareness without meaningfully raising attackers'.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"Are you saying Coldcard is unsafe to use?"</h3>
+    <p>
+      No. I'm saying the technical picture is more complex than "the entropy bug is fixed," and users deserve to see the actual picture before deciding whether to keep using their device, migrate to a different vendor, or restructure to multi-vendor multisig. Coldcard has real strengths &mdash; no Schnorr code path (which structurally closes an important class of kleptography channel), a sound Delta mode design intent, well-engineered RDP2 lockdown. The critique is about specific unfixed findings and a specific need for structural improvements, not about the device being fundamentally unusable.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"Would you use a Coldcard?"</h3>
+    <p>
+      For small amounts, yes. For significant value on a single device, no &mdash; but that's true for any single-vendor hardware wallet at any threat level involving nation-state or supply-chain adversaries. Multi-vendor multisig is the answer at every serious threat level regardless of which single-vendor devices are involved.
+    </p>
+
+    <h3 style="font-size:1.25rem; margin-top:1rem;">"Are you paid by [competitor / short seller / etc.]?"</h3>
+    <p>
+      No. This is independent research. If the question is asked in good faith, "About the author" below is the honest answer; if it's asked in bad faith, no answer will satisfy. The claims in this post are verifiable from public sources &mdash; every file:line reference points to code you can check yourself.
+    </p>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">Prior work and credentials</h2>
+    <ul>
+      <li>Comprehensive private security audit of Coldcard firmware, September 2025. 28 findings numbered VULN-101 through VULN-129 plus critical addendum, plus a deep-dive on VULN-023 (Delta PIN key recovery). VULN-023 was submitted to Coinkite and partially fixed (commit <code>fcd848d8</code>). The remaining findings &mdash; including VULN-109 (Secure Element TRNG disabled) &mdash; were not submitted; this post is their effective public disclosure. Full audit available on request.</li>
+      <li>Coordinated disclosure to Foundation Devices (Passport) covering a parallel kleptography finding in Passport's Schnorr signing path (<code>sign_schnorr_with_rng</code> in <code>extmod/foundation-rust/src/secp256k1.rs:78</code>), submitted this week. Foundation's initial engagement has been professional; the fix is a one-line change; disclosure timeline is standard 90 days.</li>
+      <li>Comprehensive security audit of Foundation Passport v2.3.11, August 2, 2026. 683-line report covering firmware update path, PSBT signing, PIN/SE integration, entropy/RNG (including analog concerns in Passport's factory bootloader that mirror the Coldcard class), input parsers, native module boundaries, physical I/O, and third-party libraries.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.5rem; margin-top:1.5rem;">References</h2>
+    <ul>
+      <li>Fournier, Farrow, Linus, "Dark Skippy: Exfiltrating BIP32 seeds through Schnorr signatures" (August 2024).</li>
+      <li>Young &amp; Yung, "Kleptography: Using Cryptography Against Cryptography" (1997) &mdash; original SETUP attack theory.</li>
+      <li>Turkel &amp; Poelstra, "Anti-Klepto" (2020) &mdash; sign-to-contract protocol details.</li>
+      <li><a href="https://tools.ietf.org/html/rfc6979" target="_blank" rel="noopener noreferrer">RFC-6979</a> &mdash; deterministic ECDSA nonce derivation.</li>
+      <li><a href="https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki" target="_blank" rel="noopener noreferrer">BIP-340</a> &mdash; Schnorr signatures for secp256k1.</li>
+      <li><a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/" target="_blank" rel="noopener noreferrer">Coinkite blog post announcing the v5.6.0 hotfix</a>.</li>
+      <li><a href="https://github.com/Coldcard/firmware" target="_blank" rel="noopener noreferrer">Coldcard firmware source</a>.</li>
+    </ul>
+  </section>
+
+  <footer style="border-top:1px solid #e2e8f0; margin-top:2rem; padding-top:1rem; color:#475569;">
+    <p style="margin:.25rem 0;">
+      &copy; 2026 Karma-X Security Research Team
+    </p>
+    <p style="margin:.25rem 0;">
+      <strong>Contact:</strong> For questions about this research, contact:
+      <a href="mailto:security@karma-x.io">security@karma-x.io</a>
+    </p>
+    <p style="margin:.25rem 0; font-size:0.9em;">
+      <strong>Disclosure Model:</strong> This is a full public disclosure delivered in parallel with a comprehensive private disclosure to Coinkite. High-level findings are published for user safety; detailed exploit mechanics for KLP-C-1 (kleptography channel) remain under coordinated 90-day disclosure. All other findings are described with file:line references sufficient for independent verification but not exploit reproduction.
+    </p>
+    <p style="margin:.25rem 0; font-size:0.9em;">
+      <strong>Disclaimer:</strong> This research is provided for educational and defensive purposes only. Karma-X is committed to improving the security of Bitcoin infrastructure through responsible vulnerability disclosure. Nothing in this document constitutes financial or legal advice. Every file:line reference points to publicly-available source code that any reader can verify independently.
+    </p>
+    <p style="margin:.25rem 0; font-size:0.9em;">
+      <strong>Corrections and updates:</strong> This post will be updated if any technical claim is shown to be inaccurate. Please contact <a href="mailto:security@karma-x.io">security@karma-x.io</a> with corrections. If you're a Coinkite team member reading this with additional context, please reach out &mdash; the post will be updated to reflect anything factually incorrect.
+    </p>
+    <p style="margin:.25rem 0; font-size:0.9em;">
+      <strong>Learn more about Karma-X:</strong> <a href="https://karma-x.io/" target="_blank" rel="noopener noreferrer">https://karma-x.io/</a>
+    </p>
+  </footer>
+</article>
+</p>
+          
+
+          
+        </div>
+
+        <!-- Takeaway Content -->
+        
+
+      </div>
+      <section class="my-5 py-5 info-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 ms-auto">
+        <div class="row justify-content-start">
+          <div class="col-md-6">
+            <div class="info">
+              <div class="icon icon-sm">
+                <svg class="text-primary" width="25px" height="25px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>document</title>
+                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                          <g transform="translate(1716.000000, 291.000000)">
+                              <g transform="translate(154.000000, 300.000000)">
+                                  <path class="color-background" d="M40,40 L36.3636364,40 L36.3636364,3.63636364 L5.45454545,3.63636364 L5.45454545,0 L38.1818182,0 C39.1854545,0 40,0.814545455 40,1.81818182 L40,40 Z" opacity="0.603585379"></path>
+                                  <path class="color-background" d="M30.9090909,7.27272727 L1.81818182,7.27272727 C0.814545455,7.27272727 0,8.08727273 0,9.09090909 L0,41.8181818 C0,42.8218182 0.814545455,43.6363636 1.81818182,43.6363636 L30.9090909,43.6363636 C31.9127273,43.6363636 32.7272727,42.8218182 32.7272727,41.8181818 L32.7272727,9.09090909 C32.7272727,8.08727273 31.9127273,7.27272727 30.9090909,7.27272727 Z M18.1818182,34.5454545 L7.27272727,34.5454545 L7.27272727,30.9090909 L18.1818182,30.9090909 L18.1818182,34.5454545 Z M25.4545455,27.2727273 L7.27272727,27.2727273 L7.27272727,23.6363636 L25.4545455,23.6363636 L25.4545455,27.2727273 Z M25.4545455,20 L7.27272727,20 L7.27272727,16.3636364 L25.4545455,16.3636364 L25.4545455,20 Z"></path>
+                              </g>
+                          </g>
+                      </g>
+                  </g>
+              </svg>
+              </div>
+              <h5 class="font-weight-bolder mt-3">Easy Install</h5>
+              <p class="pe-5">From small business to enterprise, Karma-X installs simply and immediately adds peace of mind</p>
+
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="info">
+              <div class="icon icon-sm">
+                <svg class="text-primary" width="25px" height="25px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>shop </title>
+                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                          <g transform="translate(1716.000000, 291.000000)">
+                              <g id="shop-" transform="translate(0.000000, 148.000000)">
+                                  <path class="color-background" d="M46.7199583,10.7414583 L40.8449583,0.949791667 C40.4909749,0.360605034 39.8540131,0 39.1666667,0 L7.83333333,0 C7.1459869,0 6.50902508,0.360605034 6.15504167,0.949791667 L0.280041667,10.7414583 C0.0969176761,11.0460037 -1.23209662e-05,11.3946378 -1.23209662e-05,11.75 C-0.00758042603,16.0663731 3.48367543,19.5725301 7.80004167,19.5833333 L7.81570833,19.5833333 C9.75003686,19.5882688 11.6168794,18.8726691 13.0522917,17.5760417 C16.0171492,20.2556967 20.5292675,20.2556967 23.494125,17.5760417 C26.4604562,20.2616016 30.9794188,20.2616016 33.94575,17.5760417 C36.2421905,19.6477597 39.5441143,20.1708521 42.3684437,18.9103691 C45.1927731,17.649886 47.0084685,14.8428276 47.0000295,11.75 C47.0000295,11.3946378 46.9030823,11.0460037 46.7199583,10.7414583 Z" opacity="0.598981585"></path>
+                                  <path class="color-background" d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"></path>
+                              </g>
+                          </g>
+                      </g>
+                  </g>
+              </svg>
+              </div>
+
+              <h5 class="font-weight-bolder mt-3">Integration Ready</h5>
+              <p class="pe-3">Karma-X doesn't interfere with other software, only malware and exploits, due to its unique design.</p>
+
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-start mt-5">
+          <div class="col-md-6 mt-3">
+            <div class="info">
+              <div class="icon icon-sm">
+                <svg class="text-primary" width="25px" height="25px" viewBox="0 0 42 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <title>time-alarm</title>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(-2319.000000, -440.000000)" fill="#923DFA" fill-rule="nonzero">
+                            <g transform="translate(1716.000000, 291.000000)">
+                                <g id="time-alarm" transform="translate(603.000000, 149.000000)">
+                                    <path class="color-background" d="M18.8086957,4.70034783 C15.3814926,0.343541521 9.0713063,-0.410050841 4.7145,3.01715217 C0.357693695,6.44435519 -0.395898667,12.7545415 3.03130435,17.1113478 C5.53738466,10.3360568 11.6337901,5.54042955 18.8086957,4.70034783 L18.8086957,4.70034783 Z" opacity="0.6"></path>
+                                    <path class="color-background" d="M38.9686957,17.1113478 C42.3958987,12.7545415 41.6423063,6.44435519 37.2855,3.01715217 C32.9286937,-0.410050841 26.6185074,0.343541521 23.1913043,4.70034783 C30.3662099,5.54042955 36.4626153,10.3360568 38.9686957,17.1113478 Z" opacity="0.6"></path>
+                                    <path class="color-background" d="M34.3815652,34.7668696 C40.2057958,27.7073059 39.5440671,17.3375603 32.869743,11.0755718 C26.1954189,4.81358341 15.8045811,4.81358341 9.13025701,11.0755718 C2.45593289,17.3375603 1.79420418,27.7073059 7.61843478,34.7668696 L3.9753913,40.0506522 C3.58549114,40.5871271 3.51710058,41.2928217 3.79673036,41.8941824 C4.07636014,42.4955431 4.66004722,42.8980248 5.32153275,42.9456105 C5.98301828,42.9931963 6.61830436,42.6784048 6.98113043,42.1232609 L10.2744783,37.3434783 C16.5555112,42.3298213 25.4444888,42.3298213 31.7255217,37.3434783 L35.0188696,42.1196087 C35.6014207,42.9211577 36.7169135,43.1118605 37.53266,42.5493622 C38.3484064,41.9868639 38.5667083,40.8764423 38.0246087,40.047 L34.3815652,34.7668696 Z M30.1304348,25.5652174 L21,25.5652174 C20.49574,25.5652174 20.0869565,25.1564339 20.0869565,24.6521739 L20.0869565,15.5217391 C20.0869565,15.0174791 20.49574,14.6086957 21,14.6086957 C21.50426,14.6086957 21.9130435,15.0174791 21.9130435,15.5217391 L21.9130435,23.7391304 L30.1304348,23.7391304 C30.6346948,23.7391304 31.0434783,24.1479139 31.0434783,24.6521739 C31.0434783,25.1564339 30.6346948,25.5652174 30.1304348,25.5652174 Z"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+              </div>
+
+              <h5 class="font-weight-bolder mt-3">Reduce Risk</h5>
+              <p class="pe-5">Whether adversary nation or criminal actors, Karma-X significantly reduces exploitation risk of any organization</p>
+
+            </div>
+          </div>
+          <div class="col-md-6 mt-3">
+            <div class="info">
+              <div class="icon icon-sm">
+                <svg class="text-primary" width="25px" height="25px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>office</title>
+                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g transform="translate(-1869.000000, -293.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                  <g transform="translate(1716.000000, 291.000000)">
+                      <g id="office" transform="translate(153.000000, 2.000000)">
+                          <path class="color-background" d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z" opacity="0.6"></path>
+                          <path class="color-background" d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z"></path>
+                      </g>
+                  </g>
+                  </g>
+                  </g>
+                </svg>
+              </div>
+
+              <h5 class="font-weight-bolder mt-3">Updated Regularly</h5>
+              <p class="pe-3">Update to deploy new defensive techniques to suit your organization's needs as they are offered</p>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 ms-auto me-auto p-lg-4 mt-lg-0 mt-4">
+          <div class="card card-background card-background-mask-primary tilt" data-tilt>
+            <div class="full-background" style="background-image: url('https://cdn.midjourney.com/f1877782-9106-46cf-9682-133174c3b38b/0_3.png')"></div>
+            <div class="card-body pt-7 text-center">
+              <div class="icon icon-lg up mb-3 mt-3">
+                <svg width="50px" height="50px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>box-3d-50</title>
+                  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g transform="translate(-2319.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                  <g transform="translate(1716.000000, 291.000000)">
+                    <g id="box-3d-50" transform="translate(603.000000, 0.000000)">
+                      <path d="M22.7597136,19.3090182 L38.8987031,11.2395234 C39.3926816,10.9925342 39.592906,10.3918611 39.3459167,9.89788265 C39.249157,9.70436312 39.0922432,9.5474453 38.8987261,9.45068056 L20.2741875,0.1378125 L20.2741875,0.1378125 C19.905375,-0.04725 19.469625,-0.04725 19.0995,0.1378125 L3.1011696,8.13815822 C2.60720568,8.38517662 2.40701679,8.98586148 2.6540352,9.4798254 C2.75080129,9.67332903 2.90771305,9.83023153 3.10122239,9.9269862 L21.8652864,19.3090182 C22.1468139,19.4497819 22.4781861,19.4497819 22.7597136,19.3090182 Z"></path>
+                      <path d="M23.625,22.429159 L23.625,39.8805372 C23.625,40.4328219 24.0727153,40.8805372 24.625,40.8805372 C24.7802551,40.8805372 24.9333778,40.8443874 25.0722402,40.7749511 L41.2741875,32.673375 L41.2741875,32.673375 C41.719125,32.4515625 42,31.9974375 42,31.5 L42,14.241659 C42,13.6893742 41.5522847,13.241659 41,13.241659 C40.8447549,13.241659 40.6916418,13.2778041 40.5527864,13.3472318 L24.1777864,21.5347318 C23.8390024,21.7041238 23.625,22.0503869 23.625,22.429159 Z" opacity="0.7"></path>
+                      <path d="M20.4472136,21.5347318 L1.4472136,12.0347318 C0.953235098,11.7877425 0.352562058,11.9879669 0.105572809,12.4819454 C0.0361450918,12.6208008 6.47121774e-16,12.7739139 0,12.929159 L0,30.1875 L0,30.1875 C0,30.6849375 0.280875,31.1390625 0.7258125,31.3621875 L19.5528096,40.7750766 C20.0467945,41.0220531 20.6474623,40.8218132 20.8944388,40.3278283 C20.963859,40.1889789 21,40.0358742 21,39.8806379 L21,22.429159 C21,22.0503869 20.7859976,21.7041238 20.4472136,21.5347318 Z" opacity="0.7"></path>
+                    </g>
+                  </g>
+                  </g>
+                  </g>
+                  </svg>
+              </div>
+              <h2 class="text-white up mb-0">Deploy <br/> Karma-X</h2>
+              <a href="/contact-us/" target="_blank" class="btn btn-outline-white mt-5 up btn-round">Get Karma-X!</a>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+     </div>
+    </div>
+  </section>
+
+<script>
+// Content Toggle Script
+
+</script>
+
+<style>
+/* Base chat widget styles */
+#ai-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#chat-toggle {
+    background: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#chat-toggle:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+#chat-window {
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+#chat-header {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+#chat-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    max-height: calc(100% - 120px);
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.chat-message {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 85%;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.chat-message.user {
+    background: #007bff;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.chat-message.ai {
+    background: #f1f1f1;
+    color: #333;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-message.typing {
+    background: #e3f2fd;
+    color: #1976d2;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+#chat-input-container {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    background: white;
+    gap: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+#chat-input:focus {
+    border-color: #007bff;
+}
+
+#chat-send {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+#chat-send:hover {
+    background: #0056b3;
+}
+
+#chat-send:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Mobile optimizations */
+@media screen and (max-width: 480px) {
+    #ai-chat-widget {
+        bottom: env(safe-area-inset-bottom, 20px);
+        right: 15px;
+        left: 15px;
+        width: auto;
+    }
+
+    #chat-toggle {
+        width: 100%;
+        text-align: center;
+        padding: 15px 20px;
+        font-size: 16px;
+        border-radius: 12px;
+        position: relative;
+        right: auto;
+        bottom: auto;
+    }
+
+    #chat-window {
+        position: fixed;
+        top: env(safe-area-inset-top, 10px);
+        left: 10px;
+        right: 10px;
+        bottom: env(safe-area-inset-bottom, 10px);
+        width: auto;
+        height: auto;
+        max-height: calc(100vh - env(safe-area-inset-top, 10px) - env(safe-area-inset-bottom, 10px) - 20px);
+        border-radius: 12px;
+    }
+
+    #chat-header {
+        padding: 18px 20px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    #chat-header span {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    #chat-close {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+
+    #chat-messages {
+        padding: 20px 16px;
+        font-size: 15px;
+    }
+
+    .chat-message {
+        max-width: 90%;
+        font-size: 15px;
+        line-height: 1.5;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+    }
+
+    #chat-input-container {
+        padding: 20px 16px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        gap: 12px;
+    }
+
+    #chat-input {
+        padding: 14px 18px;
+        font-size: 16px;
+        border-radius: 24px;
+        min-height: 24px;
+    }
+
+    #chat-send {
+        padding: 14px 24px;
+        font-size: 15px;
+        border-radius: 24px;
+        min-width: 80px;
+    }
+
+    .chat-hint, .final-cta {
+        font-size: 14px;
+        padding: 12px 16px;
+        margin: 12px 0;
+    }
+
+    .final-cta a {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        margin: 8px 4px !important;
+        display: block !important;
+        width: calc(50% - 8px) !important;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .final-cta div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    #ai-chat-widget {
+        bottom: env(safe-area-inset-bottom, 25px);
+        right: 20px;
+    }
+
+    #chat-toggle {
+        padding: 14px 24px;
+        font-size: 15px;
+    }
+
+    #chat-window {
+        width: 380px;
+        height: 550px;
+    }
+
+    .chat-message {
+        font-size: 15px;
+        max-width: 88%;
+    }
+
+    #chat-input {
+        font-size: 16px;
+        padding: 13px 16px;
+    }
+
+    #chat-send {
+        padding: 13px 22px;
+        font-size: 15px;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+    #chat-window {
+        box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    }
+
+    #chat-toggle {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    #chat-window {
+        background: #1a1a1a;
+        color: #ffffff;
+    }
+
+    .chat-message.ai {
+        background: #2d2d2d;
+        color: #ffffff;
+    }
+
+    #chat-input-container {
+        background: #1a1a1a;
+        border-top-color: #333;
+    }
+
+    #chat-input {
+        background: #2d2d2d;
+        border-color: #444;
+        color: #ffffff;
+    }
+
+    #chat-input::placeholder {
+        color: #888;
+    }
+}
+</style>
+<div id="ai-chat-widget">
+    <div id="chat-toggle">💬 Ask our AI Assistant Kali</div>
+    <div id="chat-window" style="display:none;">
+        <div id="chat-header">
+            <span>Kali - Karma-X AI Assistant</span>
+            <button id="chat-close">×</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Ask about our products...">
+            <button id="chat-send">Send</button>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatWindow = document.getElementById('chat-window');
+    const chatClose = document.getElementById('chat-close');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const chatMessages = document.getElementById('chat-messages');
+
+    let isWaiting = false;
+    let sessionId = null;
+    let chatComplete = false;
+
+    chatToggle.addEventListener('click', () => {
+        chatWindow.style.display = 'block';
+        chatToggle.style.display = 'none';
+        chatInput.focus();
+
+        if (!sessionId) {
+            setTimeout(() => {
+                addMessage('Hi! I can help you learn about Karma-X and connect you with our team. What brings you here today?', 'ai');
+            }, 500);
+        }
+    });
+
+    chatClose.addEventListener('click', () => {
+        chatWindow.style.display = 'none';
+        chatToggle.style.display = 'block';
+    });
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message || isWaiting || chatComplete) return;
+
+        addMessage(message, 'user');
+        chatInput.value = '';
+
+        isWaiting = true;
+        chatSend.disabled = true;
+        chatInput.disabled = true;
+
+        const typingMsg = addMessage('One moment...', 'ai', 'typing');
+
+        const payload = {
+            message: message
+        };
+
+        if (sessionId) {
+            payload.session_id = sessionId;
+        }
+
+        fetch('/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingMsg.remove();
+
+            if (data.response) {
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                }
+
+                addMessage(data.response, 'ai');
+
+                if (data.chat_complete) {
+                    chatComplete = true;
+                    chatInput.placeholder = "Thanks! Our team will contact you soon.";
+                    chatInput.disabled = true;
+                    chatSend.disabled = true;
+
+                    setTimeout(() => {
+                        addFinalCTA();
+                    }, 1000);
+                } else if (shouldShowContactPrompt(data.response)) {
+                    setTimeout(() => {
+                        addContactHint();
+                    }, 1500);
+                }
+            } else {
+                addMessage('Please try again or email karma@karma-x.io directly for immediate assistance.', 'ai');
+            }
+        })
+        .catch(error => {
+            typingMsg.remove();
+            addMessage('Connection issue. Please email karma@karma-x.io or try again.', 'ai');
+        })
+        .finally(() => {
+            if (!chatComplete) {
+                isWaiting = false;
+                chatSend.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            } else {
+                isWaiting = false;
+            }
+        });
+    }
+
+    function shouldShowContactPrompt(response) {
+        const contactKeywords = ['contact', 'information', 'email', 'phone', 'reach out', 'connect'];
+        return contactKeywords.some(keyword => response.toLowerCase().includes(keyword));
+    }
+
+    function addContactHint() {
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'chat-hint';
+        hintDiv.style.cssText = `
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 8px 0;
+            border-left: 3px solid #1976d2;
+        `;
+        hintDiv.innerHTML = '💡 <strong>Tip:</strong> You can provide your contact info in your next message<br><small>Example: "My email is john@company.com and my phone is 555-123-4567"</small>';
+        chatMessages.appendChild(hintDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addFinalCTA() {
+        const ctaDiv = document.createElement('div');
+        ctaDiv.className = 'final-cta';
+        ctaDiv.style.cssText = `
+            background: #f8f9fa;
+            border: 2px solid #007bff;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        `;
+        ctaDiv.innerHTML = `
+            <strong>🎉 Thanks for your interest!</strong><br>
+            <small>Our team will contact you shortly. In the meantime:</small><br>
+            <div style="margin-top: 10px;">
+                <a href="https://karma-x.io/account/" target="_blank"
+                   style="background: #007bff; color: white; padding: 8px 16px;
+                          border-radius: 20px; text-decoration: none; margin: 5px;
+                          font-size: 12px; display: inline-block;">
+                    Try Vitamin-K Free
+                </a>
+                <a href="https://karma-x.io" target="_blank"
+                   style="background: #6c757d; color: white; padding: 8px 16px;
+                          border-radius: 20px; text-decoration: none; margin: 5px;
+                          font-size: 12px; display: inline-block;">
+                    Learn More
+                </a>
+            </div>
+        `;
+        chatMessages.appendChild(ctaDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addMessage(text, sender, className = '') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender} ${className}`;
+        messageDiv.textContent = text;
+        chatMessages.appendChild(messageDiv);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageDiv;
+    }
+
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !isWaiting && !chatComplete) {
+            sendMessage();
+        }
+    });
+
+    chatSend.addEventListener('click', sendMessage);
+});
+</script>
+
+
+
+
+  
+  
+    
+
+<footer class="footer pt-5 mt-5">
+  <hr class="horizontal dark mb-5">
+  <div class="container">
+    <div class=" row">
+      <div class="col-md-3 mb-4 ms-auto">
+        <div>
+          <h6 class="text-gradient text-primary font-weight-bolder">Karma-X</h6>
+        </div>
+        <div>
+          <h6 class="mt-3 mb-2 opacity-8">Social</h6>
+          <ul class="d-flex flex-row ms-n3 nav">
+            <li class="nav-item">
+              <a class="nav-link pe-1" href="https://www.facebook.com/KarmaX.Inc" target="_blank">
+                <i class="fab fa-facebook text-lg opacity-8"></i>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link pe-1" href="https://twitter.com/Karma_X_Inc" target="_blank">
+                <i class="fab fa-twitter text-lg opacity-8"></i>
+              </a>
+            </li>
+
+
+            <li class="nav-item">
+              <a class="nav-link pe-1" href="https://github.com/Karma-X-Inc" target="_blank">
+                <i class="fab fa-github text-lg opacity-8"></i>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link pe-1" href="https://www.youtube.com/@Karma-X" target="_blank">
+                <i class="fab fa-youtube text-lg opacity-8"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
+
+      <div class="col-md-2 col-sm-6 col-6 mb-4">
+        <div>
+          <h6 class="text-gradient text-primary text-sm">Company</h6>
+          <ul class="flex-column ms-n3 nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/about-us/" target="_blank">
+                About Us
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/" target="_blank">
+                Blog
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/news/" target="_blank">
+                News
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/news/feed/" target="_blank" title="Subscribe to Karma-X News RSS">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 4px; vertical-align: -1px;">
+                  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm1.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4.4-.5a.5.5 0 0 1-.5-.5c0-2.67-2.17-4.83-4.83-4.83a.5.5 0 0 1 0-1C5.48 5.17 7.83 7.52 7.83 10.5a.5.5 0 0 1-.43.5zm3.1 0a.5.5 0 0 1-.5-.5C10.5 6.8 7.2 3.5 3 3.5a.5.5 0 0 1 0-1c4.76 0 8.5 3.74 8.5 8.5a.5.5 0 0 1-.5.5z"/>
+                </svg>RSS Feed
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-2 col-sm-6 col-6 mb-4">
+        <div>
+          <h6 class="text-gradient text-primary text-sm">Help & Support</h6>
+          <ul class="flex-column ms-n3 nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/contact-us/" target="_blank">
+                Contact Us
+              </a>
+            </li>
+	    <li class="nav-item">
+              <a class="nav-link" href="/accounts/password-reset/" target="_blank">
+                Password Reset 
+              </a>
+            </li>
+	    <li class="nav-item">
+              <a class="nav-link" href="/accounts/password-change/" target="_blank">
+                Password Change
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-2 col-sm-6 col-6 mb-4 me-auto">
+        <div>
+          <h6 class="text-gradient text-primary text-sm">Legal</h6>
+          <ul class="flex-column ms-n3 nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/terms/" target="_blank">
+                Terms &amp; Conditions
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/privacy/" target="_blank">
+                Privacy Policy
+              </a>
+            </li>
+<!--
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_blank">
+                Licenses (EULA)
+              </a>
+	    </li>-->
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="text-center">
+          <p class="my-4 text-sm">
+            &copy; <a href="/" target="_blank">Karma-X</a> - Protection &gt; Detection 
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+  
+
+    
+  
+<!-- Core JS Files -->
+<script src="/static/js/core/popper.min.js" defer type="text/javascript"></script>
+<script src="/static/js/core/bootstrap.min.js" defer type="text/javascript"></script>
+<script src="/static/js/plugins/perfect-scrollbar.min.js" defer></script>
+
+<!-- Plugins -->
+<script src="/static/js/plugins/parallax.min.js" defer></script>
+<script src="/static/js/plugins/choices.min.js" defer></script>
+<script src="/static/js/plugins/countup.min.js" defer></script>
+<script src="/static/js/plugins/prism.min.js" defer></script>
+<script src="/static/js/plugins/flatpickr.min.js" defer></script>
+<script src="/static/js/plugins/moment.min.js" defer></script>
+<script src="/static/js/plugins/rellax.min.js" defer></script>
+<script src="/static/js/plugins/tilt.min.js" defer></script>
+<script src="/static/js/plugins/typedjs.js" defer></script>
+
+<script src="/static/js/soft-design-system.min.js" defer type="text/javascript"></script>
+
+
+  
+
+</body>
+</html>

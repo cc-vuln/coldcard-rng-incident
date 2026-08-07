@@ -1,0 +1,110 @@
+top of page
+Products
+Industries
+Insights
+Report scam
+Book consultation
+Blockchain intelligence &
+investigations
+Report scam
+Actionable crypto intelligence for Law Enforcement, legal teams, and financial institutions.
+Book consultation
+Products
+Industries
+Insights
+Report scam
+Book consultation
+Coldcard Seed Flaw ($38M)
+Blockchain Unmasked
+3 days ago
+3 min read
+Two days ago, 594 BTC, about $38 million, was swept from roughly 500 wallets in 25 minutes.
+We flagged this vulnerability two years ago to Coldcard, local, state, and federal agencies.
+In 2024, several victims came to us with the same story. Bitcoin gone from a Coldcard wallet.
+No malware, no phishing, backups never left the safe. At first, we began to think this could only be an inside job. How else, in a properly designed entropy system, could anyone be brute forcing wallets? And why would a hardware wallet company ever allow weak entropy creation? Why even offer that to users? Why put the integrity of your hardware wallet in the hands of less educated people? Shouldn't the hardware company offer MAXIMUM entropy, and therefore maximum security, by default? It didn't make sense.
+We also knew enough to know this wasn't a user device issue, or malware, or phishing. When thefts keep happening with no visible attack surface, you stop looking at the victim's computer and start looking at the keys.
+Our analysis pointed to weak seed entropy on the devices themselves. We took our findings to Coldcard, and we filed a complete report with local, state and federal agencies.
+This week, that same weakness was exploited at scale. Almost $40 million gone.
+The flaw goes back to March 2021. Coldcard devices carry a dedicated hardware chip whose entire purpose is producing true randomness for seed generation. A build error in firmware 4.0.0 cut that chip out of the process. A compile-time check tested whether a setting existed instead of what it was set to, and the firmware silently fell back on a software random number generator.
+Nobody caught it, including the manufacturer. Or, they chose to look the other way. Reddit threads showed many users with the same story and an active denial but the hardware company.
+The damage varies by model. On Mk2 and Mk3 devices running firmware 4.0.0 through 5.0.3, no hardware entropy fed key creation at all. On Mk4, Mk5 and Q, the firmware tried to mix in randomness from the secure element at boot but truncated it to 32 bits. Instead of the 128 bits a 12-word seed is supposed to carry, effective randomness collapsed to somewhere between 32 and 40 bits.
+2^40 is about a trillion possibilities. That sounds like a lot. 2 years ago, it may have been a lot given the state of AI. Today, it isn't. An attacker can regenerate every candidate seed offline, derive the standard address paths for each one, and scan the blockchain for funded matches. No contact with the device, ever. The PIN doesn't matter. The air gap doesn't matter. By the time a funded address matches, the attacker already holds the private key.
+On chain, the sweep moved 1,324 pieces of bitcoin across 500 transactions inside three blocks, then consolidated most of it into a single address, where it still sits.
+The bug sat in open source firmware for five years, and anyone could have read that code at any time. What changed is cost and technology. AI tools can now read years of firmware history and surface exactly this class of flaw, and ordinary hardware can brute force a 40-bit keyspace in a practical timeframe. Coinkite itself said it assumes AI was used to find the bug. The tools got cheap.
+The weak keys were already out there, waiting for technology to catch up. How many more instances like this will occur in the near future? Is hardware no longer safe? Do you have full confidence in your hardware wallet provider?
+If you generated a seed on an affected Coldcard, updating the firmware fixes nothing. The seed was born weak and stays weak. Generate a new seed on patched or unaffected hardware and migrate your funds carefully. Seeds created with 50 or more dice rolls, or protected by a strong BIP-39 passphrase, are in far better shape.
+And for the victims: this money is on chain, and it is being watched.
+The moment it moves toward liquidity, we'll be watching.
+Recent Posts
+See All
+The War Room
+84 Partnerships, 51 Jurisdictions: The FATF's New Report Puts Information Sharing at the Center of the Fight
+The Expert Witness Problem AI Can't Solve
+Subscribe to our newsletter
+Subscribe
+Thanks for submitting!
+COMPANY
+Home
+Insights
+Products
+Industries
+Consulting
+Contact Us
+Verify Project
+Expert Witness
+Our Community
+Complaint Form
+Glossary of Scams
+Our Story
+Careers
+REPORTING
+Report a Hack
+Report a Scam
+Report a Wallet
+Report a Website
+Report a Phone Number
+Report a Social Media Platform
+How to become a Sleuth
+Ethical Hacker Program
+Bounty Program
+Sample Report
+BLOCKCHAIN UNMASKED
+2 N. Central Ave, Suite 1800
+Phoenix, AZ 85004
+info@blockchainunmasked.com
+X (Twitter)
+LinkedIn
+© 2025 Blockchain Unmasked. All rights reserved. | Privacy Policy
+COMPANY
+Home
+Insights
+Products
+Industries
+Consulting
+Contact Us
+Verify Project
+Expert Witness
+Our Community
+Complaint Form
+Glossary of Scams
+Our Story
+Careers
+REPORTING
+Report a Hack
+Report a Scam
+Report a Wallet
+Report a Website
+Report a Phone Number
+Report a Social Media Platform
+How to become a Sleuth
+Ethical Hacker Program
+Bounty Program
+Sample Report
+BLOCKCHAIN UNMASKED
+2 N. Central Ave, Suite 1800
+Phoenix, AZ 85004
+info@blockchainunmasked.com
+X (Twitter)
+LinkedIn
+© 2025 Blockchain Unmasked. All rights reserved. | Privacy Policy
+bottom of page

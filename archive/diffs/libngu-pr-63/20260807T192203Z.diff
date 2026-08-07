@@ -1,0 +1,42 @@
+--- libngu-pr-63@20260807T154526Z
++++ libngu-pr-63@20260807T192203Z
+@@ -121,12 +121,12 @@
+ Insights
+ random: reject two-word entropy cycles - #63
+ #63
+-Open
++Closed
+ jgmontoya wants to merge 1 commit into
+ switck:masterswitck/libngu:masterfrom
+ jgmontoya:rng-2-entropy-healthjgmontoya/libngu:rng-2-entropy-healthCopy head branch name to clipboard
+ ConversationCommits1 (1)ChecksFiles changed
+-Open
++Closed
+ random: reject two-word entropy cycles#63
+ jgmontoya wants to merge 1 commit into
+ switck:masterswitck/libngu:masterfrom
+@@ -224,6 +224,24 @@
+ Uh oh!
+ There was an error while loading. Please reload this page.
+ All reactions
++jgmontoya
++commented
++Aug 7, 2026
++Copy link
++Copy Markdown
++Author
++You’re right. I rechecked SP 800-90B and the STM32L4 documentation.
++SP 800-90B defines the repetition-count test for consecutive equal samples and the adaptive-proportion test. It permits extra tests when they address a documented source-specific failure mode with a stated false-alarm policy.
++STM32L4 detects long constant or alternating sequences in the raw seed bits internally. I found no documented failure where one valid 32-bit A, B, A sequence indicates a failing RNG. This software check also runs on conditioned outputs such as getrandom() and arc4random(), so the STM32 raw-bit detector does not justify it.
++Your probability estimate is correct for the new condition. Under uniform independent 32-bit output, the extra A, B, A rejection occurs about once per 2^32 checked words. I don’t have evidence that this false-alarm cost catches a real source fault.
++I’ll close #63 and rebase #64 without this check, preserving the existing zero and adjacent-repeat behavior. Thanks for catching it.
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++jgmontoya
++closed this
++Aug 7, 2026
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

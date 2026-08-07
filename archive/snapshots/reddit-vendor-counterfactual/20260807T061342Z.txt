@@ -1,0 +1,338 @@
+post: 1vduxyg
+author: therealjeku
+created_utc: 1785708102
+title: What could Coinkite have done if they discovered the flaw first?
+body:
+Let’s be hypothetical and imagine Coinkite discovered this flaw on their own in, say, January 2026. What could they have done? 
+
+If they announced the flaw with a firmware fix then attackers could quickly get started on harvesting BTC before all the affected cards are safely transferred. If they announced a firmware fix but not the flaw, many people won’t bother updating their firmware. Hell, my MK4 sat for over two years in a safe.   Not to mention their new firmware code would be viewable and it would surely point out a fix for the RNG which would lead some to ascertain this huge underlying issue.
+
+Not to defend them, but I’m not sure they would have had any favourable way out of this mess having sold so many affected wallets over many years.
+
+comment: p1c3w9z
+parent: t3_1vduxyg
+author: Quirky-Reveal-1669
+created_utc: 1785708409
+edited: false
+body:
+No not true. The organization of the execution of this theft will have taken time. If CoinKite was the first with this knowledge, they would have first tried to communicate that a new seed should be generated with dice, and with a passphrase. No further detailed information given, just pressing the utmost urgency. After that, a firmware update would be the next step. 
+
+comment: p1c51f9
+parent: t1_p1c3w9z
+author: cilicia3k3
+created_utc: 1785708749
+edited: false
+body:
+The second they sent a private email to a YouTuber , let’s say Ben , it would be game over 
+
+comment: p1c8cwk
+parent: t1_p1c3w9z
+author: No_Position_8581
+created_utc: 1785709777
+edited: false
+body:
+Anything they did would have been a tip off. It would have saved more people but people would immediately start looking at their rng
+
+comment: p1caf84
+parent: t1_p1c8cwk
+author: Quirky-Reveal-1669
+created_utc: 1785710427
+edited: false
+body:
+Sure. The time window would gave been very narrow. 
+
+comment: p1ccc66
+parent: t3_1vduxyg
+author: s1ammage
+created_utc: 1785711022
+edited: false
+body:
+I wonder if this is true: https://x.com/TheBTCTherapist/status/2083916626051715528
+
+comment: p1cefvp
+parent: t3_1vduxyg
+author: Firm_Yogurtcloset835
+created_utc: 1785711688
+edited: false
+body:
+If Coldcard discovered the seed generator flaw before any attack happened, the best course of action to protect users and the company would be to change the license and close the source code immediately. This avoids exposing the specific fix to hackers via reverse engineering. Without causing public panic, the company could strongly recommend the update by citing new corporate policies, the risk of losing tech support, and general security vulnerabilities.  
+Even though the open-source community's backlash would be severe, this strategy would effectively prevent massive thefts. Even the users who hated the new closed-source policy would be forced to either update or migrate to a competitor—and in both cases, their funds are saved from the exploit. Furthermore, from a legal standpoint, this creates a solid defense for the company. If a user explicitly refuses to update after strict warnings and major policy changes, they assume the risk and lose the ground to sue the company in the event of an attack. Ultimately, saving user funds and mitigating legal liability is far more important than maintaining a perfect open-source reputation. After all, if the attacks and financial losses happened anyway, the company's reputation would be just as ruined as it would be by closing the source code
+
+comment: p1ckb7b
+parent: t3_1vduxyg
+author: loupiote2
+created_utc: 1785713584
+edited: false
+body:
+The best could  have been for them to move all wallets to a secure new cold wallet, and then send back the funds to their original owners once they provide new addresses derived from new secure seeds
+
+comment: p1cnpd3
+parent: t1_p1ckb7b
+author: northernguy
+created_utc: 1785714713
+edited: false
+body:
+What? How would they know whose wallets were whose?
+
+comment: p1cpuw3
+parent: t1_p1cefvp
+author: iwanttohugallthecats
+created_utc: 1785715436
+edited: false
+body:
+Even I have already downloaded the source code a few years ago.
+
+comment: p1ct9qv
+parent: t3_1vduxyg
+author: Charming-Designer944
+created_utc: 1785716551
+edited: false
+body:
+If they discovered the flaw first then users might had at most a day extra to move their coins to a new seed before being drained.
+
+comment: p1cu9d3
+parent: t3_1vduxyg
+author: Long_Illustrator_988
+created_utc: 1785716880
+edited: false
+body:
+It's funny, I was thinking about this exact scenario too.
+
+Honestly, I was daydreaming about being a whitehat and hacking everybody's wallet, then setting up a process for everyone to reclaim their funds. Haha. Also don't mind if I get a nice little bounty, cha-ching. Would literally take thousands of people out of the worst week of their lives to relief.
+
+Alternatively, if they just told everybody to update their seed, they would give people a headstart before hackers figured it out.
+
+Essentially put the security advisory as far and as wide as possible without going into specifics about what the bug is.
+
+comment: p1cvpos
+parent: t1_p1ccc66
+author: Charming-Designer944
+created_utc: 1785717372
+edited: 1786024058
+body:
+It's another issue entirely, but with a very similar result.
+
+That old report is about flaws in the dice roll interface of Coldcard, which might result in users rolling a weak seed,.
+
+ - no minimum requirement on the number of dice rolls
+ - easy to mix up the options of mixing dice rolls into the intenal entropy vs building the entropy entirely from the dice rolls alone.
+
+Combined it can result in users selecting the option of only usinng the dice rolls, and then only perform a handful number of dice roolls thinking that the dice rolls are just additional security to the internal entropy, not replacing it entirely and not realize that they created a very weak seed.
+
+I believe this issue is partially fixed in later firmwares, presenting a warning in main seed generation when using weak dice rolls, but still present when dice rolling a temporary seed.
+
+comment: p1cw92h
+parent: t3_1vduxyg
+author: RevolutionaryPick241
+created_utc: 1785717554
+edited: false
+body:
+I think the best course of action in this particular case would have been white-hacking. Then, disclose.
+
+comment: p1dcfhs
+parent: t3_1vduxyg
+author: Ok-Information-2428
+created_utc: 1785723166
+edited: false
+body:
+It’s difficult. They would have to whitehat it and take it themselves but then verifying who actually owns the wallets could be impossible if the wallet itself doesn’t store metadata around creation time - which may also be faked
+
+comment: p1e6lcy
+parent: t1_p1ct9qv
+author: etan1
+created_utc: 1785735648
+edited: false
+body:
+they could drain all the balances themselves, then ask users to sign a message to register a refund to a new wallet, process the refunds, then publish the new firmware + postmortem
+
+comment: p1e6thq
+parent: t1_p1cu9d3
+author: etan1
+created_utc: 1785735759
+edited: false
+body:
+everyone can impersonate the legitimate user easily, how do you know who is the legitimate claim to refund for a given wallet? this only works if users register for the refund before the bug details are published
+
+comment: p1e6zkk
+parent: t1_p1e6lcy
+author: etan1
+created_utc: 1785735841
+edited: false
+body:
+and if that’s not possible, try and send the btc back to the funders of the compromised wallet. if someone funded via a cex, they will still know which account funded it, etc
+
+comment: p1ebu6t
+parent: t1_p1e6lcy
+author: Either_Display_6624
+created_utc: 1785738217
+edited: false
+body:
+Probably means more trouble to them. Because that would be considered as theft. 
+
+And also a lot of coins have been acquired without CEX (like p2p) and it would be impossible to know the right owner since anyone could guess the seed phrase 
+
+comment: p1ec0rk
+parent: t1_p1e6thq
+author: Either_Display_6624
+created_utc: 1785738308
+edited: false
+body:
+If coins were purchased with CEX, totally possible otherwise impossible because no proof can be used . Bitcoin is private after all
+
+And even if they were purchased with CEX, they could have been sent to someone else, traded etc
+
+comment: p1ec69c
+parent: t1_p1e6zkk
+author: Either_Display_6624
+created_utc: 1785738384
+edited: false
+body:
+Even if they were originally purchased with CEX, they could have been sent to someone else, traded etc
+
+comment: p1econp
+parent: t1_p1e6thq
+author: [deleted]
+created_utc: 1785738640
+edited: 1785738864
+body:
+[deleted]
+
+comment: p1ed4ap
+parent: t1_p1econp
+author: etan1
+created_utc: 1785738858
+edited: false
+body:
+Legitimate owner likely has receipts when they got it, or paid tax on it for years. Remember, the victim profile included lots of folks who had 0.1-1 BTC, those are usual DCA purchases. Also, onramps these days often need ID.
+
+Recovery never is perfect but draining it to a known entity is better than just leaving it with bad actors.
+
+comment: p1ef0ri
+parent: t1_p1cw92h
+author: rottiesrule88
+created_utc: 1785739805
+edited: false
+body:
+Let’s hope this is what they did and are about to come clean. 
+
+comment: p1eh9so
+parent: t3_1vduxyg
+author: Yodel_And_Hodl_Mode
+created_utc: 1785740922
+edited: false
+body:
+They'd have done nothing.
+
+Their actions every step of the way since this story broke proves they are more concerned with protecting themselves than their users.
+
+As people were being robbed, Coinkite downplayed the severity of the attack and gave false assurance to owners of Mk4, Q and Mk5 devices.
+
+They said this:
+
+> “Mk4, Q and Mk5 are not affected based on our early analysis of the issue.”
+
+Coinkite did not know that to be true, and it turned out to be wrong. Coinkite should have immediately been doing everything they could to let all ColdCard users know they were in danger. Coinkite put users' financial security at risk to save their company.
+
+Coinkite's response made the catastrophe worse.
+
+And when I say Coinkite, I specifically mean Rodolfo Novak. He's the CEO and the face of the company. The moment he knew there was a problem, his priority should have been to protect those who used Coinkite products. He needs to resign.
+
+To anyone who says, "But he is the company." Exactly. His actions directly led to the biggest hardware wallet heist in Bitcoin history, and his actions made the catastrophe worse.
+
+comment: p1ejdxa
+parent: t3_1vduxyg
+author: scrandlle
+created_utc: 1785741984
+edited: false
+body:
+Work behind the scenes to get the major exchanges and other outlets to make an announcement all at once to maximize coverage. Reveal seed keys need to be changed and detail how, do not reveal the security flaw precisely so that people have the maximum time possible. Release new firmware but do not open source it so the vulnerability can't be seen. 
+
+comment: p1eq1mn
+parent: t1_p1e6lcy
+author: Charming-Designer944
+created_utc: 1785745376
+edited: false
+body:
+How would you tell apart users from hackers when the seed is compromised?
+
+comment: p1eufhh
+parent: t3_1vduxyg
+author: No-Kitchen-6511
+created_utc: 1785747617
+edited: false
+body:
+If he spent less time on twitter and developing features not even an advanced user would ever use even and simply focused on the single most important factor in a hardware wallet, then firmware updates wouldn't have been necessary. Just because the mistake was made five to six years ago doesn't make it any better. It's a mistake that shouldn't have been made in the first place. Whether he had caught the mistake or didn't or whether it was open source or closed again is not the issue, its that the oversight was made in the first place. It wasn't just A mistake. It was THE mistake he couldn't make. It's like a brain surgeon cutting off the entire patients head and then saying, oops. 
+
+comment: p1f21fx
+parent: t3_1vduxyg
+author: Oxymorix
+created_utc: 1785751376
+edited: false
+body:
+This version addresses the thread’s central dilemma—warning users without immediately handing attackers a roadmap—and rejects the proposed mass “white-hat” sweep and closed-source concealment strategies.
+
+This would have been an extremely difficult disclosure problem, but I do not agree that Coinkite would have had no useful options.
+
+A firmware update by itself would not have protected existing wallets because the weakness was already embedded in previously generated seeds. Users would have needed to update the firmware, generate an entirely new seed and transfer their funds. A vague request to install an update could therefore have created a dangerous false sense of security.
+
+The least-bad response would have been to prepare corrected firmware and migration instructions privately, obtain rapid outside review, and then issue an urgent warning through every available channel. Coinkite could initially have said that a critical seed-generation issue required users to replace device-generated seeds immediately, without publishing the technical details or estimated search space on the first day.
+
+That would undoubtedly have alerted researchers and potential attackers, so the migration window might have been narrow. However, it still could have given attentive users a head start. It would also have been important to treat every potentially affected model conservatively rather than reassuring MK4, Q or MK5 owners before the analysis was complete.
+
+The suggestion that Coinkite should have secretly swept everyone’s Bitcoin is not realistic. Once a seed is compromised, possession of the seed or a valid signature cannot reliably prove who historically owned the funds. Coinkite could not distinguish the legitimate owner from an attacker who reconstructed the same seed, and returning coins to their original funding addresses would fail because Bitcoin can be purchased, gifted, traded or transferred privately. Coinkite would also have taken custody of enormous amounts of money without permission.
+
+Closing the source would not have solved the problem either. The historical vulnerable code had already been copied, and sophisticated researchers could compare old and new firmware or reverse-engineer the change. Closing the source during a crisis would mainly have reduced independent scrutiny and looked like concealment.
+
+So there was no painless solution and probably no way to save every inactive wallet. But there was still a meaningful difference between an uncontrolled discovery and a carefully prepared, coordinated disclosure. The goal should have been to maximize the number of users who could migrate before detailed exploitation information became widespread.
+
+The proper sequence would have been: prepare the fixes, obtain independent review, warn every potentially affected owner, clearly require creation of a new seed and migration, briefly delay detailed technical publication, and then release a complete postmortem.
+
+That would not have eliminated the catastrophe, but it could have reduced it considerably.
+
+comment: p1fsbet
+parent: t3_1vduxyg
+author: WildNight00
+created_utc: 1785761523
+edited: false
+body:
+Now I’m worried my trezor isn’t safe since I didn’t roll dice 
+
+comment: p1fsn9z
+parent: t3_1vduxyg
+author: Sunny_Travels
+created_utc: 1785761627
+edited: false
+body:
+The flaw was found, then they had to search all the combinations and check if those wallets existed.  Gemini says they prepped for at least a month.  Had they not had time, they would have needed at least a 10 hours to find the flaw and learn the combinations and then a script running hours on the easiest ones.  There would have been plenty of time to move keys for most people.  Especially if the took the code offline and then told people to get a new seed key with dice, there would have been no clues to the issue
+
+comment: p1miln5
+parent: t3_1vduxyg
+author: iloverunning11
+created_utc: 1785840497
+edited: false
+body:
+There would be several possible options, all of them better than the actual outcome.
+
+comment: p1pgk39
+parent: t1_p1ef0ri
+author: IInsulince
+created_utc: 1785870028
+edited: false
+body:
+I would guess we are beyond that stage at this point, unfortunately. The awareness of the attack is widespread and sweeps are still occurring which means if there were a white hat phase, it would be concluded by now and the remainder we are seeing is black hat, or at least mixed with black hat.
+
+comment: p2279bk
+parent: t1_p1c3w9z
+author: Charming-Designer944
+created_utc: 1786024345
+edited: false
+body:
+Its game over as soon there is a whisper about there being an issue with seed generation entropy. It does not take long to find the weakness when knowing there is one.
+
+comment: p24tbwm
+parent: t1_p2279bk
+author: Quirky-Reveal-1669
+created_utc: 1786048245
+edited: false
+body:
+By now, I am no longer excluding the ‘retirement attack’ scenario. 😢

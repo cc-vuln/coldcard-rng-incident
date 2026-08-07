@@ -1,0 +1,96 @@
+--- coldcard-hack-tracker@20260807T081921Z
++++ coldcard-hack-tracker@20260807T101952Z
+@@ -64,7 +64,7 @@
+ 
+ BALANCE ON WATCH
+ 
+-1,367.16813792 BTC
++1,367.16814792 BTC
+ 
+ <live-fiat-value>
+ <live-fiat-value>
+@@ -77,15 +77,15 @@
+ 
+ MOVED
+ 
+-118.60760628 BTC
++118.60759628 BTC
+ 
+ Reported consolidation has left the holding addresses
+ 
+ LAST MOVEMENT
+ 
+-Block 961,368
+-
+-30.18476329 BTC from Wave 2 collector
++Block 961,404
++
++0.02324129 BTC from Hop 1 from Wave 4 park
+ 
+ Watched holdings
+ 
+@@ -146,9 +146,9 @@
+ 
+ Wave 2 vault
+ Consolidated from 1,216 sweeps (via bc1qsjrf5ze…). Chainabuse victim on that sweep sink.
+-	bc1qtfrwa4…numu75	45.90253994 BTC
+-<live-fiat-value>
+-	45.90251994 BTC	3	HELD
++	bc1qtfrwa4…numu75	45.90254994 BTC
++<live-fiat-value>
++	45.90251994 BTC	4	HELD
+ 
+ Wave 2 collector
+ Unmoved collector from 93 sweeps at ~10 sat/vB. Chainabuse victim.
+@@ -789,12 +789,36 @@
+ 
+ Outbound spends of the reported consolidation from watched holdings, then followed destinations (up to hop 2). Stops at known exchange, bridge, and service-hub exits — later custodian churn is not listed. Surplus through a vault that still holds its reported balance, later peels through a hop after it already cashed out to a known exit, and CoinJoin-scale fan-outs are ignored.
+ 
++HOP 1
++55af9e8d…fef5b9
++−0.02324129 BTC
++From Hop 1 from Wave 4 park bc1q72k7…aamt
++Block 961,404
++
++To bc1q55ll…g4q2
++
++HOP 2
++e5530973…acbf62
++−0.00010224 BTC
++From Hop 2 from Hop 1 from Wave 4 park bc1q55ll…g4q2
++Block 961,384
++
++To bc1qcgjn…tdt7
++
+ 93df0d26…4eabd4
+ −30.18476329 BTC
+ From Wave 2 collector bc1qmd5m…8jp6
+ Block 961,368
+ 
+ To bc1qez89…dt6n
++
++HOP 2
++d05a5ac8…ac4abe
++−0.00031259 BTC
++From Hop 2 from Hop 1 from Wave 4 park bc1q55ll…g4q2
++Block 961,148
++
++To bc1qcgjn…tdt7
+ 
+ HOP 1
+ 24ee02cf…7d11f2
+@@ -853,6 +877,14 @@
+ Block 961,019
+ 
+ To OP_RETURN messenger hub bc1qqa7p…36pr
++
++HOP 2
++5792bac4…1c959d
++−0.00145838 BTC
++From Hop 2 from Hop 1 from Wave 4 park bc1q55ll…g4q2
++Block 960,898
++
++To bc1qcgjn…tdt7
+ 
+ HOP 2
+ 822230d2…e3083a

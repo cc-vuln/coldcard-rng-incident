@@ -1,0 +1,911 @@
+From 8014102cfe0616bc1051ac080e652755ed440f01 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Tue, 26 May 2026 11:28:42 +0200
+Subject: [PATCH 1/2] Make Schnorr & MuSig2 optional NGU features
+---
+ ngu/k1.c                      |  46 +++--
+ ngu/lib_secp256k1.c           |   9 +
+ ngu/manifest.py               |   2 +
+ ngu/micropython.mk            |  18 +-
+ ngu/ngu_tests/Makefile        |   2 +
+ ngu/ngu_tests/run.py          |   2 +
+ ngu/ngu_tests/test_k1.py      | 306 +---------------------------------
+ ngu/ngu_tests/test_musig.py   | 247 +++++++++++++++++++++++++++
+ ngu/ngu_tests/test_schnorr.py |  69 ++++++++
+ 9 files changed, 380 insertions(+), 321 deletions(-)
+ create mode 100644 ngu/ngu_tests/test_musig.py
+ create mode 100644 ngu/ngu_tests/test_schnorr.py
+diff --git a/ngu/k1.c b/ngu/k1.c
+index 73471a8..415bccd 100644
+--- a/ngu/k1.c
++++ b/ngu/k1.c
+@@ -16,6 +16,9 @@
+ #include "sec_shared.h"
++// NGU_INCL_SCHNORR / NGU_INCL_MUSIG are set by the build (ngu/micropython.mk),
++// default off. They gate the optional BIP340 Schnorr and MuSig2 bindings below.
++
+ #if MICROPY_SSL_MBEDTLS
+ #include "mbedtls/sha256.h"
+ #else
+@@ -43,6 +46,7 @@ typedef struct  {
+     secp256k1_keypair   keypair;
+ } mp_obj_keypair_t;
++#if NGU_INCL_MUSIG
+ // MuSig2 types
+ typedef struct {
+     mp_obj_base_t base;
+@@ -73,18 +77,21 @@ typedef struct {
+     mp_obj_base_t base;
+     secp256k1_musig_partial_sig sig;
+ } mp_obj_musig_partial_sig_t;
++#endif // NGU_INCL_MUSIG
+ STATIC const mp_obj_type_t s_pubkey_type;
+ STATIC const mp_obj_type_t s_xonly_pubkey_type;
+ STATIC const mp_obj_type_t s_sig_type;
+ STATIC const mp_obj_type_t s_keypair_type;
++#if NGU_INCL_MUSIG
+ STATIC const mp_obj_type_t s_musig_pubnonce_type;
+ STATIC const mp_obj_type_t s_musig_secnonce_type;
+ STATIC const mp_obj_type_t s_musig_aggnonce_type;
+ STATIC const mp_obj_type_t s_musig_keyagg_cache_type;
+ STATIC const mp_obj_type_t s_musig_session_type;
+ STATIC const mp_obj_type_t s_musig_partial_sig_type;
++#endif // NGU_INCL_MUSIG
+ // Shared context for all major ops.
+ secp256k1_context   *lib_ctx;
+@@ -398,6 +405,7 @@ STATIC mp_obj_t s_sign(mp_obj_t privkey_in, mp_obj_t digest_in, mp_obj_t counter
+ STATIC MP_DEFINE_CONST_FUN_OBJ_3(s_sign_obj, s_sign);
++#if NGU_INCL_SCHNORR
+ STATIC mp_obj_t s_verify_schnorr(mp_obj_t compact_sig_in, mp_obj_t digest_in, mp_obj_t xonly_pubkey_in) {
+     mp_buffer_info_t compact_sig;
+     mp_get_buffer_raise(compact_sig_in, &compact_sig, MP_BUFFER_READ);
+@@ -469,6 +477,7 @@ STATIC mp_obj_t s_sign_schnorr(mp_obj_t privkey_in, mp_obj_t digest_in, mp_obj_t
+     return mp_obj_new_str_from_vstr(&mp_type_bytes, &rv);
+ }
+ STATIC MP_DEFINE_CONST_FUN_OBJ_3(s_sign_schnorr_obj, s_sign_schnorr);
++#endif // NGU_INCL_SCHNORR
+ // KEY PAIRS (private key, with public key computed)
+@@ -649,6 +658,7 @@ STATIC mp_obj_t s_keypair_ecdh_multiply(mp_obj_t self_in, mp_obj_t other_point_i
+ STATIC MP_DEFINE_CONST_FUN_OBJ_2(s_keypair_ecdh_multiply_obj, s_keypair_ecdh_multiply);
++#if NGU_INCL_MUSIG
+ // MuSig2
+ STATIC mp_obj_t s_musig_keyagg_cache_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+@@ -1199,6 +1209,7 @@ STATIC mp_obj_t s_musig_partial_sig_agg(mp_obj_t part_sigs_in, mp_obj_t session_
+     return mp_obj_new_str_from_vstr(&mp_type_bytes, &res);
+ }
+ STATIC MP_DEFINE_CONST_FUN_OBJ_2(s_musig_partial_sig_agg_obj, s_musig_partial_sig_agg);
++#endif // NGU_INCL_MUSIG
+ // sigs and what you can do with them
+@@ -1215,20 +1226,6 @@ STATIC const mp_obj_type_t s_sig_type = {
+     .locals_dict = (void *)&s_sig_locals_dict,
+ };
+-// musig partial signature
+-STATIC const mp_rom_map_elem_t s_musig_partial_sig_locals_dict_table[] = {
+-    { MP_ROM_QSTR(MP_QSTR_to_bytes), MP_ROM_PTR(&s_musig_partial_sig_to_bytes_obj) },
+-    { MP_ROM_QSTR(MP_QSTR_verify), MP_ROM_PTR(&s_musig_partial_sig_verify_obj) },
+-};
+-STATIC MP_DEFINE_CONST_DICT(s_musig_partial_sig_locals_dict, s_musig_partial_sig_locals_dict_table);
+-
+-STATIC const mp_obj_type_t s_musig_partial_sig_type = {
+-    { &mp_type_type },
+-    .name = MP_QSTR_secp256k1_musig_partial_sig,
+-    .make_new = s_musig_partial_sig_make_new,
+-    .locals_dict = (void *)&s_musig_partial_sig_locals_dict,
+-};
+-
+ // pubkeys and what you can do with them
+ STATIC const mp_rom_map_elem_t s_pubkey_locals_dict_table[] = {
+     { MP_ROM_QSTR(MP_QSTR_to_bytes), MP_ROM_PTR(&s_pubkey_to_bytes_obj) },
+@@ -1257,6 +1254,21 @@ STATIC const mp_obj_type_t s_xonly_pubkey_type = {
+     .locals_dict = (void *)&s_xonly_pubkey_locals_dict,
+ };
++#if NGU_INCL_MUSIG
++// musig partial signature
++STATIC const mp_rom_map_elem_t s_musig_partial_sig_locals_dict_table[] = {
++    { MP_ROM_QSTR(MP_QSTR_to_bytes), MP_ROM_PTR(&s_musig_partial_sig_to_bytes_obj) },
++    { MP_ROM_QSTR(MP_QSTR_verify), MP_ROM_PTR(&s_musig_partial_sig_verify_obj) },
++};
++STATIC MP_DEFINE_CONST_DICT(s_musig_partial_sig_locals_dict, s_musig_partial_sig_locals_dict_table);
++
++STATIC const mp_obj_type_t s_musig_partial_sig_type = {
++    { &mp_type_type },
++    .name = MP_QSTR_secp256k1_musig_partial_sig,
++    .make_new = s_musig_partial_sig_make_new,
++    .locals_dict = (void *)&s_musig_partial_sig_locals_dict,
++};
++
+ // musig opaque
+ STATIC const mp_obj_type_t s_musig_session_type = {
+     { &mp_type_type },
+@@ -1304,6 +1316,7 @@ STATIC const mp_obj_type_t s_musig_secnonce_type = {
+     { &mp_type_type },
+     .name = MP_QSTR_secp256k1_musig_secnonce,
+ };
++#endif // NGU_INCL_MUSIG
+ // privkeys and what you can do with them
+ STATIC const mp_rom_map_elem_t s_keypair_locals_dict_table[] = {
+@@ -1331,10 +1344,13 @@ STATIC const mp_rom_map_elem_t globals_table[] = {
+     { MP_ROM_QSTR(MP_QSTR_keypair), MP_ROM_PTR(&s_keypair_type) },
+     { MP_ROM_QSTR(MP_QSTR_signature), MP_ROM_PTR(&s_sig_type) },
+     { MP_ROM_QSTR(MP_QSTR_sign), MP_ROM_PTR(&s_sign_obj) },
++#if NGU_INCL_SCHNORR
+     { MP_ROM_QSTR(MP_QSTR_sign_schnorr), MP_ROM_PTR(&s_sign_schnorr_obj) },
+     { MP_ROM_QSTR(MP_QSTR_verify_schnorr), MP_ROM_PTR(&s_verify_schnorr_obj) },
++#endif
+     { MP_ROM_QSTR(MP_QSTR_ctx_rnd), MP_ROM_PTR(&s_ctx_rnd_obj) },
++#if NGU_INCL_MUSIG
+     { MP_ROM_QSTR(MP_QSTR_MusigKeyAggCache), MP_ROM_PTR(&s_musig_keyagg_cache_type) },
+     { MP_ROM_QSTR(MP_QSTR_musig_nonce_gen), MP_ROM_PTR(&s_musig_nonce_gen_obj) },
+     { MP_ROM_QSTR(MP_QSTR_MusigPubNonce), MP_ROM_PTR(&s_musig_pubnonce_type) },
+@@ -1347,6 +1363,7 @@ STATIC const mp_rom_map_elem_t globals_table[] = {
+     { MP_ROM_QSTR(MP_QSTR_musig_nonce_process), MP_ROM_PTR(&s_musig_nonce_process_obj) },
+     { MP_ROM_QSTR(MP_QSTR_musig_partial_sign), MP_ROM_PTR(&s_musig_partial_sign_obj) },
+     { MP_ROM_QSTR(MP_QSTR_musig_partial_sig_agg), MP_ROM_PTR(&s_musig_partial_sig_agg_obj) },
++#endif // NGU_INCL_MUSIG
+ };
+ STATIC MP_DEFINE_CONST_DICT(globals_table_obj, globals_table);
+@@ -1355,4 +1372,3 @@ const mp_obj_module_t mp_module_secp256k1 = {
+     .base = { &mp_type_module },
+     .globals = (mp_obj_dict_t *)&globals_table_obj,
+ };
+-
+diff --git a/ngu/lib_secp256k1.c b/ngu/lib_secp256k1.c
+index fab9e71..b0d2cfe 100644
+--- a/ngu/lib_secp256k1.c
++++ b/ngu/lib_secp256k1.c
+@@ -16,6 +16,10 @@
+    8 == ~29% faster public derivation than 2, for +8KB flash */
+ #define ECMULT_WINDOW_SIZE 8
++/* NGU_INCL_SCHNORR / NGU_INCL_MUSIG are set by the build (ngu/micropython.mk),
++   default off; they gate the optional schnorrsig / musig modules below. */
++
++/* Always built: cheap, and the keypair/xonly types are broadly useful. */
+ /* Define this symbol to enable the ECDH module */
+ #define ENABLE_MODULE_ECDH 1
+@@ -25,11 +29,16 @@
+ /* Define this symbol to enable the ECDSA pubkey recovery module */
+ #define ENABLE_MODULE_RECOVERY 1
++/* Optional: BIP340 Schnorr (and, transitively, MuSig2). */
+ /* Define this symbol to enable the schnorrsig module */
++#if NGU_INCL_SCHNORR
+ #define ENABLE_MODULE_SCHNORRSIG 1
++#endif
+ /* Define this symbol to enable the musig module */
++#if NGU_INCL_MUSIG
+ #define ENABLE_MODULE_MUSIG 1
++#endif
+ #define USE_EXTERNAL_DEFAULT_CALLBACKS
+diff --git a/ngu/manifest.py b/ngu/manifest.py
+index 8dd410f..fde1de1 100644
+--- a/ngu/manifest.py
++++ b/ngu/manifest.py
+@@ -24,5 +24,7 @@
+         "ngu_tests/test_hmac.py",
+         "ngu_tests/test_k1.py",
+         "ngu_tests/test_k1_gen.py",
++        "ngu_tests/test_schnorr.py",
++        "ngu_tests/test_musig.py",
+         "ngu_tests/test_random.py",
+     ], opt=0)       # need zero-optimization so asserts are included
+diff --git a/ngu/micropython.mk b/ngu/micropython.mk
+index db7d582..180b90e 100644
+--- a/ngu/micropython.mk
++++ b/ngu/micropython.mk
+@@ -7,7 +7,23 @@ MY_FILES = hash.c modngu.c ec.c cert.c k1.c random.c base32.c codecs.c hm.c \
+ 			rmd160.c aes.c lib_segwit.c
+ CFLAGS_USERMOD += -I$(NGU_TOP_DIR)/ngu -I$(NGU_TOP_DIR)/libs
+-
++
++# Optional secp256k1 features: BIP340 Schnorr and MuSig2. Both default OFF.
++# Opt in from the build, e.g.:
++#     make ... NGU_INCL_SCHNORR=1  # Schnorr only
++#     make ... NGU_INCL_MUSIG=1    # Schnorr and MuSig2
++# extrakeys / ecdh / recovery are always compiled in.
++NGU_INCL_MUSIG   ?= 0
++NGU_INCL_SCHNORR ?= $(NGU_INCL_MUSIG)
++# MuSig2 requires Schnorr. Enabling MuSig2 therefore enables Schnorr unless the
++# build explicitly requests the contradictory combination, which is an error.
++ifeq ($(NGU_INCL_MUSIG),1)
++ifeq ($(NGU_INCL_SCHNORR),0)
++$(error NGU_INCL_MUSIG=1 requires NGU_INCL_SCHNORR=1)
++endif
++endif
++CFLAGS_USERMOD += -DNGU_INCL_SCHNORR=$(NGU_INCL_SCHNORR) -DNGU_INCL_MUSIG=$(NGU_INCL_MUSIG)
++
+ FROZEN_MANIFEST += $(NGU_TOP_DIR)/ngu/manifest.py
+ %/lib_secp256k1.o: \
+diff --git a/ngu/ngu_tests/Makefile b/ngu/ngu_tests/Makefile
+index 1b91be7..da8755e 100644
+--- a/ngu/ngu_tests/Makefile
++++ b/ngu/ngu_tests/Makefile
+@@ -18,6 +18,8 @@ test tests:
+ 	$(PY) test_k1.py
+ 	$(MPY) test_k1.py
+ 	$(MPY) test_k1_gen.py
++	$(MPY) test_schnorr.py
++	$(MPY) test_musig.py
+ 	$(PY) test_hmac.py
+ 	$(MPY) test_cert.py
+ 	$(PY) test_ec.py
+diff --git a/ngu/ngu_tests/run.py b/ngu/ngu_tests/run.py
+index 3c3644a..e404720 100644
+--- a/ngu/ngu_tests/run.py
++++ b/ngu/ngu_tests/run.py
+@@ -19,6 +19,8 @@
+ import ngu_tests.test_hdnode_gen
+ import ngu_tests.test_k1
+ import ngu_tests.test_k1_gen
++import ngu_tests.test_schnorr
++import ngu_tests.test_musig
+ if hasattr(ngu, 'ec'):
+     import ngu_tests.test_ec
+     import ngu_tests.test_ec_gen
+diff --git a/ngu/ngu_tests/test_k1.py b/ngu/ngu_tests/test_k1.py
+index d72bc1a..30da6a2 100644
+--- a/ngu/ngu_tests/test_k1.py
++++ b/ngu/ngu_tests/test_k1.py
+@@ -30,11 +30,10 @@
+     import sys
+     sys.exit(0)
+-except ImportError:
++except ImportError:
+     pass
+ import ngu
+-from ubinascii import unhexlify
+ # pubkeys
+ p = ngu.secp256k1.pubkey(b'\x02'*33)
+@@ -141,67 +140,6 @@
+     assert kpt.xonly_pubkey().to_bytes() == xo_pkt.to_bytes()
+     assert kpt.xonly_pubkey().parity() == xo_pkt.parity()
+-# schnorr
+-for i in range(10):
+-    # random keypair
+-    kp = ngu.secp256k1.keypair()
+-    xonly_pub = kp.xonly_pubkey()
+-    parity = xonly_pub.parity()
+-    assert parity in (0, 1)
+-    # serialization
+-    xonly_pub_bytes = xonly_pub.to_bytes()
+-    # parsing
+-    xonly_pub_clone = ngu.secp256k1.xonly_pubkey(xonly_pub_bytes)
+-    assert xonly_pub_clone.to_bytes() == xonly_pub_bytes
+-    # random msg
+-    msg = ngu.random.bytes(32)
+-    msg_hash = ngu.hash.sha256t(b"ngu_tests", msg)
+-    aux_rand = ngu.random.bytes(32)
+-    sig_kp = ngu.secp256k1.sign_schnorr(kp, msg_hash, aux_rand)
+-    sig_raw = ngu.secp256k1.sign_schnorr(kp.privkey(), msg_hash, aux_rand)
+-    assert sig_kp == sig_raw
+-    assert ngu.secp256k1.verify_schnorr(sig_kp, msg_hash, kp.xonly_pubkey())
+-
+-
+-try:
+-    # invalid pubkey type, has to be xonly pubkey (not classic pubkey)
+-    ngu.secp256k1.verify_schnorr(ngu.random.bytes(64), tweak, kp.pubkey())
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "xonly pubkey type"
+-
+-try:
+-    from b340_vectors import vectors
+-except ImportError:
+-    from ngu_tests.b340_vectors import vectors
+-
+-for seckey, xonly_pub, aux_rand, msg, sig, ok in vectors:
+-    if seckey:
+-        seckey = unhexlify(seckey)
+-    if aux_rand:
+-        aux_rand = unhexlify(aux_rand)
+-
+-    xonly_pub = unhexlify(xonly_pub)
+-    msg = unhexlify(msg)
+-    sig = unhexlify(sig)
+-
+-    if seckey and aux_rand:
+-        # signing and verification
+-        assert sig == ngu.secp256k1.sign_schnorr(seckey, msg, aux_rand)
+-        assert ngu.secp256k1.verify_schnorr(sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
+-    else:
+-        # verification
+-        if ok:
+-            assert ngu.secp256k1.verify_schnorr(sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
+-        else:
+-            # must raise
+-            try:
+-                assert ngu.secp256k1.verify_schnorr(sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
+-                assert False  # MUST not get here
+-            except ValueError:
+-                pass
+-
+-
+ # privkeys look random
+ got = set()
+ for i in range(50):
+@@ -212,246 +150,4 @@
+     got.add(bs)
+     assert p1.pubkey()
+-#
+-# MuSig2
+-#
+-msg = 32*b"b"
+-tweak_bip32 = 32*b"a"
+-xonly_tweak = 32*b"c"
+-
+-signers = []
+-for i in range(10):
+-    kp = ngu.secp256k1.keypair()
+-    signers.append(kp)
+-
+-signer_pubkeys = [s.pubkey() for s in signers]
+-
+-# 1st round
+-sec_rands = []
+-pubnonces = []
+-agg_keys = set()
+-agg_der_keys = set()
+-for kp in signers:
+-    kac = ngu.secp256k1.MusigKeyAggCache()
+-
+-    # not possible to get aggregate key from cache before aggregation happens
+-    try:
+-        x = kac.agg_pubkey()
+-        raise RuntimeError
+-    except ValueError:
+-        pass
+-
+-    agg_xonly = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, kac)
+-
+-    # ability to get proper non-xonly aggregate pubkey
+-    agg_non_xonly = kac.agg_pubkey()
+-    assert agg_non_xonly.to_xonly().to_bytes() == agg_xonly.to_bytes()
+-    agg_keys.add(agg_non_xonly.to_bytes())
+-
+-    # key aggregation cache is optional, if user does not intend to sign
+-    agg_xonly1 = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, None)
+-    assert agg_xonly.to_bytes() == agg_xonly1.to_bytes()
+-
+-    # without sorting (that happens by default) - aggregate key will be different
+-    agg_xonly2 = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, None, False)  # last bool arg is for pubkey sorting
+-    assert agg_xonly2.to_bytes() != agg_xonly.to_bytes()
+-
+-    tweaked_pk1 = ngu.secp256k1.musig_pubkey_xonly_tweak_add(kac, xonly_tweak)
+-    assert isinstance(tweaked_pk1, ngu.secp256k1.pubkey)
+-
+-    tweaked_pk = ngu.secp256k1.musig_pubkey_ec_tweak_add(kac, tweak_bip32)
+-    assert isinstance(tweaked_pk, ngu.secp256k1.pubkey)
+-
+-    agg_der_keys.add(kac.agg_pubkey().to_bytes())
+-
+-    sec_rand = ngu.random.bytes(32)
+-    sec_rands.append(sec_rand)
+-    pk = kp.pubkey()
+-    # only required arguemnt here is pubkey (first argument)
+-    sn, pn = ngu.secp256k1.musig_nonce_gen(pk)
+-    # musig_nonce_gen uses RNG for secrand if secrand is not provided (safest way)
+-    sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand)
+-    # optionally one can also add secret key, MUST be the one sued for signing that corresponds to pk arg
+-    sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand, kp.privkey())
+-    # extra randomness for nonce derivation function
+-    # None is for optional key aggregation cache, but uninitialized key agg cache is not allowed
+-    sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand, kp.privkey(), msg, None, ngu.random.bytes(32))
+-    # optionally msg to be signed can be added - if already known
+-    sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand, kp.privkey(), msg)
+-
+-    pubnonce_bytes = pn.to_bytes()
+-    assert len(pubnonce_bytes) == 66
+-    pn1 = ngu.secp256k1.MusigPubNonce(pubnonce_bytes)
+-    assert pn1.to_bytes() == pubnonce_bytes
+-    pubnonces.append(pn)
+-
+-
+-assert len(agg_keys) == 1
+-assert len(agg_der_keys) == 1
+-
+-
+-# 2nd round
+-partial_signatures = []
+-sessions = []
+-agg_nonces = set()
+-for kp, sr, pn in zip(signers, sec_rands, pubnonces):
+-    # re-initialize the cache
+-    kac = ngu.secp256k1.MusigKeyAggCache()
+-    ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, kac)
+-    ngu.secp256k1.musig_pubkey_xonly_tweak_add(kac, xonly_tweak)
+-    ngu.secp256k1.musig_pubkey_ec_tweak_add(kac, tweak_bip32)
+-    assert kac.agg_pubkey().to_bytes() == list(agg_der_keys)[0]
+-    sn, pn_target = ngu.secp256k1.musig_nonce_gen(kp.pubkey(), sr, kp.privkey(), msg)
+-    assert pn.to_bytes() == pn_target.to_bytes()
+-
+-    # aggregate pubnonces
+-    aggnonce = ngu.secp256k1.musig_nonce_agg(pubnonces)
+-    aggnonce_bytes = aggnonce.to_bytes()
+-    an1 = ngu.secp256k1.MusigAggNonce(aggnonce_bytes)
+-    assert an1.to_bytes() == aggnonce_bytes
+-    agg_nonces.add(aggnonce_bytes)
+-
+-    session = ngu.secp256k1.musig_nonce_process(aggnonce, msg, kac)
+-    sessions.append(session)
+-    partial_signature = ngu.secp256k1.musig_partial_sign(sn, kp, kac, session)
+-
+-    # re-sign with the same secnonce causes error
+-    try:
+-        ngu.secp256k1.musig_partial_sign(sn, kp, kac, session)
+-        raise RuntimeError
+-    except ValueError: pass
+-
+-    part_sig_bytes = partial_signature.to_bytes()
+-    assert ngu.secp256k1.MusigPartSig(part_sig_bytes).to_bytes() == part_sig_bytes
+-
+-    assert partial_signature.verify(pn_target, kp.pubkey(), kac, session)
+-
+-    partial_signatures.append(partial_signature)
+-
+-
+-assert len(agg_nonces) == 1
+-
+-for user_session in sessions:
+-    agg_sig = ngu.secp256k1.musig_partial_sig_agg(partial_signatures, user_session)
+-    assert len(agg_sig) == 64
+-
+-    # verify aggregate signature against aggregate tweaked pubkey
+-    target_pk = ngu.secp256k1.pubkey(list(agg_der_keys)[0])
+-    assert ngu.secp256k1.verify_schnorr(agg_sig, msg, target_pk.to_xonly())
+-
+-
+-# musig type checks
+-kp = ngu.secp256k1.keypair()
+-xonly_pk = kp.xonly_pubkey()
+-pubkey = kp.pubkey()
+-keyagg_cache = ngu.secp256k1.MusigKeyAggCache()
+-bytes32 = ngu.random.bytes(32)
+-fake_keyagg_cache = ngu.random.bytes(197)
+-fake_nonce = ngu.random.bytes(132)
+-fake_session = ngu.random.bytes(133)
+-keyagg_cache = ngu.secp256k1.MusigKeyAggCache()
+-# valid nonces below
+-sn, pn = ngu.secp256k1.musig_nonce_gen(pubkey)
+-
+-try:
+-    # pubkey list contains xonly keys - not classic pubkey
+-    ngu.secp256k1.musig_pubkey_agg([xonly_pk, xonly_pk])
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "pubkeys: pubkey type"
+-
+-try:
+-    # key agg cache is wrong type
+-    ngu.secp256k1.musig_pubkey_agg([pubkey, pubkey], fake_keyagg_cache)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "key aggregation cache type"
+-
+-try:
+-    ngu.secp256k1.musig_pubkey_xonly_tweak_add(fake_keyagg_cache, bytes32)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "key aggregation cache type"
+-
+-try:
+-    ngu.secp256k1.musig_pubkey_ec_tweak_add(xonly_pk, bytes32)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "key aggregation cache type"
+-
+-for data in [kp.xonly_pubkey(), ngu.random.bytes(33)]:
+-    try:
+-        # not classic pubkey
+-        ngu.secp256k1.musig_nonce_gen(data)
+-        raise RuntimeError
+-    except TypeError as e:
+-        assert str(e) == "pubkey type"
+-
+-try:
+-    ngu.secp256k1.musig_nonce_gen(pubkey, bytes32, kp.privkey(), bytes32, fake_keyagg_cache, bytes32)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "key aggregation cache type"
+-
+-for pnonces in [[pubkey,xonly_pk], [fake_nonce, fake_nonce]]:
+-    try:
+-        ngu.secp256k1.musig_nonce_agg(pnonces)
+-        raise RuntimeError
+-    except TypeError as e:
+-        assert str(e) == "pubnonces: pubnonce type"
+-
+-try:
+-    ngu.secp256k1.musig_nonce_process(fake_nonce, msg, keyagg_cache)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "aggnonce type"
+-
+-try:
+-    ngu.secp256k1.musig_nonce_process(aggnonce, msg, fake_keyagg_cache)
+-    raise RuntimeError
+-except TypeError as e:
+-    assert str(e) == "key aggregation cache type"
+-
+-for data in [
+-    ((pn, kp, keyagg_cache, fake_session), "secnonce type"),
+-    ((sn, pubkey, keyagg_cache, fake_session), "keypair type"),
+-    ((sn, kp, fake_keyagg_cache, fake_session), "key aggregation cache type"),
+-    ((sn, kp, keyagg_cache, fake_session), "session type"),
+-]:
+-    args = data[0]
+-    err = data[1]
+-    try:
+-        ngu.secp256k1.musig_partial_sign(*args)
+-        raise RuntimeError
+-    except TypeError as e:
+-        assert str(e) == err
+-
+-for data in [
+-    ((sn, pubkey, keyagg_cache, fake_session), "pubnonce type"),
+-    ((pn, xonly_pk, keyagg_cache, fake_session), "pubkey type"),
+-    ((pn, pubkey, fake_keyagg_cache, fake_session), "key aggregation cache type"),
+-    ((pn, pubkey, keyagg_cache, fake_session), "session type"),
+-]:
+-    args = data[0]
+-    err = data[1]
+-    try:
+-        partial_signatures[0].verify(*args)
+-        raise RuntimeError
+-    except TypeError as e:
+-        assert str(e) == err
+-
+-
+-for data in [
+-    (([bytes32, bytes32], fake_session), "part_sigs: part sig type"),
+-    (([xonly_pk, pubkey], fake_session), "part_sigs: part sig type"),
+-    ((partial_signatures, fake_session), "session type"),
+-]:
+-    args = data[0]
+-    err = data[1]
+-    try:
+-        ngu.secp256k1.musig_partial_sig_agg(*args)
+-        raise RuntimeError
+-    except TypeError as e:
+-        assert str(e) == err, str(e)
+-
+ print("PASS - test_k1")
+diff --git a/ngu/ngu_tests/test_musig.py b/ngu/ngu_tests/test_musig.py
+new file mode 100644
+index 0000000..0d30cd2
+--- /dev/null
++++ b/ngu/ngu_tests/test_musig.py
+@@ -0,0 +1,247 @@
++import ngu
++
++
++if not hasattr(ngu.secp256k1, 'musig_pubkey_agg'):
++    print('SKIP - test_musig: not compiled in (NGU_INCL_MUSIG=0)')
++else:
++    msg = 32*b"b"
++    tweak_bip32 = 32*b"a"
++    xonly_tweak = 32*b"c"
++
++    signers = []
++    for i in range(10):
++        kp = ngu.secp256k1.keypair()
++        signers.append(kp)
++
++    signer_pubkeys = [s.pubkey() for s in signers]
++
++    # 1st round
++    sec_rands = []
++    pubnonces = []
++    agg_keys = set()
++    agg_der_keys = set()
++    for kp in signers:
++        kac = ngu.secp256k1.MusigKeyAggCache()
++
++        # not possible to get aggregate key from cache before aggregation happens
++        try:
++            x = kac.agg_pubkey()
++            raise RuntimeError
++        except ValueError:
++            pass
++
++        agg_xonly = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, kac)
++
++        # ability to get proper non-xonly aggregate pubkey
++        agg_non_xonly = kac.agg_pubkey()
++        assert agg_non_xonly.to_xonly().to_bytes() == agg_xonly.to_bytes()
++        agg_keys.add(agg_non_xonly.to_bytes())
++
++        # key aggregation cache is optional, if user does not intend to sign
++        agg_xonly1 = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, None)
++        assert agg_xonly.to_bytes() == agg_xonly1.to_bytes()
++
++        # without sorting (that happens by default) - aggregate key will be different
++        agg_xonly2 = ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, None, False)
++        assert agg_xonly2.to_bytes() != agg_xonly.to_bytes()
++
++        tweaked_pk1 = ngu.secp256k1.musig_pubkey_xonly_tweak_add(kac, xonly_tweak)
++        assert isinstance(tweaked_pk1, ngu.secp256k1.pubkey)
++
++        tweaked_pk = ngu.secp256k1.musig_pubkey_ec_tweak_add(kac, tweak_bip32)
++        assert isinstance(tweaked_pk, ngu.secp256k1.pubkey)
++
++        agg_der_keys.add(kac.agg_pubkey().to_bytes())
++
++        sec_rand = ngu.random.bytes(32)
++        sec_rands.append(sec_rand)
++        pk = kp.pubkey()
++        # only required argument here is pubkey (first argument)
++        sn, pn = ngu.secp256k1.musig_nonce_gen(pk)
++        # musig_nonce_gen uses RNG for secrand if secrand is not provided (safest way)
++        sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand)
++        # the optional secret key MUST correspond to the pubkey used for signing
++        sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand, kp.privkey())
++        # extra randomness for nonce derivation; uninitialized key agg cache is invalid
++        sn, pn = ngu.secp256k1.musig_nonce_gen(
++            pk, sec_rand, kp.privkey(), msg, None, ngu.random.bytes(32))
++        # optionally the message can be added if already known
++        sn, pn = ngu.secp256k1.musig_nonce_gen(pk, sec_rand, kp.privkey(), msg)
++
++        pubnonce_bytes = pn.to_bytes()
++        assert len(pubnonce_bytes) == 66
++        pn1 = ngu.secp256k1.MusigPubNonce(pubnonce_bytes)
++        assert pn1.to_bytes() == pubnonce_bytes
++        pubnonces.append(pn)
++
++    assert len(agg_keys) == 1
++    assert len(agg_der_keys) == 1
++
++    # 2nd round
++    partial_signatures = []
++    sessions = []
++    agg_nonces = set()
++    for kp, sr, pn in zip(signers, sec_rands, pubnonces):
++        # re-initialize the cache
++        kac = ngu.secp256k1.MusigKeyAggCache()
++        ngu.secp256k1.musig_pubkey_agg(signer_pubkeys, kac)
++        ngu.secp256k1.musig_pubkey_xonly_tweak_add(kac, xonly_tweak)
++        ngu.secp256k1.musig_pubkey_ec_tweak_add(kac, tweak_bip32)
++        assert kac.agg_pubkey().to_bytes() == list(agg_der_keys)[0]
++        sn, pn_target = ngu.secp256k1.musig_nonce_gen(
++            kp.pubkey(), sr, kp.privkey(), msg)
++        assert pn.to_bytes() == pn_target.to_bytes()
++
++        # aggregate pubnonces
++        aggnonce = ngu.secp256k1.musig_nonce_agg(pubnonces)
++        aggnonce_bytes = aggnonce.to_bytes()
++        an1 = ngu.secp256k1.MusigAggNonce(aggnonce_bytes)
++        assert an1.to_bytes() == aggnonce_bytes
++        agg_nonces.add(aggnonce_bytes)
++
++        session = ngu.secp256k1.musig_nonce_process(aggnonce, msg, kac)
++        sessions.append(session)
++        partial_signature = ngu.secp256k1.musig_partial_sign(sn, kp, kac, session)
++
++        # re-sign with the same secnonce causes error
++        try:
++            ngu.secp256k1.musig_partial_sign(sn, kp, kac, session)
++            raise RuntimeError
++        except ValueError:
++            pass
++
++        part_sig_bytes = partial_signature.to_bytes()
++        assert ngu.secp256k1.MusigPartSig(part_sig_bytes).to_bytes() == part_sig_bytes
++
++        assert partial_signature.verify(pn_target, kp.pubkey(), kac, session)
++
++        partial_signatures.append(partial_signature)
++
++    assert len(agg_nonces) == 1
++
++    for user_session in sessions:
++        agg_sig = ngu.secp256k1.musig_partial_sig_agg(
++            partial_signatures, user_session)
++        assert len(agg_sig) == 64
++
++        # verify aggregate signature against aggregate tweaked pubkey
++        target_pk = ngu.secp256k1.pubkey(list(agg_der_keys)[0])
++        assert ngu.secp256k1.verify_schnorr(
++            agg_sig, msg, target_pk.to_xonly())
++
++    # musig type checks
++    kp = ngu.secp256k1.keypair()
++    xonly_pk = kp.xonly_pubkey()
++    pubkey = kp.pubkey()
++    keyagg_cache = ngu.secp256k1.MusigKeyAggCache()
++    bytes32 = ngu.random.bytes(32)
++    fake_keyagg_cache = ngu.random.bytes(197)
++    fake_nonce = ngu.random.bytes(132)
++    fake_session = ngu.random.bytes(133)
++    keyagg_cache = ngu.secp256k1.MusigKeyAggCache()
++    # valid nonces below
++    sn, pn = ngu.secp256k1.musig_nonce_gen(pubkey)
++
++    try:
++        # pubkey list contains xonly keys - not classic pubkey
++        ngu.secp256k1.musig_pubkey_agg([xonly_pk, xonly_pk])
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "pubkeys: pubkey type"
++
++    try:
++        # key agg cache is wrong type
++        ngu.secp256k1.musig_pubkey_agg([pubkey, pubkey], fake_keyagg_cache)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "key aggregation cache type"
++
++    try:
++        ngu.secp256k1.musig_pubkey_xonly_tweak_add(fake_keyagg_cache, bytes32)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "key aggregation cache type"
++
++    try:
++        ngu.secp256k1.musig_pubkey_ec_tweak_add(xonly_pk, bytes32)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "key aggregation cache type"
++
++    for data in [kp.xonly_pubkey(), ngu.random.bytes(33)]:
++        try:
++            # not classic pubkey
++            ngu.secp256k1.musig_nonce_gen(data)
++            raise RuntimeError
++        except TypeError as e:
++            assert str(e) == "pubkey type"
++
++    try:
++        ngu.secp256k1.musig_nonce_gen(
++            pubkey, bytes32, kp.privkey(), bytes32,
++            fake_keyagg_cache, bytes32)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "key aggregation cache type"
++
++    for pnonces in [[pubkey, xonly_pk], [fake_nonce, fake_nonce]]:
++        try:
++            ngu.secp256k1.musig_nonce_agg(pnonces)
++            raise RuntimeError
++        except TypeError as e:
++            assert str(e) == "pubnonces: pubnonce type"
++
++    try:
++        ngu.secp256k1.musig_nonce_process(fake_nonce, msg, keyagg_cache)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "aggnonce type"
++
++    try:
++        ngu.secp256k1.musig_nonce_process(aggnonce, msg, fake_keyagg_cache)
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "key aggregation cache type"
++
++    for data in [
++        ((pn, kp, keyagg_cache, fake_session), "secnonce type"),
++        ((sn, pubkey, keyagg_cache, fake_session), "keypair type"),
++        ((sn, kp, fake_keyagg_cache, fake_session), "key aggregation cache type"),
++        ((sn, kp, keyagg_cache, fake_session), "session type"),
++    ]:
++        args = data[0]
++        err = data[1]
++        try:
++            ngu.secp256k1.musig_partial_sign(*args)
++            raise RuntimeError
++        except TypeError as e:
++            assert str(e) == err
++
++    for data in [
++        ((sn, pubkey, keyagg_cache, fake_session), "pubnonce type"),
++        ((pn, xonly_pk, keyagg_cache, fake_session), "pubkey type"),
++        ((pn, pubkey, fake_keyagg_cache, fake_session), "key aggregation cache type"),
++        ((pn, pubkey, keyagg_cache, fake_session), "session type"),
++    ]:
++        args = data[0]
++        err = data[1]
++        try:
++            partial_signatures[0].verify(*args)
++            raise RuntimeError
++        except TypeError as e:
++            assert str(e) == err
++
++    for data in [
++        (([bytes32, bytes32], fake_session), "part_sigs: part sig type"),
++        (([xonly_pk, pubkey], fake_session), "part_sigs: part sig type"),
++        ((partial_signatures, fake_session), "session type"),
++    ]:
++        args = data[0]
++        err = data[1]
++        try:
++            ngu.secp256k1.musig_partial_sig_agg(*args)
++            raise RuntimeError
++        except TypeError as e:
++            assert str(e) == err, str(e)
++
++    print('PASS - test_musig')
+diff --git a/ngu/ngu_tests/test_schnorr.py b/ngu/ngu_tests/test_schnorr.py
+new file mode 100644
+index 0000000..c0aab99
+--- /dev/null
++++ b/ngu/ngu_tests/test_schnorr.py
+@@ -0,0 +1,69 @@
++import ngu
++from ubinascii import unhexlify
++
++
++if not hasattr(ngu.secp256k1, 'sign_schnorr'):
++    print('SKIP - test_schnorr: not compiled in (NGU_INCL_SCHNORR=0)')
++else:
++    for i in range(10):
++        # random keypair
++        kp = ngu.secp256k1.keypair()
++        xonly_pub = kp.xonly_pubkey()
++        parity = xonly_pub.parity()
++        assert parity in (0, 1)
++        # serialization
++        xonly_pub_bytes = xonly_pub.to_bytes()
++        # parsing
++        xonly_pub_clone = ngu.secp256k1.xonly_pubkey(xonly_pub_bytes)
++        assert xonly_pub_clone.to_bytes() == xonly_pub_bytes
++        # random msg
++        msg = ngu.random.bytes(32)
++        msg_hash = ngu.hash.sha256t(b"ngu_tests", msg)
++        aux_rand = ngu.random.bytes(32)
++        sig_kp = ngu.secp256k1.sign_schnorr(kp, msg_hash, aux_rand)
++        sig_raw = ngu.secp256k1.sign_schnorr(kp.privkey(), msg_hash, aux_rand)
++        assert sig_kp == sig_raw
++        assert ngu.secp256k1.verify_schnorr(sig_kp, msg_hash, kp.xonly_pubkey())
++
++    try:
++        # invalid pubkey type, has to be xonly pubkey (not classic pubkey)
++        ngu.secp256k1.verify_schnorr(ngu.random.bytes(64), msg_hash, kp.pubkey())
++        raise RuntimeError
++    except TypeError as e:
++        assert str(e) == "xonly pubkey type"
++
++    try:
++        from b340_vectors import vectors
++    except ImportError:
++        from ngu_tests.b340_vectors import vectors
++
++    for seckey, xonly_pub, aux_rand, msg, sig, ok in vectors:
++        if seckey:
++            seckey = unhexlify(seckey)
++        if aux_rand:
++            aux_rand = unhexlify(aux_rand)
++
++        xonly_pub = unhexlify(xonly_pub)
++        msg = unhexlify(msg)
++        sig = unhexlify(sig)
++
++        if seckey and aux_rand:
++            # signing and verification
++            assert sig == ngu.secp256k1.sign_schnorr(seckey, msg, aux_rand)
++            assert ngu.secp256k1.verify_schnorr(
++                sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
++        else:
++            # verification
++            if ok:
++                assert ngu.secp256k1.verify_schnorr(
++                    sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
++            else:
++                # must raise
++                try:
++                    ngu.secp256k1.verify_schnorr(
++                        sig, msg, ngu.secp256k1.xonly_pubkey(xonly_pub))
++                    assert False  # MUST not get here
++                except ValueError:
++                    pass
++
++    print('PASS - test_schnorr')
+From 482e3e96c24944d3cd89f8a28bb78a192060d5f4 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Thu, 6 Aug 2026 11:12:48 +0200
+Subject: [PATCH 2/2] Update secp256k1 to v0.8.0
+---
+ libs/secp256k1 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/libs/secp256k1 b/libs/secp256k1
+index a660a49..6e2c8bc 160000
+--- a/libs/secp256k1
++++ b/libs/secp256k1
+@@ -1 +1 @@
+-Subproject commit a660a4976efe880bae7982ee410b9e0dc59ac983
++Subproject commit 6e2c8bc4ecdc6e71dbe7a368f360d8d453ce435d

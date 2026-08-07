@@ -1,0 +1,131 @@
+post: 1vf9oh5
+author: ady1583
+created_utc: 1785848399
+title: So is multi-sig the only way out?
+body:
+It does look like multi-sig is the only way out. I’d say a 3/5 or a n-n with multiple hardware wallets. I know it’s over engineering but it’s more secure and less vulnerable to the CC fiasco. The only downside I am seeing is the multiple seeds and keeping in keeping in tabs with it every couple of months or so. 
+
+comment: p1n5rb5
+parent: t3_1vf9oh5
+author: alixanc
+created_utc: 1785848614
+edited: false
+body:
+... or just use proper entropy for the seed, like combining multiple software RNG or using physical RNG like cards, dice etc. This was always recommended, even by the maker of ColdCard. You can use different wallets/software to verify they all create the same priv/pub keys if you're extra paranoid.
+
+comment: p1nl9po
+parent: t3_1vf9oh5
+author: Zestyclose-Way-1351
+created_utc: 1785852999
+edited: false
+body:
+alternative would be to use BIP85 to derive child seed phrases from the master seed + passphrase.
+
+[https://www.reddit.com/r/coldcard/comments/15soyi6/bip85\_vs\_passphrase/](https://www.reddit.com/r/coldcard/comments/15soyi6/bip85_vs_passphrase/)
+
+comment: p1nyq2w
+parent: t3_1vf9oh5
+author: Mission-Disaster-447
+created_utc: 1785856553
+edited: false
+body:
+If you make your setup too complicated, you might lose your funds too, only not to a thief. Its tempting to make an ultra secure and complicated setup, after what happened here. But its better to keep a balance. 
+
+A strong passphrase is enough protection for most people. 
+
+comment: p1ocz7r
+parent: t1_p1nyq2w
+author: SpareEconomy1849
+created_utc: 1785860190
+edited: false
+body:
+Yep, I tried making it complex, almost lost my savings. Had to use recovery tools to brute force a few words I didn't have written down.
+
+Just follow the rules and recommendations, they're carefully engineered and tested
+
+comment: p1pukmn
+parent: t1_p1nl9po
+author: nymobster
+created_utc: 1785873687
+edited: false
+body:
+this is how i was setup. i had a multi-sig but all child seeds were derived from the master, and each signer was derived from it. thankfully i got funds moved before any loss. i still like the device. IF i use it in the future, it will be with my own entropy.
+
+comment: p1ruqju
+parent: t3_1vf9oh5
+author: SuccessfulPlenty942
+created_utc: 1785895215
+edited: false
+body:
+A 2 of 3 multisig is not that hard if you've taken some time to learn how to use bitcoin. Id recommend it 
+
+comment: p1s9pp7
+parent: t3_1vf9oh5
+author: Old_Instruction_6004
+created_utc: 1785900369
+edited: false
+body:
+Look into Liana wallet. It's multi-sig with redundant keys. It's free and open source.
+
+comment: p1td3id
+parent: t3_1vf9oh5
+author: SnooCookies9506
+created_utc: 1785917845
+edited: false
+body:
+Adding a passphrase is basically a 2 of 2 multi-sig if you think about it. 
+
+comment: p1tiqbd
+parent: t3_1vf9oh5
+author: Massive-Reception161
+created_utc: 1785920589
+edited: false
+body:
+Trezor for example has the 24 seed + passphrase.
+Isnt it sufficient?
+
+Im assuming all attackers brute force 12 - 24 keywords which is hard enough.
+
+How will they even know on which of these wallets to run another brute force for the passphrase? Isnt it increasing their attack surfsce by a super huge margin?
+
+comment: p1wr4di
+parent: t3_1vf9oh5
+author: CiaranCarroll
+created_utc: 1785955292
+edited: false
+body:
+No, just do what the people with Coldcards who didn't lose their funds did.
+
+comment: p204k4v
+parent: t1_p1tiqbd
+author: Javanaut018
+created_utc: 1785993786
+edited: false
+body:
+Depends on how super huge the entropy of the extra password is....
+
+comment: p22fbub
+parent: t3_1vf9oh5
+author: Blackcherry777
+created_utc: 1786026511
+edited: false
+body:
+https://benma.github.io/2020/11/05/multisig-xpubs-verification.html
+
+No actually read this article about multisig you could argue it’s a bit more dangerous and most people’s setups are at risk!  I think there’s nothing better than a Seedsigner you build yourself from rasberry pi ordered from a separate vendor.  Make sure you verify and flash a new SD card with the verified software and roll dice 100 times.  Add a passphrase on top off that and you are golden!  
+
+comment: p252sqi
+parent: t3_1vf9oh5
+author: ElderMight
+created_utc: 1786050742
+edited: false
+body:
+I think the calls for multi-sig are an over reaction. 
+
+ONE implementation of self custody failed by a specific vendor. A properly generated private key is still extremely secure. 
+
+Pushing everyone to do multi sig is dangerous because it is more likely to lock out users from their funds than protect them from theft. 
+
+I didn't know this before and recently found out that to do a 2 of 3 multi-sig, you need at least 2 of 3 keys AND all 3 public keys. If you lose 1 public key you lost your money...
+
+Dice generated private key + strong passphrase should be plenty enough security. 

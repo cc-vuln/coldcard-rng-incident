@@ -1,0 +1,364 @@
+post: 1vgw23z
+author: blackjackn
+created_utc: 1785996954
+title: New Wallet After Coldcard Hack
+body:
+I was affected by the Coldcard hack. Thankfully, my Coldcard Q was only 1 key in a 2 of 3 multisig. My coins are safe. But with 1 key compromised, I decided to migrate. 
+
+My new 2 of 3 multisig:
+
+\-Coldcard Q updated with the new firmware. Seed generated with 150 physical dice rolls using casino grade dice. This is one key. Yeah, I'm pissed at Coldcard too. Idk if the entropy issues are resolved through the firmware update. Thats what the community seems to say. I dont trust it. But I think seeds generated through physical dice rolls are fine especially with a strong passphrase and I like the hardware. Will never buy another Coldcard though. Not supporting that company with my money any further.
+
+\-Other two keys have the same seed as before generated using device rng (not Coldcard). All keys (including Coldcard) are now passphrased with the same 6 word passphrase formed using physical dice rolls and EFF list.
+
+-Going to have 2 separate people I trust each custody 1 key (device + seedplate), no passphrase. 
+
+-Another 2 separate people I trust will keep backups of the uniform passphrase in case I forget + fire or theft (hand written on an piece of paper and sealed in an envelope). 
+
+-Only I will have the output descriptor. 
+
+Yes, I could have done a different passphrase for all 3 keys. Too bothersome and I thought it would be excessive. I accept this weakness. 
+
+Not perfect but I figure itll be good enough. Posting as an example on how to multisig as I'm a proponent of it but by no means claiming this as the model example. 
+
+Edit: Changes parts on how the keys and passphrases will custodied. Rethinking that. 
+
+comment: p20chqv
+parent: t3_1vgw23z
+author: [deleted]
+created_utc: 1785997456
+edited: false
+body:
+[deleted]
+
+comment: p20euaj
+parent: t3_1vgw23z
+author: Upstairs_Raisin
+created_utc: 1785998568
+edited: false
+body:
+What’s the logic behind passphrase custodians when even with one key, one seed plate, and the heck-even the passphrase they still only have one signer? (Imagining a scenario where the seed plates could be stamped with unique passphrases)
+
+I’d assume the hardware device has a pin or code? And even with the seed, wouldn’t they need both other seeds or the coordination file + 1 seed? 
+
+Do you keep the coordination file in a password manager? Why not just keep the passphrase there also?
+
+comment: p20fcfv
+parent: t3_1vgw23z
+author: HeroicHeron
+created_utc: 1785998807
+edited: false
+body:
+Just in case you are not aware, when you use the dice roll feature on the ColdCard to generate a seed, you are still relying on the code doing what it is supposed to do. Independent researchers have confirmed that the dice roll code in CC was safe, but theoretically it could have been compromised the same way the on-device entropy generation was. If you want to permanently exclude this attack vector, you can very easily convert your dice rolls to BIP39 words by doing a little bit of basic addition. The graphic on this page explains it well: [https://github.com/veebch/Bip39-Dice](https://github.com/veebch/Bip39-Dice)
+
+comment: p20fo14
+parent: t1_p20euaj
+author: blackjackn
+created_utc: 1785998960
+edited: false
+body:
+I deleted those sections as I'm rethinking my setup so I only left the technical portions. 
+
+Separating 24 word seeds and passphrases adds a layer of security to the key custodians colluding. 
+
+Passphrase custodians are for backup copies of the passphrase in case I forget + fire/theft. Yes, the key custodians could collude with the passphrase custodians. But it requires 3 people to collude rather than just 2 and it would still be ineffective. They dont have the output descriptor. 
+
+Hardware has PINs but that doesnt really matter if they have the seedplates.
+
+I don't want the passphrases stored in an electronic medium.
+
+comment: p20g4ee
+parent: t1_p20fcfv
+author: blackjackn
+created_utc: 1785999177
+edited: false
+body:
+I'm aware. Hence, a strong passphrase in case and its only 1 key in a multisig. I figured I dont need to go that far. I would have dumped the Coldcard if I did single sig even with a strong passphrase. 
+
+comment: p20g64k
+parent: t1_p20chqv
+author: ZICRON_ULTRA
+created_utc: 1785999200
+edited: false
+body:
+My ATM pin code is 5497.
+
+🙄 
+
+comment: p20hdmg
+parent: t1_p20fo14
+author: Upstairs_Raisin
+created_utc: 1785999771
+edited: false
+body:
+This all makes sense.   
+I guess I’ve only really seen guidance to skip using a passphrase when you are already doing multi-sig as it doesn’t provide much additional protection.   
+In your case if risk I collusion is your primary concern then it adds additional protection. 
+
+comment: p20hq6g
+parent: t1_p20hdmg
+author: blackjackn
+created_utc: 1785999936
+edited: false
+body:
+Using passphrases at all adds another layer of security if the seed generation of the devices, either internal RNG or processing of dice rolls, is defective. The Coldcard fiasco has me questioning that for all devices despite assurances theyre fine. 
+
+comment: p20hxmt
+parent: t1_p20g64k
+author: [deleted]
+created_utc: 1786000036
+edited: false
+body:
+[deleted]
+
+comment: p20i2gw
+parent: t1_p20hxmt
+author: ZICRON_ULTRA
+created_utc: 1786000101
+edited: false
+body:
+I can explain it to you, but I can't understand it for you. 
+
+comment: p20ini3
+parent: t1_p20g4ee
+author: HeroicHeron
+created_utc: 1786000386
+edited: false
+body:
+Fair enough, obviously your Multi-Sig setup protects you against this scenario, I'm just curious since I've seen so many people generate new seeds using the dice roll feature on the CC even though the new firmware was audited to reliably use the device TRNG now. In my mind, it just makes more sense to exclude the possibility of faulty code altogether instead of picking the feature that simply happened not to be compromised before.
+
+comment: p20jdy2
+parent: t1_p20ini3
+author: blackjackn
+created_utc: 1786000744
+edited: false
+body:
+Intellectually, I think the code is fine now. Emotionally and intuitively, I'm not there. Yes, thats irrational. No, I cant help it. Yes, I'm still trusting the code to process my dice rolls correctly. But at least that method was not defective before and I havent heard of Coldcard users who dice rolled having their coins stolen. 
+
+comment: p20jl39
+parent: t3_1vgw23z
+author: No-Student-6817
+created_utc: 1786000840
+edited: false
+body:
+You people make for great entertainment....lol....
+
+comment: p20kju4
+parent: t1_p20euaj
+author: thats_gotta_be_AI
+created_utc: 1786001312
+edited: false
+body:
+No doubt you have a good reason for it, but why are you involving counterparties to custody portions of your wallet key?
+
+comment: p20ng5o
+parent: t1_p20fcfv
+author: _2f
+created_utc: 1786002757
+edited: false
+body:
+And the 24th word requires running a random python script which can be compromised. It might call home. 
+
+comment: p20tjz9
+parent: t3_1vgw23z
+author: valerioshi
+created_utc: 1786005837
+edited: false
+body:
+why not just swap out your coldcard for another manufacturer's?   
+  
+My current setup:  
+  
+Multisig = Trezor, Keystone, Ledger  
+Daily = Onekey
+
+comment: p20zwxx
+parent: t3_1vgw23z
+author: Laukess
+created_utc: 1786009004
+edited: false
+body:
+Solid setup, but I think the passphrase is a little overkill, and add additional risks, but I wouldn't recommend against it if helps you sleep at night.
+
+I think you should back up the descriptor on a online platform like google drive or your iCloud. You risk your privacy if it's leaked, but if you're the only one who's got a backup, I think the risk is worth it. If you don't agree I think you should come up with a solution where you can back it up elsewhere. Like encrypt the file and give it to the key holders, or other 3rd parties, and back up the decryption key on a google drive or iCloud. 
+
+Are you going to use a basic multi-sig setup through something like sparrow? I've started looking at Liana and Nunchuk wallet. Liana allows you to degrade the setup after x time, so that it can turn into a 1-of-3, or 1 specific key. This is a great on-chain way to allow for inheritance. 
+
+With Nunchuck you can use their platform key, and they have setups with spending limits. I was looking into a 4-of-5, where 1 key + 1 platform key has a $1000 spending limit a day. 2keys + 1 platform key has $50k spending limit a day, and 3 keys + platform key would allow you to move it all. 4-of-5 is a bit extreme, but I feel like you need to have more than 3 when one is a platform key, and having a spending limit of $50k a day, you can still move $1.5m a month if you lose 2 keys. If something like the CC exploit happens, you can sill move it all with 4 keys, so even with 1 key lost, it's not catastrophic. This can obviously be scaled with different spending limits, this would probably work well if you have $1m-$2m in bitcoin. The downside is that they would charge you $2.1k a month, so that's unfortunately a dealbreaker for me at the moment. 
+
+I would love to hear from people who doesn't use the basic software implementation. It's been same years since I initially looked into it, and now miniscript has been battle tested for years, so it feels a lot safer, but who knows. 
+
+comment: p210fyv
+parent: t1_p20hq6g
+author: Laukess
+created_utc: 1786009259
+edited: false
+body:
+I've decided to roll my own seeds going forward. I honestly think that's the easiest going forward. I played around with a card method that seems quite intuitive. 
+
+[https://jimbojw.github.io/seed-picker-solitaire/seed-picker-solitaire.pdf](https://jimbojw.github.io/seed-picker-solitaire/seed-picker-solitaire.pdf)
+
+comment: p210ogo
+parent: t1_p20ng5o
+author: Laukess
+created_utc: 1786009371
+edited: false
+body:
+You can also put it into a bitbox and it'll show you a list of valid checksums. 
+
+comment: p212u91
+parent: t3_1vgw23z
+author: AdEuphoric5133
+created_utc: 1786010397
+edited: false
+body:
+`using casino grade dice`  
+That is not necessary ahah. 100 rolls of a shitty poorly balanced dice will give you essentially the same entropy as a perfectly balanced dice. I checked it numerically. I will write a post about that eventually.
+
+comment: p218moy
+parent: t1_p20ng5o
+author: HeroicHeron
+created_utc: 1786012960
+edited: false
+body:
+The graphic doesn't mention it, but you can use a hardware wallet or an offline version of Ian Coleman's tool running on Tails OS to generate the checksum.
+
+comment: p21glm8
+parent: t3_1vgw23z
+author: Astropin
+created_utc: 1786016100
+edited: false
+body:
+I use Unchained Capital in a two of three multi-sig setup. One of my wallets was a Coldcard. I replaced it with a Trezor. Didn't roll any dice. Moving on. Stacking sats.
+
+Two devices would have to be compromised at the same time. I feel relatively safe considering that.
+
+comment: p21ixq2
+parent: t1_p20fcfv
+author: bobivy1234
+created_utc: 1786016952
+edited: 1786018561
+body:
+Not to be bias but the dice rolls can be externally vetted and validated roll by roll on any command line tool compared to what you see being computed on the screen.  There isn't any compromise there unless their code actually changes the hash at the end which isn't a trivial thing to do.  Plus cryptographically if they switched anything up, you are talking about a completely different seed/addresses/BIP-39 words which at that point you would validate very quickly to be a concern if you were to monitor-only those addresses in Electrum or do any validation.
+
+I get paranoia but dice roll entropy and the resulting hash-by-hash calculations are easily checked on the fly to be accurate by multiple sha256 hashing algorithms.  The resulting BIP-39 words can be externally validated as well if you want to go through a few dry runs to make sure everything matches up.  Remember their code is being high scrutinized over the last few days as it is available for public viewing and nothing else has been flagged by anyone.
+
+[https://coldcard.com/docs/verifying-dice-roll-math/](https://coldcard.com/docs/verifying-dice-roll-math/)
+
+comment: p21keq5
+parent: t3_1vgw23z
+author: recklessjewel
+created_utc: 1786017465
+edited: false
+body:
+just buy the ETF 
+
+comment: p21m3ag
+parent: t1_p212u91
+author: Parikh1234
+created_utc: 1786018034
+edited: false
+body:
+I play a lot of craps. Just going to generate my seed next time I’m at the table. 
+
+comment: p2285g7
+parent: t1_p20ng5o
+author: RefrigeratorLow1259
+created_utc: 1786024588
+edited: false
+body:
+That skepticism is completely valid, nobody should run arbitrary scripts for entropy generation without verifying what they actually do.
+If you want to calculate BIP-39 mnemonic phrases from physical dice rolls offline without running Python scripts or external dependencies, there's a single self-contained HTML file: bip-39-dice : https://github.com/IanMcLo/bip-39-dice/tree/main
+Key points for air-gapped setup:
+Zero external dependencies / build steps: It's just a single, plain index.html file (~100% vanilla HTML/JS).
+Easy to audit: You can open it in a text editor to read the raw logic yourself before executing it.
+Air-gap friendly: Save index.html to a USB drive, boot an air-gapped machine (or Tails OS) with networking disabled, and run it locally in the browser.
+Base-6 entropy: Uses standard dice-roll-to-BIP39 conversion consistent with standard implementations (Ian Coleman / Cobo Vault).
+
+comment: p22f11c
+parent: t1_p20tjz9
+author: blackjackn
+created_utc: 1786026432
+edited: false
+body:
+\-I already paid for it. 
+
+\-Firmware update fixes the issue. 
+
+\-If it doesn't then I used dice rolls which were not an issue to begin with, I passphrased it, and its only one key in a multisig. I wouldn't use it if I did single-sig. 
+
+\-I like the hardware. 
+
+comment: p22g54l
+parent: t1_p20zwxx
+author: blackjackn
+created_utc: 1786026725
+edited: false
+body:
+The passphrase is a countermeasure against custodians colluding even though I trust they won't. But as we know, trust is often not good enough. It also adds security layer if there is any defect in the entropy of the hardware I used like there was in Coldcard. Again, I trust there isn't but again, trust. 
+
+The setup is through Sparrow. Nunchuk as a watch only. 
+
+comment: p22go16
+parent: t1_p210fyv
+author: blackjackn
+created_utc: 1786026865
+edited: false
+body:
+That's not a bad idea. I did for 1 key. Maybe I would have for the other 2 but the hardware I used for them does not support physical dice rolls. I figured it would be fine since that hardware has no known issues, the manufacturer verified their entropy as safe, I passphrased them, and its a multisig.
+
+comment: p22gxde
+parent: t1_p212u91
+author: blackjackn
+created_utc: 1786026933
+edited: false
+body:
+I won't dispute this. But now I have a cool dice set. 
+
+comment: p22hh8n
+parent: t1_p21keq5
+author: blackjackn
+created_utc: 1786027078
+edited: false
+body:
+I do. But brokerage accounts are not protected from confiscation. I need a hedge against that. 
+
+comment: p22i4ao
+parent: t1_p20kju4
+author: blackjackn
+created_utc: 1786027247
+edited: false
+body:
+Opsec. Not having any two keys in one physical location is a countermeasure against wrench attacks and physical theft.
+
+comment: p22kk8g
+parent: t1_p212u91
+author: _2f
+created_utc: 1786027887
+edited: false
+body:
+Thank you! A dice that gives 17% instead of 16.6% or even as much as 18% for few will give about the same entropy. People get confused by big numbers. 
+
+comment: p22lg1c
+parent: t1_p22i4ao
+author: thats_gotta_be_AI
+created_utc: 1786028117
+edited: false
+body:
+Fair man. I appreciate your reply. Makes sense.
+
+comment: p22yg8g
+parent: t3_1vgw23z
+author: waldo8822
+created_utc: 1786031438
+edited: false
+body:
+Why would you stay with the same company? I couldn't tbh just out of principle 
+
+comment: p233na3
+parent: t1_p22yg8g
+author: blackjackn
+created_utc: 1786032740
+edited: false
+body:
+I'm not giving them anymore money than I have. But I already paid for this, seems to be fine now, if it isn't there's countermeasures I put in place, and I like the hardware and UI. 

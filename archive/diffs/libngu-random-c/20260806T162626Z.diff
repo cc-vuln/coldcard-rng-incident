@@ -1,0 +1,43 @@
+--- libngu-random-c@20260805T141823Z
++++ libngu-random-c@20260806T162626Z
+@@ -24,7 +24,7 @@
+ extern uint32_t rng_get(void);
+ # define CHIP_TRNG_SETUP()
+ # define CHIP_TRNG_32()         rng_get()
+-# ifndef MICROPY_HW_ENABLE_RNG
++# if MICROPY_HW_ENABLE_RNG == 0
+ # error "get a HW TRNG plz"
+ # endif
+ #endif
+@@ -33,8 +33,19 @@
+ # define CHIP_TRNG_32()         arc4random()
+ #endif
+ #ifdef __linux__
++# include <sys/random.h>
++// glibc random() is not a TRNG and is typically unseeded here — never use for keys.
++static uint32_t linux_trng_32(void)
++{
++    uint32_t v = 0;
++    ssize_t n = getrandom(&v, sizeof v, 0);
++    if(n != (ssize_t)sizeof v) {
++        mp_raise_OSError(MP_EFAULT);
++    }
++    return v;
++}
+ # define CHIP_TRNG_SETUP()
+-# define CHIP_TRNG_32()         random()
++# define CHIP_TRNG_32()         linux_trng_32()
+ #endif
+ #ifndef CHIP_TRNG_SETUP
+ # error "need chip TRNG function"
+@@ -142,8 +153,8 @@
+ STATIC mp_obj_t random_bytes(mp_obj_t count_in)
+ {
+     int count = mp_obj_get_int_truncated(count_in);
+-    if(count > 4096) {
+-        mp_raise_ValueError(MP_ERROR_TEXT("too many"));
++    if(count < 0 || count > 4096) {
++        mp_raise_ValueError(MP_ERROR_TEXT("out of range"));
+     }
+     vstr_t rv;
+     vstr_init_len(&rv, count);

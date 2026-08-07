@@ -1,0 +1,328 @@
+post: 1vgizkf
+author: bullett007
+created_utc: 1785961622
+title: With all the talk about passphrases, doesn't a 2-2 multisig make more sense?
+body:
+**Single sig vs "Duosig".**
+
+**2-2 Multisig Positives v singlesig+passphrase:**
+
+* Two secrets both containing at least 128 bit of entropy eliminating weak entropy passphrases.
+* Both secrets contain checksums.
+* Avoids having to type long-string passphrases on a small hardware signer display.
+* Avoids the requirement of collating two secrets on a single device for transaction signing.
+
+**2-2 Multisig Negatives v singlesig+passphrase:**
+
+* Higher transaction fees.
+* Multisig Descriptor backup.
+* Key Redundancy - however, there is also no key redundancy in single sig+passphrase.
+
+Anything else I'm missing?
+
+comment: p1xi6jg
+parent: t3_1vgizkf
+author: flutecop
+created_utc: 1785962319
+edited: false
+body:
+I've never used multisig. But isn't it the case that you wouldn't need to backup the descriptor in a 2 of 2? If you have all the signatures in the quorum the descriptor can be rebuilt.
+
+comment: p1xjl42
+parent: t3_1vgizkf
+author: tippiecat
+created_utc: 1785962697
+edited: false
+body:
+I don’t think it matters, unless it helps your mental health to add layers of security. But, it doesn’t make a difference if your private keys are exposed. The coldcard situation is not that the wallets were hacked. The problem is they generated private keys using mnemonics that were way too easy to guess. In this case, the private keys were accessible so number of required wallet signatures wouldn’t even make a difference. 
+
+comment: p1xk5fj
+parent: t3_1vgizkf
+author: Total-Wave5026
+created_utc: 1785962847
+edited: false
+body:
+Frig.  Normal good entropy should be enough.  That’s why this cold card fiasco is total bs. 
+
+comment: p1xk8pz
+parent: t1_p1xi6jg
+author: Sacredwisp
+created_utc: 1785962871
+edited: false
+body:
+That is correct. Since it requires all private keys, you do not need to store the xpubs anywhere. You do lose the ability to lose a private key though, compared to 2-3, so you'll need to have redundant keys or split them somehow. You could store 16/24 words of both keys at 3 locations, so any 2 locations can unlock the vault, but if one is compromised, there is still 16 words of security. Probably not best practice, but likely a decent enough setup.
+
+comment: p1xm24f
+parent: t3_1vgizkf
+author: DarrelXero
+created_utc: 1785963358
+edited: false
+body:
+2 of 2 multisig is a terrible idea and roundly advised against by experts for a very specific reason: lose one key, you lose all your coins. That's enough of a reason not to do it.
+
+Multi-vendor, multisig with geographically separated keys. That's the answer and has been for a long time.
+
+comment: p1xm5rh
+parent: t3_1vgizkf
+author: user_name_checks_out
+created_utc: 1785963386
+edited: false
+body:
+I agree with your assessment.
+
+I once asked The Big Man himself, Andreas Antonopoulos, what he thought of 2-of-2 multisig as a more flexible alternative to single sig + passphrase.  He replied [here](https://reddit.com/comments/17ti1zh/comment/k8y535d):
+
+> One point of failure. Total disaster. 
+
+I did not and do not understand that response. I asked him for clarification which, you can see in that thread, he declined to provide. I remain confused.
+
+comment: p1xmdhs
+parent: t1_p1xk8pz
+author: flutecop
+created_utc: 1785963444
+edited: false
+body:
+you could XOR each seed into 3 different seeds A, B, and C. Then keep two of the XORed seeds at three differnt locations.
+
+comment: p1xmjov
+parent: t1_p1xm24f
+author: user_name_checks_out
+created_utc: 1785963490
+edited: false
+body:
+> 2 of 2 multisig is a terrible idea and roundly advised against by experts for a very specific reason: lose one key, you lose all your coins.
+
+How is that worse than single sig + passphrase?
+
+comment: p1xnvvk
+parent: t1_p1xjl42
+author: user_name_checks_out
+created_utc: 1785963854
+edited: false
+body:
+> The coldcard situation is not that the wallets were hacked. 
+
+What do you think "hacked" means?
+
+> number of required wallet signatures wouldn’t even make a difference. 
+
+Not defending coldcard. They suck. But someone who had an m of n multisig using all coldcards would probably still have their money. Searching for vulnerable multisig wallets would take a lot longer than searching for vulnerable single sigs.
+
+comment: p1xtv3t
+parent: t1_p1xmjov
+author: ZedZeroth
+created_utc: 1785965533
+edited: false
+body:
+I think they're the same in terms of loss/theft risks, but passphrases are (a) simpler to set up, and (b) you can choose the format of the passphrase (which I guess also makes it less obviously crypto related).
+
+comment: p1xuog0
+parent: t1_p1xtv3t
+author: DarrelXero
+created_utc: 1785965767
+edited: false
+body:
+Yes, and removes the added complexity that comes with a multisig setup such as descriptor, which was rightly listed as a con. If you are going to use a multisig setup, best practices is to have more redundancy in keys, use different vendors and separate them.
+
+comment: p1xvl5l
+parent: t1_p1xuog0
+author: ZedZeroth
+created_utc: 1785966027
+edited: false
+body:
+> descriptor
+
+Is this the MPKs?
+
+Yes, might as well do 2 of 3 if you're going with multisig.
+
+comment: p1xw575
+parent: t1_p1xi6jg
+author: bullett007
+created_utc: 1785966188
+edited: false
+body:
+Correct
+
+comment: p1xx7pp
+parent: t1_p1xm24f
+author: bullett007
+created_utc: 1785966497
+edited: false
+body:
+I understand this. However, it's outside the scope of the question.
+
+**Singlesig+passphrase**: If you lose a seed or passphase you lose your coins.   
+**Duosig:** If you lose a single seed you lose your coins. 
+
+Regardless of the methods above (*both without redundancy*) if you lose one secret you lose your coins. 
+
+comment: p1xxw00
+parent: t1_p1xuog0
+author: bullett007
+created_utc: 1785966692
+edited: false
+body:
+In a 2-2 "Duosig" the added complexity of the descriptor is a moot point.   
+  
+You can always reconstruct the wallet with the seeds, however, if you lose a seed (*just like singlesig+passphrase*) you lose your coins. 
+
+I'm comparing the pros and cons of singlesig to duosig, both lack redundancy. 
+
+comment: p1xykc7
+parent: t1_p1xjl42
+author: bustaphlex
+created_utc: 1785966886
+edited: false
+body:
+“… number of required wallet signatures wouldn’t even make a difference.”
+
+Not true in practice. You’re correct that all Coldcard-generated seeds in a multi-sig config would have been equally susceptible to exposure, but the attacker would also have been required to:
+
+- Associate those seeds with one another, example, identify that some 3 seeds are not 3 independent wallets but are part of a 2-of-3 multi-sig config.
+- Derive the multi-sig descriptor to piece the 3 seeds together.
+
+Both are non-trivial steps that add a genuine barrier above simply stealing from a single-sig wallet, with or without a passphrase. 
+
+It would be difficult and time-consuming, if at all possible, to identify multi-sig configs among the dataset in the first place, let alone to then overcome the above barriers. Likely enough complexity to make an attacker skip over you and hone in on low-hanging fruit; single-sig wallets with no passphrase (or a low entropy passphrase).
+
+comment: p1xynvd
+parent: t1_p1xuog0
+author: flutecop
+created_utc: 1785966914
+edited: false
+body:
+descriptor is a not needed in a 2of2.
+
+Redundancy is equivalent to single sig +passphrase, assuming the passphrase would be sufficiently complex enough to provide 128 bits.
+
+comment: p1xzuiz
+parent: t1_p1xynvd
+author: DarrelXero
+created_utc: 1785967260
+edited: false
+body:
+Where are you getting the claim that a 2 of 2 mutisig doesn't require a descriptor? 
+
+comment: p1xzzm1
+parent: t1_p1xm5rh
+author: bullett007
+created_utc: 1785967301
+edited: false
+body:
+Who am I to argue with the big man!?  
+  
+Maybe its because you can save multiple copies of a passphrase in numerous places. Password manager, written in a book, under some furniture, leave a copy at a parents/siblings house etc.  🤔 On it's own a passphrase is worthless if discovered compared to one key of two to unlock spending ability. 
+
+comment: p1y0lmf
+parent: t1_p1xzuiz
+author: flutecop
+created_utc: 1785967482
+edited: false
+body:
+The backup is not required because the descriptor can be rebuilt from the seeds. Descriptor is only needed when you don't have all the seeds. such as in a 2 of 3 where you only have 2 seeds.
+
+comment: p1y2zu0
+parent: t1_p1y0lmf
+author: ZedZeroth
+created_utc: 1785968199
+edited: false
+body:
+Yes, makes sense. I learnt this the (nearly) hard way. Somehow got as far as creating, funding and separating a 2of3 without realising that I needed the MPKs. So it effectively became a 3of3. Fortunately I could still access all three.
+
+comment: p1yjgi5
+parent: t1_p1y0lmf
+author: DarrelXero
+created_utc: 1785973381
+edited: false
+body:
+Making an assumption that there are seeds for each key. TapSigners wouldn't qualify, you'd need the descriptor.
+
+comment: p1z0tly
+parent: t1_p1yjgi5
+author: flutecop
+created_utc: 1785979096
+edited: false
+body:
+Good point. It's easy enough to not use tap signers though. 
+
+comment: p1zj0ux
+parent: t1_p1z0tly
+author: DarrelXero
+created_utc: 1785985174
+edited: false
+body:
+They do come in handy for multisig, inheritance (required by Nunchuk) and for fuck-around funds :)
+
+comment: p20v6ct
+parent: t1_p1xykc7
+author: IllllIIlIllIllllIlll
+created_utc: 1786006646
+edited: 1786007172
+body:
+\> with or without a passphrase.
+
+Single seed + passphrase means that the attacker would have to bruteforce the passphrase, which is impossible for them to do if the passphrase has enough entropy.
+
+Duosig is only marginally safer than single seed without passphrase, the attacker is technically able to test all possible pairs. It just squares the number of possibilities.
+
+comment: p226ghq
+parent: t1_p1xzzm1
+author: user_name_checks_out
+created_utc: 1786024131
+edited: false
+body:
+> On it's own a passphrase is worthless if discovered compared to one key of two to unlock spending ability. 
+
+I don't understand. Given these two scenarios:
+
+1) Attacker finds passphrase from a single sig + passphrase setup
+
+2) Attacker finds one of the two keys from a 2-of-2 setup
+
+Why is (2) worse than (1)?
+
+comment: p22gtp8
+parent: t1_p226ghq
+author: bullett007
+created_utc: 1786026906
+edited: 1786032487
+body:
+Doing more research.
+
+A compromised multisig key in a 2-2 would provide the attacker with deeper knowledge and insight into the multisig setup, an exposed passphrase doesn't.
+
+For example they will gain access to all the pubkeys of the exposed seed. They could then scan the blockchain for any transactions for a match. Then they'll discover the learn the exact script type and configuration of the multisig setup. You won't lose the ability to spend, but you lose a lot of privacy and metadata associated to the multisig.
+
+There's no keys, addresses, or structural data to be gained if a passphrase is discovered.
+
+This is what I'm learning. Although the points in my original post are technically correct, there's a lot more to the disadvantages section beyond just key redundancy and transaction fees vs single sig+passphrase.
+
+A 12-word seed phrase with at least 128 bits of entropy, and a high entropy passphrase does start to make more sense when all points are considered.
+
+comment: p22npdn
+parent: t1_p22gtp8
+author: user_name_checks_out
+created_utc: 1786028703
+edited: false
+body:
+Very interesting. Thank you.
+
+comment: p24cget
+parent: t1_p22gtp8
+author: flutecop
+created_utc: 1786043856
+edited: false
+body:
+would love to see an update on the disadvantages.
+
+comment: p25oy78
+parent: t1_p1xk5fj
+author: Vipu2
+created_utc: 1786057115
+edited: false
+body:
+But what if you thought your entropy was good but it wasnt and you made mistake somewhere?
+
+That is where I see some value in multi-sig, you could roll your own entropy with dice, even if you F up it somehow, you could have another seed made with Trezor or something and you would not lose your coins.  
+Or vice versa if there is entropy bug in Trezor then your own rolled seed would keep your coins safe.

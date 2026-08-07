@@ -1,0 +1,47 @@
+url:      https://x.com/Excellion/status/2085661651211018367
+author:   Samson Mow
+handle:   @Excellion
+posted:   2026-08-07T09:37:42.000Z (from the page's <time> element)
+captured: 20260807T110805Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+The 
+@BlockstreamJade
+ is one of the best hardware wallets on the market, bar none. I wonder how many people dismissed it due to the FUD that it lacked a secure element?
+
+Secure elements aren't a panacea but are often sold as such. A physical SE in the device means everything needed to extract the seed is sitting right there, and potentially in the hands of someone that steals it. It's a stationary target. An attacker can wreck a dozen units learning the technique before touching yours. Ledger's Donjon has done exactly this to Coldcard silicon twice, the Mk2 ATECC508A and later the SE2 on Mk4, and voltage-glitched the Trezor Safe 3's MCU.
+
+Jade moves the target instead. Your seed is encrypted with an AES-256 key that the device and a blind oracle build between them, and the oracle never holds more than a piece of it. The ESP32 only has ciphertext. You can't extract something that was never in there. The attack turns interactive, against a party who rate-limits you and wipes its half after three bad PINs.
+
+Coldcard split your secret across three chips from different SEs. That genuinely helps against one vendor's silicon getting broken. But the pitch lands as arithmetic, and security doesn't really work that way. As we've seen, bad entropy at setup meant none of the silicon even mattered. You could have 10 SEs in the CC and that wouldn't have saved you. But people ate that security theater up.
+
+My mind keeps circling back to what we could have done differently. I keep landing on the same conclusion: we should have pushed back on the SE FUD much harder, and promoted Jade far more aggressively. We'd never have attacked CC, but we should never have taken the unwarranted flak for Jade's security model. The FUD steered people away from Jade. If we'd fought it, maybe more of them would have avoided the CC tragedy.
+
+When we first launched the Jade, it sold for just $39.99. For that price you got such an incredible amount of value (at launch and later with subsequent updates).
+
+ Virtual secure element via blind oracle (
+@Blockstream
+'s or self-hosted)
+ Can function as a stateless signing device (like SeedSigner)
+ Anti-Exfil protocol to protect against your seed being exfiltrated (Jade is one of only two HWWs that do this)
+ Genuine Check verification to prove the device is authentic and untampered with
+ Secure Boot ensuring only properly signed firmware runs
+ BIP39 passphrase and duress PIN
+ Air-gapped operations
+ Store Liquid assets like 
+@tether
+ USDT
+ Multisig support AND the ability to back up the multisig config (descriptors) for a setup involving ANY devices (or mixed hardware/software), as long as at least one Jade is part of the multisig - this makes multisig far less brittle since losing the config is catastrophic
+
+The best part of all of this? You don't even need to BUY a Jade. You can build your own with almost any ESP32 board. Pair it with your own self-hosted blind oracle and you have a completely sovereign stack with no HWW vendor supply chain risk.
+
+If you're looking for a new hardware wallet, take a serious look at 
+@BlockstreamJade
+. It's built by a world-class team of engineers and cryptographers assembled by 
+@adam3us
+. But don't take my word for it. The firmware is fully open source, so read it yourself.
+
+Don't Trust. Verify.

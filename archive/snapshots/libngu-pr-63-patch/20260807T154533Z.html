@@ -1,0 +1,167 @@
+From c09eff66214b800f4b632b5aa7a76bb261d2e75a Mon Sep 17 00:00:00 2001
+From: "Javier G. Montoya S" <jgmontoya@pm.me>
+Date: Thu, 6 Aug 2026 17:39:07 -0400
+Subject: [PATCH] random: reject two-word entropy cycles
+
+---
+ ngu/entropy_health.h                | 31 +++++++++++++++++++
+ ngu/ngu_tests/Makefile              | 10 ++++--
+ ngu/ngu_tests/entropy_health_test.c | 47 +++++++++++++++++++++++++++++
+ ngu/random.c                        |  8 ++---
+ 4 files changed, 90 insertions(+), 6 deletions(-)
+ create mode 100644 ngu/entropy_health.h
+ create mode 100644 ngu/ngu_tests/entropy_health_test.c
+
+diff --git a/ngu/entropy_health.h b/ngu/entropy_health.h
+new file mode 100644
+index 0000000..787ee1f
+--- /dev/null
++++ b/ngu/entropy_health.h
+@@ -0,0 +1,31 @@
++//
++// entropy_health.h - detect exact repetition in recent entropy words
++//
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++typedef struct {
++    uint32_t history[2];
++    uint8_t count;
++} entropy_health_t;
++
++// Reject a word matching either of the previous two accepted words. This
++// catches a stuck source and exact two-word cycles. Rejections do not advance
++// history. This is a narrow runtime check, not entropy-source validation.
++static inline bool entropy_health_accept(entropy_health_t *health, uint32_t word)
++{
++    for (uint8_t i = 0; i < health->count; i++) {
++        if (word == health->history[i]) {
++            return false;
++        }
++    }
++
++    health->history[1] = health->history[0];
++    health->history[0] = word;
++    if (health->count < 2) {
++        health->count++;
++    }
++    return true;
++}
+diff --git a/ngu/ngu_tests/Makefile b/ngu/ngu_tests/Makefile
+index 6b5e26a..97198b0 100644
+--- a/ngu/ngu_tests/Makefile
++++ b/ngu/ngu_tests/Makefile
+@@ -1,8 +1,8 @@
+ MPY = ../../ngu-micropython
+ PY = python3
+ 
+-.PHONY: test tests hash-drbg-cavp
+-test tests: hash-drbg-cavp
++.PHONY: test tests hash-drbg-cavp entropy-health
++test tests: hash-drbg-cavp entropy-health
+ 	test x$(VIRTUAL_ENV) != x		# need virtualenv
+ 	$(PY) test_aes.py
+ 	$(MPY) test_aes_gen.py
+@@ -43,6 +43,12 @@ hash-drbg-cavp: $(CIFRA_DRBG_SRCS)
+ 		$(CIFRA_DRBG_CC) -o "$$bin" $(CIFRA_DRBG_SRCS); \
+ 		"$$bin" hashdrbg-sha256 hashdrbg-sha256-addnl
+ 
++entropy-health: entropy_health_test.c ../entropy_health.h
++	@set -e; bin=$$(mktemp /tmp/libngu-entropy-health.XXXXXX); \
++		trap 'rm -f "$$bin"' 0; \
++		$(CC) -std=c99 -Wall -Wextra -Werror -I.. -o "$$bin" entropy_health_test.c; \
++		"$$bin"
++
+ # runs the test compiled in, not here
+ # or, on target
+ #	 import ngu_tests.run
+diff --git a/ngu/ngu_tests/entropy_health_test.c b/ngu/ngu_tests/entropy_health_test.c
+new file mode 100644
+index 0000000..579de14
+--- /dev/null
++++ b/ngu/ngu_tests/entropy_health_test.c
+@@ -0,0 +1,47 @@
++//
++// entropy_health_test.c - deterministic entropy repetition checks
++//
++#include <stdbool.h>
++#include <stdio.h>
++
++#include "entropy_health.h"
++
++static int failures;
++
++static void check(bool condition, const char *description)
++{
++    if (!condition) {
++        printf("FAIL: %s\n", description);
++        failures++;
++    }
++}
++
++int main(void)
++{
++    entropy_health_t health = { 0 };
++    entropy_health_t period_three = { 0 };
++    entropy_health_t zero = { 0 };
++
++    // Zero policy belongs to the entropy backend wrapper. This helper only
++    // checks repetition, so zero is not confused with uninitialized history.
++    check(entropy_health_accept(&zero, 0), "first zero is valid history");
++    check(!entropy_health_accept(&zero, 0), "repeated zero rejected");
++
++    check(entropy_health_accept(&health, 0x111), "first word accepted");
++    check(entropy_health_accept(&health, 0x222), "second distinct word accepted");
++    check(!entropy_health_accept(&health, 0x222), "adjacent repeat rejected");
++    check(!entropy_health_accept(&health, 0x111), "two-word cycle rejected");
++    check(entropy_health_accept(&health, 0x333), "fresh word accepted after rejection");
++    check(!entropy_health_accept(&health, 0x222), "rejection does not advance history");
++
++    check(entropy_health_accept(&period_three, 0xaaa), "period-three first word accepted");
++    check(entropy_health_accept(&period_three, 0xbbb), "period-three second word accepted");
++    check(entropy_health_accept(&period_three, 0xccc), "period-three third word accepted");
++    check(entropy_health_accept(&period_three, 0xaaa), "period-three cycle is not detected");
++
++    if (failures) {
++        return 1;
++    }
++    puts("PASS - entropy health");
++    return 0;
++}
+diff --git a/ngu/random.c b/ngu/random.c
+index 16c0d3f..9d8e29b 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -13,6 +13,7 @@
+ #include "my_assert.h"
+ #include "cifra/drbg.h"
+ #include "cifra/ext/handy.h"
++#include "entropy_health.h"
+ 
+ // ESP32 code
+ #ifdef ESP_PLATFORM
+@@ -61,7 +62,7 @@ static uint32_t linux_trng_32(void)
+ 
+ static cf_hash_drbg_sha256 drbg;
+ static bool drbg_ready;
+-static uint32_t last_chip;
++static entropy_health_t chip_health;
+ 
+ #define DRBG_ENTROPY_WORDS 32
+ 
+@@ -69,11 +70,10 @@ static uint32_t checked_chip_trng(void)
+ {
+     uint32_t chip = CHIP_TRNG_32();
+ 
+-    if(!chip || chip == last_chip) {
+-        // maybe TRNG is not clocked? Fail hard
++    if(!chip || !entropy_health_accept(&chip_health, chip)) {
++        // The source may be unclocked, stuck, or alternating between two words.
+         mp_raise_OSError(MP_EFAULT);
+     }
+-    last_chip = chip;
+ 
+     return chip;
+ }

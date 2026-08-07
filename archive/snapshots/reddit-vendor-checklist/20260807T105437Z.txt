@@ -1,0 +1,119 @@
+post: 1vh6bq9
+author: omsriver
+created_utc: 1786027611
+title: Cold Storage Vendor Checklist. Where to go next?
+body:
+TL;DR: What will we, as a self-custody community, expect from cold storage vendors? We need a checklist or wishlist of minimum features that we expect from any or all vendors.  So no more "trust" us or influencer reviews - meet our minimum first.  Then we can talk about features beyond that.
+
+I almost switched to a ColdCard a couple of months ago.  But circumstances, including a terrible response from their support, made me hold off a little.  And for those that did lose their stash it really pains me for your situation.  I hope this doesn't stop you from stacking again.  If it were me, I would take some time, do some more research on safety and probably start again with as much as I could afford.
+
+But as a community of self-custodians - we should also send a message to vendors.  What should we expect other that flashy marketing, like "super-secure" chips and "future-proof your wealth"? 
+
+I need to replace an old Nano S, and looking at the field of devices today, doesn't give me a high trust satisfaction.  I feel like I'm still rolling the dice (pun intended) with any vendor.  Because there is no way to verify.
+
+BTW - I am no expert at any of this, but a concerned hodler and citizen.  Some or most of my terminology below might be a little off.
+
+What should I expect from a new wallet?  I'll start the list off, hopefully you all can help me add more specifics:
+
+1. Dice rolls or entropy proof.  Goes without saying now.  The option to provide your own entropy or dice rolls either with dice or something like Seedsigner.  Maybe they provide physically separate products that "talk" to each other.  Not all cold wallets accept the entropy from SeedSigner.
+
+2. Open source; though this won't guarantee safety, but nice to know it's available.  Though I did review SeedSigner code, I wouldn't spot a problem unless I really dig in.
+
+3. Air-gapped or if Bluetooth, the ability to control on/off of transmission with an indicator that shows it is off or on.
+
+4. Single or Multi signature capability
+
+5. BIP39 or SLIP39 (though what I understand is that SLIP39 is Trezor only?)
+
+6. Lifecycle for product launch and sunset.  How long will it be supported?
+
+7. Updatable firmware - I don't know if this is critical or possible in some cases.
+
+8. Stealth?  Trezor shape stands out, Coldcard I could get away with calling it a calculator if asked, Ledger Nana (S/X) just a usb drive.
+
+9. Protocols - if the wallet does have Bluetooth capability, what protocol is it using? Trezor publishes a guide I believe?
+
+I'm sure there's more, but I'm not sure what is minimum?  What say you?
+
+Thank you
+
+comment: p22v8in
+parent: t3_1vh6bq9
+author: Ancient_Degree2435
+created_utc: 1786030624
+edited: false
+body:
+Why would one need air gapped device? There is no possibility of stealing seed through usb cable, as far as i know, and if someone gets physical access to HW wallet, it does not matter if it's airgapped or not. It only adds difficulty in use from my point of view.
+
+comment: p2340q4
+parent: t1_p22v8in
+author: omsriver
+created_utc: 1786032833
+edited: false
+body:
+Your, “as far as i know”, is my point. That’s why we’re at this point with Coldcard. We trusted that the entropy was correct. 
+
+Air-gapped maybe not be a minimum requirement; but it was a nice feature on CC to be able to get verification by QR code; or it being able to scan a QR code also. Also, take for example, Ledger being able to export your keys for “backup”. Even if you choose not to sign up for that service, once you connect your device to the computer, and their wallet, how do you really know?
+
+Also, air-gapped does add more complications, but we’re not talking about casual holders in these scenarios I assume.   
+   
+Adding Bluetooth or any radio capability adds more security checks. And my additional point that if it’s not air-gapped, then there should be a strong indicator  that the radio is actually off when we want it to be off. 
+
+comment: p2351yj
+parent: t1_p22v8in
+author: Laukess
+created_utc: 1786033090
+edited: false
+body:
+What makes you think an untrusted computer being able to communicate with a trusted device would not be less secure than the 2 devices operating totally independent? With Bluetooth you add the risk of man in the middle attacks.
+
+
+
+comment: p239453
+parent: t3_1vh6bq9
+author: Laukess
+created_utc: 1786034096
+edited: 1786034460
+body:
+I don't understand the connection between the CC exploit and your list.
+
+CoinKite would have told you that their seed generation was secure, the source was open, and that you could add dice rolls for entropy.
+
+I wish more manufactures would add more advanced features.  
+ \- air gapped (The CC could still be used with a cable if you didn't care)  
+ \- dice roll feature. I like the idea of the HW generating a seed, and you adding entropy with rolls. I guess the pitfall is verifiability. Maybe you could verify it through some software, do a few tests, and when you've seen that it's consistent, you roll your actual seed without verifying it, so it doesn't touch any other software. After looking into how to roll your own seed, I would probably be okay without an option to generate the seed by inputting dice rolls without any entropy initially, as you can easily do this yourself. It should however work like the BitBox where it'll give you the correct checksum options after inputting the first 23 words.  
+ \- I would also like the display to tell me if the receive address is associated with the privatekey on the device.  
+ \- brick me pin.  
+ \- I don't know how other hardware wallets do this, but with the CC you didn't need any software to sign a PSBT, you just moved it to the HW with an sd card, and then moved it back. You could then broadcast it with [mempool.space](http://mempool.space) or you could take it to the computer you want to broadcast it from. If the HW would show up as a thumb drive, and you could just move the file to the device, that would also work. I don't think this is standard, so I imagine would would have to use some wallet software to sign.  
+ \- don't really care about lifecycle. Most people should probably upgrade more often than they do to improve their security.  
+ \- not sure if it's possible, but would be nice if there was some shared protocol that would allow you to move a psbt between a computer and a HW. It could support nfc and bluetooth. Could probably also work for a usb connection. It could show a QR code, and have the ability to use a camera to scan the devices QR code. Haven't thought too much about it, maybe it's kind of dumb. I would just like to be able to move PSBT's as easily as possible.
+
+With multi-vendor multi-sig, it's kind of annoying that they aren't all air gapped and allow you to import a seed and get the checksum, or roll the seed through the device.
+
+comment: p23gcfq
+parent: t1_p2340q4
+author: Ancient_Degree2435
+created_utc: 1786035865
+edited: false
+body:
+Ledger and it's ability to "backup" :) seed to cloud was obvious failure, what I had in mind was concept used in Trezor, where seed never leaves physical device, and you cannot extract it yourself from device, even if it's your trezor wallet and you know pin. Of course you have to trust manufacturer, that without physical access and hacking it's secure element, seed cannot be extracted, but If you don't trust this assumption, concept of HW wallet does not have sense anyway. 
+
+From various channels of HW nerds, being able to extract seed from trezor using expert knowledge, dismantling physical device etc and using various hack like voltage-variations in order to break secure elements inside trezor, and decrypt seed, it is obvious that getting seed from trezor, even if you can dismantle it, is very difficult, so worrying about usb cable connection is pointless imo.
+
+comment: p23zucv
+parent: t1_p239453
+author: JumpProfessional3372
+created_utc: 1786040654
+edited: false
+body:
+The only thing I would like to have in my MK4 is a big QWERTY keyboard to type the passphrase. LOL
+
+And maybe some encryption in the microsd card use to export the TXN, like LUKS idk. To be honest I do not remember if you can encrypt the microsd.
+
+comment: p24haw3
+parent: t3_1vh6bq9
+author: certifr1ed
+created_utc: 1786045100
+edited: false
+body:
+i like onekey

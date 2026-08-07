@@ -1,0 +1,121 @@
+post: 1vgfiw0
+author: PoeCollector
+created_utc: 1785954232
+title: My Dream Hardware Wallet
+body:
+I just wanted to describe my dream hardware wallet.
+- In terms of hardware design, it's a Coldcard Q. Maybe even buy their design when they go bankrupt and have to sell assets.
+- Firmware is bitcoin only, truly FOSS, with peer code reviews (pull requests approved by colleagues before merges are allowed)
+- After internal approval, 3rd party, AI-assisted security audits are required. 
+- Only one method for seed phrase generation is allowed: hardware TRNG chip as the starting point, plus 100 user-entered d6 rolls. The seed is hashed again after each number is entered. (This was one option on the ColdCard, the best option, and the dice hashing function is simple and was never bugged on any version)
+- Device refuses to show you the words until you have entered 100 1-6 numbers.
+- Device ships with 4 casino-grade dice. Instructions suggest the extra paranoid can mix in dice from an arbitrary board game in your house or whatever for extra defense against supply chain attack.
+
+Such a wallet wouldn't necessarily have mass appeal or advertise being "easy to use", instead it would have the same sort of "hardcore" target audience CoinKite did, with better execution.
+
+comment: p1wptu9
+parent: t3_1vgfiw0
+author: Over_Regular_6897
+created_utc: 1785954967
+edited: false
+body:
+No need for casino dices lol. Just place a bunch of cheap dollar store dice in a bag, shake it like maracas, and eject them from the bag on the floor. You'll see what numbers fate has sealed for you. Repeat 
+
+comment: p1wqar5
+parent: t3_1vgfiw0
+author: AvailableTie6834
+created_utc: 1785955086
+edited: false
+body:
+so... Krux? Seedsigner?
+
+comment: p1wtc3h
+parent: t3_1vgfiw0
+author: CiaranCarroll
+created_utc: 1785955845
+edited: false
+body:
+* Only one method for seed phrase generation is allowed: hardware TRNG chip as the starting point, plus 100 user-entered d6 rolls. The seed is hashed again after each number is entered. (This was one option on the ColdCard, the best option, and the dice hashing function is simple and was never bugged on any version)
+
+This increases trust in the code, which not all users can read. Seed generation should be deterministic and reproducible. The same dice rolls entered into a completely different device running the calculations should produce exactly the same seed phrase.
+
+Your ideal HWW could provide said code, and allow anyone to run it locally. That way you know that the code running on your device is the same code advertised and published, without error.
+
+Without that reproducibility a bug can be deployed as it was this time. But with your way there is no way to tell for sure how the seed was generated and entropy added without digging into the code.
+
+>Device ships with 4 casino-grade dice.
+
+You cannot use the dice shipped by the HWW provider, thats crazy. You have no idea whether they are casino grade or weighted. Just use whatever boardgames you have in the house.
+
+comment: p1x69ov
+parent: t1_p1wqar5
+author: jwhendy
+created_utc: 1785959184
+edited: false
+body:
+Do you know how Seedsigner mitigates [Dark Skippy](https://darkskippy.com/)? I'm still going through it to understand, might not have the technical chops to ever quite understand.
+
+Off the cuff (and also keep in mind I have not used/flashed a Seedsigner, just considering it as part of my research):
+
+- I assume the firmware can be built from source and/or is signed
+- trusted devs, or multiple release their signing keys enabling verification
+- check hash of firmware
+- flash Pi afresh after obtaining from whatever vendor
+
+Is that sufficient? Otherwise, Seedsigner is sounding pretty awesome. Provide your own entropy, do as many test runs as you want checking that the random number > hash > seed words all match expectations, when satisfied, do the real deal, backup the words, and good to go.
+
+No TRNG trust, no private key stored anywhere, always rebuilt from scratch, and air gapped (no USB/network susceptibility).
+
+Edit: goofed up markdown url link
+
+comment: p1xju0y
+parent: t1_p1wtc3h
+author: alfooboboao
+created_utc: 1785962762
+edited: false
+body:
+i kinda feel like this whole dice argument is ridiculous. people were convincing each other that unless you use your own casino grade dice it’s all a disaster, while in reality using *literally any dice in the first place* was a trillion times more secure.
+
+I don’t understand how a “non casino” dice would drop the entropy so significantly it could be hacked. as a criminal scheme that just seems batshit insane to me. what is even the mechanism to exploit here
+
+comment: p1xm1gu
+parent: t1_p1xju0y
+author: CiaranCarroll
+created_utc: 1785963353
+edited: false
+body:
+You have to wonder who was propagating that bullshit FUD. Maybe HWWs that didn't use that feature, in favour of using code-driven entropy that you cannot validate the way you could with ColdCard?
+
+comment: p1y6qnr
+parent: t3_1vgfiw0
+author: ElderMight
+created_utc: 1785969337
+edited: false
+body:
+It probably shouldn't ship with dice. How do we know they're not loaded?
+
+comment: p1yhaw9
+parent: t3_1vgfiw0
+author: cilicia3k3
+created_utc: 1785972673
+edited: false
+body:
+you can always roll your own dice and use the q
+
+comment: p1ys64v
+parent: t1_p1wptu9
+author: 6thcoin
+created_utc: 1785976254
+edited: false
+body:
+This guy dices. 
+
+On a serious note. Entropy is entropy, even shitty not perfect dice will be random. If the dice you roll come up all sixes, I want to buy them. I love a solid yahtzee.
+
+comment: p202coi
+parent: t1_p1y6qnr
+author: Lanky_Assist_6317
+created_utc: 1785992797
+edited: false
+body:
+Exactly, how can we be sure there are no chips in the dice that broadcast all the results in real time to the manufacturer? Like the mantra says, not your self-made casino-grade dice, not your entropy.

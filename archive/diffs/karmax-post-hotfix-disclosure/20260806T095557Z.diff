@@ -1,0 +1,11 @@
+--- karmax-post-hotfix-disclosure@20260805T142039Z
++++ karmax-post-hotfix-disclosure@20260806T095557Z
+@@ -275,7 +275,7 @@
+ As noted above, the full comprehensive audit with detailed reproduction steps for each finding is being delivered to Coinkite in parallel with the publication of this post. I hope this time it goes somewhere that produces both fixes and public advisories, so that users get both a safer device and visibility into the security state of the device they own.
+ What you should do
+ ⚠️ IMMEDIATE ACTION (all users):
+-Coldcard Mk3: regenerate your seed immediately following Coinkite's blog post instructions. Coinkite has stated Mk3 will not receive further firmware updates; if you keep using it, add a BIP-39 passphrase as a stopgap and plan for migration.
++Coldcard Mk3: regenerate your seed immediately following Coinkite's blog post instructions. Coinkite has stated Mk3 will not receive further firmware updates; if you keep using it, add a BIP-39 passphrase as a stopgap and plan for migration. UPDATE: Apparently Coinkite has issued a 4.2.0 for Mk2 and Mk3 after previously saying they wouldn't.
+ Coldcard Mk4/Mk5/Q: update to v5.6.0 (Mk4/Mk5) or v1.5.0Q (Q). Regenerate any seeds created on pre-v5.6.0 firmware. Regenerate any long-lived derived material — backup files, USB session keys, teleport pairings, web2fa keys, multisig receive-key derivation indices. All of these used the affected RNG on pre-v5.6.0 firmware.
+ If you use Delta mode as part of your security model: do not use Coldcard's message-signing feature until the Delta-mode message-signing gap is patched. If a coercer asks you to sign a message, the signature is real. Avoid workflows that require message signatures for authentication (some exchange KYC processes, proof-of-reserves attestations) if you rely on Delta-mode plausible deniability.
+ If you use HSM mode: understand that HSM mode maximizes exposure to the kleptography channel described above. In HSM mode, a compromised firmware exfiltrates faster and more thoroughly than a user-driven scenario. This is a consideration even setting aside kleptography — HSM mode inherently trades security for convenience.

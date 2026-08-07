@@ -1,0 +1,774 @@
+post: 1ve5jyc
+author: kevinar990
+created_utc: 1785738893
+title: Since Coldcard is opensource, why wasnt low radndomness od seed generation not found earlier?
+body:
+As a non technical person, honest question.
+
+Since Coldcard is open source, how is it possible noone looked at their seed generation algorithm? Was that not available to the public? Trying to understand, so i can make a better choice of cold wallet in the future
+
+Ty
+
+comment: p1edkin
+parent: t3_1ve5jyc
+author: cilicia3k3
+created_utc: 1785739082
+edited: false
+body:
+It was enough entropy to go under the radar
+
+comment: p1ee49w
+parent: t3_1ve5jyc
+author: PublicBarracuda5311
+created_utc: 1785739354
+edited: false
+body:
+Coldcard was under MIT license if I remember correctly.
+
+comment: p1eey3c
+parent: t3_1ve5jyc
+author: Bred_Slippy
+created_utc: 1785739767
+edited: false
+body:
+It was open for people to view the code, but not open source (others could not use their code for commercial purposes). This move away from true open source led them to change the code in a way that introduced the bug.
+
+After they moved away from it being true OS, there wasn't much incentive for people to scrutinise the code as it couldn't be used by others for their own products /services. This could well be a key reason why the bug wasn't found/exploited for over 5 years. 
+
+comment: p1ef2bt
+parent: t3_1ve5jyc
+author: garlicChaser
+created_utc: 1785739826
+edited: false
+body:
+The code was public, but apprently not Open Source. Meaning it was not free for everyone else to use. 
+
+Open Source is not a magic pill. It only improves code quality if someone else reviews the code, identifies flaws, and helps correct them. For instance, if that person is allowed to use the code for their own purpose, or if they believe in the greater purpose of the software (i.e. developing a free alternative to office products). Much of this work is on volunteer basis.
+
+If there is no incentive to review the code, nobody will do it.
+
+In Coldcard's case, nobody had an incentive to improve the code. The fact that it was still public helped the attackers to find the exploit.
+
+comment: p1eg0z3
+parent: t1_p1eey3c
+author: kevinar990
+created_utc: 1785740305
+edited: false
+body:
+Thank you for the quick reply!
+
+This makes perfect sense... But is also a huge warning for our community in the future, that we cant apriori trust an opensource project...
+
+Im just sad, given how big of a product Coldcard was, that noone took the time to check this stuff, if only for their own protection if they used CC...
+
+comment: p1egi70
+parent: t1_p1ef2bt
+author: kevinar990
+created_utc: 1785740539
+edited: false
+body:
+Ty very much!
+
+
+Do you know if people who generated their seed with dice are safe from current hack?
+
+But also, at this point how can we trust that firmware is really generating the seed with our dice input, and not internally doing the opposite...
+
+comment: p1ego3b
+parent: t1_p1eey3c
+author: CoffeeArms
+created_utc: 1785740621
+edited: false
+body:
+I see. So the right to use the code is actually what incentivizes a lot of people to spend the time and energy to look into a code base.  
+
+comment: p1egyxu
+parent: t3_1ve5jyc
+author: DragonflyBoom
+created_utc: 1785740772
+edited: 1785789977
+body:
+People who say Coldcard wasn't open source, that's why, apparently don't remember heartbleed. Heartbleed was a bug in openSSL which was introduced in 2012 and was only discovered in 2014. Millions of devices were affected and nobody noticed, although it was 100% open source and very widely used.
+
+Another example is Log4Shell. A bug in Log4J wich allowed an attacker to execute code on the target machine. The bug was introduced in 2013 and was only found in 2021. Also open source and widely used.
+
+Truth is, the open source community is mostly understaffed and underfunded.
+
+comment: p1eia5f
+parent: t1_p1egyxu
+author: kevinar990
+created_utc: 1785741424
+edited: false
+body:
+Problem is that opensource was the argument for going with CC, instead of closed source wallets.
+
+On this sub that was mentioned countless times, but now we see we can not trust even the opensource projects... Dont know what the solution is 😟
+
+We cant all become expert software developers, and check the code ourselves...
+
+But i guess more people will start using AI to check open code of wallets...
+
+Edit typos
+
+comment: p1eijpj
+parent: t1_p1egi70
+author: creative_usr_name
+created_utc: 1785741559
+edited: false
+body:
+Anyone not generating their key on the device seems safe. So dice or importing a key generated elsewhere are fine. Those take different code paths. 
+
+comment: p1eimhe
+parent: t1_p1edkin
+author: kevinar990
+created_utc: 1785741597
+edited: false
+body:
+That worries me a lot. Cant imagine there wasnt a single software developer, that bought a Coldcard, and wanted to check their code, just for his own safety??
+
+comment: p1eiqix
+parent: t3_1ve5jyc
+author: FunnyAtmosphere9941
+created_utc: 1785741653
+edited: false
+body:
+They had no bounty for bugs. So no researcher cared. Code was not open source so no other company could use it. Noone else working with code= lower chance for bug detection. 
+
+comment: p1eizwt
+parent: t1_p1egi70
+author: mangoMandala
+created_utc: 1785741785
+edited: false
+body:
+Here is the cool part:  you don't.
+
+But, using diceware, you can henerate your own entropy.  The last word is a checksum.  That, you can just go around the list from the one you rolled until it works (1/16 chance)
+
+Does the wallet actually generate the right xPub from your words?
+
+Try a few fake wallets on several different software.  When you keep getting matching xPub from the same words across several different software, you can feel confident when you roll your actual words and 13th word up that you are getting the right wallet from your handmade entropy.
+
+comment: p1ekxtr
+parent: t1_p1eijpj
+author: kevinar990
+created_utc: 1785742778
+edited: false
+body:
+After this scre*up, there is no way i can trust anyone for seed generation... 
+
+
+Think best option is creading new seed using 256 dice rolls, and using strong non random passphrase 
+
+
+What are my options for creating dice seed?
+
+comment: p1el5kw
+parent: t1_p1eey3c
+author: Plbt335
+created_utc: 1785742887
+edited: false
+body:
+There was still an incentive to scrutinize the code for anyone who had used the code to generate a seed. Even if they were not using the code to develop their own projects. 
+
+comment: p1elbqk
+parent: t1_p1eiqix
+author: kevinar990
+created_utc: 1785742974
+edited: false
+body:
+But there must have been a few researchers using CC for storing their bitcoin?? It was THE premium, top of the line secure cold wallet!
+
+Is it possible noone checked, even for their own safety dammit
+
+comment: p1epptk
+parent: t1_p1elbqk
+author: indolering
+created_utc: 1785745210
+edited: false
+body:
+In open source, you are lucky if your code is reviewed by one other person.  Entropy flaws happen ALL the time, especially in hardware.  I can't think of a major OS that hasn't had one.  There is a reason FIPS mode is a thing, and even then shit gets through.  Every major crypto project has had a flaw like this.  We sat on one that a related currency didn't fix until 24 hours after the embargo dropped.  We are mostly cruising on bad actors being less resourced than the rest of us.
+
+TBH it's not much different than physical currency: irrevocable transactions have consequences.  Physical value stores risk catastrophic failure to being stolen or accidentally destroyed too.  You hedge that risk by getting insurance.
+
+
+
+comment: p1estu2
+parent: t1_p1eimhe
+author: alexsasacv
+created_utc: 1785746812
+edited: false
+body:
+Even worse, their own company didn't check it, for 5 years (and it's one dude lol, appearantly a co-founder was their developer). In other post one Reddit user found the flaw with simple AI check in minutes... What a shitshow . . .
+
+comment: p1etzos
+parent: t1_p1ekxtr
+author: lolonaut
+created_utc: 1785747399
+edited: false
+body:
+Just use a deck of cards, give it a good shuffle. That with a passphrase should give you more than 256 bit entropy with way less effort.
+
+comment: p1ex2to
+parent: t1_p1ekxtr
+author: creative_usr_name
+created_utc: 1785748949
+edited: false
+body:
+I've yet to find a guide that describes how to manually compute the 24th word which contains a checksum. 
+
+comment: p1ey04k
+parent: t1_p1eimhe
+author: migueliiito
+created_utc: 1785749414
+edited: false
+body:
+I agree with you, I also find it pretty surprising. I would’ve guessed that something as high profile as a hardware wallet would attract multiple security researchers to poke and prod at it.
+
+comment: p1ezucw
+parent: t1_p1ekxtr
+author: [deleted]
+created_utc: 1785750319
+edited: 1786028087
+body:
+[deleted]
+
+comment: p1f5cdb
+parent: t1_p1ezucw
+author: kevinar990
+created_utc: 1785752887
+edited: false
+body:
+After this f*ckup im not risking it brother
+If i need to throw a 1000 dice, ill do it. At this point, i feel we are all sitting ducks, waiting for our particular brand of wallet to get compromised...
+
+We need to get at least random seed generation into our own hands !
+
+comment: p1f6kdb
+parent: t1_p1eimhe
+author: oaga_strizzi
+created_utc: 1785753438
+edited: false
+body:
+Most developers would not have found this bug, unless the really dug deep.
+
+The code looked correct on the surface, it called the right functions, but there was basically a configuration mistake that disabled this and caused a insecure fallback to be used.
+
+This is a kind of mistake that does not necessarily get noticed by a software dev reading the code to make sure it looks ok - You would need a professional security audit for that.
+
+Or, nowadays, an LLM, which can spot these issues also.
+
+
+comment: p1f9l3a
+parent: t1_p1f6kdb
+author: wastedkarma
+created_utc: 1785754729
+edited: false
+body:
+That's what I understand from this as well, and what is really puzzling to me is why there was even an option for an insecure fallback. Why would cold card ever care to use a fallback in which a much narrower address space would be generated? 
+
+comment: p1fatoj
+parent: t3_1ve5jyc
+author: harijsme
+created_utc: 1785755244
+edited: false
+body:
+Spotting mistakes like these are not as easy as one might think by just reading the code if you are not looking for them. Yes, after something happened it was easy to find the mistake cos we knew what the problem was.
+
+comment: p1fc6sy
+parent: t3_1ve5jyc
+author: indomitus1
+created_utc: 1785755792
+edited: false
+body:
+Not open source.
+
+comment: p1fccyx
+parent: t3_1ve5jyc
+author: PassionGlobal
+created_utc: 1785755859
+edited: false
+body:
+Coldcard was source available but not open source. Legally this means you can see the source code but not use it.
+
+comment: p1fdvk4
+parent: t1_p1f9l3a
+author: oaga_strizzi
+created_utc: 1785756456
+edited: false
+body:
+> Why would cold card ever care to use a fallback in which a much narrower address space would be generated? 
+
+That a insecure RNG was used is less of an intentional fallback and more of an unfortunate side effect on how the whole system was designed. 
+Which is also probably why it was not obvious was not caught earlier.
+
+They even added code to prevent the firmware from even build when no insecure RNG is available, but that code did not work correctly either.
+
+My impression (I am no expert in firmware development and did not look into this issue in a lot of detail, so take it with a grain of salt):
+
+The layers of abstractions (MicroPython + libNgU + Linker setting through CHIP_TRNG_32 etc) they built added a lot of complexity and obfuscation so that mistake was harder to spot than necessary.
+Complexity is the enemy of security.
+
+
+
+
+comment: p1ffbcd
+parent: t3_1ve5jyc
+author: ItsAlwaysThemBooBoo
+created_utc: 1785757020
+edited: false
+body:
+coldcard is NOT open source. 
+
+comment: p1fh2la
+parent: t3_1ve5jyc
+author: user_name_checks_out
+created_utc: 1785757686
+edited: false
+body:
+> Since Coldcard is open source, 
+
+Coldcard is not open source.
+
+comment: p1fleht
+parent: t3_1ve5jyc
+author: AcostaJA
+created_utc: 1785759240
+edited: false
+body:
+There are no standardized RNG validation test, neither mandatory.
+
+comment: p1fmmd6
+parent: t3_1ve5jyc
+author: charonme
+created_utc: 1785759660
+edited: false
+body:
+people say that there was no bounty or no incentive, but some incentive was there as soon as people put enough of their funds on addresses generated by those devices
+
+comment: p1fon3z
+parent: t1_p1elbqk
+author: OccasionNew3198
+created_utc: 1785760337
+edited: false
+body:
+Never heard of it...ledger...then heard it's a scam/sell your data. Tezor then...still good...and the one Dorsey created...i tried to set it up...failed...bah...i never bought...still using currencies...wait it's called fiat here.
+
+comment: p1fqy21
+parent: t3_1ve5jyc
+author: ineedanamegenerator
+created_utc: 1785761086
+edited: 1785762176
+body:
+As a business owner and embedded engineer who could have developed such a device I can give you my 2 cents:
+
+Catching this issue just by looking at the code is not trivial. But knowing what the function of the device is, it's one of the thing you would pay extra attention to if you were to do a proper reviews. Seems nobody ever did.
+
+I'm giving it 50/50 chance someone at Coinkite knew about this (based on nothing but my gut feeling). There are really no good options here. Communicate it and the flaw is in the open. Silently fix it and someone might notice and it'll blow up. Secretly contact users (if they even can) and only one of them has to be malicious and abuse it. The pain and cost of fixing it is also real (lots of transactions needed). They chose hopes and prayers.
+
+Edit: just read a fairly good option if they knew: wipe the accounts themselves to a safe wallet. Return the funds when the owner can produce the physical device. Not great, but a whole lot better than the current shitshow.
+
+This is 100% on Coinkite. It is inexcusable that this was not caught by their QA. A feature this important should be automatically tested in each release.
+
+Second, bad engineering. Everyone knows using the time (and especially time since boot) adds no worthy entropy. So the right thing to do is to not use it at all because you want potential issues like this to fail fast and in an obvious way. If they skipped the worthless entropy this issue would have been caught much earlier. 
+
+Third, there shouldn't have been an option to rely only on "internal" entropy. The device should have enforced external entropy to be added. Anything else is bad design.
+
+Summary: incompetence rules the world.
+
+comment: p1fr3w0
+parent: t1_p1eiqix
+author: Laukess
+created_utc: 1785761138
+edited: false
+body:
+Ledger used a $200k+ laser to extract the keys off of a CC secure element in 2020.   
+Clearly some researchers cared.
+
+comment: p1fsaox
+parent: t3_1ve5jyc
+author: bobivy1234
+created_utc: 1785761516
+edited: 1785761772
+body:
+Advice for the future is always use external entropy sources (dice, etc.) and long passphrases as that should be the general best practice setup of the seed anyway which would've avoided this whole issue.
+
+Single points-of-failure are bad so in this case the device RNG was incorrectly called to default back to software RNG but even if the device RNG was perfectly coded, that shouldn't be your only source of randomness.  Paranoia is a good thing and also why things like multi-factor authentication (MFA) is an industry standard for combining 'what you know' aka password + 'what you have' aka one-time token.  Same idea can be applied to 'multi-source randomness'.  CC screwed up bad by allowing anyone to use the device RNG only with no passphrase.
+
+Also this exploit was probably found years ago, its been in the code for 5.5 years.  Assume that an attacker has been crafting this for a while and just detonated it a few days ago after the balances were at a high enough level.
+
+comment: p1fsbva
+parent: t1_p1fr3w0
+author: FunnyAtmosphere9941
+created_utc: 1785761527
+edited: false
+body:
+Its not the same. I had on mind Independent researches that live off bugs bouties. This are most experienced ppl out there when it comes to finding bugs. 
+
+comment: p1ftfop
+parent: t3_1ve5jyc
+author: CynicInRehab
+created_utc: 1785761876
+edited: false
+body:
+Really bad documentation as well.
+
+comment: p1fu664
+parent: t1_p1fsbva
+author: Laukess
+created_utc: 1785762106
+edited: false
+body:
+I agree that not having a bug bounty program decreased the number of independent security researchers looking at their product. 
+
+you said "So no researcher cared", which is what I was trying to correct. 
+
+comment: p1fw13h
+parent: t3_1ve5jyc
+author: sentientchimpman
+created_utc: 1785762679
+edited: false
+body:
+So Coldcard was shilled confidently by thousands of people based on nothing more than reputation. What happened to, “Don’t trust, verify? “
+
+comment: p1fynks
+parent: t1_p1elbqk
+author: B1TB0TB33PB00P
+created_utc: 1785763465
+edited: false
+body:
+"THE premium, top of the line..."?  Since when?
+
+comment: p1g197m
+parent: t1_p1fynks
+author: ptrnyc
+created_utc: 1785764224
+edited: false
+body:
+It was praised countless times in this very community, and by many YouTube crypto reviewers.
+
+comment: p1g5eog
+parent: t3_1ve5jyc
+author: habbadee
+created_utc: 1785765400
+edited: false
+body:
+The issue was pretty subtle.  Essentially it asked "If x is defined" when it should have been "if x equals 0"
+
+comment: p1g8aqg
+parent: t3_1ve5jyc
+author: bryanchicken
+created_utc: 1785766207
+edited: false
+body:
+Finding bugs is not particularly easy most of the time. This one wouldn’t even cause unwanted behaviour in the way the device operates.   
+It took AI, I believe, to find it
+
+comment: p1g8vr8
+parent: t1_p1fqy21
+author: tenuousemphasis
+created_utc: 1785766370
+edited: false
+body:
+ It's worse. There was a rush to redevelop parts of the code to change the license when a competitor forked their code and made a nicer wallet. It was during this rush that the bug was introduced.
+
+https://insider.btcpp.dev/p/when-randombytes-runs-but-doesnt
+
+comment: p1g9leq
+parent: t1_p1ee49w
+author: tenuousemphasis
+created_utc: 1785766567
+edited: false
+body:
+This bug was introduced in a big rewrite to move to a new license, because a competitor forked their code and made a product with it.
+
+comment: p1gaarm
+parent: t1_p1g8vr8
+author: ineedanamegenerator
+created_utc: 1785766762
+edited: false
+body:
+It's worse in a way that greed led to them breaking something that wasn't broken. But I don't think their decision was bad on itself (it's a fair  business decision to make).
+
+Rushing it and ultimately destroying the company (which I assume is what will happen now) was again a very bad decision. More of the same incompetence.
+
+comment: p1gdqaa
+parent: t1_p1f6kdb
+author: Sproutlee_Dev
+created_utc: 1785767687
+edited: false
+body:
+You could even argue that having the code available publicly is what led to the bad actors finding the bug in the first place. If it was completely closed source this bug may have gone unnoticed indefinitely.
+
+comment: p1ggjfh
+parent: t1_p1gdqaa
+author: oaga_strizzi
+created_utc: 1785768432
+edited: false
+body:
+LLMs nowadays can read machine code almost as well as if it was source code. 
+If you can get an executable, it is practically open source for any attackers.
+
+e.g. Kimi K3 can even write cracks and remove DRM for a lot of commercial software without much human guidance, just by letting it analyze the .exe.
+
+comment: p1gtudr
+parent: t1_p1g197m
+author: B1TB0TB33PB00P
+created_utc: 1785771899
+edited: false
+body:
+I don't think that makes it "THE premium, top of the line".  Reddit and YouTube users promote all sorts of garbage.
+
+comment: p1gw6rs
+parent: t1_p1ef2bt
+author: Strong_Judge_3730
+created_utc: 1785772494
+edited: false
+body:
+It was open source because it was forked from trezor and modified. They wanted to build more features and didn't want anyone to have those features. Probably more security theatre bullshit.
+
+In order to remove the GPL license the had to rewrite a lot of their code
+
+https://www.reddit.com/r/Bitcoin/s/AKi7GJYRgu
+
+It was this refactoring that caused the defect.
+
+An OSS license doesn't guarantee a bug like this will be found. Typical you would fork their firmware if you are going to have a similar architecture to them and if it's start-ups doing it they might just inherit the same flaw.
+
+comment: p1gwq43
+parent: t1_p1fynks
+author: unshak3n
+created_utc: 1785772632
+edited: false
+body:
+It really was...  You can just research any btc influencer or this sub. It was the state of the art.
+
+comment: p1h4t1m
+parent: t1_p1elbqk
+author: EconomyDoctor3287
+created_utc: 1785774668
+edited: false
+body:
+Maybe the most shilled one, but definitely on the low end of actual usage, with most people staying with Ledger, Trezor, etc.
+
+comment: p1h4yup
+parent: t3_1ve5jyc
+author: Forsaken_Rip208
+created_utc: 1785774709
+edited: false
+body:
+Because no one reviews open source software. 
+
+comment: p1h5q5x
+parent: t3_1ve5jyc
+author: Cold_Huckleberry_633
+created_utc: 1785774898
+edited: false
+body:
+The algorithm was completely fine, the bug was that it was accidentally not being used
+
+comment: p1haiby
+parent: t1_p1elbqk
+author: ByWillAlone
+created_utc: 1785776084
+edited: false
+body:
+The afflicted coldcard mk3 was released in summer 2019 - almost 2 years before the compromised code update was pushed out.
+
+It's very possible that researchers did audit the code and independently verify the integrity of their product at that time. It's even possible that independent auditing occurred over the first several updates.
+
+comment: p1hp58o
+parent: t1_p1elbqk
+author: Javanaut018
+created_utc: 1785779669
+edited: false
+body:
+Year, their marketing was top of the line apparently...
+
+comment: p1hup7z
+parent: t1_p1elbqk
+author: doctrgiggles
+created_utc: 1785781076
+edited: false
+body:
+Anyone that harbored doubts would have just used the dice. Kind of a perfect storm if you ask me.
+
+comment: p1huumn
+parent: t1_p1elbqk
+author: Timely-Fig2030
+created_utc: 1785781114
+edited: false
+body:
+Welcome to the "wonderful world" of influencers.  
+Clueless influencers endorse things they are clueless about and get pushed up by the algorithm of Musk's X.
+
+comment: p1hyvhc
+parent: t1_p1egyxu
+author: fresheneesz
+created_utc: 1785782155
+edited: false
+body:
+Open source doesn't mean immune. But if its actually open source and many companies actually rely on the code, there's a much much better chance of things getting caught. Single points of failure are deadly in computer security. 
+
+comment: p1hyz3w
+parent: t1_p1eia5f
+author: fresheneesz
+created_utc: 1785782182
+edited: false
+body:
+> now we see we can not trust even the opensource projects
+
+What about "cold card was not open source" do you not understand?
+
+comment: p1hzcgn
+parent: t1_p1fw13h
+author: fresheneesz
+created_utc: 1785782278
+edited: false
+body:
+Saying people "shilled" coldcard as if it was a scam is absolutely stupid. Coldcard was respected for good reason. I don't know why you think every possible vulnerability is easy to spot. Coldcard massively fucked up on something they should have been on top of, but it was not an easy thing for others to verify. Especially when they stopped being open source, so that the experts who work on these things no longer had any reason to keep up with their source code. 
+
+comment: p1i39tg
+parent: t1_p1elbqk
+author: bitplenty
+created_utc: 1785783290
+edited: false
+body:
+no it wasn't. there is Trezor (first hw wallet, open source, known and trusted founder), there is Ledger (very popular and also mostly fine, I guess), and there's some other obscure wallets (this is the category where coldcard always belonged)
+
+comment: p1i5lfu
+parent: t1_p1hzcgn
+author: sentientchimpman
+created_utc: 1785783885
+edited: false
+body:
+No, it was in fact respected for bad reasons. 
+
+comment: p1idzq8
+parent: t3_1ve5jyc
+author: Londonskaterboi
+created_utc: 1785786093
+edited: false
+body:
+they've know about the bug for years but did nothing except suppress customers complaining about loosing funds. at this point i believe it was at best gross negligence but everything is pointing towards an inside job.
+
+comment: p1ikk72
+parent: t1_p1i5lfu
+author: fresheneesz
+created_utc: 1785787820
+edited: false
+body:
+Could you elaborate?
+
+comment: p1j6sc9
+parent: t1_p1ikk72
+author: sentientchimpman
+created_utc: 1785793825
+edited: false
+body:
+It was a bad product with a critical flaw that became popular based on hype, not from any intrinsic positive qualities. 
+
+comment: p1jhbvh
+parent: t1_p1elbqk
+author: Pale_Illustrator94
+created_utc: 1785796927
+edited: false
+body:
+The problem as we know it exists today is not with coldcard. But, with low entropy in seed generation. This does not impact all users. 
+
+comment: p1jm5i0
+parent: t1_p1elbqk
+author: LuckyWinds
+created_utc: 1785798411
+edited: false
+body:
+Cold card was not THE premium top of the line cold wallet.
+
+comment: p1jmauv
+parent: t1_p1g197m
+author: LuckyWinds
+created_utc: 1785798458
+edited: false
+body:
+So bots and paid influencer reviews?
+
+comment: p1jp04c
+parent: t1_p1j6sc9
+author: fresheneesz
+created_utc: 1785799311
+edited: false
+body:
+And what information 5 years ago would have told you the product had a critical flaw or no "intrinsic positive qualities"? It had design features that exceeded what any other hardware wallet had. It had a good interface. It was originally open source. 
+
+It sounds like have jack shit for reasons for your opinion to be perfectly frank.
+
+comment: p1jtu7p
+parent: t1_p1jp04c
+author: sentientchimpman
+created_utc: 1785800830
+edited: false
+body:
+Do you consider the generation of low-entropy seed phrases a design feature that exceeded what any other hardware wallet had? 
+
+comment: p1kexz3
+parent: t3_1ve5jyc
+author: kotb0614
+created_utc: 1785807741
+edited: false
+body:
+no one is paying attention
+
+comment: p1kkdlw
+parent: t3_1ve5jyc
+author: H8ckt1v1st
+created_utc: 1785809553
+edited: false
+body:
+Because no body read the fucking words on the Coldcard bag - VERIFY - DONT TRUST
+
+comment: p1knqrv
+parent: t3_1ve5jyc
+author: Old_Efficiency2445
+created_utc: 1785810687
+edited: false
+body:
+It was a very tricky bug to find because it was spread across many places 
+
+comment: p1knxcl
+parent: t1_p1fynks
+author: Old_Efficiency2445
+created_utc: 1785810749
+edited: false
+body:
+It was the most complicated and user unfriendly therefore it was secure.
+
+comment: p1ko1jj
+parent: t1_p1ef2bt
+author: Old_Efficiency2445
+created_utc: 1785810789
+edited: false
+body:
+It was open source. You just couldn't take it and sell things with it 
+
+comment: p1krjs5
+parent: t1_p1jtu7p
+author: fresheneesz
+created_utc: 1785812001
+edited: false
+body:
+You're being a fucking jackass
+
+comment: p1lqr0w
+parent: t3_1ve5jyc
+author: joeldg
+created_utc: 1785827050
+edited: false
+body:
+I’d guess it was a Mythos/Fable or Astra model find, and we should expect a lot more in the coming months.
+
+comment: p237jdf
+parent: t1_p1hyz3w
+author: aaj094
+created_utc: 1786033707
+edited: false
+body:
+Okay, so is Trezor fully open source by every standard of what is meant by that?

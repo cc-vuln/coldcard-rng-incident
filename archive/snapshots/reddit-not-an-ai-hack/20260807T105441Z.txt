@@ -1,0 +1,79 @@
+post: 1vh60ct
+author: CBpegasus
+created_utc: 1786026900
+title: It's not an "AI Hack"
+body:
+I've it parroted a lot in the discussion of the ColdCard vulnerability that it was "found by AI". I've seen it being called an "AI hack".
+
+However as far as I can tell there is no real evidence an AI found the vulnerability. I believe the idea it was found by AI originates from CoinKite's disclosure and seems to me like a PR move to save face - make the vulnerability seem more complex than it is, and make it seem like there was nothing they could do.
+
+It's actually a very simple vulnerability. An integration mistake of a kind that happens all the time in C code - incorrect define leads to the wrong function being called. Once you realize what code is actually executed the vuln is trivial.
+
+I'll give to them that it's tricky to notice in static analysis (i.e. just reading the code and analysing it). It's actually part of why I don't think it was found by AI in a straightforward way - i.e. the codebase was fed to an LLM and it output the vuln.
+
+LLM's are fairly good at looking at whole codebases and spotting potential issues, but they make the same mistakes as humans do and if something "looks like" it would work as intended the LLM tends to assume it does. And the code did "look correct" especially with the reassuring comment on the fatal #define (LLMs tend to look at comments as factual unless specifically told otherwise). CoinKite also said they fed the code to "their best AI" not long before the hack and it found nothing. Makes sense then that the hackers probably didn't get much with the "LLM static analysis" strategy either.
+
+However the hackers could get the idea that something is wrong by randomizing many seeds and testing them with traditional RNG tests (I'm pretty certain with the low entropy of Mk3 that they would fail). After that they could do a dynamic analysis of the code (i.e. running it and seeing what actually executes) and that would let them see fairly easily the function that executes is the PRNG function rather than the TRNG.
+
+This process could be "AI assisted" but I doubt it can be fully done by AI, so I don't think it's right to say the vuln was "found by AI" even if some AI was used. And while it is likely some AI was used as basically everyone in the software world uses AI nowadays, there's nothing special in the vuln that required the use of AI to find (which is IMO what's kinda implied with terms like "AI hack"). It's again a very simple vuln that could be found without AI, similar vulns were found by human auditors for decades before AI.
+
+The only conclusion is that before the hackers no one audited this part of the code properly, with or without AI. And likely no one did RNG testing on the whole system. All oversight by CoinKite, especially glaring with some of the claims circulating that they were warned of potential risks with how the RNG library call was structured. It seems that they were the ones using AI which kept them complacent, when some more traditional manual checks could help find the bug.
+
+comment: p22ivip
+parent: t3_1vh60ct
+author: MinimumCourage6807
+created_utc: 1786027448
+edited: false
+body:
+I had to test how hard it is to find for a "small" locally run llm model with a not guiding prompt (in short my prompt was to check the most important functions safety like signing, seed generation etc). So did not tell that there was a flaw and the model found the exact bug with few million tokens in about 15 minutes. So definitely no superintelligence needed for this one. 
+
+comment: p22mnnw
+parent: t3_1vh60ct
+author: ineedanamegenerator
+created_utc: 1786028429
+edited: false
+body:
+The RNG produces random enough values for each of the possible seeds they used. You wouldn't find this from just looking at the RNG output. 
+You would need to run enough sessions to hit a collision which is still kind of hard (about 10M possibilities).
+
+Any AI would have flagged the define that explicitly turns off the TRNG.
+
+My top two theories are:
+- LLM assisted hack by amateurs
+- Goal of the hack is not the coins at all
+
+See my other post, the hackers did very weird/stupid things: https://www.reddit.com/r/Bitcoin/s/sdAUT1bqZB
+
+comment: p22to3m
+parent: t1_p22mnnw
+author: opossum_cz
+created_utc: 1786030223
+edited: false
+body:
+This wasn't found by generating seeds. This was 100% found by somebody noticing the bad macro or disassembling the binary and noticing HW RNG is not even used.
+
+comment: p22utrg
+parent: t1_p22to3m
+author: ineedanamegenerator
+created_utc: 1786030518
+edited: false
+body:
+Agreed.
+
+comment: p251wl4
+parent: t3_1vh60ct
+author: reality_comes
+created_utc: 1786050502
+edited: false
+body:
+The bottom line is, we don't know. Nobody has any clue, so why throw down one way or the other? Why can't people just say, "I don't know."
+
+It could have been AI aided, AI planned, AI discovered, AI without any human, or not AI at all. Nobody knows. 
+
+comment: p27pee4
+parent: t1_p251wl4
+author: CBpegasus
+created_utc: 1786083183
+edited: false
+body:
+That's why it tickles me the wrong way when people talk as if it was definitely found by AI

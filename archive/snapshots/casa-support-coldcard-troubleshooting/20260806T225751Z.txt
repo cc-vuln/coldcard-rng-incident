@@ -1,0 +1,136 @@
+Skip to content
+English
+Show submenu for translations
+More support
+Take control of your digital future.
+Open main navigation
+Close main navigation
+Take control of your digital future.
+English
+Show submenu for translations
+More support
+Search the Help Center
+There are no suggestions because the search field is empty.
+Help Center
+Hardware devices
+Coldcard
+August 6, 2026
+Coldcard troubleshooting
+Coldcard Mk 3+ hardware devices are compatible with Casa multisig vaults.
+⚠️ Security Advisory (Updated August 1, 2026): Coinkite has identified a seed-generation flaw affecting certain Coldcard firmware versions. If you generated your seed on affected firmware, your funds may be at risk. We do recommend replacing this device as soon as you are able.
+Whether you are adding the Coldcard, doing a health check, or sending funds from your Casa vault, it has the unique benefit of offering offline-signing via PSBTs to add a signature to your vault.
+One thing to keep in mind when using your Coldcard is to remember to check for the most recent firmware updates here.
+With Coldcard, the instructions for performing a health check and signing a transaction do differ slightly. See the below articles for the instructions for each function:
+Performing a Health Check with Coldcard
+Signing a Transaction With Coldcard
+Some common Coldcard errors are:
+Failure. My XFP not involved
+Change fraud
+Couldn't find signature
+Failure Invaid PSBT multisig.py 715
+Failure Invalid PSBT multisig.py 716
+Failure XPUBs in PSBT do not match any known wallet
+Error: file must be .psbt
+"Sorry, there was a problem completing your Health Check. Problem Detail: Error. No authorization token was found"
+Failure. My XFP not involved
+Solution: Double-check that the Coldcard is the device used for that vault. If you are performing a key rotation make sure that you are not using the device you marked for replacement to try to sign.
+Change fraud
+There is an issue with the Coldcard firmware where it looks for the OP_CHECKMULTISIG opcode in the redeem script, but can't find it because it isn't taking into account that we use nested segwit (P2SH-P2WSH). It's assuming all addresses are P2SH or P2WSH.
+You can get around this by going to Settings > Multisig Wallets > Skip Checks, and turning that setting on.
+Couldn't find signature
+Solution: Make sure to upload the correct file to confirm this request. It will prompt you with the file name to look for in the error message.
+Failure Invaid PSBT multisig.py 715
+This is shown when you are trying to sign a BTC transaction while in testnet mode or trying to sign a testnet transaction while in BTC mode. Ensure your mode matches your transaction type.
+Advanced > Danger Zone > Testnet or BTC
+Failure Invalid PSBT multisig.py 716
+This is shown when trying to sign a testnet transaction, but the right setting has not been configured. In order to sign for testnet you must do the following:
+In Coldcard settings, select: Advanced > Danger Zone > Have ‘Testnet: BTC’ checked, not ‘Bitcoin’
+Failure XPUBs in PSBT do not match any known wallet
+This is shown if "Trust PSBT" is not enabled.
+In Coldcard settings, select Multisig Wallets > Trust PSBT and select "Trust PSBT."
+If you've tried the above steps and are still having issues, please reach out to our support team, and we're happy to assist.
+Error: file must be .psbt
+You are likely on Windows and have Sparrow installed. You must either uninstall Sparrow temporarily or use a Mac.
+Sorry, there was a problem completing your Health Check. Problem Detail: Error. No authorization token was found
+Expired link. Try the health check or the transaction again.
+Getting Started
+Getting Started with 3 key vault
+Getting Started with 5 key vault
+Using the Casa app
+Find what you need
+Casa basics
+Key Management
+Depositing funds
+Sending funds
+Switching to a new phone
+Advanced Options with the 3-key vault
+Open-Source Integrations
+Premium features
+Emergency Lockdown
+Ethereum Relay & Fees
+Security Features
+Sovereign Recovery
+Memberships, Accounts, and Billing
+Membership levels
+Membership payments
+Other account questions
+Inheritance
+Inheritance Overview
+Vault Owners
+Recipient
+Hardware devices
+General information
+Trezor
+Ledger
+YubiKey
+Coldcard
+Passport by Foundation
+Keystone
+Educational Resources
+Threats and Scams
+Account Security
+Physical Security and Storage
+Privacy
+Bitcoin FAQ
+Ethereum FAQ
+Retirement accounts
+Ordinals and inscriptions
+Node Recovery
+Partnerships
+Financial Tools
+Privacy Tools
+Contact Support
+Organizations
+Business
+Enterprise
+Financial Services
+Getting started with Buy/Sell
+Funding your account
+Buying, selling & transferring crypto
+Casa Financial OTC Desk
+Troubleshooting
+Take control of your digital wealth.
+Casa Help Center Footer
+↓ Footer Preview ↓
+Still need help?
+Our support team is available to assist with your Casa account.
+Contact Support →
+Take control of your digital wealth. Self-custody Bitcoin security for individuals and institutions.
+Help Topics
+Getting Started
+Using Casa App
+Hardware Devices
+Inheritance
+Educational Resources
+Account
+Memberships & Billing
+Organizations
+Partnerships
+Financial Services
+Casa
+casa.io ↗
+Blog
+Submit a Ticket
+Copyright © 2026 Casa, Inc. All rights reserved.
+Privacy Policy
+Terms of Service

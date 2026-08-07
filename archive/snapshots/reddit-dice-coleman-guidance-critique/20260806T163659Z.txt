@@ -1,0 +1,143 @@
+post: 1vg0lxz
+author: baddabaddabing
+created_utc: 1785915651
+title: Did some checking on seed generation by dice on Coldcard vs. Ian Colemans Mnemonic Code Converter and have some questions. Coldcard might reduce your security by missleading guidance!
+body:
+So Coinkite guidance displayed on the display is: "... each roll adds only 2.585 of entropy. **For 128-bit security, which is considered the minimum, you need 50 rolls,** and for 256-bits of security, 99 rolls."
+
+They let you press the buttons 1-6 (and only those) for each roll. So you can only use a D6. If you did it 50 times, you think you did the minimum to have 128-Bit security.
+
+Here are my questions:
+
+* The 2.585 entropy per roll are based on entropy values 0-9 (base 10), right?
+* If I limit the entropy values to 1-6 (D6 dice) I introduce a massive bias, right?
+* Is it fair to assume that the resulting entropy is just 1.67 per roll?
+* **Is my ColdCard dice genrated seed realy secured by the minimum 128 bit, or more like with just 84 bits?**
+
+Look, I'm no expert, indeed hope I'm wrong. 
+
+UPDATE: I was wrong - see below.
+
+comment: p1t996o
+parent: t3_1vg0lxz
+author: twitch-switch
+created_utc: 1785915963
+edited: false
+body:
+I rolled over 170 times, am I OK?
+
+comment: p1t9j3z
+parent: t3_1vg0lxz
+author: infernal_celery
+created_utc: 1785916098
+edited: false
+body:
+The entropy comes from log2(6) =2.585.
+
+The D6 element is taken into account 
+
+comment: p1t9p0h
+parent: t1_p1t996o
+author: baddabaddabing
+created_utc: 1785916178
+edited: 1785925292
+body:
+solid!
+
+comment: p1tawnl
+parent: t1_p1t9j3z
+author: GodsMoney_Ape
+created_utc: 1785916769
+edited: false
+body:
+This is the correct answer. 
+
+comment: p1tbldm
+parent: t3_1vg0lxz
+author: Wolffco
+created_utc: 1785917106
+edited: false
+body:
+Coldcard uses SHA256 of all dice inputs combined, not per-roll entropy math. The display warning is conservative guidance, not the actual calculation method.
+
+comment: p1tkfth
+parent: t3_1vg0lxz
+author: Dettol-tasting-menu
+created_utc: 1785921426
+edited: false
+body:
+2.585 entropy is correct for D6. 
+
+Iirc a 10-faced dice would give about 3.3 entropy. 
+
+comment: p1ts9js
+parent: t1_p1t9j3z
+author: baddabaddabing
+created_utc: 1785925073
+edited: 1785925507
+body:
+Thanks!
+
+The **binary logarithm** was the missing piece for me.
+
+So 50 rolls x 2.585 = 129,25bit which is above minimum of 128.
+
+For a D10 its would be log2(10)=3.3219 etc...
+
+I guess I got confused by the representation of entropy in Ian Colemans tool.
+
+comment: p1tscj5
+parent: t1_p1tkfth
+author: baddabaddabing
+created_utc: 1785925109
+edited: false
+body:
+Got it, thanks.
+
+comment: p1txq8g
+parent: t1_p1t996o
+author: Ok-Pea4148
+created_utc: 1785927380
+edited: false
+body:
+You don't gain anything after the 100th roll. Bitcoin key space has size 2^256 only, so 256 bits of entropy. Rolling 170 times gave you 439 bits of entropy, but that got reduced to 256 bits because the entropy is bounded by the size of the key space 
+
+comment: p1uj3qk
+parent: t1_p1t996o
+author: newMoneyStyle
+created_utc: 1785934776
+edited: false
+body:
+170 rolls should give you way more than enough entropy for 24 words. You're fine. 99 rolls is the minimum for 256 bits iirc, so you're well past that.
+
+comment: p1ungoj
+parent: t1_p1ts9js
+author: infernal_celery
+created_utc: 1785936066
+edited: false
+body:
+Some of the explanations are a little ropey and to be fair most log are log10 so I get you
+
+comment: p1v5r88
+parent: t3_1vg0lxz
+author: na3than
+created_utc: 1785941035
+edited: false
+body:
+What question do you have about Ian Colemans Mnemonic Code Converter? You name it in your title but say nothing about it in the body of your post.
+
+comment: p21s8lb
+parent: t1_p1t9j3z
+author: orbag
+created_utc: 1786020004
+edited: false
+body:
+I think it depends on the algorithm , eg ian colemans algorithm only gives 2 bits of entropy per dice roll
+
+comment: p21su9u
+parent: t1_p1uj3qk
+author: orbag
+created_utc: 1786020191
+edited: false
+body:
+It depends on which tool you used, if you use Ian Colemans tool you need to roll at least 160 times for a 24 word seed

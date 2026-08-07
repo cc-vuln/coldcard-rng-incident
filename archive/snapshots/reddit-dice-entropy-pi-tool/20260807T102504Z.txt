@@ -1,0 +1,97 @@
+post: 1vgvt2j
+author: fanatic75
+created_utc: 1785996099
+title: Got paranoid after the Coldcard entropy thing, built a tiny dice→BIP39 tool for Pi Zero + Waveshare
+body:
+After the Coldcard seed/entropy incident I kind of lost it a bit. Not in a “throw everything away” way, more like: I don’t want my seed randomness living or dying on one vendor’s firmware RNG ever again if I can help it. Dice-only (or at least dice I can verify myself) suddenly felt a lot less optional.
+
+Coldcard’s own docs already push verifying dice math offline (Tails etc). Same idea as SeedSigner’s dice flow. I tried the usual path — Ian Coleman in Hex mode — and I just don’t feel safe doing that on a normal computer. Even “offline.” Too much leftover junk on a PC. Tails is fine, but then you’re still dragging a laptop around for something that should be stupidly simple: roll dice → get words.
+
+I already had a Pi Zero and a Waveshare 1.3" 240×240 sitting around. No camera, no fancy enclosure. I wasn’t trying to build a full signer. I just wanted seed generation / cross-check with as few dependencies as possible.
+
+So I put together:
+
+dice-entropy — physical d6 rolls → BIP-39 (50 rolls = 12 words, 99 = 24). Same math SeedSigner uses for dice, compatible with Ian Coleman Hex / Base 10 (not their “Dice \[1-6\]” mode). Core conversion is Python stdlib only.
+
+dice-entropy-os — minimal Buildroot image that boots straight into the Waveshare UI. No networking stack on purpose. Prefer building it yourself; I’ll also drop `.img` files on releases when the build finishes.
+
+Repos:  
+[https://github.com/fanatic75/dice-entropy](https://github.com/fanatic75/dice-entropy)  
+[https://github.com/fanatic75/dice-entropy-os](https://github.com/fanatic75/dice-entropy-os)
+
+This is a personal paranoia project, not a company, not audited, not a wallet. If you lose money using random GitHub stuff that’s on you — seriously. Use the published test vectors first. Build your own image if you can.
+
+Happy to take criticism on the approach, the docs, or dumb assumptions I made. Especially from people who already do dice → BIP39 verification the hard way.
+
+comment: p20edox
+parent: t3_1vgvt2j
+author: SpareEconomy1849
+created_utc: 1785998350
+edited: false
+body:
+How does this generate entropy?
+
+comment: p20ev8t
+parent: t1_p20edox
+author: fanatic75
+created_utc: 1785998581
+edited: false
+body:
+If you have a pi zero and wave share lcd (you can flash this image into your raspberry pi and roll some dice) - when you enter your dice inputs all 99 of them - this will give you 24 words(your seed phrase)
+
+The benefit is basically you doing this on a pi zero which is an easier way to air gap a device than a pc
+
+comment: p20h7a8
+parent: t3_1vgvt2j
+author: Thin_Needleworker795
+created_utc: 1785999686
+edited: false
+body:
+If someone has a Pi Zero and Waveshare, they might as well just build a SeedSigner instead.
+
+comment: p20j2hc
+parent: t1_p20h7a8
+author: fanatic75
+created_utc: 1786000588
+edited: false
+body:
+Yes that’s true however two things to mention here 
+
+1. I don’t wish to complicate things. This is only meant for generating seed words using dice roll or coin toss( coin toss is not yet implemented in seedsigner)   
+2. I am implementing Ian Coleman’s Bip-39 usage without any external deps and only python Stdlibs. 
+
+comment: p20og4m
+parent: t1_p20ev8t
+author: SpareEconomy1849
+created_utc: 1786003269
+edited: false
+body:
+Oh I see, I thought it was a dice simulator. This is cool, thanks!
+
+Does it work for other raspberry pis too, or just zero?
+
+comment: p20qtdz
+parent: t3_1vgvt2j
+author: JumpProfessional3372
+created_utc: 1786004467
+edited: false
+body:
+Fair enough, nothing better than using your own code.
+
+If you try coldcard [rolls.py](https://coldcard.com/docs/rolls.py) do you get the same results as when using SeedSigner or Coleman? 
+
+comment: p20s509
+parent: t1_p20og4m
+author: fanatic75
+created_utc: 1786005130
+edited: false
+body:
+As of yet I have only kept this for zero since I only have zero with me 
+
+comment: p24xwil
+parent: t3_1vgvt2j
+author: Quirky-Reveal-1669
+created_utc: 1786049439
+edited: false
+body:
+Why is everyone so obsessed with “the trouble of” physical D6 dice rolls? It is not a big deal, and if you do it right, you don’t have to do it again for decades. And it is kind of fun, thinking about entropy, and the physical, human and digital element to it.  

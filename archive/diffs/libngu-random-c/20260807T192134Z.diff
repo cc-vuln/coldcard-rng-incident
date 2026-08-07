@@ -1,0 +1,11 @@
+--- libngu-random-c@20260806T162626Z
++++ libngu-random-c@20260807T192134Z
+@@ -24,7 +24,7 @@
+ extern uint32_t rng_get(void);
+ # define CHIP_TRNG_SETUP()
+ # define CHIP_TRNG_32()         rng_get()
+-# if MICROPY_HW_ENABLE_RNG == 0
++# if MICROPY_HW_ENABLE_RNG == 0 && NGU_STM32_EXTERNAL_RNG_GET != 1
+ # error "get a HW TRNG plz"
+ # endif
+ #endif

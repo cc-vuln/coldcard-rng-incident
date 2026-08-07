@@ -1,0 +1,204 @@
+post: 1vbnbxn
+author: Intelligent_Map_246
+created_utc: 1785494423
+title: Ccq risk
+body:
+Last years firmware with dice rools and trng combined with passphrase.  Is that enough?
+
+comment: p0uwwmw
+parent: t3_1vbnbxn
+author: NiagaraBTC
+created_utc: 1785499085
+edited: false
+body:
+Should be okay so don't panic
+
+If your passphrase is very strong you'll be fine but keep monitoring the situation.
+
+comment: p0uzady
+parent: t1_p0uwwmw
+author: Intelligent_Map_246
+created_utc: 1785499894
+edited: false
+body:
+So without phrase and only using 50 tools with a simple dice?
+
+comment: p0v0ogv
+parent: t3_1vbnbxn
+author: Makunouchiipp0
+created_utc: 1785500353
+edited: false
+body:
+Did you roll 99 times?
+
+comment: p0vb1ea
+parent: t1_p0uzady
+author: NiagaraBTC
+created_utc: 1785503549
+edited: false
+body:
+50 rolls with any dice is almost certainly good enough.  
+
+To be entirely honest if I had a ColdCard seed made with anything less than 100 rolls I would be moving to a new secure wallet with a STRONG passphrase asap. 
+
+comment: p0xgmq7
+parent: t3_1vbnbxn
+author: Charming-Designer944
+created_utc: 1785523880
+edited: false
+body:
+Dice rolls alone avoids the mk3 vulnerability.
+
+
+
+comment: p0xv52d
+parent: t1_p0vb1ea
+author: Intelligent_Map_246
+created_utc: 1785527777
+edited: false
+body:
+Would you still use the cc if wallet was made on another wallet?
+
+comment: p0xvg51
+parent: t3_1vbnbxn
+author: Intelligent_Map_246
+created_utc: 1785527860
+edited: false
+body:
+Prefer dice rolls only or combined with trng?
+
+comment: p0xvwhy
+parent: t1_p0vb1ea
+author: Mission-Disaster-447
+created_utc: 1785527983
+edited: false
+body:
+coldcard enforces 99 rolls if you use 24 words. This assumes a perfect dice. If your dice is not perfect you will not achieve 256 bits of entropy with 99 dice rolls. I have used AI to calculate the entropy of my dice an the AI recommended at least 140 dice rolls because my dice wasn't very good. I went above and beyond that number to be sure.
+
+According to the code review of my AI Coldcard only refuses the dice rolls if one number exceeds 30% of all numbers. That limit is far too high. If your dice gives you the same number 22% of the time you only get like 180 bits (out of the max 256) of entropy with 99 rolls.
+
+I just love AI for what it can do. I would never be able to do these calculations on my own.
+
+comment: p0xwfyr
+parent: t1_p0xv52d
+author: NiagaraBTC
+created_utc: 1785528130
+edited: false
+body:
+If the key was made on another wallet yes the cc is fine. Nothing wrong with the hardware, actually. 
+
+This is still a good time to learn how a passphrase works and make a strong one to create a new wallet. 
+
+comment: p0xx15n
+parent: t1_p0xvwhy
+author: NiagaraBTC
+created_utc: 1785528290
+edited: false
+body:
+Note that 128 bits of entropy is enough for a secure Bitcoin seed. 
+
+And how would you know your dice "aren't very good" unless you tracked 300+ rolls before doing your 100 rolls anyway?
+
+Your dice need to be extremely (noticably) bad to make 99 rolls not enough. 
+
+comment: p0xxa35
+parent: t1_p0xx15n
+author: Mission-Disaster-447
+created_utc: 1785528358
+edited: false
+body:
+I did over 400 rolls to test my dice. I am not fooling around here.
+
+comment: p0xxim4
+parent: t1_p0xxa35
+author: NiagaraBTC
+created_utc: 1785528424
+edited: false
+body:
+Better safe than sorry!
+
+comment: p0xxtux
+parent: t1_p0xvwhy
+author: Intelligent_Map_246
+created_utc: 1785528510
+edited: false
+body:
+Did cc.enforce 99 rolls.with 24 words with.trng ? I don't think so.  It's just a counter 
+
+comment: p0xz7js
+parent: t1_p0xxtux
+author: Mission-Disaster-447
+created_utc: 1785528885
+edited: false
+body:
+Well, that is also something that the AI code review told me: If you choose the 24 word dice option, the cc only uses your dice rolls for entropy. If you choose the 24 word option and then press 4 to "add some entropy with dice" cc combines the random number generator with the dice rolls. this gives you the best of both worlds. If either your dice or the rng is faulty, you still have some entropy from the other one.
+
+comment: p0y0m96
+parent: t1_p0xxim4
+author: Mission-Disaster-447
+created_utc: 1785529264
+edited: false
+body:
+right? I'd rather invest 45 minutes of my life in dice rolls than lose all my funds.
+
+comment: p0yeuxi
+parent: t1_p0xz7js
+author: Intelligent_Map_246
+created_utc: 1785533231
+edited: false
+body:
+That's what I did. But I think I only did 50 rolls.  Still good anyway.  But thinking of generating seed on another device.  I wonder how many will truat cc even with the new update. 
+
+comment: p0yexj1
+parent: t1_p0v0ogv
+author: Intelligent_Map_246
+created_utc: 1785533252
+edited: false
+body:
+50
+
+comment: p0yf34y
+parent: t3_1vbnbxn
+author: ardevd
+created_utc: 1785533297
+edited: false
+body:
+If you used dice rolls you should be okay. However, if its life changing funds you have on that wallet I would migrate just to be safe
+
+comment: p0ygmx8
+parent: t1_p0yf34y
+author: Intelligent_Map_246
+created_utc: 1785533750
+edited: false
+body:
+Outside cc for good.  Or back again.  Don't know if new fw is to be trusted 
+
+comment: p10opji
+parent: t3_1vbnbxn
+author: randousername888
+created_utc: 1785562555
+edited: false
+body:
+isnt the dice roll calc method the same no matter whether you use coldcard or a site like https://iancoleman.io/bip39/?
+
+i.e. if i put the same 100 rolls results into the website, it will give me the same 24 word seed phrase as the cold card will do when i give it the results of the 100 rolls?
+
+so should be secure assuming your dice rolls weren't entered into any other device (like this website).
+
+as i understand it, passphrase adds security if someone were to identify your 24 seed words...  
+
+comment: p11imjv
+parent: t1_p10opji
+author: Intelligent_Map_246
+created_utc: 1785577516
+edited: false
+body:
+Yes. Always double check 
+
+comment: p27jsrm
+parent: t1_p0xx15n
+author: Geekdratic
+created_utc: 1786080674
+edited: false
+body:
+Also, maybe this not how it works and this is just a weird thought, but can't imperfection itself bring a form of entropy? at least as long as its not the exact same imperfection?

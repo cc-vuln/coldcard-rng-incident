@@ -1,0 +1,119 @@
+Sign in
+Subscribe
+Home
+Tornado Cash
+Samourai Wallet
+Blockchain Analysis
+Policy
+Donate
+Home
+Tornado Cash
+Samourai Wallet
+Blockchain Analysis
+Policy
+Donate
+Sign in
+Privacy Policy
+Subscribe to Our Newsletter
+Subscribe
+Success! Now Check Your Email
+To complete Subscribe, click the confirmation link in your inbox. If it doesn’t arrive within 3 minutes, check your spam folder.
+Ok, Thanks
+Bitcoin
+Everything You Need to Know About the COLDCARD Hack
+How a dismissed reddit post turned out to be the start of the largest self-custody theft in Bitcoin's history: How it happened, and what you can do if you're affected.
+by
+L0la L33tz
+Updated
+August 03, 2026
+Link copied!
+Copy failed!
+If you are an affected user, do not dispose of your COLDCARD device. The UID that generated the seed might be used to help identify you as a rightful owner if funds are recovered. If you use COLDCARDs as the majority of devices in your multi-signature setup, only move funds via private mempool services such as Slipstream to avoid your transactions being sniped. For more information, jump to the "You're Affected – What Now?" and "Chances of Recovery" sections of this article.
+On July 30th, a Reddit user posted in panic to the message board that one of their wallets – left untouched since 2021 – had been drained for roughly 0.8 BTC. "I haven’t done anything since creation except sending into the wallet," the user wrote.
+"I'm hearing a potential issue with some Coldcard wallets being drained," Kevin Loaec of the Bitcoin security firm Wizard Sardine posted on X. "I will not FUD, but would like to get at least reports of trusted people." Throughout the day, more and more reports of affected users started rolling in.
+"There is no need to panic, someone loaded a bad seed into a COLDCARD and/or leaked their seed," Rodolfo Novak, founder of COLDCARD manufacturer Coinkite, posted on X. The post has since been deleted. "That post is wrong," Novak, better known as NVK, explained. Since Thursday, over 1,000 BTC worth more than $100 Million Dollars have been drained from COLDCARD devices.
+Researchers at Block, part of Jack Dorsey's Square, were quick to identify the issue. While implementing a new Random Number Generator (RNG) in 2021, COLDCARD engineers disabled the very feature that was meant to retain randomness from the device's hardware, causing random number generation to fall back to the software library – resulting in not creating enough entropy to be secure.
+Anyone with some compute is now able to recreate a COLDCARD wallet's seed. In total, four waves of suspected drainages have been identified over the past four days.
+Is The State Department Really Building “Freedom Tech”?
+It appears that depends on whose freedom you’re talking about.
+The RageL0la L33tz
+You're Affected – What Now?
+If you are a COLDCARD user and are fortunate enough to not yet have been targeted for a drain, move your funds immediately to another device with high transaction fees to be included in the next possible block.
+When moving your funds to a new wallet, make sure that you are using legitimate software. An app being featured in an official app store, such as Apple or Android, gives no guarantee of the software's legitimacy. To be sure, navigate to the software's official X profile, and only download software from links or sources on the project's website. Make sure to check follower counts, and match the website to other officially available sources, such as a project's GitHub page.
+If you are using COLDCARDs as part of your multi-signature setup, and COLDCARDs compose a signing majority of the wallet, only move funds by utilizing a private mempool service, such as Marathon Mining's Slipstream, who are waving all fees on their service for the foreseeable future. This keeps attackers from learning your complete multi-signature setup, which enables them to doublespend your transactions in the mempool before confirmation, diverting them to their own addresses.
+If you do not have access to your COLDCARD device, ask trusted persons to locate your device and move your funds for you. Alternatively, ask the person to send a picture of your seed via Signal messenger to move the funds yourself.
+"Don’t have a spare key to your house? Have them smash open a window, or kick down a door," writes Bitcoin influencer American Hodl on X. "You are in a race against motivated and malicious people wanting to steal your wealth. Throw the regular rules out the window and do what you must in order to save your coins. DON'T WAIT."
+Since the original attack, reports have started to come in of COLDCARD wallets being drained that have been protected by so-called pass phrases: a mechanism which adds an extra layer of security to your original Bitcoin seed. All COLDCARDs appear vulnerable depending on how much compute attackers are throwing at the problem.
+Should your wallet already have been drained, do not panic. Immediately check whether the outgoing transactions have already been mined by filling the transaction ID into a public mempool explorer. If the transactions have not yet been mined, move fast to replace the malicious transactions via Replace by Fee (RBF) to re-transfer the funds into your custody.
+If the fraudulent transactions have already been mined, do not dispose of your COLDCARD device that was used to generate the affected seed. The featured UID might be able to be used to determine you as the BTC's rightful owner.
+If any of your coins have been purchased via processes subjected to Know-Your-Customer (KYC), or you have any other documentation over rightful ownership of coins, such as invoices featuring the payout address that can be corroborated by third parties, your BTC can be returned to you in the case of a recovery.
+File a report with your local law enforcement's cybercrime unit, as well as with the FBI's Internet Crime Complaint Center, to document your loss and be eligible for recovered funds.
+French Finance Ministry Sued Over Global Surveillance Database
+The bitcoin exchange Bull Bitcoin is suing the French finance ministry over its implementation of a crypto asset reporting framework that establishes a global surveillance database of cryptocurrency transactions.
+The RageL0la L33tz
+Chances of Recovery
+The chances of recovering at least some of the stolen proceeds appear slim, but not zero. Over the past days, reports have surfaced of white hat hackers taking control of funds with the intention of returning them to their rightful owners.
+While it is unclear whether all waves of attacks have been initiated by the same person, at least some of the attackers do not appear very sophisticated.
+Alex Thorn of Galaxy Research, who has been tracing the money for the past five days following a suspicious pattern – such as exorbitantly high, fixed amount transaction fees, originally identified by Block researchers – has stated to have identified at least one deposit to a cryptocurrency casino site, which he states to have the depositor's identity on file.
+Researchers at Block also state to have found that one of the attackers may have used a paid account at a "well-known blockchain-services provider" – offering another potential avenue to identify the attackers.
+Mined in America Act Would Put Bitcoin Network at Risk
+The bill would effectively turn miners into their own surveillance teams, collecting and reporting information to the government in exchange for economic favoritism.
+The RageShinobi
+How Did We Get Here?
+Over the years, COLDCARD has been one of the few true lovebrands within the Bitcoin-only industry. The devices, designed to look like calculators, could function fully airgapped. Pictures of COLDCARDs along raw meat and guns frequently popped up on the timeline. The devices even featured a designated area to shoot if the wallets were to be discarded.
+If you held anything of your conviction to the Bitcoin-purity team, COLDCARD was the device to secure your wealth – and make you look extremely cool while doing so.
+In hindsight, many now acknowledge that the red flags were there.
+COLDCARD's engineering team is alleged to have stuck to a rather unconventional path of committing changes to the software – including a lack of commit descriptions, as well as the direct commitment to COLDCARD's main repository without standard practice review.
+"Committing direct to main without any peer review" is "acceptable ONLY for a pet project," writes security researcher Taylor Monahan on X. "Not something protecting 9 figures of other people’s fucking money."
+Novak's Coinkite additionally held what appears to be a rather subjective bounty program for vulnerability disclosures – another standard practice in software development – in which the firm explicitly reserved the right to patch vulnerabilities without offering a bounty payout.
+Complicating incentives to review COLDCARD code further was Novak's rather adversarial approach to competitors. After the hardware wallet developer Foundation forked COLDCARD's code to use for their own implementation, Novak decided to remove the project's free and open source (FOSS) license, placing the software instead under a viewable source license.
+But when no one is allowed to use your code, not many have incentives to review it, either.
+The commit message to change COLDCARD's random number generator, changing 1534 lines of code, then features 5 characters and is simply the word “runs,” notes Lightning Developer Dusty Daemon in a write up of the incident.
+But the code could not have run had the software been correctly implemented, Daemon points out. "There is now no way for this code to compile. [...] I assume in a bout of frustration, he set [the random number generator] to 0, which would have resolved the compiler error. [...] Setting [RNG] to zero completely removed the code that used the hardware random number generator."
+"The compiler error was begging the programmer to reconsider his logic," Daemon concludes. "Instead of that happening, the compiler error was just silenced. The compiler was giving the developer one last chance to reconsider what he was about to do, but the alarm was ignored and silenced."
+Developers are now questioning whether COLDCARD has ever initiated a third party security audit on its software. The RNG is "arguably the most important line of code in the firmware," writes the pseudonymous Cashu developer Calle on X.
+"It’d be interesting to know whether Coinkite did have external security audits and what those audits said."
+You can find Coinkite's disclosures here.
+Independent journalism does not finance itself. If you enjoyed this article, please consider making a donation. If you would like to note a correction to this article, please email corrections@therage.co
+by
+L0la L33tz
+Updated
+August 03, 2026
+Link copied!
+Copy failed!
+Subscribe to our Newsletter
+Get all news on financial surveillance and beyond directly to your inbox
+Subscribe
+Success! Now Check Your Email
+To complete Subscribe, click the confirmation link in your inbox. If it doesn’t arrive within 3 minutes, check your spam folder.
+Ok, Thanks
+Latest posts
+Policy
+Is Debanking The New Immigration Policy?
+by
+Nicholas Anthony
+August 06, 2026
+Bitcoin
+Everything You Need to Know About the COLDCARD Hack
+Featured post
+by
+L0la L33tz
+August 03, 2026
+Policy
+Is The State Department Really Building "Freedom Tech"?
+Featured post
+by
+L0la L33tz
+July 30, 2026
+Policy
+Senate Republicans Unveil New Clarity Act Draft
+Featured post
+by
+L0la L33tz
+July 22, 2026
+Copyright ©
+2026
+The Rage. Published with Ghost and
+The Rage.
+Privacy Policy
+Subscribe

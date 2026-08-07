@@ -1,0 +1,382 @@
+post: 1vgto2m
+author: inner_engineering08
+created_utc: 1785989265
+title: The weirdest part of the Coldcard mess: was Peter D. Gray talking to himself through “switck”?
+body:
+I’m not going to re-explain the RNG bug. That part has already been documented. What I want to know is who exactly was behind `switck`, and why this identity existed in the first place.
+
+Someone checked the actual Git signatures in the `switck/libngu` repository. They found **58 commits authored as “Switck” signed with Peter D. Gray’s personal GPG key**. The same key also signed commits under Peter’s real name, with both identities being used during overlapping periods. Unless Peter shared or lost control of his private signing key, the obvious conclusion is that GitHub `switck` was Peter Gray operating under another name.
+
+Now look at the social-media side.
+
+In 2019, switck posted: “#defcon seems like a good time to start a new identity. Follow me!”
+
+https://preview.redd.it/w5rmzok8sohh1.png?width=588&format=png&auto=webp&s=ebe00de9eacaac13e2bdb4aea73ec5eb7401d621
+
+That tweet is real and still online.
+
+Later, the account promoted `switck/libngu`, thanked DocHex for a merge and said the library might someday be useful on Coldcard.
+
+So the account that announced it was starting a “new identity” was apparently Peter’s alias, publicly speaking to Peter’s main identity as though they were two different developers. 
+
+https://preview.redd.it/x33a7a85sohh1.png?width=609&format=png&auto=webp&s=461d44b0b6c4ffe05191c03a2d0dde29d9a47159
+
+The same thing appears on GitHub. `doc-hex` opened issues in the `switck/libngu` repository. In one pull request, `doc-hex` added four commits, then `switck` merged them. GitHub lists **no reviews**.
+
+And this wasn’t some unrelated side project. `switck/libngu` became part of Coldcard. The `switck` account introduced a critical piece of the vulnerable RNG path, and `doc-hex` later integrated libNgU into the Coldcard firmware. Coinkite itself confirms that this migration moved wallet-seed generation onto the wrong RNG implementation.
+
+None of this proves Peter intentionally created the vulnerability, knew it could be exploited or had anything to do with the thefts.
+
+But it is still extremely fucking weird.
+
+Why was a security-critical Coldcard library hosted under a pseudonymous personal account instead of Coinkite or Coldcard?
+
+Did Coinkite know that `switck` and `doc-hex` were apparently the same person?
+
+Why create the public appearance of two developers interacting, submitting code and merging each other’s work?
+
+Who independently reviewed the library and the Coldcard integration if the library author and the person integrating it were apparently using the same private signing key?
+
+And why has Coinkite explained the technical bug without addressing who controlled the `switck` identity?
+
+Peter, if you read this: **was** `switck` **you?**
+
+If it wasn’t, why were dozens of `Switck` commits signed with your personal GPG key?
+
+If it was, why did you publicly talk to that account as though it belonged to someone else? Did NVK and the rest of Coinkite know? Who was actually reviewing your work?
+
+There may be an innocent explanation. But after this code path left customer wallets vulnerable and people lost bitcoin, hiding behind silence is not an explanation.
+
+comment: p1zxzd4
+parent: t3_1vgto2m
+author: tongkat-jack
+created_utc: 1785990928
+edited: false
+body:
+Excellent questions!
+
+comment: p201k2o
+parent: t3_1vgto2m
+author: BigDik6355
+created_utc: 1785992450
+edited: false
+body:
+Geez, this is unfolding like a classic murder story. Was it the butler? The CEO? Or was it the CTO under another name?
+
+Or someone else entirely? The intrigue!
+
+Peter would be very high on the suspect list, that is for sure.
+
+comment: p201u2d
+parent: t3_1vgto2m
+author: eckstuhc
+created_utc: 1785992570
+edited: false
+body:
+There’s a perfectly good explanation for all of your questions. Peter Gray thought he was smart enough to get away with fraud. Spoiler: he is not.
+
+comment: p203ers
+parent: t3_1vgto2m
+author: Appropriate_Comb1486
+created_utc: 1785993269
+edited: false
+body:
+Private key means nothing. Forensically prove it was him posting and I'll buy in. This feels like someone's half baked blackmail attempt that that was involved and isn't getting paid. 
+
+comment: p20483j
+parent: t1_p203ers
+author: OtherwiseAlbatross14
+created_utc: 1785993635
+edited: false
+body:
+Isn't that exactly what signing it with the same private key is? 
+
+Like how they said Craig Wright could prove he was Satoshi by simply signing that claim with Satoshi's private key
+
+comment: p204mm5
+parent: t1_p20483j
+author: Appropriate_Comb1486
+created_utc: 1785993817
+edited: false
+body:
+Yes but reality and a a claim are two different things. Me and you could get together and say you typed this even though it's a reply from my device in my style of writing, unless their is video footage all i see an account logged in under that user id. Not the person who created the account logged in. Code is law but once it hit code all law is gone. 
+
+comment: p20668x
+parent: t3_1vgto2m
+author: junglehypothesis
+created_utc: 1785994523
+edited: false
+body:
+Important questions and the fact we must even ask them at all points to culpability, there’s just not reason for anyone to do this. Plus this may go much deeper than the immediate team, I wouldn’t rule out intelligence agency interference, possible goal to track users.
+
+comment: p206w6z
+parent: t1_p204mm5
+author: jwhendy
+created_utc: 1785994857
+edited: false
+body:
+I don't think this is analogous. They would have to have shared the same computer with access to the same private key file. It's not about imitating wording style, it's about signing using a digital signature that is, indeed, used to unfakeably say "this is exactly who I am."
+
+At the least, if they are not actually the same person, there has been some instance of theft, leak, collusion, and/or deception.
+
+It's more like two police records with different names but the same fingerprint on file.
+
+comment: p206yme
+parent: t3_1vgto2m
+author: circuit_breaker
+created_utc: 1785994887
+edited: false
+body:
+This is all so crazy
+
+comment: p2071c2
+parent: t1_p201u2d
+author: circuit_breaker
+created_utc: 1785994922
+edited: false
+body:
+But why let this bug sit in the open for years? Surely you could have believed someone else would discover it in that time
+
+So much about this doesn't add up
+
+comment: p208fiw
+parent: t1_p2071c2
+author: eckstuhc
+created_utc: 1785995576
+edited: false
+body:
+The initial hack had batched transactions and was sent in 4-5 continuous blocks, which indicates preparation - as opposed to iterating one by one and slowly plucking seed phrases. 
+
+We don’t know how long they were prepared for. The attacker (Peter Gray) could have batched, signed them, and was ready to transmit them at a moments notice - LITERALLY WHAT COLD CARD DOES. 
+
+These could have been identified years ago, and ready to “dump all” as soon as the command is sent. The command could be a deadman’s switch (if I don’t check in every week), or it could be a tripwire (if X amount of these wallets start to get swept, someone else has found the bug - dump all that you’ve prepared). 
+
+For plausible deniability, I bet it’s a tripwire. We’re going to see that “someone” found the bug just a couple days before, then Peter Gray drained everything he was sitting on - the initial guy will take the fall and be blamed for “not handing over the funds”. 
+
+This dude went through the steps of making an alias to plant a bug, he definitely has a “plan” for where to point the finger. 
+
+comment: p2097gj
+parent: t1_p2071c2
+author: inner_engineering08
+created_utc: 1785995939
+edited: false
+body:
+The longer it sitss there, the less suspicious it looks and the easier it can be to write off as a massive mistake.That doesn’t prove anything, but waiting years wouldn’t rule anything out either.
+
+comment: p209g88
+parent: t1_p2097gj
+author: circuit_breaker
+created_utc: 1785996054
+edited: false
+body:
+I'm sorry but something as basic as this? I've been fucking around with software online since the '90s, I don't believe we can truly audit everything because of the many eyes meaning bugs are shallow but I do honestly expect people to pick up on this kind of fault. It's egregious. 
+
+What this means is that literally nobody looked at this. Literally nobody that knew what they were doing. For years. 
+
+I wouldn't be able to sleep if I made a mechanism to rob people en masse and left it for the world to see for years. 
+
+comment: p20ah3c
+parent: t3_1vgto2m
+author: extraepicc
+created_utc: 1785996529
+edited: false
+body:
+This guy is going to get some love 
+
+comment: p20b2ed
+parent: t1_p209g88
+author: inner_engineering08
+created_utc: 1785996801
+edited: false
+body:
+Yeah, that’s the part I find suspicious. The output looked random, the wallets and addresses looked completely normal, and the weakness was buried in the full RNG path. I’m not saying that proves intent, but it’s a very convenient kind of failure.
+
+comment: p20bihx
+parent: t1_p201u2d
+author: Todo_es
+created_utc: 1785997006
+edited: false
+body:
+> Peter Gray thought he was smart enough to get away with fraud
+
+Theft, you mean theft.
+
+comment: p20d99r
+parent: t1_p203ers
+author: luenix
+created_utc: 1785997814
+edited: false
+body:
+There are only a few possible scenarios in which a pk *ever* leaves the host it was generated on.  Seeing as how this wasn't a service account, it takes all of 0 seconds to conclude confidently that for all intents and purposes the two identities should be assumed to share the same host.
+
+"Private key means nothing" is a not a serious-enough take to prevent someone from taking measures (legal, surely) against the assumed core identity.
+
+  
+Put another way, if someone reports a hit-and-run and video surveillance happens to cover the encounter well enough for a (plausibly unique) vehicle fingerprint, the owner of the offending vehicle is going to be sought after by law enforcement.
+
+comment: p20f6f1
+parent: t1_p208fiw
+author: fuckswithboats
+created_utc: 1785998728
+edited: false
+body:
+I’m just some dude but I like your hypothesis about the tripwire. I wonder if the other older blips we’ve seen of wallets being drained was him testing it out, random collisions (monkeys blah blah Shakespeare), or one-off lucky guesses that weren’t aware of the bug to exploit it further 
+
+comment: p20gn1n
+parent: t1_p209g88
+author: Ok-Source-4748
+created_utc: 1785999422
+edited: false
+body:
+It was early tech still he could have been the first vibe one coding Projects with Alexa or something like that 
+
+comment: p20j9bh
+parent: t3_1vgto2m
+author: terfez
+created_utc: 1786000681
+edited: false
+body:
+I think it was Interpol
+
+comment: p20lemc
+parent: t3_1vgto2m
+author: achow101
+created_utc: 1786001736
+edited: false
+body:
+As someone who has become far too familiar with git's internals that I ever wanted to be, I would not say that it's actually unusual to see a commit signed by someone who did not author it. It's possible to have a workflow where commits are rebased, cherry picked, squashed, etc. where the original author's authorship is preserved, but the maintainer is essentially creating a new commit. If the maintainer has configured their git to sign new commits, then we would see a commit with an Author of one person, and a GPG signature from someone else.
+
+We can actually see this behavior in the BIPs repo, for example this commit that has an Author of Jameson Lopp, while it has a Committer of Murch, and a GPG signature from Murch:
+
+    commit 86dfa19bef154c88a3fa4b2185400837f2d6cad9
+    gpg: Signature made Tue 14 Apr 2026 07:38:03 AM PDT
+    gpg:                using RSA key 35F4ADA623EB9FE3A3BC7EF67BA035CA5B901713
+    gpg: Good signature from "Murch <murch@murch.one>" [full]
+    gpg:                 aka "Mark Erhardt <mark@chaincode.com>" [full]
+    gpg:                 aka "Mark Erhardt <me@markerhardt.de>" [full]
+    gpg:                 aka "Mark Erhardt <mark.erhardt@gmail.com>" [full]
+    Author:     Jameson Lopp <jameson.lopp@gmail.com>
+    AuthorDate: Tue Apr 14 16:36:41 2026 +0200
+    Commit:     Murch <murch@murch.one>
+    CommitDate: Tue Apr 14 07:37:58 2026 -0700
+
+Crucially, commits have metadata about who actually made the commit. We see Author which is different from Commit, and a signature that matches Commit.
+
+So what do we see when we look at libngu? Here is a commit from libngu:
+
+    commit 5cf9c5efd68b8d27f299ec82687e4fbdb432b4c7
+    gpg: Signature made Thu 29 Sep 2022 06:30:45 AM PDT
+    gpg:                using RSA key D9766C79E77B0198D66975BDF0E6CC6AFC16CF7B
+    gpg: Good signature from "Peter Gray (@qbert) <peter@conalgo.com>" [expired]
+    gpg:                 aka "Peter Gray <peter@ripeapps.com>" [expired]
+    gpg: Note: This key has expired!
+    Primary key fingerprint: A004 C9BC E217 ABE9 341C  D81A A2DC D558 C2BE 5D7C
+         Subkey fingerprint: D976 6C79 E77B 0198 D669  75BD F0E6 CC6A FC16 CF7B
+    Author:     Switck <69336248+switck@users.noreply.github.com>
+    AuthorDate: Thu Sep 29 09:30:45 2022 -0400
+    Commit:     Switck <69336248+switck@users.noreply.github.com>
+    CommitDate: Thu Sep 29 09:30:45 2022 -0400
+
+As in my BIPs example, the Author does not match the GPG signer.
+
+**BUT the GPG signer also does not match the Committer!** That is unusual. If we assume that the Committer and GPG Signer are the same person - and in typical git setups they are - then this suggests that Switck and Peter Gray are the same person.
+
+Furthermore, we can also look at the timestamps. In my first example from BIPs, the timestamp for AuthorDate is completely different from CommitDate. But the timestamp of GPG signature is within seconds of the CommitDate. This minor discrepancy is easily explained by someone who has password protected their GPG key, or has it on something like a Yubikey. This suggests that the Author and the Committer are actually separate persons, and the GPG signature was produced by the Committer.
+
+But if we look at the timestamps in the libngu commit, we see that they are all almost entirely the same. The AuthorDate, CommitDate, and GPG signature timestamp are all the same. This suggests that all 3 timestamps were produced in the same action, which suggests that the Author, Committer, and GPG signer are all the same person.
+
+comment: p20nzbn
+parent: t3_1vgto2m
+author: Kokolol_0
+created_utc: 1786003028
+edited: false
+body:
+Can’t wait to watch the Netflix documentary 
+
+comment: p20o7is
+parent: t3_1vgto2m
+author: PeachScary413
+created_utc: 1786003146
+edited: false
+body:
+Some people call it weird, some people call it fraud.
+
+comment: p20puvr
+parent: t1_p209g88
+author: ZedZeroth
+created_utc: 1786003985
+edited: false
+body:
+Tripwire hypothesis could explain this: https://www.reddit.com/r/Bitcoin/s/VjRF1gGpr4
+
+comment: p20ty37
+parent: t1_p20nzbn
+author: BigDik6355
+created_utc: 1786006032
+edited: false
+body:
+Oceans 21: The Bitcoin Heist. Now on Netflix.
+
+comment: p20u6z4
+parent: t1_p20lemc
+author: BigDik6355
+created_utc: 1786006159
+edited: false
+body:
+Seems the author had some kind of schizophrenia.
+
+comment: p212sf3
+parent: t1_p208fiw
+author: read_more_comments
+created_utc: 1786010372
+edited: false
+body:
+A few years ago he literally talked about retirement exploit and explained what just happened.
+
+comment: p2131z2
+parent: t1_p20lemc
+author: read_more_comments
+created_utc: 1786010495
+edited: false
+body:
+What is weird is a hardware wallet including some random guys security implementation for no reason. Then finding out it's the same guy with a fake name. And is a major exploit. why is just this library?
+
+comment: p2136j5
+parent: t1_p20u6z4
+author: read_more_comments
+created_utc: 1786010554
+edited: false
+body:
+Retirement exploitphrenia
+
+comment: p213ajz
+parent: t1_p20ty37
+author: read_more_comments
+created_utc: 1786010605
+edited: false
+body:
+Coldcard ceo played by a black lesbian. I'd pay to see it. 
+
+comment: p2171lr
+parent: t3_1vgto2m
+author: Complete-MessUP
+created_utc: 1786012276
+edited: false
+body:
+Sociapaths has no remorse.
+
+comment: p21lml7
+parent: t1_p201k2o
+author: SACRED-GEOMETRY
+created_utc: 1786017880
+edited: false
+body:
+Rollo Tomassi
+
+comment: p21smv5
+parent: t1_p201u2d
+author: MiceAreTiny
+created_utc: 1786020128
+edited: false
+body:
+The only question is where he is on the incompetence/malice spectrum. 

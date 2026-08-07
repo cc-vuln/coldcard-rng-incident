@@ -1,0 +1,27 @@
+url:      https://x.com/COLDCARDwallet/status/2085541034243600805
+author:   COLDCARD
+handle:   @COLDCARDwallet
+posted:   2026-08-07T01:38:24.000Z (from the page's <time> element)
+captured: 20260807T111112Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/amplify_video_thumb/2085060228467273728/img/Tr2MrQ1Gt38s3Jub.jpg (1200 x 675 pixels)
+videos:   1 attached video(s), poster URL below;
+          the video itself is not captured by this tool
+video-1: poster https://pbs.twimg.com/amplify_video_thumb/2085060228467273728/img/Tr2MrQ1Gt38s3Jub.jpg
+
+--- post text (verbatim) ---
+
+Extremely important correction.
+
+
+@jackmallers
+ there wasn’t a weak entropy fallback. I think it’s important to be precise about what actually happened.
+
+The weak PRNG (Yasmarang) wasn’t Coinkite’s fallback—it was MicroPython’s built-in general-purpose RNG, introduced upstream in May 2018. It didn’t become part of Coldcard’s seed generation until the libNgU migration in March 2021.
+
+Most language runtimes include a non-cryptographic RNG like this for general purposes such as shuffling, timing jitter, or other non-security-related randomness. By itself, that’s not unusual.
+
+Coinkite’s design intent was actually the opposite of having a software fallback: seed generation was supposed to rely exclusively on the hardware TRNG and never use the software RNG. Setting MICROPY_HW_ENABLE_RNG=0 was intended to disable that software path.
+
+The issue is that this setting didn’t have the intended effect, and the symbol instead resolved to the runtime’s default implementation. So what people are describing as a “fallback” wasn’t an intentional design decision or a shortcut in the seed-generation logic—it was inherited behavior from the underlying platform that became active because of a link-time error.

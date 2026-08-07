@@ -1,0 +1,650 @@
+post: 1vct6m2
+author: lucapocchio
+created_utc: 1785605030
+title: PSA: Coldcard Mk4 BRICKED by the new emergency firmware hotfix (seed.py crash). Irony at its finest.
+body:
+Just wanted to put out a serious warning for anyone updating their Coldcard Mk4 to fix the recent RNG/seed generation vulnerability.
+
+I followed Coinkite's urgent advisory to the letter: updated to the new hotfix firmware 5.6.0, wiped my old seed, and generated a brand-new one. I even tested it, created two BIP-39 passphrases, and everything seemed fine at first.
+
+But then, the premium "Don't Trust, Verify" experience kicked in.
+
+While I was testing the passphrases—literally just entering the words and clicking apply—the device threw a critical MicroPython software crash error pointing directly to \`seed.py\` and another method. To be precise, I had done this exact same process successfully several times just before it happened, so it doesn't look completely deterministic, but the bug is definitely present and lurking in the code.
+
+I had to power cycle it, and guess what? The screen now permanently reads "BRICKED". No recovery mode, no factory reset, just a hundreds-of-dollars paperweight. I bought a bundle of 2 units directly from their site, and one is already dead due to their rushed code.
+
+If you are running the new firmware and messing with passphrases, PLEASE BE CAREFUL. This hotfix seems to have a catastrophic bug that permanently hard-locks the secure element or the firmware during passphrase application.
+
+Hey Coinkite, I thought Coldcard was the ultimate, unbreakable fortress for paranoid Bitcoiners? Fixing a critical seed generation vulnerability with a firmware bug that literally kills the hardware is quite a strategic move to sell more devices!
+
+This is completely unacceptable for a premium security device, also given what is happening. Anyone else experiencing crashes or weird behavior on the new firmware?
+
+Lmk.
+
+———-EDIT 2 DAYS LATER, BUG CONFIRMED ———-
+
+[https://github.com/Coldcard/firmware/pull/692](https://github.com/Coldcard/firmware/pull/692)
+
+———-EDIT 3 DAYS LATER, COLD CARD REPORT  ———-
+
+[https://x.com/COLDCARDwallet/status/2084632863756955661](https://x.com/COLDCARDwallet/status/2084632863756955661)
+
+I will try to test in the described way and update here about results for everyone.
+
+  
+——— EDIT 3 DAYS LATER, DEVICE RECOVERED / WHAT ACTUALLY HAPPENED ———
+
+The device was not permanently bricked.
+
+
+
+I fully disconnected every power source, left it unpowered for a while, and pressed a few keys for several seconds while it was disconnected, just to help drain any remaining power. After reconnecting it, the normal PIN screen came back.
+
+
+
+What seems to have happened is a temporary fault in the STM32 hardware TRNG on firmware 5.6.0. Once the TRNG enters that error state, the current firmware does not recover it properly, so later RNG calls can fail with OSError(EFAULT).
+
+
+
+This also explains why it happened while I was applying a passphrase. The BIP-39 passphrase calculation itself is deterministic, but the keypad/UI also uses the hardware RNG to randomize the scan order. The RNG fault likely surfaced through that path, caused the MicroPython crash I saw, and then left the device showing the very misleading BRICKED screen.
+
+
+
+The important part is that the fault is temporary and clears after a real power cycle:
+
+
+
+disconnect USB, Coldpower, batteries and everything else;
+
+leave it fully unpowered for a bit;
+
+while disconnected, press a few keys for several seconds;
+
+reconnect it using a stable power source.
+
+
+
+PR #692 documented the issue, while PR #693 contains the proper fix:
+
+
+
+[https://github.com/Coldcard/firmware/pull/693](https://github.com/Coldcard/firmware/pull/693)
+
+
+
+The new code detects the TRNG error, tries to recover it properly and retries instead of leaving the device stuck in that state.
+
+
+
+Until Coinkite releases an official signed firmware containing the #693 fix, I would avoid unnecessary passphrase/keypad testing on 5.6.0, because the issue could happen again.
+
+
+
+Also: do not install random firmware from GitHub and do not trust any “online recovery” link sent through DMs ( I actually received a bunch of those ). Wait for the official release. 
+
+comment: p13tui2
+parent: t3_1vct6m2
+author: redchannit8
+created_utc: 1785605931
+edited: false
+body:
+been messing with my q a bunch since updating the firmware, applied passphrases many times, havent had any issues yet.
+
+comment: p13v4zy
+parent: t1_p13tui2
+author: lucapocchio
+created_utc: 1785606299
+edited: false
+body:
+waiting for a response from the support. but also in my case it had 0 problems and i tried the other passphrase many times for checks/exports etc.. just pay attention.
+
+comment: p13xogm
+parent: t3_1vct6m2
+author: FullyAutomatedSpace
+created_utc: 1785607026
+edited: false
+body:
+your unit could've just randomly broken?
+
+comment: p13xt0j
+parent: t3_1vct6m2
+author: huntermack78
+created_utc: 1785607062
+edited: false
+body:
+Are people seriously still using cold card? I emptied my wallet yesterday after hearing the news. Even with a passphrase I will never trust coldcard again
+
+comment: p13ylje
+parent: t1_p13xogm
+author: lucapocchio
+created_utc: 1785607288
+edited: false
+body:
+could, but timing is weird. also another user under a post on r/bitcoin told me he had his Q bricked after the latest firmware. just saying to pay attention.
+
+comment: p13yo6g
+parent: t3_1vct6m2
+author: [deleted]
+created_utc: 1785607309
+edited: false
+body:
+[removed]
+
+comment: p13yrfv
+parent: t1_p13xt0j
+author: lucapocchio
+created_utc: 1785607335
+edited: false
+body:
+used dice rolls which are verifiable. but still randomly bricked during a passphrase apply. weird stuff.
+
+comment: p140izw
+parent: t3_1vct6m2
+author: Yodel_And_Hodl_Mode
+created_utc: 1785607845
+edited: false
+body:
+They did you a favor.
+
+How can anyone trust ColdCard's code after such a catastrophic blunder that was at least partially caused by the code not being open source?
+
+Years ago, I knew a guy whose girlfriend cheated on him... so he married her. His thinking was "It won't happen twice, so we're good now." How'd that work out?
+
+Dude's paying alimony today.
+
+You've now been burned twice by ColdCard. Are you really, seriously, giving them a chance to burn you again?
+
+comment: p141h51
+parent: t1_p13xt0j
+author: Alternative_Camp_109
+created_utc: 1785608118
+edited: false
+body:
+Do you have any recommendations for any other hardware wallets? Preferably one with full airgapped functionality and a physical keyboard like the Q?
+
+Also - I understand your sentiment, but despite this massive fuck-up, is it rational to discount all other factors and just ditch coldcard devices completely? Or - perhaps just update to the patched firmware and use it with improved security (e.g. dice rolls, passphrase, etc)?
+
+comment: p141vdj
+parent: t1_p13yo6g
+author: lucapocchio
+created_utc: 1785608234
+edited: false
+body:
+Never.
+
+comment: p1421yu
+parent: t1_p140izw
+author: lucapocchio
+created_utc: 1785608287
+edited: false
+body:
+fair point.
+
+comment: p14n650
+parent: t1_p13xt0j
+author: doorshock
+created_utc: 1785614463
+edited: false
+body:
+This guy gets it
+
+comment: p14yssl
+parent: t1_p13yo6g
+author: Despot4774
+created_utc: 1785617964
+edited: false
+body:
+Piss off.
+
+comment: p14z60c
+parent: t1_p141h51
+author: buzzkillb
+created_utc: 1785618077
+edited: false
+body:
+best to probably get an old thinkpad, install Qubes and compile the Bitcoin QT and bypass all this nonsense
+
+comment: p152x6o
+parent: t3_1vct6m2
+author: krasserfcker
+created_utc: 1785619233
+edited: false
+body:
+My Coldcard MK4 doesn't seem to save the Passphrase after Powercycle!?
+I have to re-enter and apply it again and again... 
+
+This is happening since that bugfix.
+
+comment: p1560p6
+parent: t1_p13yo6g
+author: krasserfcker
+created_utc: 1785620199
+edited: false
+body:
+Nice try 😄
+
+comment: p15ai96
+parent: t1_p13tui2
+author: SpareEconomy1849
+created_utc: 1785621621
+edited: false
+body:
+Same with mk5
+
+comment: p15beir
+parent: t1_p152x6o
+author: SpareEconomy1849
+created_utc: 1785621912
+edited: false
+body:
+Are you telling it to save to the SD card? I prefer that it doesn't remember my passcode 
+
+comment: p15d18m
+parent: t1_p152x6o
+author: alphabuild
+created_utc: 1785622446
+edited: false
+body:
+That’s how it is supposed to work unless you backup to the SD card. 
+
+comment: p15et7s
+parent: t1_p15d18m
+author: krasserfcker
+created_utc: 1785623025
+edited: false
+body:
+Are you sure? I dont remember me entering the passphrase everytime again to get into the right wallet.
+
+This being said, i didn't touch the Coldcard for 2 years. Hodling with a watch-only wallet on my phone. Just until today, to move to a new dice based wallet...
+
+comment: p15lbbc
+parent: t1_p13ylje
+author: SubstantialWeb3666
+created_utc: 1785625178
+edited: false
+body:
+nah, coldcards just break all the time. I've gotten more replacements than the devices I bought over the years. You plug them in and they just get stuck. Worst thing with coldcards
+
+comment: p15pe4v
+parent: t1_p13yo6g
+author: Separate-Forever-447
+created_utc: 1785626557
+edited: false
+body:
+What other centralized exchanges do you recommend? Perhaps celsius, blockfi, ftx, gemini… no wait; they all froze customer funds and/or went bankrupt.
+
+comment: p16431m
+parent: t1_p140izw
+author: No_Control_6791
+created_utc: 1785631668
+edited: false
+body:
+I looked up the subreddit just to see what people are saying on here after the hack and it blows my mind that there people still keeping their coins on this thing.... if my coins were on this wallet I would've dumped this shit ASAP and get a more reputable wallet
+
+comment: p16fg9w
+parent: t3_1vct6m2
+author: grraarr
+created_utc: 1785635758
+edited: false
+body:
+You can contact Coinkite for a refund.
+
+comment: p16frvj
+parent: t1_p140izw
+author: grraarr
+created_utc: 1785635877
+edited: false
+body:
+It's not exactly the opportune time to also research new devices, wait for them to arrive, and learn new UX. The appropriate first step is to secure your funds - Coinkite/Coldcard in hand provides a pathway for that. Additionally, this gives time for the dust to settle, see how Coinkite responds, and see if other devices withstand scrutiny. It's been literally three days.
+
+comment: p16g334
+parent: t1_p16431m
+author: grraarr
+created_utc: 1785635992
+edited: false
+body:
+Well maybe that's because you don't get that your coins are not on the wallet. They're on the blockchain, and people who rolled dice wouldn't even need to know this happened.
+
+comment: p16gdco
+parent: t1_p141h51
+author: grraarr
+created_utc: 1785636096
+edited: false
+body:
+It might be logical to ditch Coldcard eventually, but not immediately. A Coldcard with updated firmware and instructions on dice generating provides the easiest path forward to secure funds for anyone compromised.
+
+comment: p16hrku
+parent: t1_p16frvj
+author: Yodel_And_Hodl_Mode
+created_utc: 1785636610
+edited: false
+body:
+Agreed.
+
+If I had a ColdCard and had to move my coins today, here's what I would do.
+
+First... I would do 100 dice rolls and I would pick 7 words from the BIP39 wordlist to use as a passphrase (with a space between each word).
+
+Next... I'd set that wallet up on ColdCard and Sparrow (watch-only on Sparrow, obviously). I'd also wipe the wallet and restore it from scratch to make sure the addresses match what I see in Sparrow, to make sure the wallet is 100% correct and that I know I can restore it from scratch (because I just did).
+
+Then... I'd go back to the old wallet and send my coins to the new wallet.
+
+And... I'd curse the name Rodolfo Novak, because he caused this mess. Eff that guy and his "Source Viewable" code too. This bug should have been caught in 2021. People are getting robbed because of his hubris and greed.
+
+comment: p16ko0w
+parent: t1_p16hrku
+author: grraarr
+created_utc: 1785637703
+edited: false
+body:
+That's essentially what Coinkite tells you to do in their post mortem.
+
+comment: p16pbi6
+parent: t1_p16ko0w
+author: Yodel_And_Hodl_Mode
+created_utc: 1785639469
+edited: false
+body:
+That's what I've been telling people to do for years, and I always got shouted down because people thought it was overkill.
+
+comment: p172vk6
+parent: t1_p16431m
+author: lucapocchio
+created_utc: 1785644945
+edited: false
+body:
+i had not any problem (not counting the hw brick). i know what i'm doing. and no one told that i will move everything there again. but could be useful for a multisig.
+
+comment: p1735l7
+parent: t1_p16fg9w
+author: lucapocchio
+created_utc: 1785645065
+edited: false
+body:
+I've contacted them. Waiting answer on their side. Thx
+
+comment: p17zkgp
+parent: t1_p16g334
+author: No_Control_6791
+created_utc: 1785660589
+edited: false
+body:
+So? The keys to the address are generated by coldcard and they sucked ass! But whatever it's your coins idc
+
+comment: p180cko
+parent: t1_p17zkgp
+author: grraarr
+created_utc: 1785660991
+edited: false
+body:
+Yeah why be precise, we're mad at Coldcard!
+
+comment: p18fpex
+parent: t1_p16hrku
+author: lucapocchio
+created_utc: 1785668684
+edited: false
+body:
+yep, all good until it randomly bricks lol
+
+comment: p199mz8
+parent: t3_1vct6m2
+author: jj_025
+created_utc: 1785679715
+edited: false
+body:
+f\*ck CC
+
+comment: p1a6q3k
+parent: t3_1vct6m2
+author: RandyJohnsonsBird
+created_utc: 1785689112
+edited: false
+body:
+Its funny to me that anyone would still use anything coldcard related after this. Theres a bunch of other options and people still choose to risk it. But I guess even an abused dog stays with its owner 
+
+comment: p1ae0vd
+parent: t1_p1a6q3k
+author: lucapocchio
+created_utc: 1785691087
+edited: false
+body:
+Telling there are options, without proving options doesn’t give much to community. Every hw wallet has it’s pros/cons. 
+
+comment: p1ae2q2
+parent: t1_p199mz8
+author: lucapocchio
+created_utc: 1785691101
+edited: false
+body:
+Relatable
+
+comment: p1bacs4
+parent: t1_p140izw
+author: RandyJohnsonsBird
+created_utc: 1785699865
+edited: false
+body:
+Its like a dog that got beat. Still gotta eat lol
+
+comment: p1fx8i6
+parent: t1_p16gdco
+author: buzzkillb
+created_utc: 1785763042
+edited: false
+body:
+If core wallet is broken then bitcoin dies with it. 
+
+comment: p1g30nw
+parent: t3_1vct6m2
+author: lucapocchio
+created_utc: 1785764728
+edited: false
+body:
+2 DAYS LATER, BUG CONFIRMED
+
+https://github.com/Coldcard/firmware/pull/692
+
+comment: p1h9v1u
+parent: t3_1vct6m2
+author: Christianlutz89
+created_utc: 1785775924
+edited: false
+body:
+That's horrible, i updated already and i'm quite to scared to turn it on now... Is it possible to downgrade the firmware at least?
+
+comment: p1jlpm2
+parent: t1_p1h9v1u
+author: lucapocchio
+created_utc: 1785798272
+edited: false
+body:
+Not that i know. On the docs i see stuff only about upgrading it. yep it’s terrible, and still waiting from their customer support about this.
+
+comment: p1kfklb
+parent: t3_1vct6m2
+author: scottonfire
+created_utc: 1785807947
+edited: false
+body:
+The point is once it's BRICKED, Coldcard is OFF the hook for your losses
+
+comment: p1ksq32
+parent: t3_1vct6m2
+author: ELLIPALWallet
+created_utc: 1785812423
+edited: false
+body:
+A bricking bug on top of everything else. Rough. If it’s dead but you still have the seed, restore it only long enough to move the coins out, and send them to a fresh seed you made yourself. For whatever you rebuild on, check it takes an imported seed and a passphrase. (I work at ELLIPAL, so weigh that accordingly.)
+
+comment: p1lsa7e
+parent: t1_p1kfklb
+author: lucapocchio
+created_utc: 1785827800
+edited: false
+body:
+No losses in my scenario. But defenitely someone could have had an headache about this.
+
+comment: p1lxjbz
+parent: t1_p1ksq32
+author: lucapocchio
+created_utc: 1785830449
+edited: false
+body:
+Exactly what i did. Still sucks.
+
+comment: p1m79nt
+parent: t1_p1jlpm2
+author: Christianlutz89
+created_utc: 1785835311
+edited: false
+body:
+I just tried it and downgraded my MK4 from 5.6.0 to 5.4.5 and it worked without any problems... I still wouldn't recommend it, as every launch on version 5.6.0 carries the risk of bricking the Coldcard.
+
+comment: p1myc9z
+parent: t1_p1m79nt
+author: lucapocchio
+created_utc: 1785846289
+edited: false
+body:
+Yes, an hotfix is needed here for sure
+
+comment: p1natto
+parent: t3_1vct6m2
+author: PopCham
+created_utc: 1785850100
+edited: false
+body:
+Is this bug fixed now?
+
+[https://github.com/Coldcard/firmware/pull/693](https://github.com/Coldcard/firmware/pull/693)
+
+Even if I was not affected  (I used dice rolls + strong passphrase) I moved my funds to a new seed (generated with dice rolls, no CC involved) and I would like to update my CC mk3 but firmware hasn't been update to fix this "BRICKED" bug, or?
+
+comment: p1q1psp
+parent: t1_p1natto
+author: lucapocchio
+created_utc: 1785875582
+edited: false
+body:
+I updated the post with the "post mortem", and how to recover it. But still can happen until new firmware is not officialy released.
+
+comment: p1q28tf
+parent: t3_1vct6m2
+author: lucapocchio
+created_utc: 1785875724
+edited: false
+body:
+POST MORTEM UPDATE ON POST
+
+comment: p1uuiuf
+parent: t1_p140izw
+author: Charming-Designer944
+created_utc: 1785938041
+edited: false
+body:
+Can you elaborate on the not open source claim? Because I dont quite follow the chain of thought there.
+
+comment: p1w7wm1
+parent: t1_p1uuiuf
+author: Yodel_And_Hodl_Mode
+created_utc: 1785950559
+edited: false
+body:
+Open source means anyone can read the code, and anyone can use the code in their own work. It's literally open to view, copy, use, work with, build on, etc.
+
+Bitcoin is open source.
+
+ColdCard was open source until March 2021, when the license for the code was changed from Open Source to "Source Verifiable."
+
+Source Verifiable meant anyone could read ColdCard's code, but other devs weren't legally allowed to use it in their own work.
+
+Since they weren't allowed to use it anymore, they didn't use it. And since they weren't using it in their own work, they weren't battle testing it through real world use. They weren't finding bugs, which left bugs unfound and thus not reported. That's why this devastating bug lasted in ColdCard's code for almost five and a half years.
+
+Other devs didn't have a reason to read ColdCard's code anymore, because as of March 2021, they weren't allowed to use it in their own work.
+
+Part of the reason there's so much confusion is because Coinkite, makers of ColdCard, falsely promoted their products as if they were open source. They didn't say there were open source, but they used other ways of saying it. That's why people think ColdCards are open source. They're not.
+
+comment: p1wgnsl
+parent: t1_p1w7wm1
+author: Charming-Designer944
+created_utc: 1785952701
+edited: false
+body:
+Thanks. Valid arguments, but I doubt there would had been a different outcome if the license did not have the non-competition clause.
+
+comment: p1wivih
+parent: t1_p140izw
+author: jdells59
+created_utc: 1785953249
+edited: false
+body:
+Other cases of catastrophic crashes. Don’t forget crowd strike two years ago. Impacted virtually the whole world. Microsoft involved too. Or Boeing software that killed people. Trust is earned back. Let’s hope coinkite can earn it back 
+
+comment: p1wt25k
+parent: t1_p1wgnsl
+author: Yodel_And_Hodl_Mode
+created_utc: 1785955776
+edited: false
+body:
+I strongly disagree.
+
+The first time a dev used that code with a wallet containing any different options for entropy (such as camera pixels), they'd have to edit that line of code, and they'd immediately have seen the bug. They'd surely have had a laugh and gotten in touch with Coinkite to let them know.
+
+The bug wasn't hidden. It's just that nobody but Coinkite had a reason to work with the code, so nobody found it.
+
+comment: p1xcuug
+parent: t1_p16hrku
+author: EyesFor1
+created_utc: 1785960902
+edited: false
+body:
+This is what I did out of an abundance of caution even thou I had used dice roll entropy. Sent to a new dice roll entropy wallet. Now I'm actively researching new hardware wallets, not rushing into anything but learning. Rushing is another proven way to loose funds. 
+
+comment: p1xdvg6
+parent: t1_p1wt25k
+author: Charming-Designer944
+created_utc: 1785961169
+edited: false
+body:
+Why would they need to edit which rng.c source file is used in the build?
+
+https://github.com/Coldcard/firmware/commit/ca72463709f4e3f8964952039d5caf955f566a87
+
+Mixing of RNG sources was done at a higher level by reseeding the micropython prng. Not by modifying the trng source. And yes they likely would had laughted at that part of the code,
+
+Its quite likely someone who rebuilds the coldcard firmware for another device first of all uses the same CPU. Second, if they dont then they address the TRNG integration strength directly in micropython instead of trying to override it with a separate copy of the source file.
+
+And if Coldcard had gone the open source path and sent their improvements to the micropython stm32 TRNG integration upstream directly instead of trying to work around the micropython build then this problem would never have arised.
+
+On the positive side this debacle triggered a more in depth review of the Coldcard entropy collection and more improvements seem to be coming than just enabling the stm32 TRNG. Like actually using the TRNG sources in the secure elements. But that part have not finalized yet.
+
+comment: p1xen2l
+parent: t1_p1xdvg6
+author: Yodel_And_Hodl_Mode
+created_utc: 1785961371
+edited: false
+body:
+> Why would they need to edit which rng.c source file is used in the build?
+
+I'm talking about devs using the code for their own work, not using it to just run ColdCard.
+
+I'll let an expert take a shot at explaining it:
+
+https://youtu.be/GQOoONFuDE0?si=5-ApnzdNYWery00F&t=272
+
+comment: p1xq90j
+parent: t3_1vct6m2
+author: OldRefrigerator8821
+created_utc: 1785964514
+edited: false
+body:
+Oops forgot to do regression testing
+
+comment: p27i4b1
+parent: t1_p1q1psp
+author: nicolbolas10
+created_utc: 1786079926
+edited: false
+body:
+did this problem happen again? I updated my CC with the new firmware 5.6.0 last week, used it without any problems for 2 days. Opened it after 6 days and the device bricked(MK4). After trying to open it for 30 min, the device turned on and now it's working. However I think this bug can still happen again with the current firmware so not sure what to do.

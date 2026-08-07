@@ -1,0 +1,178 @@
+×
+Bitcoin Magazine News
+Bitcoin Magazine
+Portfolio Tracker & Media
+Get it
+Facebook Instagram Linkedin Rumble X Youtube
+NEWS
+BUSINESS
+CULTURE
+MARKETS
+POLITICS
+TAKES
+TECHNICAL
+GUIDES
+GLOSSARY
+MAGAZINES
+STORE
+BOOKS
+ABOUT
+ABOUT BITCOIN MAGAZINE
+ADVERTISE
+EDITORIAL POLICY
+JOBS
+PRIVACY POLICY
+TERMS OF USE
+CONTACT US
+BTC INC
+MAGAZINES
+BOOKS
+CONFERENCE
+CORPORATIONS
+UTXO
+Search
+STORE
+MAGAZINES
+BOOKS
+CONFERENCE
+CORPORATIONS
+UTXO
+Facebook
+Twitter
+Youtube
+Rumble
+Linkedin
+Instagram
+NEWS
+BUSINESS
+CULTURE
+MARKETS
+POLITICS
+TAKES
+TECHNICAL
+VIDEOS
+LEARN
+GUIDES
+GLOSSARY
+MAGAZINES
+BOOKS
+STORE
+Search
+HomeTECHNICALThe End of the Closed-Source Era Is at Hand: Obscurity Was Never...
+TECHNICALFEATURED
+The End of the Closed-Source Era Is at Hand: Obscurity Was Never Security
+The Coldcard hack is a preview. When machines can read what humans couldn't (or just didn't), closed source stops being a category.
+By Colin Crossman
+August 6, 2026
+Share
+Facebook
+X
+Linkedin
+ReddIt
+Email
+Telegram
+Copy URL
+Prefer us on Google
+Download App
+Download App
+Over the last few days, people who were trying to do everything right lost their Bitcoin. They bought a respected hardware signer, generated a seed offline using that device, and trusted the device to do the one thing a signer exists to do: produce a number no one else can guess. The Coldcard did not. A preprocessor guard that checked the wrong thing had quietly routed seed generation to a weak software PRNG (pseudorandom number generator), MicroPython’s Yasmarang, instead of the hardware entropy source. On some models the effective entropy collapsed to around 40 bits. The flaw shipped in March 2021 and sat in publicly readable firmware for more than five years. Attackers swept 500 addresses before anyone understood why; within days Galaxy Research’s tally reached 4,585 addresses and nearly $90 million; the attack is ongoing as of the date of this article.
+Coinkite’s working assumption, with wide agreement on X, is that someone used AI to comb the publicly available firmware to find the bug. Whether or not that’s how this attacker found it, the next one will. While an AI-assisted audit was run weeks before the theft, it found nothing (potentially due to the capabilities of the model, potentially due to the specific construction of the search). Since the attack started, researchers have shown several frontier models locating the same flaw in minutes from a single prompt. The code sat open to human review for five years and no human caught it.
+Coinkite had moved its firmware from a free-software license to source-available terms, MIT with a Commons Clause, after Foundation Devices used the code in a competing product. You could read the source but not build a business on it. It changed nothing. The bug lived in code a machine could read regardless of what the license permitted; it entered the tree, in fact, in the very rewrite that stripped out the last of the GPL code. The license change didn’t increase protection; it merely changed the economics of finding the bug.
+In the age of highly skilled AI, everything that is distributed is readable, or soon will be. Strip a binary of its symbols, run it through a decompiler, and out comes the pseudo-C that greets anyone who has opened Ghidra: nameless variables, flattened control flow, functions labeled FUN_00401a20. Unreadable to most people. That high barrier to human understanding was the entire security premium of “closed source.”
+A compiled program has no choice but to tell the truth. Code that stays encrypted cannot run. At the moment of execution the processor must receive the actual instructions, so whatever the program does, it hands the machine a complete and exact account of how to do it. The information is all there in the machine code. Obfuscation does not, and cannot, remove it.
+If reading a binary sounds too hard for a machine to master soon, weigh it against what machines are already doing to problems far harder. Reading a binary is analysis: every fact you need is in front of you, and the work is extraction. Mathematical invention is another order of difficulty, because it demands an object no one has ever seen. At 02:19 UTC on July 20th, Levent Alpöge, a mathematician working with Anthropic’s Claude Fable 5, posted a counterexample to Keller’s Jacobian conjecture, a problem open since 1939 and hard enough to sit on Stephen Smale’s list of challenges for the twenty-first century. Generations had tried it. The disproof is three polynomials in three variables. Lean verified it within hours, and it is short enough for anyone to confirm in a computer-algebra system in about a minute.
+The Jacobian fell in an afternoon, while the questioner was apparently watching the final match of the FIFA World Cup. In May an OpenAI model toppled the Erdős unit-distance conjecture, a question open since 1946; in late July a 30-year-old graph-theory conjecture fell to four prompts; between them came the Jacobian disproof and a run of other results that had stood for decades.
+Set that pace beside the modest task of reading machine code already sitting out there on the Internet. Today’s models handle source and decompiler output better than raw bytes, so a fully closed binary keeps a thin margin. That margin is a cost speedbump, and it is eroding at the speed you are watching everywhere else. Betting security on how long it lasts means betting against a clock that is only speeding up.
+The same capability that finds your entropy bug reads your proprietary method. This is the quieter casualty, and it impacts companies that never thought of themselves as exposed to open-source anything. Trade secrecy in shipped software was always just obscurity in a suit. The law has said so for as long as trade-secret law has existed: reverse engineering a product you lawfully possess is fair play, and therefore a secret survives only while that reverse engineering stays expensive. When the cost of extraction falls to a subscription and a prompt, the secret embodied in the code you hand your customers stops being one. Your clever algorithm, your undocumented format, your edge in the binary: legible to anyone who cares to look, on a timeline increasingly measured in minutes.
+None of this necessarily makes open source safe. Heartbleed hid in the most widely deployed TLS library on earth for two years, because visibility without funded attention finds nothing. The xz backdoor showed that the open contribution model is itself an attack surface, one a patient adversary can walk through with a friendly face and two years of good commits. While openness once was a shield, it is no longer. What it does buy is reviewers who are permitted to look, builds which can be independently reproduced and verified, an exit when a vendor dies or turns, and acknowledgment that this all will happen whether you like it or not.
+Now we must assume every line shipped will be read by someone who wishes harm, because it will be. The defender holds one structural advantage the attacker never will: time. You can turn the same frontier models on your own code before release, in the space between commit and ship, while the attacker waits for a binary that does not yet exist. Make your builds reproducible, so it ties back to the source and the source can be checked. Design to fail closed, and keep the trusted core small enough that one bug cannot take everything. For the specific business of holding Bitcoin, learn the lesson Coldcard is teaching in real time: own the entropy you cannot afford to have guessed, keep the secure element minimal and behind a published interface, and spread your keys across independent implementations, so that no single device, and no single vendor’s mistake, is the whole of your exposure.
+For Bitcoin the stakes are unforgiving in a way they are not elsewhere, since mere knowledge of the private keys grants possession. The entropy bug has left permanent scars. Patching the generator does nothing for the seeds it already produced; a weak keyspace stays sweepable forever, and disclosure hands the attacker the recipe. We have watched this before. The Milk Sad vulnerability in the libbitcoin explorer tool, bx, seeded private keys from a 32-bit value, and attackers were draining the wallets it produced before the flaw was ever made public. Attackers keep their own schedule, invited or not. For money that cannot be clawed back, “findable eventually” is a synonym for “gone eventually.”
+Bitcoin never trusted obscurity. The protocol is open, its rules checkable by anyone, its security resting not on secrets but on mathematics and incentives that hold in full view. The hardware and software we build around it deserve the same standard, because the alternative is no longer on the table. The choice was never open or closed. It was disciplined or exposed.
+The broader lesson of this Coldcard situation is that having closed source software is like having a seed generated by a broken Coldcard; it looks good but it’s fundamentally built on sand. Everyone can read the code — the only question left is whether you acknowledge that fact, or you and your users learn it the way Coldcard’s users did, one drained address at a time.
+This is a guest post by Colin Crossman, who is the Wyoming Deputy Secretary of State. Opinions expressed are entirely their own and do not necessarily reflect those of BTC Inc or Bitcoin Magazine.
+Tags
+AI
+coldcard
+Frontier Model
+Share
+Facebook
+X
+Linkedin
+ReddIt
+Email
+Telegram
+Copy URL
+Previous article
+Breez Drops New Bitcoin App Which Doubles As Wallet and Developer Toolkit
+Next article
+Senate Whip Barrasso Becomes Latest Lawmaker to Support Crypto Clarity Act, But Time May Be Running Out
+Colin Crossman
+Working toward a citadel archipelago, powered by bitcoin mining, regenerative farming, and hacking the fiat system. Find his Twitter here.
+RELATED ARTICLES
+BUSINESS
+Bitcoin Red Team Finds 85 Critical Flaws Across 390 Open Source Repos After Coldcard Exploit
+August 5, 2026
+CULTURE
+Self Custody Is Dead. Long Live Self Custody
+August 4, 2026
+BUSINESS
+Coinkite Releases Fixed Firmware After Coldcard Bug; AI Likely Involved In The Breach
+July 31, 2026
+Bitcoin Portfolio Tracker & Media Updates
+Bitcoin BTC/USD
+$0.00
+24hr %:
+0.0%
+24hr High:
+$0.00
+24hr Low:
+$0.00
+Error loading data. Check console for details.
+VIEW 150+ BITCOIN CHARTS
+LATEST NEWS
+Breez Announces Glow, an Open Source Bitcoin to Stablecoins Progressive Web App
+August 6, 2026
+Senate Whip Barrasso Becomes Latest Lawmaker to Support Crypto Clarity Act, But Time May Be Running Out
+August 6, 2026
+Breez Drops New Bitcoin App Which Doubles As Wallet and Developer Toolkit
+August 6, 2026
+Bitcoin ETF Inflows Surge Following $130M Coldcard Hack
+August 6, 2026
+Load more
+EDITOR PICKS
+President Harris Should Buy Bitcoin to Pay Black Americans Reparations
+October 15, 2024
+VIVEK: Larry Fink Is Right: Trump and Kamala Can’t Stop Bitcoin
+October 15, 2024
+What Do Bitcoin Miners Expect Next?
+October 11, 2024
+POPULAR POSTS
+Anchors Are Evil! Bitcoin Core Is Destroying Bitcoin!
+January 6, 2025
+Canada Can Elect The Next Bitcoin World Leader
+January 6, 2025
+New Pi Cycle Top Prediction Chart Identifies Bitcoin Price Market Peaks with Precision
+January 6, 2025
+CATEGORIES
+BUSINESS4306
+CULTURE3586
+MARKETS2428
+NEWS1494
+TECHNICAL1341
+INDUSTRY EVENTS366
+PRESS RELEASES292
+LEGAL206
+ABOUT US
+Bitcoin Magazine is published by BTC Inc., a subsidiary of Nakamoto Inc. (NASDAQ: NAKA).
+FOLLOW US
+Facebook
+Twitter
+Youtube
+Rumble
+Linkedin
+Instagram
+© BTC Media, LLC 2026
+ADVERTISE
+TERMS OF USE
+PRIVACY POLICY
+JOBS

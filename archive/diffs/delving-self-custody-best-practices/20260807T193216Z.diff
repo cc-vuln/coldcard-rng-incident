@@ -1,0 +1,44 @@
+--- delving-self-custody-best-practices@20260806T000238Z
++++ delving-self-custody-best-practices@20260807T193216Z
+@@ -36,9 +36,40 @@
+ 6. Send a small test transaction, remembering to always confirm the receive address, amounts, and change address using the displays of both signing devices
+ If you need hand-holding, use Casa or Unchained.
+ **NOTE: I have no affiliation with any of the products / companies mentioned in this post**</description>
+-    <lastBuildDate>Tue, 04 Aug 2026 20:16:51 +0000</lastBuildDate>
++    <lastBuildDate>Fri, 07 Aug 2026 17:21:35 +0000</lastBuildDate>
+     <category>Implementation</category>
+     <atom:link href="https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768.rss" rel="self" type="application/rss+xml" />
++      <item>
++        <title>Towards New Self-Custody Best Practices</title>
++        <dc:creator><![CDATA[seed-cat]]></dc:creator>
++        <description><![CDATA[
++            <p>Agreed, user provided verifiable entropy eliminates the need to trust the device.  Although using 2 devices greatly reduces the odds both are simultaneously broken.</p>
++<p>I think it is fine for advanced users to choose 2-of-3 or 3-of-5, etc.  These best practices are not meant to be a universal standard, but more the best way to prevent non-technical / new users from losing funds.</p>
++<p>For instance, passphrase loss is the most common foot-gun for new users, but passphrases may make sense if an advanced user wants to separate accounts with the same seed words without changing derivation paths.</p>
++          <p><a href="https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768/3">Read full topic</a></p>
++        ]]></description>
++        <link>https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768/3</link>
++        <pubDate>Fri, 07 Aug 2026 17:21:35 +0000</pubDate>
++        <guid isPermaLink="false">delvingbitcoin.org-post-2768-3</guid>
++        <source url="https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768.rss">Towards New Self-Custody Best Practices</source>
++      </item>
++      <item>
++        <title>Towards New Self-Custody Best Practices</title>
++        <dc:creator><![CDATA[optout]]></dc:creator>
++        <description><![CDATA[
++            <p>I generally welcome such suggestions, though I find picking 2-of-2 multisig a bit too restrictive.
++I would add a comment/suggestion regarding manual seed generation.</p>
++<p>Fully offline and manual seed generation is plausible, and several documented methods exist – using 12 physical coins, one or more dice, a deck of cards, or pieces of papers with seedwords (note: I would not single out one method here). Manual generation does not rely on any device, does not need to trust a supplier for software &amp; hardware stack.</p>
++<p>One tricky part is the checksum computation/corrections. Devices like a Seedsigner can be used to compute the correct last work (checksum). A potential beneficial effect on the industry would be if any (most) hardware devices would offer the checksum correction functionality. Receiving (address generation) and sending (signing) needs a device in any case, so it would be practical if the same device could perform the checksum correction as well.</p>
++<p>The way I envision it:</p>
++<p>Whenever the user is able to enter a BIP39 seedphrase into the device, the device SHALL verify the checksum of the seedphrase. In case the checksum is invalid, the device SHALL inform the user, and offer the option to discard the seedphrase, or to “Correct” it. If the user chooses “Correct”, the device SHALL display a warning about the dangers of incorrect manual generation, which the user has to acknoledge. Afterwards, the device SHALL compute the correct checksum, and display the corrected last word (or full seedphrase). Next, the device SHOULD offer the options to accept or discard the corrected seedphrase.</p>
++          <p><a href="https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768/2">Read full topic</a></p>
++        ]]></description>
++        <link>https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768/2</link>
++        <pubDate>Fri, 07 Aug 2026 15:16:15 +0000</pubDate>
++        <guid isPermaLink="false">delvingbitcoin.org-post-2768-2</guid>
++        <source url="https://delvingbitcoin.org/t/towards-new-self-custody-best-practices/2768.rss">Towards New Self-Custody Best Practices</source>
++      </item>
+       <item>
+         <title>Towards New Self-Custody Best Practices</title>
+         <dc:creator><![CDATA[seed-cat]]></dc:creator>

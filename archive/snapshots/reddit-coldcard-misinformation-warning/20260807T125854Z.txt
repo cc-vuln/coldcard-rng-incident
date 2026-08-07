@@ -1,0 +1,290 @@
+post: 1vf5ohi
+author: thomascr9695
+created_utc: 1785836609
+title: A warning about misinformation about coldcard
+body:
+I want to make this post because there is a lot of misinformation out there, and I believe this will result in many people losing their coins in panic, moving them to wrong wallets, addresses, weak security setups that are decided in splits seconds etc...
+
+  
+First of all, wallets do not store your seedphrase, it matters how you generate your seedphrase. If you generated your seedphrase on a ledger, moved it to a coldcald wallet, there is no reason to move your coins. Second, if you generated a seedphrase on a coldcard wallet through their internal random generation, and then create a new seedphrase using dices you must still move your coins from your old seedphrase to your new seedphrase, yes I've seen people make this mistake.
+
+  
+Second and most important, dice generation has not been hit, and dice generation can be tested with multiple wallets for example seedsigner. This specific bug contains only the internal seed creation, and again, if you have dice rolled your coins there is no need to worry. There are a lot of posts such as MOVE YOUR COINS FROM COLDWALLET NOW! or ALL COLDCARD WALLETS HACKED! But again, it simply matters **how** you generated the seed. If you generated your seed using sufficient dice rolls, the chance of moving your coins suddenly to a different wallet without thinking this through creates a higher risk of losing your coins. People hype up posts on X and Reddit, and it can be hard to understand this difference. If you do not remember how you generated your seedphrase, move your coins. If you generated them with a mix of internal generation + dices, move your coins. If you created your seed using ONLY dice rolls, you are safe.
+
+Second, regarding the internal seed generation on other devices besides the MK3, if you have an MK3 and used their internal seed generation without a passphrase those coins are now gone. However, for the MK4 for example and other devices, it still depends, and from what is known, it **may** still be unlikely that any other devices will get hacked. Or atleast its not that simple. There is a split between this, older coldcards prior to March 2021 are not a target in this bug as the bug was introduced on March 2021. The MK4 and wallets beyond were saved because the internal seed generation was slightly different from the MK3. The seed generation is still flawed, but coldcard itself estimates 72 bit, with some experts estimating 50-55 bit at minimum in some cases. While its hard to predict, your coins are at risk, but these are not as simple to be taken like MK3. For example, if indeed 72 bit is the correct number, it would still take billions and billions of dollars to bruteforce such addresses and it would require many many years. If its at minimum 50, that would be a matter of days. But this would only happen if the attacker has sufficient information regarding your device. While it can be hard to predict, if you are for example on holiday on the other side of the planet, it would be possible to slowly contact your friends, family, to go your house, get the seedphrase, and slowly but carefuly move your coins, and make sure you backup your seed correctly if you move to a different wallet. 
+
+Third, if you have generated your seedphrase on an mk or any other coldcard wallet using their INTERNAL seed generation, and you do not have any wallet near you. Generating a new pasphrase through the internal dice generation is sufficient. It may sound scary because you're generating a new seed through coldcard, but the dice generation has been back tested, and can be tested through multiple wallet vendors such as for example seedsign. 
+
+Fourth, there is a lot of people claiming that this is the end of cold storage. It is not. For example, think about planes. Planes crash all the time, and while things improve, planes still crash. Just because a plane crashed doesn't mean people will stop taking planes. This hack is a plane crash, and it is horrible, but this will not be the end of cold storage. There have been many planes that have crashed due bugs very similar to the coldcard bug. A single digit wrong. Even Even mars climate orbiter crashed due a very simple calculation error. These hacks will continue to happen, but they will not be the end of cold storage. Its scary but not the end. 
+
+Fith, I see people being upset about coldcard and moving their coins to Ledger, trezos or exchanges. Important to note that we do not know how seed generation happens on Ledger for example. Ledger is closed source, and however it is unlikely, it is possible that ledger too has, or had, a seed generation error. Dice generation on a coldcard is still more secure than generating your seed on any device that programs its own seed generation, as wrong as that sounds. If you have a coldcard, generating your own seed using dices is still sufficient, however, I would take a different signing device for your transactions as the chance of them going out of business is high and firmware updates will stop updating and adjust to any future bitcoin updates.
+
+Sixth, if you have a passphrase you would have been saved. I believe setting a passphrase is important, even if you has a passphrase of your own name, your dogs name, your address, a single "A" charachter you would have likely been saved. I talked to someone who generated their wallet on an MK3 and got saved by a 2 word passphrase. Your wallet generation on dices is sufficient, but a passphrase can help you sleep better at night. If you any internal seed generation I think setting a passphrase is standard.
+
+At last, depending on how much coins you have, there may not be any need for a cold storage wallet, dice generation, seedphrases. I would only worry about such things when losing your coins could significantly hurt your financial status. Keeping your coins on coinbase, a simple ledger, is sufficient for most. 
+
+comment: p1macel
+parent: t3_1vf5ohi
+author: Mak333
+created_utc: 1785836817
+edited: false
+body:
+Explain like I'm 5:  Why can't these cold wallets simply use a USB key like Ubikey or similar?
+
+comment: p1manzl
+parent: t1_p1macel
+author: thomascr9695
+created_utc: 1785836968
+edited: false
+body:
+Its not relevant to the issue 
+
+comment: p1mat0e
+parent: t1_p1manzl
+author: Mak333
+created_utc: 1785837034
+edited: false
+body:
+Explain like I'm 5.
+
+comment: p1mckh1
+parent: t3_1vf5ohi
+author: Lavayo
+created_utc: 1785837871
+edited: false
+body:
+Yeah the existing brands of hw wallets will have to prove their RNG is solid. As they should.
+
+I'm also concerned about scams that ride the wave. For example people getting notified about the hack, explaing that high entropy is important and that you can check if your entropy is high enough by typing in your words on this helpful site. Better safe than sorry, right?
+
+Be careful people.
+
+comment: p1mcnaq
+parent: t1_p1mat0e
+author: m0r0_on
+created_utc: 1785837907
+edited: false
+body:
+Maybe explain better what you actually intend to solve with a Yubikey?
+
+comment: p1mcqjt
+parent: t3_1vf5ohi
+author: Intelligent-Willow23
+created_utc: 1785837949
+edited: false
+body:
+Can coldcard owner sue them or nah? I use Trezor so idk
+
+comment: p1mcv26
+parent: t1_p1macel
+author: alfooboboao
+created_utc: 1785838008
+edited: false
+body:
+all the wallet does is act as a signing device and store the information you use to access your bitcoin wallet, which is just a string of data on the blockchain. but, crucially, these wallets also generated the seed phrase via RNG code, which is where they fucked up.
+
+to steal your bitcoin, thieves don’t actually need to “access” the wallet at all, a USB key wouldn’t do shit. the error came with the wallet’s seed phrase / random number generator software. the attackers realized that an error in the device code had caused new bitcoin wallets seed phrases to be taken from a much smaller pool of possible “random” code words / numbers.
+
+they didn’t “hack into the device,” because they didn’t need to, and it doesn’t work like that; they realized that the device had defaulted to a much more simplistic random number generator while creating the access codes for new wallets
+
+comment: p1mdz3v
+parent: t1_p1mcnaq
+author: Mak333
+created_utc: 1785838509
+edited: false
+body:
+Explain like I'm 5.
+
+comment: p1mf5ka
+parent: t1_p1mcqjt
+author: opossum_cz
+created_utc: 1785839029
+edited: false
+body:
+For what? This was always the risk of using somebody to generate your seed, it was even warned about by Coldcard when they introduced diced roll: [https://x.com/COLDCARDwallet/status/1447213375398846473](https://x.com/COLDCARDwallet/status/1447213375398846473)
+
+comment: p1mfa3y
+parent: t1_p1mdz3v
+author: opossum_cz
+created_utc: 1785839083
+edited: false
+body:
+Nobody can answer like you are 5, if you can ask a question like you are 5. We don't know what you are asking.
+
+comment: p1mfmyc
+parent: t1_p1mckh1
+author: SpendHefty6066
+created_utc: 1785839238
+edited: false
+body:
+It is very simple to roll your own entropy. Takes a couple of minutes. No need to "prove" RNG works, nor would I know how that can be definitively proven. And if it is proven, a single firmware update can dismantle it. Easier to simply not trust it at all. I wrote this up to help create and secure an unguessable private key.
+
+[https://www.reddit.com/r/Bitcoin/s/8OeA6dC2NN](https://www.reddit.com/r/Bitcoin/s/8OeA6dC2NN)
+
+comment: p1mfq0x
+parent: t1_p1mcv26
+author: Mak333
+created_utc: 1785839276
+edited: false
+body:
+So 2FA it, or Yubikey it.  Explain like I'm 5.
+
+comment: p1mfwbb
+parent: t1_p1mfa3y
+author: Mak333
+created_utc: 1785839351
+edited: false
+body:
+I'm glad you never want to be a Kindergarten teacher.
+
+comment: p1mfxlk
+parent: t1_p1mf5ka
+author: Intelligent-Willow23
+created_utc: 1785839366
+edited: false
+body:
+They intentionally disable 1 of the rng line code ‘cause the pool to be smaller. This is not the risk of someone generate same seed bruh. This is an attack.
+
+comment: p1mhaof
+parent: t1_p1mfxlk
+author: opossum_cz
+created_utc: 1785839947
+edited: false
+body:
+I have no idea what your text means.
+
+comment: p1mhfr9
+parent: t1_p1mfwbb
+author: opossum_cz
+created_utc: 1785840007
+edited: false
+body:
+Generally, 5 year old asks questions like 5 year olds. It is hard to answer to you like you are 5, if you ask questions like you are 3.
+
+comment: p1mhl06
+parent: t1_p1mhfr9
+author: [deleted]
+created_utc: 1785840069
+edited: false
+body:
+[removed]
+
+comment: p1micse
+parent: t3_1vf5ohi
+author: mnkbstard
+created_utc: 1785840395
+edited: false
+body:
+thanks for taking the time to resume essential concepts.     
+it's infuriating to read users panicking or spreading disinformation here and on twatter.     
+
+unfortunately, it seems to be quite useless to waste time on this.     
+in this specific sub we have a mix of karma farming, users parroting others,  lack of education and just plain idiocy as you can see in this thread.
+
+regarding coldcard: i completely understand anyone deciding to stop using it as a signer. randomness is critical in this space, nonce generation for example is as critical as seed generation, and it's hard to keep using a device mantained by the same team that gifted this disaster hoping they won't mess something else.
+
+comment: p1ms8h0
+parent: t1_p1mfmyc
+author: Lavayo
+created_utc: 1785844200
+edited: 1785860998
+body:
+Everything you said is factual. But for the masses a selling point of a hardware wallet is the secure one stop shop. A hardware wallet that says "we are secure but better use dice to set up your keys" will fail even if it's honest.
+
+Hardware wallets that want to be bought outside of the enthusiast crowd will have to address this. If not by hard proof than by building up believable trust.
+
+Cool poster btw!
+
+comment: p1n10lr
+parent: t3_1vf5ohi
+author: ukieninger
+created_utc: 1785847151
+edited: false
+body:
+You are also safe if you used the compromised internal seed generater + at least 50 dice rolls. Because the values are getting hashed together. So even if your internal entropy is Zero you still have the entropy of the 50 dice rolls which is round about 128 bit entropy.
+
+comment: p1n26hk
+parent: t1_p1mfq0x
+author: ukieninger
+created_utc: 1785847518
+edited: false
+body:
+Bro, you ever considered asking chatGPT instead of putting ELI5 under every damn comment?
+
+comment: p1n5j5o
+parent: t1_p1n10lr
+author: thomascr9695
+created_utc: 1785848544
+edited: false
+body:
+A seed like that can't be verified, so highly likely safe, but not verifiable 
+
+comment: p1nlye2
+parent: t3_1vf5ohi
+author: na3than
+created_utc: 1785853184
+edited: false
+body:
+Youve got some misinformation in your rant about misinformation.
+
+> First of all, wallets do not store your seedphrase
+
+Most do, either as the raw entropy or encoded as a mnemonic sentence (it's trivial to convert one to the other). I know of only one hardware wallet that allows the user to destroy the entropy and the seed and keep only the derived master key. Not counting ephemeral signing devices (e.g. SeedSigner and Jade), which wallets *don't* store the seed phrase?
+
+> even if you has a passphrase of your own name, your dogs name, your address, a single "A" charachter you would have likely been saved.
+
+Not true. Simple passphrases were included in these attacks.
+
+
+
+
+
+
+
+comment: p1o0ix4
+parent: t3_1vf5ohi
+author: timurkrit
+created_utc: 1785857025
+edited: false
+body:
+You cannot trust internal generation anymore. And I have doubts about “simple passphrase is enough” thing. After the incident I would recommend to stick to the dice rolls plan
+
+comment: p1p7eeu
+parent: t1_p1ms8h0
+author: brandond111
+created_utc: 1785867731
+edited: false
+body:
+I get what your saying, but why do people look at rolling dice as a chore, even just mashing the buttons 50 times and then correctly writing down the seed would of saved everyone. Honestly RNG shouldn't even be an option on any hardware wallet at this point.
+
+comment: p1q4koi
+parent: t1_p1p7eeu
+author: Lavayo
+created_utc: 1785876343
+edited: false
+body:
+I agree it would be best if everyone did it. But it's never gonna happen.
+
+comment: p1ve6kd
+parent: t3_1vf5ohi
+author: ARS-1987
+created_utc: 1785943201
+edited: false
+body:
+Away at work for another couple months. No way to check anything. Used 300 dice rolls…. Hoping I’m ok. If I’m not coinkite will be getting an in person visit. 
+
+comment: p22xe52
+parent: t1_p1n10lr
+author: evgeniy_pp
+created_utc: 1786031172
+edited: false
+body:
+Who are these people who selected 24 words and dice, but was too lazy to finish the job and stoped halfway rolling?
+
+comment: p281ntn
+parent: t1_p22xe52
+author: ukieninger
+created_utc: 1786088966
+edited: false
+body:
+you are completely missing the point here

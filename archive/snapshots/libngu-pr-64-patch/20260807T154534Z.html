@@ -1,0 +1,568 @@
+From c09eff66214b800f4b632b5aa7a76bb261d2e75a Mon Sep 17 00:00:00 2001
+From: "Javier G. Montoya S" <jgmontoya@pm.me>
+Date: Thu, 6 Aug 2026 17:39:07 -0400
+Subject: [PATCH 1/3] random: reject two-word entropy cycles
+
+---
+ ngu/entropy_health.h                | 31 +++++++++++++++++++
+ ngu/ngu_tests/Makefile              | 10 ++++--
+ ngu/ngu_tests/entropy_health_test.c | 47 +++++++++++++++++++++++++++++
+ ngu/random.c                        |  8 ++---
+ 4 files changed, 90 insertions(+), 6 deletions(-)
+ create mode 100644 ngu/entropy_health.h
+ create mode 100644 ngu/ngu_tests/entropy_health_test.c
+
+diff --git a/ngu/entropy_health.h b/ngu/entropy_health.h
+new file mode 100644
+index 0000000..787ee1f
+--- /dev/null
++++ b/ngu/entropy_health.h
+@@ -0,0 +1,31 @@
++//
++// entropy_health.h - detect exact repetition in recent entropy words
++//
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++typedef struct {
++    uint32_t history[2];
++    uint8_t count;
++} entropy_health_t;
++
++// Reject a word matching either of the previous two accepted words. This
++// catches a stuck source and exact two-word cycles. Rejections do not advance
++// history. This is a narrow runtime check, not entropy-source validation.
++static inline bool entropy_health_accept(entropy_health_t *health, uint32_t word)
++{
++    for (uint8_t i = 0; i < health->count; i++) {
++        if (word == health->history[i]) {
++            return false;
++        }
++    }
++
++    health->history[1] = health->history[0];
++    health->history[0] = word;
++    if (health->count < 2) {
++        health->count++;
++    }
++    return true;
++}
+diff --git a/ngu/ngu_tests/Makefile b/ngu/ngu_tests/Makefile
+index 6b5e26a..97198b0 100644
+--- a/ngu/ngu_tests/Makefile
++++ b/ngu/ngu_tests/Makefile
+@@ -1,8 +1,8 @@
+ MPY = ../../ngu-micropython
+ PY = python3
+ 
+-.PHONY: test tests hash-drbg-cavp
+-test tests: hash-drbg-cavp
++.PHONY: test tests hash-drbg-cavp entropy-health
++test tests: hash-drbg-cavp entropy-health
+ 	test x$(VIRTUAL_ENV) != x		# need virtualenv
+ 	$(PY) test_aes.py
+ 	$(MPY) test_aes_gen.py
+@@ -43,6 +43,12 @@ hash-drbg-cavp: $(CIFRA_DRBG_SRCS)
+ 		$(CIFRA_DRBG_CC) -o "$$bin" $(CIFRA_DRBG_SRCS); \
+ 		"$$bin" hashdrbg-sha256 hashdrbg-sha256-addnl
+ 
++entropy-health: entropy_health_test.c ../entropy_health.h
++	@set -e; bin=$$(mktemp /tmp/libngu-entropy-health.XXXXXX); \
++		trap 'rm -f "$$bin"' 0; \
++		$(CC) -std=c99 -Wall -Wextra -Werror -I.. -o "$$bin" entropy_health_test.c; \
++		"$$bin"
++
+ # runs the test compiled in, not here
+ # or, on target
+ #	 import ngu_tests.run
+diff --git a/ngu/ngu_tests/entropy_health_test.c b/ngu/ngu_tests/entropy_health_test.c
+new file mode 100644
+index 0000000..579de14
+--- /dev/null
++++ b/ngu/ngu_tests/entropy_health_test.c
+@@ -0,0 +1,47 @@
++//
++// entropy_health_test.c - deterministic entropy repetition checks
++//
++#include <stdbool.h>
++#include <stdio.h>
++
++#include "entropy_health.h"
++
++static int failures;
++
++static void check(bool condition, const char *description)
++{
++    if (!condition) {
++        printf("FAIL: %s\n", description);
++        failures++;
++    }
++}
++
++int main(void)
++{
++    entropy_health_t health = { 0 };
++    entropy_health_t period_three = { 0 };
++    entropy_health_t zero = { 0 };
++
++    // Zero policy belongs to the entropy backend wrapper. This helper only
++    // checks repetition, so zero is not confused with uninitialized history.
++    check(entropy_health_accept(&zero, 0), "first zero is valid history");
++    check(!entropy_health_accept(&zero, 0), "repeated zero rejected");
++
++    check(entropy_health_accept(&health, 0x111), "first word accepted");
++    check(entropy_health_accept(&health, 0x222), "second distinct word accepted");
++    check(!entropy_health_accept(&health, 0x222), "adjacent repeat rejected");
++    check(!entropy_health_accept(&health, 0x111), "two-word cycle rejected");
++    check(entropy_health_accept(&health, 0x333), "fresh word accepted after rejection");
++    check(!entropy_health_accept(&health, 0x222), "rejection does not advance history");
++
++    check(entropy_health_accept(&period_three, 0xaaa), "period-three first word accepted");
++    check(entropy_health_accept(&period_three, 0xbbb), "period-three second word accepted");
++    check(entropy_health_accept(&period_three, 0xccc), "period-three third word accepted");
++    check(entropy_health_accept(&period_three, 0xaaa), "period-three cycle is not detected");
++
++    if (failures) {
++        return 1;
++    }
++    puts("PASS - entropy health");
++    return 0;
++}
+diff --git a/ngu/random.c b/ngu/random.c
+index 16c0d3f..9d8e29b 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -13,6 +13,7 @@
+ #include "my_assert.h"
+ #include "cifra/drbg.h"
+ #include "cifra/ext/handy.h"
++#include "entropy_health.h"
+ 
+ // ESP32 code
+ #ifdef ESP_PLATFORM
+@@ -61,7 +62,7 @@ static uint32_t linux_trng_32(void)
+ 
+ static cf_hash_drbg_sha256 drbg;
+ static bool drbg_ready;
+-static uint32_t last_chip;
++static entropy_health_t chip_health;
+ 
+ #define DRBG_ENTROPY_WORDS 32
+ 
+@@ -69,11 +70,10 @@ static uint32_t checked_chip_trng(void)
+ {
+     uint32_t chip = CHIP_TRNG_32();
+ 
+-    if(!chip || chip == last_chip) {
+-        // maybe TRNG is not clocked? Fail hard
++    if(!chip || !entropy_health_accept(&chip_health, chip)) {
++        // The source may be unclocked, stuck, or alternating between two words.
+         mp_raise_OSError(MP_EFAULT);
+     }
+-    last_chip = chip;
+ 
+     return chip;
+ }
+
+From b67a967b248c1a928f3cca5d0ddbcf77424fe278 Mon Sep 17 00:00:00 2001
+From: "Javier G. Montoya S" <jgmontoya@pm.me>
+Date: Thu, 6 Aug 2026 22:56:59 -0400
+Subject: [PATCH 2/3] random: harden entropy backend boundaries
+
+---
+ ngu/random.c           | 95 ++++++++++++------------------------------
+ ngu/random.h           |  5 ++-
+ ngu/random_backend.h   | 60 ++++++++++++++++++++++++++
+ var/mpconfigvariant.mk |  3 +-
+ 4 files changed, 91 insertions(+), 72 deletions(-)
+ create mode 100644 ngu/random_backend.h
+
+diff --git a/ngu/random.c b/ngu/random.c
+index 9d8e29b..db06b52 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -1,64 +1,17 @@
+-// 
+-// random - RNG stuff
+ //
+-// - common interface to TRNG specific to your chip
+-// - whitening
+-// - pick new privkeys
++// random - cryptographic random number generation
++//
++// Cifra Hash_DRBG is seeded from the target entropy source. Generated bytes
++// are also XORed with fresh source words after the source passes narrow
++// runtime health checks.
+ //
+ #include "py/runtime.h"
+ #include "py/mperrno.h"
+-#include <string.h>
+-#include <stdlib.h>
+-#include <stdio.h>
+ #include "my_assert.h"
+ #include "cifra/drbg.h"
+ #include "cifra/ext/handy.h"
+ #include "entropy_health.h"
+-
+-// ESP32 code
+-#ifdef ESP_PLATFORM
+-# include "esp_system.h"
+-# define CHIP_TRNG_SETUP()      
+-# define CHIP_TRNG_32()         esp_random()
+-#endif
+-
+-#ifdef MICROPY_PY_STM
+-// ports/stm32/rng.c
+-extern uint32_t rng_get(void);
+-# define CHIP_TRNG_SETUP()      
+-# define CHIP_TRNG_32()         rng_get()
+-
+-# if MICROPY_HW_ENABLE_RNG == 0
+-# error "get a HW TRNG plz"
+-# endif
+-#endif
+-
+-#if defined(__APPLE__) || defined(__FreeBSD__)
+-# define CHIP_TRNG_SETUP()      
+-# define CHIP_TRNG_32()         arc4random()
+-#endif
+-
+-#ifdef __linux__
+-# include <sys/random.h>
+-// glibc random() is not a TRNG and is typically unseeded here — never use for keys.
+-static uint32_t linux_trng_32(void)
+-{
+-    uint32_t v = 0;
+-    ssize_t n = getrandom(&v, sizeof v, 0);
+-    if(n != (ssize_t)sizeof v) {
+-        mp_raise_OSError(MP_EFAULT);
+-    }
+-    return v;
+-}
+-# define CHIP_TRNG_SETUP()
+-# define CHIP_TRNG_32()         linux_trng_32()
+-#endif
+-
+-#ifndef CHIP_TRNG_SETUP
+-# error "need chip TRNG function"
+-# define CHIP_TRNG_SETUP()
+-# define CHIP_TRNG_32()         0x5a5a5a5a
+-#endif
++#include "random_backend.h"
+ 
+ static cf_hash_drbg_sha256 drbg;
+ static bool drbg_ready;
+@@ -66,25 +19,35 @@ static entropy_health_t chip_health;
+ 
+ #define DRBG_ENTROPY_WORDS 32
+ 
+-static uint32_t checked_chip_trng(void)
++static bool checked_chip_trng_read(uint32_t *out)
+ {
+-    uint32_t chip = CHIP_TRNG_32();
++    uint32_t chip;
+ 
+-    if(!chip || !entropy_health_accept(&chip_health, chip)) {
+-        // The source may be unclocked, stuck, or alternating between two words.
+-        mp_raise_OSError(MP_EFAULT);
++    if(!chip_trng_read(&chip) || !chip ||
++            !entropy_health_accept(&chip_health, chip)) {
++        return false;
+     }
++    *out = chip;
++    return true;
++}
+ 
++static uint32_t checked_chip_trng(void)
++{
++    uint32_t chip;
++    if(!checked_chip_trng_read(&chip)) {
++        mp_raise_OSError(MP_EFAULT);
++    }
+     return chip;
+ }
+ 
+ static void drbg_seed_from_chip(void)
+ {
+-    CHIP_TRNG_SETUP();
+-
+     uint32_t entropy[DRBG_ENTROPY_WORDS];
+     for(int i = 0; i < DRBG_ENTROPY_WORDS; i++) {
+-        entropy[i] = checked_chip_trng();
++        if(!checked_chip_trng_read(&entropy[i])) {
++            mem_clean(entropy, sizeof entropy);
++            mp_raise_OSError(MP_EFAULT);
++        }
+     }
+ 
+     if(drbg_ready) {
+@@ -111,8 +74,6 @@ static void drbg_setup(const void *seed, size_t seed_len)
+ 
+ void my_random_bytes(uint8_t *dest, uint32_t count)
+ {
+-    CHIP_TRNG_SETUP();
+-
+     if(!drbg_ready) {
+         drbg_setup(NULL, 0);
+     }
+@@ -135,8 +96,6 @@ void my_random_bytes(uint8_t *dest, uint32_t count)
+ 
+ STATIC mp_obj_t random_uint32(void) {
+     // full 32-bit values, not 30
+-    CHIP_TRNG_SETUP();
+-
+     uint32_t rv;
+     my_random_bytes((uint8_t *)&rv, sizeof(rv));
+ 
+@@ -159,12 +118,10 @@ int _rand_below(int mx)
+ {
+     if(mx <= 1) return 0;
+ 
+-    int bl = _bit_length(mx);
++    int bl = _bit_length(mx - 1);
+     assert(bl && (bl < 31));
+ 
+-    CHIP_TRNG_SETUP();
+-
+-    uint32_t mask = (2 << bl)-1;
++    uint32_t mask = (1u << bl) - 1;
+ 
+     while(1) {
+         uint32_t pt;
+diff --git a/ngu/random.h b/ngu/random.h
+index afa8210..1d43685 100644
+--- a/ngu/random.h
++++ b/ngu/random.h
+@@ -1,6 +1,7 @@
+ 
+ #pragma once
+ 
+-// safe for crypto purposes
++// Safe for cryptographic use. Calls must be serialized; Python callers are
++// protected by the VM's GIL, while direct C callers own that responsibility.
++// Raises a MicroPython exception if the target entropy source fails.
+ void my_random_bytes(uint8_t *dest, uint32_t count);
+-
+diff --git a/ngu/random_backend.h b/ngu/random_backend.h
+new file mode 100644
+index 0000000..2a1ba66
+--- /dev/null
++++ b/ngu/random_backend.h
+@@ -0,0 +1,60 @@
++//
++// random_backend.h - fail-closed target entropy selection
++//
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#if MICROPY_PY_THREAD && !MICROPY_PY_THREAD_GIL
++# error "ngu.random requires the GIL when threads are enabled"
++#endif
++
++// Every backend returns false when it cannot provide a word. This lets the
++// caller clean sensitive state before raising a MicroPython exception.
++#if defined(ESP_PLATFORM)
++# if NGU_ESP32_RNG_IS_TRUE_RANDOM != 1
++#  error "NGU_ESP32_RNG_IS_TRUE_RANDOM=1 required; see README"
++# endif
++# include "esp_system.h"
++static bool chip_trng_read(uint32_t *out)
++{
++    *out = esp_random();
++    return true;
++}
++
++#elif MICROPY_PY_STM
++# if MICROPY_HW_ENABLE_RNG == 0
++#  error "MICROPY_HW_ENABLE_RNG=1 required; otherwise rng_get() is pseudo-random"
++# endif
++// ports/stm32/rng.c returns zero on a peripheral timeout. Reject every zero
++// because its API cannot distinguish a timeout from a valid sample.
++extern uint32_t rng_get(void);
++static bool chip_trng_read(uint32_t *out)
++{
++    uint32_t word = rng_get();
++    if(!word) {
++        return false;
++    }
++    *out = word;
++    return true;
++}
++
++#elif defined(__APPLE__) || defined(__FreeBSD__)
++# include <stdlib.h>
++static bool chip_trng_read(uint32_t *out)
++{
++    *out = arc4random();
++    return true;
++}
++
++#elif defined(__linux__)
++# include <sys/random.h>
++static bool chip_trng_read(uint32_t *out)
++{
++    return getrandom(out, sizeof(*out), 0) == (ssize_t)sizeof(*out);
++}
++
++#else
++# error "No hardware or OS entropy source is defined for this target"
++#endif
+diff --git a/var/mpconfigvariant.mk b/var/mpconfigvariant.mk
+index e9983bf..fbbd479 100644
+--- a/var/mpconfigvariant.mk
++++ b/var/mpconfigvariant.mk
+@@ -10,4 +10,5 @@ PROG = ngu-micropython
+ MICROPY_SSL_AXTLS = 0
+ MICROPY_SSL_MBEDTLS = 1
+ 
+-
++# ngu.random holds mutable DRBG and entropy-health state.
++MICROPY_PY_THREAD = 0
+
+From 23d77bce24ffb559fbe8ac215a55e2757bc44edf Mon Sep 17 00:00:00 2001
+From: "Javier G. Montoya S" <jgmontoya@pm.me>
+Date: Thu, 6 Aug 2026 23:45:05 -0400
+Subject: [PATCH 3/3] test: gate random backend contracts
+
+---
+ README.md                                     | 29 +++++++++++++++-
+ ngu/ngu_tests/Makefile                        | 34 +++++++++++++++++--
+ ngu/ngu_tests/gate-stubs/esp_system.h         |  6 ++++
+ .../gate-stubs/random_backend_gate.c          |  7 ++++
+ 4 files changed, 72 insertions(+), 4 deletions(-)
+ create mode 100644 ngu/ngu_tests/gate-stubs/esp_system.h
+ create mode 100644 ngu/ngu_tests/gate-stubs/random_backend_gate.c
+
+diff --git a/README.md b/README.md
+index c4244fb..bdb7c23 100644
+--- a/README.md
++++ b/README.md
+@@ -29,7 +29,9 @@ Name is "Number Go Up" ... because need that.
+ - `make one-time` does submodule bullshit, configures K1 lib
+ - `make quick` compiles Unix micropython port, runs tests
+ - can play with `./ngu-micropython` binary on your desktop
+-- compile for ESP32 and burn onto TTGO board
++- ESP32 builds stop until the integrator attests that true entropy stays
++  active whenever `ngu.random` is used (see below). Once that is established,
++  compile and burn onto the TTGO board:
+ ```
+ make -f makefile.esp32
+ make -f makefile.esp32 deploy
+@@ -48,4 +50,29 @@ or for single test:
+ make -f makefile.stm32 
+ ```
+ 
++## Random number integration
+ 
++`ngu.random` uses Cifra Hash_DRBG, initially seeded with 128 bytes from the
++target entropy source. Generated bytes are also XORed with fresh source words.
++There is no software fallback:
++
++- STM32 uses MicroPython's `rng_get()` only when the board enables
++  `MICROPY_HW_ENABLE_RNG`. The pinned MicroPython source otherwise provides a
++  pseudo-random implementation. A zero word is rejected because `rng_get()`
++  also returns zero on a peripheral timeout.
++- ESP32 uses `esp_random()` only when the build sets
++  `NGU_ESP32_RNG_IS_TRUE_RANDOM=1`. This is the integrator's attestation that a
++  true entropy source remains active whenever random data is requested; without active RF
++  or another enabled entropy source, ESP-IDF documents the output as
++  pseudo-random. See the [ESP-IDF RNG documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/random.html).
++- macOS and FreeBSD use `arc4random()`. Linux uses `getrandom(2)`. Unknown
++  targets fail to build.
++
++The runtime rejects zero, an immediate repeated word, and an exact two-word
++cycle. This is a narrow failure check, not a substitute for validating the raw
++entropy source on each hardware target.
++
++`ngu.random.reseed()` accepts bytes-like values of at least 32 bytes and mixes
++them into the existing state. The module keeps mutable DRBG and health state,
++so calls must be serialized. Python calls require the VM's GIL when threads
++are enabled; direct C callers own that synchronization.
+diff --git a/ngu/ngu_tests/Makefile b/ngu/ngu_tests/Makefile
+index 97198b0..1e43f3d 100644
+--- a/ngu/ngu_tests/Makefile
++++ b/ngu/ngu_tests/Makefile
+@@ -1,8 +1,8 @@
+ MPY = ../../ngu-micropython
+ PY = python3
+ 
+-.PHONY: test tests hash-drbg-cavp entropy-health
+-test tests: hash-drbg-cavp entropy-health
++.PHONY: test tests hash-drbg-cavp entropy-health gates
++test tests: hash-drbg-cavp entropy-health gates
+ 	test x$(VIRTUAL_ENV) != x		# need virtualenv
+ 	$(PY) test_aes.py
+ 	$(MPY) test_aes_gen.py
+@@ -34,7 +34,8 @@ CIFRA_SRC = ../../libs/cifra/src
+ CIFRA_DRBG_SRCS = $(CIFRA_SRC)/testdrbg.c $(CIFRA_SRC)/drbg.c \
+ 	$(CIFRA_SRC)/sha1.c $(CIFRA_SRC)/sha256.c $(CIFRA_SRC)/sha512.c \
+ 	$(CIFRA_SRC)/blockwise.c $(CIFRA_SRC)/hmac.c $(CIFRA_SRC)/chash.c
+-CIFRA_DRBG_CC = $(CC) -std=gnu99 -Wall -Wextra -Werror -DFULL_FAT_ASSERT \
++CIFRA_DRBG_CC = $(CC) -std=gnu99 -Wall -Wextra -Werror \
++	-Wno-unused-but-set-variable -DFULL_FAT_ASSERT \
+ 	-I$(CIFRA_SRC) -I$(CIFRA_SRC)/ext
+ 
+ hash-drbg-cavp: $(CIFRA_DRBG_SRCS)
+@@ -49,6 +50,33 @@ entropy-health: entropy_health_test.c ../entropy_health.h
+ 		$(CC) -std=c99 -Wall -Wextra -Werror -I.. -o "$$bin" entropy_health_test.c; \
+ 		"$$bin"
+ 
++GATE_CC = $(CC) -fsyntax-only -std=gnu99 -Wall -Wextra -Werror -I..
++GATE_SOURCE = gate-stubs/random_backend_gate.c
++GATE_STM_BASE = $(GATE_CC) -DMICROPY_PY_STM=1 $(GATE_SOURCE)
++GATE_STM = $(GATE_STM_BASE) -DMICROPY_HW_ENABLE_RNG=1
++GATE_ESP = $(GATE_CC) -Igate-stubs -DESP_PLATFORM=1 $(GATE_SOURCE)
++
++gates:
++	@set -e; log=$$(mktemp /tmp/libngu-rng-gates.XXXXXX); \
++		trap 'rm -f "$$log"' 0; \
++		! $(GATE_STM_BASE) 2>"$$log"; \
++		grep -q 'MICROPY_HW_ENABLE_RNG=1 required' "$$log"; \
++		! $(GATE_STM_BASE) -DMICROPY_HW_ENABLE_RNG=0 2>"$$log"; \
++		grep -q 'MICROPY_HW_ENABLE_RNG=1 required' "$$log"; \
++		$(GATE_STM); \
++		! $(GATE_ESP) 2>"$$log"; \
++		grep -q 'NGU_ESP32_RNG_IS_TRUE_RANDOM=1 required' "$$log"; \
++		! $(GATE_ESP) -DNGU_ESP32_RNG_IS_TRUE_RANDOM=0 2>"$$log"; \
++		grep -q 'NGU_ESP32_RNG_IS_TRUE_RANDOM=1 required' "$$log"; \
++		! $(GATE_ESP) -DNGU_ESP32_RNG_IS_TRUE_RANDOM=2 2>"$$log"; \
++		grep -q 'NGU_ESP32_RNG_IS_TRUE_RANDOM=1 required' "$$log"; \
++		$(GATE_ESP) -DNGU_ESP32_RNG_IS_TRUE_RANDOM=1; \
++		! $(GATE_STM) -DMICROPY_PY_THREAD=1 -DMICROPY_PY_THREAD_GIL=0 2>"$$log"; \
++		grep -q 'ngu.random requires the GIL when threads are enabled' "$$log"; \
++		$(GATE_STM) -DMICROPY_PY_THREAD=1 -DMICROPY_PY_THREAD_GIL=1; \
++		$(GATE_STM) -DMICROPY_PY_THREAD=0 -DMICROPY_PY_THREAD_GIL=0; \
++		echo "PASS - RNG backend gates"
++
+ # runs the test compiled in, not here
+ # or, on target
+ #	 import ngu_tests.run
+diff --git a/ngu/ngu_tests/gate-stubs/esp_system.h b/ngu/ngu_tests/gate-stubs/esp_system.h
+new file mode 100644
+index 0000000..9546864
+--- /dev/null
++++ b/ngu/ngu_tests/gate-stubs/esp_system.h
+@@ -0,0 +1,6 @@
++// Minimal ESP-IDF test double for syntax-checking random_backend.h.
++#pragma once
++
++#include <stdint.h>
++
++uint32_t esp_random(void);
+diff --git a/ngu/ngu_tests/gate-stubs/random_backend_gate.c b/ngu/ngu_tests/gate-stubs/random_backend_gate.c
+new file mode 100644
+index 0000000..14ae166
+--- /dev/null
++++ b/ngu/ngu_tests/gate-stubs/random_backend_gate.c
+@@ -0,0 +1,7 @@
++#include "random_backend.h"
++
++void random_backend_gate(void)
++{
++    uint32_t word;
++    (void)chip_trng_read(&word);
++}

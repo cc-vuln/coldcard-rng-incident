@@ -1,0 +1,153 @@
+--- bitcointalk-large-scale-compromise-thread@20260806T100342Z
++++ bitcointalk-large-scale-compromise-thread@20260806T163543Z
+@@ -3729,5 +3729,150 @@
+ The hacker lose the race. They ended with paying fees 9,000 sat and receiving 1,000 sat losing 90% of the fund on miners fees.
+ Quote from: @Pathfinder
+ https://pbs.twimg.com/media/HO-QEsgWYAEQbGo?format=png&name=small
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: kTimesG on August 06, 2026, 10:23:55 AM
++Quote from: gmaxwell on Today at 01:59:15 AM
++It would be prudent to remind people here that there are still a lot of vulnerable funds that could be saved and that it would be anti-social to explain how to reduce the search space of coldcard devices just to brag about how smart you are, or show that some rando was wrong on the internet.
++My intention was to simply point out that the specific honeypot doesn't reflect real-life conditions.
++It's not a security breach to use the number "42" which was pretended to be some sort of a honey pot of all wallets between 1 and 100 (out of which none was actually ever created)., when in reality there's a jigsaw puzzle hidden in a maze with a billion doors.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Cookdata on August 06, 2026, 10:28:24 AM
++Quote from: ryzaadit on Today at 09:03:03 AM
++Their device detected the sweeps and both of them are in the race for RBF transaction.
++The hacker lose the race. They ended with paying fees 9,000 sat and receiving 1,000 sat losing 90% of the fund on miners fees.
++There is a similar experimental video about Mk3 but with different objectives, the person created 5 different wallets using Mk3 Coldcard, the first wallet was generated using the insecure random number generator, the same seed phrase was used to generate 3 wallets with different passphrases and the last wallet which is the 5th was generated using the same seed phrase from a random account.
++https://talkimg.com/images/2026/08/06/Uo9QgT.png
++http://x.com/ColeTU/status/2085090397223637049
++He funded the 5 generated addresses from each wallet with 10800 sats each https://mempool.space/tx/f6a0e25dfa9b03f4a45c65cddeebafb0ea50c9b2732febbafd9a7f40ecf7b7da to see which of the wallet is getting sweep first and it turns out that the insecured RNG which is the first wallet was swept immediately, he could have overide it with a new transaction and pay more fees too but his objective is to see how the scammers are moving the coins and if passphrase 1 word, 2 words or 3 are secured enough with an insucure RNG seed phrase.
++So far, the first wallet is swept, and the sats are sitting in this address: https://mempool.space/address/bc1qunqajps4elc78m8fq7s7nglc6x80j49exheq78
++The rest of the wallets with the same seed phrase and passphrases are intact, the same wallet with the same seed phrase but a random account is also intact. That means the scammers focus is on default accounts created from Mk3, they don't search all account derivations.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Bullethead21 on August 06, 2026, 10:32:39 AM
++I have a TREZOR? I am still save?
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: vapourminer on August 06, 2026, 10:56:46 AM
++Quote from: Bullethead21 on Today at 10:32:39 AM
++I have a TREZOR? I am still save?
++if you used a seed generated on a coldcard, no you are not safe. you need to move funds out.
++otherwise depends on how you generated the seed, but so far other wallets are not affected by the coldcard bug
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Filicius on August 06, 2026, 11:07:53 AM
++It's incredible: although I didn't see it, apparently yesterday in the local news they commented on this issue, but when a friend of mine who was able to see it told me about this news it seems that they confused it with a Bitcoin base problem and not with something related to a specific device.
++I am reluctant to think that a serious news program is capable of making a mistake of such magnitude, and, most likely, the person who has told me about it misunderstood what they said. But, if so, there are many more people who know less about the subject that my friend and who saw the news that must be thinking that something is wrong with Bitcoin.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: stompix on August 06, 2026, 11:12:59 AM
++Quote from: Dave1 on Today at 06:13:09 AM
++Not sure if this is true or not,
++https://x.com/News_crypto/status/2084558130239664431
++Or this is just for the clickbait and clout about the current incident. But this could be bad crypto media. And if confirmed, this is really a sad story and tragic. The thing is that the one that is going to suffer the most here is that family that is going to be left behind.
++One guy sends a message and claims to commit suicide, and we already write him dead?
++Also, who uses a tumbler to split move funds 4 times before sending that message to reimburse him to an address with no activity?
++Seriously, lately the ratio of noise to actual info is going down the drain.
++Quote from: joker_josue on Today at 06:42:59 AM
++It's vacation time in most countries in the Northern Hemisphere. I believe there are still many people in a similar situation.
++Some people tend to take a few days to be 100% offline, so they may not even be aware of this whole problem yet. They may have already run out of coins and not even know it.
++I doubt they have planned it this way all along but indeed, it came at one of the worst times possible, at least for Christmas or some other holiday a lot of people are home with family, in summer, things are different. I'm sure there are plenty who don't even know what has happened yet.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Wind_FURY on August 06, 2026, 11:22:11 AM
++Quote from: decodx on August 05, 2026, 06:56:46 AM
++Quote from: Wind_FURY on August 05, 2026, 06:40:55 AM
++Quote from: LoyceV on August 04, 2026, 01:03:42 PM
++Quote from: Wind_FURY on August 04, 2026, 10:58:59 AM
++The community in general is still "lucky" that the stupidity came from the ColdCard developers.
++This is one of the reasons I'm always careful paranoid when a new wallet (be it hardware or software) is released. It took me years to trust Ledger (until they broke that trust), and now I only have Trezor left on my personal preferred list of hardware wallets.
++The fact that this Coldcard flaw was around for 5 years makes it only harder to trust anything.
++But for the truly paranoid, install Bitcoin Core/Electrum in a computer that will NEVER connect to the internet FOREVER, and generate your keys/seed phrase there. Write it down, then keep it in a safe place. The same for the computer, keep it locked in a vault.
++Keep sending Bitcoin to that address.
++To be honest, I don't think this is a good solution for the truly paranoid (or even for the mildly paranoid).   You've just switched from using hardware wallets over to Electrum as your preferred solution.
++What if there was some vulnerability exposed within the Electrum development? It really wouldn't make that much difference to the final outcome.
++Read my post again. I believe you didn't understand that it's one of the original solutions for cold-storage before hardware wallets were invented. PLUS Electrum is one of the truly tested wallets in the Bitcoin ecosystem.
++It's not a debate. It's a FACT.
++8)
++Shower thought. The ColdCard situation might be an inside job.
++Quote
++Coinkite CTO having a conversation with himself using a pseudonym.
++https://gist.github.com/dylanleclair1/67d160af313be59851b88d1a81f0d762
++https://cdn.imgchest.com/files/657ae8dc2b95.jpeg
++https://x.com/DylanLeClair/status/2085074383773581570
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: ultrloa on August 06, 2026, 11:27:59 AM
++Quote from: vapourminer on Today at 10:56:46 AM
++Quote from: Bullethead21 on Today at 10:32:39 AM
++I have a TREZOR? I am still save?
++if you used a seed generated on a coldcard, no you are not safe. you need to move funds out.
++otherwise depends on how you generated the seed, but so far other wallets are not affected by the coldcard bug
++Right, because those vulnerability on happens on created seeds on those compromised old coldcard firmware and this is not affect the seeds of other devices.
++But I think there's no way for Trezor user to generate seed on Coldcard. So generally he's safe from this exploit.
++So those seed generated by like Ledger, Seedsigner and other wallets is not affected on the exploit happened on Coldcard.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: RoxxR on August 06, 2026, 11:36:09 AM
++Lol now there's a Counterparty asset about this story.
++https://xcp.io/asset/NOTSOCOLD
++https://cdn.xcp.io/img/full/NOTSOCOLD
++Seems that it didn't get much coverage in mainstream media, though?
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Danish Ali on August 06, 2026, 01:37:45 PM
++Quote from: vapourminer on Today at 10:56:46 AM
++Quote from: Bullethead21 on Today at 10:32:39 AM
++I have a TREZOR? I am still save?
++if you used a seed generated on a coldcard, no you are not safe. you need to move funds out.
++otherwise depends on how you generated the seed, but so far other wallets are not affected by the coldcard bug
++Exactly, the device brand does not matter here, the seed origin does. Any wallet holding Coldcard generated seed is equally at risk regardless of what hardware it is running on now.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Stalker22 on August 06, 2026, 02:02:27 PM
++Quote from: stompix on Today at 11:12:59 AM
++I doubt they have planned it this way all along but indeed, it came at one of the worst times possible,
++~
++I think someone DID plan this carefully.  The first few batched transactions were executed almost simultaneously.  This means someone had to crack all the private keys, find the wallets with the largest balances, prepare and sign all the transactions, and just wait for the right time to execute.
++Quote from: stompix on Today at 11:12:59 AM
++I'm sure there are plenty who don't even know what has happened yet.
++Unfortunately, yes.  Mainstream coverage of this incident has been practically nonexistent, keeping the story confined strictly to the crypto space.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: vapourminer on August 06, 2026, 02:24:29 PM
++Quote from: Stalker22 on Today at 02:02:27 PM
++Mainstream coverage of this incident has been practically nonexistent, keeping the story confined strictly to the crypto space.
++just as well; the public would think its a bitcoin-the-protocol is hacked and create panic. its just one hardware wallets manufacturers idiot programming. not a big deal in the general bitcoin space as a whole.
++not to minimize the absolute suck this whole thing is for victims and thats what they were, victims. not their fault they trusted this thing it was recommended by many here and elsewhere.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: LoyceV on August 06, 2026, 02:29:00 PM
++Quote from: ryzaadit on Today at 09:03:03 AM
++Crazy to see the sweeps just need 10 seconds after the deposit.
++Was that a new hardware wallet with a newly created seed phrase, or a seed phrase that was compromised before?
++If it's the former, that means someone (or multiple entities) are now racing through all ~trillion possible seed phrases to detect any new incoming funds.
++Quote
++losing 90% of the fund on miners fees.
++RBF is a bitch for thiefs:
++Quote from: LoyceV on February 20, 2023, 10:51:12 AM
++Quote from: o_e_l_e_o on February 20, 2023, 10:40:02 AM
++Things will get quite interesting once full RBF becomes commonplace. Any such transaction stealing coins from a brain wallet or leaked private key could be replaced by another transaction, regardless of whether or not is opted in to RBF or not. We could end up seeing different bots broadcasting more and more replacements, each paying a higher and higher fee, trying to steal the coins for themselves. Since there is no incentive for any one such bot to surrender and let another bot win, then such transactions could just escalate until the entire value (or close to it) is paid in fees.
++I was curious about that scenario too. That would mean that (eventually) only miners profit from funds sent to addresses with leaked private keys.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: hd49728 on August 06, 2026, 02:41:05 PM
++Quote from: ryzaadit on Today at 09:03:03 AM
++Crazy to see the sweeps just need 10 seconds after the deposit.
++Some social experiment being made by Wesatoshis, who provides a Bitcoin hardware terminal for moving transaction with @Pathfinder to fill his Coldcard MK3 with 10,000 sat for the atacker to take the baits. And indeed..... just need 10 second after the deposit for the atacker trying to take those fund
++Their device detected the sweeps and both of them are in the race for RBF transaction.
++The hacker lose the race. They ended with paying fees 9,000 sat and receiving 1,000 sat losing 90% of the fund on miners fees.
++It's interesting information to see how attackers do their jobs but I don't see attackers losing anything here. They already stole a lot of money with about 1,500 bitcoins so far, and even in this sweep transaction, they did not lose 9,000 satoshi but actually got 1,000 satoshi. Because every satoshi is worth something now and will be worth more in the future.
++https://charts.bitbo.io/satoshi-per-dollar/
++With this test, it shows the attackers use bots to do their jobs but it's not strange because attackers will not move funds manually. They need to sweep fund immediately and as fastest as possible while manual processing it is not helpful.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: pawanjain on August 06, 2026, 02:44:08 PM
++At this point, I have stopped trusting these hardware wallets. Are there even any option left for really good hardware wallets?
++What's the point of having one if they can have such bugs which can sweep out millions of funds in such a short time.
++I know it's not the users fault here but the company has to take the responsibility here for the mess up and ensure their users get their funds back.
++Who knows, it can even be an insider job. That's always the first thought I get when such hacks happen.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: oll on August 06, 2026, 03:09:11 PM
++Quote from: vapourminer on Today at 02:24:29 PM
++Quote from: Stalker22 on Today at 02:02:27 PM
++Mainstream coverage of this incident has been practically nonexistent, keeping the story confined strictly to the crypto space.
++just as well; the public would think its a bitcoin-the-protocol is hacked and create panic. its just one hardware wallets manufacturers idiot programming. not a big deal in the general bitcoin space as a whole.
++not to minimize the absolute suck this whole thing is for victims and thats what they were, victims. not their fault they trusted this thing it was recommended by many here and elsewhere.
++That's right, because for the general public, bitcoin and blockchain are not amazing technologies, but a "speculative asset" that some of them bought for 120k in euphoria, someone got burned earlier, and someone regrets that he did not buy 100 bucks and carries this fomo through the years. And all this mass of people will happily leave toxic comments without even delving into the topic of the ColdCard issue. This is how the mass psychology of people works: they need to justify their greed and laziness by preserving their own picture of the world. Which is distorted, and so does not want to change. And over the years, this static only increases. And it would seem that a crypto enthusiast can easily help this person, but in the end it will be he who will be the first to be blamed for the investment troubles of such people.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Pmalek on August 06, 2026, 03:35:05 PM
++Bitcoin Red Team consists of 16 people who are working around the clock now and running security audits on Bitcoin code bases. According to their report, they have already made close to 5,000 findings and discovered what they believe are 85 critical and 635 high severity issues. They report these issues back to project owners and companies, and I think that's a great thing that has come out of this terrible situation. Whitehats and industry experts joining forces to help secure the wider Bitcoin ecosystem.
++https://xcancel.com/callebtc/status/2085024458012586286
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

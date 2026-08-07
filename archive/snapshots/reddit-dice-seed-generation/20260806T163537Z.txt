@@ -1,0 +1,753 @@
+post: 1vdl4h3
+author: Proof-Professor-1030
+created_utc: 1785684836
+title: Generating your own seed with physical dice: 99 rolls ≈ 256 bits of entropy (why I stopped trusting RNGs for cold storage)
+body:
+Something that finally clicked for me after years in Bitcoin: when your hardware wallet generates a seed, you're trusting its RNG and its firmware with literally everything. For most people that's a reasonable trust tradeoff. But you don't have to make it.
+
+You can generate a BIP39 seed entirely from physical dice:
+
+**- 99 rolls of a standard 6-sided die ≈ 256 bits of entropy → a 24-word seed.**
+
+**- 50 rolls ≈ 128 bits → a 12-word seed.**
+
+The math: each roll gives you log2(6) ≈ 2.585 bits. 99 × 2.585 ≈ 256. BIP39 adds a checksum on top, which is where the last word comes from — you compute it once, offline, or let an air-gapped device like a SeedSigner derive it.
+
+
+
+Why bother?
+
+1. **You control the entropy source.** Dice have no firmware, no supply chain, no update mechanism. You can audit them by rolling a few hundred times and checking the distribution.
+
+2. **The seed is born offline.** It's generated on paper, in a room with no cameras, and only ever touches an air-gapped device after that. Tampered-device and bad-RNG concerns just evaporate.
+
+3. **It forces you to understand what a seed actually is** — a big number, not a magical artifact of your wallet brand. That understanding changes how you think about backups, passphrases and multisig.
+
+
+
+I wrote up the full procedure (including how to compute the checksum, common mistakes like reusing dice patterns, and how to verify the result on an air-gapped device) as part of a free self-custody guide: [https://self-custody.cc/](https://self-custody.cc/) — the Dice Seeds section. No ads, nothing for sale, EN/DE/ES.
+
+Curious who else here has done dice-generated seeds and whether you went 12 or 24 words, and why.
+
+comment: p19uydy
+parent: t3_1vdl4h3
+author: DiamondHandsDarrell
+created_utc: 1785685897
+edited: false
+body:
+One problem is people don't understand how difficult it is to program an application to create random numbers. 
+
+They put their trust in wallets, thinking they did things right. 
+
+
+
+comment: p19vu71
+parent: t3_1vdl4h3
+author: MuchBee9645
+created_utc: 1785686139
+edited: false
+body:
+This guy gets it
+
+comment: p19wg9y
+parent: t3_1vdl4h3
+author: Strong_Judge_3730
+created_utc: 1785686305
+edited: false
+body:
+This guide recommended using a HW wallet that supports dice rolls, cold card is listed lol. 
+
+If your worried about the HW then use dice to generate a strong passphrase.
+
+comment: p19wuok
+parent: t1_p19wg9y
+author: Proof-Professor-1030
+created_utc: 1785686413
+edited: false
+body:
+not exactly, i mentioned this option but recommended generating it yourself, without a HWW
+
+comment: p19wzon
+parent: t1_p19uydy
+author: Proof-Professor-1030
+created_utc: 1785686450
+edited: false
+body:
+yeah but current reality forces us to learn and choose the harder path that will keep our coins safe
+
+comment: p19xcvr
+parent: t1_p19wzon
+author: Proof-Professor-1030
+created_utc: 1785686550
+edited: false
+body:
+you're free to choose any method, even though I did cover coldcard, it's obviously not the best option right now
+
+comment: p19xpuj
+parent: t3_1vdl4h3
+author: Broric
+created_utc: 1785686648
+edited: false
+body:
+People are going to start selling BTC dice which are loaded in some way :p 
+
+comment: p1a01tm
+parent: t1_p19xpuj
+author: Proof-Professor-1030
+created_utc: 1785687284
+edited: false
+body:
+yea and i don't think single-sig is dangerous with other providers but these events shook me and i think it's reasonable to start stepping up your security
+
+comment: p1a0elu
+parent: t3_1vdl4h3
+author: _FireWithin_
+created_utc: 1785687382
+edited: false
+body:
+And that is why bitcoin will never ever replace money, but it will probably stay a good investment for years to come? Thats the gamble! Sure is entertaining to read the average reddit user, most have no clue :O
+
+comment: p1a2g19
+parent: t1_p1a0elu
+author: swiftpwns
+created_utc: 1785687939
+edited: false
+body:
+Nope, you Just wont have your own keys, you will have a hot wallet with lightning and you wont have to pay onboarding fees because you wont even ever interact with bitcoin on layer 1. This is the only way bitcoin scales 
+
+comment: p1a2hrp
+parent: t3_1vdl4h3
+author: Brief_Lettuce_571
+created_utc: 1785687952
+edited: false
+body:
+After I generate a 24 word using the dice can I load it on a Trevor, for example? Or should I just keep it on paper? How to generate the public keys for receiving funds?
+
+comment: p1a6hqv
+parent: t3_1vdl4h3
+author: Which_Comment_9790
+created_utc: 1785689049
+edited: false
+body:
+Where were you a week ago with this.  
+
+comment: p1a9vbp
+parent: t3_1vdl4h3
+author: jannies_doit_4_free
+created_utc: 1785689964
+edited: false
+body:
+you should add that people should also have at least a passphrase on top of their seedphrase, and there are also options like multi-sig
+
+comment: p1abjw1
+parent: t3_1vdl4h3
+author: OfficialXstasy
+created_utc: 1785690418
+edited: false
+body:
+I will make a digital dice that uses RNG to generate 1-6.
+
+comment: p1aiimf
+parent: t3_1vdl4h3
+author: Filmexec21
+created_utc: 1785692285
+edited: 1785693966
+body:
+I have done a lot of research on this 99 dice rolls to acquire your seed phrase, but I just do not understand how one converts the digits to words without using some computer.
+
+comment: p1ajedu
+parent: t1_p19wg9y
+author: El_Caganer
+created_utc: 1785692519
+edited: false
+body:
+Cold card supports using dice rolls to generate a seed phrase. The guide is correct. Not sure what you're pointing out. 
+
+comment: p1ajwh7
+parent: t3_1vdl4h3
+author: creative_usr_name
+created_utc: 1785692652
+edited: false
+body:
+The 24th seed word cannot be rolled for as it contains a checksum based on the previous words. Something either a website or a device is needed to compute that for you. 
+
+comment: p1am64a
+parent: t3_1vdl4h3
+author: [deleted]
+created_utc: 1785693251
+edited: false
+body:
+[deleted]
+
+comment: p1amoar
+parent: t3_1vdl4h3
+author: jwhendy
+created_utc: 1785693385
+edited: false
+body:
+You can buy a [cheap Bingo game for freaking $24 on Amazon](https://www.amazon.com/Regal-Games-Deluxe-Bingo-Cage/dp/B0749DGGRV). Shower thought that struck me yesterday: why not have 2048 bingo balls in a cage, roll them around as long as you want between pulls, drawing 24 in total (or 23, then add the checksum word) and there you go??
+
+Coins, single dice, this cool dice "[box of entropy](https://shop.lnbits.com/product/little-box-of-entropy-50-dice-for-bitcoin-seed-generation)," bingo balls, go to a parking lot and write down the last digit of 100 license plates as you walk through, pick a number from 1-7 and write that digit down from 100 of your contacts/recent calls/recent texts), [lava lamps](https://blog.cloudflare.com/randomness-101-lavarand-in-production/), ... just sooooo many ways to generate entropy. I completely agree there's no reason whatsoever to require a chip RNG for seed generation.
+
+comment: p1ani3y
+parent: t1_p19xpuj
+author: AlwaysMooning
+created_utc: 1785693605
+edited: false
+body:
+I rolled 99 consecutive sixes. My stack is safe, right? 
+
+comment: p1aqkwi
+parent: t1_p1a2hrp
+author: Hopeful-Finance9812
+created_utc: 1785694428
+edited: false
+body:
+Please Stop it. Iff you dont know what your doing dont do it at all, You cant use monopoly games dices only true casino dice etc etc, take some time to learn and master it befor you do something you can regret latter
+
+comment: p1asheo
+parent: t1_p19uydy
+author: ErgoMogoFOMO
+created_utc: 1785694943
+edited: false
+body:
+Wallets can put their ego aside and tell their users to use dice.
+
+comment: p1ayq2w
+parent: t3_1vdl4h3
+author: We_are_all_monkeys
+created_utc: 1785696644
+edited: false
+body:
+After all this, it might be better to get your entropy at the casino. Roulette gives you five bits per spin (just ignore 32 to 36 and 00). Sit there, get some free drinks, and gamble with whatever money you were going to put into Bitcoin. You'll leave with all the entropy you need, and if you're lucky, more money than you would have ever made buying Bitcoin.
+
+comment: p1b0akq
+parent: t3_1vdl4h3
+author: dosman33
+created_utc: 1785697076
+edited: false
+body:
+You need to roll your physical dice and measure their randomization before running with this. If they have physical imprints on them (pips or similar), then each face can have a different weight.
+
+I knew this was plausibly a thing but I didn't realize how big of a problem this really was. Recently a friend had a bag of 100 six-sided dice and dumped them on a table. Out of curiosity I sorted all the numbers and counted. Yep, statistically significant differences between all of the six sides pointing up. Fives and sixes had a good margin over the other numbers, ones and twos were at the bottom end. This is clearly because of five and six pip cavities making the fives and sixes lighter, so the other side tends to bounce and stay closer to the table. It really was a perfect stacking of order based on weights on each face.
+
+Also, they do make dice in other numbering systems, like hexadecimal. I have a set, but I've not measured their randomness so I wouldn't trust them until I did this by hand.
+
+comment: p1b0djj
+parent: t1_p1am64a
+author: oinkbar
+created_utc: 1785697098
+edited: false
+body:
+50 times is enough?
+
+comment: p1b2b14
+parent: t3_1vdl4h3
+author: dosman33
+created_utc: 1785697629
+edited: false
+body:
+Here you go:  
+[http://gamesbyemail.com/News/DiceOMatic](http://gamesbyemail.com/News/DiceOMatic)
+
+comment: p1b3iqv
+parent: t3_1vdl4h3
+author: EyesFor1
+created_utc: 1785697966
+edited: false
+body:
+Put 150 dice in a jar, shake them up and dump them on a tiled floor. That is random. Think how long it would take for someone to repeat that exact same throw of 150 dice without error not to mention recording the values of those dice in exactly the order you did with out making a single error. This is why dice rolls are sound.
+
+comment: p1b54pc
+parent: t1_p1a6hqv
+author: IInsulince
+created_utc: 1785698412
+edited: false
+body:
+Where were you? Hindsight bias is strong.
+
+comment: p1b7u44
+parent: t3_1vdl4h3
+author: [deleted]
+created_utc: 1785699164
+edited: false
+body:
+[deleted]
+
+comment: p1b7u5v
+parent: t1_p19uydy
+author: noncommonGoodsense
+created_utc: 1785699165
+edited: false
+body:
+Generate an image with comfy UI random seed.
+
+comment: p1b87aj
+parent: t1_p1ani3y
+author: staszewskyyy
+created_utc: 1785699267
+edited: false
+body:
+It could be weighted slightly to the 2/4/6 sides so these numbers will dominate in the seed. Then i think you're nearly halving the possibilities
+
+comment: p1b9cke
+parent: t3_1vdl4h3
+author: thelaurelhighlander
+created_utc: 1785699587
+edited: false
+body:
+A good video demonstrating how to. 
+https://youtu.be/hXJNLvAVar0?si=qNOg5pw95kZG2hw3
+
+comment: p1bcle6
+parent: t3_1vdl4h3
+author: Budget_Dragonfruit89
+created_utc: 1785700494
+edited: false
+body:
+Just use passphrase
+
+comment: p1bda63
+parent: t1_p19uydy
+author: Tebasaki
+created_utc: 1785700690
+edited: false
+body:
+This is key. It's been decades since college but only of my early programming courses taught me that any "random" function programmed into code is never truly random. Blew me away.
+
+comment: p1bfg00
+parent: t1_p19xpuj
+author: marcusmv3
+created_utc: 1785701296
+edited: false
+body:
+How do I build my own dice?
+
+comment: p1bfxi6
+parent: t1_p1aiimf
+author: jgillman
+created_utc: 1785701434
+edited: false
+body:
+The BIP-39 word list has a different word the corresponds to each 4 digit number you generate. You roll the dice, get a number, the look up the number in the word list.
+
+comment: p1bh0lc
+parent: t1_p1b87aj
+author: zacguymarino
+created_utc: 1785701740
+edited: false
+body:
+Not if it's a properly designed dice that keeps the centroid of any given side in the center by varying the diameter and depth of the little cutouts. Casino dice aim to do this, for example.
+
+comment: p1bh19w
+parent: t3_1vdl4h3
+author: Carbonaraficionada
+created_utc: 1785701745
+edited: false
+body:
+Great site. Can you explore the inheritance aspect in greater detail plz? Maybe an extra page for it specifically? 
+
+comment: p1bj50i
+parent: t1_p1b0akq
+author: embwbam
+created_utc: 1785702335
+edited: false
+body:
+I don’t think 100 is enough to smooth out random patterns. Get to 100k and I bet you’ll see them a lot closer to expected odds
+
+comment: p1bmu13
+parent: t3_1vdl4h3
+author: UmbraofDeath
+created_utc: 1785703381
+edited: false
+body:
+It was understood 40 years ago that random number generation using a computer was not true entropy. The Chinese word for it is literally fake generation.
+
+If you use an algorithm to generate the numbers then the algorithm can be used to find the numbers made. 
+
+comment: p1bmzlv
+parent: t1_p1b87aj
+author: AlwaysMooning
+created_utc: 1785703425
+edited: false
+body:
+Halving the possibilities wouldn’t help crack a wallet in the slightest. I don’t think you understand just how big the numbers we are dealing with are.  
+
+comment: p1bniq6
+parent: t1_p1aqkwi
+author: JEI2E
+created_utc: 1785703577
+edited: false
+body:
+You can and absolutely should use monopoly dices (or from any other board game) IF you roll enough times, if that means you don't have to waste money on expensive ass casino dices.
+
+I was looking to buy a couple of those with all what's going on lately, and noped the fuck out pretty quickly once I saw the price tag. I have no use for them after that, mind you, so you're wasting all of that money for basically nothing.
+
+comment: p1bnrai
+parent: t1_p1a6hqv
+author: JEI2E
+created_utc: 1785703644
+edited: false
+body:
+Nothing was going on a week ago. Where were YOU a week ago with this?
+
+comment: p1bo090
+parent: t1_p1aiimf
+author: JEI2E
+created_utc: 1785703716
+edited: false
+body:
+You first use a computer to print out the word list, then do all of the rolling in a private area without any electronics around and checking the printed out paper every single time.
+
+comment: p1bx1kr
+parent: t1_p1ani3y
+author: Ok-Pea4148
+created_utc: 1785706342
+edited: false
+body:
+Probability of that makes it impossible though
+
+comment: p1bx76i
+parent: t1_p1aiimf
+author: KryptoChic
+created_utc: 1785706388
+edited: false
+body:
+You can use an old computer that will never ever be on the internet ever again. For example an old Windows10, Windows7, or even an old WindowsXP computer (assuming you use Windows) that will never ever be on the internet again.
+
+comment: p1c2w82
+parent: t1_p1ajedu
+author: Strong_Judge_3730
+created_utc: 1785708104
+edited: false
+body:
+How can anyone continue to recommend that after this shit show
+
+comment: p1c3595
+parent: t1_p19wuok
+author: Strong_Judge_3730
+created_utc: 1785708181
+edited: false
+body:
+So you recommended generating a seed with the help of general purpose computer lol.
+
+comment: p1c3yks
+parent: t3_1vdl4h3
+author: icheyne
+created_utc: 1785708427
+edited: false
+body:
+The most common way to do this is with 5d6 but it's awkward. It turns out the most efficient combination is with 1d8+2d16 and a lookup table. Alternatively if you don't want to buy 2d16, just use 1d4+3d8.
+
+[https://github.com/reardencode/bip39\_dice](https://github.com/reardencode/bip39_dice)
+
+comment: p1c694p
+parent: t1_p1c2w82
+author: El_Caganer
+created_utc: 1785709125
+edited: false
+body:
+Easy, you don't use the buggy part. Could something else pop up? Absolutely. Same with any code or 1st or 3rd party involvement. 
+
+comment: p1c7ucq
+parent: t3_1vdl4h3
+author: Quirky_Address_5445
+created_utc: 1785709617
+edited: false
+body:
+you’re forgetting we’re in the matrix and entropy is supposedly getting lower, which already violates the second law of thermodynamics, so either physics is bugging out or the universe forgot to clear its cache. At this rate the simulation is running on 4GB of RAM, the stars are just loading screens, déjà vu is packet loss, bitcoin is the NPC economy trying to become self aware, and one day the sky is gonna turn into a Windows error message right before we all get blue screened mid thought
+
+comment: p1c8cyo
+parent: t1_p1c694p
+author: Strong_Judge_3730
+created_utc: 1785709778
+edited: false
+body:
+🤡 😂
+
+comment: p1c91a2
+parent: t1_p1ajwh7
+author: Strong_Judge_3730
+created_utc: 1785709988
+edited: false
+body:
+The op guide recommended cold card and some other random HWs that nobody uses to do that lol. 
+
+Just use a reputable HW and use dice to generate a really high entropy passphrase and write the down. 
+
+People are recommending dice to farm karma, but they clearly haven't done it or thought about the security model.
+
+comment: p1ceb4x
+parent: t1_p1ani3y
+author: wildemam
+created_utc: 1785711646
+edited: false
+body:
+All oxygen molecules in my room just randomly avoided being in the vicinity of my nose. I am safe, right? 
+
+comment: p1cesss
+parent: t1_p1bda63
+author: wildemam
+created_utc: 1785711803
+edited: false
+body:
+I dig a lot into programming just because I could not understand how anything a computer produces is truly random. I extrapolate to nature as a whole. What is randomness. 
+
+It is beautiful when you actually see the math….
+
+comment: p1cex83
+parent: t1_p1a6hqv
+author: wildemam
+created_utc: 1785711842
+edited: false
+body:
+It is on the internet and everywhere. Nobody really talked about it until yesterday. 
+
+comment: p1chqgu
+parent: t3_1vdl4h3
+author: niverans
+created_utc: 1785712745
+edited: false
+body:
+The future of money and you have to roll dice to not get hacked
+
+comment: p1civwh
+parent: t1_p1bda63
+author: DiamondHandsDarrell
+created_utc: 1785713118
+edited: false
+body:
+Yep, it's a very difficult problem to solve. 
+
+comment: p1ck1w2
+parent: t1_p1bfg00
+author: NorfolkIslandRebel
+created_utc: 1785713500
+edited: false
+body:
+Not your dice not your Crypto
+
+comment: p1cmjow
+parent: t3_1vdl4h3
+author: na3than
+created_utc: 1785714325
+edited: false
+body:
+OP is a bot account posting LLM-created drivel. Do not engage.
+
+comment: p1d0rox
+parent: t1_p1bniq6
+author: Brief_Lettuce_571
+created_utc: 1785719076
+edited: false
+body:
+Don't forget to destroy the dice after hehehe.
+
+comment: p1d8fyx
+parent: t1_p1bda63
+author: AuryGlenz
+created_utc: 1785721740
+edited: false
+body:
+Veracrypt (and others) use your mouse movements (possibly combined with the usual time-based ways?).  Seems like a decent way to do it. 
+
+comment: p1dk12v
+parent: t3_1vdl4h3
+author: Martamis
+created_utc: 1785725945
+edited: false
+body:
+Does anyone know if I can reprogramm my coldcard and manually enter a manual seed phrase? 
+
+comment: p1ds2lf
+parent: t1_p1c8cyo
+author: dj_destroyer
+created_utc: 1785729165
+edited: false
+body:
+Anyone who used the dice method is safe.
+
+comment: p1duvku
+parent: t1_p1bx76i
+author: NuggedClarp
+created_utc: 1785730332
+edited: false
+body:
+r/Buttcoin was right all along 
+
+comment: p1dyc1i
+parent: t1_p1ds2lf
+author: Strong_Judge_3730
+created_utc: 1785731838
+edited: false
+body:
+if they did it properly, running dice rolls then putting the results into a laptop program to calculate the seed is not smart.
+
+few reputable hardware wallets support using this method to generate seeds. So I wont recommend noobs doing this method because they will find a dumb way to do it.
+
+people using a passphrase are also safe, and this is the recommended way to defend your seed from physical attacks when its found and the case when your HW screws up - which is equivalent to the above 
+
+comment: p1e36hj
+parent: t1_p1bj50i
+author: dosman33
+created_utc: 1785734021
+edited: false
+body:
+What are the odds that with a bag of 100 dice, the number frequency sorts in order on every bag toss? How many times do you need to see it happen when you already know the method of action (weight distribution). 
+
+comment: p1ejrxw
+parent: t1_p19xpuj
+author: Head_Performance2432
+created_utc: 1785742182
+edited: false
+body:
+so mix the seed with a passphrase for bonus entropy then
+
+comment: p1fce6k
+parent: t1_p1c3yks
+author: Buckles21
+created_utc: 1785755872
+edited: false
+body:
+I was thinking the simplest way would be 2d50, and just have a 50x50 grid of all the bip39 words, and roll each word in turn. Although then you have some dice you'll rarely use, and it'll be tedious to test their randomness.
+
+comment: p1fhv9m
+parent: t1_p1b0akq
+author: skr_replicator
+created_utc: 1785757980
+edited: 1785758923
+body:
+Even if the dice are not perfectly weighted, it's rnadom values are still usable. A random bit that is 49% 0 and 51% 1, is still almost just as hard to crack as a perfectly 50:50 one. if you are unsure about about it's weightedness, just roll it a few times more and get more entropy out of it to balance that out. Or roll two sequences and XOR them with each other, or even better inverse the bit or one sequence before the XOR, that would also get you far far closer for each "face" value to be 1/6 in probability, as the values will get mixed with all the others, and evened out.
+
+I get that people are now panicking about the quality of they entropy, but a dice that is slightly offset in weighting its sides won't give you anything close to coldcard-level low entropy. And you can always improve it further by rolling it more times, and doing some XORing.
+
+Another idea I got to even out any weight issues would be to cycle the values every throw, like the first throw would map to itself, the second throw would map to (+1 mod 6), the third throw to (+2 mod 6) and so on. Possibly even throw one extra dice at the beginning to determine the starting shift. This way every face will get about equal chances to give you all the possible values, and as long as the weighting is not so severe (a dice practically guaranteeing a result) that you will start getting a sequence of 1,2,3,4,5,6,1,2... you should be fine.
+
+comment: p1fiob4
+parent: t1_p1b7u44
+author: Hanzieoo
+created_utc: 1785758273
+edited: false
+body:
+You make binary. Odds are 1 andeven is zero. Or the other way round. Turn that into 4 digit numbers that's on the list.
+
+comment: p1fk0rq
+parent: t1_p1fiob4
+author: [deleted]
+created_utc: 1785758752
+edited: false
+body:
+[deleted]
+
+comment: p1flzta
+parent: t3_1vdl4h3
+author: skr_replicator
+created_utc: 1785759444
+edited: 1785760565
+body:
+I don't think you can easily get log2(6) bits of entropy per throw, because you are trying to get a binary sequence, not in base 6. You can get arbitrarily close by finding some power of 6 that is only slightly larger than a power of 2, and then throwing away any results that overflow that power of two. For example 6\^2 vs 2\^5:
+
+Throw 2 dice to get numbers A and B from 0-5. Calculate A + 6\*B. If it is larger than 31, ignore this result and repeat. If smaller than 32, convert the number to binary and write it. Because you have to throw away the 32-35, you will be a little short of log2(6)\~2.585, but it's not that bad (20/9=2.22 bits per throw). A slighty improvement would be to subtract 32 and convert to 2 bits, if you get 32-35, isntead of throwing that away (that would be (32\*5+4\*2)/(36\*2) = 2.333... bits per throw, still not log2(6) but a little closer). But it's also a bit complicated to be doing over and over again.
+
+I think just throwing a single die and converting 1->00, 2->01, 3->10, 4->11, 5->0, 6->1, will be simpler and faster, because it doesn't require any calculations whatsoever. But also no need to throw any result away, you only get somewhat less entropy per throw than the 32-36 scheme (it will only give you 5/3=1.666... bits per throw), but you will be able to do that so much faster and easier that you will probably be finished sooner.
+
+It might be so fast, you could do it twice, and then XOR the two sequences together, to even out any possible weaknesses like bad throws or a slightly weighted die.
+
+comment: p1fs8hi
+parent: t1_p1ajwh7
+author: ThatsButter
+created_utc: 1785761497
+edited: false
+body:
+Did you really just say to upload every seed word to a website for it to calculate a checksum for you? You're cooked.
+
+comment: p1fv71h
+parent: t3_1vdl4h3
+author: EconomicsSavings973
+created_utc: 1785762424
+edited: false
+body:
+Ima roll 98 times and imagine the last roll to throw off the hackers.
+
+comment: p1fypyy
+parent: t1_p1dyc1i
+author: dj_destroyer
+created_utc: 1785763485
+edited: false
+body:
+Sorry I meant the dice method directly through the Coldcard
+
+comment: p1h281x
+parent: t1_p1chqgu
+author: unshak3n
+created_utc: 1785774026
+edited: false
+body:
+r/Buttcoin was right. Sadly.
+
+comment: p1hcugg
+parent: t3_1vdl4h3
+author: abercrombezie
+created_utc: 1785776655
+edited: 1785777127
+body:
+Thx, I just ordered some dice!! 🎲  😅
+
+comment: p1ihyug
+parent: t3_1vdl4h3
+author: sergbotz
+created_utc: 1785787137
+edited: false
+body:
+What about 16 and 8 sided dice, like blockstream support mentions?
+
+comment: p1lztj5
+parent: t1_p1ihyug
+author: Proof-Professor-1030
+created_utc: 1785831595
+edited: false
+body:
+hm, its interesting
+
+comment: p1mk79e
+parent: t1_p1d8fyx
+author: Tebasaki
+created_utc: 1785841150
+edited: false
+body:
+I remember seeing this some 10ish years ago where you could do this on a website to create your wallet. Hilarious that it was way ahead of it's time
+
+comment: p1mst2c
+parent: t1_p1fk0rq
+author: Hanzieoo
+created_utc: 1785844404
+edited: false
+body:
+
+https://x.com/FinneJay/status/1737662786941968736?s=19
+
+comment: p1qem82
+parent: t1_p1fce6k
+author: icheyne
+created_utc: 1785879048
+edited: false
+body:
+There are 2048 bip39 words so 1d32+1d64 would be most efficient of all.
+
+comment: p1tkw0r
+parent: t1_p1ani3y
+author: ibrewcoffeeonthemoon
+created_utc: 1785921646
+edited: false
+body:
+If you have this level of luck, you should just start picking random 24 words and you will land on someone's wallet very soon. 😁
+
+comment: p1tp9x9
+parent: t1_p1aqkwi
+author: ibrewcoffeeonthemoon
+created_utc: 1785923730
+edited: false
+body:
+Actually the opposite is true. Casino dice, if not carefully chosen, may be intentionally made to be biased for some very obvious purposes. In the future if a hacker know that some one is using these kind of casino dicss to generate the seed phrase that will also greatly reduce the entropy of seed phrase. Casino dices may not even be as good as a regular dices.
+
+"Always being unpredictable" is the way to go. If you are gonna use dice, go ahead, but don't tell others that you use which brand of dice.

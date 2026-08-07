@@ -1,0 +1,40 @@
+From 7e393e70f633fb758426c47b97b5e4611d1c572d Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Fri, 7 Aug 2026 09:02:04 +0200
+Subject: [PATCH 1/2] Revert "Enforce HW TRNG"
+The check rejects MICROPY_HW_ENABLE_RNG=0, which is intentional when Coldcard supplies its own hardware-backed rng_get(). This breaks all Coldcard firmware builds.
+---
+ ngu/random.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/ngu/random.c b/ngu/random.c
+index 16c0d3f..f995417 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -27,7 +27,7 @@ extern uint32_t rng_get(void);
+ # define CHIP_TRNG_SETUP()
+ # define CHIP_TRNG_32()         rng_get()
+-# if MICROPY_HW_ENABLE_RNG == 0
++# ifndef MICROPY_HW_ENABLE_RNG
+ # error "get a HW TRNG plz"
+ # endif
+ #endif
+From a41d632cd9b61428587828379e240f7555fed48b Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Fri, 7 Aug 2026 09:02:27 +0200
+Subject: [PATCH 2/2] Allow an external STM32 rng_get provider
+Permit STM32 ports that replace MicroPython rng_get() to opt in explicitly. Require NGU_STM32_EXTERNAL_RNG_GET to equal 1 so undefined, zero, and other values remain rejected.
+---
+ ngu/random.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/ngu/random.c b/ngu/random.c
+index f995417..49fd469 100644
+--- a/ngu/random.c
++++ b/ngu/random.c
+@@ -27,7 +27,7 @@ extern uint32_t rng_get(void);
+ # define CHIP_TRNG_SETUP()
+ # define CHIP_TRNG_32()         rng_get()
+-# ifndef MICROPY_HW_ENABLE_RNG
++# if MICROPY_HW_ENABLE_RNG == 0 && NGU_STM32_EXTERNAL_RNG_GET != 1
+ # error "get a HW TRNG plz"
+ # endif
+ #endif

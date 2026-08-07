@@ -1,0 +1,44 @@
+{
+  "data": {
+    "item": {
+      "comments": {
+        "comments": [
+          {
+            "createdAt": "2026-08-05T23:58:46.185Z",
+            "text": "Bunch of rubbish, the CC bad entropy would just have compromised your vault recovery key and you'd be in a RBF hope for the best situation just as they were anyway.\n\n> If cold card users had access to vaults, they could have clawed their funds back.\n\nCovenants supporters talk out both sides of their mouths on this.\n\nIf this is true, then no one can ever trust Bitcoin they receive. \n\nThey respond, \"Well you'd give buyers an unrestricted address\" \n\nSo, an attacker would do the same.\n\nMore crypto-theater nonsense. Vaults are either useless, or make Bitcoin useless. Pick one. They are mutually exclusive outcomes.",
+            "user": {
+              "name": "justin_shocknet"
+            }
+          },
+          {
+            "createdAt": "2026-08-06T01:54:52.026Z",
+            "text": "covenants looks more like a honeypot for clueless for me than anything useful.\n\n>urgency\n\nfew things in bitcoin are really urgent and this is not one of them",
+            "user": {
+              "name": "Fenix"
+            }
+          },
+          {
+            "createdAt": "2026-08-06T09:45:00.226Z",
+            "text": "As I'm so intrigued by this upcoming eCash fork, all these additions can be bolted 🔩 onto it, like opCat, opVault etc etc\n\nThen we'll see it as a testing ground, it either works or it doesn't \n\nOf course there are nuances\n\nBut supporters of the lightning network for example, say that lightning is the best option we have, they don't say it's perfect in every way, so in that frame if the choice is between lightning and something else, they take lightning as the best we can do currently, which is a trade off\n\nSo others will be proponents for drivechains and those also have Trade-offs \n\nWill be interesting to see how the future pans out",
+            "user": {
+              "name": "npub1zapsats"
+            }
+          },
+          {
+            "createdAt": "2026-08-06T10:23:34.943Z",
+            "text": "🤔",
+            "user": {
+              "name": "4883b4c1a4"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-08-05T22:35:06.311Z",
+      "text": "15 Nov 2022, I wrote a little SN article titled: [How I Got Hacked and STILL Didn't Lose my Bitcoin](https://stacker.news/items/94400). How I reacted to the hack is to be honest a little embarrassing. Installing anti-virus while you have a virus has so many reasons to make the situation worse rather than better. The reason I shared that experience anyway, was to talk about multi-sig as a risk mitigation.\n\nCold card users right now are learning the dice rolling technique for mitigating the risk of bad entropy generation. They've lived bad entropy generation. Multi-vendor multi-sig, then mitigates the risk of any critical failure (intentional or accidental) on any one device at a time allowing you time to migrate to a new multi-sig setup without that vendor in the mix.\n\nI mention all of this to demonstrate that CTV vaults are not the ONLY way to mitigate catastrophic risk. Now I would like to talk about how vaults make risk mitigation much more convenient for average users.\n\n# Creating a Wallet\n\nFirst and foremost, early into the CTV discussion there was some misunderstanding that a third party would be able to say something like \"Make sure you have one of these predetermined addresses (somehow) or we won't send you your Bitcoin\". This does happen with some wallets. They only let you send to other wallets that they trust in some way. Some exchanges may ask you where you're sending your Bitcoin, all without CTV. However, this dissuades people from using said wallets or exchanges, to the point that the average person doesn't even know about them.\n\nSecondly, anyone who has created a multi-sig wallet, can easily imagine how creating a CTV (specially vault in this case) wallet would look like. You create your wallets on other devices, then bring the xpubs into one main software to combine it all with Bitcoin script to give you your addresses. When it comes to multi-sig, some companies like unchained are educating customers on how to do it, while others like bitkey are integrating it into their software such that the user, who in these cases don't even know how to back up their seed phrase to allow them to restore it later, have that risk mitigated by another means (two other keys spending to a new wallet in this case). You can easily imagine the same for CTV enabled vaults.\n\n# The Scenario\n\nIf you're a cold card user, and you watched your Bitcoin leaving your wallet. You freak out, troubleshoot some software, and after a day or two you finally accept its gone. If you had the ability to say \"No! get back here!\" even to a hot wallet, you would (not that you should, but keeping the scenario real here).\n\nIn this alternate reality, your cold card is one signer in a CTV enabled vault. The other wallet is not able to spend the funds, but rather is a required path that funds must take when being spent under certain conditions. [^1]\n\nTo keep it simple:\n\nYou're a cold card user. You have your funds in a CTV vault. You watch as your money gets drained. You remember that you set a timelock of 7 days (counted in blocks mined) to go submit a transaction that forces those funds to come back to another wallet you had set up. Even if that other wallet you had set up was a shitty wallet you installed from a phone app store (which is an extreme case, not a recommendation)\n\n# Why Rush CTV?\n\nEverytime I write another article about why CTV is so great, I will ultimately get the question, \"Why rush it?\" Annoyed, I'll type, I'm not rushing, I'm evaluating and sharing, but look, there is a good argument for more urgency around CTVs activation. If cold card users had access to vaults, they could have clawed their funds back. Not every user would have set it up, and vaults are not the only way to mitigate risk, but between the risk mitigation strategies told to users, you can see which ones get the \"That's too complicated for normal people\" treatment, and which ones get the \"This seems good\" treatment.\n\nFor my fellows who would also like to activate CTV, write software. We need demonstration software to show our fellow node runners what these CTV enabled experiences will be like. No amount of writing will convince users who don't understand what you're saying. Hands on experience is the best way to communicate such that it reduces that gap.\n\nMay the next critical flaw in the next signing device, be exciting, but ultimately of no consequence.\n\n[^1]: Thank you to  [Spark's article](https://www.spark.money/research/bitcoin-script-vaults-explained) for helping me explain the vault process in better detail than magic wand hand waving",
+      "title": "How CTV Covenant Enabled Vaults Could Have Protected Cold Card Victims",
+      "user": {
+        "name": "nerd2ninja"
+      }
+    }
+  }
+}

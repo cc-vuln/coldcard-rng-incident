@@ -1,0 +1,25 @@
+url:      https://x.com/jamesob/status/2085555839797166530
+author:   James O'Beirne
+handle:   @jamesob
+posted:   2026-08-07T02:37:14.000Z (from the page's <time> element)
+captured: 20260807T111308Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    0 attached image(s)
+reply-to: COLDCARD
+@COLDCARDwallet
+·
+9h -- 'Extremely important correction.\n\n\n@jackmallers\n there wasn’t a weak entropy fallback. I think it’s important to be precise about what actually happened.\n\nThe weak PRNG (Yasmarang) wasn’t Coinkite’s fallback—it was MicroPython’s built-in general-purpose RNG, introduced upstream in'
+
+--- post text (verbatim) ---
+
+This is some wild hairsplitting and misdirection.
+
+You absolutely did fall back to weak entropy, and the yasmarang implementation you put in libngu was even weaker than the one in MicroPython (because yours used hardcoded constants): 
+https://
+github.com/switck/libngu/
+blob/0cf31968852ef8312254067dae274c8fd093648b/ngu/random.c#L49-L89
+…
+
+You were warned about this particular issue by me and at least one other person 4 years before me.
