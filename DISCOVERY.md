@@ -29,6 +29,16 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
+- 2026-08-01 [CoinDesk: how bitcoin cold wallets lost $70 million in an attack that never touched the devices](https://www.coindesk.com/tech/2026/08/01/how-bitcoin-cold-wallets-lost-usd70-million-in-an-attack-that-never-touched-the-devices) (link review: cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report e568bed8](https://chainabuse.com/report/e568bed8-62f8-46b8-aae6-4d271c8d63e0) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report d4c95fab](https://chainabuse.com/report/d4c95fab-ed8e-4749-ae81-9d42bfdab1cb) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report 0f8d1d1c](https://chainabuse.com/report/0f8d1d1c-556b-40e6-a819-c91c153497aa) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report 2727f906](https://chainabuse.com/report/2727f906-bf8f-4540-92e4-ad4fd5b59cbf) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report 6e9fa34a](https://chainabuse.com/report/6e9fa34a-6128-4b9b-9ef9-8cc4159b1935) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report 61e7b80a](https://chainabuse.com/report/61e7b80a-4ec6-42b4-a8b4-4cab1a29c9ac) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [Chainabuse victim report 6e9ac9f1](https://chainabuse.com/report/6e9ac9f1-61e5-49c5-947c-062afc70b73b) (link review: wave evidence cited by coldcard-hack-tracker)
+- 2026-08-05 [pastebin: confirmed addresses](https://pastebin.com/6AG9s0pP) (link review: wave-4 material, cited by coldcard-hack-tracker)
+- 2026-08-05 [pastebin: mempool / RBF list](https://pastebin.com/zR5Wk2cz) (link review: wave-4 material, cited by coldcard-hack-tracker)
 - 2026-08-07 [All attacks on Bitcoin are good](https://www.reddit.com/r/Bitcoin/comments/1vidcdf/all_attacks_on_bitcoin_are_good/) by arcrad, 78 comments (r/Bitcoin) [body]
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout.
 - 2026-08-07 [I Have A 12 Word Seed](https://www.reddit.com/r/Bitcoin/comments/1vifi09/i_have_a_12_word_seed/) by -reddit-online-, 9 comments (r/Bitcoin) [body]
@@ -483,44 +493,6 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-06 [Got my ledger wiped.](https://www.reddit.com/r/Bitcoin/comments/1vhgt1s/got_my_ledger_wiped/) by RoyalLengthiness9319, 25 comments (r/Bitcoin) -> dismissed: Ledger drain report with no established link to the COLDCARD vulnerability (20260807T105012Z)
 - 2026-08-06 [Found the coldcard hacker Ip address](https://www.reddit.com/r/Bitcoin/comments/1vh1i7k/found_the_coldcard_hacker_ip_address/) by Omniknight111, 19 comments (r/Bitcoin) -> dismissed: unverifiable claim of locating the attacker, no checkable lead (20260807T105012Z)
 
-## Link review, held for a human decision
-
-Candidates found by reading a registered source's own citations rather than by
-a discovery command. They sit below `## Assessed` on purpose: the intake agent
-reads only the Pending list, and these are neither community threads nor X
-permalinks, so neither of its two lanes fits them. Move a line into Pending, or
-register it directly, once the decision below is taken.
-
-**From coldcard-hack-tracker, 5 Aug 2026.** Its 300 outbound links were read
-through the capture browser and compared against the registry. 188 mempool.space
-transaction links, 8 arkm.com and 4 etherscan.io address views are deliberately
-not queued: they are explorer views of chain data, and the chain is not a
-document this archive needs to hold a copy of. What is left:
-
-- [CoinDesk, 1 Aug: how bitcoin cold wallets lost $70 million in an attack that never touched the devices](https://www.coindesk.com/tech/2026/08/01/how-bitcoin-cold-wallets-lost-usd70-million-in-an-attack-that-never-touched-the-devices) - press the registry does not hold, from a title already represented by other outlets. Straightforward to register if wanted
-- Seven Chainabuse victim reports the tracker cites as evidence for its waves:
-  [e568bed8](https://chainabuse.com/report/e568bed8-62f8-46b8-aae6-4d271c8d63e0),
-  [d4c95fab](https://chainabuse.com/report/d4c95fab-ed8e-4749-ae81-9d42bfdab1cb),
-  [0f8d1d1c](https://chainabuse.com/report/0f8d1d1c-556b-40e6-a819-c91c153497aa),
-  [2727f906](https://chainabuse.com/report/2727f906-bf8f-4540-92e4-ad4fd5b59cbf),
-  [6e9fa34a](https://chainabuse.com/report/6e9fa34a-6128-4b9b-9ef9-8cc4159b1935),
-  [61e7b80a](https://chainabuse.com/report/61e7b80a-4ec6-42b4-a8b4-4cab1a29c9ac),
-  [6e9ac9f1](https://chainabuse.com/report/6e9ac9f1-61e5-49c5-947c-062afc70b73b).
-  These are the primary evidence under the tracker's wave attributions, and
-  they are first-hand accounts their authors published. They are also victim
-  reports, and a victim's own addresses are exactly what they contain, so
-  registering them puts victim address sets in this repository and on the site.
-  The 3 August decision covers author-published first-hand material; whether it
-  was meant to reach this is a call for the operator, not the intake agent
-- Two pastebins the wave-4 material rests on:
-  [confirmed addresses](https://pastebin.com/6AG9s0pP) and the
-  [mempool / RBF list](https://pastebin.com/zR5Wk2cz). These are the unfiltered
-  sets the @intangiblecoins corrections refer to, already described on
-  /record/funds/, and pastebins disappear. Worth capturing on those grounds;
-  the RBF list may enumerate addresses that were being swept, meaning victims'
-  addresses. That requires the same operator decision as the Chainabuse reports
-  before registration.
-
 - 2026-08-05 [How CTV Covenant Enabled Vaults Could Have Protected Cold Card Victims](https://stacker.news/items/1541227) by nerd2ninja, 2 comments (~bitcoin) -> registered as stackernews-ctv-vaults (20260806T052201Z)
 - 2026-08-05 [COLDCARD, CLN DoS, Stack Exchange - Bitcoin Optech Newsletter #416 Recap Podcast](https://stacker.news/items/1541071) by schmidty, 0 comments (~bitcoin) -> dismissed: link post with no discussion, while the newsletter is already represented by optech-416 and stackernews-optech-416-thread (20260806T052201Z)
 - 2026-08-05 [39,600 BTC in transfers of less than 1 Bitcoin following the Coldcard incident.](https://stacker.news/items/1541229) by mkmloom, 4 comments (~bitcoin) -> dismissed: unlinked CryptoQuant figures and a short discussion add no independently checkable lead beyond registered chain-monitoring records (20260806T052201Z)
@@ -540,7 +512,6 @@ document this archive needs to hold a copy of. What is left:
 - 2026-08-05 [Dust Attack](https://www.reddit.com/r/Bitcoin/comments/1vgkooe/dust_attack/) by -reddit-online-, 6 comments (r/Bitcoin) -> dismissed: generic dust and coin-control support question, not substantively about the incident and without wider record value (20260806T080045Z)
 - 2026-08-05 [Ledger - passphrase](https://www.reddit.com/r/Bitcoin/comments/1vgjg4k/ledger_passphrase/) by pelo_ownz, 17 comments (r/Bitcoin) -> dismissed: generic Ledger setup-support question with no incident reference or wider record value (20260806T080249Z)
 - 2026-08-05 [Is this accurate about the 25th word phrase?](https://www.reddit.com/r/Bitcoin/comments/1vggeh4/is_this_accurate_about_the_25th_word_phrase/) by Maleficent_Pool_4456, 25 comments (r/Bitcoin) -> dismissed: generic BIP39 passphrase-entropy question with no incident reference or distinct record value (20260806T080249Z)
-
 - 2026-08-07 [NEW: Trezor's CTO on the Cold Card Hack: Randomness, Trust, and What Comes Next](https://stacker.news/items/1542511) by efrat, 2 comments (~bitcoin) -> registered as stackernews-trezor-cto-coldcard-hack (20260807T165734Z)
 - 2026-08-07 [Bitcoin data lost on exchanges vs. Coldcard incident](https://stacker.news/items/1542179) by mkmloom, 4 comments (~bitcoin) -> registered as stackernews-exchange-loss-comparison (20260807T165734Z)
 - 2026-08-07 [Coldcard issues "extremely important correction"](https://stacker.news/items/1542079) by Scoresby, 12 comments (~bitcoin) -> registered as stackernews-coldcard-correction-fallback (20260807T165734Z)
@@ -586,6 +557,17 @@ document this archive needs to hold a copy of. What is left:
 - 2026-08-07 [@BitcoinNewsCom post (text available during approved intake)](https://x.com/BitcoinNewsCom/status/2085700535772934469) (X @BitcoinNewsCom) -> registered as bitcoinnewscom-2085700535772934469 (20260808T101136Z)
 - 2026-08-07 [@BitPaine post (text available during approved intake)](https://x.com/BitPaine/status/2085703678753665421) (X @BitPaine) -> dismissed: personal token promotion, not a distinct incident claim (20260808T101136Z)
 - 2026-08-07 [@coinspect post (text available during approved intake)](https://x.com/coinspect/status/2085731488805331263) (X @coinspect) -> dismissed: commentary on the separate Ill Bloom weak-entropy case, not the COLDCARD incident (20260808T101136Z)
+
+## Link review, held for a human decision
+
+Empty as of 8 Aug 2026. The three candidates this section was holding (the
+CoinDesk report, seven Chainabuse victim reports and two pastebins, all mined
+from coldcard-hack-tracker's citations on 5 Aug) were resolved by the
+operator's 8 August decision: author-published first-hand material, victim
+address sets included, is registerable under the 3 August policy. They moved
+to `## Pending` for the ordinary intake lane. Citation-mined candidates now
+queue in Pending directly; this section remains as the parking spot should a
+candidate ever need one.
 
 ## Deferred
 
