@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="60">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tripwire // scoreboard</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="alternate" type="application/rss+xml" title="cktripwire // honeypot events" href="/feed.xml">
+</head>
+<body>
+<header>
+  <a class="logo" href="/">CKTRIPWIRE</a>
+  <nav>
+    <span class="dim" title="last event: 2026-08-07 20:35:38 EDT">last update 47 minutes ago</span>
+    <a href="/methodology">methodology</a>
+    <a href="/feed.xml" title="RSS: fundings, sweeps, retrievals">rss</a>
+    <a href="/admin">admin</a>
+  </nav>
+</header>
+<main>
+
+  <div class="alert alert-cc">
+    <b>Own a Coldcard?</b> Treat any wallet created without additional entropy as compromised and move
+    your funds to a safe place now.
+  </div>
+
+  <section class="intro">
+    <p><b>What is this?</b></p>
+    <div class="intro-cols">
+      <p class="intro-lead">Coldcard hardware wallets generated wallet seeds with a
+      broken random-number generator: a predictable software pseudo-RNG instead of true
+      hardware entropy. The private keys can be brute-forced and the coins swept. <b>If
+        affected, migrate your funds now.</b></p>
+      <p class="intro-lead">We fund decoy &ldquo;honeypot&rdquo; wallets carrying that
+      exact flaw on mainnet, some hardened with extra dice rolls or a passphrase, and
+      track which ones an attacker sweeps and how fast. This maps the frontier of what
+      coins are being confiscated. <a href="/methodology">Read the methodology &rarr;</a></p>
+    </div>
+  </section>
+  <section class="statgrid">
+    <div class="cell"><span class="k">honeypots</span><span class="v">19</span></div>
+    <div class="cell"><span class="k">live</span><span class="v st-live">16</span></div>
+    <div class="cell"><span class="k">swept</span><span class="v st-swept">3</span></div>
+    <div class="cell"><span class="k">value exposed</span><span class="v">~0.01 BTC</span></div>
+    <div class="cell"><span class="k">fastest sweep</span><span class="v">2m</span></div>
+    <div class="cell"><span class="k">frontier</span><span class="v">-</span></div>
+  </section>
+
+  <h2>recent activity <span class="dim">last 5 events</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th title="Event time in UTC.">time (utc)</th>
+          <th title="funded = honeypot went on-chain · swept = taken by the attacker.">event</th>
+          <th title="Difficulty band from added entropy (see frontier summary below).">difficulty</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td class="dim">2026-08-08 00:09</td>
+          <td>honeypot funded HP-E736</td>
+          <td><span class="chip cls-trivial">trivial</span></td>
+        </tr>
+        
+        <tr>
+          <td class="dim">2026-08-08 00:06</td>
+          <td>honeypot funded HP-696E</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+        </tr>
+        
+        <tr>
+          <td class="dim">2026-08-07 19:31</td>
+          <td>honeypot swept HP-5F1D</td>
+          <td><span class="chip cls-trivial">trivial</span></td>
+        </tr>
+        
+        <tr>
+          <td class="dim">2026-08-06 01:54</td>
+          <td>honeypot funded HP-2C6F</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+        </tr>
+        
+        <tr>
+          <td class="dim">2026-08-05 23:02</td>
+          <td>honeypot funded HP-ADA6</td>
+          <td><span class="chip cls-multisig" title="multisig honeypot">3-of-3 multisig</span></td>
+        </tr>
+        
+        
+      </tbody>
+    </table>
+  </div>
+
+  <h2>honeypots</h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th title="Anonymized honeypot id (keyed label that cannot be verified against an address); addresses are never shown publicly.">handle</th>
+          <th title="Coldcard model and firmware version the honeypot reproduces.">device</th>
+          <th title="Difficulty band from added entropy over the attacker-known seed (see frontier summary below).">difficulty</th>
+          <th class="r" title="Added security in bits: dice + passphrase entropy layered on top of the compromised seed. Higher = harder for the attacker to sweep.">sec(bits)</th>
+          <th class="r" title="Rough time for an attacker with 16x RTX 6000 Pro GPUs (~4.8e7 guesses/s) to brute-force this honeypot: 2^(~32 enumerable RNG base + added bits) guesses. Every guess - dice, control, or passphrase - must run BIP39 PBKDF2 (2048x HMAC-SHA512), which sets the rate. A coarse estimate; assumptions dominate.">est. crack (GPU)</th>
+          <th title="live = unswept · swept = taken by the attacker · pending/funding = not yet confirmed on-chain.">status</th>
+          <th title="Time since funding while live; funded-to-swept latency once taken.">age / time-to-sweep</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>HP-5D67</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-multisig" title="multisig honeypot">2-of-3 multisig</span></td>
+          <td class="r">-</td>
+          <td class="r dim">-</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 03:43:22 UTC">live 2d21h39m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-ADA6</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-multisig" title="multisig honeypot">3-of-3 multisig</span></td>
+          <td class="r">-</td>
+          <td class="r dim">-</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 23:02:59 UTC">live 2d2h20m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-718B</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-trivial">trivial</span></td>
+          <td class="r">0</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~2 min</td>
+          <td><span class="st st-swept">SWEPT</span></td>
+          <td class="dim" title="swept 2026-08-04 21:37:54 UTC">swept in 1h18m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-10ED</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+          <td class="r">5</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~66 min</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 01:05:29 UTC">live 3d17m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-2C6F</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+          <td class="r">5</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~66 min</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-06 01:54:25 UTC">live 1d23h28m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-696E</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+          <td class="r">5</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~66 min</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-08 00:06:06 UTC">live 1h16m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-9C4F</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(pass)</span></td>
+          <td class="r">11</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~3 days</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-04 20:50:01 UTC">live 3d4h32m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-E786</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(pass)</span></td>
+          <td class="r">11</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~3 days</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-04 20:50:01 UTC">live 3d4h32m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-8EF5</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+          <td class="r">13</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~10 days</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-04 23:11:39 UTC">live 3d2h11m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-C4AD</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-low">low</span> <span class="dim">(dice)</span></td>
+          <td class="r">13</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~10 days</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-04 23:11:39 UTC">live 3d2h11m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-0134</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-mid">mid</span> <span class="dim">(pass)</span></td>
+          <td class="r">22</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~instant">~15 yr</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 01:06:19 UTC">live 3d16m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-9252</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-high">high</span> <span class="dim">(pass)</span></td>
+          <td class="r">33</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~3 min">~1e4 yr</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 01:07:09 UTC">live 3d15m</td>
+        </tr>
+        
+        <tr>
+          <td>HP-776C</td>
+          <td>mk3 v4</td>
+          <td><span class="chip cls-extreme">extreme</span> <span class="dim">(dice)</span></td>
+          <td class="r">90</td>
+          <td class="r dim" title="Find-from-scratch, incl. the ~2^32 enumerable RNG base. If the attacker already knows the device's weak seed, the dice/passphrase alone holds only: ~1e12 yr">~1e21 yr</td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 03:55:41 UTC">live 2d21h27m</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  <div class="tfoot">showing 13 - sort: sec(bits) ascending (easiest to sweep first)</div>
+
+  
+  <h2>external honeypots <span class="dim">community-submitted, watch-only</span></h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th title="Label the submitter gave this externally-created honeypot.">handle</th>
+          <th title="Device the submitter says created it.">device</th>
+          <th title="Context for this honeypot (external link).">source</th>
+          <th title="live = unswept · swept = taken by the attacker.">status</th>
+          <th title="Time since entered while live; funded-to-swept latency once taken.">age / time-to-sweep</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">0 added bits</a></td>
+          <td>mk3</td>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">x.com/ColeTU/status/2085065558333022663</a></td>
+          <td><span class="st st-swept">SWEPT</span></td>
+          <td class="dim" title="swept 2026-08-05 20:49:36 UTC">swept in 2m</td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">1 word passphrase</a></td>
+          <td>mk3</td>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">x.com/ColeTU/status/2085065558333022663</a></td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 20:46:57 UTC">live 2d4h36m</td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">2 word passphrase</a></td>
+          <td>mk3</td>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">x.com/ColeTU/status/2085065558333022663</a></td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 20:46:57 UTC">live 2d4h36m</td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">3 word passphrase</a></td>
+          <td>mk3</td>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">x.com/ColeTU/status/2085065558333022663</a></td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-05 20:46:57 UTC">live 2d4h36m</td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">0 added, random account</a></td>
+          <td>mk3</td>
+          <td><a href="https://x.com/ColeTU/status/2085065558333022663" title="https://x.com/ColeTU/status/2085065558333022663" rel="noopener">x.com/ColeTU/status/2085065558333022663</a></td>
+          <td><span class="st st-swept">SWEPT</span></td>
+          <td class="dim" title="swept 2026-08-07 19:31:24 UTC">swept in 1d22h44m</td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://zombo.com" title="https://zombo.com" rel="noopener">2-of-4, 0-added</a></td>
+          <td>mk4</td>
+          <td><a href="https://zombo.com" title="https://zombo.com" rel="noopener">zombo.com</a></td>
+          <td><span class="st st-live">LIVE</span></td>
+          <td class="dim" title="funded 2026-08-08 00:09:53 UTC">live 1h13m</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <h2>frontier summary</h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th title="Difficulty band = added entropy over the attacker-known seed. See the legend below.">difficulty</th>
+          <th class="r" title="Honeypots funded in this band.">deployed</th>
+          <th class="r" title="How many the attacker has swept in this band.">swept</th>
+          <th class="r" title="Shortest funded-to-swept time observed in this band.">fastest</th>
+          <th class="r" title="Honeypots still unswept in this band.">still live</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="chip cls-trivial">trivial</span></td>
+          <td class="r n-dep">3</td>
+          <td class="r n-sw">1</td>
+          <td class="r">1h18m</td>
+          <td class="r n-lv">2</td>
+        </tr>
+        
+        <tr>
+          <td><span class="chip cls-low">low</span></td>
+          <td class="r n-dep">7</td>
+          <td class="r n-sw">0</td>
+          <td class="r">-</td>
+          <td class="r n-lv">7</td>
+        </tr>
+        
+        <tr>
+          <td><span class="chip cls-mid">mid</span> <span class="dim">(pass)</span></td>
+          <td class="r n-dep">1</td>
+          <td class="r n-sw">0</td>
+          <td class="r">-</td>
+          <td class="r n-lv">1</td>
+        </tr>
+        
+        <tr>
+          <td><span class="chip cls-high">high</span> <span class="dim">(pass)</span></td>
+          <td class="r n-dep">1</td>
+          <td class="r n-sw">0</td>
+          <td class="r">-</td>
+          <td class="r n-lv">1</td>
+        </tr>
+        
+        <tr>
+          <td><span class="chip cls-extreme">extreme</span> <span class="dim">(dice)</span></td>
+          <td class="r n-dep">1</td>
+          <td class="r n-sw">0</td>
+          <td class="r">-</td>
+          <td class="r n-lv">1</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <div class="legend-head">difficulty bands <span class="dim">added entropy over the attacker-known seed &middot; dice ~2.585 bits/roll &middot; passphrase 11 bits/word</span></div>
+    <div class="legend-row"><span class="chip cls-trivial">trivial</span><span class="legend-bits">0 bits</span><span class="legend-ex">the control &mdash; no dice, no passphrase</span></div>
+    <div class="legend-row"><span class="chip cls-low">low</span><span class="legend-bits">1&ndash;15 bits</span><span class="legend-ex">1&ndash;5 dice rolls, or a 1-word passphrase</span></div>
+    <div class="legend-row"><span class="chip cls-mid">mid</span><span class="legend-bits">16&ndash;30 bits</span><span class="legend-ex">6&ndash;11 dice rolls, or a 2-word passphrase</span></div>
+    <div class="legend-row"><span class="chip cls-high">high</span><span class="legend-bits">31&ndash;45 bits</span><span class="legend-ex">12&ndash;17 dice rolls, or a 3&ndash;4 word passphrase</span></div>
+    <div class="legend-row"><span class="chip cls-extreme">extreme</span><span class="legend-bits">&gt;45 bits</span><span class="legend-ex">18+ dice rolls, or a 5+ word passphrase</span></div>
+  </div>
+  <div class="note note-caveat">
+    <b>A note on timing.</b> Just because a particular honeypot here hasn't been taken
+    yet doesn't mean its entropy class is safe. We don't know long this attack has been going on, but it
+    started well before our
+    honeypots existed. The thousands of coins already taken were ground
+    down over more than a few days, likely much longer than ours have been live.
+    <p>So read &ldquo;still live&rdquo; as <i>not taken yet</i>, nothing more: a honeypot
+    surviving for weeks says little about the safety of its entropy class (in
+    terms of older coins real people are still holding) because the
+    attackers have had a chance to grind those coins for far longer than any of ours have
+    existed.</p>
+  </div>
+  <footer>
+    auto-refresh 60s - coarse public view: no addresses, no exact values, no keys
+    <p>made by <a href="https://twitter.com/jamesob">@jamesob</a></p>
+  </footer>
+</main>
+<script>
+
+document.querySelectorAll('a[href^="http"]').forEach(function(a){ a.target="_blank"; a.rel="noopener"; });
+</script>
+<script src="/static/tip.js"></script>
+</body>
+</html>

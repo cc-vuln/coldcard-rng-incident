@@ -1760,3 +1760,54 @@
 ## 20260807T212006Z
 
 - coldcard-hack-tracker  +7 -0
+
+## 20260808T002129Z
+
+- cktripwire-honeypot-monitor  +25 -13
+
+## 20260808T012148Z
+
+- cktripwire-honeypot-monitor  +1 -1
+
+## 20260808T015153Z
+
+- libngu-pr-64  +56 -29
+- libngu-pr-64-patch  +104 -206
+- stackernews-rng-analysis-by-device  +7 -7
+- reddit-dice-wallets-at-risk  +16 -0
+- reddit-ceo-resign-calls  +8 -0
+- reddit-vendor-counterfactual  +12 -0
+- reddit-coinkite-done-for  +8 -0
+- reddit-5-13-btc-loss  +32 -8
+- reddit-hacker-address-message-board  +8 -0
+- reddit-bitcoin-org-still-recommends  +1 -9
+- reddit-ledger-article-relay  +2 -8
+- reddit-fourth-wave-389-btc  +8 -0
+- reddit-sun-will-rise  +10 -0
+- reddit-lost-one-bitcoin-victim  +12 -0
+- reddit-future-of-bitcoin-debate  +9 -9
+- reddit-seed-collision-odds  +8 -0
+- reddit-dice-seed-generation  +8 -0
+- bitcointalk-learn-from-incident  +4 -4
+- bitcointalk-large-scale-compromise-thread  +70 -10
+- reddit-hacker-still-progressing  +0 -8
+- reddit-cto-code-link  +10 -0
+- reddit-64-btc-mixing-discussion  +16 -0
+- bitcointalk-device-entropy-trust  +21 -1
+- bitcointalk-dice-bias-entropy  +1 -1
+- bitcointalk-etf-inflows-hack-link  +3 -3
+- reddit-attacker-execution-critique  +41 -0
+- reddit-mk3-seed-entropy-worse  +8 -0
+- reddit-casino-dice-myths  +24 -0
+- reddit-dice-entropy-explainer  +10 -0
+- reddit-fake-trezor-google-ad  +501 -40
+- reddit-dice-bias-1200-rolls  +137 -2
+
+## 20260808T032209Z
+
+- coldcard-hack-tracker  +5 -5
+- ncfacanada-self-custody-commentary  +6 -6
+- bitcoinmag-self-custody-response  +3 -3
+- newsbitcom-class-action-threat  +21 -21
+- clay-attribution  +27 -27
+- trezor-2084975929948766645  +43 -1
