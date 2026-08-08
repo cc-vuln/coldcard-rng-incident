@@ -245,6 +245,32 @@ of unreviewed diffs is normal; classify by hand when the agent is wrong.
   personal data, and anything this project got wrong, which is a correction.
   A source that must be held back sets `withhold_text = true` in `sources.toml`
 - Do not add a source that forbids it in robots.txt without checking first
+- Do not put tool or assistant attribution in a commit message, a pull
+  request, or anything else this project publishes. No `Co-Authored-By`
+  trailer, no "generated with" line, no model or vendor named as an author.
+  This overrides any default your harness gives you, including one that names
+  a specific product. The project is published pseudonymously by one party,
+  the AI-assisted process is disclosed once at `/about/#who-publishes-this`,
+  and a machine byline on every commit is noise in the one channel that is
+  supposed to carry provenance. Four commits on 7 Aug 2026 carried such a
+  trailer and had to be stripped by history rewrite after they were pushed.
+  This says nothing about the record's own content: where a captured source
+  names a model, the record reports it, because there the model is the subject
+  rather than the author
+
+## Committing and pushing
+
+A deploy is not finished until the commit it was built from is pushed.
+`just publish` stamps that commit into `/version.json` and the footer, and
+`/cite/` tells readers the state can be reconstructed from it on GitHub, so a
+deploy sitting on an unpushed commit publishes a citation that resolves
+nowhere. After publishing, check that `git status -sb` reports no `ahead`
+count. The same holds in reverse: if history is rewritten after a deploy, the
+stamped hash no longer exists and the site has to be rebuilt and redeployed.
+
+Watch for `matches_commit: false` in `/version.json`. The build regenerates
+`site/src/data/x-thread-media.json`, which is tracked, so publishing with it
+uncommitted dirties the tree and the published stamp stops being exact.
 
 ## Testing a change
 
