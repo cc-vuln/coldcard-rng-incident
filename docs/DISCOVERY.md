@@ -2,8 +2,8 @@
 
 Discovery is separate from capture: Stacker News keyword search does not
 index recent items, and Reddit has no usable anonymous search from this host.
-Three scheduled community scripts and the separate manual X watcher feed one
-intake queue:
+Three scheduled community scripts and the capture-browser X lane on its own
+timer feed one intake queue:
 
 - `just discover-stackernews` reads the ~bitcoin and ~security recent feeds
   (two requests per run, 1.5s apart) and queues title-matched candidates
@@ -17,10 +17,13 @@ intake queue:
   view (`action=printpage`), the whole thread as stable text; the `;all`
   view is Cloudflare-challenged from this host and board pages carry live
   user counters
-- `just discover-x` reads shallow public user timelines for the curated
-  `[[x_watch]]` registry through the official read-only X API. It is opt-in
-  and manual during probation, baselines first contact and fails closed on
-  API-health signals. Do not put it in `discover-community.service` yet
+- `just discover-x` reads the home timeline and the curated `[[x_watch]]`
+  profiles through the capture browser, driver-side only, under the
+  `X_BROWSER_DISCOVERY_ENABLED` kill switch. It baselines first contact and
+  fails closed with a cooldown on the session-health classes (login wall,
+  challenge, rate limit). Since 8 Aug 2026 it runs on its own
+  `discover-x.timer`, separate from `discover-community`. The official-API
+  lane it replaced (`scripts/discover_x.py`) is deprecated
 
 Candidates land in `DISCOVERY.md`, the tracked intake file at the repo root.
 On the capture host `discover-community.timer` runs the three community
@@ -35,15 +38,16 @@ healthy; exit 21 defers to the next poll), and records every verdict in
 `DISCOVERY.md`. With REVIEW_AGENT_BIN unset, candidates wait in
 `DISCOVERY.md` for human triage. stacker.news serves no robots.txt, so there
 is no published crawl policy; keep discovery at this volume unless the
-operators have been asked. The recurring community service neither runs
-`discover-x` nor sends queued X links to its general intake agent. During X
-probation an operator may run `just discovery-intake --include-x` to authorize
-a bounded X-only assessment through the separately configured
-`X_REVIEW_AGENT_BIN`. That prompt may only add recommendation or dismissal
-verdicts to `DISCOVERY.md`; it cannot capture or register a post. Direct manual
+operators have been asked. The recurring community service still does not run
+X discovery: the browser lane has its own `discover-x.timer`, so an X session
+failure cannot stall the community lanes and a community backlog cannot hide
+X candidates. Since 8 Aug 2026, queued X candidates are assessed by the
+registering `xintake` guard role, which consumes the coverage index like the
+community intake does, and the driver captures each approved post with
+`just ingest-x` afterwards; the agent never reaches the browser. The read-only
+xtriage prompt and the `--include-x` admission flag are retired. Direct manual
 `just ingest-x` capture is unchanged and does not pass through this queue.
-Human X promotion remains separate. Full polls remain the scheduled runner's
-alone.
+Full polls remain the scheduled runner's alone.
 
 ## What the agent is not asked to read
 
@@ -139,9 +143,11 @@ referent becomes next run's `absorbed` count; an unnamed "repetitive"
 dismissal teaches nothing, and the same theme arrives unmarked next time. The
 intake prompt says so.
 
-X triage is deliberately outside this. It is read-only, under probation, and
-runs a separate prompt and agent binary; extending the index to it is a
-separate decision.
+The X lane is no longer outside this (amended 8 Aug 2026): the registering
+`xintake` role consumes the coverage index exactly as the community intake
+does, which removes the duplicate-recall problem over the registered X posts
+that the read-only xtriage prompt solved by hand. That prompt and its
+separate agent binary are retired.
 
 ## Rotation
 

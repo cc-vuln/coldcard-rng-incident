@@ -21,7 +21,11 @@ the current absence is already documented and should change only when new
 public material appears · **BLOCKED** needs an operator choice, external access
 or evidence from a third party.
 
-Last reviewed: 7 Aug 2026, after the site-wide prose pass against the 6 and
+Last reviewed: 8 Aug 2026, recording the operator's three pipeline decisions
+of that date: X discovery moved to the capture browser with automated
+promotion, failure delivery resolved onto the operator-UI alert stream, and
+the guard-passed pipeline moved to unattended commit, publish and push.
+Previous review: 7 Aug 2026, after the site-wide prose pass against the 6 and
 7 August record: 143 new registrations read into the editorial pages, three
 corrections published, and the placeholder registry notes on the new X posts
 replaced.
@@ -157,18 +161,19 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Checked 7 August 2026.
+- **MONITOR: official technical follow-up.** Checked 8 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
   detailed scope, no captured source announces a post-incident independent audit
   of the fixed firmware, and NVD/MITRE remained unreachable from this host so
   the CVE question could not be re-queried directly. The firmware repository
-  did move: PR #707 was closed unmerged and replaced by PR #713, and the libngu
-  changes it referenced (#68 and #56) were merged on 7 and 6 August 2026.
-  Those developments are registered and requested for capture; they describe a
-  proposal, not a shipped release, audit or postmortem.
+  did move: PR #707 was closed unmerged and replaced by PR #713, which remains
+  open as of this recheck, and the libngu changes it referenced (#68 and #56)
+  were merged on 7 and 6 August 2026. No new release tag or shipped firmware
+  has appeared. Those developments are registered and requested for capture;
+  they describe a proposal, not a shipped release, audit or postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.** Checked
-  7 August 2026. Coinkite's 7 August customer-data retention post states that
+  8 August 2026. Coinkite's 7 August customer-data retention post states that
   records are being preserved for "ongoing and anticipated legal proceedings,"
   which is the first public vendor acknowledgement of legal activity, but it is
   not a filing, regulator statement, insurer decision or compensation offer.
@@ -335,10 +340,12 @@ Ordered by value, not effort.
   trade, but it makes the failure quiet: the block sits in
   `quarantine/registry-YYYY-MM.toml` and no gate, page or report mentions it
   again. That is the same shape as the silent-truncation problem the rest of
-  this project refuses. Worth adding: a line in `just status` or the audit
-  summary naming how many registrations are held and which hosts they wanted,
-  so the queue is visible without blocking anything. The host decision stays a
-  human edit; only the prompt to make it is missing.
+  this project refuses. **In progress 8 Aug 2026:** quarantined registrations
+  and automated host admissions are being surfaced through the new alert
+  stream (`scripts/alert.py` to the operator UI's `/alerts`), so the queue is
+  visible without blocking anything; every admission by `vet_host.py` raises
+  an alert and stays auditable. A proposal that fails vetting waits for a
+  human, and restoring a quarantined registration remains a human edit.
 
 - **Measure whether the coverage index actually moves the "already
   represented" dismissals.** The index shipped on 7 Aug 2026
@@ -366,21 +373,26 @@ Ordered by value, not effort.
   `basedlayer-influencers-vs-engineers`; "Why does CC still have my email
   address?" -> `coldcard-pii-policy`), so no threshold tunes into working.
 
-- **Decide whether X triage should get the coverage index too.** It was left
-  out deliberately: it is read-only, under probation, and runs a separate
-  prompt and agent binary. Its prompt does ask the agent to check
-  `sources.toml` for duplicates and to dismiss "repeated promotion of material
-  already registered", against 465 registered X posts, which is the same
-  recall problem the index exists to remove. Fold this into the X probation
-  gate rather than changing that prompt while it is being assessed.
+- **RESOLVED 8 Aug 2026: X intake consumes the coverage index.** The
+  registering `xintake` role that replaced read-only X triage on 8 Aug 2026
+  reads the coverage index exactly as the community intake does, which removes
+  the duplicate-recall problem over the registered X posts this item
+  described. The xtriage prompt and its separate agent binary are retired, so
+  there is no second prompt left to extend.
 
-- **BLOCKED: finish X discovery probation before scheduling it.** Manual
-  watched-account discovery and read-only triage exist. Unattended use still
-  needs approval of the API use case, retention obligations and spend, plus
-  observed authentication and intake outcomes. Direct-post availability checks
-  also need deletion, suspension, protection, access restriction and
-  authentication failure to remain distinguishable. Do not add X discovery to
-  a timer before the gate in `docs/design/discovery-and-x-watch.md` is met.
+- **SUPERSEDED 8 Aug 2026: X discovery moved to the capture browser.** The
+  API-lane probation this item gated on is moot: the operator reversed the
+  official-API-only policy on 8 Aug 2026, no App was created, and
+  `scripts/discover_x.py` is deprecated. The browser lane
+  (`scripts/discover_x_browser.py`, kill switch `X_BROWSER_DISCOVERY_ENABLED`)
+  takes its place on its own `discover-x.timer`, with promotion automated
+  through the registering `xintake` guard role and driver-side `ingest-x.py`
+  capture. Its failure surface is session health — login wall, challenge,
+  rate limit, distinct and fail-closed with a cooldown — and the operator
+  accepted X's automation-rule suspension risk for the signed-in account in
+  writing. The direct-post availability re-check still needs deletion,
+  suspension, protection, restriction and session failure to remain
+  distinguishable; that part carries over.
 
 - **BLOCKED: run nostr discovery probation before any scheduling.** The nostr
   lane is live as of 6 Aug 2026: the identity is published (npub on `/cite/`,
@@ -419,13 +431,18 @@ Ordered by value, not effort.
   `mara-slipstream-portal` stayed broken for four days. The threshold should
   differ by diagnosis: `content-below-floor` and `content-marker-missing` point
   at this repository and should raise quickly, `origin-*` at the publisher.
-  Depends on the delivery route below.
+  The delivery route is resolved (8 Aug 2026, above); raise the streak alerts
+  on the new alert stream.
 
-- **BLOCKED: choose failure delivery, then add the nightly integrity job.** A
-  nightly archive audit, production build and link check are valuable only if a
-  failure reaches the operator. The optional Signal relay is implemented but
-  enabling it changes and restarts an external notification service. Once a
-  delivery route is approved, add the audit job and keep deployment outside it.
+- **RESOLVED 8 Aug 2026: failure delivery is the operator-UI alert stream.**
+  The route decision is made: `scripts/alert.py` appends operator-visible
+  alerts to `~/.local/state/coldcard-archive/alerts.jsonl`, and the operator
+  UI (`~/coldcard-operator-ui`, a separate read-only repo, port 4322) renders
+  them at `/alerts`. The Signal relay stays opt-in and untouched. The
+  components are being built under the 8 Aug program below. What this item
+  blocked is now open: add the nightly archive audit, production build and
+  link check on top of the alert stream, and keep deployment outside that
+  job.
 
 - **BLOCKED: add an off-machine backup with a restore test.** Choose the
   destination and retention policy first. The acceptance test is a documented,
@@ -435,6 +452,40 @@ Ordered by value, not effort.
 - **BLOCKED: define private-state retention before pruning.** Set periods for
   finalized scheduler ticks, per-job results and service logs. Pending outboxes
   must never be pruned. This is private operational state, not archive history.
+
+- **OPEN: `scripts/record_commit.py` (being built, 8 Aug 2026).** Commits
+  guard-passed agent output so the unattended pipeline's work lands in git
+  history as it happens. A guard rejection still stops the line; nothing is
+  committed from a rejected run.
+
+- **OPEN: `scripts/alert.py` and the operator-UI alert stream (being built, 8
+  Aug 2026).** Appends operator-visible alerts to
+  `~/.local/state/coldcard-archive/alerts.jsonl`; the operator UI
+  (`~/coldcard-operator-ui`, a separate read-only repo, port 4322) renders
+  them at `/alerts`. This is the failure-delivery route resolved above.
+
+- **OPEN: `scripts/vet_host.py` automated host admission (being built, 8 Aug
+  2026).** An intake agent files a proposal in `.work/host-proposals.txt`;
+  the driver-side vetter applies it after deterministic checks (https only,
+  independent DNS, robots.txt), raises an alert per admission and leaves a
+  failed vet for a human. The quarantine path is unchanged.
+
+- **OPEN: `scripts/discover_x_browser.py` (being built, 8 Aug 2026).** The
+  capture-browser X lane in the superseded probation item above:
+  home-timeline and watched-profile reads, driver-side only, on its own
+  `discover-x.timer` under `X_BROWSER_DISCOVERY_ENABLED`.
+
+- **OPEN: the page-sync agent role (being built, 8 Aug 2026).** Keeps the
+  site's editorial prose in step with the registered record as registrations
+  and corrections land unattended, under the same guard containment as the
+  other roles.
+
+- **OPEN: install `publish-scheduled.timer` (in progress, 8 Aug 2026).** The
+  timer publishes guard-passed, committed work on a schedule, with a git push
+  after each successful deploy so `/version.json` and `/cite/` never resolve
+  nowhere. The existing skip conditions are unchanged: `.no-publish`, a
+  non-main `HEAD`, a dirty tree outside `archive/`, unreviewed diffs and the
+  build lock all still stop the line.
 
 - **OPEN: evaluate Wayback as a per-source fallback.** For a registered source
   that repeatedly refuses direct capture while the Internet Archive can reach

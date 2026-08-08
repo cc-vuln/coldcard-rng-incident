@@ -47,7 +47,10 @@ scripts/
   run-agent.sh        run one agent deprivileged, with a built environment
   agent-prompt-rules.md  standing rules injected into all four prompts
   agent_guard.py      check what an agent run did; refuse if it overreached
-  check_registry.py   registry host, fetch_post and no-mutation rules
+  check_registry.py   registry host, fetch_post, no-mutation and
+                      placeholder-prose rules
+  report_status.py    operator summary for `just status`: quarantine, host
+                      proposals, failure streaks, capture failures, unreviewed
   registry_hosts.toml hosts sources.toml may name; a human edit
   quarantine_registry.py  move a rejected registration out of the live
                         registry, so an invalid one never stops the tree
@@ -150,6 +153,10 @@ is one click away.
   corroborate through public DNS or a genuinely independent network path;
   otherwise keep polling and describe it as unreachable from this collector.
   This rule exists because the project got it wrong once and had to correct it.
+  Since 8 Aug 2026 the corroboration itself is automated: the driver probes
+  public DNS over HTTPS and may set `gone = true` only when the failure streak
+  and the independent resolvers agree, records the corroboration transcript in
+  `gone_note`, and raises an alert. Anything short of agreement keeps polling.
 - `DISCOVERY.md` is the tracked intake queue for community-thread discovery.
   Verdicts older than a few weeks rotate to `discovery/assessed-YYYY-MM.md`
   via `just rotate-discovery`; the rotated files are project records, not
@@ -211,9 +218,45 @@ from an allowlist and it runs as `cc-agent`, which cannot read `.env`,
 actions are arbitrary JavaScript and raw DevTools inside a signed-in session.
 - **Every run is checked afterwards.** `agent_guard.py` enforces the role's
 path allowlist and scans for secret values.
-- **A new host is a human edit, twice over.** `registry_hosts.toml` says what
+- **A new host is admitted by vetting, not by hand.** `registry_hosts.toml` says what
+`sources.toml` may name, and it plus `agent_egress_hosts.toml` say what an
+agent may connect to at all. Until 8 Aug 2026, adding a host to either was a
+human edit, twice over. Since then, an intake agent files a proposal in
+`.work/host-proposals.txt` and the driver-side `vet_host.py` applies it after
+deterministic checks (https only, independent DNS, robots.txt); every
+admission raises an alert and is auditable, and the quarantine path is
+unchanged. A proposal that fails vetting waits for a human.
 `sources.toml` may name, and it plus `agent_egress_hosts.toml` say what an
 agent may connect to at all.
+
+## The pipeline runs unattended (8 Aug 2026)
+
+Human review of this pipeline is retroactive, not a gate. On the operator's
+8 Aug 2026 directive, guard-passed agent output is committed by
+`scripts/record_commit.py`, published by `publish-scheduled.timer`, and pushed
+after each successful deploy. Discovery, intake assessment, registration,
+diff classification, X and nostr promotion, site-prose sync and corrections
+drafting are all agent or driver work under the containment above. What
+reaches a person is the alert stream: `scripts/alert.py` appends to
+`~/.local/state/coldcard-archive/alerts.jsonl`, which the operator UI
+(`~/coldcard-operator-ui`, a separate read-only repo) renders at `/alerts`.
+A guard rejection, a failed publish gate or a `.no-publish` file still stops
+the line; everything else is reviewed after the fact in the UI, the journals
+and git history.
+
+X discovery reads the home timeline and watched profiles through the capture
+browser (`scripts/discover_x_browser.py`), driver-side only: the agent never
+reaches `evaluate`/`cdp` and never holds the bridge token. The 5 Aug 2026
+"official API only" policy was reversed on 8 Aug; `scripts/discover_x.py`
+(the API lane) is deprecated and no App/bearer credential is used. Reading a
+signed-in home timeline carries X's automation-rule suspension risk; the
+operator accepted that risk in writing on 8 Aug 2026. `capture-x.sh` remains
+read-only: no posting, following or liking from the session.
+
+Still manual, deliberately: nostr posting from the project key (drafts are
+automated; the key is irrevocable and a post is the project speaking),
+`NOTIFY=relay`, withdrawal and legal decisions, and restoring a quarantined
+registration.
 
 ## Exit codes and locks
 

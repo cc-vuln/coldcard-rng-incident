@@ -213,7 +213,9 @@ it will silently fall back to a browser profile that does not exist. Export it
 or use the recipe.
 
 This is read-only: it fetches URLs already listed in `sources.toml` and posts,
-follows and likes nothing. If cookie extraction fails, export cookies to a
+follows and likes nothing. Since 8 Aug 2026 a scheduled weekly media pull runs
+the same script over the registered posts; scheduling changes nothing about
+what it may do. If cookie extraction fails, export cookies to a
 Netscape-format file and swap `--cookies-from-browser chrome` for
 `--cookies /path/to/cookies.txt` in `scripts/capture-x.sh`.
 
@@ -234,7 +236,9 @@ just ingest-x 'https://x.com/example/status/123' example-analysis independent-an
 ```
 
 This writes an element-only PNG and verbatim text sidecar under `archive/x/`,
-then registers the post in `sources.toml`. The capture helper selects the exact
+then registers the post in `sources.toml`. Since 8 Aug 2026 the driver also
+invokes it for X candidates the `xintake` role approved; the agent itself
+never reaches the browser. The capture helper selects the exact
 status ID, including when the post embeds another post by the same author, and
 isolates a rendered clone before taking long screenshots so X cannot reflow the
 article out of the clip. Set `CAPTURE_BROWSER_SESSION` to a task-specific value
@@ -301,20 +305,22 @@ outright when it collects far less than the previous capture: absence on X is
 not deletion, and a capture that under-collected is indistinguishable in the
 record from replies having been removed.
 
-### Finding X posts before capture
+### Finding X posts before capture (amended 8 Aug 2026)
 
-`scripts/discover_x.py` watches the small `[[x_watch]]` registry for new
-permalinks. It uses documented read-only endpoints in the official X API,
-writes no capture and cannot register a post by itself. ID-only candidate
-metadata stays under `.work/`; hydrated API text is not retained. The tracked
-`DISCOVERY.md` queue receives a relation label and permalink. During explicit
-X triage, one official post lookup supplies text transiently to the assessment
-agent. Accepted candidates return to the `ingest-x.py` path above.
+`scripts/discover_x_browser.py` reads the home timeline and the small
+`[[x_watch]]` registry for new permalinks through the capture browser,
+driver-side only, under the `X_BROWSER_DISCOVERY_ENABLED` kill switch. It
+writes no capture itself: ID-only candidate metadata stays under `.work/`, the
+tracked `DISCOVERY.md` queue receives a relation label and permalink, the
+registering `xintake` role assesses the queue with the coverage index in view,
+and the driver captures each approved post through the `ingest-x.py` path
+above. The agent never reaches the browser. `scripts/discover_x.py`, the
+official-API lane this replaced on 8 Aug 2026, is deprecated; no API App or
+bearer credential is used.
 
-The command is manual and opt-in while its account-health outcomes are being
-proved. See `docs/design/discovery-and-x-watch.md` for the safety model and
-`docs/operations.md` for the exact probation commands. Do not add it to the
-community timer merely because the manual command returns successfully once.
+See `docs/design/discovery-and-x-watch.md` for the safety model and
+`docs/operations.md` for the operational detail, including the session-health
+failure classes and the lane's own timer.
 
 ## nostr capture
 

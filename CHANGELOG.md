@@ -4,6 +4,33 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-08
+
+### Process
+
+- The operator directed full automation of the pipeline: guard-passed agent
+  output is to be committed, published and pushed by scheduled scripts, with
+  human review retroactive rather than a gate. Policy amendments recording
+  the decision live in AGENTS.md ("The pipeline runs unattended (8 Aug
+  2026)"), `docs/design/discovery-and-x-watch.md` (the 5 Aug official-API
+  policy for X is reversed; discovery moves to the capture browser and
+  `discover_x.py` is deprecated), `docs/operations.md`, `docs/DISCOVERY.md`
+  and `docs/capture.md`. Failure delivery, long blocked, is resolved by an
+  alert stream the operator UI renders. New-host admission moves from a human
+  edit to driver-side vetting with an alert per admission.
+- Prerequisite correctness and guard work landed with it: first-capture
+  dispatch routes `[[nostr_post]]` ids to `just ingest-nostr` instead of the
+  unresolvable `just capture-one`; the guard now enforces append-only files
+  as a verbatim-prefix check rather than a prompt instruction;
+  `check_reviews.py` validates the shape of every `[[revision]]` entry;
+  `check_registry.py` refuses placeholder `why`/`note` prose on new or
+  rewritten blocks (11 legacy short `why` fields are warned, not failed);
+  `auto_classify_noise.py` gained a deterministic X-thread churn lane
+  validated against the held thread diffs; `just status` surfaces
+  quarantined registrations, host proposals, failure streaks, capture
+  failures and the unreviewed count; manual Astro builds now queue on
+  `flock /tmp/cc-build.lock`.
+
 ## 2026-08-07
 
 ### Record

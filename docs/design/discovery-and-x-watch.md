@@ -1,9 +1,18 @@
 # Design: periodic discovery and X account watching
 
 **Status:** known-URL capture and tier-aware scheduling built; community
-discovery scheduled; bounded X watch and LLM triage built for manual probation;
-X scheduling, deletion checks, nightly audit and backup remain proposed
-**Date:** 5 Aug 2026
+discovery scheduled; X discovery moved to the capture browser with automated
+promotion on 8 Aug 2026; X scheduling in progress; deletion checks, nightly
+audit and backup remain proposed
+**Date:** 5 Aug 2026; amended 8 Aug 2026
+
+**Amendment, 8 Aug 2026:** the operator reversed the official-API-only policy
+recorded below. X discovery now reads the home timeline and watched profiles
+through the capture browser, driver-side only; the API lane
+(`scripts/discover_x.py`) is deprecated and no App was created; promotion of X
+posts is automated through the registering `xintake` guard role plus
+driver-side ingest. Amended sections carry the date. The pre-amendment text
+stands as the record of what was decided on 5 Aug 2026.
 
 The question this answers: how does the archive notice *new* information,
 rather than only noticing edits to pages we already know about?
@@ -25,7 +34,8 @@ Current implementation, verified against the working tree on 3 Aug 2026:
   preflight, bounded profile and post counts, first-run baselining, private
   state, hard-stop failure classes and `DISCOVERY.md` intake. The live command
   is opt-in and manual during probation. It is not installed in the recurring
-  community timer.
+  community timer. *(Amended 8 Aug 2026: this bullet describes the struck API
+  lane; see §3 for the capture-browser lane that replaced it.)*
 - Stacker News, Reddit and BitcoinTalk discovery feed the same intake file and
   are scheduled every 12 hours. Direct X-post availability classification,
   nightly audit and backup are not built.
@@ -62,9 +72,11 @@ The design below covers all three, in that order of maturity.
 - **Stdlib-only Python**, with `gallery-dl` the one exception and confined to
   social capture. New discovery code follows the same rule: HN and GitHub both
   offer unauthenticated JSON APIs, so no new dependency is needed.
-- **Read-only official API.** No posting, following, liking, browser scripting,
-  home feed or search. Timeline reads only. The signed-in account session is
-  not part of discovery.
+- **Read-only capture browser.** Amended 8 Aug 2026, replacing the read-only
+  official-API principle (the reversal is recorded below). X reads go through
+  the capture browser, driver-side only, and stay read-only: home-timeline and
+  watched-profile reads, no posting, following or liking. An unattended agent
+  never reaches `evaluate`/`cdp` and never holds the bridge token.
 - **Alert on signal, never on activity.** A run that found nothing says
   nothing.
 
@@ -101,6 +113,18 @@ design is not a legal conclusion about the separately captured evidence
 archive. The operator must resolve that retention question in the App approval
 and current developer terms before enabling the watcher.
 
+**Amended 8 Aug 2026.** The policy this review produced is reversed. No API
+App was created and none will be: the bearer-token route was abandoned before
+its first live read, so the App-approval and retention questions above never
+had to be resolved. X discovery now reads the home timeline and watched
+profiles through the capture browser, driver-side only, in the containment the
+Reddit lane already uses. That accepts exactly what this section weighed
+against: X's automation rules warn that non-API website scripting can lead to
+permanent account suspension, and reading a signed-in home timeline carries
+that risk. The operator accepted it in writing on 8 Aug 2026.
+`scripts/discover_x.py` is deprecated. `capture-x.sh` remains read-only: no
+posting, following or liking from the session.
+
 References:
 
 - <https://github.com/mikf/gallery-dl>
@@ -113,31 +137,40 @@ References:
 - <https://docs.x.com/x-api/users/get-user-by-username>
 - <https://docs.x.com/x-api/users/get-posts>
 
-## 3. The pivotal constraint: X authentication vs automation
+## 3. The pivotal constraint: X authentication vs automation (amended 8 Aug 2026)
 
 `capture-x.sh` still reads cookies from the configured browser profile for a
-manually selected media capture. `discover_x.py` does not. Discovery requires
-an app-only bearer token from an X developer App whose registered use permits
-this work, held only in the untracked `.env` as `X_API_BEARER_TOKEN`.
+manually selected media capture. Discovery now borrows the capture browser's
+own signed-in session instead: `scripts/discover_x_browser.py` reads the home
+timeline and the watched profiles through the bridge, driver-side only, as the
+operator account. The app-only bearer-token design this section originally
+recorded (`X_API_BEARER_TOKEN` in the untracked `.env`, local preflight,
+`--check-auth`, hard-stop failure classes with a default 24-hour cooldown) is
+struck with the API lane on 8 Aug 2026: no App was created, no token is held,
+and `scripts/discover_x.py` is deprecated. The struck mechanics remain in git
+history; the review above records why they were chosen.
 
-Implemented mechanics:
+Browser-lane mechanics:
 
-- Before any request, discovery checks locally that the bearer token is
-  present and contains no whitespace. It never prints or stores its value.
-- `just discover-x --check-auth` runs that local preflight without touching X.
-- Authentication errors, API access denial, exhausted quota, rate limits and
-  transient service failures are different failure states. Any of them stops
-  the whole run and writes a default 24-hour cooldown.
+- The kill switch is `X_BROWSER_DISCOVERY_ENABLED`; disabled is the default.
+- Session health is the failure surface. A login wall, a challenge and a rate
+  limit are distinct failure classes; any of them stops the whole run and
+  writes a persistent cooldown rather than pushing through. A login wall
+  needs a person to renew the session; a challenge or rate limit may clear
+  with the cooldown.
 - Protected, suspended and unavailable watched profiles remain distinct
-  per-profile results. An empty successful API timeline is healthy.
-- Credential refresh remains manual. `--clear-cooldown` clears only local
-  state and performs no request; it does not repair API access.
+  per-profile results. An empty successful read is healthy.
+- The agent never reaches the browser: the driver reads and hydrates, and an
+  unattended agent never reaches `evaluate`/`cdp` and never holds the bridge
+  token.
+- `--clear-cooldown` clears only local state and performs no request; it does
+  not repair a session.
 
 ### Where the capture browser fits
 
 The capture browser (`capture-browser/webbridge.py`) is a headless Chromium
 the repository ships, holding the project's own signed-in sessions behind a
-daemon on localhost. It is not used for X timeline discovery.
+daemon on localhost. Since 8 Aug 2026 it is also the X discovery path.
 
 1. **Registered browser sources.** Implemented. `capture.py` drives the
    capture browser over local HTTP for sources marked `capture = "browser"`,
@@ -147,10 +180,14 @@ daemon on localhost. It is not used for X timeline discovery.
    `reddit-json` method (see `design/reddit-json-capture.md`).
 2. **Individual X posts that gallery-dl cannot retrieve.** Implemented through
    `ingest-x.py`, which captures an element-only screenshot and text sidecar,
-   then registers the post. It is interactive and is not the timeline watcher.
-3. **X discovery.** Implemented with an app-only official API credential.
-   Browser cookies, navigation and unattended session renewal are deliberately
-   outside that path.
+   then registers the post. Since 8 Aug 2026 the driver also invokes it for
+   agent-approved discovery candidates; the agent itself never reaches the
+   browser. It is not the timeline watcher.
+3. **X discovery.** Amended 8 Aug 2026: implemented through the capture
+   browser (`scripts/discover_x_browser.py`), driver-side only. The app-only
+   API credential design is struck and `discover_x.py` is deprecated.
+   Unattended session renewal stays outside the path: a login wall stops the
+   lane for a person.
 
 ## 4. Watching X accounts (`x-watch`)
 
@@ -182,6 +219,12 @@ broad news account. Adding an important actor is one `[[x_watch]]` block, not
 a follow from the project account.
 
 ### Mechanics
+
+**Amended 8 Aug 2026:** the API mechanics below are struck with the lane.
+`discover_x_browser.py` keeps the same shape over capture-browser reads — the
+caps, first-run baselining, ID-only queue, cooldown and atomic checkpoint —
+and the retired read-only triage flow in step 7 is replaced by the automated
+promotion in §7. The details are kept as the record of what was built.
 
 `scripts/discover_x.py` is stdlib-only:
 
@@ -278,39 +321,49 @@ and off-machine backup remain candidate jobs. X discovery is a manual command
 during probation and is not part of either recurring timer. Deployment is
 never a scheduled job.
 
-## 7. What never reaches the site automatically
+## 7. What never reaches the site automatically (amended 8 Aug 2026)
 
 The intake queue is operational, not editorial. The public site continues to
-render only registered sources and registered posts. Promotion requires a
-scoped `why`, attribution, evidence treatment and first capture. During X
-probation a person authorizes read-only triage with `--include-x`; the model
-then recommends or dismisses from transiently hydrated candidate data.
-Promotion and capture remain separate human decisions. The recurring community
-service does not run X discovery or send queued X lines to its general agent,
-so merely queueing or triaging a watched post cannot publish or register it.
-Direct manual ingestion of an operator-supplied X permalink remains a separate,
-unchanged path.
+render only registered sources and registered posts. Since 8 Aug 2026 X
+promotion is automated under the same containment as community intake: the
+registering `xintake` guard role assesses queued X candidates with the
+coverage index in view, every registration carries a scoped `why`,
+attribution and evidence treatment, `agent_guard.py` enforces the role's path
+allowlist and `check_registry.py` validates the result, and the driver makes
+the first capture through `ingest-x.py` afterwards. The agent never reaches
+the browser, so a watched post still cannot reach the site by being queued or
+read — only by passing the guard. The read-only xtriage prompt and the
+`--include-x` admission flag are retired. The X lane runs on its own timer,
+separate from the community service. Direct manual ingestion of an
+operator-supplied X permalink remains a separate, unchanged path.
+
+What still never reaches the site automatically: a source marked
+`withhold_text`, anything identifying a private individual, and
+discovery-queue material itself, which stays operational and is never
+published as evidence.
 
 Also unchanged: the unnamed blockchain-services provider stays unnamed
 regardless of what any watched account posts, and nothing identifying a
 private individual gets published. Watching is not publishing.
 
-## 8. Remaining implementation order
+## 8. Remaining implementation order (amended 8 Aug 2026)
 
-1. Confirm that the App's registered API and transient-analysis use case is
-   permitted, review the current retention obligations, then configure the App.
-   Run manual baselines and health checks over the configured watches. Record
-   billed usage, duration and every failure class without weakening the hard
-   stops.
-2. Review X intake quality with human approval. Confirm repost, quote, reply,
-   long-form article and text-only cases before unattended discovery or triage
-   is considered. Promotion remains manual.
-3. Only after that probation, decide whether to add a separate X timer. It must
-   preserve the command's caps, fixed spacing, cooldown and opt-in kill switch,
-   and must report incomplete runs without borrowing capture.py's exit 10.
-4. Add direct-post availability checks only after deletion, suspension,
-   protection, restriction and authentication failure are distinguishable.
-5. Add GitHub and HN topic discovery, nightly audits and backup after their own
+The API App approval steps this list opened with are deleted with the lane:
+no App exists and none will be created. What remains is scoped to the browser
+lane:
+
+1. Finish `scripts/discover_x_browser.py`: home-timeline and watched-profile
+   reads through the capture browser, driver-side only, with the caps,
+   baselining, ID-only queue and atomic checkpoint the API lane established.
+   Prove the session-health failure classes — login wall, challenge, rate
+   limit — stay distinct and fail closed with a cooldown.
+2. Schedule the lane on its own `discover-x.timer`, separate from
+   `discover-community`, preserving the caps, fixed spacing, cooldown and the
+   `X_BROWSER_DISCOVERY_ENABLED` kill switch, and reporting incomplete runs
+   without borrowing capture.py's exit 10.
+3. Add direct-post availability re-checks only after deletion, suspension,
+   protection, restriction and session failure are distinguishable.
+4. Add GitHub and HN topic discovery, nightly audits and backup after their own
    alerting and retention decisions.
 
 ### nostr inherits the same model (6 Aug 2026)
@@ -330,12 +383,18 @@ preserves the caps, spacing and kill switch.
 
 ## 9. Honest limits
 
-- Timeline capture is forward-looking. The API may return some recent posts,
-  but X profile coverage in the Internet Archive is incomplete. Posts
-  from before the watcher starts may be unrecoverable.
-- Rate limiting is controlled by X. No cadence is claimed safe. The probation
-  command uses fixed spacing, aborts on the first rate-limit signal and applies
-  a persistent cooldown rather than pushing through.
+- Timeline capture is forward-looking. Amended 8 Aug 2026: the browser lane
+  has no contract for recent posts at all — it reads what the signed-in
+  session is served, and both the home timeline and a profile truncate, so a
+  burst of older posts can scroll out of reach between reads. X profile
+  coverage in the Internet Archive is incomplete. Posts from before the
+  watcher starts may be unrecoverable.
+- Session health is a dependency. A login wall, a challenge or a rate limit
+  stops the lane until its cooldown clears, and a login wall stops it until a
+  person renews the session; there is no credential left to preflight.
+- Rate limiting is controlled by X. No cadence is claimed safe. The lane uses
+  fixed spacing, aborts on the first rate-limit signal and applies a
+  persistent cooldown rather than pushing through.
 - None of this is a legal evidentiary chain, same caveat as the README. For
   any post that turns out to matter, the belt-and-braces move is a Wayback
   submission recorded with its permalink.

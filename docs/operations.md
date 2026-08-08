@@ -79,8 +79,12 @@ Each tick uses an owner-only pending outbox, then moves its finalized result int
 retained tick history beside the per-job capture results. Recovery scans only
 pending work, not the growing history. Changed events are recorded once in
 `archive/CHANGES.md`, and changes or failures trigger one aggregate desktop
-notification where the host provides one; on a headless host the service
-journal and the optional Signal relay carry the signal. A failed change-log
+notification where the host provides one. On a headless host the alert stream
+carries the signal (8 Aug 2026): `scripts/alert.py` appends operator-visible
+alerts to `~/.local/state/coldcard-archive/alerts.jsonl`, which the operator
+UI (`~/coldcard-operator-ui`, a separate read-only repo, port 4322) renders at
+`/alerts`. The service journal and the optional Signal relay remain alongside
+it. A failed change-log
 write remains pending and is retried before notification. A failed
 notification also remains pending for retry. Either failure makes the runner
 exit 20 so it is visible in the service log. Notification delivery is at least
@@ -94,95 +98,54 @@ The following jobs are deliberately not active yet:
 
 | Candidate | Proposed cadence | Gate before activation |
 |---|---:|---|
-| Watched X accounts | Not chosen | Manual probation is built; prove authentication, failure classification, request volume and intake quality before adding a timer |
-| Direct X availability recheck | Daily | Classify deletion, suspension, access restriction and authentication failure separately |
+| Watched X accounts, browser lane | Own `discover-x.timer` | Being scheduled (8 Aug 2026): `discover_x_browser.py` reads through the capture browser under `X_BROWSER_DISCOVERY_ENABLED`; the API lane is deprecated. Prove the session-health classes fail closed before enabling |
+| Direct X availability recheck | Daily | Classify deletion, suspension, access restriction, login wall, challenge and rate limit separately |
 | GitHub and HN discovery inbox | 6 hours | Keep machine discovery separate from human source registration |
 | Archive contract audit, static build and link check | Nightly | Define alerting and keep deployment outside the job |
 | Off-machine archive backup | Daily | Choose a destination, retention policy and restore test |
 | Private scheduler-result pruning | Weekly | Set retention periods for finalized ticks, per-job results and service logs; never prune pending outboxes |
 
-## Manual watched-account X discovery
+## Watched-account X discovery through the capture browser
 
-X discovery is installed but deliberately absent from every systemd unit. It
-uses the official X API to read one shallow public user timeline from a small
-`[[x_watch]]` registry, then hands new permalinks to the existing
-`DISCOVERY.md` intake. It never captures directly and never uses a signed-in
-browser session, home feed, search endpoint or account-writing action. X's
-rules prohibit non-API website automation, so browser scripting and cookie
-reuse are not fallback discovery methods.
+X discovery moved to the capture browser on 8 Aug 2026. The official-API lane
+(`scripts/discover_x.py`) is deprecated: no developer App was created, and
+`X_API_BEARER_TOKEN` and `X_DISCOVERY_ENABLED` in `.env` are no longer used.
+Reading a signed-in timeline carries X's automation-rule suspension risk,
+which the operator accepted in writing on 8 Aug 2026. The manual API-lane
+procedure this section replaced is in git history and annotated in
+[design/discovery-and-x-watch.md](design/discovery-and-x-watch.md).
 
-Create an X developer App whose registered use case covers this public
-source-discovery and transient AI-assisted relevance assessment, then set its
-app-only bearer token in the untracked `.env` as `X_API_BEARER_TOKEN`. The
-system does not train a model on X data. X currently makes API access and usage
-plan-dependent, so confirm that the developer-console terms permit the declared
-use, and review data obligations and spend limits before enabling live reads.
-The watcher does not log or persist the token.
+`scripts/discover_x_browser.py` reads the home timeline and the watched
+`[[x_watch]]` profiles through the capture browser, driver-side only, as the
+operator account. The lane is read-only in the same sense as `capture-x.sh`:
+no posting, following or liking from the session. The kill switch is
+`X_BROWSER_DISCOVERY_ENABLED`; disabled is the default.
 
-Begin with local, request-free checks:
+The agent never reaches the browser. As with the community lanes, the driver
+hydrates first and the agent receives text; an unattended agent never reaches
+`evaluate`/`cdp` and never holds the bridge token. New permalinks land in
+`DISCOVERY.md` with a relation label, and ID-only candidate metadata stays
+under `.work/`, as before.
 
-```bash
-just discover-x --list
-just discover-x --check-auth
-```
+Session health is the lane's failure surface, and the classes stay distinct:
+a login wall, a challenge and a rate limit each fail the run closed and write
+a cooldown rather than pushing through. A login wall additionally needs a
+person to renew the session; a challenge or rate limit may clear with the
+cooldown. `--clear-cooldown` clears only local state and performs no request.
 
-The first live run needs the API token and explicit `.env` opt-in. It establishes a baseline
-for the least-recently attempted six profiles and queues nothing historical:
+Promotion is automated (8 Aug 2026). The registering `xintake` guard role
+assesses queued X candidates under the same containment as the community
+intake, and the driver captures each approved post with `just ingest-x`
+afterwards; the agent never reaches the browser itself. The read-only xtriage
+prompt and the `--include-x` admission flag are retired. What still never
+moves unattended: withheld sources, anything identifying a private individual,
+and discovery-queue material itself.
 
-```bash
-X_DISCOVERY_ENABLED=true just discover-x
-```
-
-Repeat until every configured profile reports `baselined`. Later runs queue
-only unseen status ids. `--queue-initial` is a deliberate history import and
-should not be used for ordinary setup. `--handle NAME` narrows a diagnostic to
-one registered actor; `--no-state` performs the bounded read without changing
-checkpoints or intake.
-
-Private state is `.work/x-discovery.json`; ID-only candidate metadata is
-appended to `.work/x-candidates.jsonl`. Hydrated API text and public metrics
-are not persisted. The tracked intake contains a local relation label and
-permalink, not post text. During explicitly approved X triage,
-`discover-x --show ID` performs one official post lookup and emits the content
-only to that assessment process. State is replaced atomically after intake is
-updated, so an interrupted run repeats safely rather than checkpointing past
-an unqueued post. A direct manual lookup uses
-`X_DISCOVERY_ENABLED=true just discover-x --show ID`; the intake prompt applies
-that one-command opt-in only after `--include-x` admitted the candidate.
-
-The 12-hourly community service does not run `discover-x`, and its general
-intake agent does not consume queued X permalinks. This separation does not
-affect direct capture of an X link supplied by a person. That still uses
-`just ingest-x` as documented in `docs/capture.md`, without an API App or this
-queue. To authorize a read-only AI triage pass over watcher-generated X
-permalinks, run:
-
-```bash
-just discovery-intake --include-x
-```
-
-That explicit flag authorizes the agent to assess a bounded batch and append
-recommendation or dismissal verdicts to `DISCOVERY.md`. It cannot capture,
-register or publish a post. The run is X-only, so a community backlog cannot
-hide the admitted candidates. It requires the separate
-`X_REVIEW_AGENT_BIN`; there is no fallback to the general review provider.
-Point it at a local or otherwise approved processor for hydrated X content.
-The 12-hourly community service never passes the flag, so an X candidate
-cannot move into the archive unattended.
-
-A recommendation is only a human review queue. Promotion and evidence capture
-remain a separate manual decision under the repository's existing X capture
-procedure and its own account-policy risk.
-
-The script stops the whole run and writes a 24-hour cooldown on rate limits,
-exhausted API quota, stale credentials, denied API access or transient service
-failure. Protected, suspended and unavailable profiles remain distinct
-per-profile outcomes. An empty successful API result is healthy; a full
-incremental page with another page behind it is an overflow failure, so the
-checkpoint never skips unseen posts. Inspect the cause and developer-console
-state before retrying. `--clear-cooldown` removes only the local stop state and
-performs no X request; it must not be used to push through an unresolved API
-response.
+The lane runs on its own `discover-x.timer`, separate from
+`discover-community`: an X session failure must not stall the community
+lanes, and a community backlog must not hide X candidates. Direct capture of
+an X link supplied by a person is unchanged: `just ingest-x` as documented in
+[capture.md](capture.md), without this queue.
 
 ## nostr identity, posting and discovery
 
@@ -222,7 +185,8 @@ project key and requires `--yes`, or an interactive confirmation on a
 terminal. Use it for announcements of record updates only. There is no
 scheduled or agent-driven posting.
 
-Discovery is manual during probation, the same posture as `discover-x`:
+Discovery is manual during probation — the posture `discover-x` held until it
+moved to the capture browser on 8 Aug 2026:
 
 ```bash
 NOSTR_DISCOVERY_ENABLED=true just discover-nostr
@@ -322,9 +286,10 @@ Swapping is one line in `.env` and nothing else:
 REVIEW_AGENT_BIN=/usr/local/bin/cc-agent-<name>
 ```
 
-`REVIEW_AGENT_BIN`, `X_REVIEW_AGENT_BIN` and `CLAIM_SWEEP_AGENT_BIN` are
+`REVIEW_AGENT_BIN` and `CLAIM_SWEEP_AGENT_BIN` are
 independent, so the sweep can run on one provider while intake runs on
-another. That is also how to compare them: point two lanes at two providers
+another. (`X_REVIEW_AGENT_BIN` retired with the xtriage prompt on 8 Aug 2026.)
+That is also how to compare them: point two lanes at two providers
 and read the reports side by side.
 
 They live in `/usr/local/bin` rather than an operator's `~/.local/bin`
@@ -441,14 +406,22 @@ Deployment is a separate decision from capture. No capture or review timer
 publishes anything, and the scheduled jobs above keep deployment outside their
 scope by design.
 
-### Publishing on a timer (opt-in, not enabled)
+### Publishing on a timer (being installed, 8 Aug 2026)
+
+> Amended 8 Aug 2026: the operator's directive moves publication onto this
+> timer as part of the unattended pipeline. Guard-passed agent output is
+> committed by `scripts/record_commit.py`, `publish-scheduled.timer` is being
+> installed, and a git push follows each successful deploy. Human review is
+> retroactive — the operator UI, the journals and git history — not a gate.
+> The skip conditions below are unchanged, and a `.no-publish` file or a
+> failed publish gate still stops the line.
 
 The funds page reads the community trackers' headline totals out of the
 captures this archive holds, so those figures are only as fresh as the last
 deploy. `scripts/publish-scheduled.sh` exists for operators who want that gap
-closed without publishing by hand, and it is deliberately not installed:
-`publish-scheduled.{service,timer}.example` are examples, like the capture
-units beside them.
+closed without publishing by hand. Until the 8 Aug 2026 directive it was
+deliberately not installed: `publish-scheduled.{service,timer}.example` are
+examples, like the capture units beside them.
 
 The script publishes only from a tree that nobody is working in. It exits 0
 and logs a reason, rather than failing, when any of these hold:
