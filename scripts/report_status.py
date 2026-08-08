@@ -15,6 +15,7 @@ missing file means nothing to report, never an error. Stdlib only.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -133,6 +134,35 @@ def capture_failures() -> None:
     print()
 
 
+def correction_proposals() -> None:
+    print("== correction proposals (.work/correction-proposals/) ==")
+    queue = ROOT / ".work" / "correction-proposals"
+    pending = sorted(queue.glob("*.md")) if queue.is_dir() else []
+    if not pending:
+        print("none\n")
+        return
+    advice = []
+    ready = 0
+    for path in pending:
+        try:
+            head = path.read_text(encoding="utf-8", errors="replace")[:2000]
+        except OSError:
+            continue
+        if re.search(r"^\s*-?\s*status:\s*advice-only", head,
+                     re.IGNORECASE | re.MULTILINE):
+            advice.append(path.name)
+        else:
+            ready += 1
+    print(f"{len(pending)} pending: {ready} awaiting apply-corrections, "
+          f"{len(advice)} advice-only (never machine-applied; they are "
+          f"decisions for a person):")
+    for name in advice[:10]:
+        print(f"  advice-only: {name}")
+    if len(advice) > 10:
+        print(f"  ... and {len(advice) - 10} more")
+    print()
+
+
 def unreviewed_diffs() -> None:
     print("== unreviewed detected differences ==")
     # check_reviews owns the gate's rule; import it rather than restate it.
@@ -156,6 +186,7 @@ def main() -> int:
     host_proposals()
     streaks()
     capture_failures()
+    correction_proposals()
     unreviewed_diffs()
     return 0
 

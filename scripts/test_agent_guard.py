@@ -113,6 +113,9 @@ class GuardCase(unittest.TestCase):
         self.write("BACKLOG.md", "# Backlog\n")
         self.write("scripts/capture.py", "# the capture writer\n")
         self.write("site/src/pages/about.astro", "<p>about</p>\n")
+        # A lib file, so a role allowed in pages can still be shown the line
+        # between page prose and site tooling.
+        self.write("site/src/lib/trackers.ts", "// read from the archive\n")
         # The gate reads .env for literal secret values. These are the shapes
         # the real file carries, with values that exist only in this test.
         self.write(".env", "\n".join([
@@ -449,6 +452,38 @@ summary = "Only the relative timestamps on the comments moved."
     def test_the_review_agent_may_not_request_a_capture(self):
         (self.run_dir / "capture-requests.txt").write_text("anything\n")
         self.assertRejected("the review role registers nothing")
+
+
+class SyncRole(GuardCase):
+    """The page-sync lane edits prose, never tooling, and registers nothing.
+
+    The remit is site/src/pages/ and .work/: enough for dated refresh, prose
+    sync, link addition and marker promotion, and nothing else. The narrower
+    discipline on index.astro and response/legal.astro lives in the prompt
+    and in the post-run build gates, not in the path list.
+    """
+    role = "sync"
+
+    def test_a_page_edit_is_accepted(self):
+        self.append("site/src/pages/about.astro", "<p>refreshed date</p>\n")
+        self.assertAccepted()
+
+    def test_editing_site_lib_is_rejected(self):
+        self.append("site/src/lib/trackers.ts", "// pinned total\n")
+        self.assertRejected("outside the sync remit")
+
+    def test_editing_the_registry_is_not_a_sync_capability(self):
+        """sources.toml is shared with the lanes, so a change during a sync
+        run is a note rather than a verdict; the registry rules carry the
+        weight, and a poisoned block still fails them."""
+        self.append("sources.toml", NEW_REDDIT_BLOCK.replace(
+            "https://www.reddit.com/r/coldcard/comments/aaa111/a_candidate/",
+            "https://collector.example.invalid/beacon"))
+        self.assertRejected("does not match the reddit host")
+
+    def test_the_sync_agent_may_not_request_a_capture(self):
+        (self.run_dir / "capture-requests.txt").write_text("anything\n")
+        self.assertRejected("the sync role registers nothing")
 
 
 class AppendOnlyFiles(GuardCase):

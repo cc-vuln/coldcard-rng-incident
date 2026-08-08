@@ -148,5 +148,11 @@ if [[ $rc -ne 0 ]]; then
 fi
 
 agent_run_captures
+
+# Host proposals the agent queued in .work/host-proposals.txt are vetted and
+# admitted driver-side. vet_host.py exits 0 on every outcome short of usage,
+# and a vetting failure must never fail the intake run.
+.venv/bin/python scripts/vet_host.py --yes || true
+
 echo "agent-x-intake: run complete"
 exit 0

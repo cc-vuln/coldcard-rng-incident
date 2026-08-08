@@ -21,8 +21,8 @@ Callers pick keys that encode how often a reminder is acceptable: a failing
 unit keys on its status value, a stale host proposal keys on the day.
 
 Severities are info / warning / urgent. urgent is reserved for
-guard-rejection and the x-session-health login wall; everything the sweep
-raises is info or warning.
+guard-rejection, gate-failure and the x-session-health login wall;
+everything the sweep raises is info or warning.
 
 Stdlib only.
 """
@@ -50,6 +50,7 @@ TS_FORMAT = "%Y%m%dT%H%M%SZ"
 KINDS = (
     "failure-streak",
     "guard-rejection",
+    "gate-failure",
     "unit-failure",
     "publish-failure",
     "publish-skip-streak",
@@ -90,6 +91,8 @@ UNITS = (
     "archive-review.service",
     "discover-community.service",
     "claim-sweep.service",
+    "corrections-watch.service",
+    "site-sync.service",
 )
 
 

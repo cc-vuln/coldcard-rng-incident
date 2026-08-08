@@ -66,6 +66,23 @@ ROLES: dict[str, tuple[str, ...]] = {
     # Replaced the read-only xtriage role on 8 Aug 2026, when X promotion
     # was automated; its first captures are ingests, not polls.
     "xintake": ("sources.toml", "DISCOVERY.md", ".work/"),
+    # Drafts correction proposals from the claim sweep's state-changed
+    # flags. Propose-only: corrections.toml and the site pages are
+    # deliberately outside the remit, so a run that edits them fails here,
+    # and the deterministic applier (scripts/apply_corrections.py) is the
+    # only writer. The APPEND_ONLY prefix check below covers
+    # corrections.toml regardless, keyed on the file rather than the role.
+    "corrections": (".work/correction-proposals/",),
+    # Syncs published prose with the record from the staleness packet:
+    # dated refresh, section prose sync against routed revisions, link
+    # additions, capture-grounded marker promotions. The narrower remit on
+    # index.astro and response/legal.astro (dated refresh and link addition
+    # only, never reframed) is a prompt-level discipline, deliberately not
+    # encoded here: a path list cannot tell a refresh from a reframe, so the
+    # control is the post-run gate chain in scripts/agent-site-sync.sh
+    # (check-claims plus a full gated build), which rejects the run when the
+    # edits do not build clean.
+    "sync": ("site/src/pages/", ".work/"),
 }
 
 # Roles whose remit includes registering sources, and therefore asking for a

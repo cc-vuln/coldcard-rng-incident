@@ -1,7 +1,8 @@
 # Shared plumbing for the unattended agent drivers. Sourced, never executed.
 #
-# Four drivers run an agent over text strangers wrote: agent-review.sh,
-# agent-discovery-intake.sh, agent-x-intake.sh and claim-sweep.sh. They
+# Six drivers run an agent over text strangers wrote: agent-review.sh,
+# agent-discovery-intake.sh, agent-x-intake.sh, claim-sweep.sh,
+# agent-corrections.sh and agent-site-sync.sh. They
 # differ in what they ask for and agree on everything about how the run is
 # contained, so the containment lives here in one copy. Three copies of a
 # security control drift, and the copy that drifts is the one that stops

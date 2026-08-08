@@ -136,6 +136,12 @@ diagnose *ARGS:
 corroborate-gone *ARGS:
     @{{py}} scripts/corroborate_gone.py {{ARGS}}
 
+# Vet the hosts intake agents proposed in .work/host-proposals.txt (DNS,
+# robots.txt, redirect shape) and admit the sound ones to
+# registry_hosts.toml and agent_egress_hosts.toml. Dry-run unless --yes.
+vet-hosts *ARGS:
+    @{{py}} scripts/vet_host.py {{ARGS}}
+
 # Verify every held capture against the unified record contract
 audit:
     @{{py}} scripts/capture.py audit
@@ -461,3 +467,14 @@ agent-maintenance *ARGS:
 # The 12-hour timer (scripts/claim-sweep.timer.example) runs the same script.
 claim-sweep:
     @./scripts/claim-sweep.sh
+
+# Draft correction proposals from the newest claim-sweep report's
+# state-changed flags (propose-only agent role; scripts/agent-corrections.sh)
+corrections-draft:
+    @./scripts/agent-corrections.sh
+
+# Validate and apply correction proposals in .work/correction-proposals/.
+# Default is a dry run listing verdicts; --yes applies. Exit 0 either way:
+# a rejected proposal is routine, and the corrections-watch unit relies on it.
+apply-corrections *ARGS:
+    @{{py}} scripts/apply_corrections.py {{ARGS}}

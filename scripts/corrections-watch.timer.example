@@ -1,0 +1,16 @@
+# Fire corrections-watch.service weekly. See corrections-watch.service.example.
+#
+# Weekly, not per-sweep: state-changed flags are rare (the sweep reports most
+# weeks with none), and the driver exits immediately when the newest report
+# carries none. Sunday 06:40 UTC sits clear of the half-hour poll, the
+# two-hourly review, and the 12-hourly sweep (00:00/12:00 UTC).
+[Unit]
+Description=corrections pipeline weekly
+
+[Timer]
+OnCalendar=Sun *-*-* 06:40:00 UTC
+Persistent=true
+Unit=corrections-watch.service
+
+[Install]
+WantedBy=timers.target

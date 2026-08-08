@@ -1,0 +1,43 @@
+# The page-sync lane, every 12 hours: regenerate the staleness packet,
+# hydrate the pages and capture excerpts it names, run the sync agent over
+# them, and gate any site/src/pages/ edits on `just check-claims` plus a
+# full gated build (scripts/agent-site-sync.sh). A gate failure rejects the
+# run: the edits stay in place as evidence, an urgent gate-failure alert
+# goes out, and the unit exits non-zero.
+#   sudo cp site-sync.service.example /etc/systemd/system/site-sync.service
+#   sudo cp site-sync.timer.example /etc/systemd/system/site-sync.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now site-sync.timer
+#
+# Replace USER and REPO with the account and checkout path. Requires
+# REVIEW_AGENT_BIN or SITE_SYNC_AGENT_BIN in REPO/.env (see .env.example);
+# with neither set the unit still regenerates the staleness packet for a
+# human to read and exits 0.
+#
+# The agent half runs over source titles and capture text strangers wrote,
+# so install the shared hardening drop-in beside it
+# (scripts/agent-hardening.conf.example) and the agent account it drops to
+# (docs/operations.md, "The agent account"). Without them the driver refuses
+# to run rather than running unprotected.
+[Unit]
+Description=site page-sync agent over the staleness packet
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/scripts/agent-site-sync.sh
+TimeoutStartSec=3600
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+# NoNewPrivileges is not set: it would block the setuid transition the driver
+# uses to drop into the agent account. See agent-hardening.conf.example.
+#
+# The agent never fetches: the driver hydrates the packet, the named pages
+# and the capture excerpts first, so the only outbound traffic is the agent
+# CLI reaching its model API. The gate chain's build takes flock
+# /tmp/cc-build.lock with flock -w, queueing behind any build in progress
+# rather than corrupting the Astro cache.
+
+[Install]
+WantedBy=multi-user.target

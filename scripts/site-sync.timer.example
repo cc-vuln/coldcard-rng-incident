@@ -1,0 +1,17 @@
+# Fire site-sync.service every 12 hours. See site-sync.service.example.
+#
+# 06:20 and 18:20 UTC sit midway between the 12-hourly claim sweep's ticks
+# (00:00/12:00 UTC), clear of the half-hour poll and the two-hourly review,
+# and twenty minutes off the weekly corrections-watch (Sun 06:40 UTC). The
+# sync lane's gate chain takes the build lock with flock -w, so a collision
+# would only ever queue, never corrupt; the stagger is for journal legibility.
+[Unit]
+Description=site page-sync every 12 hours
+
+[Timer]
+OnCalendar=*-*-* 06,18:20:00 UTC
+Persistent=true
+Unit=site-sync.service
+
+[Install]
+WantedBy=timers.target

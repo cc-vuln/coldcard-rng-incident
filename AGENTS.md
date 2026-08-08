@@ -56,20 +56,39 @@ scripts/
   build_manifest.py   describe every held capture without reproducing any
   make_deposit.py     stage the archival deposit; stages and reports, never uploads
   agent-review.sh     classify new diffs via REVIEW_AGENT_BIN (optional)
+  agent-corrections.sh  draft correction proposals from the claim sweep's
+                        state-changed flags (propose-only role corrections)
+  apply_corrections.py  the deterministic corrections applier: validates
+                        each proposal (verbatim `said`, real routes, the
+                        corrections.ts entry rules, zero-fuzz patch, pure
+                        append) and applies all-or-nothing; dry run unless
+                        --yes, alert per applied correction
   record_commit.py    commit guard-passed pipeline output, deterministically
                       (record-commit.timer); --dry-run is the default
   agent-maintenance.sh  run agent work with the capture timers paused
   agent-run-common.sh   the containment every agent driver shares
   run-agent.sh        run one agent deprivileged, with a built environment
-  agent-prompt-rules.md  standing rules injected into all four prompts
+  agent-prompt-rules.md  standing rules injected into all five prompts
   agent_guard.py      check what an agent run did; refuse if it overreached
   check_registry.py   registry host, fetch_post, no-mutation and
                       placeholder-prose rules
   report_status.py    operator summary for `just status`: quarantine, host
                       proposals, failure streaks, capture failures, unreviewed
+  report_site_staleness.py  deterministic page-sync inventory for the agent
+                      and a human: unreferenced sources, source-content
+                      revisions vs the pages citing them, aging dated
+                      assertions, tracker degradation; .work/site-staleness.md
+  agent-site-sync.sh  sync published prose with the record from that packet
+                      (role sync); page edits are gated post-run on
+                      check-claims plus a full gated build, and a gate
+                      failure rejects the run with an urgent alert
+  agent-site-sync-prompt.md  the page-sync prompt
   registry_hosts.toml hosts sources.toml may name; a human edit
   quarantine_registry.py  move a rejected registration out of the live
                         registry, so an invalid one never stops the tree
+  vet_host.py           vet intake host proposals (DNS, robots.txt,
+                        redirect shape) and admit the sound ones to
+                        registry_hosts.toml and agent_egress_hosts.toml
   hydrate_candidates.py  fetch candidate bodies so the agent needs no network
   build_coverage_index.py  what the record already covers, with a saturation
                         count per entry read out of past verdicts
