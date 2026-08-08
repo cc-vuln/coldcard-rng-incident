@@ -81,13 +81,21 @@ if [[ -z "$AGENT_BIN" ]]; then
 fi
 
 # Hydrate the evidence pack here, as the operator account, so the agent
-# needs no network:
+# needs no network. The packet can name hundreds of entries (the
+# unreferenced register alone is 600+), and run-agent.sh passes the prompt
+# as ONE command-line argument, so the whole prompt must stay under the
+# kernel's 128 KiB single-argument ceiling. This lane therefore batches
+# like the intake lane: a bounded slice per run (timely signals first:
+# dated assertions, revision routing, then unreferenced entries), with
+# byte budgets on the hydrated page texts and capture excerpts. What does
+# not fit waits for the next tick; unlinked sources repeat until linked,
+# so nothing is lost by deferring.
 #
-#   packet.md    the staleness packet (source titles and revision summaries
+#   packet.md    the selected batch (source titles and revision summaries
 #                are stranger-written: rendered untrusted)
-#   pages.md     the full current text of every page the packet names
+#   pages.md     the current text of pages the batch names, up to budget
 #   captures.md  an excerpt of the newest held capture of each source the
-#                revision routing names (sources' text: rendered untrusted)
+#                batch's revision routing names (rendered untrusted)
 echo "agent-site-sync: hydrating evidence for $ACTIONABLE packet entrie(s)"
 "$ROOT/.venv/bin/python" - "$ROOT" "$EVIDENCE_DIR" <<'PY'
 import json
@@ -97,46 +105,81 @@ from pathlib import Path
 root, evidence_dir = Path(sys.argv[1]), Path(sys.argv[2])
 packet = json.loads((root / ".work" / "site-staleness.json").read_text())
 
-# Every page the packet names: dated-assertion files, pages citing a moved
-# source, and the files carrying weak (unlinked) mentions of a source.
-pages = set()
-for a in packet["dated_assertions"]:
-    pages.add(a["file"])
-for r in packet["revision_routing"]:
-    pages.update(r["pages"])
-for entries in packet["unreferenced"]["groups"].values():
-    for e in entries:
-        pages.update(e["files"])
+MAX_DATED, MAX_ROUTING, MAX_UNREF = 10, 25, 25
+PAGES_BUDGET, CAPTURES_BUDGET = 55_000, 25_000
 
-pages_out = []
+dated = packet["dated_assertions"][:MAX_DATED]
+routing = packet["revision_routing"][:MAX_ROUTING]
+unref = []
+for group, entries in packet["unreferenced"]["groups"].items():
+    for e in entries:
+        unref.append((group, e))
+unref = unref[:MAX_UNREF]
+deferred = (len(packet["dated_assertions"]) - len(dated)
+            + len(packet["revision_routing"]) - len(routing)
+            + sum(len(v) for v in packet["unreferenced"]["groups"].values())
+            - len(unref))
+
+batch = ["# staleness batch (bounded slice of the full packet)", ""]
+batch.append("## Dated assertions")
+for a in dated:
+    batch.append(f"- {a['file']}:{a['line']}: {a['text']}")
+batch.append("\n## Revision routing")
+for r in routing:
+    batch.append(f"- {r['source']} ({r['timestamp']}): {r['summary']} "
+                 f"-- pages: {', '.join(r['pages']) or 'none'}")
+batch.append("\n## Unreferenced registered sources")
+for group, e in unref:
+    batch.append(f"- [{group}] {e['id']} -- weak mentions: "
+                 f"{', '.join(e['files']) or 'none'}")
+batch.append("")
+(evidence_dir / "packet.md").write_text("\n".join(batch))
+
+pages = set()
+for a in dated:
+    pages.add(a["file"])
+for r in routing:
+    pages.update(r["pages"])
+for _, e in unref:
+    pages.update(e["files"])
+
+pages_out, pages_used = [], 0
 pages_root = root / "site" / "src" / "pages"
 for rel in sorted(pages):
     page = pages_root / rel
-    if page.is_file():
+    if not page.is_file():
+        continue
+    text = page.read_text(errors="replace")
+    if pages_used + len(text) > PAGES_BUDGET:
         pages_out.append(f"===== site/src/pages/{rel} =====\n"
-                         + page.read_text(errors="replace"))
+                         "(not hydrated this run: over the byte budget; "
+                         "a later tick batches it)")
+        continue
+    pages_used += len(text)
+    pages_out.append(f"===== site/src/pages/{rel} =====\n" + text)
 (evidence_dir / "pages.md").write_text(
     "\n\n".join(pages_out) + "\n" if pages_out else "(none)\n")
 
-captures_out = []
+captures_out, captures_used = [], 0
 snapshots = root / "archive" / "snapshots"
-for r in packet["revision_routing"]:
-    ident = r["source"]
-    source_dir = snapshots / ident
+for r in routing:
+    source_dir = snapshots / r["source"]
     if not source_dir.is_dir():
         continue
     txts = sorted(p for p in source_dir.iterdir() if p.suffix == ".txt")
-    if not txts:
+    if not txts or captures_used >= CAPTURES_BUDGET:
         continue
-    newest = txts[-1]
+    excerpt = txts[-1].read_text(errors="replace")[:8000]
+    captures_used += len(excerpt)
     captures_out.append(
-        f"===== archive/snapshots/{ident}/{newest.name} (excerpt) =====\n"
-        + newest.read_text(errors="replace")[:20000])
+        f"===== archive/snapshots/{r['source']}/{txts[-1].name} (excerpt) =====\n"
+        + excerpt)
 (evidence_dir / "captures.md").write_text(
     "\n\n".join(captures_out) + "\n" if captures_out else "(none)\n")
 
-print(f"agent-site-sync: {len(pages_out)} page(s), "
-      f"{len(captures_out)} capture excerpt(s)")
+print(f"agent-site-sync: batch of {len(dated) + len(routing) + len(unref)} "
+      f"({deferred} deferred to later ticks); "
+      f"{pages_used // 1024} KiB pages, {captures_used // 1024} KiB captures")
 PY
 
 # What site/src/pages/ looks like now, so the gate can tell whether the run
