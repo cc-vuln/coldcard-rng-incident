@@ -105,6 +105,13 @@ evidence basis a promotion or a prose sync may rest on.
 
 ## Hard rules
 
+- The site's scope tightened on 8 Aug 2026: capture, archive and present the
+  public discourse. Never add this project's own original research to a page:
+  no independent firmware verification, no unpublished findings, no
+  derivations beyond arithmetic on stated inputs. Where another party
+  published the finding, report and attribute it from the held capture. If
+  you find prose that only the project's own verification supports, report it
+  as a candidate for re-sourcing; do not extend it.
 - Never adjudicate between parties' numbers. Where sources give different
   figures, show all of them, attribute each, and explain what each assumes.
   Do not pick a winner.

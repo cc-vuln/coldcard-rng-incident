@@ -6,6 +6,28 @@ published in the footer and at `/version.json`.
 
 ## 2026-08-08
 
+### Site
+
+- The site's focus tightened to capture, archive and present the public
+  discourse, and the pages were re-grounded to match: this project's own
+  original research — independent firmware verification, unpublished
+  findings, derivations beyond arithmetic on stated inputs — is out of
+  scope. Fourteen pages changed, about 1,400 lines removed. The blast-radius
+  register's own-verified call-site review, the developer page's commit-history
+  grading, the reference page's fork comparison and seed-checker watch, and
+  the conditions page's self-derived arithmetic left the record; claims they
+  carried are now reported from the captured publications that state them
+  (Block's disclosure, Coinkite's backgrounder, Wizardsardine's post-mortem,
+  Dettmer's walkthrough), with two attributed answers shown where the parties
+  disagree, such as the v4.0.0/v4.0.1 boundary. Two findings no captured
+  source states (the MuSig2 and microSD-2FA-nonce omissions) leave the record
+  unless another party publishes them. The one exception is the screen-hazard
+  callout on `/how-it-broke/conditions/`, kept verified because it is
+  safety-relevant. What was retracted was out of scope, not wrong, so this is
+  a changelog entry, not a correction. The basis mix moved accordingly:
+  369 claim markers now read 67 verified, 265 reported, 6 derived, 31
+  unverified.
+
 ### Process
 
 - The operator directed full automation of the pipeline: guard-passed agent

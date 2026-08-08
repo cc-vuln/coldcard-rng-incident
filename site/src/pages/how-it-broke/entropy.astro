@@ -6,7 +6,6 @@ import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import ModelExplorer from '../../components/ModelExplorer.astro';
 import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.astro';
-import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
 ---
 
 <Article
@@ -143,24 +142,15 @@ import FigureUidFlow from '../../components/figures/FigureUidFlow.astro';
       subsecond register.
     </p>
 
-    <p class="filepath">micropython/ports/stm32/rng.c and mpconfigboard_common.h</p>
-    <pre class="code"><span class="k">#define</span> MP_HAL_UNIQUE_ID_ADDRESS (<span class="hl">0x1fff7590</span>)
-
-pad = <span class="hl">*(uint32_t *)</span>MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick-&gt;VAL;
-n = RTC-&gt;TR;
-d = RTC-&gt;SSR;</pre>
-
     <p>
-      ST documents the first UID word as wafer-coordinate data and the remaining
-      words as wafer and lot information. That field layout explains why an
-      analyst might model fewer than <code>2^32</code> possible first words, but it
-      does not by itself establish a COLDCARD-specific range. This project holds
+      Whether the first word's field layout narrows the practical range across
+      shipped COLDCARD devices is unresolved in this record. This project holds
       no population sample of device UIDs as of a 7 August 2026 recheck, so
       <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code>2^20</code> assumption</a>
       remains unchecked here.<Claim
         basis="unverified"
         scope="The practical distribution of the 32-bit UID word across shipped COLDCARD devices"
-        source="The 32-bit read is verified in source; the practical distribution across COLDCARD devices had not been measured here as of a 7 August 2026 recheck"
+        source="The practical distribution across COLDCARD devices had not been measured here as of a 7 August 2026 recheck"
       />
     </p>
 
@@ -193,8 +183,6 @@ d = RTC-&gt;SSR;</pre>
         href="/record/sources/reddit-mk3-seed-entropy-worse/"
       />
     </p>
-
-    <FigureUidFlow />
 
   </Disclosure>
 
@@ -294,6 +282,14 @@ d = RTC-&gt;SSR;</pre>
       scope="kTimesG's 16,777,216-candidate and 4.2-second RTX 4090 figures, the claimed 352-fold overstatement, and the dispute over whether the control honeypot's inputs are reachable on a real device"
       source="kTimesG, captured BitcoinTalk thread, 6 Aug 2026, against CKTRIPWIRE's own published estimates and methodology; neither side's work is reproduced here"
       href="/record/sources/bitcointalk-large-scale-compromise-thread/"
+    />
+    LLFOURN separately reported that attackers appeared to be acquiring
+    additional compute capacity for this kind of offline candidate search;
+    that activity is not verified here.<Claim
+      basis="reported"
+      scope="Reports that attackers were acquiring additional compute capacity"
+      source="LLFOURN reported that attackers were acquiring compute; this project has not independently verified that activity"
+      href="/record/sources/llfourn-followup/"
     />
   </p>
 
@@ -396,25 +392,4 @@ d = RTC-&gt;SSR;</pre>
       href="/record/sources/skot9000-population-collisions/"
     />
   </p>
-
-  <Disclosure
-    id="candidate-check"
-    title="How a candidate is checked"
-    note="BIP39's PBKDF2 step, and why there is no rate limit on the comparison"
-  >
-    <p>
-      A candidate mnemonic can be passed through BIP39's 2,048-round
-      PBKDF2-HMAC-SHA512 step and the relevant wallet derivation path. A known
-      address, or an extended public key obtained separately, then provides an
-      offline comparison target. There is no device PIN or network rate limit in
-      that comparison. LLFOURN reported that attackers appeared to be acquiring
-      additional compute capacity for exactly this kind of search; that
-      activity is not verified here.<Claim
-        basis="reported"
-        scope="Reports that attackers were acquiring additional compute capacity"
-        source="LLFOURN reported that attackers were acquiring compute; this project has not independently verified that activity"
-        href="/record/sources/llfourn-followup/"
-      />
-    </p>
-  </Disclosure>
 </Article>

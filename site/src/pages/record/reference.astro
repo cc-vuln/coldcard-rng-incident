@@ -70,7 +70,7 @@ const PRIMARY_GROUPS: PrimaryGroup[] = [
         what: 'The technical disclosure',
         evidence: [{ href: '/record/sources/block-disclosure/', label: 'The disclosure report' }],
         detail: 'Identified the migration commit, showed that the Mk4-class reseed carries at most 32 bits into one libngu state word, and published lower candidate-space scenarios. Bitcoin Optech reports that anonymous researchers participated and that disclosure was coordinated with Coinkite.',
-        status: 'Verified against the report and source repositories.',
+        status: 'Reported technical analysis; the disclosure report is captured for revision tracking.',
         scope: 'The candidate-space figures are scenarios with stated attacker-knowledge assumptions, not per-device measurements.',
       },
       {
@@ -133,7 +133,7 @@ const PRIMARY_GROUPS: PrimaryGroup[] = [
         what: 'The attack-cost model',
         evidence: [{ href: '/record/sources/llfourn-model/', label: 'The model' }],
         detail: 'Published a model using about 2^20 MCU identifiers, 80,000 timing states and 16 button-press variants. This gives about 2^40.3 for Mk3 and 2^72.3 for Mk4-class devices. The source does not decompose the 16 variants further. A follow-up said clock assumptions might reduce the latter by 10 to 14 bits, and another reply described a 2^32 lower scenario when UID, button-press variation and clock behaviour are known.',
-        status: 'Reported model; arithmetic checked against the stated inputs.',
+        status: 'Reported model; the figures are the author\'s derivation from the stated inputs.',
         scope: 'The 2^20 UID range and practical timing distribution have not been independently measured here.',
       },
       {
@@ -364,30 +364,19 @@ const socialPostCount = posts.length + nostrPosts().length;
 /* --- Published code ------------------------------------------------------ */
 
 /*
- * Catalogue of code published around this incident, organised by safety rather
- * than by author or topic.
+ * Catalogue of code published around this incident.
  *
- * The reason for that ordering: during a weak-key incident the dangerous
- * property of a repository is not whether its analysis is correct, it is what
- * the repository asks a reader to feed it. A tool that accepts a recovery
- * phrase is dangerous whether or not its author meant harm, because the reader
- * cannot audit the process that receives the words. So every entry states what
- * it takes as input before it states what it does, and the classification is
- * derived from the repository's own published description as held here.
+ * Every entry states what its README says the code takes as input before it
+ * states what the code does, because during a weak-key incident the property
+ * a reader most needs to know about a repository is what it asks them to
+ * feed it. Each description is read from the repository's own published
+ * README as captured here.
  */
-
-type Safety = 'no-material' | 'source-only';
-
-const SAFETY_LABEL: Record<Safety, string> = {
-  'no-material': 'Accepts no wallet material',
-  'source-only': 'Reads source trees, not wallets',
-};
 
 interface Entry {
   id?: string;              // source-registry id, where one exists
   name: string;
   who: string;
-  safety: Safety;
   input: string;            // what the code takes in
   what: string;             // what it does
   licence: string;
@@ -400,7 +389,6 @@ const HELD: Entry[] = [
     id: 'dk27ss-poc-readme',
     name: 'DK27ss/ColdCard-38M-PoC',
     who: 'anonymous author',
-    safety: 'no-material',
     input: 'Nothing. It creates its own target.',
     what:
       'An end-to-end reproduction. It reimplements both generators, the ' +
@@ -421,7 +409,6 @@ const HELD: Entry[] = [
     id: 'samsamskies-tracker-readme',
     name: 'SamSamskies/coldcard-hack-tracker',
     who: 'SamSamskies',
-    safety: 'no-material',
     input: 'Public addresses it already holds, queried against public explorers.',
     what:
       'The published source behind the tracker dashboard this archive already ' +
@@ -440,7 +427,6 @@ const HELD: Entry[] = [
     id: 'nobuxpt-entropy-test-readme',
     name: 'nobuxpt/coldcard-entropy-test',
     who: 'nobuxpt',
-    safety: 'source-only',
     input: 'A firmware source tree. Not a wallet, and not a seed.',
     what:
       'Two offline tools. A collision demonstration reproduces the reduced ' +
@@ -495,7 +481,6 @@ const tracked = TRACKED
 
 const held = HELD.map((e) => ({
   ...e,
-  safetyLabel: SAFETY_LABEL[e.safety],
   href: e.id ? `/record/sources/${e.id}/` : null,
   whenIso: e.id ? (sourceById(e.id)?.published ?? '') : '',
   when: e.id
@@ -508,7 +493,7 @@ const held = HELD.map((e) => ({
 <Article
   title="Reference"
   description="Who did the primary analysis of the COLDCARD incident, and what code was published around it."
-  standfirst="The research behind this site's claims: who found what, grouped by the kind of finding they made, and the code published around the incident, classified by what it asks a reader to supply."
+  standfirst="The research behind this site's claims: who found what, grouped by the kind of finding they made, and the code published around the incident, described from each repository's own README."
   depth="plain"
   kicker="The record / reference"
   next={{
@@ -724,34 +709,22 @@ const held = HELD.map((e) => ({
     <Answer>
     <p>
       {held.length} repositories are held here with their READMEs captured, and each is
-      classified by what it asks the reader to supply rather than by who wrote it.
+      described from its own README, leading with the input it states it takes.
       Two accept no wallet material at all; the third reads a firmware source tree.
       Upstream files and the pull requests filed in response are listed separately,
-      as source and patches rather than tools a reader runs. As of 6 August 2026 no
-      malicious seed-checker was found in public code indexes, which is a dated
-      observation and not an all-clear.
+      as source and patches rather than tools a reader runs.
     </p>
     </Answer>
 
     <h3>Held in this archive</h3>
 
     <p>
-      Each entry leads with the input its README asks for, which keeps a
-      repository that accepts no wallet material distinct from one whose stated
-      operation would require it, without treating authorship or technical
-      quality as a substitute for examining the interface. All {held.length} were
-      read before being described.
+      Each entry leads with the input its README asks for, and all {held.length}
+      were read before being described.
       <Claim
         basis="verified"
         scope="The stated inputs, licences and described behaviour of the three repositories held here"
         source="Each repository's own published README, as captured, read before being described; behaviour is quoted from the repository rather than independently audited"
-        href="/record/"
-        captured="2 Aug 2026"
-      />
-      <Claim
-        basis="derived"
-        scope="The safety classification given to each of the three repositories, under one rule: a repository is classified by what its own README says the reader must supply, and by nothing else"
-        source="This project's judgement about third-party proof-of-concept code, applied to the captured READMEs. No artefact establishes it, and it is not an audit of what the code does when it is run"
         href="/record/"
         captured="2 Aug 2026"
       />
@@ -770,7 +743,6 @@ const held = HELD.map((e) => ({
             <span hidden={Boolean(e.whenIso)}>{e.when}</span>
             &middot; {e.licence}
           </p>
-          <p class:list={['repo__safety', `repo__safety--${e.safety}`]}>{e.safetyLabel}</p>
           <p class="repo__input"><strong>Input:</strong> {e.input}</p>
           <p class="repo__what">{e.what}</p>
           <p class="repo__caveat" hidden={!e.caveat}>{e.caveat}</p>
@@ -809,67 +781,6 @@ const held = HELD.map((e) => ({
       ))}
     </ul>
 
-    <h3>Noted without recommendation</h3>
-
-    <p>
-      One repository has the shape this catalogue is built to flag: its stated
-      purpose is to accept dice input and produce wallet material, which is the
-      input class that would make it worth examining closely. It is completely
-      empty. There is
-      no code, so there is nothing to examine and nothing to warn about beyond the
-      fact that a stated purpose is not a published implementation. It is recorded
-      so that its later appearance with content is a change rather than a
-      discovery, and it is not linked, because linking an empty repository whose
-      contents are unknown would be a recommendation this archive cannot support.
-    </p>
-
-    <p>
-      Separately, forks of the proof-of-concept repositories were compared against
-      their upstreams. As of 2 August 2026 none had diverged.
-      <Claim
-        basis="derived"
-        scope="That the examined forks of the proof-of-concept repositories had not diverged from their upstreams as of 2 August 2026"
-        source="Derived from comparing each fork against its upstream on that date. The comparison output is not published here, so this one cannot be rechecked from the archive, and forks created or modified afterwards are outside it"
-        compact
-      />
-      A fork that adds an
-      input field for recovery material to an otherwise safe reproduction is the
-      realistic way this class of code turns hostile, so the comparison is
-      recorded, along with its date, rather than left implicit.
-    </p>
-
-    <h3>The negative finding, and its limits</h3>
-
-    <p>
-      As of 8 August 2026, no malicious seed-checker was found in public code
-      indexes.
-      <Claim
-        basis="unverified"
-        scope="The absence of a malicious COLDCARD seed-checker in public code indexes as of 8 August 2026"
-        source="A GitHub public-code search on that date surfaced none; the search is not exhaustive, and a tool distributed outside code hosting would not appear in it"
-      />
-      That is a time-bounded observation and not an all-clear: it says
-      nothing about tools hosted outside public code indexes, which is where a
-      working phishing checker could instead be distributed on a domain, behind
-      an advertisement or in a message. The
-      <a href="/response/scams/">scams and warnings page</a> records the vendor
-      warnings about that vector.
-    </p>
-
-    <div class="ve-card ve-card--red">
-      <div class="ve-card__label lbl-red">Why recovery material is outside this register</div>
-      <p>
-        Whether this incident affects you is answerable from the firmware version
-        installed when the seed was generated and how that seed was created.
-        Neither fact is secret. Any tool, repository or page that asks for a
-        recovery phrase, a private key or an extended private key in order to
-        answer that question is asking for material that cannot contribute to the
-        answer. That is why this archive does not accept recovery material and
-        why the input requested by each published tool is recorded explicitly.
-        The corresponding vendor warnings are preserved on the
-        <a href="/response/scams/">scams and warnings page</a>.
-      </p>
-    </div>
   </section>
 
 </Article>
@@ -976,14 +887,6 @@ const held = HELD.map((e) => ({
     letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
   }
   .repo__meta { font-size: .76rem; color: var(--ink-3); margin-top: .25rem; }
-  .repo__safety {
-    display: inline-block;
-    font-family: var(--font-mono); font-size: .6rem; font-weight: 600;
-    letter-spacing: .11em; text-transform: uppercase;
-    border-radius: 999px; padding: .18rem .5rem; margin-top: .6rem;
-  }
-  .repo__safety--no-material { color: var(--safe); background: var(--safe-soft); }
-  .repo__safety--source-only { color: var(--info); background: var(--info-soft); }
   .repo__input { font-size: .9rem; margin-top: .6rem; }
   .repo__what { font-size: .9rem; line-height: 1.65; margin-top: .5rem; }
   .repo__caveat {

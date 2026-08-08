@@ -11,23 +11,21 @@ import FigureBeforeHotfix from '../../components/figures/FigureBeforeHotfix.astr
 import FigureAfterHotfix from '../../components/figures/FigureAfterHotfix.astro';
 import FigureReseedFunnel from '../../components/figures/FigureReseedFunnel.astro';
 
-// Ported from the standalone explainer and checked against the referenced
-// firmware, libngu and MicroPython revisions. The intended-design diagram is
-// the FigureIntendedChain component, rendered between this block and the
-// documented-design section.
+// Ported from the standalone explainer. Under the 8 Aug 2026 focus
+// tightening this page no longer presents the project's own firmware-repo
+// verification: each code exhibit below is either a held capture (libngu
+// random.c, the mainline hotfix patch) or quoted as the captured published
+// analyses (Block's disclosure, Coinkite's backgrounder) present it. The
+// intended-design diagram is the FigureIntendedChain component, rendered
+// between this block and the documented-design section.
 const intro = `<p>A COLDCARD exposes two hardware randomness sources to its firmware: the STM32 hardware RNG, which is an analogue noise circuit, and one or two secure elements that can also emit random bytes. The intended flow is short.</p>`;
 
 // Merged from the retired /how-it-broke/promised/ page: the documented design,
-// its diagram (now the FigureDocumentedDesign component), the whitening card
-// and the FAQ's dice sentence.
+// its diagram (now the FigureDocumentedDesign component) and the FAQ's dice
+// sentence.
 const documented = `<p>COLDCARD's documentation describes that mechanism in enough detail to compare it with the implementation. The FAQ captured on 1 August 2026 says the device primarily uses the STM32 hardware TRNG, XORs a PRNG seeded from SE1 and SE2 into that output, and then applies SHA-256 whitening. It describes the hardware source as measuring analogue transistor noise.</p>`;
 
-const documentedRest = `<div class="ve-card ve-card--amber">
-<div class="ve-card__label lbl-amber">Whitening can mask bias, not entropy shortfall</div>
-<p>A hash cannot create entropy. Feed SHA-256 a value drawn from a set of 2<sup>32</sup> possibilities and the 256-bit result can occupy at most 2<sup>32</sup> distinct outputs. Hash collisions can make that set smaller. The output bits can appear balanced while an attacker still has no more than the original candidate set to enumerate.</p>
-</div>
-
-<p>The same FAQ describes the value present before optional dice rolls are added:</p>
+const documentedRest = `<p>A hash cannot create entropy: whitening can make a weak source's output look balanced, but it cannot expand the set of candidates an attacker must enumerate. The same FAQ describes the value present before optional dice rolls are added:</p>
 
 <blockquote class="q">
 "the entropy (about 2.5 bits per roll) will be added to the 256 bits of
@@ -35,53 +33,31 @@ entropy already picked."
 <cite><a href="https://coldcard.com/docs/faq/" rel="noopener nofollow">COLDCARD documentation</a></cite>
 </blockquote>`;
 
+// Every exhibit in bodyA is quoted as a held capture presents it: Block's
+// disclosure for the seed.py, mpconfigboard.h and rng.c material, Coinkite's
+// backgrounder for the migration and the guard.
 const bodyA = `<h2>The path before March 2021</h2>
 
-<p>Up to v3.2.2 the seed came straight from the hardware RNG:</p>
-
-<details class="collapsible">
-<summary>Source: <code>shared/seed.py</code></summary>
-<div class="collapsible__body">
-<p class="filepath">shared/seed.py at tag 2021-01-14T1617-v3.2.2, verified in the firmware repository</p>
-<pre class="code"><span class="c"># reaches ckcc.rng_bytes -&gt; STM32 hardware RNG</span>
-seed = bytearray(32)
-<span class="ok">rng_bytes(seed)</span></pre>
-</div>
-</details>
+<p>Up to v3.2.2 the seed came straight from the hardware RNG. <a href="/record/sources/block-disclosure/">Block's published analysis</a> quotes the v3.2.2 generation code, <code>seed = bytearray(32)</code> followed by <code>rng_bytes(seed)</code>, and reports that this path reached <code>ckcc.rng_bytes</code> and the board-local STM32 hardware RNG.</p>
 
 <h2>What changed in March 2021</h2>
 
-<p>In March 2021 seed generation moved to a <code>random.bytes()</code> wrapper backed by <code>ngu.random.bytes()</code>. <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite describe the same migration</a>: it "resolved <code>rng_get()</code> to MicroPython's software fallback instead of COLDCARD's hardware RNG implementation." A January 2024 cleanup replaced the wrapper call with a direct <code>ngu.random.bytes()</code> call.</p>
+<p>In March 2021 seed generation moved to a <code>random.bytes()</code> wrapper backed by <code>ngu.random.bytes()</code>. Block date the change to commit <code>b18723dd</code> of 1 March 2021, first released in v4.0.0 on 17 March 2021, and quote the new call, <code>seed = random.bytes(32)</code>, with <code>shared/random.py</code> mapping it to <code>ngu.random.bytes</code>. <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite describe the same migration</a>: it "resolved <code>rng_get()</code> to MicroPython's software fallback instead of COLDCARD's hardware RNG implementation."</p>
 
-<details class="collapsible">
-<summary>Source: <code>shared/seed.py</code> at v4.0.0</summary>
-<div class="collapsible__body">
-<p class="filepath">shared/seed.py and shared/random.py at tag 2021-03-17T1724-v4.0.0, verified verbatim</p>
-<pre class="code"><span class="c"># shared/random.py</span>
-bytes = ngu.random.bytes
-
-<span class="c"># shared/seed.py</span>
-seed = <span class="hl">random.bytes(32)</span>
-<span class="k">assert</span> len(set(seed)) &gt; 4       <span class="c"># TRNG failure</span>
-seed = ngu.hash.sha256s(seed)      <span class="c"># one SHA-256</span></pre>
-<p class="annnote">Commit <code>024655be6bbfc0fd2e142f2e3b4ba39eb95e96a4</code> changed this to a direct <code>ngu.random.bytes()</code> call and <code>sha256d()</code> on 10 January 2024. Both versions remained affected because the linked RNG source was the same.</p>
-</div>
-</details>
-
-<p>The comment identifies the intended source as a TRNG. The <code>assert</code> checks only that more than four byte values appear, and the libngu repetition check further down tests only that consecutive words differ: both are shape checks that ordinary software-PRNG output passes, and neither can establish that the bytes came from a hardware source.</p>
+<p>Block also quote the surrounding wallet-generation code, including the check <code>assert len(set(seed)) &gt; 4</code>. In their reading it detects only trivial failures, which ordinary Yasmarang output passes, and the same is true of the libngu repetition check quoted further down: neither shape check can establish that the bytes came from a hardware source.</p>
 
 <h2>The board configuration disables the module</h2>
 
-<p>COLDCARD disables MicroPython's RNG module and supplies a board-specific replacement. The replacement raises an error on a hardware timeout rather than returning zeros. The module is disabled with a board-configuration macro:</p>
+<p>COLDCARD disables MicroPython's RNG module and supplies a board-specific replacement, whose <code>random_buffer()</code> reads the STM32 RNG peripheral and fails on timeout or repeated samples. The module is disabled with a board-configuration macro, quoted here as <a href="/record/sources/block-disclosure/">Block's analysis</a> presents it from the production board headers:</p>
 
 <details class="collapsible">
-<summary>Source: <code>stm32/COLDCARD_MK4/mpconfigboard.h:75-79</code></summary>
+<summary>Source: <code>mpconfigboard.h</code>, quoted in Block's analysis and the held hotfix patch</summary>
 <div class="collapsible__body">
-<p class="filepath">stm32/COLDCARD_MK4/mpconfigboard.h:75-79, as it stands after the hotfix, comment and all</p>
+<p class="filepath">stm32 board headers, as quoted in <a href="/record/sources/block-disclosure/">Block's published analysis</a> (captured 31 July 2026); the second comment line was added by the hotfix, in the <a href="/record/sources/coldcard-firmware-mainline-hotfix/">held mainline patch</a></p>
 <pre class="code"><span class="c">// We have our own version of this code.
 // LATER: when zero, this selected some PRNG code we really didnt want.</span>
 <span class="k">#define</span> MICROPY_HW_ENABLE_RNG       <span class="hl">(0)</span></pre>
-<p class="annnote">The second comment line was added in the hotfix and <a href="https://github.com/Coldcard/firmware/blob/3238f6fd9977eed786012d0034a04d888c3263bb/stm32/COLDCARD_MK4/mpconfigboard.h" rel="noopener nofollow">describes the configuration defect</a>.</p>
+<p class="annnote">Block quote the first comment line and the macro from the COLDCARD, COLDCARD_MK4 and COLDCARD_Q1 production headers. The hotfix added the second comment line, which describes the configuration defect.</p>
 </div>
 </details>
 
@@ -92,7 +68,7 @@ seed = ngu.hash.sha256s(seed)      <span class="c"># one SHA-256</span></pre>
 <details class="collapsible">
 <summary>Source: <code>libngu/ngu/random.c:22-31</code></summary>
 <div class="collapsible__body">
-<p class="filepath">libngu/ngu/random.c:22-31, unchanged in the source captured 1 Aug 2026</p>
+<p class="filepath">libngu/ngu/random.c:22-31, unchanged in the <a href="/record/sources/libngu-random-c/">source captured 1 Aug 2026</a></p>
 <pre class="code"><span class="k">#ifdef</span> MICROPY_PY_STM
 <span class="c">// ports/stm32/rng.c</span>
 <span class="k">extern</span> uint32_t rng_get(<span class="k">void</span>);
@@ -115,53 +91,35 @@ seed = ngu.hash.sha256s(seed)      <span class="c"># one SHA-256</span></pre>
 
 <h2>What CHIP_TRNG_32 resolves to</h2>
 
-<p><code>CHIP_TRNG_32()</code> resolved to <code>rng_get()</code>. With the board macro at zero, MicroPython's <code>rng_get()</code> used the software fallback rather than the hardware peripheral:</p>
+<p><code>CHIP_TRNG_32()</code> resolved to <code>rng_get()</code>. With the board macro at zero, MicroPython's <code>rng_get()</code> was the software fallback rather than the hardware peripheral. <a href="/record/sources/block-disclosure/">Block's analysis</a> quotes the selection and the fallback's one-time initialisation:</p>
 
 <details class="collapsible">
-<summary>Source: <code>micropython/ports/stm32/rng.c</code></summary>
+<summary>Source: <code>micropython/ports/stm32/rng.c</code>, as quoted in Block's analysis</summary>
 <div class="collapsible__body">
-<p class="filepath">micropython/ports/stm32/rng.c, the #else branch, compiled because the macro is 0</p>
-<pre class="code"><span class="c">// For MCUs that don't have an RNG we still need to provide a rng_get()
-// function... A pseudo-RNG is not really ideal but we go with it for now,
-// seeding with numbers which will be somewhat different each time.</span>
+<p class="filepath">micropython/ports/stm32/rng.c, quoted in <a href="/record/sources/block-disclosure/">Block's published analysis</a> (captured 31 July 2026)</p>
+<pre class="code"><span class="k">#if</span> MICROPY_HW_ENABLE_RNG
+    <span class="c">// STM32 hardware RNG</span>
+<span class="k">#else</span>
+    <span class="c">// Yasmarang fallback</span>
+<span class="k">#endif</span>
 
-<span class="k">STATIC</span> uint32_t pyb_rng_yasmarang(<span class="k">void</span>) {
-    <span class="k">static</span> bool seeded = <span class="k">false</span>;
-    <span class="k">static</span> uint32_t pad = 0, n = 0, d = 0;
-
-    <span class="k">if</span> (!seeded) {
-        seeded = <span class="k">true</span>;
-        rtc_init_finalise();
-        <span class="hl">pad = *(uint32_t *)MP_HAL_UNIQUE_ID_ADDRESS ^ SysTick-&gt;VAL;</span>
-        <span class="hl">n = RTC-&gt;TR;</span>
-        <span class="hl">d = RTC-&gt;SSR;</span>
-    }
-    ...
-}
-
-uint32_t rng_get(<span class="k">void</span>) {
-    <span class="k">return</span> <span class="hl">pyb_rng_yasmarang()</span>;
-}</pre>
+<span class="c">// with the macro at zero, rng_get() initializes Yasmarang with:</span>
+<span class="hl">pad = UID_low32 ^ SysTick-&gt;VAL;</span>
+<span class="hl">n = RTC-&gt;TR;</span>
+<span class="hl">d = RTC-&gt;SSR;</span></pre>
 </div>
-</details>`;
+</details>
 
-const seedingInputs = `<p>The highlighted seeding lines use the following inputs:</p>
-
-<ul class="node-list">
-<li><code>MP_HAL_UNIQUE_ID_ADDRESS</code> points to the STM32's factory-programmed unique ID, fixed for the life of the chip. COLDCARD exposes a USB serial derived from selected UID bytes, but the repository does not establish that the exact 32-bit word used here can be reconstructed from that serial.</li>
-<li><code>SysTick-&gt;VAL</code> is a countdown timer running since boot. Its candidate range depends on the clock configuration and when the call occurs.</li>
-<li><code>RTC-&gt;TR</code> is the real-time clock's BCD time register. Approximate knowledge of seed-generation time can narrow its candidates.</li>
-<li><code>RTC-&gt;SSR</code> is the sub-second register. Its effective uncertainty on each device class has not been measured in the sources held here.</li>
-</ul>`;
+<p>In Block's reading the UID is fixed device metadata and the SysTick and RTC registers are observable or constrainable timing state; none is a cryptographic entropy source, and no further entropy is collected after the first call.</p>`;
 
 const bodyB = `<h2>Two PRNGs and one XOR</h2>
 
-<p>There is a second Yasmarang. <code>libngu</code> keeps its own state and XORs its output with the MicroPython stream. The uncertainty of the result depends on both inputs and their state.</p>
+<p>There is a second Yasmarang. <code>libngu</code> keeps its own state, started from published constants, and XORs its output with the MicroPython stream:</p>
 
 <details class="collapsible">
 <summary>Source: <code>libngu/ngu/random.c:55-89</code></summary>
 <div class="collapsible__body">
-<p class="filepath">libngu/ngu/random.c:55-89</p>
+<p class="filepath">libngu/ngu/random.c:55-89, unchanged in the <a href="/record/sources/libngu-random-c/">source captured 1 Aug 2026</a></p>
 <pre class="code"><span class="c">// TODO should be marked as confidential memory</span>
 <span class="k">static</span> uint32_t yasmarang_pad = <span class="hl">0x0a8ce26f</span>, yasmarang_n = <span class="hl">69</span>, yasmarang_d = <span class="hl">233</span>;
 <span class="k">static</span> uint8_t yasmarang_dat = <span class="hl">0</span>;
@@ -191,32 +149,22 @@ const bodyB = `<h2>Two PRNGs and one XOR</h2>
 
 // The failure schematic between these two blocks is the FigureBeforeHotfix
 // component, rendered on the same grid as FigureAfterHotfix in the fix rung.
-const bodyBRest = `<div class="callout callout--amber">
-<span class="callout__title">What the XOR contributes</span>
-XOR cannot add uncertainty that is absent from both inputs. At a fixed call history a stream started from published constants contributes no secret uncertainty, and the other input remains the MicroPython stream seeded from the UID word and timers.
-</div>`;
-
-const repetition = `<p>The <code>last</code> variable is reset to zero on each <code>my_random_bytes()</code> call. The check faults if the first word is zero or if two consecutive words in that call match. It can detect those degenerate outputs, and ordinary Yasmarang output satisfies it with overwhelming probability.</p>`;
+const bodyBRest = `<p><a href="/record/sources/block-disclosure/">Block's analysis</a> states what the XOR contributes: "XOR does not create entropy. If both inputs are reproducible, their XOR is reproducible."</p>`;
 
 const bodyC = `<div class="comparison">
 <div>
-<p class="filepath" style="margin-top:0">shared/mk4.py:39-49, the caller</p>
-<pre class="code"><span class="k">def</span> rng_seeding():
-    <span class="c"># seed our RNG with entropy
-    # from secure elements</span>
-    <span class="k">import</span> callgate, ngu, ustruct
+<p class="filepath" style="margin-top:0">shared/mk4.py, the boot-path caller, as quoted in <a href="/record/sources/block-disclosure/">Block's published analysis</a></p>
+<pre class="code">a = callgate.read_rng(1)   <span class="c"># 32 bytes from SE1</span>
+b = callgate.read_rng(2)   <span class="c"># 8 bytes from SE2</span>
 
-    a = callgate.read_rng(1)   <span class="c"># SE1</span>  <span class="an">32 B</span>
-    b = callgate.read_rng(2)   <span class="c"># SE2</span>  <span class="an">8 B</span>
+n = ngu.hash.sha256d(a + b)
+n, = ustruct.unpack('I', <span class="hl">n[0:4]</span>)
 
-    n = ngu.hash.sha256d(a+b)  <span class="an">// 32 B out</span>
-    n, = ustruct.unpack('I', <span class="hl">n[0:4]</span>)
-
-    ngu.random.reseed(n)</pre>
-<p class="annnote">SE1 returns 32 bytes and SE2 returns 8 bytes on this path, verified in <code>mk4-bootloader/dispatch.c</code>.</p>
+ngu.random.reseed(n)</pre>
+<p class="annnote">Block report that SE1 returns an authenticated 32-byte value and SE2 reads eight authenticated bytes from a ROM-options page, and that regardless of the inputs' quality only four digest bytes reach <code>reseed()</code>.</p>
 </div>
 <div>
-<p class="filepath" style="margin-top:0">libngu/ngu/random.c:162-168, the receiver, unchanged in the source captured 1 Aug 2026</p>
+<p class="filepath" style="margin-top:0">libngu/ngu/random.c:162-168, the receiver, unchanged in the <a href="/record/sources/libngu-random-c/">source captured 1 Aug 2026</a></p>
 <pre class="code"><span class="k">STATIC</span> mp_obj_t random_reseed(mp_obj_t arg)
 {
     <span class="hl">yasmarang_pad</span> = mp_obj_get_int_truncated(arg);
@@ -229,27 +177,28 @@ const bodyC = `<div class="comparison">
 
 <div class="callout callout--red">
 <span class="callout__title">Which generator state the reseed changes</span>
-<code>reseed()</code> writes into <em>libngu's</em> Yasmarang state. It never touches MicroPython's separate Yasmarang, the one behind <code>rng_get()</code> seeded from chip ID and timers, whose state variables are function-local statics inside <code>ports/stm32/rng.c</code> and unreachable from outside. So on Mk4, Mk5 and Q the <code>CHIP_TRNG_32()</code> half of every XOR was still chip-ID-and-timer derived, exactly as on Mk3. <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite say the same thing</a> in different words: the devices "continued to draw most subsequent random values from the same MicroPython PRNG."
+The receiver quoted above writes into <em>libngu's</em> Yasmarang state and nothing else. <a href="/record/sources/block-disclosure/">Block's analysis</a> lists what that reseed does not do: it does not accept the full digest, initialise a cryptographic DRBG, reseed MicroPython's fallback, or reset the other Yasmarang state words. <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite describe the result</a> in different words: the devices "continued to draw most subsequent random values from the same MicroPython PRNG." On their accounts, the <code>CHIP_TRNG_32()</code> half of every XOR remained UID-and-timer derived on Mk4, Mk5 and Q, as on Mk3.
 </div>`;
 
-// Merged from the retired /how-it-broke/the-fix/ page.
-const fixBody = `<p class="filepath">stm32/COLDCARD_MK4/rng.c:82-85, new in the hotfix</p>
+// Merged from the retired /how-it-broke/the-fix/ page. Both exhibits are
+// quoted from the held mainline hotfix patch.
+const fixBody = `<p class="filepath">stm32/COLDCARD_MK4/rng.c, added by the hotfix, quoted from the <a href="/record/sources/coldcard-firmware-mainline-hotfix/">held mainline patch</a></p>
 <pre class="code">uint32_t <span class="ok">rng_get</span>(<span class="k">void</span>)
 {
     <span class="k">return</span> <span class="ok">rng_get_or_fault()</span>;   <span class="an">// real STM32 peripheral, OSError on timeout</span>
 }</pre>
 
-<p>The fixed source configuration excludes MicroPython's <code>rng.c</code>, the file containing the Yasmarang fallback, by compiling an empty object in its place:</p>
+<p>The same patch excludes MicroPython's <code>rng.c</code>, the file containing the Yasmarang fallback, by compiling an empty object in its place:</p>
 
-<p class="filepath">stm32/COLDCARD_MK4/mpconfigboard.mk:96-101, fixed release source</p>
+<p class="filepath">stm32/COLDCARD_MK4/mpconfigboard.mk, added by the hotfix, quoted from the held mainline patch</p>
 <pre class="code"><span class="c"># Do not compile MicroPython's fallback PRNG.  The board-specific rng.c
 # provides rng_get(), and this empty object satisfies the upstream object list.</span>
 $(BUILD)/rng.o: CFLAGS += <span class="hl">-Dpyb_rng_yasmarang=error-do-not-want-this</span>
-$(BUILD)/rng.o: $(BOARD_DIR)/mpconfigboard.mk
+$(BUILD)/rng.o:
 	$(ECHO) "SKIP stm32/rng.c"
 	$(Q)$(CC) $(CFLAGS) -x c -c <span class="ok">/dev/null</span> -o $@</pre>
 
-<p>The fixed build also runs <code>rng-code-check</code> after compilation. It uses <code>arm-none-eabi-nm</code> to require that the replacement upstream <code>rng.o</code> defines no symbols and that the board object defines a global text symbol named <code>rng_get</code>. Either mismatch stops the build.</p>
+<p>The patch also adds an <code>rng-code-check</code> step after compilation. It uses <code>arm-none-eabi-nm</code> to require that the replacement upstream <code>rng.o</code> defines no symbols and that the board object defines a global text symbol named <code>rng_get</code>. Either mismatch stops the build.</p>
 
 <div class="callout callout--green">
 <span class="callout__title">Properties of the integration fix</span>
@@ -269,14 +218,14 @@ Both parts of the upstream picture have now moved, and both moved after the COLD
 <p><strong>The resolution point is unchanged.</strong> All three captures declare <code>extern uint32_t rng_get(void)</code> in the STM32 branch and map <code>CHIP_TRNG_32()</code> to it. Which <code>rng_get()</code> an integrator links is decided outside libngu; in the incident configuration it resolved to the MicroPython fallback quoted above.</p>
 <p><strong>What the rewrite changes for that caller.</strong> Every chip word now passes <code>checked_chip_trng()</code>, which raises on a zero or a repeated value. The generator is a SHA-256 Hash-DRBG seeded from 32 such words. And <code>random_reseed()</code> rejects any seed shorter than 32 bytes, where the 1 August code assigned the caller's integer straight to the generator state, so the incident's four-byte reseed call now fails instead of collapsing that state.</p>
 <p><strong>What neither change closes.</strong> The zero-or-repeat check rejects only a zero or an exactly repeated word, so a varying software stream still passes it and still seeds the DRBG. The strength of the output then rests on that stream, which sits outside libngu and outside this comparison.</p>
-<p><strong>What this does not describe.</strong> These are commits on the library's public branch, read in this archive's captures of that file. The released COLDCARD firmware builds against a pinned revision of the library, so neither merge describes the shipped images; the board macro is still <code>(0)</code> in the firmware source read here, and the hotfix works by supplying the board's own hardware-backed <code>rng_get()</code> rather than by changing that macro.</p>
+<p><strong>What this does not describe.</strong> These are commits on the library's public branch, read in this archive's captures of that file. The released COLDCARD firmware builds against a pinned revision of the library, so neither merge describes the shipped images; the board macro is still <code>(0)</code> — the held hotfix patch's context lines show it unchanged — and the hotfix works by supplying the board's own hardware-backed <code>rng_get()</code> rather than by changing that macro.</p>
 </div>`;
 ---
 
 <Article
   title="How it broke"
   description="How a compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path."
-  standfirst="A compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path from 2021 to 2026. This section reconstructs that path from the published code."
+  standfirst="A compile-time guard tested macro presence rather than value, allowing the software fallback to serve the affected seed-generation path from 2021 to 2026. This section reports that path as the published analyses held in this archive describe it."
   depth="deep"
   kicker="How it broke"
   next={{
@@ -299,10 +248,10 @@ Both parts of the upstream picture have now moved, and both moved after the COLD
       constant. Mk4, Mk5 and Q additionally mix in a secure-element value on the
       normal boot path, but only 32 bits of it, and only into one of the two
       generators.<Claim
-        basis="verified"
-        scope="The symbol-resolution path, generator substitution and 32-bit reseed behaviour documented on this page"
-        source="COLDCARD firmware, switck/libngu and COLDCARD MicroPython source at the cited revisions"
-        href="/record/firmware/"
+        basis="reported"
+        scope="The symbol-resolution path, generator substitution and 32-bit reseed behaviour described on this page"
+        source="Block's published analysis and Coinkite's entropy technical backgrounder, both captured in this archive; the libngu guard and reseed exhibits on this page are held captures"
+        href="/record/sources/block-disclosure/"
         compact
       /> The model and release boundaries for that path are preserved in
       <a href="/record/firmware/">the firmware reference</a>.
@@ -341,14 +290,6 @@ Both parts of the upstream picture have now moved, and both moved after the COLD
 
   <div class="ported" set:html={bodyA} />
 
-  <Disclosure
-    id="seeding-inputs"
-    title="What each seeding input is"
-    note="the UID word, SysTick, and the RTC time and subsecond registers"
-  >
-    <div class="rung-html" set:html={seedingInputs} />
-  </Disclosure>
-
   <div class="ported" set:html={bodyB} />
   <FigureBeforeHotfix />
   <div class="ported" set:html={bodyBRest} />
@@ -370,30 +311,29 @@ Both parts of the upstream picture have now moved, and both moved after the COLD
       href="/record/sources/coldcardwallet-2085541034243600805/"
       compact
     /></p>
-    <p>On the point that correction makes, it and the code read above agree.
-    The generator reached through <code>rng_get()</code> is MicroPython's, and
-    is quoted on this page from <code>micropython/ports/stm32/rng.c</code>;
-    the defect described here is the guard that tested macro presence rather
-    than value, which is the mechanism Coinkite's own technical backgrounder
-    describes in the passage quoted higher up this page. The second
-    Yasmarang is a separate matter: it lives in <code>libngu/ngu/random.c</code>
-    and starts from the three constants shown above, and the correction does
-    not address it.<Claim
+    <p>On the point that correction makes, it and the published analyses
+    quoted on this page agree. The generator reached through
+    <code>rng_get()</code> is MicroPython's, quoted above as Block's analysis
+    presents it; the defect described here is the guard that tested macro
+    presence rather than value, which is the mechanism Coinkite's own
+    technical backgrounder describes in the passage quoted higher up this
+    page. The second Yasmarang is a separate matter: it lives in
+    <code>libngu/ngu/random.c</code> and starts from the three constants
+    shown above, and the correction does not
+    address it.<Claim
+      basis="reported"
+      scope="That the generator behind rng_get() is MicroPython's own STM32-port fallback"
+      source="Block's published analysis and Coinkite's entropy technical backgrounder, both captured in this archive"
+      href="/record/sources/block-disclosure/"
+      compact
+    /><Claim
       basis="verified"
-      scope="That the generator behind rng_get() is MicroPython's own STM32-port fallback, and that the second Yasmarang with the fixed starting constants is libngu's"
-      source="micropython/ports/stm32/rng.c and libngu/ngu/random.c at the revisions quoted on this page"
+      scope="That the second Yasmarang with the fixed starting constants shown above is libngu's"
+      source="libngu/ngu/random.c, captured 1 Aug 2026"
       href="/record/sources/libngu-random-c/"
       compact
     /></p>
   </div>
-
-  <Disclosure
-    id="repetition-check"
-    title="What the repetition check detects"
-    note="which degenerate outputs fault, and which pass"
-  >
-    <div class="rung-html" set:html={repetition} />
-  </Disclosure>
 
   <div class="ported">
     <h2>The 32-bit reseed path and its scope</h2>
@@ -429,7 +369,7 @@ Both parts of the upstream picture have now moved, and both moved after the COLD
       preserve the separate branch records.<Claim
         basis="verified"
         scope="The source-level link and build changes that redirect rng_get to the STM32 hardware peripheral"
-        source="Immutable mainline hotfix patch, merged Mk3 and Edge pull-request patches, fixed release source and pinned submodule revisions"
+        source="Immutable mainline hotfix patch and the merged Mk3 and Edge pull-request patches, all held in this archive"
         href="/record/sources/coldcard-firmware-mainline-hotfix/"
         compact
       /><Claim

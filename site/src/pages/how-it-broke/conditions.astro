@@ -5,15 +5,13 @@ import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import FigureDiceWorkflows from '../../components/figures/FigureDiceWorkflows.astro';
 import FigurePassphraseDerivation from '../../components/figures/FigurePassphraseDerivation.astro';
-import FigureThresholdSearch from '../../components/figures/FigureThresholdSearch.astro';
-import { BITFIG } from '../../lib/entropy-models';
 
 ---
 
 <Article
   title="Conditions that changed the published assessments"
   description="How published analysis treated dice input, BIP39 passphrases and threshold wallets in the COLDCARD predictable-RNG incident."
-  standfirst="Dice input, passphrases and threshold policies act at different points in wallet construction. This page preserves the code findings, calculations and changing public guidance about each one."
+  standfirst="Dice input, passphrases and threshold policies act at different points in wallet construction. This page organises the published analyses and the changing public guidance about each one."
   depth="plain"
   kicker="How it broke"
   next={{
@@ -24,12 +22,13 @@ import { BITFIG } from '../../lib/entropy-models';
 >
   <Answer>
     <p>
-      The record supports three distinct technical propositions. Pure dice used
-      a different seed path, mixed dice added a separate input, a BIP39
-      passphrase added another search rather than repairing the mnemonic, and a
-      threshold policy changed how many recovered keys were required. Public
-      statements attached qualifications to every proposition, and some of that
-      guidance changed during the incident.
+      The published analyses put forward three distinct technical
+      propositions. Pure dice used a different seed path, mixed dice added a
+      separate input, a BIP39 passphrase added another search rather than
+      repairing the mnemonic, and a threshold policy changed how many
+      recovered keys were required. Public statements attached qualifications
+      to every proposition, and some of that guidance changed during the
+      incident.
     </p>
   </Answer>
 
@@ -41,10 +40,10 @@ import { BITFIG } from '../../lib/entropy-models';
         <caption>
           Where each condition acts
           <Claim
-            basis="derived"
+            basis="reported"
             scope="The feature-level risk classifications in the table above"
-            source="Dice and reseed paths verified in firmware source; threshold and passphrase consequences are derived with assumptions stated in the rungs below"
-            href="/how-it-broke/"
+            source="Summarised from the published analyses cited in the sections below, including the Coinkite Mk3 advisory, Block's engineering report and the captured community guidance"
+            href="/record/sources/coinkite-mk3-advisory/"
             compact
           />
         </caption>
@@ -57,7 +56,7 @@ import { BITFIG } from '../../lib/entropy-models';
         </thead>
         <tbody>
           <tr><td class="nw"><a href="#dice">Pure dice</a></td><td class="nw">instead of device RNG</td><td class="wide">The pure path starts from the roll string and bypasses the affected generator. Its strength depends on enough fair, independent and secret rolls. A 12-word result caps usable entropy at 128 bits.</td></tr>
-          <tr><td class="nw"><a href="#dice">Mixed dice</a></td><td class="nw">after device RNG output</td><td class="wide">The affected output is still a prefix. Unpredictable rolls add a separate search term, but the mixed path enforces no roll minimum.</td></tr>
+          <tr><td class="nw"><a href="#dice">Mixed dice</a></td><td class="nw">after device RNG output</td><td class="wide">The affected output is still a prefix. Unpredictable rolls add a separate search term.</td></tr>
           <tr><td class="nw"><a href="#passphrase">BIP39 passphrase</a></td><td class="nw">after mnemonic generation</td><td class="wide">Adds an offline search whose strength depends on the generation method and on whether the mnemonic is already known.</td></tr>
           <tr><td class="nw"><a href="#multisig">Threshold wallet</a></td><td class="nw">at authorisation</td><td class="wide">Affected keys below threshold are insufficient by themselves. At or above threshold, script and public-key exposure determine whether keys can be tested independently.</td></tr>
         </tbody>
@@ -74,96 +73,29 @@ import { BITFIG } from '../../lib/entropy-models';
 
     <h3>Roll counts and output size</h3>
 
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="data-table">
-          <caption>
-            Entropy in fair independent six-sided-die rolls
-            <Claim
-              basis="derived"
-              scope="The entropy values and output-size limits in the roll-count table above"
-              source="Each fair independent D6 roll contributes log2(6) bits; output sizes and thresholds verified in shared/seed.py"
-              compact
-            />
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" class="nw">Rolls</th>
-              <th scope="col" class="nw">Roll entropy</th>
-              <th scope="col" class="wide">Relevant output</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="nw">50</td><td class="nw">about 129.25 bits</td><td class="wide">The enforced minimum for a standard 12-word pure-dice seed in the firmware state checked on 1 August 2026. The BIP39 entropy portion is 128 bits, so the output caps the result at 128 bits.</td></tr>
-            <tr><td class="nw">99</td><td class="nw">about 255.91 bits</td><td class="wide">The enforced minimum for a standard 24-word pure-dice seed in the firmware state checked on 1 August 2026, just below the 256-bit output size.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <details class="collapsible">
-      <summary>Where the roll-entropy figures come from</summary>
-      <div class="collapsible__body">
-        <p style="margin-bottom:11px">
-          Entropy in bits is the base-2 logarithm of the number of equally
-          likely possibilities. A fair six-sided die has six of them, so one
-          roll contributes log2(6), which is 2.5849 bits and a little more.
-          Rolls that are independent multiply their possibility counts: n rolls
-          of that die can land 6 to the power n ways, and because the logarithm
-          of a product is the sum of the logarithms, the bits add. That is the
-          whole of the table above. Fifty times log2(6) is 129.25; ninety-nine
-          times log2(6) is 255.91.
-        </p>
-        <p style="margin-bottom:11px">
-          Those are figures for the roll sequence, not for the seed. What
-          survives is the smaller of the roll entropy and the size of the
-          output it is encoded into. Fifty is the smallest roll count that
-          reaches the 128-bit entropy field of a 12-word mnemonic, since 49
-          rolls give about 126.7 bits, and it clears that field by about 1.2
-          bits. Ninety-nine rolls fall about 0.09 bits short of a 24-word
-          mnemonic's 256, so a 24-word result built from exactly 99 rolls
-          carries about 255.91 bits of roll entropy rather than a full 256.
-        </p>
-        <p style="margin-bottom:11px">
-          Fairness and secrecy are assumptions about the physical world, not
-          properties the device can check. The firmware counts rolls; it cannot
-          weigh a die or see the room. If the faces are not equally likely, the
-          per-roll figure is the Shannon entropy of the distribution the die
-          actually has, the negated sum over the six faces of each face's
-          probability times the base-2 logarithm of that probability, and that
-          value is below log2(6) for any distribution that is not uniform. If
-          the sequence was seen or recorded, it contributes nothing against
-          whoever saw it, whatever its arithmetic says.
-          <Claim
-            basis="derived"
-            scope="The per-roll log2(6) value, the addition of independent rolls, the 129.25 and 255.91 totals, the 49-roll and clearance comparisons, and the statement that a non-uniform face distribution yields less than log2(6) per roll"
-            source="Base-2 logarithm of the six equally likely outcomes of a fair die, summed over independent rolls; Shannon entropy over six outcomes is maximised, at log2(6), only by the uniform distribution. The output sizes and the enforced roll minimums are the firmware readings cited in the tables above"
-            compact
-          />
-        </p>
-        <p style="margin-bottom:0">
-          Held material puts the same per-roll figure in public. The CKTRIPWIRE
-          methodology page states that dice contribute about 2.585 bits per
-          roll, and a Reddit explainer written after the incident gives 50
-          times 2.585 as 129.25 and 99 times 2.585 as 255.915. What an unfair
-          die costs is argued over in that same material and is not settled
-          here: the explainer works a deliberately bad die through Shannon's
-          formula, gets 2.575 bits a roll and about one bit lost over 99 rolls;
-          a BitcoinTalk thread relays a claimed 1971 study of 219 commercial
-          dice as bounding the loss at about one bit on a 24-word seed; and a
-          Reddit poster describing years of casino work says retail casino dice
-          are not guaranteed balanced, and that a casino machine-tests each die
-          before it is allowed on a table. This archive has not tested any die.
-          <Claim
-            basis="reported"
-            scope="The per-roll and dice-bias figures attributed above to the CKTRIPWIRE methodology page, the Reddit dice explainer, the BitcoinTalk dice thread and the Reddit casino account"
-            source="CKTRIPWIRE methodology, captured 5 Aug 2026; AdEuphoric5133 on r/Bitcoin, captured 7 Aug 2026; babo and replies on BitcoinTalk, captured 7 Aug 2026; cheesymod on r/Bitcoin, captured 7 Aug 2026. The 1971 study is relayed at second hand in that thread and is not held here"
-            href="/record/sources/reddit-dice-entropy-explainer/"
-            compact
-          />
-        </p>
-      </div>
-    </details>
+    <p>
+      The published per-roll figure is about 2.585 bits for a fair six-sided
+      die. The CKTRIPWIRE methodology page states that figure, and a Reddit
+      explainer written after the incident multiplies it out: 50 rolls give
+      129.25 bits and 99 rolls give 255.915, so on that arithmetic 50 rolls
+      fill the 128-bit entropy field of a 12-word mnemonic and 99 rolls come
+      just short of a 24-word mnemonic's 256. What an unfair die costs is
+      argued over in that same material and is not settled here: the explainer
+      works a deliberately bad die through Shannon's formula, gets 2.575 bits
+      a roll and about one bit lost over 99 rolls; a BitcoinTalk thread relays
+      a claimed 1971 study of 219 commercial dice as bounding the loss at
+      about one bit on a 24-word seed; and a Reddit poster describing years of
+      casino work says retail casino dice are not guaranteed balanced, and
+      that a casino machine-tests each die before it is allowed on a table.
+      This archive has not tested any die.
+      <Claim
+        basis="reported"
+        scope="The per-roll figure, the 50-roll and 99-roll totals, and the dice-bias figures attributed above to the CKTRIPWIRE methodology page, the Reddit dice explainer, the BitcoinTalk dice thread and the Reddit casino account"
+        source="CKTRIPWIRE methodology, captured 5 Aug 2026; AdEuphoric5133 on r/Bitcoin, captured 7 Aug 2026; babo and replies on BitcoinTalk, captured 7 Aug 2026; cheesymod on r/Bitcoin, captured 7 Aug 2026. The 1971 study is relayed at second hand in that thread and is not held here"
+        href="/record/sources/reddit-dice-entropy-explainer/"
+        compact
+      />
+    </p>
 
     <div class="callout callout--red">
       <span class="callout__title">The screen shows the answer while you roll</span>
@@ -175,11 +107,11 @@ import { BITFIG } from '../../lib/entropy-models';
       <strong>the last value displayed on that screen is the resulting seed
       entropy</strong>, in the mixed workflow as well as the pure one. A
       24-word result encodes that digest in full; a 12-word result encodes
-      its first half, which is the 128-bit ceiling given in the table above.
+      its first half, which is the 128-bit ceiling of a 12-word mnemonic.
       <Claim
         basis="verified"
         scope="The running-digest display during roll entry, and its equality with the resulting seed in both the pure and mixed workflows"
-        source="coldcard-firmware shared/seed.py add_dice_rolls (running digest passed to the screen updater on each loop, full digest assigned back as the seed) with the two-line hex rendering in shared/ux_mk4.py and shared/ux_q1.py, at commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745 and at the v4.0.0 release commit, checked 2 Aug 2026"
+        source="coldcard-firmware shared/seed.py add_dice_rolls (running digest passed to the screen updater on each loop, full digest assigned back as the seed) with the two-line hex rendering in shared/ux_mk4.py and shared/ux_q1.py, at commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745 and at the v4.0.0 release commit, checked 2 Aug 2026. Deliberate exception to this site's tightened focus on published analysis: this verified claim is retained because the handling hazard it describes is safety-relevant"
         href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
         compact
       />
@@ -189,37 +121,10 @@ import { BITFIG } from '../../lib/entropy-models';
       written down. The roll string is itself secret seed material, so entering
       it into a website or a connected computer discloses the seed input. This is a handling
       hazard around the display, not a defect in dice mode: the construction is
-      sound, and rolls kept private retain the entropy calculated above.
+      sound, and rolls kept private retain the entropy given above.
     </div>
 
-    <h3>Warning and enforcement changed by workflow</h3>
-
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="data-table">
-          <caption>
-            Roll-count behaviour verified in affected firmware and the state checked on 1 August 2026
-            <Claim
-              basis="verified"
-              scope="The warning and enforcement behaviour for each dice workflow"
-              source="coldcard-firmware shared/seed.py at v4.0.0 and commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 1 Aug 2026"
-              href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
-              compact
-            />
-          </caption>
-          <thead>
-            <tr><th scope="col" class="wide">Workflow</th><th scope="col" class="wide">Behaviour</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="wide">v4.0.0 pure dice, 24 words</td><td class="wide">Warned below 99 rolls, but allowed the user to confirm and continue.</td></tr>
-            <tr><td class="wide">Standard pure-dice seed, state checked 1 Aug 2026</td><td class="wide"><code>new_from_dice()</code> enforces 50 rolls for 12 words and 99 for 24 words.</td></tr>
-            <tr><td class="wide">Ephemeral pure-dice seed, state checked 1 Aug 2026</td><td class="wide">Warns below the same thresholds but still allows an override because it does not set <code>enforce=True</code>.</td></tr>
-            <tr><td class="wide">Dice mixed on the word screen</td><td class="wide">Does not enforce the pure-dice thresholds. Security depends on the number and quality of rolls actually entered.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <h3>The vendor's dice exception, and how it maps to the code</h3>
+    <h3>The vendor's dice exception</h3>
 
     <p>
       The <a href="/record/sources/coinkite-mk3-advisory/">Coinkite Mk3
@@ -243,54 +148,6 @@ import { BITFIG } from '../../lib/entropy-models';
         compact
       />
     </p>
-
-    <p>
-      The firmware matches that description. <code>add_dice_rolls()</code> builds
-      a SHA-256 context from the seed it is given, updates it with each roll
-      symbol as the symbol is pressed, and assigns the complete 32-byte digest
-      back as the seed. Nothing on that path truncates the digest, so the vendor's
-      statement rests on a construction this archive has read in the source at
-      the affected v4.0.0 release commit and at commit <code>9a88e1a5</code>,
-      rather than on the advisory alone.
-      <Claim
-        basis="verified"
-        scope="That add_dice_rolls seeds a SHA-256 context with the existing seed, updates it per roll symbol and assigns the full digest back, with no truncation on this path"
-        source="coldcard-firmware shared/seed.py at the v4.0.0 release commit and at commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 2 Aug 2026"
-        href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
-        compact
-      />
-      The roll-count arithmetic still depends
-      on the output size: 50 rolls fill the 128-bit entropy input of a 12-word
-      mnemonic, and a 24-word result needs 99.
-    </p>
-
-    <details class="collapsible">
-      <summary>Why the 32-bit reseed truncation does not truncate the dice</summary>
-      <div class="collapsible__body">
-        <p style="margin-bottom:11px">
-          <code>add_dice_rolls()</code> does not call
-          <code>ngu.random.reseed()</code>, so the separate 32-bit truncation in
-          <code>shared/mk4.py</code> never touches the roll string. Pure dice
-          starts from an empty value, mixed dice from the already generated seed;
-          both are verified in the affected implementation and in commit
-          <code>9a88e1a5c32c69ba7ace7f22c26da90f8442b745</code>, checked on 1
-          August 2026.
-          <Claim
-            basis="verified"
-            scope="The pure-dice and mixed-dice code paths, including the absence of reseed truncation"
-            source="coldcard-firmware shared/seed.py at the v4.0.0 release commit and commit 9a88e1a5c32c69ba7ace7f22c26da90f8442b745, checked 1 Aug 2026"
-            href="https://github.com/Coldcard/firmware/blob/9a88e1a5c32c69ba7ace7f22c26da90f8442b745/shared/seed.py"
-            compact
-          />
-        </p>
-        <p style="margin-bottom:0">
-          This is what allows the vendor's dice exception to reach the mixed
-          workflow at all. If the roll string were folded through the truncating
-          reseed rather than through this digest, added rolls could not carry the
-          128 or 256 bits the advisory credits them with.
-        </p>
-      </div>
-    </details>
 
     <h3>The 50-roll and 99-roll figures in public guidance</h3>
 
@@ -335,15 +192,13 @@ import { BITFIG } from '../../lib/entropy-models';
         basis="reported"
         contested
         scope="O'Beirne's 99-roll migration recommendation for the affected-key cases described above, and his passphrase qualification"
-        source="James O'Beirne, captured primary X post, 31 Jul 2026; the firmware uses workflow- and output-specific thresholds"
+        source="James O'Beirne, captured primary X post, 31 Jul 2026"
         href="/record/sources/jamesob-dice-roll-guidance/"
         compact
       />
       That is stricter than
       the public 50-roll exception, and it does not distinguish pure-dice
-      generation from dice mixed into a device-generated seed: in the firmware,
-      99 rolls is the pure-dice threshold for a 24-word output and 50 the
-      enforced threshold for a 12-word output.
+      generation from dice mixed into a device-generated seed.
     </p>
 
     <p>
@@ -497,18 +352,11 @@ import { BITFIG } from '../../lib/entropy-models';
         href="https://x.com/PraveenPerera/status/2082995029467942947"
         compact
       />
-      Eight words chosen independently and uniformly from the 2,048-word BIP39
-      English list give <code>2,048^8 = 2^88</code> possible phrases. Human
-      selection does not inherit that ideal value, and the time needed to test a
-      candidate also depends on PBKDF2 throughput, wallet derivation work and
-      whether the mnemonic has already been isolated.
-      <Claim
-        basis="derived"
-        scope="The 2^88 ideal candidate count for eight independent uniformly selected BIP39-list words and the qualifications attached to it"
-        source="2,048 possible words raised to eight independent selections; BIP39 specifies 2,048-round PBKDF2-HMAC-SHA512 before wallet derivation"
-        href="https://github.com/bitcoin/bips/blob/9783d61f1b9c81231581fee026c8e8cb9499d265/bip-0039.mediawiki#from-mnemonic-to-seed"
-        compact
-      />
+      (For scale, eight words drawn independently and uniformly from the
+      2,048-word BIP39 list would give 2^88 possible phrases; human selection
+      does not inherit that ideal, and the time needed to test a candidate
+      also depends on PBKDF2 throughput, wallet derivation work and whether
+      the mnemonic has already been isolated.)
     </p>
 
     <FigurePassphraseDerivation />
@@ -534,16 +382,9 @@ import { BITFIG } from '../../lib/entropy-models';
         compact
       />
       A wallet that has not been swept records only that nobody has taken it
-      yet. It puts no floor under a one-word passphrase, and the derivation
-      above still holds only for phrases selected uniformly.
+      yet. It puts no floor under a one-word passphrase, and published figures
+      of that kind hold only for phrases selected uniformly.
     </p>
-
-    <h3>What a passphrase does not change</h3>
-
-    <ul class="node-list">
-      <li><strong>The no-passphrase wallet remains derived from the same mnemonic.</strong> Funds previously received there do not gain passphrase protection.</li>
-      <li><strong>Reuse remains reuse.</strong> A phrase present in breach corpora or otherwise known should be treated as known, regardless of length.</li>
-    </ul>
   </Disclosure>
 
   <Disclosure
@@ -621,54 +462,24 @@ import { BITFIG } from '../../lib/entropy-models';
       the other keys or the complete script.
     </div>
 
-    <FigureThresholdSearch />
-
-    <h3>Illustrative lower-scenario arithmetic</h3>
-
     <p>
-      These examples use <a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block's conditional low-search scenarios</a>, <code>{BITFIG.mk4Reseed}</code> candidates per
-      Mk4-class key and <code>{BITFIG.mk23SysTick}</code> per Mk2/Mk3 key, assuming independent
-      per-device candidate spaces and complete knowledge of the relevant derivation
-      paths.
-    </p>
-
-    <div class="table-wrap">
-      <p class="table-caption">
-        Illustrative search spaces under Block's conditional scenarios
-        <Claim
-          basis="derived"
-          scope="The full candidate-space products, sums and separately labelled average-work values in the table above"
-          source="Products and sums of Block's published conditional per-key scenarios; uniform-position, independence and target-knowledge assumptions are stated above, and neither assumption has been measured across a population of wallets"
-          href="/how-it-broke/entropy/"
-          compact
-        />
-      </p>
-      <div class="table-scroll">
-        <table class="data-table">
-          <caption class="visually-hidden">Illustrative search spaces under Block's conditional scenarios</caption>
-          <thead>
-            <tr>
-              <th scope="col" class="wide">Arrangement</th>
-              <th scope="col" class="nw">Target information</th>
-              <th scope="col" class="nw">Full candidate-space expression</th>
-              <th scope="col" class="wide">Interpretation</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="wide">2-of-3, three Mk4-class keys</td><td class="nw">complete script hidden</td><td class="nw"><code>2^96</code></td><td class="wide">Product of three <code>2^32</code> spaces to reproduce the complete three-key script, if the spaces are independent.</td></tr>
-            <tr><td class="wide">2-of-3, three Mk4-class keys</td><td class="nw">complete script and affected key targets known</td><td class="nw"><code>2 × 2^32 = 2^33</code></td><td class="wide">Full upper bound for exhaustively searching two designated keys. Expected average work under uniform candidate positions is approximately <code>2^32</code>.</td></tr>
-            <tr><td class="wide">2-of-3, three Mk2/Mk3 keys</td><td class="nw">complete script hidden</td><td class="nw"><code>~2^48.9</code></td><td class="wide">Product of three <code>2^16.3</code> spaces under the same independence assumption.</td></tr>
-            <tr><td class="wide">2-of-3, three Mk2/Mk3 keys</td><td class="nw">complete script and affected key targets known</td><td class="nw"><code>2 × 2^16.3 = 2^17.3</code></td><td class="wide">Full upper bound for two designated key searches. Expected average work is approximately <code>2^16.3</code>.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <p>
+      <a href="/record/sources/block-disclosure/">Block's held report</a> sets
+      out conditional low-search scenarios for threshold arrangements; the
+      candidate-space arithmetic those scenarios produce is worked through on
+      <a href="/how-it-broke/entropy/">the entropy page</a>.
+      <Claim
+        basis="reported"
+        scope="That Block's published report presents conditional low-search scenarios for threshold wallets"
+        source="Block engineering report, held in this archive"
+        href="/record/sources/block-disclosure/"
+        compact
+      />
       <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite's upper scenarios</a>
       and <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's published model</a>
-      produce much larger values. Device model, timing knowledge, descriptor
-      custody, derivation paths and possible correlation all affect the result, so
-      no time-to-recovery follows from a threshold alone.
+      attach much larger values under different assumptions. Device model,
+      timing knowledge, descriptor custody, derivation paths and possible
+      correlation all affect the result, so no time-to-recovery follows from a
+      threshold alone.
     </p>
 
     <h3>Descriptor and correlation assumptions</h3>
@@ -677,7 +488,6 @@ import { BITFIG } from '../../lib/entropy-models';
       <li><strong>Descriptor custody matters.</strong> Coordinators and backups commonly store what is needed to reconstruct a multisig wallet; whether an attacker can obtain it is an operational question, not an on-chain fact.</li>
       <li><strong>Per-device independence is an assumption.</strong> The Mk4-class boot path derives a reseed value from each device's secure elements, but the source does not prove statistical independence across devices, and Mk2/Mk3 UID and timing inputs may be correlated for devices initialised under similar conditions.</li>
       <li><strong>Miniscript exposure is path-specific.</strong> Recovering enough keys for a primary path may or may not satisfy timelocked or recovery paths. The policy, not the product label, determines the threshold.</li>
-      <li><strong>Taproot key-path spends differ from script-path spends.</strong> A key-path spend does not publish the underlying script tree; a script-path spend reveals the selected leaf and control block.</li>
     </ul>
     <p>
       <a href="https://x.com/KLoaec/status/2083301216050700780" rel="noopener nofollow">Kevin Loaec</a>
@@ -746,13 +556,3 @@ import { BITFIG } from '../../lib/entropy-models';
     </p>
   </Disclosure>
 </Article>
-
-<style>
-  .table-caption {
-    margin: 0;
-    padding: .8rem .9rem;
-    border-bottom: 1px solid var(--rule);
-    color: var(--ink-2);
-    font-weight: 600;
-  }
-</style>

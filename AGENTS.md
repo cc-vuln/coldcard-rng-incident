@@ -139,6 +139,15 @@ incident material, organises that material, or explains the incident using
 preserved material. General bitcoin-security guidance fails this test even when
 it is sound.
 
+Tightened 8 Aug 2026: the project's own original research is out of scope.
+Independent firmware verification, unpublished findings, and derivations beyond
+arithmetic on stated inputs do not belong on a page. Where another party
+published the finding, the site reports and attributes it; where nobody did,
+the finding leaves the record. The one documented exception is the
+screen-hazard callout on `/how-it-broke/conditions/`, kept `verified` because
+it is safety-relevant. The re-grounding done under this rule retracted
+out-of-scope work, not errors, so it is a CHANGELOG entry, not a correction.
+
 Material claims and claim groups carry one evidence basis:
 
 - **verified** checked against source code, a repo file, or a captured snapshot

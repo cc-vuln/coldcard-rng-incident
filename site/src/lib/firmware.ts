@@ -8,8 +8,9 @@
  * one page and not the other. The firmware record now reads from here;
  * presentation stays with the page.
  *
- * Values are checked against the firmware release histories, release commits
- * and the signed-release record; see /record/firmware/ for the evidence and
+ * The affected ranges follow Block's published engineering analysis; the
+ * release dates come from held captures of the vendor release histories and
+ * the signed-release record. See /record/firmware/ for the evidence and
  * per-row sourcing notes.
  *
  * Where a range here is wider than the one the vendor currently publishes, the
@@ -48,16 +49,17 @@ export interface ModelRange {
    */
   vendorAffectedFrom: string | null;
   /**
-   * One or two sentences on why this site classifies the wider range, and what
-   * the repository record does not settle. Set together with
-   * `vendorAffectedFrom`.
+   * One or two sentences recording which published analysis the wider range
+   * follows, what the vendor publishes instead, and what the held captures do
+   * not settle. Set together with `vendorAffectedFrom`.
    */
   vendorNote: string | null;
   /**
    * The vendor's own published reason for its narrower boundary, where it has
    * given one. This is carried separately from `vendorNote` because the two do
-   * different work: the note is this site's justification, the reason is the
-   * other party's. A divergence with an unexplained vendor boundary and one
+   * different work: the note records both published positions, the reason is
+   * the other party's own account of its boundary. A divergence with an
+   * unexplained vendor boundary and one
    * with a stated vendor boundary are different things to put in front of a
    * reader, and only the second can be reported rather than merely recorded.
    * Null until the vendor states a reason.
@@ -88,16 +90,19 @@ export const VENDOR_RANGE_AS_OF = '7 August 2026';
 
 /**
  * The Mk2 and Mk3 lower-bound divergence, stated once. Neither boundary is a
- * typo: the vendor's advisory starts at 4.0.1, and the repository record puts
- * the affected path in the 4.0.0 release commit twelve days earlier.
+ * typo: the vendor's advisory starts at 4.0.1, and Block's published analysis
+ * starts at 4.0.0, a build the captured release history dates twelve days
+ * earlier.
  */
 const VENDOR_RANGE_NOTE =
-  'This site classifies v4.0.0 as affected because its release commit ' +
-  '910e306e contains the affected generation path, its pinned libngu revision ' +
-  'carries the guard defect, and the signed-release record published by ' +
-  'Coinkite lists the 17 March 2021 image. What the record does not settle ' +
-  'is how widely v4.0.0 was installed during the twelve days before v4.0.1 on ' +
-  '29 March 2021.';
+  'Two captured positions bound this range from below. Block, whose published ' +
+  'analysis this range follows, gives v4.0.0 to v4.1.9 and dates the affected ' +
+  'path to "released firmware v4.0.0 on March 17, 2021"; Coinkite\'s captured ' +
+  'advisory starts at v4.0.1. The captured vendor release history dates the ' +
+  '4.0.0 build to 17 March 2021, twelve days before v4.0.1, and the captured ' +
+  'signed-release record lists the 4.0.0 image. What the held captures do not ' +
+  'settle is how widely v4.0.0 was installed during those twelve days before ' +
+  'v4.0.1 on 29 March 2021.';
 
 /**
  * Coinkite's own published reason for starting at 4.0.1, added after its
@@ -229,7 +234,7 @@ export interface VendorDivergence {
   vendorAffectedFrom: string;
   /** The shared upper bound, which both sides agree on. */
   affectedTo: string;
-  /** Why this site classifies the wider range, and what remains unestablished. */
+  /** Which published analysis the wider range follows, and what remains unestablished. */
   note: string;
   /**
    * The vendor's own published reason for its narrower boundary. Null where the

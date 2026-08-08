@@ -3,7 +3,6 @@ import Article from '../../layouts/Article.astro';
 import Answer from '../../components/Answer.astro';
 import Claim from '../../components/Claim.astro';
 import Disclosure from '../../components/Disclosure.astro';
-import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
 ---
 
 <Article
@@ -408,32 +407,6 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
       <a href="/how-it-broke/conditions/#multisig">the technical conditions record</a>.
     </p>
 
-    <h3>What becomes public during a spend</h3>
-
-    <p>
-      A P2WSH output contains a hash of the witness script, and a valid spend
-      supplies that script and the required signatures. When an unconfirmed
-      transaction is publicly relayed, peers that receive it can inspect the
-      script and its child public keys before a block confirms the spend. An
-      attacker who can recover a threshold number of keys within that interval
-      may attempt a conflicting spend with a more attractive fee. The same
-      disclosure occurs for nested P2SH-P2WSH: its <code>scriptSig</code>
-      supplies the redeem-script witness program while the witness supplies the
-      complete witness script and signatures. Because the published
-      candidate-space estimates vary by many orders of magnitude, this mechanism
-      does not establish that every such race is practical; it identifies when a
-      hidden-script assumption ends.
-      <Claim
-        basis="reported"
-        scope="The first-spend race and direct-submission recommendation described above"
-        source="Rob Hamilton, Peter Todd and Charles Guillemet described the first-spend race; the native and nested P2WSH reveal mechanics are verified from the transaction structure"
-        href="/record/sources/robhamilton-multisig-psa/"
-        compact
-      />
-    </p>
-
-    <FigureRaceWindow />
-
     <h3>Submission options and limitations</h3>
 
     <div class="table-wrap">
@@ -443,25 +416,17 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
           <thead>
             <tr>
               <th scope="col" class="nw">Option</th>
-              <th scope="col" class="wide">Pre-confirmation exposure</th>
               <th scope="col" class="wide">Published or unresolved limitations</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="nw"><strong>Public relay with a competitive fee</strong></td>
-              <td class="wide">The script is visible to peers from first relay until confirmation.</td>
               <td class="wide">A next-block fee is a target, not a confirmation guarantee. Block intervals are variable, policy differs across miners, and a conflicting transaction may pay a higher fee.</td>
             </tr>
             <tr>
               <td class="nw"><strong>Direct submission to a miner</strong></td>
-              <td class="wide">Disclosure can be limited to the service and its participating infrastructure if neither the service nor another participant relays the transaction elsewhere.</td>
               <td class="wide">Confirmation depends on the service accepting the transaction and a participating miner finding a suitable block. The public material held here does not settle confidentiality, retention, replacement behaviour or what happens after non-confirmation.</td>
-            </tr>
-            <tr>
-              <td class="nw"><strong>Taproot key-path spend</strong></td>
-              <td class="wide">The aggregate output key is already visible in the output being spent. A key-path spend adds a signature but does not reveal an unused script leaf.</td>
-              <td class="wide">This is available only if the wallet was constructed with an executable key path and the required signers and software can use it. It cannot be added retroactively to a P2WSH output.</td>
             </tr>
           </tbody>
         </table>
@@ -527,13 +492,11 @@ import FigureRaceWindow from '../../components/figures/FigureRaceWindow.astro';
       a <a href="/record/evidence/mempool-pools-1m-20260801T055613Z.json">held copy of mempool.space's rolling one-month pool dataset</a>,
       retrieved at 05:56 UTC on 1 August, MARA Pool had found 197 of 4,343
       blocks in the response, or 4.54%. The total includes 44 blocks in the
-      endpoint's Unknown category. If that share stays constant and network blocks
-      arrive every ten minutes on average, the implied mean interval between MARA
-      blocks is about 220 minutes, or 3.7 hours.
+      endpoint's Unknown category.
       <Claim
         basis="derived"
-        scope="The 4.54% observed MARA Pool share and 3.7-hour mean-block-interval calculation"
-        source="Held mempool.space one-month response retrieved at 2026-08-01T05:56:13Z; mean = 10 minutes divided by 197/4,343"
+        scope="The 4.54% observed MARA Pool share"
+        source="Held mempool.space one-month response retrieved at 2026-08-01T05:56:13Z; 197 of 4,343 blocks"
         href="/record/evidence/mempool-pools-1m-20260801T055613Z.json"
         compact
       />

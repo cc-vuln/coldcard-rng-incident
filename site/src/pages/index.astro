@@ -90,10 +90,10 @@ const goneRest = goneCount - goneLinks.length;
           compact
         />
         <Claim
-          basis="verified"
+          basis="reported"
           scope="The claim on this page that affected seed generation did not use the hardware randomness the device was designed to use, on firmware released from March 2021 until the 31 July 2026 fixes"
-          source="Firmware source, release histories and signed-release record; the hardware generator stayed in the firmware and other callers still reached it, so the bypass is stated for seed generation only, and released binaries were not independently reproduced"
-          href="/record/firmware/"
+          source="Coinkite's published entropy technical backgrounder, which states that a series of bugs kept seed generation on a software fallback instead of the hardware RNG while the hardware generator stayed in the firmware for other callers; held capture of 1 Aug 2026"
+          href="/record/sources/coinkite-backgrounder/"
           compact
         />
       </p>
