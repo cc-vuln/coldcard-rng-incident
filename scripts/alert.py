@@ -57,6 +57,7 @@ KINDS = (
     "correction-applied",
     "capture-failure",
     "x-session-health",
+    "x-availability",
     "gone-set",
 )
 SEVERITIES = ("info", "warning", "urgent")

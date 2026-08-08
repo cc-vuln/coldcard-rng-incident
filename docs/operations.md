@@ -98,8 +98,8 @@ The following jobs are deliberately not active yet:
 
 | Candidate | Proposed cadence | Gate before activation |
 |---|---:|---|
-| Watched X accounts, browser lane | Own `discover-x.timer` | Being scheduled (8 Aug 2026): `discover_x_browser.py` reads through the capture browser under `X_BROWSER_DISCOVERY_ENABLED`; the API lane is deprecated. Prove the session-health classes fail closed before enabling |
-| Direct X availability recheck | Daily | Classify deletion, suspension, access restriction, login wall, challenge and rate limit separately |
+| Watched X accounts, browser lane | Own `discover-x.timer` | Units exist (8 Aug 2026): `scripts/discover-x.{service,timer}.example`, chaining `discover_x_browser.py` and `agent-x-intake.sh` under `X_BROWSER_DISCOVERY_ENABLED`; the API lane is deprecated. Prove the session-health classes fail closed, then install |
+| Direct X availability recheck | Twice daily | Units exist (8 Aug 2026): `scripts/x-availability.{service,timer}.example` running `check_x_availability.py`, which classifies deletion, suspension, protection, restriction, login wall, challenge and rate limit separately. Enable `X_BROWSER_AVAILABILITY_ENABLED` and install |
 | GitHub and HN discovery inbox | 6 hours | Keep machine discovery separate from human source registration |
 | Archive contract audit, static build and link check | Nightly | Define alerting and keep deployment outside the job |
 | Off-machine archive backup | Daily | Choose a destination, retention policy and restore test |

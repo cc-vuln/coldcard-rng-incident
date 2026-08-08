@@ -29,6 +29,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -58,11 +59,132 @@ PLATFORMS = (
 )
 
 # X candidates are a separate lane: a different agent, a different prompt, and
-# an operator's explicit --include-x rather than the 12-hourly timer. The
-# hydration is the same idea, and the gain is larger, because reading a post
-# through the official API needs the bearer token. Pre-hydrating means the
-# token stays in the driver and the agent never holds a credential at all.
+# its own driver (scripts/agent-x-intake.sh) rather than the 12-hourly
+# community timer. The hydration is the same idea, and the gain is larger,
+# because reading a post needs the capture browser's signed-in session.
+# Pre-hydrating means the session stays in the driver and the agent never
+# reaches the browser at all.
 X_PLATFORM = ("x", re.compile(r"x\.com/[^/]+/status/(\d+)"), "discover_x.py")
+
+X_URL = re.compile(r"https://x\.com/[^/]+/status/\d+")
+
+# The browser lane's client, written alongside this switch. Imported
+# tolerantly: until scripts/x_browser.py lands, X hydration falls back to the
+# deprecated API lane's --show, which still works wherever the old credential
+# is present, and says so on stderr.
+try:
+    import x_browser
+except ImportError:  # scripts/x_browser.py not merged yet
+    x_browser = None
+
+# Own webbridge session name, same convention as discover_x_browser.py: the
+# daemon keys one tab per session, and reusing ingest-x.py's session would
+# close a tab another lane is reading.
+X_SESSION = "coldcard-archive-x-hydrate"
+
+# Read-only extraction, a reduced form of ingest-x.py's EXTRACT_JS: the focal
+# article is the one whose timestamp link names the status id, and its
+# tweetText is the post. No clicking, no scrolling, no show-more expansion;
+# a truncated or absent body fails the read and the candidate stays Pending.
+X_EXTRACT_JS = r"""
+(() => {
+  const tweetId = "%s";
+  const arts = [...document.querySelectorAll("article")];
+  const el = arts.find(a => [...a.querySelectorAll("time")].some(t => {
+    const href = t.closest("a")?.getAttribute("href");
+    return href && href.includes("/status/" + tweetId);
+  }));
+  if (!el) return {found: false};
+  const u = el.querySelector("[data-testid=User-Name]");
+  const t = [...el.querySelectorAll("time")].find(x => {
+    const href = x.closest("a")?.getAttribute("href");
+    return href && href.includes("/status/" + tweetId);
+  });
+  const txt = el.querySelector("[data-testid=tweetText]");
+  const truncated = !!el.querySelector(
+    "[data-testid=tweet-text-show-more-link]");
+  return {found: true,
+          user: u ? u.innerText : null,
+          time: t ? t.getAttribute("datetime") : null,
+          text: txt ? txt.innerText : null,
+          truncated: truncated};
+})()
+"""
+
+
+def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
+    """One post read through the capture browser, driver-side.
+
+    An active discovery cooldown stops the read before the browser is
+    touched: a sick session is not pushed harder by a sibling lane. After
+    navigating, the page is classified with x_browser's own probe; anything
+    but "ok" (login-wall, challenge, rate-limit) fails the read, and the
+    candidate stays Pending for the next run rather than being assessed
+    blind.
+    """
+    try:
+        cooldown = x_browser.read_cooldown()
+    except x_browser.XBrowserConfigError as exc:
+        return False, str(exc)
+    if cooldown is not None:
+        return False, (f"X browser lane is cooling down "
+                       f"({cooldown['class']} until {cooldown['until']})")
+    try:
+        x_browser.navigate(url, X_SESSION)
+        # X's SPA mounts its content after domcontentloaded; the same settle
+        # x_browser.probe_health keeps before reading the page.
+        time.sleep(6)
+        probe = json.loads(
+            x_browser.evaluate(x_browser.HEALTH_JS, X_SESSION)["value"])
+        health = x_browser.classify_session(probe)
+        if health != "ok":
+            return False, f"capture browser session is not healthy ({health})"
+        raw = x_browser.evaluate(X_EXTRACT_JS % ident, X_SESSION)
+        # The bridge deserializes object return values itself; a string comes
+        # back verbatim. Accept both rather than pinning one representation.
+        info = raw["value"]
+        if isinstance(info, str):
+            info = json.loads(info)
+    except (x_browser.BridgeError, x_browser.XBrowserConfigError,
+            KeyError, ValueError) as exc:
+        return False, f"capture browser read failed ({exc})"
+    finally:
+        try:
+            x_browser.close_session(X_SESSION)
+        except x_browser.XBrowserConfigError:
+            # No readable token means no session was ever opened; closing is
+            # best effort, same posture as x_browser.close_session itself.
+            pass
+    if not isinstance(info, dict) or not info.get("found"):
+        return False, "tweet article not found (deleted? wrong URL?)"
+    if info.get("truncated"):
+        return False, ("post was served truncated; not hydrating a body that "
+                       "stops mid-sentence")
+    if not info.get("text"):
+        return False, "tweet article has no text body"
+    user = (info.get("user") or "?").replace("\n", " ")
+    return True, (f"author: {user}\n"
+                  f"posted: {info.get('time') or '?'} "
+                  f"(from the page's <time> element)\n"
+                  f"\n--- post text (verbatim) ---\n\n{info['text']}")
+
+
+_x_fallback_noted = False
+
+
+def fetch_x(script: str, ident: str, line: str) -> tuple[bool, str]:
+    """X hydration: the capture browser when its client exists, else the
+    deprecated API lane's --show with a one-time note."""
+    global _x_fallback_noted
+    url = X_URL.search(line)
+    if x_browser is not None and url:
+        return fetch_x_browser(url.group(0), ident)
+    if not _x_fallback_noted:
+        print("hydrate-candidates: scripts/x_browser.py could not be "
+              "imported; falling back to the deprecated discover_x.py "
+              "--show API lane for X hydration", file=sys.stderr)
+        _x_fallback_noted = True
+    return fetch(script, ident)
 
 
 def classify(line: str, include_x: bool) -> tuple[str, str, str] | None:
@@ -77,8 +199,10 @@ def classify(line: str, include_x: bool) -> tuple[str, str, str] | None:
 def fetch(script: str, ident: str) -> tuple[bool, str]:
     env = None
     if script == "discover_x.py":
-        # The watcher fails closed unless told it may make a live read. The
-        # driver has already decided that by passing --include-x.
+        # The deprecated API lane fails closed unless told it may make a
+        # live read. Reached only as the fallback when scripts/x_browser.py
+        # is unavailable; the driver has already decided by passing
+        # --include-x.
         env = {**os.environ, "X_DISCOVERY_ENABLED": "true"}
     try:
         result = subprocess.run(
@@ -116,8 +240,8 @@ def main() -> int:
                         help="per-candidate ceiling on hydrated text")
     parser.add_argument("--delay", type=float, default=POLITE_DELAY)
     parser.add_argument("--include-x", action="store_true",
-                        help="also hydrate X permalinks, for an operator-"
-                             "approved triage run")
+                        help="also hydrate X permalinks, for the X intake "
+                             "lane (scripts/agent-x-intake.sh)")
     args = parser.parse_args()
     if args.include_x:
         args.delay = max(args.delay, X_DELAY)
@@ -132,7 +256,7 @@ def main() -> int:
         print(f"Queue line: {neutralise(line, args.nonce)}")
         target = classify(line, args.include_x)
         if target is None:
-            reason = ("an X permalink, triaged in its own lane"
+            reason = ("an X permalink, assessed in its own lane"
                       if X_PLATFORM[1].search(line)
                       else "no recognised platform URL")
             print(f"Body: not hydrated ({reason})")
@@ -142,7 +266,10 @@ def main() -> int:
         print(f"Platform: {platform} (id {ident})")
         if fetched:
             time.sleep(args.delay)
-        ok, payload = fetch(script, ident)
+        if platform == "x":
+            ok, payload = fetch_x(script, ident, line)
+        else:
+            ok, payload = fetch(script, ident)
         fetched += 1
         if not ok:
             print(f"Body: fetch failed ({payload})")

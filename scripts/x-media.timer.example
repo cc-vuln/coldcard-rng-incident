@@ -1,0 +1,15 @@
+# Fire x-media.service weekly. See x-media.service.example.
+#
+# Weekly, not daily: media attached to an already-captured post does not
+# change, so the pass exists to catch posts registered since the last run and
+# the rare repair. Staggered from the poll and the discovery lanes.
+[Unit]
+Description=X media pull weekly
+
+[Timer]
+OnBootSec=7200
+OnUnitActiveSec=604800
+Unit=x-media.service
+
+[Install]
+WantedBy=timers.target

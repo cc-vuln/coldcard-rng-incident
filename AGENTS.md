@@ -34,13 +34,23 @@ scripts/
   discover_stackernews.py  find new incident threads on Stacker News (gentle)
   discover_reddit.py    find new incident threads on Reddit (via capture browser)
   discover_bitcointalk.py  find new incident threads on BitcoinTalk (direct)
-  discover_x.py         find new posts from watched X accounts (manual probation)
+  discover_x.py         deprecated 8 Aug 2026: the official-API watched-account
+                        lane, kept for the record; see discover_x_browser.py
+  x_browser.py          shared capture-browser client for X work (driver-side)
+  discover_x_browser.py  find new posts on the home timeline and watched
+                        X profiles through the capture browser
+  check_x_availability.py  re-check that registered X posts are still
+                        observable; absence classes escalate only on two
+                        consecutive observations (driver-side, read-only)
+  agent-x-intake.sh     X candidate intake: registers [[x_post]] blocks and
+                        requests driver-side first captures (role xintake)
+  agent-x-intake-prompt.md  the registering X intake prompt
   ingest_nostr.py       capture one nostr note and its replies via nak
   discover_nostr.py     find new incident notes via NIP-50 search (manual probation)
   nostr_post.py         manual kind-1 post from the project key (--yes)
   nostr_publish_profile.py  publish the kind-0 profile and kind-10002 relay list
-  agent-discovery-intake.sh  community intake and explicit X triage agent
-  agent-x-discovery-triage-prompt.md  read-only X recommendation prompt
+  agent-discovery-intake.sh  community intake agent (registers community
+                        threads; X candidates go to agent-x-intake.sh)
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
   build_manifest.py   describe every held capture without reproducing any
@@ -211,7 +221,7 @@ corrupts the Astro cache. Recovery is `rm -rf site/dist .astro node_modules/.ast
 
 ## The unattended agents are contained, not trusted
 
-Four agents run here without anyone watching, and all four read text that
+Agents run here without anyone watching, and all of them read text that
 strangers wrote. Assume the prompt injection in a captured thread works.
 
 - **An agent never fetches its own evidence.** The driver hydrates first, as

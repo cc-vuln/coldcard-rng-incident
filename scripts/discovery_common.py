@@ -132,18 +132,21 @@ INTAKE_HEADER = """\
 
 Candidates found by the Stacker News, Reddit, BitcoinTalk, nostr and manual X
 discovery commands. The community-thread lanes run every 12 hours through
-`discover-community.timer`; X and nostr discovery remain manual while their
-API, relay and policy gates are proved. That timer runs neither of them, nor
-does it send queued X links to the general community agent. An operator may
-invoke the separate X-only triage with `--include-x` during probation; nostr
+`discover-community.timer`; nostr discovery remains manual while its relay
+gate is proved. That timer runs neither nostr nor X discovery, nor does it
+send queued X links to the general community agent. Since 8 Aug 2026, queued
+X candidates are assessed by the registering xintake lane
+(`scripts/agent-x-intake.sh`, the same REVIEW_AGENT_BIN pattern): a relevant
+post is registered as an [[x_post]] block and ingested driver-side
+afterwards. The read-only X triage prompt and the `--include-x` admission
+flag are retired. nostr
 candidates (njump.me links) go to the standard intake agent, which registers
 them as [[nostr_post]] blocks and first-captures with `just ingest-nostr`.
 Direct `just ingest-x` capture of a manually supplied permalink does not use
 this queue.
 Eligible pending entries are assessed by the intake agent
 (`scripts/agent-discovery-intake.sh`): a relevant community thread is
-registered and first-captured. Explicit X triage only recommends or dismisses
-permalinks for human review; it cannot capture or register them. Assessed
+registered and first-captured. Assessed
 entries move below with the verdict. To dismiss a candidate by hand, move its
 line to Assessed with a one-line reason.
 Candidates whose title never names the incident and which have drawn almost

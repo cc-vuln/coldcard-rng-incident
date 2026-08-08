@@ -1,10 +1,11 @@
 # Shared plumbing for the unattended agent drivers. Sourced, never executed.
 #
-# Three drivers run an agent over text strangers wrote: agent-review.sh,
-# agent-discovery-intake.sh and claim-sweep.sh. They differ in what they ask
-# for and agree on everything about how the run is contained, so the
-# containment lives here in one copy. Three copies of a security control drift,
-# and the copy that drifts is the one that stops checking.
+# Four drivers run an agent over text strangers wrote: agent-review.sh,
+# agent-discovery-intake.sh, agent-x-intake.sh and claim-sweep.sh. They
+# differ in what they ask for and agree on everything about how the run is
+# contained, so the containment lives here in one copy. Three copies of a
+# security control drift, and the copy that drifts is the one that stops
+# checking.
 #
 # The shape every driver follows:
 #
@@ -114,6 +115,54 @@ agent_run_captures() {
   local id rc note_ref
   while read -r id; do
     [[ -n "$id" ]] || continue
+    # An xintake approval is a post permalink, not a source id. The agent
+    # registered the [[x_post]] block itself, so ingest-x.py is called with
+    # the URL alone: it resolves the registered id from the registry,
+    # captures under it and leaves sources.toml untouched. A block the agent
+    # thread-enabled then gets its first conversation capture through
+    # capture.py's single-source path, the same hand-off ingest-x.py --thread
+    # uses, so there is still only one writer of snapshots and diffs.
+    if [[ "$id" == https://x.com/* ]]; then
+      local xid xthread
+      read -r xid xthread < <("$ROOT/.venv/bin/python" - "$id" "$ROOT/sources.toml" <<'PY'
+import sys, tomllib
+url, registry = sys.argv[1], sys.argv[2]
+with open(registry, "rb") as fh:
+    data = tomllib.load(fh)
+for block in data.get("x_post", []):
+    if block.get("url") == url:
+        print(block.get("id", ""),
+              "thread" if block.get("thread") is True else "single")
+        break
+PY
+)
+      if [[ -z "${xid:-}" ]]; then
+        echo "agent-run: $id was approved but no [[x_post]] block names it; skipping" >&2
+        continue
+      fi
+      echo "agent-run: first capture of $xid (X ingest)"
+      rc=0
+      just ingest-x "$id" || rc=$?
+      if [[ $rc -ne 0 ]]; then
+        # X posts are not polled unless thread-enabled, so nothing re-attempts
+        # this by itself; record the failure where the operator surface can
+        # see it.
+        echo "agent-run: $xid X ingest failed (exit $rc)" >&2
+        printf '%s\t%s\n' "$xid" "$AGENT_RUN_ID" >> "$ROOT/.work/capture-failures.txt"
+        continue
+      fi
+      echo "agent-run: $xid captured"
+      if [[ "${xthread:-}" == "thread" ]]; then
+        rc=0
+        just capture-one "$xid" || rc=$?
+        case "$rc" in
+          0|10) echo "agent-run: $xid conversation captured (exit $rc)" ;;
+          21)   echo "agent-run: $xid conversation deferred, the poll holds the writer lock" ;;
+          *)    echo "agent-run: $xid conversation first capture failed (exit $rc); the next poll will pick it up" >&2 ;;
+        esac
+      fi
+      continue
+    fi
     # A [[nostr_post]] is ingested through nak, never polled: capture.py's
     # pollable_sources() excludes the table, so `just capture-one` could only
     # report the id unresolvable. The note ref comes from the registry block

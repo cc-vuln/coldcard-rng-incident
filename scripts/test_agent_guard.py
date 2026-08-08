@@ -337,6 +337,61 @@ class CaptureRequests(GuardCase):
         self.assertRejected("which this run did not register")
 
 
+NEW_X_BLOCK = '''
+[[x_post]]
+id = "researcher-statement"
+title = "A primary statement"
+url = "https://x.com/researcher/status/1234567890"
+author = "researcher"
+posted = "2026-08-07T10:00:00Z"
+why = "A watched researcher's primary statement on the incident, reporting the figures it asserts and the assumptions those figures rest on."
+'''
+
+X_URL = "https://x.com/researcher/status/1234567890"
+
+
+class XIntakeCaptureRequests(GuardCase):
+    """The xintake role asks in post permalinks, not source ids.
+
+    A request is approved only when it is the exact URL of an [[x_post]]
+    block this run registered; the driver ingests what the list names, so the
+    list may name nothing else.
+    """
+    role = "xintake"
+
+    def test_the_url_of_a_block_this_run_registered_is_approved(self):
+        self.append("sources.toml", NEW_X_BLOCK)
+        (self.run_dir / "capture-requests.txt").write_text(X_URL + "\n")
+        self.assertAccepted()
+        approved = (self.run_dir / "approved-captures.txt").read_text().split()
+        self.assertEqual([X_URL], approved)
+
+    def test_a_url_no_block_carries_is_rejected(self):
+        (self.run_dir / "capture-requests.txt").write_text(
+            "https://x.com/researcher/status/9999999999\n")
+        self.assertRejected("which is not in the registry")
+
+    def test_the_url_of_a_pre_existing_block_is_rejected(self):
+        """Re-ingesting a registered post is not a first capture."""
+        self.append("sources.toml", NEW_X_BLOCK)
+        self.append(str(self.run_dir.relative_to(self.tmp) /
+                        "before" / "sources.toml"), NEW_X_BLOCK)
+        (self.run_dir / "capture-requests.txt").write_text(X_URL + "\n")
+        self.assertRejected("which this run did not register")
+
+    def test_a_non_x_url_is_rejected(self):
+        (self.run_dir / "capture-requests.txt").write_text(
+            "https://collector.example.invalid/beacon\n")
+        self.assertRejected("not an x.com post permalink")
+
+    def test_a_bare_source_id_is_rejected(self):
+        """The registering lane asks in URLs; an id names nothing here."""
+        self.append("sources.toml", NEW_X_BLOCK)
+        (self.run_dir / "capture-requests.txt").write_text(
+            "researcher-statement\n")
+        self.assertRejected("not an x.com post permalink")
+
+
 class SharedFiles(GuardCase):
     """One tree, live timers, several writers.
 

@@ -1,0 +1,42 @@
+# Run X discovery through the capture browser, then the X intake agent.
+# Paired with discover-x.timer.
+#   sudo cp discover-x.service.example /etc/systemd/system/discover-x.service
+#   sudo cp discover-x.timer.example /etc/systemd/system/discover-x.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now discover-x.timer
+#
+# Replace USER and REPO with the account and checkout path.
+#
+# Two steps, one quiet run: discover_x_browser.py reads the home timeline and
+# the watched [[x_watch]] profiles (driver-side only, opt-in
+# X_BROWSER_DISCOVERY_ENABLED), then agent-x-intake.sh assesses whatever X
+# candidates are pending in DISCOVERY.md. The discovery step carries "-" so a
+# session-health stop, a cooldown skip or a quiet run with nothing new does
+# not skip the intake. Keep the cadence at the timer's 12 hours; the account
+# behind the session is one the project would rather not lose, and the fixed
+# spacing plus the fail-closed cooldown are the whole mitigation (see
+# scripts/discover_x_browser.py's docstring).
+[Unit]
+Description=X discovery and intake through the capture browser (read-only, gentle)
+Wants=network-online.target
+After=network-online.target webbridge.service
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=-REPO/.venv/bin/python scripts/discover_x_browser.py
+ExecStart=REPO/scripts/agent-x-intake.sh
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+# X_BROWSER_DISCOVERY_ENABLED comes from .env. discover_x_browser.py reads
+# only its environment and cannot self-load the file, so the unit supplies
+# it; the intake driver also reads .env itself via agent_load_env, and the
+# agent inside it never inherits this unit's environment (run-agent.sh
+# rebuilds it from an allowlist).
+EnvironmentFile=-REPO/.env
+# NoNewPrivileges is not set: it would block the setuid transition the intake
+# driver uses to drop into the agent account. See agent-hardening.conf.example,
+# which this unit also needs installed, and the note on the capture-browser
+# token in discover-community.service.example.
+
+[Install]
+WantedBy=multi-user.target

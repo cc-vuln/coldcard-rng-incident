@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Discover new posts from a small registry of incident-relevant X accounts.
 
+DEPRECATED 8 Aug 2026: the official-API lane was retired with the operator's
+policy reversal; live watched-account discovery now runs through the capture
+browser in scripts/discover_x_browser.py, and X promotion through the
+registering xintake lane. This script remains as the fallback X hydration
+path for hydrate_candidates.py wherever the old credential is still present.
+
 This is discovery, not capture. It uses the official X API to read shallow
 public user timelines, keeps ID-only metadata in .work/, and queues new
 permalinks in DISCOVERY.md for the existing intake agent. A relevant post is

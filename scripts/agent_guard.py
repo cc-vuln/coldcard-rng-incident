@@ -62,13 +62,15 @@ ROLES: dict[str, tuple[str, ...]] = {
     "intake": ("sources.toml", "DISCOVERY.md", ".work/"),
     # Rechecks unverified claims across the editorial pages.
     "sweep": ("site/src/pages/", "sources.toml", "BACKLOG.md", ".work/"),
-    # Read-only triage. Records a verdict, registers nothing.
-    "xtriage": ("DISCOVERY.md", ".work/"),
+    # Registers queued X posts as [[x_post]] blocks and records verdicts.
+    # Replaced the read-only xtriage role on 8 Aug 2026, when X promotion
+    # was automated; its first captures are ingests, not polls.
+    "xintake": ("sources.toml", "DISCOVERY.md", ".work/"),
 }
 
 # Roles whose remit includes registering sources, and therefore asking for a
 # first capture. The driver performs the capture itself, after this gate.
-REGISTERING_ROLES = {"intake", "sweep"}
+REGISTERING_ROLES = {"intake", "sweep", "xintake"}
 
 # The two files other tooling in this repository legitimately writes while an
 # agent is running: `ingest-x.py` and `ingest_nostr.py` register into the
@@ -374,13 +376,49 @@ def append_only_integrity(run_dir: Path) -> list[str]:
     return problems
 
 
+def approve_x_captures(wanted: list[str], before_registry: Path,
+                       new: dict) -> tuple[list[str], list[str]]:
+    """The xintake role asks in post permalinks, not source ids.
+
+    A request is approved when it is the exact `url` of an [[x_post]] block
+    this run added to the registry. Anything else (a bare id, a URL that was
+    already registered, a URL no block carries, anything not an x.com
+    permalink) is refused, so the driver ingests only what this run's
+    validated registry delta names. The block's host is already pinned to
+    x.com by check_registry.py, which runs before this list is acted on.
+    """
+    old_urls: set[str] = set()
+    if before_registry.exists():
+        old = tomllib.loads(read_text(before_registry))
+        old_urls = {str(b.get("url", ""))
+                    for b in old.get("x_post", []) if isinstance(b, dict)}
+    new_urls = {str(b.get("url", ""))
+                for b in new.get("x_post", []) if isinstance(b, dict)}
+
+    approved, problems = [], []
+    for url in wanted:
+        if not url.startswith("https://x.com/"):
+            problems.append(f"first capture requested for {url}, which is "
+                            f"not an x.com post permalink")
+        elif url in new_urls and url not in old_urls:
+            approved.append(url)
+        elif url in new_urls:
+            problems.append(f"first capture requested for {url}, which this "
+                            f"run did not register")
+        else:
+            problems.append(f"first capture requested for {url}, which is "
+                            f"not in the registry")
+    return approved, problems
+
+
 def approve_captures(role: str, run_dir: Path) -> tuple[list[str], list[str]]:
     """Which requested first captures the driver may actually run.
 
-    The agent no longer calls capture.py. It writes source ids here, and only
-    ids this run registered, in a registry that passed check_registry.py, are
-    handed back to the driver. A poisoned block is therefore rejected before
-    anything fetches it, rather than after.
+    The agent no longer calls capture.py. It writes source ids here (post
+    URLs for the xintake role), and only ones this run registered, in a
+    registry that passed check_registry.py, are handed back to the driver. A
+    poisoned block is therefore rejected before anything fetches it, rather
+    than after.
     """
     requests = run_dir / "capture-requests.txt"
     if not requests.exists():
@@ -394,12 +432,15 @@ def approve_captures(role: str, run_dir: Path) -> tuple[list[str], list[str]]:
                     f"{role} role registers nothing"]
 
     before_registry = run_dir / "before" / "sources.toml"
+    new = tomllib.loads(read_text(ROOT / "sources.toml"))
+    if role == "xintake":
+        return approve_x_captures(wanted, before_registry, new)
+
     old_ids: set[str] = set()
     if before_registry.exists():
         old = tomllib.loads(read_text(before_registry))
         old_ids = {b["id"] for table in ("source", "x_post", "nostr_post")
                    for b in old.get(table, []) if "id" in b}
-    new = tomllib.loads(read_text(ROOT / "sources.toml"))
     new_ids = {b["id"] for table in ("source", "x_post", "nostr_post")
                for b in new.get(table, []) if "id" in b}
 

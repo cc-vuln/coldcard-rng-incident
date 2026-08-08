@@ -1,0 +1,35 @@
+# Re-check that registered [[x_post]] permalinks are still observable on X.
+# Paired with x-availability.timer.
+#   sudo cp x-availability.service.example /etc/systemd/system/x-availability.service
+#   sudo cp x-availability.timer.example /etc/systemd/system/x-availability.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now x-availability.timer
+#
+# Replace USER and REPO with the account and checkout path.
+#
+# check_x_availability.py navigates a bounded slice of registered posts
+# (default 25 least-recently-checked, each at most once per 24h) through the
+# capture browser, classifies what X served (ok / deleted / suspended /
+# protected / restricted / login-wall / challenge / rate-limit /
+# unavailable-other), records the outcome in .work/x-availability.json and
+# alerts. Absence is not deletion: two consecutive absence observations on
+# separate runs are what escalate to a warning. It never edits the registry
+# and exits 0 on every operational outcome, including a disabled kill switch
+# and an active session cooldown, so only a genuine crash fails the unit.
+[Unit]
+Description=X post availability re-check through the capture browser (read-only)
+Wants=network-online.target
+After=network-online.target webbridge.service
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python scripts/check_x_availability.py
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+# X_BROWSER_AVAILABILITY_ENABLED comes from .env; the script reads only its
+# environment, so the unit supplies the file.
+EnvironmentFile=-REPO/.env
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

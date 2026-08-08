@@ -1,0 +1,36 @@
+# Weekly media pull for every registered [[x_post]], with change detection.
+# Paired with x-media.timer.
+#   sudo cp x-media.service.example /etc/systemd/system/x-media.service
+#   sudo cp x-media.timer.example /etc/systemd/system/x-media.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now x-media.timer
+#
+# Replace USER and REPO with the account and checkout path.
+#
+# --skip-unchanged is what makes this schedulable: gallery-dl's per-post
+# download-archive (state in .work/x-media-download-archive/) skips media
+# already held, and capture-x.sh writes no new timestamped directory when a
+# run downloads nothing new. Without it every weekly tick would duplicate
+# every post's media under archive/x/.
+[Unit]
+Description=weekly X media pull for registered posts (gallery-dl, skip-unchanged)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/scripts/capture-x.sh --skip-unchanged
+# ~500 posts with polite sleeps: a full pass can run for hours.
+TimeoutStartSec=14400
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+# X_COOKIES_BROWSER comes from .env (the capture-browser profile). The script
+# does not read .env itself; unlike the intake drivers it has no agent
+# boundary to rebuild an environment across, so the unit supplies the file.
+# Lines systemd cannot parse are ignored, and every variable the script reads
+# has an in-script default.
+EnvironmentFile=-REPO/.env
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

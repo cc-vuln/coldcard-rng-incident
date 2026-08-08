@@ -6,7 +6,21 @@
 # already listed in sources.toml.
 #
 #   ./scripts/capture-x.sh            capture every [[x_post]] in sources.toml
+#   ./scripts/capture-x.sh --skip-unchanged
+#                                   same, but write nothing for a post whose
+#                                   media are all already held (weekly timer)
 #   ./scripts/capture-x.sh <url>      capture one ad-hoc URL
+#
+# --skip-unchanged is the change detection the scheduled run needs: without it
+# every weekly tick would add a new timestamped directory per post holding the
+# same media. gallery-dl's --download-archive (supported since long before the
+# installed 1.32.9) records each successfully downloaded file in a per-post
+# sqlite database under .work/ and skips files already in it; when a run
+# downloads nothing new and the post already has a held capture, the staging
+# directory holds only JSON sidecars and no archive write happens. A post with
+# genuinely new media (or a first capture) writes exactly as before. The
+# download-archive databases are operational state, not captures, so they live
+# in .work/x-media-download-archive/ rather than in the append-only archive.
 #
 # Cookies come from X_COOKIES_BROWSER (default: chrome). When borrowing a
 # desktop Chrome on macOS the browser must be fully closed or its keychain
@@ -19,6 +33,7 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GDL="${GALLERY_DL:-$ROOT/.venv/bin/gallery-dl}"
 OUT="${CAPTURE_X_OUT:-$ROOT/archive/x}"
+MEDIA_STATE="$ROOT/.work/x-media-download-archive"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG="$OUT/_capture-$TS.log"
 
@@ -29,6 +44,18 @@ if [[ "${COLDCARD_ARCHIVE_LOCK_HELD:-}" != "1" ]]; then
   exec "$ROOT/.venv/bin/python" "$ROOT/scripts/archive_lock.py" \
     --label capture-x -- "$0" "$@"
 fi
+
+# Parsed after the lock re-entry: the re-entered child is the one that runs
+# the captures, so the flag must survive into it.
+SKIP_UNCHANGED=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --skip-unchanged) SKIP_UNCHANGED=1; shift ;;
+    --) shift; break ;;
+    -*) echo "unknown option: $1" >&2; exit 2 ;;
+    *) break ;;
+  esac
+done
 
 [[ -x "$GDL" ]] || { echo "gallery-dl missing. run: just setup" >&2; exit 1; }
 mkdir -p "$OUT"
@@ -46,15 +73,40 @@ common_args=(
 capture_url() {
   local url="$1" label="${2:-adhoc}"
   local tweet_id safe_label stage artifact_count matched path destination
+  local media_count held dl_archive
   tweet_id="${url##*/}"
   tweet_id="${tweet_id%%\?*}"
   safe_label="$(printf '%s' "$label" | tr -cs 'A-Za-z0-9._-' '_')"
   stage="$(mktemp -d "${TMPDIR:-/tmp}/coldcard-x.XXXXXX")"
   echo "--- $label  $url"
-  if ! "$GDL" "${common_args[@]}" --dest "$stage" "$url" 2>&1 | tee -a "$LOG"; then
+  local -a gdl_args=("${common_args[@]}")
+  dl_archive=""
+  if [[ "$SKIP_UNCHANGED" == "1" ]]; then
+    mkdir -p "$MEDIA_STATE"
+    dl_archive="$MEDIA_STATE/$safe_label.sqlite"
+    gdl_args+=(--download-archive "$dl_archive")
+  fi
+  if ! "$GDL" "${gdl_args[@]}" --dest "$stage" "$url" 2>&1 | tee -a "$LOG"; then
     echo "    FAILED (see $LOG)" >&2
     rm -rf "$stage"
     return 1
+  fi
+
+  # Same-check, before the empty-stage failure below: with --download-archive
+  # active, an unchanged post downloads nothing and the stage holds only JSON
+  # sidecars (or nothing). If the post already has a held capture, that is an
+  # unchanged read, not a failure, and no new timestamped directory is written.
+  if [[ -n "$dl_archive" ]]; then
+    media_count="$(find "$stage" -type f ! -name '*.json' ! -name '.DS_Store' | wc -l | tr -d ' ')"
+    # A post with no held capture yet has no directory to find; `|| true`
+    # keeps that expected miss from tripping set -e/pipefail.
+    held="$(find "$OUT/$safe_label" -mindepth 1 -maxdepth 1 -type d \
+      -name '[0-9]*' 2>/dev/null | head -1 || true)"
+    if [[ "$media_count" -eq 0 && -n "$held" ]]; then
+      rm -rf "$stage"
+      echo "    unchanged: no new media; nothing written"
+      return 0
+    fi
   fi
 
   artifact_count="$(find "$stage" -type f ! -name '.DS_Store' | wc -l | tr -d ' ')"

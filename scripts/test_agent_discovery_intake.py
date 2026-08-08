@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 import tempfile
@@ -8,12 +9,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-class XProbationTests(unittest.TestCase):
-    def make_checkout(self, raw: str) -> Path:
-        """A checkout complete enough for the driver's containment to run.
+def clean_env() -> dict:
+    """The test environment, minus anything that could turn hydration live.
 
-        The driver no longer just renders a prompt and shells out. It records
-        the tree, drops privilege, and checks what came back, so the fixture
+    `just test` dotenv-loads the real .env, and the hydration fallback for X
+    is the deprecated API lane: an inherited X_API_BEARER_TOKEN would make a
+    candidate read a network call. Pinning it empty keeps the fallback a
+    fast, local credential error.
+    """
+    env = dict(os.environ)
+    env["X_API_BEARER_TOKEN"] = ""
+    return env
+
+
+class LaneRoutingTests(unittest.TestCase):
+    def make_checkout(self, raw: str) -> Path:
+        """A checkout complete enough for the drivers' containment to run.
+
+        The drivers no longer just render a prompt and shell out. They record
+        the tree, drop privilege, and check what came back, so the fixture
         needs the whole of scripts/, an interpreter, and a git repository for
         the guard to enumerate. Copying less would test a driver that does
         not exist.
@@ -25,15 +39,14 @@ class XProbationTests(unittest.TestCase):
         (root / ".work").mkdir()
         (root / ".env").write_text(
             "REVIEW_AGENT_BIN=/bin/false\n"
-            "X_REVIEW_AGENT_BIN=/bin/false\n"
             # No agent account in a test tree, so the privilege drop is
             # deliberately opted out of rather than silently skipped.
             "AGENT_SANDBOX=off\n",
             encoding="utf-8",
         )
         (root / ".gitignore").write_text(".work/\n.env\n", encoding="utf-8")
-        # The driver builds a coverage index from the registry before it will
-        # start an agent, and refuses to run without one.
+        # The drivers build a coverage index from the registry before they
+        # will start an agent, and refuse to run without one.
         (root / "sources.toml").write_text(
             '[[source]]\nid = "reddit-example"\n'
             'title = "r/Bitcoin: an already registered theme"\n'
@@ -51,64 +64,57 @@ class XProbationTests(unittest.TestCase):
         subprocess.run(["git", "add", "-A"], cwd=root, check=True)
         return root
 
-    def run_intake(self, root: Path, *args: str) -> subprocess.CompletedProcess:
+    def run_driver(self, root: Path, script: str,
+                   *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(
-            ["/bin/bash", str(root / "scripts/agent-discovery-intake.sh"), *args],
+            ["/bin/bash", str(root / "scripts" / script), *args],
             cwd=root,
             text=True,
             capture_output=True,
             check=False,
+            env=clean_env(),
         )
 
-    def test_scheduled_shape_excludes_x_candidates(self):
+    def run_intake(self, root: Path, *args: str) -> subprocess.CompletedProcess:
+        return self.run_driver(root, "agent-discovery-intake.sh", *args)
+
+    def run_x_intake(self, root: Path, *args: str) -> subprocess.CompletedProcess:
+        return self.run_driver(root, "agent-x-intake.sh", *args)
+
+    def test_community_driver_excludes_x_candidates(self):
+        """X candidates are the X lane's, whatever else is pending."""
         with tempfile.TemporaryDirectory() as raw:
             result = self.run_intake(self.make_checkout(raw))
 
         self.assertEqual(result.returncode, 0)
-        self.assertIn("require --include-x", result.stdout)
+        self.assertIn("they are the X lane's", result.stdout)
 
-    def test_include_x_explicitly_makes_candidate_eligible(self):
+    def test_include_x_flag_is_retired(self):
+        """The admission flag went with the read-only triage prompt."""
         with tempfile.TemporaryDirectory() as raw:
             result = self.run_intake(self.make_checkout(raw), "--include-x")
 
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("assessing 1 of 1", result.stdout)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("unknown argument", result.stderr)
 
-    def test_a_run_without_a_coverage_index_does_not_start(self):
-        """An agent that cannot see what is covered registers duplicates of it.
-
-        Duplicates in the registry cost far more to undo than a skipped tick,
-        so the driver refuses rather than running blind.
-        """
+    def test_x_driver_assesses_x_candidates(self):
         with tempfile.TemporaryDirectory() as raw:
             root = self.make_checkout(raw)
-            (root / "sources.toml").unlink()
-            result = self.run_intake(root, "--include-x")
-
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("could not build the coverage index", result.stderr)
-        self.assertFalse(
-            (Path(raw) / ".work/agent-discovery-intake/prompt-rendered.md").exists())
-
-    def test_the_driver_builds_the_coverage_index_before_the_agent(self):
-        """Built as the operator account, from the registry, before the drop.
-
-        The community template consumes it; this checks the driver's half,
-        which is that the file exists and describes the registry. Asserting on
-        the rendered community prompt would mean hydrating a candidate body
-        over the network, which these tests do not do.
-        """
-        with tempfile.TemporaryDirectory() as raw:
-            root = self.make_checkout(raw)
-            self.run_intake(root, "--include-x")
-            coverage = (
-                root / ".work/agent-discovery-intake/coverage.md"
+            result = self.run_x_intake(root)
+            prompt = (
+                root / ".work/agent-x-intake/prompt-rendered.md"
             ).read_text(encoding="utf-8")
 
-        self.assertIn("reddit-example", coverage)
-        self.assertIn("r/Bitcoin: an already registered theme", coverage)
+        # /bin/false stands in for the agent binary, so the run itself fails;
+        # what matters is that the driver got as far as invoking it with the
+        # registering prompt.
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("assessing 1 of 1", result.stdout)
+        self.assertIn("https://x.com/researcher/status/123", prompt)
+        self.assertIn("[[x_post]]", prompt)
+        self.assertIn("Do not run `just ingest-x`", prompt)
 
-    def test_include_x_is_x_only_despite_community_backlog(self):
+    def test_x_driver_is_x_only_despite_community_backlog(self):
         with tempfile.TemporaryDirectory() as raw:
             root = self.make_checkout(raw)
             (root / "DISCOVERY.md").write_text(
@@ -119,32 +125,73 @@ class XProbationTests(unittest.TestCase):
                 "(X @researcher)\n\n## Assessed\n",
                 encoding="utf-8",
             )
-            result = self.run_intake(
-                root, "--include-x", "--max", "1"
-            )
+            result = self.run_x_intake(root, "--max", "1")
             prompt = (
-                root / ".work/agent-discovery-intake/prompt-rendered.md"
+                root / ".work/agent-x-intake/prompt-rendered.md"
             ).read_text(encoding="utf-8")
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("https://x.com/researcher/status/123", prompt)
         self.assertNotIn("https://stacker.news/items/999", prompt)
-        self.assertIn("Do not run `ingest-x.py`", prompt)
 
-    def test_x_intake_never_falls_back_to_general_agent(self):
+    def test_x_driver_with_no_x_candidates_does_nothing(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw)
+            (root / "DISCOVERY.md").write_text(
+                "# Discovery intake\n\n## Pending\n\n"
+                "- 2026-08-05 [community](https://stacker.news/items/999) "
+                "by author, 1 comments (Stacker News)\n\n## Assessed\n",
+                encoding="utf-8",
+            )
+            result = self.run_x_intake(root)
+
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("no pending X candidates", result.stdout)
+
+    def test_x_driver_without_a_coverage_index_does_not_start(self):
+        """An agent that cannot see what is covered registers duplicates of it.
+
+        Duplicates in the registry cost far more to undo than a skipped tick,
+        so the driver refuses rather than running blind.
+        """
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw)
+            (root / "sources.toml").unlink()
+            result = self.run_x_intake(root)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("could not build the coverage index", result.stderr)
+        self.assertFalse(
+            (Path(raw) / ".work/agent-x-intake/prompt-rendered.md").exists())
+
+    def test_x_driver_builds_the_coverage_index_before_the_agent(self):
+        """Built as the operator account, from the registry, before the drop.
+
+        The X template consumes it like the community one does; this checks
+        the driver's half, which is that the file exists and describes the
+        registry.
+        """
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw)
+            self.run_x_intake(root)
+            coverage = (
+                root / ".work/agent-x-intake/coverage.md"
+            ).read_text(encoding="utf-8")
+
+        self.assertIn("reddit-example", coverage)
+        self.assertIn("r/Bitcoin: an already registered theme", coverage)
+
+    def test_x_driver_without_an_agent_binary_waits(self):
         with tempfile.TemporaryDirectory() as raw:
             root = self.make_checkout(raw)
             # Explicitly empty, not omitted: `just test` dotenv-loads the real
-            # .env, which may now set X_REVIEW_AGENT_BIN, and the driver would
+            # .env, which may set REVIEW_AGENT_BIN, and the driver would
             # otherwise inherit it past this fixture.
-            (root / ".env").write_text(
-                "REVIEW_AGENT_BIN=/bin/false\nX_REVIEW_AGENT_BIN=\n",
-                encoding="utf-8",
-            )
-            result = self.run_intake(root, "--include-x")
+            (root / ".env").write_text("REVIEW_AGENT_BIN=\n", encoding="utf-8")
+            result = self.run_x_intake(root)
 
         self.assertEqual(result.returncode, 0)
-        self.assertIn("X_REVIEW_AGENT_BIN is unset", result.stdout)
+        self.assertIn("REVIEW_AGENT_BIN is unset", result.stdout)
 
 
 if __name__ == "__main__":

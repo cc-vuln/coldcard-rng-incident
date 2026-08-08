@@ -1,0 +1,16 @@
+# Fire x-availability.service twice a day. See x-availability.service.example.
+#
+# Twice daily with a 24h per-post cadence: each registered post is re-checked
+# roughly daily, and the escalation rule needs observations from separate
+# runs, which this cadence provides. Staggered from discover-x so the two
+# X-reading lanes are not active at the same time.
+[Unit]
+Description=X post availability re-check twice daily
+
+[Timer]
+OnBootSec=5400
+OnUnitActiveSec=43200
+Unit=x-availability.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,16 @@
+# Fire discover-x.service every 12 hours. See discover-x.service.example.
+#
+# On its own timer, separate from discover-community: an X session failure
+# must not stall the community lanes, and a community backlog must not hide
+# X candidates. Staggered 45 minutes from discover-community's OnBootSec=300
+# so the two browser-reading lanes do not start on top of each other.
+[Unit]
+Description=X discovery and intake every 12 hours
+
+[Timer]
+OnBootSec=2700
+OnUnitActiveSec=43200
+Unit=discover-x.service
+
+[Install]
+WantedBy=timers.target

@@ -55,9 +55,14 @@ discover-bitcointalk *ARGS:
 discover-x *ARGS:
     @{{py}} scripts/discover_x.py {{ARGS}}
 
-# Assess community candidates. X uses explicit, read-only --include-x triage.
+# Assess community candidates. X candidates are the separate X lane's.
 discovery-intake *ARGS:
     @./scripts/agent-discovery-intake.sh {{ARGS}}
+
+# Assess queued X candidates: the registering xintake role, then driver-side
+# ingest of each approved post
+x-intake *ARGS:
+    @./scripts/agent-x-intake.sh {{ARGS}}
 
 # Rotate old DISCOVERY.md verdicts into discovery/assessed-YYYY-MM.md
 rotate-discovery *ARGS:
