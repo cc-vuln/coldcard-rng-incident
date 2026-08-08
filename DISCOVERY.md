@@ -29,21 +29,7 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
-- 2026-08-01 [CoinDesk: how bitcoin cold wallets lost $70 million in an attack that never touched the devices](https://www.coindesk.com/tech/2026/08/01/how-bitcoin-cold-wallets-lost-usd70-million-in-an-attack-that-never-touched-the-devices) (link review: cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report e568bed8](https://chainabuse.com/report/e568bed8-62f8-46b8-aae6-4d271c8d63e0) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report d4c95fab](https://chainabuse.com/report/d4c95fab-ed8e-4749-ae81-9d42bfdab1cb) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report 0f8d1d1c](https://chainabuse.com/report/0f8d1d1c-556b-40e6-a819-c91c153497aa) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report 2727f906](https://chainabuse.com/report/2727f906-bf8f-4540-92e4-ad4fd5b59cbf) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report 6e9fa34a](https://chainabuse.com/report/6e9fa34a-6128-4b9b-9ef9-8cc4159b1935) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report 61e7b80a](https://chainabuse.com/report/61e7b80a-4ec6-42b4-a8b4-4cab1a29c9ac) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [Chainabuse victim report 6e9ac9f1](https://chainabuse.com/report/6e9ac9f1-61e5-49c5-947c-062afc70b73b) (link review: wave evidence cited by coldcard-hack-tracker)
-- 2026-08-05 [pastebin: confirmed addresses](https://pastebin.com/6AG9s0pP) (link review: wave-4 material, cited by coldcard-hack-tracker)
-- 2026-08-05 [pastebin: mempool / RBF list](https://pastebin.com/zR5Wk2cz) (link review: wave-4 material, cited by coldcard-hack-tracker)
-- 2026-08-07 [All attacks on Bitcoin are good](https://www.reddit.com/r/Bitcoin/comments/1vidcdf/all_attacks_on_bitcoin_are_good/) by arcrad, 78 comments (r/Bitcoin) [body]
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout.
-- 2026-08-07 [I Have A 12 Word Seed](https://www.reddit.com/r/Bitcoin/comments/1vifi09/i_have_a_12_word_seed/) by -reddit-online-, 9 comments (r/Bitcoin) [body]
-- 2026-08-07 [Dice Rolls Saved Me, But…](https://www.reddit.com/r/Bitcoin/comments/1vie1vy/dice_rolls_saved_me_but/) by Large_Still_1224, 34 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Fidelity?](https://www.reddit.com/r/Bitcoin/comments/1viahgq/fidelity/) by edtachi, 46 comments (r/Bitcoin) [body]
 - 2026-08-08 [You don't need to roll dice 50-100 times for BIP39 entropy. Just grab a deck of playing cards](https://www.reddit.com/r/Bitcoin/comments/1vime6a/you_dont_need_to_roll_dice_50100_times_for_bip39/) by HoldenVJ, 3 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Safely store BTC w/o HWW](https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/) by RichHomieWan, 23 comments (r/Bitcoin) [body]
 - 2026-08-08 [Blockstream Jade Plus setup - workflow suspect?](https://www.reddit.com/r/Bitcoin/comments/1viknfe/blockstream_jade_plus_setup_workflow_suspect/) by No_Fuel4693, 7 comments (r/Bitcoin) [body]
@@ -57,6 +43,19 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-07 [Idea for easy entropy](https://www.reddit.com/r/Bitcoin/comments/1vicfjn/idea_for_easy_entropy/) by rest_me123, 24 comments (r/Bitcoin) [topical]
 - 2026-08-07 [Anyone else planning on implementing their own elliptic curve geometry library after the cold card exploit?](https://www.reddit.com/r/Bitcoin/comments/1vi7boc/anyone_else_planning_on_implementing_their_own/) by very_bug_like, 9 comments (r/Bitcoin)
 - 2026-08-07 [Audio-based entropy wallet](https://bitcointalk.org/index.php?topic=5590622.0) by barrysty1e, 3 comments (bct/1) [topical]
+- 2026-08-08 [How to Set Up BTCPay Server Better After the Hack?](https://stacker.news/items/1543355) by Natalia, 14 comments (~bitcoin) [topical]
+- 2026-08-07 [Anzen: Bitcoin’s Self-Custody Trilemma - Luke Childs](https://stacker.news/items/1542747) by Scoresby, 3 comments (~bitcoin) [topical]
+- 2026-08-08 [So... Is anyone still staying?](https://www.reddit.com/r/coldcard/comments/1virqro/so_is_anyone_still_staying/) by sasankhatibi, 44 comments (r/coldcard) [body]
+- 2026-08-08 [Updating to new firmware](https://www.reddit.com/r/coldcard/comments/1viv2bm/updating_to_new_firmware/) by RichHomieWan, 10 comments (r/coldcard)
+- 2026-08-08 [You have to admit](https://www.reddit.com/r/coldcard/comments/1vizpea/you_have_to_admit/) by Familiar_Yak9343, 3 comments (r/coldcard)
+- 2026-08-08 [They just don’t get it! And it’s slowly eating away at their souls 🤣 Bitcoin was not hacked coldcard was therefore nothing is going to change lol](https://www.reddit.com/r/Bitcoin/comments/1vio4c4/they_just_dont_get_it_and_its_slowly_eating_away/) by BasedToru, 91 comments (r/Bitcoin)
+- 2026-08-08 [IBIT and BTC Do you own both?](https://www.reddit.com/r/Bitcoin/comments/1viwqaz/ibit_and_btc_do_you_own_both/) by warhol1978, 16 comments (r/Bitcoin) [body]
+- 2026-08-08 [To spilt up stack or keep everything in one place](https://www.reddit.com/r/Bitcoin/comments/1viwol8/to_spilt_up_stack_or_keep_everything_in_one_place/) by Wolf1088, 13 comments (r/Bitcoin) [body]
+- 2026-08-08 [Multi sig best practices](https://www.reddit.com/r/Bitcoin/comments/1vit8cg/multi_sig_best_practices/) by Newbie123plzhelp, 5 comments (r/Bitcoin) [body]
+- 2026-08-08 [Can I still use my CC?](https://www.reddit.com/r/Bitcoin/comments/1vit3be/can_i_still_use_my_cc/) by PrimeEXE, 24 comments (r/Bitcoin) [body]
+- 2026-08-08 [SeedSigner Hardware Wallet](https://www.reddit.com/r/Bitcoin/comments/1viomps/seedsigner_hardware_wallet/) by PlanNo3321, 11 comments (r/Bitcoin) [topical]
+- 2026-08-08 [Passphrase length](https://www.reddit.com/r/Bitcoin/comments/1viocw9/passphrase_length/) by Intelligent_Map_246, 22 comments (r/Bitcoin) [topical]
+- 2026-08-08 [Short-term impact of the Coldcard incident on Self-Custody](https://bitcointalk.org/index.php?topic=5590691.0) by Abiky, 26 comments (bct/1)
 
 ## Assessed
 
@@ -558,6 +557,22 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-07 [@BitPaine post (text available during approved intake)](https://x.com/BitPaine/status/2085703678753665421) (X @BitPaine) -> dismissed: personal token promotion, not a distinct incident claim (20260808T101136Z)
 - 2026-08-07 [@coinspect post (text available during approved intake)](https://x.com/coinspect/status/2085731488805331263) (X @coinspect) -> dismissed: commentary on the separate Ill Bloom weak-entropy case, not the COLDCARD incident (20260808T101136Z)
 
+
+- 2026-08-01 [CoinDesk: how bitcoin cold wallets lost $70 million in an attack that never touched the devices](https://www.coindesk.com/tech/2026/08/01/how-bitcoin-cold-wallets-lost-usd70-million-in-an-attack-that-never-touched-the-devices) (link review: cited by coldcard-hack-tracker) -> registered as coindesk-70m-no-device-touch (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report e568bed8](https://chainabuse.com/report/e568bed8-62f8-46b8-aae6-4d271c8d63e0) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-e568bed8 (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report d4c95fab](https://chainabuse.com/report/d4c95fab-ed8e-4749-ae81-9d42bfdab1cb) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-d4c95fab (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report 0f8d1d1c](https://chainabuse.com/report/0f8d1d1c-556b-40e6-a819-c91c153497aa) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-0f8d1d1c (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report 2727f906](https://chainabuse.com/report/2727f906-bf8f-4540-92e4-ad4fd5b59cbf) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-2727f906 (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report 6e9fa34a](https://chainabuse.com/report/6e9fa34a-6128-4b9b-9ef9-8cc4159b1935) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-6e9fa34a (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report 61e7b80a](https://chainabuse.com/report/61e7b80a-4ec6-42b4-a8b4-4cab1a29c9ac) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-61e7b80a (20260808T165710Z)
+- 2026-08-05 [Chainabuse victim report 6e9ac9f1](https://chainabuse.com/report/6e9ac9f1-61e5-49c5-947c-062afc70b73b) (link review: wave evidence cited by coldcard-hack-tracker) -> registered as chainabuse-6e9ac9f1 (20260808T165710Z)
+- 2026-08-05 [pastebin: confirmed addresses](https://pastebin.com/6AG9s0pP) (link review: wave-4 material, cited by coldcard-hack-tracker) -> already registered as intangiblecoins-wave4-confirmed-pastebin (20260808T165710Z)
+- 2026-08-05 [pastebin: mempool / RBF list](https://pastebin.com/zR5Wk2cz) (link review: wave-4 material, cited by coldcard-hack-tracker) -> already registered as intangiblecoins-wave4-pending-pastebin (20260808T165710Z)
+- 2026-08-07 [All attacks on Bitcoin are good](https://www.reddit.com/r/Bitcoin/comments/1vidcdf/all_attacks_on_bitcoin_are_good/) by arcrad, 78 comments (r/Bitcoin) [body] -> dismissed: general Bitcoin philosophy with no specific incident claim (20260808T165710Z)
+- 2026-08-07 [I Have A 12 Word Seed](https://www.reddit.com/r/Bitcoin/comments/1vifi09/i_have_a_12_word_seed/) by -reddit-online-, 9 comments (r/Bitcoin) [body] -> dismissed: personal passphrase question already represented by reddit-passphrase-extra-security (20260808T165710Z)
+- 2026-08-07 [Dice Rolls Saved Me, But…](https://www.reddit.com/r/Bitcoin/comments/1vie1vy/dice_rolls_saved_me_but/) by Large_Still_1224, 34 comments (r/Bitcoin) [topical] -> registered as reddit-dice-rolls-saved-seedsigner (20260808T165710Z)
+- 2026-08-07 [Fidelity?](https://www.reddit.com/r/Bitcoin/comments/1viahgq/fidelity/) by edtachi, 46 comments (r/Bitcoin) [body] -> dismissed: Fidelity custody question already represented by reddit-fidelity-custody-debate (20260808T165710Z)
+
 ## Link review, held for a human decision
 
 Empty as of 8 Aug 2026. The three candidates this section was holding (the
@@ -572,10 +587,12 @@ candidate ever need one.
 ## Deferred
 
 Queued, but held back from the agent: the title never names the incident and the thread has drawn almost no discussion. Nothing here is dismissed. Each line carries the last comment count its lane observed, and a lane promotes an entry to Pending by itself once the thread grows past 2 comments. To assess one now, move its line to Pending.
-- 2026-08-07 [Anzen: Bitcoin’s Self-Custody Trilemma - Luke Childs](https://stacker.news/items/1542747) by Scoresby, 1 comments (~bitcoin) [topical]
+- 2026-08-07 [“It’ll Be the Least of Your Problems”](https://www.reddit.com/r/Bitcoin/comments/1viack4/itll_be_the_least_of_your_problems/) by AppropriateTry9400, 2 comments (r/Bitcoin) [body]
+- 2026-08-08 [100BTC Bitcoin Challenge - Hackers Still Can't Touch It](https://stacker.news/items/1543351) by hasherstacker, 0 comments (~bitcoin) [topical]
 - 2026-08-08 [Undertaking TryHackMe's Hacker Holidays 2026 CTF daily challenge event. Day 01](https://stacker.news/items/1542896) by nichrome, 0 comments (~security) [topical]
 - 2026-08-07 [Wonder what more could be hidden](https://www.reddit.com/r/coldcard/comments/1viduvp/wonder_what_more_could_be_hidden/) by Intelligent_Map_246, 1 comments (r/coldcard)
+- 2026-08-08 [You can mix human entropy with hardware wallet entropy using a one time passphrase and BIP85](https://www.reddit.com/r/Bitcoin/comments/1vizful/you_can_mix_human_entropy_with_hardware_wallet/) by randbtcacct, 0 comments (r/Bitcoin) [topical]
+- 2026-08-08 [Creating your own seed by combining multiple sources of entropy - is this python script viable?](https://www.reddit.com/r/Bitcoin/comments/1vinwhe/creating_your_own_seed_by_combining_multiple/) by PatientKosong, 2 comments (r/Bitcoin) [topical]
 - 2026-08-07 [Your Hardware Wallet MUST Be Open Source [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vi3g4c/your_hardware_wallet_must_be_open_source_clip/) by Cryptoconomy, 0 comments (r/Bitcoin) [topical]
-- 2026-08-07 [“It’ll Be the Least of Your Problems”](https://www.reddit.com/r/Bitcoin/comments/1viack4/itll_be_the_least_of_your_problems/) by AppropriateTry9400, 2 comments (r/Bitcoin) [body]
 - 2026-08-07 [Is it hack season ?](https://www.reddit.com/r/Bitcoin/comments/1vi7b8q/is_it_hack_season/) by Ok-Pea4148, 2 comments (r/Bitcoin) [topical]
 - 2026-08-07 [In Case It Helps You Discover Better Entropy](https://www.reddit.com/r/Bitcoin/comments/1vho3dp/in_case_it_helps_you_discover_better_entropy/) by JuxtaposeLife, 1 comments (r/Bitcoin) [topical]
