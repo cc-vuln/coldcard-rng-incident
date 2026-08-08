@@ -1,0 +1,345 @@
+COLDCARD Security Status
+Fixed firmware is available. Existing affected seeds still require migration.
+Check status →
+Newsletter
+Blog
+OpResearch
+Careers
+Resellers
+Contact
+Store
+Security Disclosure History
+This page records public security research, coordinated disclosures,
+professional reviews, internal findings, and security advisories affecting
+COLDCARD. It is a chronology, not a count of independent vulnerabilities
+or a product score.
+For current product status and related company notices, start with the
+Security & Transparency directory.
+To report a new security issue, follow our
+responsible disclosure process.
+Do not publish sensitive findings before we have had a reasonable opportunity
+to investigate and protect users.
+23
+security-relevant events in this chronology
+12
+records with public evidence of coordinated disclosure
+2019–2026
+coverage through August 8, 2026
+How to read this history
+“Coordinated” means the public record shows advance private reporting,
+an embargo, or explicit coordination. “Professional audit” identifies a
+paid private review. “Credited fix” means a release note names a reporter
+but does not establish the disclosure process. Later physical research may
+overlap earlier work. “No public evidence” means none was found in the cited
+record; it does not prove that something never happened privately. “AI”
+identifies an AI-generated check that was reviewed privately by Coinkite.
+Coordinated
+Credited fix
+Vendor/internal
+Cross-wallet
+Overlap
+Incident/advisory
+AI
+2019
+January 28, 2019
+Coordinated
+Short-PIN MitM and rate-limit bypass
+An invasive interposer could falsify selected secure-element responses and bypass normal PIN-attempt delays, making short PINs brute-forceable. Bootrom 1.1.0 changed the success check to depend on a cryptographic response; Mk2 also hid the relevant signal under chips.
+Source: Coinkite advisory.
+Product or scope
+Mk1 security design; Mk2 added hardening
+Public status
+Hardened in bootrom 1.1.0 and the Mk2 PCB
+Reporter or discoverer
+Lazy Ninja
+August 7, 2019
+Coordinated
+OLED power side channel
+OLED row power consumption might reveal partial display contents through measurements on the device power supply. Firmware 2.1.2 masked PIN entry and added per-line noise while displaying seed words. No public theft evidence was found.
+Sources: Coinkite response and CVE-2019-14356.
+Product or scope
+Mk1/Mk2 before firmware 2.1.2
+Public status
+Mitigated in 2.1.2; practicality and severity disputed
+Reporter or discoverer
+Christian Reitter
+November 1, 2019
+Coordinated
+Change-path ransom
+A malicious coordinator could send wallet-controlled change to an unrestricted, deeply derived path that the owner could not practically reconstruct. Firmware 3.0.2 constrained and validated derivation paths. This was finding 1 of 2 in one coordinated report.
+Sources: researcher report, Coinkite response, and release history.
+Product or scope
+Firmware before 3.0.2
+Public status
+Fixed in firmware 3.0.2
+Reporter or discoverer
+sedited / TheCharlatan
+November 1, 2019
+Coordinated
+Receive-path display manipulation
+Integer parsing accepted whitespace and newlines while the original derivation-path string was displayed, allowing the true path tail to be hidden off-screen. Firmware 3.0.2 corrected the parsing and display path. This was finding 2 of 2 in the same coordinated report.
+Sources: researcher report and release history.
+Product or scope
+Firmware before 3.0.2
+Public status
+Fixed in firmware 3.0.2
+Reporter or discoverer
+sedited / TheCharlatan
+December 19, 2019
+Coordinated
+Multisig change-script parser confusion
+Appended script operations could make an attacker-controlled multisig output pass as wallet change. Firmware 3.0.6 simplified parsing and displayed all change outputs. Coinkite reported no evidence of exploitation.
+Sources: Coinkite advisory, proof of concept, and patch.
+Product or scope
+Multisig signing before firmware 3.0.6
+Public status
+Fixed in firmware 3.0.6
+Reporter or discoverer
+Dmitry Petukhov
+2020
+February 27, 2020
+Credited fix
+“Trust PSBT” setting ignored
+The “Trust PSBT” setting for multisig wallets was ignored. The public release history records the fix and reporter, but does not provide a technical report, impact analysis, or public coordination timeline.
+Source: Mk3 release history.
+Product or scope
+Multisig workflow before firmware 3.1.2
+Public status
+Fixed in firmware 3.1.2
+Reporter or discoverer
+CasaHODL, as credited in release history
+May 12, 2020
+Coordinated
+Factory-reset supply-chain path
+Modified firmware could clear the main PIN and restore the visible virgin-device flow while retaining the bag number, allowing a tampered unit to appear unused. Coinkite emphasized firmware verification and first-use checks. The researcher says Coinkite acknowledged the report and allowed publication.
+Source: researcher report. The historical vendor-response permalink is no longer available.
+Product or scope
+Then-current Mk2/Mk3 bootloader and first-use state
+Public status
+Mitigation disputed; no retrofit to the immutable bootloader
+Reporter or discoverer
+sedited / TheCharlatan
+May 18, 2020
+Coordinated
+Mk2 ATECC508A laser fault and PIN recovery
+Invasive laser fault injection could read a protected ATECC508A slot. Combined with MCU-held material, it enabled PIN recovery. The attack was demonstrated in a specialist lab; no public theft evidence was found.
+Sources: Ledger disclosure, technical report, and Coinkite response.
+Product or scope
+Mk1/Mk2; the exact attack did not carry over unchanged to Mk3
+Public status
+No Mk1/Mk2 retrofit; Mk3 had already changed secure element
+Reporter or discoverer
+Ledger Donjon
+June 3–12, 2020
+Cross-wallet
+BIP-143 input-amount and replay class
+A malicious PSBT and signing sequence could present misleading input amounts and redirect value to miner fees. Coinkite says it received no advance notice. No public COLDCARD loss evidence was found.
+Sources: Coinkite analysis and Mk3 release history.
+Product or scope
+Cross-wallet SegWit signing flows
+Public status
+Reported attack class blocked in firmware 3.1.4
+Reporter or discoverer
+Public cross-wallet research; no advance notice to Coinkite documented
+July 3, 2020
+Credited fix
+Scrambled keypad not re-scrambled after login delay
+The PIN-entry sequence was not re-scrambled after the forced delay completed. Firmware 3.1.4 fixed the issue and also changed scrambling between the PIN prefix and suffix. No public proof of concept or exploitation evidence was found.
+Source: Mk3 release history.
+Product or scope
+Firmware before 3.1.4 with scrambled keypad and login delay
+Public status
+Fixed in firmware 3.1.4
+Reporter or discoverer
+Anonymous customer
+November 24, 2020
+Coordinated
+Testnet/mainnet isolation bypass
+A real mainnet spend could be shown and signed while the device was operating in testnet mode. The issue was reported privately on August 4, followed by an agreed 90-day embargo. Firmware 3.2.1 moved testnet into the Danger Zone with an explicit warning.
+Sources: researcher report and timeline and Coinkite response.
+Product or scope
+Firmware through 3.1.9
+Public status
+Fixed in firmware 3.2.1
+Reporter or discoverer
+Marko Bencun / Shift Crypto
+2021
+February 9, 2021
+Coordinated
+Multisig xpub substitution
+COLDCARD did not require one registered xpub to belong to itself, so a compromised coordinator could substitute attacker-controlled xpubs while presenting a seemingly verified wallet. The issue was reported privately on November 7, 2020 and fixed before publication.
+Sources: researcher report and Coinkite advisory.
+Product or scope
+Multisig registration through firmware 3.1.9
+Public status
+Fixed in firmware 3.2.1
+Reporter or discoverer
+Hugo Nguyen and Marko Bencun / Shift Crypto
+March 17–29, 2021
+Vendor note
+USB serial REPL enabled in unreleased v4.0.0
+Firmware 4.0.0 initialized the USB virtual serial-port gate, ckcc_vcp_enabled, to true. After a successful login enabled the normal VCP+HID USB stack, a connected test host could send Control-C, interrupt the user interface, and enter the MicroPython REPL. That provided firmware-level Python access and could expose secrets available to the running firmware. The same incorrect debug-state flag could make the fatal-error handler treat a production session as a debug session and skip its normal secure logout.
+Firmware 4.0.1 moved the flag to zero-initialized storage, making the serial REPL disabled by default and available only after an explicit developer action. The fatal-error function was relocated without a material logic change; the rest of the source delta was release metadata and minor cleanup.
+Version 4.0.0 was built, signed, and tested internally, but its binary was never released publicly. The contemporaneous signing manifest records that internal build and does not indicate public distribution. Firmware 4.0.1 was the first public 4.x binary, so public users were not exposed to this regression.
+Sources: Mk3 release history, 4.0.0–4.0.1 source comparison, 4.0.1 fix commit, historical signing manifest, and public binary archive.
+Product or scope
+Internally built and tested Mk2/Mk3 firmware 4.0.0; 3.x unaffected
+Public status
+Corrected in 4.0.1, the first publicly released 4.x binary
+Reporter or discoverer
+Coinkite internal review; individual not publicly identified
+2021
+Coordinated
+Mk3 ATECC608A double-laser plus MCU extraction chain
+Two laser faults could read protected ATECC608A slot material. Recovering the wallet seed also required a separate successful attack on the STM32 MCU secret. The work was a specialist laboratory demonstration and was disclosed to Coinkite and Microchip with a long lead time.
+Sources: SSTIC paper and research retrospective.
+Product or scope
+Mk3 using ATECC608A and STM32L496
+Public status
+No Mk3 retrofit; Mk4 later split material across three chips
+Reporter or discoverer
+Olivier Hériveaux / Ledger Donjon
+2022
+March 1–14, 2022
+Professional audit
+Mk4 pre-release PIN and entropy hardening review
+A paid private review examined SE2-backed PIN derivation, PIN-attempt rate limiting, MCU firewall coverage, and random-number generation. During the review, the PIN derivation was tied to an SE2 secret and its secure-element work was iterated to impose about one second of delay per full PIN attempt.
+The runtime random-number generator was also seeded with authenticated entropy from both secure elements. The team tested the MCU flash aliases and concluded that the configured firewall covered both mappings. Further suggestions—including a persistent MCU-side failed-attempt counter, asymmetric secure-element keys in PIN derivation, and additional bootloader RNG conditioning and reseed hooks—were recorded as defense in depth; the public firmware history does not show that all were adopted.
+Sources: private paid review correspondence, corroborated by the public firmware commits for SE2 PIN hashing, one-second key stretching, and secure-element RNG seeding; first shipped in Mk4 firmware 5.0.0.
+Product or scope
+Mk4 bootloader and firmware before the first public Mk4 release
+Public status
+Key recommendations adopted before firmware 5.0.0; other defense-in-depth suggestions remained advisory
+Reporter or discoverer
+Lazy Ninja
+July 29, 2022
+Vendor/internal
+Virtual Disk PSRAM wraparound
+An 8196-byte boundary was used where 8192 bytes was intended, exposing four extra 512-byte blocks that wrapped to the bottom of PSRAM, where a PSBT could be stored. Coinkite found no exploit and left Virtual Disk disabled by default.
+Source: Coinkite release and analysis.
+Product or scope
+Mk4 Virtual Disk before firmware 5.0.6; older devices unaffected
+Public status
+Fixed and hardened in 5.0.6; no exploit found
+Reporter or discoverer
+Coinkite internal review
+2023
+2023
+Coordinated / overlap
+Practical full Mk3 laser chain
+Ledger Donjon applied the secure-element and MCU attack chain to complete devices. This is a later practical result from the 2021 research line, not a wholly independent vulnerability. Mk4's two-vendor, three-chip architecture changed the relevant trust model but did not retrofit Mk3.
+Source: Hardwear.io presentation.
+Product or scope
+Complete Mk3 challenge units
+Public status
+One of three challenge-wallet seeds recovered in a specialist lab
+Reporter or discoverer
+Ledger Donjon
+September 2023
+Coordinated
+Mk4 SE2 DS28C36 double-laser readout
+Double laser faults bypassed read protection for part of the chip's EEPROM, exposing some SE2-held material. A complete master-seed compromise was not demonstrated because Mk4 requires material from SE1, SE2, and the MCU. The work was coordinated with Coinkite and the chip vendor.
+Sources: IACR paper and Coinkite response.
+Product or scope
+DS28C36 used as SE2 in Mk4
+Public status
+Partial material exposed; no complete seed recovery demonstrated
+Reporter or discoverer
+Karim M. Abdellatif and Olivier Hériveaux / Ledger Donjon
+2024
+December 18, 2024
+Credited fix
+Edge policy deserialization availability bug
+A policy with key placeholders not strictly ascending could be serialized into a form that failed to deserialize, preventing later use of the affected Miniscript wallet. Coinkite said backups remained correct, but the failure could block wallet use until corrected.
+Source: Coinkite advisory.
+Product or scope
+Edge 6.2.2X, 6.3.3X, and 6.3.3QX
+Public status
+Fixed in 6.3.4X and 6.3.4QX; funds not endangered
+Reporter or discoverer
+pythcoiner and the Liana team
+2025
+September 29–30, 2025
+Coordinated
+Delta PIN private-key recovery from two signatures
+Nathan Landon reported that the Delta PIN implementation allowed full private-key recovery from two transaction signatures because it repeatedly signed a fixed digest. Coinkite reviewed the report and published a patch later that day, making the intentionally corrupted digest transaction-dependent; Landon confirmed that the change significantly reduced the reported risk. The fix shipped in releases published the following day. A complete public affected-model and version matrix was not found.
+Sources: private disclosure correspondence dated September 29, 2025; initial researcher advisory, updated disclosure, and same-day firmware patch.
+Product or scope
+Publicly confirmed patch in Mk4/Mk5 and Q release families
+Public status
+Patched in firmware 5.4.4 and 1.3.4Q
+Reporter or discoverer
+Nathan Landon / Karma-X
+2026
+May 1–June 26, 2026
+AI
+AI-assisted firmware review
+An enterprise AI review produced 85 candidate findings: 8 high, 37 medium, 20 low, and 20 informational. Coinkite manually reviewed each result. The high group was mostly false positives, intended behavior, documented trade-offs, or unreachable paths, but it also identified an overstated CCC velocity edge case that received a defensive floor fix and a real Delta Mode path that could expose a Seed Vault value through Seed XOR; guards were added across the affected flows.
+The hobbled-mode WIF export claim recorded separately at the start of the review was finding 5 in the same high-severity set, not a second study. It was closed as a false positive: when the SSSP related-keys option is enabled, hobbled mode intentionally permits read-only viewing, export, and signing with previously stored WIFs while blocking import, deletion, and clearing. Stored WIFs are independent of the master seed, and the policy can exclude related-key access.
+The medium and low groups yielded numerous crash, validation, state-handling, display, and defensive-hardening fixes across CCC/SSSP, signing, Seed XOR, Key Teleport, PSBT handling, QR, USB, NFC, and WIF Store. The internal review did not classify those groups as security vulnerabilities. By June 26, all generated items had been fixed, rejected, accepted as design choices, or tracked elsewhere, and the review was closed.
+Sources: private internal review conducted May 1–June 26, 2026, and firmware commit 9b131b2. The private issues, AI finding links, internal pull requests, and reviewer identities are not publicly linked.
+Product or scope
+Firmware around commit 9b131b2, including CCC/SSSP, Delta Mode, WIF Store, signing, QR, USB, and NFC flows
+Public status
+85 findings triaged; confirmed issues fixed or tracked; review closed June 26
+Reporter or discoverer
+AI-generated check, reviewed internally by Coinkite
+July 1, 2026
+Credited fix
+Legacy input-amount spoofing
+Witness-UTXO-only PSBT data could be used where COLDCARD expected to sign a non-SegWit input, creating an input-amount spoofing boundary. No public proof of concept, loss report, or coordination timeline was found.
+Sources: Mk4/Mk5 release history and Q release history.
+Product or scope
+Mk4/Mk5 before 5.5.1 and Q before 1.4.1Q, based on fix placement
+Public status
+Fixed in firmware 5.5.1 and 1.4.1Q
+Reporter or discoverer
+Damir, as credited in release notes
+July 30, 2026
+Incident/advisory
+Seed-generation RNG weakness and theft incident
+During the 2021 libNgU migration, the seed-generation path resolved rng_get() to MicroPython’s Yasmarang software PRNG implementation instead of COLDCARD’s intended board-specific hardware TRNG path. This was a build-integration and symbol-resolution defect, not an intentional runtime fallback: the hardware RNG did not fail and trigger a weaker source. Updating corrects future seed generation but does not repair an existing affected seed.
+MicroPython added that software implementation upstream in May 2018 for general runtime use on boards without an enabled hardware RNG. It entered COLDCARD seed generation with the March 2021 libNgU migration.
+Block traces the implementation to the v4.0.0 source lineage. Coinkite did not release v4.0.0 publicly as a signed firmware binary; the first public signed release in that series was v4.0.1. The affected-user range therefore begins at v4.0.1.
+Sources: Coinkite advisory, technical backgrounder, upstream MicroPython implementation, COLDCARD build configuration, libNgU guard, Block analysis, and public binary archive.
+Product or scope
+Mk2/Mk3 4.0.1–4.1.9; Mk4/Mk5 before 5.6.0 or Edge 6.6.0X; Q before 1.5.0Q or Edge 6.6.0QX
+Public status
+Fixed in Mk2/Mk3 4.2.0, Mk4/Mk5 5.6.0 or Edge 6.6.0X, and Q 1.5.0Q or Edge 6.6.0QX; existing affected seeds require migration
+Reporter or discoverer
+Public incident investigation
+What these counts mean
+The 23 entries include coordinated reports, a paid professional review, internal findings, an internally reviewed AI check, cross-wallet
+research, release-note fixes, an overlapping physical-research result, and
+an incident. The 12 coordinated disclosure records use the narrower test of
+public evidence for advance reporting, an embargo, or explicit coordination.
+Two findings share one 2019 report.
+Raw event counts should not be used to compare hardware wallets. Older,
+open, and heavily researched products tend to accumulate more public findings.
+Impact, affected versions, exploit prerequisites, remediation, disclosure
+quality, and architecture changes matter more.
+Last updated: August 4, 2026.
+Made with by Coinkite
+View store
+Products
+Opendime
+Seedplate
+Blockclock
+Support
+Security & Transparency
+Responsible Disclosure
+Terms of Sale
+Terms of Use
+Privacy Policy
+Media Kit
+White Paper
+Copyright © 2026 Coinkite Inc. All rights reserved.
+support@coinkite.com
+×
+Home
+Blog
+OpResearch
+Security & Transparency
+Careers
+Contact
+Store

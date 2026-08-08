@@ -1,0 +1,82 @@
+--- coinkite-backgrounder@20260804T170532Z
++++ coinkite-backgrounder@20260808T145400Z
+@@ -16,6 +16,10 @@
+ Technical Deep Dive into the Entropy Issue
+ Published Jul 30, 2026
+ Categories: ckcc
++Updated August 8, 2026 at 10:12 a.m. EDT: Clarified that the phrase
++“software fallback” refers to an upstream MicroPython implementation selected
++during the build. COLDCARD did not intentionally design a runtime fallback from
++its hardware RNG to a weaker source for wallet seed generation.
+ Updated August 1, 2026 at 2:35 p.m. EDT: Funds controlled by seeds generated
+ on affected firmware are at risk if the seed was created without at least 50
+ independent, private dice rolls and the funded wallet is not protected by a
+@@ -100,7 +104,33 @@
+ The cryptographic choice was sound. The integration was not. During that
+ migration, wallet seed generation moved from ckcc.rng_bytes() to
+ ngu.random.bytes(). That path resolved rng_get() to MicroPython’s software
+-fallback instead of COLDCARD’s hardware RNG implementation.
++PRNG implementation instead of COLDCARD’s hardware RNG implementation.
++What “fallback” means here
++Some reports describe the issue as a weak-entropy fallback. That is reasonable
++shorthand for the upstream implementation that was selected, but it can imply
++an intentional COLDCARD failover that did not exist. The seed-generation path
++did not try the hardware TRNG, detect a failure, and then switch to weaker
++software at runtime.
++MicroPython’s STM32 port provides two compile-time implementations of
++rng_get(): a hardware implementation when the hardware RNG feature is
++enabled, and a Yasmarang software PRNG for general runtime needs on boards
++without that feature. The software implementation was added
++upstream in May
++It was not created by Coinkite as a cryptographic backup for wallet seed
++generation.
++COLDCARD’s design intended ngu.random.bytes() to obtain seed entropy through
++libNgU from the board-specific hardware TRNG path only. We set
++MICROPY_HW_ENABLE_RNG to zero
++intending to disable MicroPython’s RNG facility. But libNgU’s
++guard
++used #ifndef, which tested whether the macro existed rather than whether its
++value was nonzero. Because the macro existed with a value of zero, the guard
++passed. MicroPython compiled its software rng_get(), and libNgU’s call
++resolved to that implementation.
++This was a build-integration and symbol-resolution defect, not an intentional
++runtime fallback policy. That distinction does not change the risk to affected
++seeds; it explains where the failure occurred and what the fixed build now
++prevents.
+ The bulk of randomness on the COLDCARD was coming from a
+ PRNG
+ that I didn’t know was actually in the source code base (it is from a
+@@ -127,7 +157,7 @@
+ that code provided a PRNG with the same function signature as
+ the desired code, the build completed without identifying the wrong
+ implementation.
+-The MicroPython fallback was
++The MicroPython software implementation was
+ introduced upstream in May
+ 2018.
+ It did not enter COLDCARD wallet seed generation until the
+@@ -135,8 +165,8 @@
+ 2021.
+ The affected Mk2 and Mk3 firmware range is 4.0.1 through 4.1.9. Version 4.2.0
+ corrects new seed generation. The eight-year figure therefore describes the
+-age of the upstream fallback code, not the duration of affected COLDCARD seed
+-generation.
++age of the upstream software implementation, not the duration of affected
++COLDCARD seed generation.
+ Existing review confirmed that the intended TRNG implementation was present in
+ the firmware binary, but did not verify which rng_get() implementation the
+ wallet seed-generation path actually reached across the two submodules. No
+@@ -152,10 +182,10 @@
+ The guard used #ifndef, which tests whether MICROPY_HW_ENABLE_RNG is
+ defined, rather than whether its value is nonzero. We defined that macro as
+ zero, so the #error did not stop the build.
+-The hotfix now explicitly excludes MicroPython’s fallback PRNG object and adds
++The hotfix now explicitly excludes MicroPython’s software PRNG object and adds
+ a build-time RNG symbol check. The build fails unless the board-specific object
+-defines the global rng_get() symbol and the upstream fallback object defines
+-no symbols.
++defines the global rng_get() symbol and the upstream software PRNG object
++defines no symbols.
+ Next Steps
+ We have released emergency hotfixes for every affected model and release
+ track:

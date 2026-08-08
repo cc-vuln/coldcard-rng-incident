@@ -1,0 +1,165 @@
+post: 1vhu1e7
+author: Skinny_Human
+created_utc: 1786088493
+title: How easy is it to make a serious mistake when generate your own 24-word BIP39 seed, even if follow proper instructions?
+body:
+Recent events have made me reluctant to rely entirely on hardware-wallet entropy, so I’m going to use five precision casino dice instead.
+
+For those who have done it, what are the most common ways people get it wrong and what advice do you have for someone doing it for the first time?!
+
+EDIT: Sorry for the typos I wasn’t wearing my glasses!! 
+
+comment: p281fax
+parent: t3_1vhu1e7
+author: Jayrovers86
+created_utc: 1786088851
+edited: false
+body:
+Well thank fuck they are precision dice and not just regular dice. Phew!
+
+comment: p282ei2
+parent: t1_p281fax
+author: Effective_Savings769
+created_utc: 1786089331
+edited: false
+body:
+precision dice is a good call but the real trap is the checksum word, not the dice part. most people dont realize the last word isnt fully random and if you just roll all 24 words you'll get an invalid seed like half the time
+
+comment: p28377m
+parent: t3_1vhu1e7
+author: Background-Air-Red
+created_utc: 1786089727
+edited: false
+body:
+Hardest part isn't the dice, it's not messing up when you copy the words to paper. Double check every single word against the BIP39 list
+
+comment: p283pyq
+parent: t3_1vhu1e7
+author: PoeCollector
+created_utc: 1786089986
+edited: 1786090246
+body:
+It's actually a pretty forgiving method, even if the dice are imperfect or you make one or two mistakes (like reading the wrong word or doing the math wrong in the binary method) the entropy level will still be insanely high, which is all that matters. 
+
+There are several methods, from rolling 99 dice, to rolling 5 dice + 1 coin flip per word, all the way up to rolling 256 dice (see my recent post), but they're all solid. 
+
+The only gotcha I can think of is getting the 24th word without leaking your seed. I prefer to use a hardware wallet that can suggest the 24th word after I enter the others. 
+
+EDIT: I guess my rolling tip is to give the dice a couple of hard shakes in a glass or a coffee mug. They'll bounce around like crazy and will be sufficiently random. Then you can just dump the cup on the desk.
+
+comment: p28as6a
+parent: t1_p281fax
+author: Skinny_Human
+created_utc: 1786093450
+edited: false
+body:
+Yes, because when generating cryptographic entropy, minimising physical bias in the entropy source is clearly absurd. Ordinary dice would almost certainly be adequate, but precision dice cost very little and remove one unnecessary variable. Security is about reducing avoidable assumptions, not proving how little effort you can get away with. Phew!
+
+comment: p28bdjf
+parent: t3_1vhu1e7
+author: ghosthacked
+created_utc: 1786093741
+edited: false
+body:
+Ways to fuck up:
+Rolling dice on a smooth surface so they don't bounce around. 
+
+Decididing you don't like the word(s) so you just pick some from the list (reduces entropy, humans suck and being random) 
+
+How not to fuck up:
+Follow the instructions. 
+
+Roll them on something grippy so they bounce around before settling.  Felt,  carpet, rubber Matt,  tool drawer liner...
+
+
+Other than that I can't think of a way to fuck it up if you have a decent guide to follow and a room temperature iq or better. 
+
+comment: p28btgr
+parent: t1_p283pyq
+author: Skinny_Human
+created_utc: 1786093955
+edited: false
+body:
+Hey I never thought of this, thanks that’s really useful, that’s exactly what I will do 
+
+comment: p28bx4k
+parent: t1_p28bdjf
+author: Skinny_Human
+created_utc: 1786094004
+edited: 1786094196
+body:
+‘Room temperature IQ’ 😝
+
+That’s me fucked then
+
+comment: p293w0b
+parent: t3_1vhu1e7
+author: GoldmezAddams
+created_utc: 1786105452
+edited: false
+body:
+The easiest way to footgun and the way this would "usually" go wrong is by not adding enough dice rolls. 100+.
+
+The other big question is how exactly are you converting the dice rolls into the seed? Using someone else's script on an offline computer? Doing it yourself? Using a diceware sheet? Using Coinkite hardware? I think the way you actually turn the entropy into a seed deserves careful consideration for all of the trust implications and footguns it could be hiding.
+
+And of course, recording and safely storing your seed gets a surprising amount of people.
+
+I don't think this is at all a difficult task for a moderately technical user that's done, like, a weekend of research and set up bitcoin wallets before. But do exercise an amount of care appropriate to whatever amount of funds this would be securing.
+
+comment: p29rhy2
+parent: t3_1vhu1e7
+author: tribepride25
+created_utc: 1786112410
+edited: false
+body:
+Easy as 123
+
+comment: p2a6y9o
+parent: t3_1vhu1e7
+author: user_name_checks_out
+created_utc: 1786116491
+edited: false
+body:
+For starters, 12 words is enough. 24 words just creates more opportunity for error, with no added benefit.
+
+comment: p2a8dfl
+parent: t1_p2a6y9o
+author: Skinny_Human
+created_utc: 1786116858
+edited: false
+body:
+But 24 words objectively provides more entropy
+
+comment: p2bsfis
+parent: t3_1vhu1e7
+author: Beaesse
+created_utc: 1786131314
+edited: false
+body:
+Everyone is going completely mental with all the recent 'entropy' posts. Absolutely insane.
+
+Being able to detect some kind of statistical bias between one roll and the next _from a complete/known dataset_ because of some dice imperfection, insufficient shaking or bouncing or "throw height" or WHATEVER insane ideas people are talking seriously about is one thing, but an algorithm being able to guess the outcome from scratch based on any of those things is a completely different universe of probability discussion.
+
+Being able calculate "not very random" from a complete dataset, IE seeing that your rolls led to a [Number+offset] result once every 5.847 rolls instead of every 6 rolls because you didn't roll "good enough" does not in any remotely meaningful way whatsoever help an algorithm guess your specific outcome, even if it DID know your particular "defect," which it doesn't, and can't.
+
+These recent hacks are happening because the attacker knows the _exact algorithm_ that was used to create a very, very, very narrow range of possible SPECIFIC sequences, NOT because anyone didn't roll their dice right.
+
+I sympathize with anyone who has any form of spectrum disorder that's causing this kind of hyper-fixation, but exactly how you roll any given dice absolutely will not result in any degree of "insufficient entropy" that would make your phrase any more meaningfully vulnerable to attack. 
+
+comment: p2fkmo4
+parent: t1_p28bx4k
+author: TechnologyGrouchy679
+created_utc: 1786181975
+edited: false
+body:
+in Celsius or Fahrenheit?
+
+comment: p2fl2dz
+parent: t1_p2fkmo4
+author: Skinny_Human
+created_utc: 1786182202
+edited: false
+body:
+Celsius of course!!
+
+*continues licking window of bus*

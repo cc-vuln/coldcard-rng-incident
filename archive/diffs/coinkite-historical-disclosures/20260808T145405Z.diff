@@ -1,0 +1,59 @@
+--- coinkite-historical-disclosures@20260805T030223Z
++++ coinkite-historical-disclosures@20260808T145405Z
+@@ -1,6 +1,6 @@
+-COLDCARD Security Advisory
+-Seeds generated on firmware 4.0.1 (2021 or later) are at risk.
+-Read advisory →
++COLDCARD Security Status
++Fixed firmware is available. Existing affected seeds still require migration.
++Check status →
+ Newsletter
+ Blog
+ OpResearch
+@@ -13,6 +13,8 @@
+ professional reviews, internal findings, and security advisories affecting
+ COLDCARD. It is a chronology, not a count of independent vulnerabilities
+ or a product score.
++For current product status and related company notices, start with the
++Security & Transparency directory.
+ To report a new security issue, follow our
+ responsible disclosure process.
+ Do not publish sensitive findings before we have had a reasonable opportunity
+@@ -22,7 +24,7 @@
+ 12
+ records with public evidence of coordinated disclosure
+ 2019–2026
+-coverage through August 4, 2026
++coverage through August 8, 2026
+ How to read this history
+ “Coordinated” means the public record shows advance private reporting,
+ an embargo, or explicit coordination. “Professional audit” identifies a
+@@ -296,9 +298,10 @@
+ July 30, 2026
+ Incident/advisory
+ Seed-generation RNG weakness and theft incident
+-A random-byte fallback introduced during a library migration provided very weak entropy for device-generated seeds. Updating corrects future seed generation but does not repair an existing affected seed.
++During the 2021 libNgU migration, the seed-generation path resolved rng_get() to MicroPython’s Yasmarang software PRNG implementation instead of COLDCARD’s intended board-specific hardware TRNG path. This was a build-integration and symbol-resolution defect, not an intentional runtime fallback: the hardware RNG did not fail and trigger a weaker source. Updating corrects future seed generation but does not repair an existing affected seed.
++MicroPython added that software implementation upstream in May 2018 for general runtime use on boards without an enabled hardware RNG. It entered COLDCARD seed generation with the March 2021 libNgU migration.
+ Block traces the implementation to the v4.0.0 source lineage. Coinkite did not release v4.0.0 publicly as a signed firmware binary; the first public signed release in that series was v4.0.1. The affected-user range therefore begins at v4.0.1.
+-Sources: Coinkite advisory, technical backgrounder, Block, and public binary archive.
++Sources: Coinkite advisory, technical backgrounder, upstream MicroPython implementation, COLDCARD build configuration, libNgU guard, Block analysis, and public binary archive.
+ Product or scope
+ Mk2/Mk3 4.0.1–4.1.9; Mk4/Mk5 before 5.6.0 or Edge 6.6.0X; Q before 1.5.0Q or Edge 6.6.0QX
+ Public status
+@@ -323,6 +326,7 @@
+ Seedplate
+ Blockclock
+ Support
++Security & Transparency
+ Responsible Disclosure
+ Terms of Sale
+ Terms of Use
+@@ -335,6 +339,7 @@
+ Home
+ Blog
+ OpResearch
++Security & Transparency
+ Careers
+ Contact
+ Store

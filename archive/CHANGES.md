@@ -1836,3 +1836,68 @@
 - ncfacanada-self-custody-commentary  +6 -6
 - newsbitcom-class-action-threat  +21 -21
 - clay-attribution  +157 -9
+
+## 20260808T115333Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+
+## 20260808T125339Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260808T135349Z
+
+- coldcard-downloads  +10 -7
+- coldcard-hack-tracker  +0 -8
+
+## 20260808T145359Z
+
+- coinkite-backgrounder  +37 -7
+- coinkite-blog-index  +1 -1
+- coinkite-historical-disclosures  +11 -6
+- coldcard-hack-tracker  +8 -0
+- coinkite-terms  +5 -3
+- reddit-ai-discovery-thread  +9 -9
+- reddit-do-not-dispose-device  +8 -0
+- reddit-device-useful-if-company-closes  +16 -0
+- reddit-shipments-halted-relay  +42 -0
+- reddit-coinkite-next-steps  +20 -2
+- reddit-coinkite-solvency-class-action  +22 -0
+- reddit-5-13-btc-loss  +34 -0
+- reddit-cash-out-forensics-question  +8 -0
+- reddit-fourth-wave-389-btc  +0 -8
+- reddit-passphrase-vulnerable-question  +8 -0
+- reddit-secure-btc-after-incident  +0 -8
+- bitcointalk-large-scale-compromise-thread  +232 -42
+- reddit-im-out  +2 -11
+- reddit-hacker-still-progressing  +12 -26
+- blockchainunmasked-prior-warning  +2 -2
+- reddit-coldcard-misinformation-warning  +2 -2
+- reddit-dice-rollers-response  +8 -0
+- reddit-attacker-execution-critique  +9 -9
+- reddit-mk3-seed-entropy-worse  +8 -0
+- opensats-code-red  +2 -0
+- reddit-fake-trezor-google-ad  +78 -10
+- reddit-dice-bias-1200-rolls  +25 -0
+- reddit-dice-seed-mistakes  +18 -0
+- reddit-fidelity-custody-debate  +76 -0
+
+## 20260808T155413Z
+
+- coinkite-backgrounder  +24 -37
+- coinkite-blog-index  +1 -1
+- coldcard-hack-tracker  +11 -3
+
+## 20260808T162418Z
+
+- checkonchain-coldcard-psa  +2 -2
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +28 -28
+- stackernews-dice-worksheet  +7 -0
+- stackernews-2023-hww-paranoia  +7 -7
+- trustwallet-wasm-update  +0 -9
+- clay-attribution  +1 -85
+
+## 20260808T165424Z
+
+- cktripwire-honeypot-monitor  +23 -23

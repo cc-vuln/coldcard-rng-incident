@@ -1,0 +1,92 @@
+--- cktripwire-honeypot-monitor@20260808T012305Z
++++ cktripwire-honeypot-monitor@20260808T165543Z
+@@ -15,15 +15,21 @@
+ track which ones an attacker sweeps and how fast. This maps the frontier of what
+ coins are being confiscated. Read the methodology →
+ honeypots19
+-live16
+-swept3
++live14
++swept5
+ value exposed~0.01 BTC
+ fastest sweep2m
+-frontier-
++frontier~5 bits ^
+ recent activity last 5 events
+ time (utc)
+ event
+ difficulty
++2026-08-08 16:44
++honeypot swept HP-2C6F
++low (dice)
++2026-08-08 16:43
++honeypot swept HP-10ED
++low (dice)
+ 2026-08-08 00:09
+ honeypot funded HP-E736
+ trivial
+@@ -33,12 +39,6 @@
+ 2026-08-07 19:31
+ honeypot swept HP-5F1D
+ trivial
+-2026-08-06 01:54
+-honeypot funded HP-2C6F
+-low (dice)
+-2026-08-05 23:02
+-honeypot funded HP-ADA6
+-3-of-3 multisig
+ honeypots
+ handle
+ device
+@@ -68,27 +68,27 @@
+ ~2 min
+ SWEPT
+ swept in 1h18m
++HP-696E
++mk3 v4
++low (dice)
++5
++~66 min
++LIVE
++live <elapsed>
+ HP-10ED
+ mk3 v4
+ low (dice)
+ 5
+ ~66 min
+-LIVE
+-live <elapsed>
++SWEPT
++swept in 3d15h38m
+ HP-2C6F
+ mk3 v4
+ low (dice)
+ 5
+ ~66 min
+-LIVE
+-live <elapsed>
+-HP-696E
+-mk3 v4
+-low (dice)
+-5
+-~66 min
+-LIVE
+-live <elapsed>
++SWEPT
++swept in 2d14h49m
+ HP-9C4F
+ mk3 v4
+ low (pass)
+@@ -188,9 +188,9 @@
+ 2
+ low
+ 7
+-0
+--
+-7
++2
++2d14h49m
++5
+ mid (pass)
+ 1
+ 0

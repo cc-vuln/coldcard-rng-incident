@@ -1,0 +1,16 @@
+--- stackernews-dice-worksheet@20260807T142540Z
++++ stackernews-dice-worksheet@20260808T162832Z
+@@ -37,6 +37,13 @@
+             "user": {
+               "name": "DarthCoin"
+             }
++          },
++          {
++            "createdAt": "2026-08-08T12:49:56.682Z",
++            "text": "There is a real logic gap in Step 4. The final word is **not only a checksum calculated from the earlier words**.\n\nFor a 12-word BIP-39 phrase, words 1–11 provide 121 entropy bits. Word 12 contains **7 more entropy bits + 4 checksum bits**, so the first 11 words admit 128 different valid final words. For 24 words, word 24 contains **3 entropy bits + 8 checksum bits**, leaving 8 valid final words after words 1–23.\n\nThat matters to the guide’s central claim that the entropy comes from dice alone. If the hardware wallet/tool chooses a valid last word randomly, part of the entropy comes from that tool’s RNG. If it always chooses one deterministically, the phrase has 121/253 dice-derived bits rather than the intended 128/256.\n\nI would change the worksheet so the user also generates the remaining 7 bits (12 words) or 3 bits (24 words) with an unbiased dice-to-bit step, then uses the offline tool only to append/verify the checksum. A tiny diagram — **121 dice bits | 7 dice bits | 4 checksum bits** — would make this click immediately.\n\nThe rejection layout for selecting the first 11/23 words looks clear and unbiased; this final-word step is the one substantive hole I see. I’d also add a final wipe/restore + matching receive-address check before meaningful funds.\n\nCanonical bit-length table: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki",
++            "user": {
++              "name": "quickscan"
++            }
+           }
+         ]
+       },

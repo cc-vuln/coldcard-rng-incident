@@ -1,0 +1,198 @@
+This website utilizes technologies such as cookies to enable essential site functionality, as well as for analytics, personalization, and targeted advertising. You may change your settings at any time or accept the default settings. You may close this banner to continue with only essential cookies. Privacy Policy
+
+Storage Preferences
+
+Targeted Advertising
+Personalization
+Analytics
+Save
+Accept All
+Reject Non-Essential
+
+Check addresses, URLs, IPs, emails, phones, or keywords
+
+Got Scammed?
+Safety Support Center
+API Docs
+Become a Partner
+We'll never ask for payment, passwords, or personal info you don't choose to share. Stay alert.
+Report a Scam
+Top Contributors
+View Reports
+Success Stories
+
+About
+
+LOGIN
+Scam Report
+
+Check addresses, URLs, IPs, emails, phones, or keywords
+
+Back to all results
+Crypto Hacks: Report and Stay Safe with Chainabuse
+1
+
+UNAUTHORIZED CRYPTOCURRENCY THEFT VIA KNOWN HARDWARE WALLET DEFECT
+
+
+
+
+On 2026-08-02 at 04:03:56 UTC an unauthorized actor swept 5.13591373 BTC from 23 addresses I control, in one batch transaction. I never disclosed my recovery seed, entered it into any device or website, lost custody of my wallet, or authorized these transfers.
+
+
+
+
+TXID: d72e2d8e3096440c48fdd4ed0cc56a7e784d215970413210e0b2af38528c89a4
+
+Block 960668. Destination addresses: bc1q0rvn88w08j75k4h48lf9fvhan7unjp7vjf5q6m
+
+My 23 addresses are all inputs to this TXID; full list attached.
+
+[Hardware wallet]
+bc1q0934fc6j3hpa7uuvlkzwsqwjsxvdry3h3ffgwj
+sent -0.03000000 BTC
+[Hardware wallet]
+bc1q0gje569ufheda6wff4qs7lwa0quu2s3ts6dmp9
+sent -0.03000000 BTC
+[Hardware wallet]
+bc1q2p6klmqjc5895t0prkhqu57j2xemcsyusyprne
+sent -0.01587668 BTC
+[Hardware wallet]
+bc1q5se698gm8cwg3sfl5qdrm62t2zyhk2hy2crkvn
+sent -0.14000000 BTC
+[Hardware wallet]
+bc1q6w32g56kjj2s28syhg54y0j7ryk6kk7j243gaz
+sent -0.10000000 BTC
+[Hardware wallet]
+bc1q95ulquj0nhgkpyzw2y0gp3zr5qkts4mrapf094
+sent -0.35000000 BTC
+[Hardware wallet]
+bc1q9pw3h3t49dv2785mxxxlp4sk0lylc4va47pklr
+sent -0.03000000 BTC
+[Hardware wallet]
+bc1qdl48m2yaeuxhq5e0r4t6mdxdnudfjayqm5fk0e
+sent -0.01862353 BTC
+[Cold storage]
+bc1qe29svm6est73h6qfujq4a5u4m3wxccqr6uzre2
+sent -0.10738219 BTC
+[Hardware wallet]
+bc1qeh45rzlpsguzn8v4z47ptnrnw7mamjg3lsujrf
+sent -0.04000000 BTC
+[Hardware wallet]
+bc1qfcwxsh65pyvp0q7cr9xk8d5e3zp4cntew4525d
+sent -0.35000000 BTC
+[Hardware wallet]
+bc1qfk5g952n9gtf3cmrvwk820qz5ct6zz4z0m7dz3
+sent -0.09439840 BTC
+[Hardware wallet]
+bc1qlml6djpz6zenp9tz6ytmc3rjz3u9zd8j9d9759
+sent -0.03000000 BTC
+[Hardware wallet]
+bc1qlrhxr8qhm8aaej454y6j3rrtaffrzhsae9van8
+sent -0.03000000 BTC
+[Hardware wallet]
+bc1qm9sx03p2cps9w6gpl568ue8xpc52rgwayj78n6
+sent -0.96900000 BTC
+[Hardware wallet]
+bc1qpnhvrkja950sp0q5hln5qhk52nrtmcgme50r9v
+sent -0.86060000 BTC
+[Hardware wallet]
+bc1qppdg7j5vgv7amw2ng6pvfa5jnx8wajz4zq8paw
+sent -0.16801426 BTC
+[Hardware wallet]
+bc1qr94mtav5ejnf9hd7ara7qhy3m3t0xsmjkppvul
+sent -0.99775479 BTC
+[Hardware wallet]
+bc1qtszyc38cv0dnjlsh4s96g0qs5y0uelemv884sg
+sent -0.00495000 BTC
+[Hardware wallet]
+bc1qw2jhlerw0atg5gx5zfzrnsrnqwg9tvrhg2xv62
+sent -0.61167798 BTC
+[Hardware wallet]
+bc1qw8lm0rm3f96vwjy6eh3mrq6dtuql0dwkkddcww
+sent -0.15000000 BTC
+[Hardware wallet]
+bc1qxlp38csp2mws76ej93yydj5keh0w0r286vac3c
+sent -0.00099450 BTC
+[Hardware wallet]
+bc1qy9grucrwj2a83vhwh0vmav5nh8my5vdevlheyj
+sent -0.00664140 BTC
+
+The same transaction simultaneously swept several hundred other victims' addresses, totaling approx 64.903 BTC. This is automated mass exploitation, not a targeted attack.
+
+
+
+
+CAUSE: A firmware defect in my COLDCARD wallet (Coinkite Inc., Toronto, Canada), publicly acknowledged by the manufacturer on 2026-07-30; its CEO accepted accountability. In a 2021 library migration the build linked a weak software PRNG instead of the hardware true random number generator. The library libngu tested whether MICROPY_HW_ENABLE_RNG was defined rather than non-zero; Coinkite defined it as zero, so the build silently used the wrong implementation. Coinkite estimates affected seeds carry ~40 bits of entropy instead of 128 - exhaustively searchable on commodity hardware. An attacker enumerates candidate seeds offline, derives addresses, checks them against the public blockchain, and sweeps any holding funds. No device access is required, which is why my wallet remained physically secure throughout.
+
+
+
+
+Affected firmware: Mk3 4.0.1+ (March 2021); Mk4/Mk5 before 5.6.0; Q before 1.5.0Q. My seed was generated on Mk3
+
+LOSS: 5.13591373 BTC,
+
+Amount lost
+
+5.13591373 BTC
+
+Submitted
+<relative-time>
+Submitted
+Anonymous
+
+Reported Addresses
+
+bc1q0rvn88w08j75k4h48lf9fvhan7unjp7vjf5q6m
+bc1q0934fc6j3hpa7uuvlkzwsqwjsxvdry3h3ffgwj
+bc1q0gje569ufheda6wff4qs7lwa0quu2s3ts6dmp9
+bc1q2p6klmqjc5895t0prkhqu57j2xemcsyusyprne
+bc1q5se698gm8cwg3sfl5qdrm62t2zyhk2hy2crkvn
+bc1q6w32g56kjj2s28syhg54y0j7ryk6kk7j243gaz
+bc1q95ulquj0nhgkpyzw2y0gp3zr5qkts4mrapf094
+bc1q9pw3h3t49dv2785mxxxlp4sk0lylc4va47pklr
+bc1qdl48m2yaeuxhq5e0r4t6mdxdnudfjayqm5fk0e
+bc1qe29svm6est73h6qfujq4a5u4m3wxccqr6uzre2
+bc1qeh45rzlpsguzn8v4z47ptnrnw7mamjg3lsujrf
+bc1qfcwxsh65pyvp0q7cr9xk8d5e3zp4cntew4525d
+bc1qfk5g952n9gtf3cmrvwk820qz5ct6zz4z0m7dz3
+bc1qlml6djpz6zenp9tz6ytmc3rjz3u9zd8j9d9759
+bc1qlrhxr8qhm8aaej454y6j3rrtaffrzhsae9van8
+bc1qm9sx03p2cps9w6gpl568ue8xpc52rgwayj78n6
+bc1qpnhvrkja950sp0q5hln5qhk52nrtmcgme50r9v
+bc1qppdg7j5vgv7amw2ng6pvfa5jnx8wajz4zq8paw
+bc1qr94mtav5ejnf9hd7ara7qhy3m3t0xsmjkppvul
+bc1qtszyc38cv0dnjlsh4s96g0qs5y0uelemv884sg
+bc1qw2jhlerw0atg5gx5zfzrnsrnqwg9tvrhg2xv62
+bc1qw8lm0rm3f96vwjy6eh3mrq6dtuql0dwkkddcww
+bc1qxlp38csp2mws76ej93yydj5keh0w0r286vac3c
+bc1qy9grucrwj2a83vhwh0vmav5nh8my5vdevlheyj
+FILE NEW REPORT
+Report a Scam
+Top Contributors
+View Reports
+Got Scammed?
+Safety Support Center
+API Docs
+Become a Partner
+About us
+Success Stories
+FAQs
+Scam Glossary
+Contact
+Sign up and stay up to date with our latest product updates.
+
+Enter your email
+
+SUBSCRIBE
+You can unsubscribe at any time.
+Read our Privacy Policy.
+BACKED BY
+
+Join the community
+
+Terms of Use
+Privacy Policy
+Cookie Policy
+
+Report on Chainabuse
