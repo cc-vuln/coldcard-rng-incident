@@ -92,10 +92,14 @@ def main() -> int:
 
     # An unfilled placeholder means the driver and the template disagree, and
     # the agent would be told to assess a batch it cannot see. Fail rather
-    # than send it. The pattern is deliberately narrow so that the TOML and
-    # GraphQL examples the templates carry, which are full of braces, do not
-    # look like placeholders.
-    missing = sorted(set(PLACEHOLDER.findall(prompt)))
+    # than send it. The check compares the TEMPLATE against the declared keys;
+    # it must not scan the substituted output. Trusted --file content is ours
+    # and can legitimately carry brace tokens (site pages hydrate with Astro
+    # expressions like {VENDOR_RANGE_AS_OF}), and untrusted content had
+    # anything placeholder-shaped neutralised before substitution.
+    declared = set(substitutions)
+    missing = sorted(set(PLACEHOLDER.findall(args.template.read_text()))
+                     - declared)
     if missing:
         print(f"render-agent-prompt: template still contains unfilled "
               f"placeholder(s): {', '.join(missing)}", file=sys.stderr)
