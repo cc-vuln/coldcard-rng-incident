@@ -518,6 +518,20 @@ Ordered by value, not effort.
   the consecutive-failure threshold and ensure an inherited capture is never
   presented as one this project took.
 
+- **OPEN 8 Aug 2026: close the two races the first automated publish exposed.**
+  The first scheduled publish deployed and pushed cleanly, but the
+  `matches_commit` tripwire fired: the build had regenerated
+  `site/src/data/x-thread-media.json` with the day's nine new X captures,
+  which landed between the record-commit tick and the build. The publish
+  should stage the regenerated `site/src/data/` indexes itself (pre-build,
+  or commit them post-build pre-push), so new X media arriving mid-window
+  stops flipping the published stamp. Second: `record_commit.py` does not
+  take the build lock, so it can commit while a publish build is reading
+  git for `/version.json` — the 8 Aug deploy stamped `f91b758` while
+  `a933d74` landed mid-build. Harmless this time (the stamped commit was
+  pushed), but the committer should skip or wait when
+  `/tmp/cc-build.lock` is held.
+
 ---
 
 ## 3. Publication and corpus usability
