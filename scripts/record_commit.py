@@ -27,8 +27,8 @@ Every precondition prints its reason when it blocks, and a block exits 1:
      timer does: unattended steps stop when somebody is working.
   3. `just test` passes.
   4. `just audit` passes. capture.py exits 21 when the 30-minute poll holds
-     the writer lock, which is contention rather than a finding, so a 21 gets
-     one retry after a short wait before it counts as blocked.
+     the writer lock, which is contention rather than a finding, so 21s are
+     retried across a typical poll window before it counts as blocked.
   5. No unresolved agent-guard run since the last commit. agent_guard.py
      writes approved-captures.txt only when a run passes; a run directory
      without one was rejected, is still in flight, or died mid-run. All three
@@ -452,8 +452,8 @@ def check_preconditions(root: Path, out=sys.stdout) -> None:
     print("precondition: just test passes", file=out)
 
     if not audit_with_retry(root, out):
-        raise Blocked("`just audit` fails (a writer-lock 21 gets one retry; "
-                      "this one still failed)")
+        raise Blocked("`just audit` fails (writer-lock 21s were retried "
+                      "through a poll window; it still fails)")
     print("precondition: just audit passes", file=out)
 
     unresolved = unresolved_guard_runs(root)
