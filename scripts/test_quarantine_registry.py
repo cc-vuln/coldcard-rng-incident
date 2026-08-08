@@ -230,7 +230,10 @@ BLOCK
                         ignore=shutil.ignore_patterns("__pycache__"))
         (self.root / ".venv").symlink_to(ROOT / ".venv")
         (self.root / ".work").mkdir()
-        (self.root / ".env").write_text("AGENT_SANDBOX=off\n", encoding="utf-8")
+        (self.root / ".env").write_text(
+            # Fixture rejections are not operator signal: keep the driver's
+            # guard-rejection alert out of the real alert stream.
+            "AGENT_SANDBOX=off\nAGENT_ALERTS=off\n", encoding="utf-8")
         (self.root / ".gitignore").write_text(".work/\n.env\n", encoding="utf-8")
         (self.root / "sources.toml").write_text(GOOD, encoding="utf-8")
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)

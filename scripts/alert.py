@@ -86,14 +86,27 @@ STREAK_THRESHOLDS = (
 HOST_PROPOSAL_AGE = timedelta(hours=48)
 PUBLISH_STAMP_AGE = timedelta(hours=8)
 
-UNITS = (
-    "archive-poll.service",
-    "archive-review.service",
-    "discover-community.service",
-    "claim-sweep.service",
-    "corrections-watch.service",
-    "site-sync.service",
-)
+# Units the sweep watches, with the exit statuses that are ROUTINE for each.
+# Alerting on a routine status is a false alarm every 24 hours:
+# archive-poll exits 10 when a poll found changes (healthy), 20 on an
+# incomplete poll (source-level failures have their own streak alerts) and
+# 21 on writer-lock contention; record-commit exits 1 for an ordinary block
+# (red gate, lock, unresolved guard run — all self-retrying); x-media exits
+# 21 the same way. Anything outside the set is a genuine failure signal.
+UNITS = {
+    "archive-poll.service": {"0", "10", "20", "21"},
+    "archive-review.service": {"0"},
+    "discover-community.service": {"0"},
+    "discover-x.service": {"0"},
+    "claim-sweep.service": {"0"},
+    "corrections-watch.service": {"0"},
+    "site-sync.service": {"0"},
+    "record-commit.service": {"0", "1"},
+    "publish-scheduled.service": {"0"},
+    "corroborate-gone.service": {"0"},
+    "x-availability.service": {"0"},
+    "x-media.service": {"0", "21"},
+}
 
 
 def state_dir() -> Path:
@@ -388,7 +401,7 @@ def _sweep_unit_failures(now: datetime) -> list[dict]:
         props = dict(
             line.split("=", 1) for line in block.splitlines() if "=" in line)
         status = props.get("ExecMainStatus", "")
-        if status and status != "0":
+        if status and status not in UNITS[unit]:
             alerts.append({
                 "kind": "unit-failure",
                 "severity": "warning",
