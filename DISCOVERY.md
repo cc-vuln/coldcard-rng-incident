@@ -57,6 +57,7 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-08 [Passphrase length](https://www.reddit.com/r/Bitcoin/comments/1viocw9/passphrase_length/) by Intelligent_Map_246, 22 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Short-term impact of the Coldcard incident on Self-Custody](https://bitcointalk.org/index.php?topic=5590691.0) by Abiky, 26 comments (bct/1)
 
+
 ## Assessed
 
 - 2026-08-05 [Were they acting in good faith?](https://www.reddit.com/r/Bitcoin/comments/1vgk5bw/were_they_acting_in_good_faith/) by 5p3z, 20 comments (r/Bitcoin) -> dismissed: repetitive vendor-intent discussion, already represented by reddit-inside-job-speculation and the registered contemporaneous counterarguments (20260806T082524Z)
@@ -572,6 +573,15 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-07 [I Have A 12 Word Seed](https://www.reddit.com/r/Bitcoin/comments/1vifi09/i_have_a_12_word_seed/) by -reddit-online-, 9 comments (r/Bitcoin) [body] -> dismissed: personal passphrase question already represented by reddit-passphrase-extra-security (20260808T165710Z)
 - 2026-08-07 [Dice Rolls Saved Me, But…](https://www.reddit.com/r/Bitcoin/comments/1vie1vy/dice_rolls_saved_me_but/) by Large_Still_1224, 34 comments (r/Bitcoin) [topical] -> registered as reddit-dice-rolls-saved-seedsigner (20260808T165710Z)
 - 2026-08-07 [Fidelity?](https://www.reddit.com/r/Bitcoin/comments/1viahgq/fidelity/) by edtachi, 46 comments (r/Bitcoin) [body] -> dismissed: Fidelity custody question already represented by reddit-fidelity-custody-debate (20260808T165710Z)
+
+- 2026-08-08 [@LaurentMT post (text available during approved intake)](https://x.com/LaurentMT/status/2086130083626950990) (X @LaurentMT) -> dismissed: content-free teaser with no specific incident claim (20260808T220527Z)
+- 2026-08-08 [@oomahq post (text available during approved intake)](https://x.com/oomahq/status/2086088359928009115) (X @oomahq) -> registered as oomahq-nvk-switck-knowledge-claim (20260808T220527Z)
+- 2026-08-08 [@jamesob post (text available during approved intake)](https://x.com/jamesob/status/2086154136064586229) (X @jamesob) -> registered as jamesob-tripwire-sweep-update (20260808T220527Z)
+- 2026-08-08 [@hodlonaut post (text available during approved intake)](https://x.com/hodlonaut/status/2086058591367143488) (X @hodlonaut) -> registered as hodlonaut-may2025-prior-discovery-rebuttal (20260808T220527Z)
+- 2026-08-08 [@KLoaec post (text available during approved intake)](https://x.com/KLoaec/status/2086143362969591862) (X @KLoaec) -> dismissed: BIP-110 activation sentiment, not a distinct COLDCARD incident claim (20260808T220527Z)
+- 2026-08-08 [@lopp post (text available during approved intake)](https://x.com/lopp/status/2086177865414955098) (X @lopp) -> dismissed: BIP-110 chain-tip divergence report, not a distinct COLDCARD incident claim (20260808T220527Z)
+- 2026-08-08 [@intangiblecoins post (text available during approved intake)](https://x.com/intangiblecoins/status/2086198479047569915) (X @intangiblecoins) -> registered as intangiblecoins-block-961635-opreturn (20260808T220527Z)
+- 2026-08-08 [@peterktodd post (text available during approved intake)](https://x.com/peterktodd/status/2086044703133221207) (X @peterktodd) -> dismissed: generic hardware-wallet secure-element opinion with no specific incident claim (20260808T220527Z)
 
 ## Link review, held for a human decision
 
