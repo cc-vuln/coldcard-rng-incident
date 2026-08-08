@@ -113,7 +113,11 @@ FORBIDDEN_MESSAGE_STRINGS: tuple[str, ...] = (
 # shared lock, so a poll mid-run turns the audit gate into a 21; that is a
 # reason to retry, not a reason to stay blocked.
 LOCK_BUSY_EXIT = 21
-AUDIT_RETRY_WAIT_SECONDS = 45
+# A tier poll holds the lock for three to five minutes; one 45-second retry
+# usually landed inside the same poll window, which is why the first day of
+# this timer blocked on locks more often than it committed. Three attempts
+# across about four minutes spans a typical poll.
+AUDIT_RETRY_WAITS_SECONDS = (90, 135)
 
 GUARD_RUNS = Path(".work/agent-guard")
 RUN_ID_RE = re.compile(r"^(\d{8}T\d{6}Z)-")
@@ -404,19 +408,21 @@ def run_just(root: Path, recipe: str) -> int:
 
 
 def audit_with_retry(root: Path, out) -> bool:
-    """`just audit`, with one retry on writer-lock contention.
+    """`just audit`, retrying through writer-lock contention.
 
     The 30-minute poll holds the exclusive writer lock for minutes at a time
     and the audit's shared lock fails non-blocking behind it, so a bare 21 is
-    the common case, not a finding. One retry after a short wait separates
-    "the poll was running" from a gate that genuinely fails; two 21s in a row
-    is treated as blocked and the next tick of the timer tries again.
+    the common case, not a finding. Retries spanning a typical poll separate
+    "the poll was running" from a gate that genuinely fails; still locked
+    after that is treated as blocked and the next timer tick tries again.
     """
     rc = run_just(root, "audit")
-    if rc == LOCK_BUSY_EXIT:
-        print("record-commit: audit hit the writer lock (exit 21), "
-              f"retrying in {AUDIT_RETRY_WAIT_SECONDS}s", file=out)
-        time.sleep(AUDIT_RETRY_WAIT_SECONDS)
+    for wait in AUDIT_RETRY_WAITS_SECONDS:
+        if rc != LOCK_BUSY_EXIT:
+            break
+        print(f"record-commit: audit hit the writer lock (exit 21), "
+              f"retrying in {wait}s", file=out)
+        time.sleep(wait)
         rc = run_just(root, "audit")
     return rc == 0
 
