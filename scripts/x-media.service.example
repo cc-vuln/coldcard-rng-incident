@@ -21,6 +21,9 @@ Type=oneshot
 User=USER
 WorkingDirectory=REPO
 ExecStart=REPO/scripts/capture-x.sh --skip-unchanged
+# Exit 21 is the archive writer lock held by a poll: a routine skip, retried
+# next week, not a failure anyone should be alerted about.
+SuccessExitStatus=0 21
 # ~500 posts with polite sleeps: a full pass can run for hours.
 TimeoutStartSec=14400
 Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin

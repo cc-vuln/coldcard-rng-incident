@@ -2,18 +2,21 @@
 
 Candidates found by the Stacker News, Reddit, BitcoinTalk, nostr and manual X
 discovery commands. The community-thread lanes run every 12 hours through
-`discover-community.timer`; X and nostr discovery remain manual while their
-API, relay and policy gates are proved. That timer runs neither of them, nor
-does it send queued X links to the general community agent. An operator may
-invoke the separate X-only triage with `--include-x` during probation; nostr
+`discover-community.timer`; nostr discovery remains manual while its relay
+gate is proved. That timer runs neither nostr nor X discovery, nor does it
+send queued X links to the general community agent. Since 8 Aug 2026, queued
+X candidates are assessed by the registering xintake lane
+(`scripts/agent-x-intake.sh`, the same REVIEW_AGENT_BIN pattern): a relevant
+post is registered as an [[x_post]] block and ingested driver-side
+afterwards. The read-only X triage prompt and the `--include-x` admission
+flag are retired. nostr
 candidates (njump.me links) go to the standard intake agent, which registers
 them as [[nostr_post]] blocks and first-captures with `just ingest-nostr`.
 Direct `just ingest-x` capture of a manually supplied permalink does not use
 this queue.
 Eligible pending entries are assessed by the intake agent
 (`scripts/agent-discovery-intake.sh`): a relevant community thread is
-registered and first-captured. Explicit X triage only recommends or dismisses
-permalinks for human review; it cannot capture or register them. Assessed
+registered and first-captured. Assessed
 entries move below with the verdict. To dismiss a candidate by hand, move its
 line to Assessed with a one-line reason.
 Candidates whose title never names the incident and which have drawn almost
@@ -26,24 +29,24 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
-- 2026-08-05 [Galaxy Research post cited as a wave source](https://x.com/glxyresearch/status/2083560940469981591) linked as "Source" from coldcard-hack-tracker (link review)
-- 2026-08-05 [evands post cited as a wave source](https://x.com/evands/status/2083505832587587945) linked as "Source" from coldcard-hack-tracker (link review)
-- 2026-08-05 [Kevin Kelbie post cited as a wave source](https://x.com/KevinKelbie/status/2084294469126361372) linked as "Source" from coldcard-hack-tracker (link review)
-- 2026-08-05 [intangiblecoins post cited as a wave source](https://x.com/intangiblecoins/status/2084079706320646300) linked as "Source" from coldcard-hack-tracker (link review)
-- 2026-08-05 [intangiblecoins post cited for Alex Thorn footprint](https://x.com/intangiblecoins/status/2084584284837322868) linked as "Alex Thorn / Footprint" from coldcard-hack-tracker (link review)
-- 2026-08-05 [eriklocalhost first-hand claim for wave 960668](https://x.com/eriklocalhost/status/2083875886458171626) linked as "Erik" from coldcard-hack-tracker (link review); the same claimant coldcard.rip names for that wave
-- 2026-08-07 [Following the Coldcard issue: still debating between multi sig & single sig + passphrase](https://www.reddit.com/r/Bitcoin/comments/1vhv4j0/following_the_coldcard_issue_still_debating/) by lightbulb-7, 29 comments (r/Bitcoin)
-- 2026-08-07 [How to create my own Entropy?](https://www.reddit.com/r/Bitcoin/comments/1vi40q2/how_to_create_my_own_entropy/) by Significant_Gap_8585, 8 comments (r/Bitcoin) [topical]
-- 2026-08-07 [How easy is it to make a serious mistake when generate your own 24-word BIP39 seed, even if follow proper instructions?](https://www.reddit.com/r/Bitcoin/comments/1vhu1e7/how_easy_is_it_to_make_a_serious_mistake_when/) by Skinny_Human, 12 comments (r/Bitcoin) [body]
-- 2026-08-07 [Is Convenience Becoming the Biggest Risk in Bitcoin Self-Custody?](https://www.reddit.com/r/Bitcoin/comments/1vhwpmg/is_convenience_becoming_the_biggest_risk_in/) by benjamincolee, 6 comments (r/Bitcoin) [topical]
-- 2026-08-07 [audit of cold wallets](https://www.reddit.com/r/Bitcoin/comments/1vhsp5a/audit_of_cold_wallets/) by LittleWiseGuy3, 13 comments (r/Bitcoin) [body]
-- 2026-08-07 [Coldcard Wallet Hack: $80M Gone in 41 Minutes](https://www.reddit.com/r/Bitcoin/comments/1vi3zl0/coldcard_wallet_hack_80m_gone_in_41_minutes/) by buddies2705, 1 comments (r/Bitcoin)
-- 2026-08-07 [Is my understanding of the security of a 25th word Passphrase correct?](https://www.reddit.com/r/Bitcoin/comments/1vhux2b/is_my_understanding_of_the_security_of_a_25th/) by Maleficent_Pool_4456, 7 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Why don't you guys just generate your own keys?](https://www.reddit.com/r/Bitcoin/comments/1vi60pt/why_dont_you_guys_just_generate_your_own_keys/) by Firm-Ad-2446, 3 comments (r/Bitcoin) [body]
-- 2026-08-07 [Generating a seed phrase by mixing entropy methods](https://www.reddit.com/r/Bitcoin/comments/1vi0rka/generating_a_seed_phrase_by_mixing_entropy_methods/) by Proof-Professor-1030, 4 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Why does this sub have such a problem with BIP-110? Either I'm not understanding or there's a large-scale astroturfing of BIP-110 opposition going on.](https://www.reddit.com/r/Bitcoin/comments/1vhsf2u/why_does_this_sub_have_such_a_problem_with_bip110/) by Iamstillthinkinghard, 120 comments (r/Bitcoin) [body]
-- 2026-08-07 [Is it possible to reverse engineer your seed phrase to figure out how much entropy it has?](https://www.reddit.com/r/Bitcoin/comments/1vhs0vk/is_it_possible_to_reverse_engineer_your_seed/) by Share-ty, 16 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Have You Made This  Seed Phrase Mistake?](https://bitcointalk.org/index.php?topic=5588345.0) by ContentWriter, 91 comments (bct/1) [topical]
+- 2026-08-07 [All attacks on Bitcoin are good](https://www.reddit.com/r/Bitcoin/comments/1vidcdf/all_attacks_on_bitcoin_are_good/) by arcrad, 78 comments (r/Bitcoin) [body]
+- 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout.
+- 2026-08-07 [I Have A 12 Word Seed](https://www.reddit.com/r/Bitcoin/comments/1vifi09/i_have_a_12_word_seed/) by -reddit-online-, 9 comments (r/Bitcoin) [body]
+- 2026-08-07 [Dice Rolls Saved Me, But…](https://www.reddit.com/r/Bitcoin/comments/1vie1vy/dice_rolls_saved_me_but/) by Large_Still_1224, 34 comments (r/Bitcoin) [topical]
+- 2026-08-07 [Fidelity?](https://www.reddit.com/r/Bitcoin/comments/1viahgq/fidelity/) by edtachi, 46 comments (r/Bitcoin) [body]
+- 2026-08-08 [You don't need to roll dice 50-100 times for BIP39 entropy. Just grab a deck of playing cards](https://www.reddit.com/r/Bitcoin/comments/1vime6a/you_dont_need_to_roll_dice_50100_times_for_bip39/) by HoldenVJ, 3 comments (r/Bitcoin) [topical]
+- 2026-08-08 [Safely store BTC w/o HWW](https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/) by RichHomieWan, 23 comments (r/Bitcoin) [body]
+- 2026-08-08 [Blockstream Jade Plus setup - workflow suspect?](https://www.reddit.com/r/Bitcoin/comments/1viknfe/blockstream_jade_plus_setup_workflow_suspect/) by No_Fuel4693, 7 comments (r/Bitcoin) [body]
+- 2026-08-08 [Easiest entropy generator](https://www.reddit.com/r/Bitcoin/comments/1vikjl2/easiest_entropy_generator/) by cheesymod, 5 comments (r/Bitcoin) [topical]
+- 2026-08-07 [Seed Slab - A seed phrase storage tool.](https://www.reddit.com/r/Bitcoin/comments/1vieeyc/seed_slab_a_seed_phrase_storage_tool/) by badfish_gg, 27 comments (r/Bitcoin) [topical]
+- 2026-08-08 [Coldcard Mk4 UX flaw continued](https://www.reddit.com/r/Bitcoin/comments/1viixzj/coldcard_mk4_ux_flaw_continued/) by Economy-Cash6726, 2 comments (r/Bitcoin)
+- 2026-08-07 [Where to sell with lowest fees?](https://www.reddit.com/r/Bitcoin/comments/1vi57yl/where_to_sell_with_lowest_fees/) by Sweaty_Camel_118, 16 comments (r/Bitcoin) [body]
+- 2026-08-07 [LLM tracing for coldcard attackers](https://www.reddit.com/r/Bitcoin/comments/1vi6ify/llm_tracing_for_coldcard_attackers/) by Sensitive-Variety561, 17 comments (r/Bitcoin)
+- 2026-08-07 [Realistically are there any risks to using a Coldcard Q as a signing device only?](https://www.reddit.com/r/Bitcoin/comments/1vi6fhi/realistically_are_there_any_risks_to_using_a/) by the_bitcoin_kid, 12 comments (r/Bitcoin)
+- 2026-08-07 [Why do you need dice when you can just pick bip39 words at random?](https://www.reddit.com/r/Bitcoin/comments/1vie7ci/why_do_you_need_dice_when_you_can_just_pick_bip39/) by slvbtc, 30 comments (r/Bitcoin) [topical]
+- 2026-08-07 [Idea for easy entropy](https://www.reddit.com/r/Bitcoin/comments/1vicfjn/idea_for_easy_entropy/) by rest_me123, 24 comments (r/Bitcoin) [topical]
+- 2026-08-07 [Anyone else planning on implementing their own elliptic curve geometry library after the cold card exploit?](https://www.reddit.com/r/Bitcoin/comments/1vi7boc/anyone_else_planning_on_implementing_their_own/) by very_bug_like, 9 comments (r/Bitcoin)
+- 2026-08-07 [Audio-based entropy wallet](https://bitcointalk.org/index.php?topic=5590622.0) by barrysty1e, 3 comments (bct/1) [topical]
 
 ## Assessed
 
@@ -553,11 +556,44 @@ document this archive needs to hold a copy of. What is left:
 - 2026-08-07 [Coldcard Mk3 Won't Boot](https://www.reddit.com/r/Bitcoin/comments/1vi34ot/coldcard_mk3_wont_boot/) by Bigtwig_of_the_North, 2 comments (r/Bitcoin) -> dismissed: individual device-support issue with no wider record value (20260807T165734Z)
 - 2026-08-07 [self custody philosophy](https://www.reddit.com/r/Bitcoin/comments/1vi2fmf/self_custody_philosophy/) by valendinosaurus, 7 comments (r/Bitcoin) [topical] -> dismissed: repetitive self-custody versus custodian debate already represented by reddit-self-custody-custodian-debate (20260807T165734Z)
 - 2026-08-07 [Is this the general consensus about Ian Coleman tool?](https://www.reddit.com/r/Bitcoin/comments/1vi0c1a/is_this_the_general_consensus_about_ian_coleman/) by Maleficent_Pool_4456, 15 comments (r/Bitcoin) [body] -> dismissed: repetitive dice-seed tool trust question already represented by reddit-dice-coleman-guidance-critique and reddit-dice-seed-generation (20260807T165734Z)
+- 2026-08-07 [Following the Coldcard issue: still debating between multi sig & single sig + passphrase](https://www.reddit.com/r/Bitcoin/comments/1vhv4j0/following_the_coldcard_issue_still_debating/) by lightbulb-7, 29 comments (r/Bitcoin) -> registered as reddit-multisig-passphrase-debate (20260808T045742Z)
+- 2026-08-07 [How to create my own Entropy?](https://www.reddit.com/r/Bitcoin/comments/1vi40q2/how_to_create_my_own_entropy/) by Significant_Gap_8585, 8 comments (r/Bitcoin) [topical] -> dismissed: short support question about dice-seed tutorials, repetitive of reddit-dice-seed-generation (20260808T045742Z)
+- 2026-08-07 [How easy is it to make a serious mistake when generate your own 24-word BIP39 seed, even if follow proper instructions?](https://www.reddit.com/r/Bitcoin/comments/1vhu1e7/how_easy_is_it_to_make_a_serious_mistake_when/) by Skinny_Human, 12 comments (r/Bitcoin) [body] -> registered as reddit-dice-seed-mistakes (20260808T045742Z)
+- 2026-08-07 [Is Convenience Becoming the Biggest Risk in Bitcoin Self-Custody?](https://www.reddit.com/r/Bitcoin/comments/1vhwpmg/is_convenience_becoming_the_biggest_risk_in/) by benjamincolee, 6 comments (r/Bitcoin) [topical] -> dismissed: self-custody versus convenience debate already represented by reddit-self-custody-custodian-debate (20260808T045742Z)
+- 2026-08-07 [audit of cold wallets](https://www.reddit.com/r/Bitcoin/comments/1vhsp5a/audit_of_cold_wallets/) by LittleWiseGuy3, 13 comments (r/Bitcoin) [body] -> registered as reddit-audit-cold-wallets-ai (20260808T045742Z)
+- 2026-08-07 [Coldcard Wallet Hack: $80M Gone in 41 Minutes](https://www.reddit.com/r/Bitcoin/comments/1vi3zl0/coldcard_wallet_hack_80m_gone_in_41_minutes/) by buddies2705, 1 comments (r/Bitcoin) -> dismissed: title-only link post relaying a figure already represented by reddit-70m-41-minutes-report (20260808T045742Z)
+- 2026-08-07 [Is my understanding of the security of a 25th word Passphrase correct?](https://www.reddit.com/r/Bitcoin/comments/1vhux2b/is_my_understanding_of_the_security_of_a_25th/) by Maleficent_Pool_4456, 7 comments (r/Bitcoin) [topical] -> registered as reddit-passphrase-entropy-ten-char (20260808T045742Z)
+- 2026-08-07 [Why don't you guys just generate your own keys?](https://www.reddit.com/r/Bitcoin/comments/1vi60pt/why_dont_you_guys_just_generate_your_own_keys/) by Firm-Ad-2446, 3 comments (r/Bitcoin) [body] -> dismissed: repetitive generate-your-own-keys sentiment already represented by reddit-dice-seed-generation and reddit-safe-seed-without-hardware (20260808T045742Z)
+- 2026-08-07 [Generating a seed phrase by mixing entropy methods](https://www.reddit.com/r/Bitcoin/comments/1vi0rka/generating_a_seed_phrase_by_mixing_entropy_methods/) by Proof-Professor-1030, 4 comments (r/Bitcoin) [topical] -> registered as reddit-mix-entropy-methods (20260808T045742Z)
+- 2026-08-07 [Why does this sub have such a problem with BIP-110? Either I'm not understanding or there's a large-scale astroturfing of BIP-110 opposition going on.](https://www.reddit.com/r/Bitcoin/comments/1vhsf2u/why_does_this_sub_have_such_a_problem_with_bip110/) by Iamstillthinkinghard, 120 comments (r/Bitcoin) [body] -> dismissed: BIP-110 policy debate, only incidentally related to the Coldcard incident (20260808T045742Z)
+- 2026-08-07 [Is it possible to reverse engineer your seed phrase to figure out how much entropy it has?](https://www.reddit.com/r/Bitcoin/comments/1vhs0vk/is_it_possible_to_reverse_engineer_your_seed/) by Share-ty, 16 comments (r/Bitcoin) [topical] -> dismissed: empty-body entropy question with no clear incident reference; already represented by reddit-seed-generation-check (20260808T045742Z)
+- 2026-08-07 [Have You Made This  Seed Phrase Mistake?](https://bitcointalk.org/index.php?topic=5588345.0) by ContentWriter, 91 comments (bct/1) [topical] -> dismissed: generic seed-backup mistake thread, not about the Coldcard incident (20260808T045742Z)
+- 2026-08-07 [Coinkite suspends customer data blanking](https://stacker.news/items/1542564) by anon, 1 comments (~bitcoin) -> already registered as coinkite-data-retention-update (20260808T045742Z)
+- 2026-08-07 [Just did this today good?](https://www.reddit.com/r/coldcard/comments/1vhvf97/just_did_this_today_good/) by pairoxR, 3 comments (r/coldcard) -> dismissed: title-only support question with no wider record value (20260808T045742Z)
+- 2026-08-08 [Fidelity crypo account custodial ... convince me](https://www.reddit.com/r/Bitcoin/comments/1viix1b/fidelity_crypo_account_custodial_convince_me/) by GCM1313, 46 comments (r/Bitcoin) [body] -> registered as reddit-fidelity-custody-debate (20260808T045742Z)
+- 2026-08-05 [Galaxy Research post cited as a wave source](https://x.com/glxyresearch/status/2083560940469981591) linked as "Source" from coldcard-hack-tracker (link review) -> registered as glxyresearch-2083560940469981591 (20260808T101136Z)
+- 2026-08-05 [evands post cited as a wave source](https://x.com/evands/status/2083505832587587945) linked as "Source" from coldcard-hack-tracker (link review) -> registered as evands-2083505832587587945 (20260808T101136Z)
+- 2026-08-05 [Kevin Kelbie post cited as a wave source](https://x.com/KevinKelbie/status/2084294469126361372) linked as "Source" from coldcard-hack-tracker (link review) -> registered as kevinkelbie-2084294469126361372 (20260808T101136Z)
+- 2026-08-05 [intangiblecoins post cited for Alex Thorn footprint](https://x.com/intangiblecoins/status/2084584284837322868) linked as "Alex Thorn / Footprint" from coldcard-hack-tracker (link review) -> registered as intangiblecoins-2084584284837322868 (20260808T101136Z)
+- 2026-08-05 [eriklocalhost first-hand claim for wave 960668](https://x.com/eriklocalhost/status/2083875886458171626) linked as "Erik" from coldcard-hack-tracker (link review); the same claimant coldcard.rip names for that wave -> registered as eriklocalhost-2083875886458171626 (20260808T101136Z)
+- 2026-08-08 [@crypto_bitlord7 post (text available during approved intake)](https://x.com/crypto_bitlord7/status/2085935413449916900) (X @crypto_bitlord7) -> registered as crypto-bitlord7-inside-job-claim (20260808T101136Z)
+- 2026-08-08 [@jamesob post (text available during approved intake)](https://x.com/jamesob/status/2085881760848437478) (X @jamesob) -> registered as jamesob-2085881760848437478 (20260808T101136Z)
+- 2026-08-07 [@maxtannahill post (text available during approved intake)](https://x.com/maxtannahill/status/2085734597149782121) (X @maxtannahill) -> dismissed: narrow product-market commentary about altcoin support, not a distinct incident claim (20260808T101136Z)
+- 2026-08-08 [@tayvano_ post (text available during approved intake)](https://x.com/tayvano_/status/2085906780677456336) (X @tayvano_) -> dismissed: article promotion with no specific incident claim (20260808T101136Z)
+- 2026-08-08 [@maximalistus post (text available during approved intake)](https://x.com/maximalistus/status/2085931605630017703) (X @maximalistus) -> dismissed: general Jade product guidance and promotion, not incident material (20260808T101136Z)
+- 2026-08-08 [@clay_garrett post (text available during approved intake)](https://x.com/clay_garrett/status/2085966010792722833) (X @clay_garrett) -> registered as clay-garrett-entropy-die-metaphor (20260808T101136Z)
+- 2026-08-07 [@derekmross post (text available during approved intake)](https://x.com/derekmross/status/2085849096091549703) (X @derekmross) -> dismissed: generic ecosystem-security anxiety with service promotion, no distinct incident claim (20260808T101136Z)
+- 2026-08-07 [@BitcoinNewsCom post (text available during approved intake)](https://x.com/BitcoinNewsCom/status/2085700535772934469) (X @BitcoinNewsCom) -> registered as bitcoinnewscom-2085700535772934469 (20260808T101136Z)
+- 2026-08-07 [@BitPaine post (text available during approved intake)](https://x.com/BitPaine/status/2085703678753665421) (X @BitPaine) -> dismissed: personal token promotion, not a distinct incident claim (20260808T101136Z)
+- 2026-08-07 [@coinspect post (text available during approved intake)](https://x.com/coinspect/status/2085731488805331263) (X @coinspect) -> dismissed: commentary on the separate Ill Bloom weak-entropy case, not the COLDCARD incident (20260808T101136Z)
 
 ## Deferred
 
 Queued, but held back from the agent: the title never names the incident and the thread has drawn almost no discussion. Nothing here is dismissed. Each line carries the last comment count its lane observed, and a lane promotes an entry to Pending by itself once the thread grows past 2 comments. To assess one now, move its line to Pending.
-- 2026-08-07 [Just did this today good?](https://www.reddit.com/r/coldcard/comments/1vhvf97/just_did_this_today_good/) by pairoxR, 2 comments (r/coldcard)
-- 2026-08-07 [Where to sell with lowest fees?](https://www.reddit.com/r/Bitcoin/comments/1vi57yl/where_to_sell_with_lowest_fees/) by Sweaty_Camel_118, 1 comments (r/Bitcoin) [body]
+- 2026-08-07 [Anzen: Bitcoin’s Self-Custody Trilemma - Luke Childs](https://stacker.news/items/1542747) by Scoresby, 1 comments (~bitcoin) [topical]
+- 2026-08-08 [Undertaking TryHackMe's Hacker Holidays 2026 CTF daily challenge event. Day 01](https://stacker.news/items/1542896) by nichrome, 0 comments (~security) [topical]
+- 2026-08-07 [Wonder what more could be hidden](https://www.reddit.com/r/coldcard/comments/1viduvp/wonder_what_more_could_be_hidden/) by Intelligent_Map_246, 1 comments (r/coldcard)
 - 2026-08-07 [Your Hardware Wallet MUST Be Open Source [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vi3g4c/your_hardware_wallet_must_be_open_source_clip/) by Cryptoconomy, 0 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Audio-based entropy wallet](https://bitcointalk.org/index.php?topic=5590622.0) by barrysty1e, 1 comments (bct/1) [topical]
+- 2026-08-07 [“It’ll Be the Least of Your Problems”](https://www.reddit.com/r/Bitcoin/comments/1viack4/itll_be_the_least_of_your_problems/) by AppropriateTry9400, 2 comments (r/Bitcoin) [body]
+- 2026-08-07 [Is it hack season ?](https://www.reddit.com/r/Bitcoin/comments/1vi7b8q/is_it_hack_season/) by Ok-Pea4148, 2 comments (r/Bitcoin) [topical]
+- 2026-08-07 [In Case It Helps You Discover Better Entropy](https://www.reddit.com/r/Bitcoin/comments/1vho3dp/in_case_it_helps_you_discover_better_entropy/) by JuxtaposeLife, 1 comments (r/Bitcoin) [topical]

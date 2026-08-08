@@ -13,8 +13,9 @@ Operator and deployment detail behind the root README's command reference.
   classes, withdrawn sources, Wayback recovery, X and nostr capture and the
   review layer
 - [`operations.md`](operations.md): the capture host and its services, the
-  recurring capture schedule, the one-writer rule, notification delivery,
-  Signal alerting and deployment
+  recurring capture schedule, the unattended pipeline timers and their kill
+  switches, the one-writer rule, notification delivery, Signal alerting and
+  deployment
 - [`publication.md`](publication.md): what published builds show, the editorial
   claim-marker contract and the machine-readable outputs
 - [`deposit.md`](deposit.md): what an archival deposit of this project contains,

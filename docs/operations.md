@@ -98,12 +98,39 @@ The following jobs are deliberately not active yet:
 
 | Candidate | Proposed cadence | Gate before activation |
 |---|---:|---|
-| Watched X accounts, browser lane | Own `discover-x.timer` | Units exist (8 Aug 2026): `scripts/discover-x.{service,timer}.example`, chaining `discover_x_browser.py` and `agent-x-intake.sh` under `X_BROWSER_DISCOVERY_ENABLED`; the API lane is deprecated. Prove the session-health classes fail closed, then install |
-| Direct X availability recheck | Twice daily | Units exist (8 Aug 2026): `scripts/x-availability.{service,timer}.example` running `check_x_availability.py`, which classifies deletion, suspension, protection, restriction, login wall, challenge and rate limit separately. Enable `X_BROWSER_AVAILABILITY_ENABLED` and install |
 | GitHub and HN discovery inbox | 6 hours | Keep machine discovery separate from human source registration |
 | Archive contract audit, static build and link check | Nightly | Define alerting and keep deployment outside the job |
 | Off-machine archive backup | Daily | Choose a destination, retention policy and restore test |
 | Private scheduler-result pruning | Weekly | Set retention periods for finalized ticks, per-job results and service logs; never prune pending outboxes |
+
+## The unattended pipeline timers (8 Aug 2026)
+
+Nine further units are installed and enabled under the operator's 8 Aug
+2026 full-automation directive, alongside the pre-existing `archive-poll`,
+`archive-review`, `discover-community` and `claim-sweep` timers. Human
+review of what they produce is retroactive — the alert stream, the journals
+and git history — not a gate. Each has a `*.{service,timer}.example` pair
+under `scripts/`, installed the same way as the capture units above.
+
+| Timer | Cadence | What it runs |
+|---|---:|---|
+| `record-commit` | hourly | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist. Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit`, a held writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
+| `publish-scheduled` | 3 hours | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. The skip conditions are unchanged (`.no-publish`, non-main `HEAD`, dirt outside `archive/`, unreviewed diffs, the build lock) and only a genuine publish failure fails the unit |
+| `alert-sweep` | 30 minutes | `alert.py sweep`: turns the repo's state files — failure streaks, stale host proposals, failing units, publish-skip streaks — into alerts on the operator-UI stream |
+| `corroborate-gone` | 6 hours | `corroborate_gone.py`: re-resolves `dns-unresolved` streaks through public DNS-over-HTTPS resolvers and sets `gone = true` only when the streak and the independent resolvers agree, recording the transcript in `gone_note` and alerting |
+| `discover-x` | 12 hours | `discover_x_browser.py` then `agent-x-intake.sh`: home-timeline and watched-profile discovery through the capture browser, with registering-xintake assessment and driver-side first captures. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |
+| `x-availability` | 12 hours | `check_x_availability.py`: re-checks that registered X posts are still observable; a single absence is info, two consecutive observations escalate. Kill switch `X_BROWSER_AVAILABILITY_ENABLED`, off by default |
+| `x-media` | weekly | `capture-x.sh --skip-unchanged`: the gallery-dl media pull for every registered `[[x_post]]`, writing nothing when nothing new downloads. `SuccessExitStatus=0 21`: exit 21 is a poll holding the writer lock, a routine skip retried next week, not an alert |
+| `corrections-watch` | Sun 06:40 UTC | `agent-corrections.sh`: the propose-only corrections role drafts corrections from the claim sweep's state-changed flags; `apply_corrections.py` applies validated proposals all-or-nothing, dry run unless `--yes`, with an alert per applied correction |
+| `site-sync` | 06:20, 18:20 UTC | `agent-site-sync.sh`: the page-sync role edits editorial prose from the deterministic staleness packet (`report_site_staleness.py` to `.work/site-staleness.md`); page edits are gated post-run on `just check-claims` plus a full gated build, and a gate failure rejects the run with an urgent alert |
+
+The X lanes' shared kill switches live in `.env`:
+`X_BROWSER_DISCOVERY_ENABLED` and `X_BROWSER_AVAILABILITY_ENABLED` are both
+`false` by default, and the session-health classes (login wall, challenge,
+rate limit) fail every lane closed and share a 24-hour cooldown. The
+operator kill switches for the commit and publish steps are `.no-publish`
+at the repo root (untracked, never committed) and, for the whole line,
+`systemctl stop` of the timers.
 
 ## Watched-account X discovery through the capture browser
 
@@ -406,22 +433,22 @@ Deployment is a separate decision from capture. No capture or review timer
 publishes anything, and the scheduled jobs above keep deployment outside their
 scope by design.
 
-### Publishing on a timer (being installed, 8 Aug 2026)
+### Publishing on a timer
 
-> Amended 8 Aug 2026: the operator's directive moves publication onto this
-> timer as part of the unattended pipeline. Guard-passed agent output is
-> committed by `scripts/record_commit.py`, `publish-scheduled.timer` is being
-> installed, and a git push follows each successful deploy. Human review is
-> retroactive — the operator UI, the journals and git history — not a gate.
-> The skip conditions below are unchanged, and a `.no-publish` file or a
-> failed publish gate still stops the line.
+> Amended 8 Aug 2026: the operator's directive moved publication onto this
+> timer as part of the unattended pipeline, and the timer is now installed
+> and enabled (three-hourly). Guard-passed agent output is committed hourly
+> by `scripts/record_commit.py`, and a git push follows each successful
+> deploy. Human review is retroactive — the operator UI, the journals and
+> git history — not a gate. The skip conditions below are unchanged, and a
+> `.no-publish` file or a failed publish gate still stops the line.
 
 The funds page reads the community trackers' headline totals out of the
 captures this archive holds, so those figures are only as fresh as the last
-deploy. `scripts/publish-scheduled.sh` exists for operators who want that gap
-closed without publishing by hand. Until the 8 Aug 2026 directive it was
-deliberately not installed: `publish-scheduled.{service,timer}.example` are
-examples, like the capture units beside them.
+deploy. `scripts/publish-scheduled.sh` closes that gap without publishing
+by hand. Until the 8 Aug 2026 directive it was deliberately not installed:
+`publish-scheduled.{service,timer}.example` shipped as examples, like the
+capture units beside them.
 
 The script publishes only from a tree that nobody is working in. It exits 0
 and logs a reason, rather than failing, when any of these hold:

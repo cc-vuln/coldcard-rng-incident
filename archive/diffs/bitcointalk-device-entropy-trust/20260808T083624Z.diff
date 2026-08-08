@@ -1,0 +1,15 @@
+--- bitcointalk-device-entropy-trust@20260808T020410Z
++++ bitcointalk-device-entropy-trust@20260808T083624Z
+@@ -210,5 +210,12 @@
+ Also Hardware Wallets should not have a back up built in software entropy randomness generator if the hardware entropy chip in the hardware wallet fails. Also firmware software updates should be isolated from the software entropy generator as a simple bug in the code in the update could compromise the software entropy generator.
+ What's the point of a hardware wallet when it uses software for entropy  ??? ???. Why call it hardware when its really a cheap software? Coldcard should have called their wallet a hardware/software hybrid wallet They misled their customers.
+ Indeed, the susceptibility of the physical randomness chip is also true risk on it is own. It is exactly to avoid the single point of failure in the electronic elements that a hybrid software based approach is used. The name physical wallet does not lose its validity by the fact that its main purpose is not process algorithms but to isolated offline transactions. The alternative of randomization of dice separately has shown to be a workable solution in the dissolution of doubts in tampering with inner codes.
++Title: Re: Possible all Bitcoin Hardware Wallets be hacked due to 'Trust in Device Entropy?
++Post by: shinratensei_ on August 08, 2026, 03:40:01 AM
++Quote from: dim_mak5 on August 07, 2026, 10:44:02 PM
++Also Hardware Wallets should not have a back up built in software entropy randomness generator if the hardware entropy chip in the hardware wallet fails.
++As far as I know that was never the intended design, otherwise it would be a really bad design for something that is designed to be very secure, they intended to use hardware TRNG by disabling MICROPHY_HW_ENABLE_RNG to 0 but MicroPhyton is falling back to use inferior software PRNG. They thought the MicroPython fallback didn't exist.
++Quote from: https://blog.coinkite.com/entropy-technical-backgrounder/
++The bulk of randomness on the COLDCARD was coming from a PRNG that I didn�t know was actually in the source code base (it is from a submodule, Micropython). At the same time the carefully crafted TRNG code I wrote was being used, but just by chance, and only for less important things.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

@@ -1811,3 +1811,28 @@
 - newsbitcom-class-action-threat  +21 -21
 - clay-attribution  +27 -27
 - trezor-2084975929948766645  +43 -1
+
+## 20260808T082258Z
+
+- coldcard-hack-tracker  +16 -8
+- reddit-self-custody-custodian-debate  +8 -0
+- reddit-lost-one-bitcoin-victim  +2 -12
+- reddit-coldcard-never-again  +8 -0
+- reddit-future-of-bitcoin-debate  +46 -64
+- bitcointalk-large-scale-compromise-thread  +94 -0
+- blockchainunmasked-prior-warning  +1 -1
+- reddit-64-btc-mixing-discussion  +12 -12
+- bitcointalk-device-entropy-trust  +7 -0
+- reddit-attacker-execution-critique  +33 -1
+- reddit-mk3-seed-entropy-worse  +8 -0
+- reddit-casino-dice-myths  +8 -0
+- reddit-dice-entropy-explainer  +18 -0
+- reddit-fake-trezor-google-ad  +81 -3
+- reddit-dice-bias-1200-rolls  +79 -0
+- reddit-fidelity-custody-debate  +76 -0
+
+## 20260808T095310Z
+
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +21 -21
+- clay-attribution  +157 -9

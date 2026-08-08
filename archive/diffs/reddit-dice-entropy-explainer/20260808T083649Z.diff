@@ -1,0 +1,24 @@
+--- reddit-dice-entropy-explainer@20260808T020444Z
++++ reddit-dice-entropy-explainer@20260808T083649Z
+@@ -139,3 +139,21 @@
+ Even if you did something that mathematically reduces the entropy of two dice thrown at the same time, like always writing down the highest first, it doesn't "practically" reduce it, because any algorithm trying to guess it would have to know that's how made your selections in order to eliminate those possibilities from its calculation space.
+ 
+ Like OP said, current hacks are successful because they know exactly how to narrow down their calculation space in a meaningful way.  Mathematically constraining your OWN possibilities is not the same as reducing the possibilities an algorithm has to calculate.
++
++comment: p2ew216
++parent: t1_p2bx6c3
++author: Ok-Pea4148
++created_utc: 1786169446
++edited: false
++body:
++You are right, but you have no reason to do it nonetheless. Plus this kind of entropy reduction mistake is easy to guess for an attacker.
++
++comment: p2f8slj
++parent: t1_p2ew216
++author: Beaesse
++created_utc: 1786175792
++edited: false
++body:
++OK. Let's say you're a hacker that correctly guesses that someone out there has made this entropy reduction mistake.  Now, what do you do to turn that correct guess into a computational advantage to exploit this confirmed real mathematical vulnerability?  How do you narrow down your search algorithm?  Does your search now take a mere 13 galactic lifecycles to find the vulnerable address instead of 17, or what?
++
++To be clear: I'm not arguing to make mistakes on purpose or something. I'm arguing that this kind of mistake that people are currently obsessed with are completely immaterial in any practical sense.  You simply can't exploit the knowledge that someone rolled their seed with straight up loaded dice, never mind with cheap game dice that might have milimeter-scale defects.

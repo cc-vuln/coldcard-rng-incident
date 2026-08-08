@@ -1,0 +1,159 @@
+post: 1vh3b1s
+author: AdEuphoric5133
+created_utc: 1786020493
+title: Entropy of dice rolls
+body:
+After the Coldcard hack, many people stopped trusting the Random Number Generator (RNG) of their hardware, and the idea of introducing true randomness into their seed phrase is gaining momentum. However, there has been some misconception about how many rolls are needed, whether or not dices of quality are needed, and what are the risks with quantum computers. I'll try to clarify things with this post.
+
+**The idea of entropy**  
+The entropy is just a measure of "how many possibilities are there". The bitcoin key space has a size of 2\^256. When you make a wallet, you choose at random a number between 0 and 2\^256. The entropy is defined as the base-2 logarithm (That is, the exponent of the 2) of the number of possibilities. The entropy of the bitcoin key space is therefore 256 bits. If you truly choose your private key at random, it has 256 bits of entropy. But "at random" is not so easy for a software, and the Coldcard bug comes from the fact that the private key was chosen in a tiny subset of the entire key space, of size 2\^40 only, resulting in wallets having merely 40 bits of entropy, which is not enough.
+
+**How much is enough**  
+With each new bit of entropy, the cost of an attack doubles, and with too much entropy, a brute-force attack quickly becomes impossible. Anything above 128 bits is absolutely secure for the foreseeable future. Between 80 bits and 128 is relatively safe. Between 50 and 80 bits is rather unsafe. Below 50 bits is absolutely unsafe. 256 bits is overkill safe.
+
+**What about quantum computers**  
+Brute-force means by trial and error. A fully functional quantum computer can use an algorithm called Grover's algorithm to do better than brute force. Grover's algorithm essentially cuts the entropy in half. If your seed phrase has n bits of entropy, a classical computer needs 2\^n trial and errors to find it by brute force. A fully capable quantum computer using Grover's algorithm needs 2\^(n/2) operations only, so from its point of view, your seed phrase has n/2 bits of entropy only. If n=256, then n/2=128, which is still completely secure. A fully functional quantum computer cannot break a 256 bit seed phrase. That's a common misconception.
+
+**Where is all the fuss about quantum computer coming from then?**  
+The security of Bitcoin comes from the fact that a private key cannot be derived from a public key. More specifically, obtaining the private key of a 256 bits public key requires (for a classical computer) 2\^256 operations using brute-force (256 bits of security), or 2\^128 operations using a fancy algorithm called *baby step giant step* (128 bits of security). In both cases this is infeasible as 128 bits is too secure. But a quantum computer can find a private key from a 256 bits public key in 256\^3 = 2\^24 operations, using an algorithm called Shor's algorithm. That is, from a quantum computer's point of view, a 256 bits public key is only 24 bits, which is not secured at all. So as long as the public key is not known, a quantum computer cannot do much (128 bits, see above paragraph), but as soon as the public key is revealed (an address reveals its public key when it spends bitcoins), it becomes vulnerable to a fully functional quantum computer using Shor's algorithm (24 bits). For now, you can protect yourself from this (still theoretical, but upcoming) threat by having your bitcoins on addresses that never spent anything in the past, so their public key is unknown. Only when quantum computer are able to obtain private keys in the 10 minutes windows where a transactions is in the mempool will bitcoin have to update to a quantum-proof signature algorithm. This is not for the near future though, but that will come eventually. I don't see the network reaching a consensus here, so hard forks are to be expected. The better fork will become the new post-quantum bitcoin. The good news is that any bitcoin that you have before a fork exists on all versions of the fork, so you don't have to know which fork will win. Sorry for the longer paragraph.
+
+**Getting entropy with dices.**  
+When you make your seed phrase, instead of trusting the RNG of your material, you can acquire true randomness by rolling dices. A balanced dice has six possible outcomes, each equiprobable. Since log2(6) \~ 2.585 (that is, 6 \~ 2\^2.585), one throw gives 2.585 bits of entropy. 50\*2.585 = 129.25, and 50 throws of a dice gives the required 128 bits of security. 99\*2.585 = 255.915, and 99 throws give you the entire 256 bits of security. Throws after the 100th are useless, because the key space of bitcoin has only 2\^256 possibilities, and the entropy of a bitcoin key can therefore never exceed 256 bits. If your hardware wallet does not give you the option of rolling dice, you can ask your favorite AI for a small python script that will allow you to convert 50 or 99 dices rolls into a BIP-39 seed phrase, that you can later import into any wallet of your choice.
+
+**Are casino grade dices necessary?**  
+When a dice is not perfectly balanced, the entropy for 1 roll is slightly less than 2.585 bits. But unless the dice is ridiculously rigged, that will not significantly alter the entropy. Let me be quantitative on that. Imagine that a dice is so unbalanced that the probabilities are : p1 = 15.7% (that is, probability of rolling a 1 is 15.7%), p2 = 17.4%, p3=19.2%, p4=14.2%, p5=18.8% and p6=14.7%. For a balanced dice, all 6 probabilities would be 16.66666... %. Using Shannon's formula for the entropy, I get 2.575 bits of entropy per roll. This is barely less than the 2.585 you would get with a perfectly balanced dice, even though such a dice is really bad. 99 throws still give you 254.925 bits of entropy. Barely 1 bit of entropy was lost over 99 throws. If you want to be absolutely sure, just add a 100th throws and you overflow the 256 bits comfortably. So really, no need to buy high quality dices. Any board game dice will do the job. Just add one throw if the dice looks really bad quality.
+
+**Can I roll two dices at the same time to speed thing up?**  
+Yes and no. It depends on how you do it. Imagine you have a white dice and a blue dice, and you roll them both at the same time 25 times (you are only aiming for 128 bits of entropy). If you agree that, after each roll, you first write down the number on the white dice, followed by the number on the blue dice, then this is essentially the same as just rolling 1 dice 50 times. You get 50\*2.585=129.25 bits of entropy, which is perfectly secured. But let's say both your dices are the same color, and you always write down the small number, followed by the large number. Here you are losing entropy because, for example, the sequence 6,2,4,1, ... that would have been possible if you had thrown one dice at a time, becomes impossible. And less possibilities means less entropy. Instead of 2\^129.25 possibilities, you only have 2\^109.8 possibilities, and so, only 109.8 bits of entropy. If you roll more dices at the same time with the same mistake, the entropy decreases more. Note however that with 100 throws total, this mistake will not make you go below 128 bits.
+
+**Other ways of generating true randomness**  
+If you want to get fancy, you can also use a 52 cards deck. There are 52! = 2\^225.58 ways of shuffling a 52 cards deck. So a nice thorough shuffle of a 52 cards deck gives you 225.58 bits of entropy. Again, any AI like Claude will easily write for you a python script to convert your particular shuffle into a seed phrase, that you can import into your favorite wallet, instead of thrusting the RNG of your wallet. A 32 cards deck will only give you 117.66 bits of entropy, so prefer a 52 cards deck.
+
+If you read everything, thank you, and I hope you liked it. Bitcoin is a wonderful decentralized store of value, and it can also teach you some maths from time to time 😄 
+
+*This post was not written by an AI.*
+
+  
+
+
+comment: p26nzbx
+parent: t3_1vh3b1s
+author: puck2
+created_utc: 1786068433
+edited: false
+body:
+After all this hard work I, for one, would not let AI generated scripts anywhere near my bitcoins.
+
+comment: p27bayp
+parent: t3_1vh3b1s
+author: Cautious_Variation_5
+created_utc: 1786077025
+edited: false
+body:
+Great read, thanks. Regarding to rolling multiple dice at once, if the dices are same color and I decide I'll always pick the dices from closer to furthest from me, will that decrease entropy?
+
+comment: p27kje3
+parent: t1_p27bayp
+author: Ok-Pea4148
+created_utc: 1786081007
+edited: false
+body:
+No you're fine, that is perfectly equivalent to rolling them one at a time. What you can't do is use the number on them to decide which to write down first. 
+
+comment: p27kz3l
+parent: t1_p26nzbx
+author: Ok-Pea4148
+created_utc: 1786081205
+edited: false
+body:
+The coldcard bug is because code was written by a human. Any AI asked to review the code of an mk3 sees the low-entropy bug in seconds.
+
+AI are simply more reliable than humans to write code. I'm a coder (C and python mostly) and while I still write code by hand, I always have Claude review my code (and then I review  Claude's corrections to make sure it actually did what I wanted)
+
+comment: p285vzl
+parent: t1_p27kje3
+author: xiskghferx
+created_utc: 1786091058
+edited: false
+body:
+I think it's more foolproof if you just roll 1 dice and write down number each time. Use your kids to throw it, you just write it down :-)
+
+comment: p28ql93
+parent: t3_1vh3b1s
+author: brtastic
+created_utc: 1786100572
+edited: false
+body:
+I wouldn't trust my ability to shuffle a deck of cards well enough to get decent entropy. If you're a D&D fan and got a bunch of dice, just throw a handful of them and always read the rolls in the same order, like left to right. You don't need colored dice, you just need to avoid reading them in a biased order.
+
+Also telling people to ask AI to generate a script has a possibility of backfiring. If people can't write a prompt well enough, and can't review the script, AI may just hallucinate errors and generate a flawed mnemonic. In 2026 it's unlikely for AI to screw this up, but not impossible.
+
+comment: p28s1pv
+parent: t1_p27kz3l
+author: brtastic
+created_utc: 1786101156
+edited: false
+body:
+If you are a decent programmer and your process is good, then your output will be much more reliable than an AI output. AI quickly gets confused as the project grows bigger. It's known to take shortcuts (like disabling failing test cases) just to achieve the goal it was given. AI can be a part of your process, and your use case of reviewing the code with AI is absolutely valid. Letting AI just write the code and expecting it to be high quality is a recipe for disaster.
+
+comment: p29fweb
+parent: t3_1vh3b1s
+author: user_name_checks_out
+created_utc: 1786109169
+edited: false
+body:
+Interesting post, thank you.
+
+One die. Two dice. Not "dices".
+
+comment: p2ah9nv
+parent: t1_p28s1pv
+author: Ok-Pea4148
+created_utc: 1786119145
+edited: false
+body:
+I feel this way about math. Whenever I have Claude do too much about a complicated theoretical physics problem, it's a disaster. But with my programming, I'm always happy with the result. Maybe it is because my coding project remain bounded
+
+comment: p2amoob
+parent: t1_p285vzl
+author: Ok-Pea4148
+created_utc: 1786120533
+edited: false
+body:
+Why buy a hardware wallet, when you can have your kids secure your bitcoins for you ❤️
+
+comment: p2aqo06
+parent: t1_p28ql93
+author: Ok-Pea4148
+created_utc: 1786121551
+edited: false
+body:
+I agree with the whole message, except the very beginning. If you spend 10 minutes shuffling the cards laying down on a table, it is as shuffled as it can get, and you have the full 225.58 bits of entropy
+
+comment: p2bx6c3
+parent: t1_p27kje3
+author: Beaesse
+created_utc: 1786132583
+edited: false
+body:
+Even if you did something that mathematically reduces the entropy of two dice thrown at the same time, like always writing down the highest first, it doesn't "practically" reduce it, because any algorithm trying to guess it would have to know that's how made your selections in order to eliminate those possibilities from its calculation space.
+
+Like OP said, current hacks are successful because they know exactly how to narrow down their calculation space in a meaningful way.  Mathematically constraining your OWN possibilities is not the same as reducing the possibilities an algorithm has to calculate.
+
+comment: p2ew216
+parent: t1_p2bx6c3
+author: Ok-Pea4148
+created_utc: 1786169446
+edited: false
+body:
+You are right, but you have no reason to do it nonetheless. Plus this kind of entropy reduction mistake is easy to guess for an attacker.
+
+comment: p2f8slj
+parent: t1_p2ew216
+author: Beaesse
+created_utc: 1786175792
+edited: false
+body:
+OK. Let's say you're a hacker that correctly guesses that someone out there has made this entropy reduction mistake.  Now, what do you do to turn that correct guess into a computational advantage to exploit this confirmed real mathematical vulnerability?  How do you narrow down your search algorithm?  Does your search now take a mere 13 galactic lifecycles to find the vulnerable address instead of 17, or what?
+
+To be clear: I'm not arguing to make mistakes on purpose or something. I'm arguing that this kind of mistake that people are currently obsessed with are completely immaterial in any practical sense.  You simply can't exploit the knowledge that someone rolled their seed with straight up loaded dice, never mind with cheap game dice that might have milimeter-scale defects.

@@ -30,6 +30,82 @@ published in the footer and at `/version.json`.
   quarantined registrations, host proposals, failure streaks, capture
   failures and the unreviewed count; manual Astro builds now queue on
   `flock /tmp/cc-build.lock`.
+- The commit-publish-push-alert loop now runs unattended.
+  `scripts/record_commit.py` (hourly timer) commits guard-passed pipeline
+  output from a fixed staging allowlist, refusing on a non-main `HEAD`, a
+  `.no-publish` file, a red `just test` or `just audit`, a held writer lock,
+  or an unresolved agent-guard run — a run directory without
+  `approved-captures.txt` was rejected, is in flight, or died mid-run, and
+  all three block the commit, because committing a rejected run's edits
+  would launder an injection into the record. `publish-scheduled.timer`
+  (three-hourly) is installed and pushes after each successful deploy, so
+  the commit stamped into `/version.json` always resolves on GitHub.
+  `scripts/alert.py` is the single alert writer: one JSON line per alert,
+  appended idempotently to
+  `~/.local/state/coldcard-archive/alerts.jsonl`, which the operator UI
+  (`~/coldcard-operator-ui`, a separate read-only repo) renders at
+  `/alerts`; `alert-sweep.timer` (30 minutes) turns the repo's existing
+  state files — failing units, stale host proposals, quarantined
+  registrations, failure streaks — into alerts, and failure delivery is no
+  longer blocked. `urgent` is reserved for guard rejections, gate failures
+  and the X session-health login wall.
+- The X lane runs through the capture browser, driver-side only.
+  `scripts/discover_x_browser.py` (12-hourly `discover-x.timer`, kill switch
+  `X_BROWSER_DISCOVERY_ENABLED`) reads the home timeline and watched
+  profiles and queues permalinks in `DISCOVERY.md`; the API lane
+  (`discover_x.py`) is deprecated and no bearer credential is used.
+  Promotion is automated: the registering `xintake` guard role
+  (`agent-x-intake.sh`) assesses queued candidates under the same
+  containment as community intake, and the driver first-captures each
+  approved post with `just ingest-x` afterwards — the agent never reaches
+  the browser. `check_x_availability.py` (12-hourly
+  `x-availability.timer`, kill switch `X_BROWSER_AVAILABILITY_ENABLED`)
+  re-checks that registered posts are still observable: a single absence is
+  recorded and alerted at info, and only two consecutive observations from
+  separate runs escalate, because absence is not deletion. A weekly
+  `x-media.timer` pulls registered posts' media with
+  `capture-x.sh --skip-unchanged`, which is what makes the gallery-dl pull
+  schedulable. The session-health classes — login wall, challenge, rate
+  limit — fail every lane closed and share a 24-hour cooldown. The operator
+  accepted X's automation-rule suspension risk for the signed-in account in
+  writing; the lane remains read-only: no posting, following or liking.
+- The editorial lanes keep the published prose in step with the record.
+  `scripts/report_site_staleness.py` builds a deterministic packet —
+  unreferenced sources, source-content revisions versus the pages citing
+  them, aging dated assertions, tracker degradation — into
+  `.work/site-staleness.md`. The `sync` role (`agent-site-sync.sh`,
+  12-hourly at 06:20 and 18:20 UTC) edits pages from that packet, and its
+  output is gated post-run on `just check-claims` plus a full gated build;
+  a gate failure rejects the run and raises an urgent alert. Corrections
+  are drafted, never applied, by the propose-only `corrections` role
+  (`agent-corrections.sh`, weekly Sunday 06:40 UTC) from the claim sweep's
+  state-changed flags; `scripts/apply_corrections.py` is the deterministic
+  applier — it validates each proposal (verbatim `said`, real routes, the
+  corrections.ts entry rules, zero-fuzz patch, pure append) and applies
+  all-or-nothing, dry run unless `--yes`, with an alert per applied
+  correction.
+- New-host admission is automated. An intake agent files a proposal in
+  `.work/host-proposals.txt`; the driver-side `scripts/vet_host.py` applies
+  it after deterministic checks (https only, independent DNS, robots.txt,
+  redirect shape) and admits the sound ones to `registry_hosts.toml` and
+  `agent_egress_hosts.toml`. Every admission raises an alert and stays
+  auditable; a proposal that fails vetting waits for a human, and the
+  quarantine path is unchanged.
+- Gone-corroboration is automated. `scripts/corroborate_gone.py`
+  (six-hourly timer) re-resolves `dns-unresolved` failure streaks through
+  public DNS-over-HTTPS resolvers and may set `gone = true` only when the
+  streak and the independent resolvers agree; anything short of agreement
+  keeps polling. The corroboration transcript is recorded in `gone_note`
+  and an alert is raised. The rule it automates is the one written after
+  this project called `coldcard-watch` gone on its own resolver's word and
+  had to correct it.
+- One operational lesson, recorded: the guard REJECTED the first `xintake`
+  run because concurrent development work dirtied the tree mid-run. The
+  containment worked as designed — the run's legitimate registrations were
+  re-captured driver-side afterwards and nothing was lost — and the
+  standing rule is now that agent runs and tree edits serialise.
+  `record_commit.py`'s unresolved-guard-run check is the enforcement: a
+  rejected run blocks the auto-commit until a person resolves it.
 
 ## 2026-08-07
 

@@ -24,7 +24,9 @@ or evidence from a third party.
 Last reviewed: 8 Aug 2026, recording the operator's three pipeline decisions
 of that date: X discovery moved to the capture browser with automated
 promotion, failure delivery resolved onto the operator-UI alert stream, and
-the guard-passed pipeline moved to unattended commit, publish and push.
+the guard-passed pipeline moved to unattended commit, publish and push. All
+three are built and installed the same day; the entries below record what
+landed and what stays open.
 Previous review: 7 Aug 2026, after the site-wide prose pass against the 6 and
 7 August record: 143 new registrations read into the editorial pages, three
 corrections published, and the placeholder registry notes on the new X posts
@@ -246,18 +248,13 @@ Ordered by value, not effort.
   6 Aug correction about it stands unedited, because it was accurate when
   published.
 
-- **OPEN: make the manual builds take the build lock.** `AGENTS.md` says every
-  build serialises on `flock /tmp/cc-build.lock`, and the documented recovery
-  from not doing so (a corrupted Astro cache reported as a missing
-  `renderers.mjs`) is specific enough that someone has hit it. Only
-  `publish-scheduled.sh` actually takes the lock; `just build-site`,
-  `build-preview`, `build-site-full` and `build-site-indexable` do not, so a
-  manual build started while the publish timer is mid-run still collides. Since
-  6 Aug 2026 the four builds share one body (`_astro`), so the lock now has a
-  single place to go. Decide the contention behaviour first: `flock -w`
-  and wait, which is right for a person at a terminal, or `flock -n` and refuse,
-  which is right for anything on a timer. They are not the same choice and the
-  recipes are used both ways.
+- **RESOLVED 8 Aug 2026: the manual builds take the build lock.** Since
+  6 Aug 2026 the four builds share one body (`_astro`), so the lock had a
+  single place to go: `_astro` now queues on `flock /tmp/cc-build.lock`,
+  the same lock `publish-scheduled.sh` already held, and a manual build
+  started while the publish timer is mid-run waits rather than corrupting
+  the Astro cache. Waiting is the contention behaviour throughout; the
+  timer's own skip-on-lock logic is unchanged.
 
 - **OPEN: flatten Hacker News API captures into readable text.** Both HN
   sources moved to the Algolia item API on 6 Aug 2026 because HN 429s this
@@ -291,9 +288,12 @@ Ordered by value, not effort.
   first capture has nothing to diff against.
 
   Remaining: per-status `withhold_posts`; staging and source-page presentation
-  including the reply muting rules; and the X-thread absence case added to the
-  review agent prompt, so a stalled or capped capture classifies without a
-  human reading every one.
+  including the reply muting rules.
+
+  Closed 8 Aug 2026: the X-thread absence case now classifies without a human
+  reading every one. `auto_classify_noise.py` gained a deterministic X-thread
+  churn lane, validated against the held thread diffs, so a stalled or capped
+  capture no longer waits on the review agent prompt.
 
   Settled 7 Aug 2026: `part_of = "<head-id>"` on a member's `[[x_post]]`
   block. Several conversations are already held as N separate entries, one per
@@ -334,18 +334,19 @@ Ordered by value, not effort.
   and it erred toward discarding primary material. Fold this into the nostr
   probation quality review below rather than doing it separately.
 
-- **A quarantined registration is a source the record wanted and is not
-  capturing, and nothing surfaces it.** `quarantine_registry.py` keeps the
-  tree working after a rejected registration (7 Aug 2026), which is the right
-  trade, but it makes the failure quiet: the block sits in
-  `quarantine/registry-YYYY-MM.toml` and no gate, page or report mentions it
-  again. That is the same shape as the silent-truncation problem the rest of
-  this project refuses. **In progress 8 Aug 2026:** quarantined registrations
-  and automated host admissions are being surfaced through the new alert
-  stream (`scripts/alert.py` to the operator UI's `/alerts`), so the queue is
-  visible without blocking anything; every admission by `vet_host.py` raises
-  an alert and stays auditable. A proposal that fails vetting waits for a
-  human, and restoring a quarantined registration remains a human edit.
+- **RESOLVED 8 Aug 2026: a quarantined registration is surfaced, not
+  silent.** `quarantine_registry.py` keeps the tree working after a rejected
+  registration (7 Aug 2026), but until today the block sat in
+  `quarantine/registry-YYYY-MM.toml` and no gate, page or report mentioned it
+  again. Two surfaces now carry it: `just status` lists quarantined
+  registrations alongside host proposals, failure streaks, capture failures
+  and the unreviewed count; and the alert stream (`scripts/alert.py` to the
+  operator UI's `/alerts`) raises every automated host admission by
+  `vet_host.py` and reminds daily about a host proposal that has waited
+  more than 48 hours, so both halves of the new registration automation
+  stay auditable without blocking anything. A proposal that fails
+  vetting waits for a human, and restoring a quarantined registration
+  remains a human edit.
 
 - **Measure whether the coverage index actually moves the "already
   represented" dismissals.** The index shipped on 7 Aug 2026
@@ -390,9 +391,12 @@ Ordered by value, not effort.
   capture. Its failure surface is session health — login wall, challenge,
   rate limit, distinct and fail-closed with a cooldown — and the operator
   accepted X's automation-rule suspension risk for the signed-in account in
-  writing. The direct-post availability re-check still needs deletion,
-  suspension, protection, restriction and session failure to remain
-  distinguishable; that part carries over.
+  writing. The direct-post availability re-check landed the same day:
+  `scripts/check_x_availability.py` (12-hourly `x-availability.timer`, kill
+  switch `X_BROWSER_AVAILABILITY_ENABLED`) classifies deletion, suspension,
+  protection, restriction, login wall, challenge and rate limit separately,
+  and only two consecutive absence observations escalate, because absence
+  is not deletion.
 
 - **BLOCKED: run nostr discovery probation before any scheduling.** The nostr
   lane is live as of 6 Aug 2026: the identity is published (npub on `/cite/`,
@@ -424,25 +428,28 @@ Ordered by value, not effort.
   diagnosis is checkable only by re-probing, which is what today's work had to
   do.
 
-- **OPEN: alert on a failure streak, not on a failure.** `just diagnose`
-  computes the consecutive-failure count that separates weather from decay, but
-  nothing reads it on a schedule. A source failing 105 polls and a source
-  failing twice look identical in the poll's own output, which is how
-  `mara-slipstream-portal` stayed broken for four days. The threshold should
-  differ by diagnosis: `content-below-floor` and `content-marker-missing` point
-  at this repository and should raise quickly, `origin-*` at the publisher.
-  The delivery route is resolved (8 Aug 2026, above); raise the streak alerts
-  on the new alert stream.
+- **RESOLVED 8 Aug 2026: alert on a failure streak, not on a failure.**
+  `just diagnose` already computed the consecutive-failure count that
+  separates weather from decay; nothing read it on a schedule, which is how
+  `mara-slipstream-portal` stayed broken for four days. The 30-minute
+  `alert-sweep.timer` now reads it: `scripts/alert.py`'s sweep turns each
+  source's streak into a `failure-streak` alert on the operator-UI stream,
+  with thresholds that differ by diagnosis family — `content-below-floor`
+  and `content-marker-missing` point at this repository and raise quickly,
+  `origin-*` at the publisher and raise slower. A failing unit also keys on
+  its status value, so a reminder repeats only when the state changes.
 
 - **RESOLVED 8 Aug 2026: failure delivery is the operator-UI alert stream.**
-  The route decision is made: `scripts/alert.py` appends operator-visible
-  alerts to `~/.local/state/coldcard-archive/alerts.jsonl`, and the operator
-  UI (`~/coldcard-operator-ui`, a separate read-only repo, port 4322) renders
-  them at `/alerts`. The Signal relay stays opt-in and untouched. The
-  components are being built under the 8 Aug program below. What this item
-  blocked is now open: add the nightly archive audit, production build and
-  link check on top of the alert stream, and keep deployment outside that
-  job.
+  The route decision is made and built: `scripts/alert.py` appends
+  operator-visible alerts to `~/.local/state/coldcard-archive/alerts.jsonl`,
+  and the operator UI (`~/coldcard-operator-ui`, a separate read-only repo,
+  port 4322) renders them at `/alerts`. The Signal relay stays opt-in and
+  untouched. The components that were being built under the 8 Aug program —
+  `record_commit.py`, `vet_host.py`, `discover_x_browser.py`, the page-sync
+  role and the installed `publish-scheduled.timer` — are now built and
+  installed; their entries below are closed. What this item blocked remains
+  open: add the nightly archive audit, production build and link check on
+  top of the alert stream, and keep deployment outside that job.
 
 - **BLOCKED: add an off-machine backup with a restore test.** Choose the
   destination and retention policy first. The acceptance test is a documented,
@@ -453,39 +460,57 @@ Ordered by value, not effort.
   finalized scheduler ticks, per-job results and service logs. Pending outboxes
   must never be pruned. This is private operational state, not archive history.
 
-- **OPEN: `scripts/record_commit.py` (being built, 8 Aug 2026).** Commits
-  guard-passed agent output so the unattended pipeline's work lands in git
-  history as it happens. A guard rejection still stops the line; nothing is
-  committed from a rejected run.
+- **BUILT 8 Aug 2026: `scripts/record_commit.py`.** Commits guard-passed
+  pipeline output on an hourly timer, from a fixed staging allowlist rather
+  than `git add -A`. A guard rejection still stops the line — the
+  unresolved-guard-run check blocks every commit until a person resolves
+  the rejected run — and `.no-publish`, a non-main `HEAD`, a red
+  `just test` or `just audit`, and a held writer lock each block the tick.
+  `SuccessExitStatus=0 1` keeps a blocked tick from reading as a unit
+  failure; only a persistent block alerts.
 
-- **OPEN: `scripts/alert.py` and the operator-UI alert stream (being built, 8
-  Aug 2026).** Appends operator-visible alerts to
-  `~/.local/state/coldcard-archive/alerts.jsonl`; the operator UI
-  (`~/coldcard-operator-ui`, a separate read-only repo, port 4322) renders
-  them at `/alerts`. This is the failure-delivery route resolved above.
+- **BUILT 8 Aug 2026: `scripts/alert.py` and the operator-UI alert
+  stream.** The single alert writer: one JSON line per alert, appended
+  idempotently to `~/.local/state/coldcard-archive/alerts.jsonl`, which the
+  operator UI (`~/coldcard-operator-ui`, a separate read-only repo, port
+  4322) renders at `/alerts`. The 30-minute `alert-sweep.timer` turns the
+  repo's existing state files into alerts. This is the failure-delivery
+  route resolved above.
 
-- **OPEN: `scripts/vet_host.py` automated host admission (being built, 8 Aug
-  2026).** An intake agent files a proposal in `.work/host-proposals.txt`;
-  the driver-side vetter applies it after deterministic checks (https only,
-  independent DNS, robots.txt), raises an alert per admission and leaves a
-  failed vet for a human. The quarantine path is unchanged.
+- **BUILT 8 Aug 2026: `scripts/vet_host.py` automated host admission.** An
+  intake agent files a proposal in `.work/host-proposals.txt`; the
+  driver-side vetter applies it after deterministic checks (https only,
+  independent DNS, robots.txt, redirect shape), admits the sound ones to
+  `registry_hosts.toml` and `agent_egress_hosts.toml`, raises a
+  `host-admission` alert per admission and leaves a failed vet for a
+  human. The quarantine path is unchanged.
 
-- **OPEN: `scripts/discover_x_browser.py` (being built, 8 Aug 2026).** The
+- **BUILT 8 Aug 2026: `scripts/discover_x_browser.py`.** The
   capture-browser X lane in the superseded probation item above:
   home-timeline and watched-profile reads, driver-side only, on its own
-  `discover-x.timer` under `X_BROWSER_DISCOVERY_ENABLED`.
+  12-hourly `discover-x.timer` under `X_BROWSER_DISCOVERY_ENABLED`, with
+  promotion automated through the registering `xintake` guard role and
+  driver-side `just ingest-x` first captures.
 
-- **OPEN: the page-sync agent role (being built, 8 Aug 2026).** Keeps the
-  site's editorial prose in step with the registered record as registrations
-  and corrections land unattended, under the same guard containment as the
-  other roles.
+- **BUILT 8 Aug 2026: the page-sync agent role.** The `sync` role
+  (`agent-site-sync.sh`, 12-hourly at 06:20 and 18:20 UTC) edits the site's
+  editorial prose from the deterministic staleness packet
+  (`scripts/report_site_staleness.py` to `.work/site-staleness.md`), under
+  the same guard containment as the other roles. Its output is gated
+  post-run on `just check-claims` plus a full gated build, and a gate
+  failure rejects the run with an urgent alert. Beside it, the propose-only
+  `corrections` role (`agent-corrections.sh`, weekly Sunday 06:40 UTC)
+  drafts corrections from the claim sweep's state-changed flags and the
+  deterministic `scripts/apply_corrections.py` applies them
+  all-or-nothing, dry run unless `--yes`.
 
-- **OPEN: install `publish-scheduled.timer` (in progress, 8 Aug 2026).** The
-  timer publishes guard-passed, committed work on a schedule, with a git push
-  after each successful deploy so `/version.json` and `/cite/` never resolve
-  nowhere. The existing skip conditions are unchanged: `.no-publish`, a
-  non-main `HEAD`, a dirty tree outside `archive/`, unreviewed diffs and the
-  build lock all still stop the line.
+- **BUILT 8 Aug 2026: `publish-scheduled.timer` installed.** The timer
+  publishes guard-passed, committed work every three hours, and a git push
+  follows each successful deploy so `/version.json` and `/cite/` never
+  resolve nowhere. The skip conditions are unchanged: `.no-publish`, a
+  non-main `HEAD`, a dirty tree outside `archive/`, unreviewed diffs and
+  the build lock all still stop the line, and only a genuine publish
+  failure fails the unit.
 
 - **OPEN: evaluate Wayback as a per-source fallback.** For a registered source
   that repeatedly refuses direct capture while the Internet Archive can reach

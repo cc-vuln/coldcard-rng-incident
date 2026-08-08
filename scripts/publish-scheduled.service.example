@@ -25,6 +25,7 @@ WorkingDirectory=REPO
 ExecStart=REPO/scripts/publish-scheduled.sh
 # A build plus a deploy, on a tree that may need its npm cache warmed.
 TimeoutStartSec=1800
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
 NoNewPrivileges=true
 
 [Install]
