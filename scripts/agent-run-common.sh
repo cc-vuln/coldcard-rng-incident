@@ -100,8 +100,12 @@ agent_finish() {
       --run-id "$AGENT_RUN_ID" || true
   fi
   # A rejection is the one event the unattended pipeline must not keep to
-  # itself. Alerting is allowed to fail; it never breaks the driver.
-  if [[ $rc -ne 0 ]]; then
+  # itself. Alerting is allowed to fail; it never breaks the driver. Tests
+  # exercise the drivers in temp roots with rejected stub runs, and their
+  # rejections are fixtures, not operator signal: the driver-test harness
+  # sets AGENT_ALERTS=off (in the fixture .env) to keep them out of the
+  # real alert stream.
+  if [[ $rc -ne 0 && "${AGENT_ALERTS:-on}" != "off" ]]; then
     "$ROOT/.venv/bin/python" "$ROOT/scripts/alert.py" emit \
       --kind guard-rejection --severity urgent \
       --key "guard-rejection-$AGENT_RUN_ID" \

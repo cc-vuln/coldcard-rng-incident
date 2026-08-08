@@ -41,7 +41,10 @@ class LaneRoutingTests(unittest.TestCase):
             "REVIEW_AGENT_BIN=/bin/false\n"
             # No agent account in a test tree, so the privilege drop is
             # deliberately opted out of rather than silently skipped.
-            "AGENT_SANDBOX=off\n",
+            "AGENT_SANDBOX=off\n"
+            # Fixture rejections are not operator signal: keep the driver's
+            # guard-rejection alerts out of the real alert stream.
+            "AGENT_ALERTS=off\n",
             encoding="utf-8",
         )
         (root / ".gitignore").write_text(".work/\n.env\n", encoding="utf-8")
