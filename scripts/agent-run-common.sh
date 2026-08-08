@@ -103,9 +103,40 @@ agent_finish() {
 agent_run_captures() {
   local approved="$AGENT_RUN_DIR/approved-captures.txt"
   [[ -s "$approved" ]] || return 0
-  local id rc
+  local id rc note_ref
   while read -r id; do
     [[ -n "$id" ]] || continue
+    # A [[nostr_post]] is ingested through nak, never polled: capture.py's
+    # pollable_sources() excludes the table, so `just capture-one` could only
+    # report the id unresolvable. The note ref comes from the registry block
+    # this run added, which the gate has already validated.
+    note_ref="$("$ROOT/.venv/bin/python" - "$id" "$ROOT/sources.toml" <<'PY'
+import sys, tomllib
+target, registry = sys.argv[1], sys.argv[2]
+with open(registry, "rb") as fh:
+    data = tomllib.load(fh)
+for block in data.get("nostr_post", []):
+    if block.get("id") == target:
+        url = str(block.get("url", ""))
+        if "njump.me/" in url:
+            print(url.rstrip("/").rsplit("/", 1)[-1])
+        break
+PY
+)"
+    if [[ -n "$note_ref" ]]; then
+      echo "agent-run: first capture of $id (nostr ingest)"
+      rc=0
+      just ingest-nostr "$note_ref" || rc=$?
+      if [[ $rc -eq 0 ]]; then
+        echo "agent-run: $id captured"
+      else
+        # Nothing re-requests this by itself: nostr posts are not polled, so
+        # record the failure where the operator surface can see it.
+        echo "agent-run: $id nostr ingest failed (exit $rc)" >&2
+        printf '%s\t%s\n' "$id" "$AGENT_RUN_ID" >> "$ROOT/.work/capture-failures.txt"
+      fi
+      continue
+    fi
     echo "agent-run: first capture of $id"
     rc=0
     just capture-one "$id" || rc=$?

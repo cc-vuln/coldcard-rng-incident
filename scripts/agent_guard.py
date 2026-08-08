@@ -23,6 +23,8 @@ handful the role is allowed to write. `after` recomputes and enforces:
 3. the registry changes are in shape (scripts/check_registry.py)
 4. every assessed DISCOVERY.md line still contains the candidate it came from
 5. requested first captures name sources this run actually registered
+6. the append-only files only gained lines: their before-text is a verbatim
+   prefix of their after-text
 
 A failure exits 1 and names the offender. It changes nothing: the edits stay
 on disk, which is where a human can read them, and which already blocks
@@ -90,6 +92,24 @@ SHARED_PATHS = frozenset({"sources.toml", "DISCOVERY.md"})
 # whole files. Everything else is covered by its hash alone.
 SNAPSHOT: tuple[str, ...] = (
     "sources.toml", "DISCOVERY.md", "revision-reviews.toml", "BACKLOG.md",
+)
+
+# Append-only by project rule: revision-reviews.toml and corrections.toml are
+# additive classification and correction logs, and archive/index.jsonl is the
+# append-only poll record. Until now the "only append" half of that rule lived
+# in the agent prompts, which docs/design/agent-sandbox.md is explicit is not
+# a control: the secret scan below reads added lines, so a run that rewrote
+# an existing entry and added nothing would pass it. The prefix check in
+# append_only_integrity is the deterministic half.
+#
+# archive/index.jsonl is defence in depth: archive/ writes are outside every
+# role's remit and owned by the capture runner, so a run cannot reach the file
+# without already failing the remit check. But the check costs one comparison
+# and the index is the file the change record is rebuilt from. corrections.toml
+# is in no current role's remit either; the check keys on the file, not the
+# role, so it holds the day a role gains it.
+APPEND_ONLY: tuple[str, ...] = (
+    "revision-reviews.toml", "corrections.toml", "archive/index.jsonl",
 )
 
 # .env names whose values are public by design and appear across the site.
@@ -325,6 +345,35 @@ def discovery_integrity(run_dir: Path) -> list[str]:
     return problems
 
 
+def append_only_integrity(run_dir: Path) -> list[str]:
+    """The append-only files must gain content, never lose or change it.
+
+    A pure append leaves the before-text as a verbatim prefix of the
+    after-text. Anything else (a rewritten entry, a truncated file, a
+    reordering) means history was edited, which is the one thing the
+    corrections and review logs exist to make visible.
+    """
+    problems = []
+    for rel in APPEND_ONLY:
+        before = run_dir / "before" / rel
+        if not before.exists():
+            continue  # the file did not exist when the run started
+        old = before.read_bytes()
+        try:
+            new = (ROOT / rel).read_bytes()
+        except OSError:
+            problems.append(
+                f"{rel}: existed before the run and is unreadable or gone "
+                f"now. It is append-only")
+            continue
+        if not new.startswith(old):
+            problems.append(
+                f"{rel}: existing content changed during the run. It is "
+                f"append-only: new entries go at the end, and nothing already "
+                f"there is rewritten or moved")
+    return problems
+
+
 def approve_captures(role: str, run_dir: Path) -> tuple[list[str], list[str]]:
     """Which requested first captures the driver may actually run.
 
@@ -371,7 +420,7 @@ def do_before(role: str, run_dir: Path) -> int:
     (run_dir / "before").mkdir(parents=True, exist_ok=True)
     state = {"role": role, "files": manifest()}
     (run_dir / "manifest.json").write_text(json.dumps(state))
-    for rel in SNAPSHOT:
+    for rel in sorted(set(SNAPSHOT) | set(APPEND_ONLY)):
         src = ROOT / rel
         if src.exists():
             dst = run_dir / "before" / rel
@@ -416,6 +465,11 @@ def do_after(role: str, run_dir: Path) -> int:
             problems.append(f"{rel}: modified, and outside the {role} remit")
 
     problems += scan_added(role, run_dir, changed)
+
+    # Runs on every role, whatever `changed` holds: the check is cheap, an
+    # untouched file passes it trivially, and archive/index.jsonl never
+    # appears in `changed` because archive/ is outside the manifest.
+    problems += append_only_integrity(run_dir)
 
     if "sources.toml" in changed:
         registry = subprocess.run(

@@ -26,6 +26,13 @@ shape the registry already has:
   so the POST body is not an attacker's to choose
 - an agent may retier a community source, move its `watch_until`, correct its
   floor or rewrite its note. It may not change what gets fetched, or how
+- `why` and `note` carry assessed prose, not a placeholder. On 7 Aug 2026,
+  119 registrations shipped with a `why` that was the thread's first line
+  plus "(TODO: expand)": blocks registered faster than they were assessed,
+  and the registry read as reviewed when it was not. New and rewritten prose
+  is rejected for it; prose that predates this gate is warned about in audit
+  mode rather than failed, because it is already registered and failing
+  `just audit` over it helps nobody
 
 Exits non-zero and names every offender.
 """
@@ -40,6 +47,15 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 HOSTS_FILE = Path(__file__).resolve().parent / "registry_hosts.toml"
+
+# Placeholder markers in assessed prose. The 7 Aug 2026 incident was
+# "(TODO: expand)" verbatim; FIXME/XXX/TBD are the same shape.
+PLACEHOLDER = re.compile(r"\b(TODO|FIXME|XXX|TBD)\b", re.IGNORECASE)
+
+# A `why` is the record of why a source belongs here; under fifteen words it
+# cannot be saying that. A `note` is shorter by convention, so its floor is
+# lower. Both floors pass every entry registered before this gate.
+MIN_WORDS = {"why": 15, "note": 5}
 
 # The Stacker News item query, fixed except for the item id. Anything else in
 # a POST body is an arbitrary request this project did not write.
@@ -145,6 +161,34 @@ def check_block(table: str, block: dict, hosts: set[str]) -> list[str]:
     return problems
 
 
+def check_placeholders(block: dict,
+                       fields: tuple[str, ...] = ("why", "note")) -> list[str]:
+    """Assessed prose must say something, not hold a place.
+
+    Only fields named in `fields` are checked: in delta mode that is the
+    fields this run actually wrote, so an agent retiering a block whose
+    `why` predates this gate does not inherit the grandfathered violation.
+    """
+    problems = []
+    ident = block.get("id", "(no id)")
+    for field in fields:
+        value = block.get(field)
+        if not isinstance(value, str):
+            continue  # absent or non-string; not this check's question
+        marker = PLACEHOLDER.search(value)
+        if marker:
+            problems.append(
+                f"{ident}: {field} carries a placeholder marker "
+                f"({marker.group(0)}). A registration is not assessed until "
+                f"its {field} says why the source belongs in the record")
+        elif len(value.split()) < MIN_WORDS[field]:
+            problems.append(
+                f"{ident}: {field} is {len(value.split())} word(s), under "
+                f"the {MIN_WORDS[field]}-word floor. A {field} that short "
+                f"is a placeholder by content rather than by marker")
+    return problems
+
+
 def check_registry(registry: dict, hosts: set[str]) -> list[str]:
     problems = []
     for table, by_id in blocks(registry).items():
@@ -164,6 +208,7 @@ def check_delta(before: dict, after: dict, hosts: set[str]) -> list[str]:
                             f"is append-only to an agent")
         for ident in sorted(set(new[table]) - set(old[table])):
             problems += check_block(table, new[table][ident], hosts)
+            problems += check_placeholders(new[table][ident])
         for ident in sorted(set(new[table]) & set(old[table])):
             was, now = old[table][ident], new[table][ident]
             if was == now:
@@ -180,6 +225,11 @@ def check_delta(before: dict, after: dict, hosts: set[str]) -> list[str]:
                     f"{', '.join(sorted(MUTABLE_FIELDS))}")
             # A permitted field still has to leave a valid block behind.
             problems += check_block(table, now, hosts)
+            # Prose the run rewrote is held to the placeholder rule; prose
+            # it left alone keeps its grandfathered status.
+            prose = tuple(sorted(changed & {"why", "note"}))
+            if prose:
+                problems += check_placeholders(now, prose)
     return problems
 
 
@@ -216,6 +266,23 @@ def main() -> int:
         problems = check_registry(after, hosts)
         if report(problems, str(args.registry)):
             return 1
+        # Legacy placeholder prose is warned about, not failed: those blocks
+        # are already registered and polled, and stopping `just audit` over
+        # them would not un-register anything. The delta mode above rejects
+        # new ones, which is where rejection still has teeth.
+        legacy = []
+        for by_id in blocks(after).values():
+            for block in by_id.values():
+                legacy += check_placeholders(block)
+        if legacy:
+            print(f"registry check warning: {len(legacy)} placeholder "
+                  f"`why`/`note` field(s) predate this gate and are "
+                  f"grandfathered in audit mode (the delta check rejects new "
+                  f"ones):", file=sys.stderr)
+            for problem in legacy[:20]:
+                print(f"  - {problem}", file=sys.stderr)
+            if len(legacy) > 20:
+                print(f"  ... and {len(legacy) - 20} more", file=sys.stderr)
         counts = {table: len(by_id) for table, by_id in blocks(after).items()}
         print("registry check ok: " + ", ".join(
             f"{n} {table}" for table, n in counts.items() if n))

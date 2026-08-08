@@ -39,6 +39,35 @@ def main() -> int:
     ratio = totals["capture-noise"] / reviewed if reviewed else 0
     print(f"\nTOTAL\t{reviewed}\t{totals['source-content']}\t"
           f"{totals['capture-noise']}\t{ratio:.0%}")
+
+    # Human-override measurement. A correction keeps the entry it corrects
+    # and appends one carrying classifier = "human", so the count of entries
+    # a human later corrected, per status, is the measured error rate of the
+    # review layer. The denominator is every non-human entry, tagged or not:
+    # the agent's entries predate the classifier field.
+    revisions = data.get("revision", [])
+    human_keys = {(r["source"], r["timestamp"]) for r in revisions
+                  if r.get("classifier") == "human"}
+    base = [r for r in revisions if r.get("classifier") != "human"]
+    corrected = [r for r in base
+                 if (r["source"], r["timestamp"]) in human_keys]
+    by_status: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
+    for entry in base:
+        by_status[entry["status"]]["reviewed"] += 1
+    for entry in corrected:
+        by_status[entry["status"]]["corrected"] += 1
+
+    print(f"\nhuman overrides (classifier = \"human\"): {len(human_keys)} "
+          "corrected entr(ies)")
+    print("status\treviewed\tcorrected\toverride_pct")
+    for status in sorted(by_status):
+        reviewed_n = by_status[status]["reviewed"]
+        corrected_n = by_status[status]["corrected"]
+        ratio = corrected_n / reviewed_n if reviewed_n else 0
+        print(f"{status}\t{reviewed_n}\t{corrected_n}\t{ratio:.1%}")
+    reviewed_n = len(base)
+    ratio = len(corrected) / reviewed_n if reviewed_n else 0
+    print(f"TOTAL\t{reviewed_n}\t{len(corrected)}\t{ratio:.1%}")
     return 0
 
 

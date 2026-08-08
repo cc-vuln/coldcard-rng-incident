@@ -4,6 +4,15 @@
 # diffs. It does not rewrite archive history. `source-content` means the relevant
 # content served by the tracked source changed; it does not endorse or verify the
 # source's claim. New differences default to `unreviewed` until listed here.
+#
+# A human correction to a classification keeps the original entry and appends a
+# corrected entry carrying classifier = "human". The file is additive: deleting
+# a review removes a classification, never the diff, so an override is recorded
+# as an addition, not a rewrite. scripts/report_review_signal.py counts these
+# entries, which is what makes trust in the review agent measurable. The audit
+# gate (scripts/check_reviews.py) currently refuses a second settled entry for
+# one diff; it relaxes to latest-wins when the first override lands, per its
+# own comment.
 
 [[revision]]
 source = "coinkite-mk3-advisory"

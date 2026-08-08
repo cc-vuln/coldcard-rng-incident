@@ -7,6 +7,14 @@ changes page renders a placeholder ("This detected difference has not yet
 been reviewed for capture noise.") for anything unlisted; that placeholder is
 an internal state, not something a reader should ever see on the live site.
 
+The review agent appends those classifications unattended, so the file is
+checked rather than trusted. Before the unreviewed gate runs, every
+[[revision]] entry is validated for shape: a status from the vocabulary in
+scripts/agent-review-prompt.md, a timestamp that names an existing diff file
+for that source, a non-empty summary, and at most one settled classification
+per diff. A malformed entry is worse than a missing one: it classifies
+nothing the site can find, or says something nobody checked.
+
 Run by `just audit`, so every build and deploy recipe inherits the gate.
 Exits non-zero and names the offenders. The remedy is to run the review
 agent (or classify by hand), never to delete the diff: the archive is
@@ -14,26 +22,104 @@ append-only.
 """
 from __future__ import annotations
 
+import re
 import sys
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# The status vocabulary the review prompt (scripts/agent-review-prompt.md)
+# defines, plus the "unreviewed" sentinel this gate already treats as "not
+# classified": an entry carrying it is well-formed but settles nothing.
+STATUSES = {"source-content", "capture-noise", "capture-correction",
+            "unreviewed"}
 
-def main() -> int:
-    reviews = tomllib.loads((ROOT / "revision-reviews.toml").read_text())
+TIMESTAMP = re.compile(r"^\d{8}T\d{6}Z$")
+
+
+def shape_problems(revisions: list[dict], diffs: set[tuple[str, str]]) -> list[str]:
+    """Each entry must be a well-formed classification of a real diff."""
+    problems = []
+    settled: set[tuple[str, str]] = set()
+    for index, entry in enumerate(revisions, start=1):
+        label = (f"entry {index} ({entry.get('source', '?')} "
+                 f"{entry.get('timestamp', '?')})")
+        source, timestamp = entry.get("source"), entry.get("timestamp")
+        if not isinstance(source, str) or not source.strip():
+            problems.append(f"{label}: source is missing or empty")
+            continue
+        if not isinstance(timestamp, str) or not TIMESTAMP.match(timestamp):
+            problems.append(
+                f"{label}: timestamp is missing or not YYYYMMDDTHHMMSSZ")
+            continue
+        status = entry.get("status")
+        if status not in STATUSES:
+            problems.append(f"{label}: unknown status {status!r}; the "
+                            f"vocabulary is {', '.join(sorted(STATUSES))}")
+        summary = entry.get("summary")
+        if not isinstance(summary, str) or not summary.strip():
+            problems.append(f"{label}: summary is empty; it is the one "
+                            f"sentence a reader gets about what changed")
+        if (source, timestamp) not in diffs:
+            problems.append(
+                f"{label}: names no diff at "
+                f"archive/diffs/{source}/{timestamp}.diff; a classification "
+                f"of nothing classifies nothing")
+        if status != "unreviewed":
+            # The file is additive and a later correction entry is the stated
+            # convention, but the live file has never carried two settled
+            # entries for one diff, so a duplicate is an agent appending
+            # without checking rather than a convention in use. If a genuine
+            # correction entry ever lands, relax this to latest-wins then,
+            # with the example in hand.
+            if (source, timestamp) in settled:
+                problems.append(
+                    f"{label}: second settled classification of the same "
+                    f"diff; never classify the same diff twice")
+            settled.add((source, timestamp))
+    return problems
+
+
+def unreviewed(root: Path) -> tuple[list[tuple[str, str]], int]:
+    """Unclassified (source, timestamp) pairs, sorted, and the count on file.
+
+    The rule the publish gate enforces below, factored out so `just status`
+    (scripts/report_status.py) reports the same count the gate would refuse
+    on, rather than a second reading of it that can drift.
+    """
+    reviews = tomllib.loads((root / "revision-reviews.toml").read_text())
     classified = {
         (r["source"], r["timestamp"])
         for r in reviews.get("revision", [])
         if r.get("status") != "unreviewed"
     }
+    diffs = {
+        (p.parent.name, p.stem)
+        for p in (root / "archive" / "diffs").glob("*/*.diff")
+    }
+    return sorted(diffs - classified), len(classified)
 
-    outstanding = sorted(
+
+def main() -> int:
+    reviews = tomllib.loads((ROOT / "revision-reviews.toml").read_text())
+    revisions = reviews.get("revision", [])
+    diffs = {
         (p.parent.name, p.stem)
         for p in (ROOT / "archive" / "diffs").glob("*/*.diff")
-        if (p.parent.name, p.stem) not in classified
-    )
+    }
+
+    problems = shape_problems(revisions, diffs)
+    if problems:
+        print(f"review check failed: {len(problems)} malformed [[revision]] "
+              f"entr(ies) in revision-reviews.toml:", file=sys.stderr)
+        for problem in problems[:15]:
+            print(f"  - {problem}", file=sys.stderr)
+        if len(problems) > 15:
+            print(f"  ... and {len(problems) - 15} more", file=sys.stderr)
+        return 1
+
+    outstanding, classified = unreviewed(ROOT)
 
     if outstanding:
         print(f"review check failed: {len(outstanding)} detected "
@@ -51,7 +137,7 @@ def main() -> int:
         return 1
 
     print(f"review check ok: every detected difference is classified "
-          f"({len(classified)} revisions on file)")
+          f"({classified} revisions on file)")
     return 0
 
 

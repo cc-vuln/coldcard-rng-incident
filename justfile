@@ -115,9 +115,11 @@ discover-nostr *ARGS:
 ingest-nostr *ARGS:
     @{{py}} scripts/ingest_nostr.py {{ARGS}}
 
-# What is tracked, and when each source last moved
+# What is tracked, when each source last moved, and what is waiting on a
+# person (quarantine, host proposals, failure streaks, unreviewed diffs)
 status:
     @{{py}} scripts/capture.py status
+    @{{py}} scripts/report_status.py
 
 # Sources failing their most recent poll, grouped by cause and streak.
 # `just diagnose --json` is the same view for an automated triage pass.
@@ -314,9 +316,31 @@ site_url_public := '${SITE_URL:?set SITE_URL}'
 
 # Stage the publishable X media, then build. `env` is any extra environment
 # the build needs, as a shell assignment prefix.
+#
+# The build itself serialises on flock /tmp/cc-build.lock, the same lock
+# publish-scheduled.sh takes with flock -n before it runs `just publish`.
+# The two modes are deliberate: the timer skips rather than queue behind an
+# operator's build (it retries on the next tick), and an operator's build
+# queues with flock -w rather than skip, because a skipped manual build looks
+# exactly like a successful one in the scrollback.
+#
+# The probe before the wait is what makes the two modes nest. When
+# publish-scheduled.sh calls `just publish`, the recipe shells inherit its
+# fd 9, already holding the lock; flock(2) on an open file description that
+# already holds the lock is a no-op success, so the build proceeds. Without
+# the probe the recipe would open the file anew, and a fresh open file
+# description blocks behind the lock its own ancestor holds: deadlock.
+# Verified 8 Aug 2026 on this host: nested flock on the inherited fd succeeds
+# at once, a fresh open waits until the holder exits.
 _astro site_url env="":
     @node site/tools/stage-x-media.mjs
-    @cd site && {{env}} SITE_URL="{{site_url}}" npx astro build
+    @if flock -n 9 2>/dev/null; then \
+        : "build lock already held by an ancestor on inherited fd 9"; \
+    else \
+        exec 9>/tmp/cc-build.lock; \
+        flock -w 900 9 || { echo "astro build: could not take /tmp/cc-build.lock within 900s" >&2; exit 1; }; \
+    fi; \
+    cd site && {{env}} SITE_URL="{{site_url}}" npx astro build
 
 # What every publishable build must survive: nothing operational in the
 # output, every tracker total still read from a capture rather than the pin,

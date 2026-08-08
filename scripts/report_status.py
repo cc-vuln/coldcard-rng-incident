@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+"""The operator-summary half of `just status`: what is waiting on a person.
+
+`capture.py status` says what is tracked and when each source last moved.
+This says what needs a decision: quarantined registrations, host proposals
+the intake agent declined for an unlisted host, sources on a failure streak,
+recorded first-capture failures, and detected differences the review gate has
+not classified yet.
+
+Each section reads small files or reuses the tool that owns the rule
+(`capture.py diagnose --json` for streaks, `check_reviews.unreviewed` for the
+gate's count), so nothing here can drift from what the gates enforce. A
+missing file means nothing to report, never an error. Stdlib only.
+"""
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+import tomllib
+from collections import Counter
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# Same tables quarantine_registry.py knows how to move.
+TABLES = ("source", "x_post", "nostr_post", "x_watch")
+
+
+def host_of(url: str) -> str:
+    return urlparse(url).hostname or "(no host)"
+
+
+def quarantine() -> None:
+    print("== quarantined registrations ==")
+    files = sorted((ROOT / "quarantine").glob("registry-*.toml"))
+    if not files:
+        print("none\n")
+        return
+    total, hosts = 0, Counter()
+    for path in files:
+        try:
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            # A quarantine file is verbatim evidence, hand-restorable; a
+            # broken one is reported, not hidden, and never fatal here.
+            print(f"  {path.name}: could not parse ({exc})")
+            continue
+        for table in TABLES:
+            for entry in data.get(table, []):
+                if isinstance(entry, dict) and entry.get("id"):
+                    total += 1
+                    hosts[host_of(str(entry.get("url", "")))] += 1
+    print(f"{total} registration(s) in {len(files)} file(s), "
+          f"{len(hosts)} unique host(s):")
+    for host, n in hosts.most_common():
+        print(f"  {host} ({n})")
+    print()
+
+
+def host_proposals() -> None:
+    print("== pending host proposals (.work/host-proposals.txt) ==")
+    path = ROOT / ".work" / "host-proposals.txt"
+    if not path.exists():
+        print("none\n")
+        return
+    lines = [l for l in path.read_text(encoding="utf-8").splitlines()
+             if l.strip() and not l.startswith("#")]
+    if not lines:
+        print("none\n")
+        return
+    hosts = Counter()
+    malformed = 0
+    for line in lines:
+        fields = line.split("\t")
+        if len(fields) == 4 and fields[1].strip():
+            hosts[fields[1].strip()] += 1
+        else:
+            malformed += 1
+    print(f"{len(lines)} proposal(s), {len(hosts)} unique host(s):")
+    for host, n in hosts.most_common():
+        print(f"  {host} ({n})")
+    if malformed:
+        print(f"  ({malformed} line(s) not in the tab-separated shape; "
+              f"read the file itself)")
+    print()
+
+
+def streaks(minimum: int = 2) -> None:
+    print(f"== failure streaks (>= {minimum}) ==")
+    done = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "capture.py"),
+         "diagnose", "--json"],
+        cwd=ROOT, capture_output=True, text=True)
+    rows = []
+    if done.returncode == 0:
+        try:
+            rows = json.loads(done.stdout)
+        except ValueError:
+            # diagnose prints prose, not JSON, when nothing is failing.
+            rows = []
+    else:
+        print(f"  diagnose failed (exit {done.returncode}): "
+              f"{done.stderr.strip()[:120]}")
+    rows = [r for r in rows if r.get("streak", 0) >= minimum]
+    if not rows:
+        print("none\n")
+        return
+    print(f"{len(rows)} source(s):")
+    for r in rows:
+        print(f"  {r['id']:<44} {r['diagnosis']:<22} "
+              f"x{r['streak']} since {r.get('failing_since')}")
+    print()
+
+
+def capture_failures() -> None:
+    print("== recorded capture failures (.work/capture-failures.txt) ==")
+    path = ROOT / ".work" / "capture-failures.txt"
+    if not path.exists():
+        print("none\n")
+        return
+    lines = [l for l in path.read_text(encoding="utf-8").splitlines()
+             if l.strip()]
+    if not lines:
+        print("none\n")
+        return
+    print(f"{len(lines)} recorded, most recent last:")
+    for line in lines[-10:]:
+        print(f"  {line}")
+    if len(lines) > 10:
+        print(f"  ... and {len(lines) - 10} earlier")
+    print()
+
+
+def unreviewed_diffs() -> None:
+    print("== unreviewed detected differences ==")
+    # check_reviews owns the gate's rule; import it rather than restate it.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import check_reviews
+    outstanding, _ = check_reviews.unreviewed(ROOT)
+    if not outstanding:
+        print("none\n")
+        return
+    print(f"{len(outstanding)} unreviewed (the review gate refuses a "
+          f"publish while any remain):")
+    for source, ts in outstanding[:10]:
+        print(f"  {source} {ts}")
+    if len(outstanding) > 10:
+        print(f"  ... and {len(outstanding) - 10} more")
+    print()
+
+
+def main() -> int:
+    quarantine()
+    host_proposals()
+    streaks()
+    capture_failures()
+    unreviewed_diffs()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

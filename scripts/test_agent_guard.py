@@ -76,10 +76,20 @@ tier = 2
 watch_until = "20260812T000000Z"
 min_chars = 1500
 capture = "reddit-json"
-why = "A first-hand account of a drained device, with the timeline the poster kept."
+why = "A first-hand account of a drained device, with the timeline the poster kept and the transaction ids to follow."
 '''
 
 VERDICT = " -> registered as reddit-a-candidate (20260806T120000Z)"
+
+# What revision-reviews.toml already holds when a run starts: one settled
+# classification the append-only prefix check can watch being preserved.
+EXISTING_REVIEW = '''\
+[[revision]]
+source = "stackernews-example-thread"
+timestamp = "20260801T000000Z"
+status = "capture-noise"
+summary = "Only the relative timestamps on the comments moved."
+'''
 
 
 class GuardCase(unittest.TestCase):
@@ -95,7 +105,11 @@ class GuardCase(unittest.TestCase):
         (self.tmp / ".work").mkdir(exist_ok=True)
         self.write("sources.toml", SOURCES)
         self.write("DISCOVERY.md", DISCOVERY)
-        self.write("revision-reviews.toml", "")
+        self.write("revision-reviews.toml", EXISTING_REVIEW)
+        self.write("corrections.toml", "# No corrections yet.\n")
+        self.write("archive/index.jsonl",
+                   '{"ts": "20260801T000000Z", '
+                   '"id": "stackernews-example-thread", "result": "same"}\n')
         self.write("BACKLOG.md", "# Backlog\n")
         self.write("scripts/capture.py", "# the capture writer\n")
         self.write("site/src/pages/about.astro", "<p>about</p>\n")
@@ -380,6 +394,76 @@ summary = "Only the relative timestamps on the comments moved."
     def test_the_review_agent_may_not_request_a_capture(self):
         (self.run_dir / "capture-requests.txt").write_text("anything\n")
         self.assertRejected("the review role registers nothing")
+
+
+class AppendOnlyFiles(GuardCase):
+    """The append-only logs gain entries; they are never rewritten.
+
+    revision-reviews.toml is in the review role's remit, so it is the file
+    an injected review run could rewrite without tripping the remit check.
+    archive/index.jsonl sits outside the git manifest entirely, so the
+    capture timer's appends during a run must pass, and only a rewrite may
+    fail.
+    """
+    role = "review"
+
+    def test_appending_a_classification_passes(self):
+        self.append("revision-reviews.toml", '''
+[[revision]]
+source = "stackernews-example-thread"
+timestamp = "20260806T120000Z"
+status = "capture-noise"
+summary = "Only the relative timestamps on the comments moved."
+''')
+        self.assertAccepted()
+
+    def test_rewriting_an_existing_classification_is_rejected(self):
+        text = (self.tmp / "revision-reviews.toml").read_text().replace(
+            "capture-noise", "source-content")
+        self.write("revision-reviews.toml", text)
+        self.assertRejected("revision-reviews.toml: existing content changed")
+
+    def test_rewriting_the_corrections_log_is_rejected(self):
+        """corrections.toml is in no role's remit, but the check keys on the
+        file rather than the role, so it fires here too — as it must the day
+        a role gains the file."""
+        text = (self.tmp / "corrections.toml").read_text().replace(
+            "# No corrections yet.\n", "# Rewritten.\n")
+        self.write("corrections.toml", text)
+        self.assertRejected("corrections.toml: existing content changed")
+
+    def test_appending_to_the_capture_index_passes(self):
+        """The capture timer appends to the index throughout every run."""
+        self.append("archive/index.jsonl",
+                    '{"ts": "20260806T120000Z", '
+                    '"id": "stackernews-example-thread", "result": "same"}\n')
+        self.assertAccepted()
+
+    def test_rewriting_the_capture_index_is_rejected(self):
+        self.write("archive/index.jsonl",
+                   '{"ts": "20260801T000000Z", '
+                   '"id": "stackernews-example-thread", "result": "changed"}\n')
+        self.assertRejected("archive/index.jsonl: existing content changed")
+
+    def test_leaving_the_append_only_files_untouched_passes(self):
+        self.assertAccepted()
+
+
+class PlaceholderProse(GuardCase):
+    """The 7 Aug 2026 first-line-plus-TODO registrations cannot recur."""
+
+    def test_a_new_block_with_a_short_why_is_rejected(self):
+        self.append("sources.toml", NEW_REDDIT_BLOCK.replace(
+            "A first-hand account of a drained device, with the timeline "
+            "the poster kept and the transaction ids to follow.",
+            "First line of the thread."))
+        self.assertRejected("under the 15-word floor")
+
+    def test_a_new_block_with_a_todo_marker_is_rejected(self):
+        self.append("sources.toml", NEW_REDDIT_BLOCK.replace(
+            "the transaction ids to follow.",
+            "the transaction ids to follow. (TODO: expand)"))
+        self.assertRejected("carries a placeholder marker")
 
 
 class LiveRegistry(unittest.TestCase):
