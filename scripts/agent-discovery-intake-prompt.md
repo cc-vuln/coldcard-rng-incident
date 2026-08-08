@@ -269,7 +269,10 @@ Name the ids you requested in your report. Do not run `just capture-one`,
 ## Record the verdicts
 
 In `DISCOVERY.md`, move each assessed line from `## Pending` to the end of
-`## Assessed`, appending the verdict and a UTC stamp:
+`## Assessed`, immediately before the `## Link review, held for a human
+decision` heading — later sections are not part of `## Assessed`, and a line
+placed after that heading is not recorded as assessed. Append the verdict and
+a UTC stamp:
 
 - `-> registered as stackernews-<slug> (YYYYMMDDTHHMMSSZ)` (or the platform's
   corresponding source id)

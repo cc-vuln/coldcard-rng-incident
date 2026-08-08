@@ -94,7 +94,8 @@ TIER_INTERVAL_SECONDS = {1: 30 * 60, 2: 6 * 60 * 60, 3: 6 * 60 * 60}
 STALE_CYCLES = 3
 
 # A publisher that refuses this collector repeatedly is a fact about the
-# publisher, not a bug here. After this many consecutive refusals the archive
+# publisher, not a bug here. After this many consecutive refusals — or proven
+# origin-challenge blocks, which are a refusal by interstitial — the archive
 # stops pretending the next direct attempt will work and falls back to Wayback.
 WAYBACK_AFTER_REFUSALS = 3
 
@@ -1607,18 +1608,45 @@ def _was_refusal(ev: dict) -> bool:
     return ev.get("event") == "error" and "403" in str(ev.get("error", ""))
 
 
+def consecutive_challenges(sid: str) -> int:
+    """Proven origin-challenge blocks since the last actual capture.
+
+    A challenge page is a refusal delivered as an interstitial rather than a
+    status code, so it counts toward the same Wayback fallback threshold. Only
+    the proven kind counts: `content-below-floor` and `content-marker-missing`
+    are our config or a redesign, and a Wayback replay would hide both.
+    """
+
+    count = 0
+    for ev in reversed(events_by_source().get(sid, [])):
+        if ev.get("event") in SUCCESS_EVENTS:
+            break
+        if (ev.get("failure") == "challenged"
+                and ev.get("diagnosis") == "origin-challenge"):
+            count += 1
+            continue
+        break
+    return count
+
+
 def _try_wayback(src: dict, result: dict, kind: str, dry: bool):
     """Fall back to Wayback for a source whose origin keeps refusing us.
 
-    Only for refusals, and only once a refusal is clearly the standing state
-    rather than one bad response. A recovered capture is stored like any other
-    but carries `provenance: wayback`, because a reader must always be able to
+    Only for refusals — flat ones and proven challenge interstitials alike —
+    and only once the refusal is clearly the standing state rather than one
+    bad response. A recovered capture is stored like any other but carries
+    `provenance: wayback` plus an `origin_refused`/`origin_challenged` marker
+    saying which refusal drove it, because a reader must always be able to
     tell what this project fetched from the origin itself.
     """
 
-    if kind != "refused" or src.get("capture", "http") != "http":
+    if kind not in ("refused", "challenged"):
         return None
-    if consecutive_refusals(src["id"]) + 1 < WAYBACK_AFTER_REFUSALS:
+    if kind == "refused":
+        streak = consecutive_refusals(src["id"])
+    else:
+        streak = consecutive_challenges(src["id"])
+    if streak + 1 < WAYBACK_AFTER_REFUSALS:
         return None
 
     try:
@@ -1640,10 +1668,12 @@ def _try_wayback(src: dict, result: dict, kind: str, dry: bool):
         provenance="wayback",
         wayback_timestamp=wayback.wb_ts_to_ours(ts14),
         failure=kind,
-        origin_refused=True,
+        origin_refused=(kind == "refused"),
+        origin_challenged=(kind == "challenged"),
     )
+    state = "refusing" if kind == "refused" else "challenging"
     print(
-        f"  {src['id']:<24} WAYBACK  origin refusing; replayed "
+        f"  {src['id']:<24} WAYBACK  origin {state}; replayed "
         f"{wayback.wb_ts_to_ours(ts14)}"
     )
     return body, {"_status": "200", "_provenance": "wayback"}, text
@@ -1751,15 +1781,31 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     # so a source can declare the minimum text it should ever legitimately return.
     floor = src.get("min_chars", 0)
     if floor and len(text) < floor:
-        if tmp_pdf is not None:
-            tmp_pdf.unlink(missing_ok=True)
         diagnosis = diagnose_content(text, "content-below-floor")
-        result.update(event="blocked", failure="challenged", chars=len(text),
-                      min_chars=floor, diagnosis=diagnosis)
-        print(f"  {sid:<24} BLOCKED  [{diagnosis}] {len(text)} chars < {floor} floor, not stored")
-        if not dry:
-            append_event(result)
-        return result
+        if diagnosis == "origin-challenge":
+            # A proven challenge interstitial is the origin refusing us by
+            # other means, so the same Wayback fallback as a flat refusal
+            # applies. Any other shortfall is our config or a redesign, and a
+            # replay would only hide it, so those never reach for Wayback.
+            recovered = _try_wayback(src, result, "challenged", dry)
+            if recovered is not None:
+                body, headers, text = recovered
+                if tmp_pdf is not None:
+                    # The render is of the challenge page, not of what the
+                    # replay recovered; the replayed HTML is the artefact.
+                    tmp_pdf.unlink(missing_ok=True)
+                    tmp_pdf = None
+        if len(text) < floor:
+            # Still short — either not a challenge, or the replay was itself
+            # an archived interstitial. Record the block as before.
+            if tmp_pdf is not None:
+                tmp_pdf.unlink(missing_ok=True)
+            result.update(event="blocked", failure="challenged", chars=len(text),
+                          min_chars=floor, diagnosis=diagnosis)
+            print(f"  {sid:<24} BLOCKED  [{diagnosis}] {len(text)} chars < {floor} floor, not stored")
+            if not dry:
+                append_event(result)
+            return result
 
     missing_markers = [
         marker for marker in src.get("required_text", []) if marker not in text
@@ -1852,7 +1898,12 @@ def capture_one(src: dict, dry: bool = False) -> dict:
     d = snap_dir(sid)
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{ts}.txt").write_text(text, encoding="utf-8")
-    if method == "browser":
+    if result.get("provenance") == "wayback":
+        # However the source is normally captured, a Wayback recovery's held
+        # artefact is the replayed HTML; for a browser source the challenge
+        # render was discarded at recovery, so there is no PDF to move in.
+        (d / f"{ts}.html").write_bytes(body)
+    elif method == "browser":
         # The rendered PDF stands in for raw HTML, which a browser capture
         # does not otherwise have. Rendered in the same tab session as the
         # text, moved in from the temp path only because the text changed.
@@ -2275,7 +2326,12 @@ def cmd_audit(args) -> int:
             if method not in ("http", "browser", "gallery-dl", "reddit-json",
                               "x-thread"):
                 problems.append(f"{d.name}/{ts}: nonstandard method {method!r}")
-            if method == "browser" or meta.get("renderer"):
+            if meta.get("provenance") == "wayback":
+                # A Wayback recovery holds the replayed HTML whatever the
+                # source's own method is; there is no render to audit.
+                if not (d / f"{ts}.html").exists():
+                    problems.append(f"{d.name}/{ts}: wayback capture without HTML")
+            elif method == "browser" or meta.get("renderer"):
                 if not (d / f"{ts}.pdf").exists():
                     problems.append(f"{d.name}/{ts}: browser capture without PDF")
             elif method in ("reddit-json", "x-thread"):

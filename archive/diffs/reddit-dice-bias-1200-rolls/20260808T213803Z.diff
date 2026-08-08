@@ -1,0 +1,64 @@
+--- reddit-dice-bias-1200-rolls@20260808T150808Z
++++ reddit-dice-bias-1200-rolls@20260808T213803Z
+@@ -766,3 +766,61 @@
+ edited: false
+ body:
+ If you do the math it's actually quite surprising just how much bias is needed before it starts to become a problem. For instance, a seed phrase generated from biased coin flips only loses 3% of its entropy even with a 60/40 bias [(source)](https://www.wolframalpha.com/input?i=-.4*log2%28.4%29-.6*log2%28.6%29). Meaning that a 24 word seed phrase would drop down to 248 bits of entropy from 256, meanwhile even 128 bits is still secure.
++
++comment: p2hq6na
++parent: t1_p2b282x
++author: RefrigeratorLow1259
++created_utc: 1786208878
++edited: false
++body:
++
++
++Yes, if you roll it 100 times, then even if it seems completely biased towards 6, it will generate enough entropy. That's the Shannon equation for measuring uncertainty.
++ The probability of a number being 50%, and the rest 5 being 10% each, still gives 2.16 bits of entropy on each roll, which is 0.42 less than in a completely unbiased dice, but enough nevertheless if you simply roll it a few times more.
++
++It simply takes time to verify that the dice won't fare worse than that. In contrast, coin flipping using von Neumann's method necessitates no precautionary measures.
++
++comment: p2hyas3
++parent: t3_1vi20y9
++author: RefrigeratorLow1259
++created_utc: 1786211145
++edited: false
++body:
++Bias makes little difference in the entropy calculation...check out Shannon entropy. For dice rolls entropy should be 2.585, but even if the 6 came up twice as often as the other numbers it only reduces entropy to 2.522.
++Also remember that running all the throws through a SHA-256 cryptograohic hashing function destroys any patterns. 
++
++comment: p2i3dox
++parent: t1_p2hq6na
++author: Deto
++created_utc: 1786212580
++edited: false
++body:
++I still don't see how you would even need precautionary measures with dice even.  Like you said - even a large bias (completely unrealistic) just reduces the entropy a little.  And an attacker couldn't even exploit that bias unless it was a systematic bias among ALL dice since they wouldn't be able to infer one accounts dice'  bias anyways. 
++
++All the unnecessary hand wringing and FUD about dice bias is just going to push people to less secure measures.
++
++comment: p2ih6rs
++parent: t1_p2e9rda
++author: marvinrabbit
++created_utc: 1786216538
++edited: false
++body:
++This is effectively doing so. This checks not just the dice, but the rolling technique and any ancillary equipment. Think of an extreme example; if you had perfect, verified, casino grade dice but very carefully placed every one so that it showed as '1'. The graph would show complete bias. So this is testing everything in the dice rolling system
++
++comment: p2iikjf
++parent: t1_p2aux9j
++author: marvinrabbit
++created_utc: 1786216944
++edited: false
++body:
++I think you missed the point, probably very purposely so. This is a mathematical experiment with average dice to show that perfect, casino grade, dice really aren't required and something that you already have should be good enough. This isn't something that every person would go through. 
++
++But your level of snark shows the true reason for your comment, so I don't expect you to see anything but what you already want to see.
++
++comment: p2inc6p
++parent: t1_p2ejdfy
++author: Past_Permission_6123
++created_utc: 1786218345
++edited: false
++body:
++I think you make dice rolling sound a lot more complicated than it is. Any ColdCard hardware wallet user should be able to do it, the ColdCard devs even recommended to use dice rolls for the best security. It's an optional part of the setup and described in the official user guide: [https://coldcard.com/docs/master-seed/#create-a-new-master-seed](https://coldcard.com/docs/master-seed/#create-a-new-master-seed)

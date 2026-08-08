@@ -361,6 +361,27 @@ def discovery_integrity(run_dir: Path) -> list[str]:
         problems.append(
             f"DISCOVERY.md: an assessed line does not match any candidate "
             f"that was pending: {entry[:90]}")
+
+    # A run's only verdict destination is Assessed, and the lanes own the
+    # queues. Every other section is a human parking spot or another
+    # writer's, and a verdict appended there passes both checks above as
+    # "settled": 64 of them landed in "Link review, held for a human
+    # decision" over 5-6 Aug 2026 and were found only when the queue was
+    # read by hand. Lines in those sections must be exactly the lines that
+    # were there when the run started.
+    for name in sorted(set(old) | set(new)):
+        if name in queues or name == "Assessed":
+            continue
+        held_before = set(old.get(name, []))
+        held_after = set(new.get(name, []))
+        for line in sorted(held_after - held_before):
+            problems.append(
+                f"DISCOVERY.md: a line was added to '## {name}', a section "
+                f"the run may not write: {line[:90]}")
+        for line in sorted(held_before - held_after):
+            problems.append(
+                f"DISCOVERY.md: a line was removed from '## {name}', a "
+                f"section the run may not write: {line[:90]}")
     return problems
 
 

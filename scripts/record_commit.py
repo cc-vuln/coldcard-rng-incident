@@ -26,9 +26,13 @@ Every precondition prints its reason when it blocks, and a block exits 1:
      purpose, and the commit timer respects it for the same reason the publish
      timer does: unattended steps stop when somebody is working.
   3. `just test` passes.
-  4. `just audit` passes. capture.py exits 21 when the 30-minute poll holds
-     the writer lock, which is contention rather than a finding, so 21s are
-     retried across a typical poll window before it counts as blocked.
+  4. `just audit-core` passes: the audit WITHOUT the review gate.
+     Unreviewed diffs make the tree unpublishable (publish-scheduled has its
+     own skip for them), not uncommittable, and with polls finding changes
+     every 30 minutes against a two-hourly review pass, gating commits on
+     classification would stall the committer most of the day. capture.py
+     still exits 21 when the poll holds the writer lock, which is contention
+     rather than a finding, so 21s are retried across a typical poll window.
   5. No unresolved agent-guard run since the last commit. agent_guard.py
      writes approved-captures.txt only when a run passes; a run directory
      without one was rejected, is still in flight, or died mid-run. All three
@@ -408,7 +412,7 @@ def run_just(root: Path, recipe: str) -> int:
 
 
 def audit_with_retry(root: Path, out) -> bool:
-    """`just audit`, retrying through writer-lock contention.
+    """`just audit-core`, retrying through writer-lock contention.
 
     The 30-minute poll holds the exclusive writer lock for minutes at a time
     and the audit's shared lock fails non-blocking behind it, so a bare 21 is
@@ -416,14 +420,14 @@ def audit_with_retry(root: Path, out) -> bool:
     "the poll was running" from a gate that genuinely fails; still locked
     after that is treated as blocked and the next timer tick tries again.
     """
-    rc = run_just(root, "audit")
+    rc = run_just(root, "audit-core")
     for wait in AUDIT_RETRY_WAITS_SECONDS:
         if rc != LOCK_BUSY_EXIT:
             break
         print(f"record-commit: audit hit the writer lock (exit 21), "
               f"retrying in {wait}s", file=out)
         time.sleep(wait)
-        rc = run_just(root, "audit")
+        rc = run_just(root, "audit-core")
     return rc == 0
 
 
@@ -452,9 +456,9 @@ def check_preconditions(root: Path, out=sys.stdout) -> None:
     print("precondition: just test passes", file=out)
 
     if not audit_with_retry(root, out):
-        raise Blocked("`just audit` fails (writer-lock 21s were retried "
-                      "through a poll window; it still fails)")
-    print("precondition: just audit passes", file=out)
+        raise Blocked("`just audit-core` fails (writer-lock 21s were "
+                      "retried through a poll window; it still fails)")
+    print("precondition: just audit-core passes (no review gate)", file=out)
 
     unresolved = unresolved_guard_runs(root)
     if unresolved:

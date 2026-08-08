@@ -148,12 +148,18 @@ class GuardCase(unittest.TestCase):
         (self.tmp / rel).write_text((self.tmp / rel).read_text() + text)
 
     def assess_candidate(self, verdict: str = VERDICT) -> None:
-        """Move the pending candidate to Assessed, the way the agent does."""
+        """Move the pending candidate to the end of Assessed, the way the
+        prompt tells the agent to: immediately before the next section
+        heading, not at the end of the file."""
         text = (self.tmp / "DISCOVERY.md").read_text()
         pending = [line for line in text.splitlines()
                    if line.startswith("- 2026-08-05")][0]
         text = text.replace(pending + "\n", "")
-        self.write("DISCOVERY.md", text.rstrip("\n") + "\n" + pending + verdict + "\n")
+        marker = "\n## Link review"
+        head, tail = text.split(marker, 1)
+        self.write("DISCOVERY.md",
+                   head.rstrip("\n") + "\n\n" + pending + verdict + "\n"
+                   + marker + tail)
 
     def after(self) -> tuple[int, str]:
         from io import StringIO
@@ -326,6 +332,32 @@ class QueueIntegrity(GuardCase):
             "comments/zzz999/a_quiet_thread/) by nobody, 1 comments "
             "(r/Bitcoin) [topical]\n"))
         self.assertAccepted()
+
+    def test_a_verdict_in_a_later_section_is_rejected(self):
+        """A verdict's only destination is the end of ## Assessed, before
+        the next heading. Appended to "Link review" instead, it passed both
+        queue checks as settled: this is how 64 verdicts were misfiled over
+        5-6 Aug 2026 and found only by reading the queue by hand."""
+        text = (self.tmp / "DISCOVERY.md").read_text()
+        pending = [line for line in text.splitlines()
+                   if line.startswith("- 2026-08-05")][0]
+        # The fixture's last section is Link review, so a verdict appended
+        # at the end of the file lands inside it.
+        moved = text.replace(pending + "\n", "")
+        self.write("DISCOVERY.md",
+                   moved.rstrip("\n") + f"\n{pending}{VERDICT}\n")
+        self.assertRejected("added to '## Link review, held for a human decision'")
+
+    def test_a_line_removed_from_a_later_section_is_rejected(self):
+        """The held sections are a human parking spot; a run that empties
+        one is out of its remit even when every verdict it wrote is clean."""
+        text = (self.tmp / "DISCOVERY.md").read_text()
+        held = [line for line in text.splitlines()
+                if line.startswith("- 2026-08-02")][0]
+        self.write("DISCOVERY.md", text.replace(held + "\n", ""))
+        self.assess_candidate()
+        self.assertRejected(
+            "removed from '## Link review, held for a human decision'")
 
 
 class CaptureRequests(GuardCase):

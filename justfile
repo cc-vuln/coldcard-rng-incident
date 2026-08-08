@@ -153,6 +153,17 @@ audit:
     @{{py}} scripts/agent_proxy.py --check
     @{{py}} scripts/check_reviews.py
 
+# The audit without the review gate. record_commit.py runs this: unreviewed
+# diffs make the tree unpublishable (publish-scheduled has its own skip for
+# them), not uncommittable, and with polls finding changes every 30 minutes
+# against a two-hourly review pass, gating commits on classification would
+# stall the committer for most of the day (observed 8 Aug 2026).
+audit-core:
+    @{{py}} scripts/capture.py audit
+    @{{py}} scripts/check_publishable.py
+    @{{py}} scripts/check_registry.py
+    @{{py}} scripts/agent_proxy.py --check
+
 # Is the agent sandbox still in place? Reports only; run the script without
 # --check to apply. Separate from `audit` because it is a property of the
 # machine rather than of the record, so a clone should not fail on it.

@@ -630,6 +630,102 @@ class WaybackFallbackTests(unittest.TestCase):
         self.assertEqual(result["provenance"], "wayback")
         self.assertEqual(result["wayback_timestamp"], "20260802T235959Z")
         self.assertTrue(result["origin_refused"])
+        self.assertFalse(result["origin_challenged"])
+
+    BROWSER_SOURCE = {
+        "id": "challenged",
+        "url": "https://example.test/article",
+        "capture": "browser",
+        "min_chars": 100,
+    }
+    CHALLENGE_PAGE = "Just a moment..."
+    REPLAY_BODY = (
+        b"<p>Galaxy Research replayed body text. "
+        b"The origin challenged this collector, so this came from the "
+        b"Internet Archive instead.</p>"
+    )
+
+    def test_challenges_are_counted_only_back_to_the_last_capture(self) -> None:
+        block = {"event": "blocked", "failure": "challenged",
+                 "diagnosis": "origin-challenge"}
+        history = {"challenged": [
+            block,
+            {"event": "unchanged"},
+            {"event": "blocked", "failure": "challenged",
+             "diagnosis": "content-below-floor"},
+            block,
+            block,
+        ]}
+        with mock.patch.object(capture, "events_by_source", return_value=history):
+            # The below-floor block is not a refusal and breaks the streak.
+            self.assertEqual(capture.consecutive_challenges("challenged"), 2)
+
+    def test_a_second_consecutive_challenge_does_not_reach_for_wayback(self) -> None:
+        # One prior challenge block plus this one is two; the fallback
+        # engages on the third consecutive block, as for refusals.
+        with mock.patch.object(capture, "consecutive_challenges", return_value=1):
+            self.assertIsNone(
+                capture._try_wayback(self.BROWSER_SOURCE, {}, "challenged", True)
+            )
+
+    def test_sustained_challenge_replays_the_newest_wayback_capture(self) -> None:
+        fake = SimpleNamespace(
+            newest_snapshot=lambda url: ("20260803015507", b"<p>replayed</p>"),
+            wb_ts_to_ours=lambda ts: "20260803T015507Z",
+        )
+        result = {}
+        with mock.patch.object(capture, "consecutive_challenges", return_value=5), \
+                mock.patch.dict(sys.modules, {"wayback": fake}), \
+                contextlib.redirect_stdout(io.StringIO()):
+            recovered = capture._try_wayback(
+                self.BROWSER_SOURCE, result, "challenged", True)
+        self.assertIsNotNone(recovered)
+        self.assertEqual(result["provenance"], "wayback")
+        self.assertEqual(result["wayback_timestamp"], "20260803T015507Z")
+        self.assertTrue(result["origin_challenged"])
+        self.assertFalse(result["origin_refused"])
+
+    def _challenged_capture(self, source):
+        fake = SimpleNamespace(
+            newest_snapshot=lambda url: ("20260803015507", self.REPLAY_BODY),
+            wb_ts_to_ours=lambda ts: "20260803T015507Z",
+        )
+        with mock.patch.object(
+                capture, "fetch_browser",
+                return_value=(self.CHALLENGE_PAGE, 0, {})), \
+                mock.patch.object(capture, "consecutive_challenges",
+                                  return_value=5), \
+                mock.patch.dict(sys.modules, {"wayback": fake}), \
+                contextlib.redirect_stdout(io.StringIO()):
+            return capture.capture_one(source, dry=True)
+
+    def test_browser_challenge_block_falls_back_with_provenance(self) -> None:
+        result = self._challenged_capture(dict(self.BROWSER_SOURCE))
+        self.assertEqual(result["event"], "first")
+        self.assertEqual(result["provenance"], "wayback")
+        self.assertTrue(result["origin_challenged"])
+
+    def test_replaying_the_same_wayback_snapshot_reports_same(self) -> None:
+        replay_text = capture.extract_source_text(
+            self.REPLAY_BODY, self.BROWSER_SOURCE["url"], self.BROWSER_SOURCE)
+        with mock.patch.object(
+                capture, "latest_snapshot",
+                return_value=("20260803T015507Z", replay_text)):
+            result = self._challenged_capture(dict(self.BROWSER_SOURCE))
+        self.assertEqual(result["event"], "unchanged")
+        self.assertEqual(result["provenance"], "wayback")
+
+    def test_content_below_floor_never_reaches_for_wayback(self) -> None:
+        source = {"id": "redesigned", "url": "https://example.test",
+                  "min_chars": 100}
+        with contextlib.redirect_stdout(io.StringIO()), mock.patch.object(
+            capture, "fetch", return_value=(b"short", {})
+        ), mock.patch.object(capture, "_try_wayback") as fallback:
+            result = capture.capture_one(source, dry=True)
+        fallback.assert_not_called()
+        self.assertEqual(result["event"], "blocked")
+        self.assertEqual(result["diagnosis"], "content-below-floor")
+        self.assertNotIn("provenance", result)
 
 
 class CaptureSelectionTests(unittest.TestCase):

@@ -516,7 +516,12 @@ Ordered by value, not effort.
   that repeatedly refuses direct capture while the Internet Archive can reach
   it, recover only the newest state and mark it `provenance: wayback`. Define
   the consecutive-failure threshold and ensure an inherited capture is never
-  presented as one this project took.
+  presented as one this project took. Landed for flat refusals and, since
+  8 Aug 2026, for proven origin-challenge blocks (three consecutive, any
+  capture method, marked `origin_challenged` alongside the provenance) —
+  built for theblock-galaxy-total, which Cloudflare bot-walls by
+  interstitial. What remains is per-source refusal thresholds: one global
+  `WAYBACK_AFTER_REFUSALS` still serves every source.
 
 - **OPEN 8 Aug 2026: close the two races the first automated publish exposed.**
   The first scheduled publish deployed and pushed cleanly, but the

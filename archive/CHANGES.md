@@ -1901,3 +1901,32 @@
 ## 20260808T165424Z
 
 - cktripwire-honeypot-monitor  +23 -23
+
+## 20260808T195502Z
+
+- coldcard-hack-tracker  +5 -5
+
+## 20260808T212517Z
+
+- reddit-ai-discovery-thread  +10 -12
+- reddit-self-custody-last-straw  +0 -10
+- reddit-do-not-dispose-device  +8 -0
+- reddit-coinkite-next-steps  +8 -0
+- reddit-mk4-bricked-hotfix  +12 -0
+- reddit-5-13-btc-loss  +54 -0
+- reddit-cash-out-forensics-question  +0 -8
+- reddit-fourth-wave-389-btc  +10 -0
+- reddit-victim-support-psa  +2 -10
+- reddit-future-of-bitcoin-debate  +2 -10
+- bitcointalk-large-scale-compromise-thread  +78 -1
+- reddit-im-out  +8 -0
+- reddit-hacker-still-progressing  +51 -69
+- reddit-not-your-keys-not-your-coins  +0 -8
+- reddit-64-btc-mixing-discussion  +2 -20
+- reddit-attacker-execution-critique  +4 -2
+- reddit-dice-entropy-explainer  +14 -0
+- reddit-fake-trezor-google-ad  +50 -8
+- reddit-dice-bias-1200-rolls  +58 -0
+- reddit-fidelity-custody-debate  +76 -0
+- coindesk-70m-no-device-touch  +21 -21
+- reddit-dice-rolls-saved-seedsigner  +16 -0

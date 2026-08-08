@@ -1,0 +1,93 @@
+--- bitcointalk-large-scale-compromise-thread@20260808T150524Z
++++ bitcointalk-large-scale-compromise-thread@20260808T213516Z
+@@ -1,6 +1,6 @@
+ Bitcoin Forum
+ Bitcoin => Bitcoin Discussion => Topic started by: flatfly on July 30, 2026, 08:44:17 PM
+-Title: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Title: Large-scale Coldcard compromise (1596 BTC stolen so far)
+ Post by: flatfly on July 30, 2026, 08:44:17 PM
+ https://x.com/Rob1Ham/status/2082896614218203616
+ [EDIT]
+@@ -4629,5 +4629,82 @@
+ This still doesn't increase the risk as you claim.
+ You're still missing the point: if someone added a passphrase to his weak Coldcard without funding a decoy wallet, his funds wouldn't have been taken. It's the decoy that makes the seed words and thus potential passphrase light up.
+ Good point, but at that point, there's no such decoy thing if you're not funding on it.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: fillippone on August 08, 2026, 03:39:10 PM
++A very interesting read on an improvement idea that could solve the self custody trilemma:
++https://talkimg.com/images/2026/08/08/UoqAPH.jpeg (https://x.com/lukechilds/status/2085802947670356209?s=46&t=ybCp3ydjDJA_wR_uVxrEgA)
++Waiting for some commercial solution to implement it.
++Title: Re: Large-scale Coldcard compromise (1485.77 BTC stolen so far)
++Post by: Meuserna on August 08, 2026, 05:33:19 PM
++Quote from: NotATether on Today at 07:26:21 AM
++Quote from: Forsyth Jones on August 07, 2026, 03:01:28 AM
++The Coldcard case made it clear, at the very least, that creating a wallet, writing down the seed phrase, depositing some funds, and only opening the wallet 10 years later IS NOT ENOUGH. A strategy for acting during trips is more than necessary.
++The necessary step is, and I'll keep yelling this from rooftops until it reaches mass adoption, to generate your own seed phrase yourself, without any hardware wallet.
++And also make a BIP39 passphrase for your seed.
++THIS. It's what I've been doing for a few years, and it's not hard.
++Print the BIPP39 wordlist in columns, on paper. Cut the sheets of paper into strips with one word per strip. Put the strips of paper in a large mixing bowl. Pick a word. Write it down. Put the word back in the bowl. Mix 'em up and pick again. Do this 23 times.
++It's perfectly safe to let a hardware calculate the checksum word. Out of the entire list of 2048 words, only 7 or 8 will form a checksum for a 24 word seed. So, you're not sacrificing any randomness by letting a hardware wallet calculate the checksum word.
++You've now got a totally random 24 word seed phrase. And you know it's random because you did the work.
++Pick another 10 words from the bowl of paper strips. That's your passphrase.
++I'm sure somebody is thinking "But the paper strips don't weigh exactly the same!" That's right. Any imperfections  just add to the randomness since those imperfections can't be predicted or calculated.
++I started doing this after Ledger added key extraction to their firmware. I was a Ledger user back then, and their actions made me question how much I could trust the firmware for any device. So, I figured, if I don't let a device generate my seed phrase, I don't have to trust the device.
++I also swear by ShieldSigner, which is a fork of SeedSigner that adds encrypted Seed QR, passphrase QR, and smartcard support (SeedKeeper and Satochip).
++This gives me the ability to use my seed on a device which is airgapped and stateless.
++I generated the seed, so I know I can't be part of a seed-hunter search like ColdCard's, because I know my seed is truly random.
++I use the seed on a device that is airgapped, so I know it can't be reached by online hackers.
++I don't save the seed or the wallet on the hardware wallet device. If it gets stolen, there's nothing on it for a thief to find.
++For travel, I really like the ability to keep seeds on a SeedKeeper smart card. It's just a java card, but it has a secure element chip, and it wipes itself out after 5 incorrect password attempts. You can even set the number of allowed attempts lower.
++The steps for rock solid security:
++1. Generate your own seed.
++2. Use a strong passphrase.
++3. Back up your seed and passphrase on metal.
++4. Store your seed and passphrase somewhere secure. Somewhere only you have access to. Preferably 2 places, separate.
++5. Choose a hardware wallet that is open source, airgapped, stateless, and offers encrypted seed backup for easy loading. ShieldSigner and Krux make all of this easy.
++6. Get a small safe to keep in your home, where you'll store any documentation that needs to be written down. Document everything for your setup, even if only to help yourself remember "How'd I generate this seed? Why'd I set it up this way?"
++7. Get home automation and put a sensor on the safe, to send you instant notifications if it is opened or moved. Aqara makes this easy and cheap. On sale, you can get an Aqara hub & sensors for under $50.
++I know this list sounds like a lot, but really it's not.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Meuserna on August 08, 2026, 05:43:45 PM
++Quote from: flatt on Today at 09:55:35 AM
++Quote from: LoyceV on Today at 08:07:50 AM
++Quote from: vapourminer on August 04, 2026, 10:34:44 AM
++some people have a non passphrase wallet as a decoy with passphrases behind it.
++I wonder how many people realize that in this case, a "decoy" wallet have increased the risk, as it tells the attacker they found a used seed phrase. That gives them the possibility to start brute-forcing the passphrase. If you would have used the weak seed phrase only in combination with a passphrase, it would have been many orders of magnitude more difficult to find.
++You missed 2 real things: the perspective of hacker & the function of decoy.
++it's called decoy for a reason. once the owner see their decoy is gone , the owner can immediately move the funds. it does not increased the risk at all, it literally does increased the security for the funds. and in this case (the worst case ever displayed on this day UNTIL probably 100 next years), the hacker knows well brute-forcing into passphrase is such a waste of time because the owner could be already moved the real funds within no-time.
++FYI, brute-forcing passphrase for a single wallet most likely TOOK MORE TIME than brute-forcing the whole ColdCard default seed.
++I've changed my mind about decoy wallets. I now think using the seed-only wallet as a decoy isn't a good idea.
++Using the seed-only wallet as a decoy lets whoever finds that seed know the seed phrase has been used. That gives them a reason to start searching passphrases.
++The ColdCard attackers had to search billions of seed phrases to find coins. Searching billions of seed phrases isn't hard since the attacker was surely running automated scripts to generate wallets and check addresses. Almost all of the seeds were empty. Maybe a few thousand out of billions of seeds had wallets.
++Even in the ColdCard situation, where the total number of possible seeds is limited and known, it's still billions of seeds. It isn't feasible for thieves to try to crack passphrases for billions of wallets, since they don't know which of the billions of seeds might have passphrase wallets except for those which had something at the main seed-only wallet. Those thieves are trying to crack passphrases of seeds they know have been used.
++I believe it's wiser to use a simple passphrase as a decoy wallet. One word, easily cracked, for a decoy wallet. And leave the seed-only wallet untouched, never used.
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: LoyceV on August 08, 2026, 08:13:37 PM
++Quote from: Meuserna on Today at 05:43:45 PM
++I believe it's wiser to use a simple passphrase as a decoy wallet. One word, easily cracked, for a decoy wallet. And leave the seed-only wallet untouched, never used.
++I like this option! In Coldcard's case, it would likely have taking the attacker a very long time to search the entire seed word space for simple passphrase options.
++Question: how do brute-force attacks typically work? Do they check against the first address in a wallet, or the first N addresses?
++Title: Re: Large-scale Coldcard compromise (1360.23 BTC stolen so far)
++Post by: Meuserna on August 08, 2026, 08:53:35 PM
++Quote from: LoyceV on Today at 08:13:37 PM
++Quote from: Meuserna on Today at 05:43:45 PM
++I believe it's wiser to use a simple passphrase as a decoy wallet. One word, easily cracked, for a decoy wallet. And leave the seed-only wallet untouched, never used.
++I like this option! In Coldcard's case, it would likely have taking the attacker a very long time to search the entire seed word space for simple passphrase options.
++Question: how do brute-force attacks typically work? Do they check against the first address in a wallet, or the first N addresses?
++It depends on what's being brute forced and how the attacker tries to do it.
++Seed Phrases:
++The ColdCard firmware flaw caused ColdCard to only generate seeds from a small number of possibilities. It's still in the billions though.
++What the original attacker surely did was run a script to generate the same list of seed phrases. Billions. The script then generated wallets from those seed phrases and searched addresses for a balance. Evidence suggests the attacker's script stopped searching a seed when it found an empty address and moved on to the next seed.
++Normally, hunting for wallets by searching random seeds is impossible. There are too many possible seed phrase combinations to search. It's in the quadrillions of quadrillions of quadrillions. But the ColdCard firmware bug meant all seeds generated by ColdCard came from a much smaller list unless the user used dice rolls. This made it possible to hunt for ColdCard seed phrases.
++And by the way... I'm sure attackers are trying to find 2-of-3 multisigs this way. They're generating seed phrases and testing combinations to see if any generate wallets with a balance. That's a much slower process, but for attackers, it just means running a script and letting it churn away as it tests combinations. I do think 2-of-3 multisig wallets created on ColdCards will be found.
++Passphrases:
++Trying to crack a passphrase is different.
++The first thing an attacker will probably do is a dictionary search. They'll run a script to try all words to see if any are being used as a passphrase. Anything more than 4 or 5 words isn't going to be easily found. Anything more than 6 words isn't going to be found at all.
++Again, to be clear: They'll generate a wallet at the seed+abandon to see if they get an address with a balance. No? They'll generate a wallet for the seed+ability to see if they get an address with a balance. Etc. They have to generate and check every wallet, one at a time.
++Th next thing an attacker will probably try is a charachter search. This is slower. They have to generate a wallet for the seed+a... then the seed+b... then the seed+c. And they have to test every wallet for every number and symbol too. Then they start over to check wallets for the seed+aa and the seed+ab and the seed+ac... etc. They'll be running a script that churns away until it finds something.
++Here's the thing:
++Brute force attacking passphrases is only feasible if the attacker has a reason to check that specific seed phrase.
++If a seed phrase has never been used by itself as a wallet, an attacker has no way of knowing if it's been used with a passphrase or as part of a multisig... unless the attacker found the paper/metal backup of course. That's an obvious clue the seed was probably used. But in the ColdCard attacks, the thieves are searching seed phrases based on the list of billions of possible seeds the borked ColdCard firmware could generate.
++If your seed phrase was truly random, it cannot be found by seed phrase hunting. Bu ColdCard's seeds weren't truly random, so they can be found by using the same borked method ColdCard used.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines
