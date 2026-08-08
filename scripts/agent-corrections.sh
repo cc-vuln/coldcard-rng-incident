@@ -71,6 +71,10 @@ if [[ -z "$AGENT_BIN" ]]; then
 fi
 
 mkdir -p "$EVIDENCE_DIR" "$PROPOSALS_DIR"
+# The agent writes its proposals under here; the driver made the
+# directories, so make them group-writable (the agent account shares the
+# group).
+chmod 2775 "$EVIDENCE_DIR" "$PROPOSALS_DIR"
 
 # Hydrate the evidence pack here, as the operator account, so the agent
 # needs no network and no archive walk:

@@ -51,6 +51,20 @@ agent_load_env() {
 
 agent_begin() {
   local role="$1"
+  # One agent run at a time, across all roles. The guard attributes what a
+  # run did from a whole-tree manifest, so a second agent writing mid-run
+  # reads as out-of-remit contamination and gets the run rejected: on
+  # 8 Aug 2026 the review lane appended classifications while the sync lane
+  # ran, and the sync run was rejected for revision-reviews.toml changes it
+  # never made. Polls write archive/ only and are not the hazard; agents
+  # writing the shared mutable files are. Queue behind a run in progress
+  # rather than colliding with it; a skipped run retries on its next tick.
+  mkdir -p "$ROOT/.work"
+  exec 8>"$ROOT/.work/agent-runs.lock"
+  if ! flock -w 3600 8; then
+    echo "agent-run: another run held the lock for an hour; skipping" >&2
+    exit 0
+  fi
   AGENT_ROLE="$role"
   AGENT_RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$$"
   AGENT_RUN_DIR="$ROOT/.work/agent-guard/$AGENT_RUN_ID"

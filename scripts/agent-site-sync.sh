@@ -46,6 +46,9 @@ REPORT_PATH=".work/site-sync/${TS}-report.md"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
 
 mkdir -p "$EVIDENCE_DIR"
+# The agent writes its report under here; the driver made the directories,
+# so make them group-writable (the agent account shares the group).
+chmod 2775 "$STATE_DIR" "$EVIDENCE_DIR"
 
 # The packet is this lane's trigger and its main input; regenerate it so the
 # agent works from current state, not from whatever the last packet said.
