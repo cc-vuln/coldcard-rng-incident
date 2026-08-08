@@ -1930,3 +1930,10 @@
 - reddit-fidelity-custody-debate  +76 -0
 - coindesk-70m-no-device-touch  +21 -21
 - reddit-dice-rolls-saved-seedsigner  +16 -0
+
+## 20260808T225529Z
+
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +33 -33
+- clay-attribution  +18 -18
+- trezor-2084975929948766645  +9 -0
