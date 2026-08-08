@@ -1,0 +1,14 @@
+# Fire alert-sweep.service every 30 minutes. See alert-sweep.service.example.
+# Staggered from archive-poll (OnBootSec=120 there, 780 here): the sweep
+# reads the state a poll writes, so it should land between polls, not on
+# top of them.
+[Unit]
+Description=operator alert sweep every 30 minutes
+
+[Timer]
+OnBootSec=780
+OnUnitActiveSec=1800
+Unit=alert-sweep.service
+
+[Install]
+WantedBy=timers.target

@@ -97,6 +97,14 @@ agent_finish() {
       --before "$AGENT_RUN_DIR/before/sources.toml" \
       --run-id "$AGENT_RUN_ID" || true
   fi
+  # A rejection is the one event the unattended pipeline must not keep to
+  # itself. Alerting is allowed to fail; it never breaks the driver.
+  if [[ $rc -ne 0 ]]; then
+    "$ROOT/.venv/bin/python" "$ROOT/scripts/alert.py" emit \
+      --kind guard-rejection --severity urgent \
+      --key "guard-rejection-$AGENT_RUN_ID" \
+      --summary "guard rejected the $role run $AGENT_RUN_ID; evidence kept in $AGENT_RUN_DIR" || true
+  fi
   return $rc
 }
 

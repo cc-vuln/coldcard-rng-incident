@@ -1,0 +1,26 @@
+# Corroborate dns-unresolved failure streaks against public DNS, and set
+# gone = true only when the streak and both independent resolvers agree.
+# Exit 0 always: a corroboration pass must never break the line.
+# Paired with corroborate-gone.timer.
+#   sudo cp corroborate-gone.service.example /etc/systemd/system/corroborate-gone.service
+#   sudo cp corroborate-gone.timer.example /etc/systemd/system/corroborate-gone.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now corroborate-gone.timer
+#
+# Replace USER and REPO with the account and checkout path.
+[Unit]
+Description=gone corroboration for dns-unresolved capture streaks
+Wants=network-online.target
+After=network-online.target
+# Reads the streaks a poll writes, so run after it, not on top of it.
+After=archive-poll.service
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python scripts/corroborate_gone.py --yes
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

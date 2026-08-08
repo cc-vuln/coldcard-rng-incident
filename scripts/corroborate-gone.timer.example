@@ -1,0 +1,17 @@
+# Fire corroborate-gone.service every six hours. See the .service example.
+#
+# Six hours, not thirty minutes: a dns-unresolved streak needs several polls
+# to mean anything (the tool's own floor is four), and the corroboration it
+# replaces was a daily-at-best human chore. Staggered from the poll and the
+# alert sweep so the streaks it reads are fresh.
+[Unit]
+Description=gone corroboration every six hours
+
+[Timer]
+OnBootSec=1500
+OnUnitActiveSec=21600
+RandomizedDelaySec=600
+Unit=corroborate-gone.service
+
+[Install]
+WantedBy=timers.target

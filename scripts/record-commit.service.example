@@ -1,0 +1,37 @@
+# Commit guard-passed pipeline output once. Paired with record-commit.timer.
+#   sudo cp record-commit.service.example /etc/systemd/system/record-commit.service
+#   sudo cp record-commit.timer.example /etc/systemd/system/record-commit.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now record-commit.timer
+#
+# Replace USER and REPO with the account and checkout path. This runs as the
+# operator account, not the agent account: it commits what the unattended
+# pipeline left in the tree, under the 8 Aug 2026 full-automation directive.
+# Check with `sudo -u USER REPO/.venv/bin/python REPO/scripts/record_commit.py
+# --dry-run` before enabling.
+#
+# The decision logic lives in the script, not here. It exits 1 when a
+# precondition blocks (a red `just test` or `just audit`, .no-publish, an
+# unresolved agent-guard run, the poll holding the writer lock), and a block
+# is routine: the timer fires again in an hour and the alert stream carries
+# anything persistent. SuccessExitStatus keeps a blocked tick from reading as
+# a failed unit; exit 2 (usage) still fails, because that means the unit and
+# the script disagree.
+[Unit]
+Description=commit guard-passed pipeline output (record_commit.py)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python REPO/scripts/record_commit.py --yes
+SuccessExitStatus=0 1
+# `just test` and `just audit` both run first, over the whole archive, and a
+# writer-lock retry adds a wait on top.
+TimeoutStartSec=1800
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

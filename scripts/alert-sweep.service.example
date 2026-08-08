@@ -1,0 +1,24 @@
+# Run one alert sweep: turn current repo state (failure streaks, recorded
+# capture failures, stale host proposals, skipped publishes, unit failures)
+# into operator alerts in ~/.local/state/coldcard-archive/alerts.jsonl.
+# Paired with alert-sweep.timer.
+#   sudo cp alert-sweep.service.example /etc/systemd/system/alert-sweep.service
+#   sudo cp alert-sweep.timer.example /etc/systemd/system/alert-sweep.timer
+#   sudo systemctl daemon-reload && sudo systemctl enable --now alert-sweep.timer
+#
+# Replace USER and REPO with the account and checkout path.
+[Unit]
+Description=operator alert sweep for the archive pipeline
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=USER
+WorkingDirectory=REPO
+ExecStart=REPO/.venv/bin/python scripts/alert.py sweep
+Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

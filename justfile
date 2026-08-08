@@ -126,6 +126,11 @@ status:
 diagnose *ARGS:
     @{{py}} scripts/capture.py diagnose {{ARGS}}
 
+# Corroborate dns-unresolved streaks against public DoH resolvers before any
+# source is recorded gone. Dry-run unless --yes is passed; exit 0 always.
+corroborate-gone *ARGS:
+    @{{py}} scripts/corroborate_gone.py {{ARGS}}
+
 # Verify every held capture against the unified record contract
 audit:
     @{{py}} scripts/capture.py audit

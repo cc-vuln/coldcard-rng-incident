@@ -21,7 +21,11 @@ scripts/
   capture-x.sh        manual X capture via gallery-dl + browser cookies
   ingest-x.py         one-post capture through the capture browser
   notify.sh           capture, alert on change or incomplete poll
+  alert.py            the single alert writer: emit/sweep/test, appending
+                        idempotently to alerts.jsonl for the operator UI
   scheduled_runner.py due-state runner for recurring known-URL capture
+  corroborate_gone.py  re-resolve dns-unresolved streaks through public
+                        DoH resolvers; sets gone only on agreement
   check_publishable.py, check_reviews.py   audit gates run by `just audit`
   discovery_common.py   keyword sieve, seen state and the DISCOVERY.md queue,
                         shared by every discovery lane below
@@ -42,6 +46,8 @@ scripts/
   build_manifest.py   describe every held capture without reproducing any
   make_deposit.py     stage the archival deposit; stages and reports, never uploads
   agent-review.sh     classify new diffs via REVIEW_AGENT_BIN (optional)
+  record_commit.py    commit guard-passed pipeline output, deterministically
+                      (record-commit.timer); --dry-run is the default
   agent-maintenance.sh  run agent work with the capture timers paused
   agent-run-common.sh   the containment every agent driver shares
   run-agent.sh        run one agent deprivileged, with a built environment
@@ -59,7 +65,8 @@ scripts/
                         count per entry read out of past verdicts
   render_agent_prompt.py  join a trusted template to fenced untrusted evidence
   agent-permissions.sh   apply and re-check the agent sandbox's file modes
-  *.{service,timer}.example  systemd units for recurring capture and review
+  *.{service,timer}.example  systemd units for recurring capture, review
+                        and the 30-minute alert sweep
 archive/
   snapshots/<id>/<TS>.{html,txt,meta.json}
   diffs/<id>/<TS>.diff

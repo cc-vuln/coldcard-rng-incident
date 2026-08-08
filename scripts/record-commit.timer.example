@@ -1,0 +1,17 @@
+# Fire record-commit.service hourly. See record-commit.service.example.
+#
+# Hourly, not on the poll's thirty minutes: a commit is cheap but each one is
+# history, and an hour of pipeline churn reads well as one commit. The delay
+# keeps the tick off the hour, where the poll holds the archive writer lock
+# the service then needs.
+[Unit]
+Description=commit guard-passed pipeline output every hour
+
+[Timer]
+OnBootSec=600
+OnUnitActiveSec=3600
+RandomizedDelaySec=420
+Unit=record-commit.service
+
+[Install]
+WantedBy=timers.target

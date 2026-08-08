@@ -81,8 +81,45 @@ flock -n 9 || skip "another build holds ${BUILD_LOCK}"
 
 mkdir -p "${ROOT}/.work"
 echo "publish-scheduled: publishing (stamp ${current:0:12})"
-just publish
+publish_rc=0
+just publish || publish_rc=$?
+if [[ "$publish_rc" -ne 0 ]]; then
+  # A failed publish is retried on the next tick (the stamp is only written
+  # on success), but a retry loop nobody reads is a silent outage. Alerting
+  # is allowed to fail; it never changes this script's exit code.
+  .venv/bin/python scripts/alert.py emit \
+    --kind publish-failure --severity warning \
+    --key "publish-failure-$(date -u +%Y-%m-%d)" \
+    --summary "just publish failed (exit $publish_rc) in publish-scheduled; see the unit journal" || true
+  exit "$publish_rc"
+fi
 
 # Stamped only on success, so a failed publish is retried on the next tick.
 echo "$current" > "$STAMP"
+
+# A deploy is not finished until the commit it was built from is pushed.
+# /version.json stamps that commit and /cite/ tells readers the state can be
+# reconstructed from it on GitHub; an unpushed deploy publishes a citation
+# that resolves nowhere. Since 8 Aug 2026 record_commit.py is what makes the
+# commit, so this push is how the stamped hash becomes real. A failed push
+# does not fail the stamp: the deploy already happened, and the next
+# successful publish pushes everything unpushed, this commit included.
+branch_now="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
+if [[ "$branch_now" == "main" ]]; then
+  git -C "$ROOT" push || echo "publish-scheduled: git push failed; the deploy is stamped and the next publish retries the push" >&2
+else
+  echo "publish-scheduled: HEAD moved to ${branch_now} during the build; not pushing" >&2
+fi
+
+# The build regenerates tracked files (site/src/data/x-thread-media.json is
+# the known one), and matches_commit in /version.json reads false while they
+# sit uncommitted. record_commit.py stages the generated indexes before any
+# publish build, so a dirty tracked tree here means that pre-staging broke —
+# say so loudly rather than publishing a stamp that does not reproduce.
+tracked_dirt="$(git -C "$ROOT" status --porcelain --untracked-files=no)"
+if [[ -n "$tracked_dirt" ]]; then
+  echo "publish-scheduled: ERROR the build left tracked files modified; matches_commit is false for this deploy. record_commit.py should have staged these first:" >&2
+  echo "$tracked_dirt" >&2
+  exit 1
+fi
 echo "publish-scheduled: published"
