@@ -81,6 +81,19 @@ flock -n 9 || skip "another build holds ${BUILD_LOCK}"
 
 mkdir -p "${ROOT}/.work"
 echo "publish-scheduled: publishing (stamp ${current:0:12})"
+
+# The build regenerates tracked indexes (site/src/data/x-thread-media.json)
+# from whatever captures exist at build time, so media landing between the
+# hourly commit and this build would otherwise dirty the tree mid-build and
+# flip matches_commit false on the deployed stamp (8 and 9 Aug 2026).
+# Regenerate and commit them here, before the build, so the tripwire below
+# only ever fires on a genuinely unexpected dirtying.
+node site/tools/stage-x-media.mjs >/dev/null 2>&1 || true
+if ! git -C "$ROOT" diff --quiet -- site/src/data; then
+  git -C "$ROOT" add site/src/data
+  git -C "$ROOT" commit -q -m "site: the media index the publish build regenerates"
+fi
+
 publish_rc=0
 just publish || publish_rc=$?
 if [[ "$publish_rc" -ne 0 ]]; then
