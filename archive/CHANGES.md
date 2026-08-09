@@ -1937,3 +1937,7 @@
 - newsbitcom-class-action-threat  +33 -33
 - clay-attribution  +18 -18
 - trezor-2084975929948766645  +9 -0
+
+## 20260808T235539Z
+
+- coldcard-hack-tracker  +5 -5
