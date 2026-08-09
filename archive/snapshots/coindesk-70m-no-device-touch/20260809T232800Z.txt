@@ -1,0 +1,167 @@
+Search
+/
+News
+Video
+Prices
+Research
+Events
+Data & Indices
+More
+Sponsored
+Search
+/
+en
+Sign In
+Sign Up
+Tech
+How bitcoin cold wallets lost $70 million in an attack that never touched the devices
+Galaxy Research said weak seed generation let an attacker recreate likely private keys offline, sweep more than 1,000 BTC from nearly 1,200 wallets and continue searching without ever accessing the devices.
+By Shaurya Malwa
+8 days ago
+4 min read
+Make preferred on
+Share
+Share this article
+Copy linkX (Twitter)LinkedInFacebookEmail
+Make preferred on
+Bitcoin cold wallet Coldcard. (Coldcard/Coinkite)
+Summary
+Show
+More than 1,000 bitcoin, worth about $70 million, were drained from 1,196 Coldcard wallets in a 41-minute span on July 30, nearly double the loss first reported.
+Researchers say a firmware flaw in certain Coldcard hardware wallets made supposedly unguessable seed phrases computationally enumerable, allowing attackers to reconstruct private keys without ever touching the devices.
+Security firms warn that more wallets could be hit because owners cannot reliably tell if their seeds were generated on vulnerable firmware, even as investigators trace the attacker through logs from a blockchain data provider.
+More than 1,000 bitcoin, worth about $70 million, was drained from 1,196 wallets in a 41-minute window on July 30, nearly double the amount reported when the theft first surfaced.
+Galaxy Research mapped the full event on Friday, finding 1,082.65 BTC swept between 01:10 and 01:51 UTC across six blocks, with three intervening blocks containing nothing, which suggests the transactions were broadcast in batches rather than continuously.
+The proceeds sit in four addresses and have not moved. Early reporting captured only one of those addresses, which is why the figure has grown.
+The size of the attack is much smaller than some of the bigger attacks this year, but the mechanism is what makes this unusually — and why the attack is such a big deal.
+Why the Coldcard wallet exploit is a bigger deal than most exploits
+Most crypto theft involves getting to something. An exchange is breached, a contract is tricked, a key is phished off a laptop. The defence has always been distance, which is precisely what a hardware wallet sells. Keep the key on a device that never connects to the internet and, theoretically, there is nothing for an attacker to touch.
+Most crypto thefts require reaching the key. This one rebuilt it. (Shaurya Malwa/CoinDesk)
+When a wallet is created, the device is supposed to pick a number so large and so unpredictable that guessing it is impossible.
+That number is the seed, and every address and private key derives from it by fixed public rules. Coldcard's firmware was meant to draw that number from a dedicated hardware randomness generator. An internal build setting told it to skip that generator, and a check in a supporting library tested only whether the setting existed rather than whether it was switched on.
+Key generation fell through to a basic software substitute seeded from the chip's serial number and its clock registers. This serial number is fixed factory metadata, and clock values are timing state an attacker can narrow down or measure on a device of their own.
+The consequence was that the range of keys the device could ever produce collapsed from unimaginably vast to countable. Security teams found that generation of keys could be determined on the older Mk2 and Mk3 — numbers for different models of Coldcard — but on the Mk4, Q and Mk5, they put the range at roughly four billion possibilities.
+Four billion is a large number to a person but a small one to a computer. An attacker generates candidate seeds on their own hardware, derives the addresses each would produce, and checks those addresses against the public blockchain, which anyone can download.
+Every step of that runs on the attacker's machine. The victim's device is not involved at any point and could be powered off in a safe on another continent.
+Galaxy's breakdown shows the process running. Of the drained wallets, 1,183 used the modern native segwit address format, seven used an older standard and six an older one still. Nobody targets a specific victim across three address formats at once.
+That is systematic enumeration, checking each candidate seed against every path it might have produced. The operator can widen the search, refine it and return whenever they choose.
+Galaxy warned further waves are likely if owners do not move their funds.
+The victims span three address formats, which is what a scanner looks like. (Shaurya Malwa/CoinDesk)
+Nor can an owner determine whether they are exposed. There is no test to run against your own wallet that reveals whether your seed sits inside the reproducible range.
+Attack might not be fully finished
+Coinkite, Coldcard's maker, has warned Mk3 owners and says its newer devices are unaffected, while Block's report places the Mk2, Mk4, Q and Mk5 in scope as well. Until that is resolved, anyone who generated a seed on the affected firmware has to assume the worst rather than verify it.
+The attacker did make one mistake, however.
+Block's Clay Garrett said on X that the operator used a paid account at a “well-known blockchain data provider” to query the source addresses during the sweeps, and that the provider's internal logs matched the suspected workflow with what he called extraordinary specificity, down to the number, timing and sequence of requests.
+1/ During our investigation of the Coldcard drain yesterday, we identified an unusual pattern in the sweeps. That pattern led us to a hypothesis that has since been confirmed: the operator used a paid account at a well-known blockchain-services provider to query the source… https://t.co/l5McyhhcNn
+— Clay Garrett (@clay_garrett) July 31, 2026
+The provider appears to have been supplying ordinary services to requests that gave no indication of their purpose. Block has passed the information to authorities.
+Cold storage promises that a key is unguessable. Everyone read it as a promise that a key is unreachable, and the cost of finding and exploiting flaws in the first kind keeps falling.
+Anthropic published research on Tuesday showing one of its models halving the security of a candidate post-quantum algorithm in 60 hours, against a design that had survived two years of expert review.
+Storing a key safely is now the easier half of the problem.
+Latest Crypto News
+1
+Is Clarity's delay a blessing in disguise?: State of Crypto
+4 hrs ago
+2
+Hyperliquid’s RWA perps boom is eating into the revenue that backs HYPE
+8 hrs ago
+3
+Bitcoin investors pour $853 million into spot ETFs. BlackRock’s IBIT claims the bulk
+9 hrs ago
+4
+Crypto is going through a massive dot-com style shakeout as over 100 projects fold in 2026
+10 hrs ago
+5
+Controversial Bitcoin fork BIP-110 mines two blocks, then stops
+18 hrs ago
+6
+Bitcoin hits block 961,632 as the controversial BIP-110 soft fork attempt begins
+1 day ago
+7
+Hardware wallet sales in Russia more than double as new crypto rules near
+1 day ago
+8
+Brazil's central bank orders exchanges to delay large crypto transfers abroad
+1 day ago
+9
+Trillions in institutional money to flow into bitcoin, says Bitwise's Matt Hougan
+1 day ago
+10
+Why trillion-dollar asset manager T. Rowe Price put memecoins in its crypto ETF
+1 day ago
+Latest Research
+Building the Zcash Machine: Tachyon and Quantum Readiness
+Building the Zcash Machine: Tachyon and Quantum Readiness
+Zcash’s Tachyon upgrade aims to scale shielded payments, improve quantum readiness, and test whether its funding, security, and governance can hold.
+By CoinDesk Research
+Jun 30, 2026
+Commissioned byGenZcash
+Zcash’s Tachyon upgrade aims to scale shielded payments, improve quantum readiness, and test whether its funding, security, and governance can hold.
+Why it matters:
+Zcash’s Tachyon upgrade aims to scale shielded payments, improve quantum readiness, and test whether its funding, security, and governance can hold.
+View Full Report
+More From Tech
+Controversial Bitcoin fork BIP-110 mines two blocks, then stops
+Bitcoin hits block 961,632 as the controversial BIP-110 soft fork attempt begins
+Another Bitcoin infrastructure exploit hits, this time draining Lightning payment servers
+About
+About Us
+Masthead
+Careers
+Blog
+Investor Relations
+Contact
+Contact Us
+Accessibility
+Advertise
+Media Kit
+Sitemap
+System status
+Newsletters
+CoinDesk Headlines
+Crypto Daybook Americas
+The Protocol
+State of Crypto
+Crypto for Advisors
+Crypto Long & Short
+News
+Markets
+Finance
+Tech
+Policy
+Focus
+Videos
+CoinDesk Daily
+Editor's Picks
+Shorts
+Spotlight
+Podcasts
+CoinDesk Podcast Network
+Markets Outlook
+Gen C
+Cryptocurrencies
+Latest crypto prices
+Bitcoin (BTC)
+Ethereum (ETH)
+XRP
+Solana (SOL)
+Data & Indices
+Market Data
+Index Offering
+API
+Research Insights
+Documentation and Governance
+Events
+CoinDesk: Policy & Regulation
+Webinars
+Sponsored
+Thought Leadership
+Press Releases
+Advertise with CoinDesk
+Research
+Research Hub
+Exchange Benchmark
+EthicsPrivacyTerms of UseCookie SettingsDo Not Sell My InfoBug Bounty Program
+© 2026 CoinDesk, Inc.
+Disclosure & Polices: CoinDesk is an award-winning media outlet that covers the cryptocurrency industry. Its journalists abide by a strict set of editorial policies. CoinDesk has adopted a set of principles aimed at ensuring the integrity, editorial independence and freedom from bias of its publications. CoinDesk is part of Bullish (NYSE:BLSH), an institutionally focused global digital asset platform that provides market infrastructure and information services. Bullish owns and invests in digital asset businesses and digital assets and CoinDesk employees, including journalists, may receive Bullish equity-based compensation.
+CryptoCD20$1,766.26CD20 up 0.12 percent0.12%BTC$64,907.43BTC down 0.013 percent0.013%ETH$1,915.34ETH down 0.051 percent0.051%XRP$1.03XRP down 0.64 percent0.64%SOL$76.55SOL up 0.78 percent0.78%

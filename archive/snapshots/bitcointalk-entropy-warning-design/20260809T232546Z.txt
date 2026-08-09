@@ -1,0 +1,247 @@
+Bitcoin Forum
+Bitcoin => Wallet software => Topic started by: satscraper on August 04, 2026, 11:52:06 AM
+Title: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: satscraper on August 04, 2026, 11:52:06 AM
+Been thinking about this after the Coldcard drama.
+Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
+In my view, it would be very welcome if wallets performed the relevant self checking  on the quality of the entropy used to generate  user's wallet, and warned  user if the entropy falls below, say, 128 bits. Either way, something as simple as: "Entropy below recommended minimum, proceed anyway? Yes/No" would at least surface the problem instead of silently handing someone SEED phrase that could potentially be compromised.
+It's probably the right time to raise this matter with hardware wallet makers and software developers.
+Curious what people think about this.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Charles-Tim on August 04, 2026, 11:58:03 AM
+Example, how would Coldcard warn when its developers do not even know about it? Or maybe the developers know about it and are behind what happened.
+Use open source wallet. Make use of passphrase that has strong characters or use a multisig wallet.
+Adding your own protection (like passphrase or multisig) to it makes your wallet secure.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: satscraper on August 04, 2026, 12:16:39 PM
+Quote from: Charles-Tim on August 04, 2026, 11:58:03 AM
+How would Coldcard warn that when its developers do not even know about it? Or maybe the developers know and are behind what happened.
+ColdCard and other wallet developers could implement self-testing feature based on NIST SP 800-90B standard.
+Quote from: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf
+4.2 Types of Health Tests
+Start-up tests: run after power-up/reboot, before first use. "The specific conditions in which the startup tests must be run for FIPS-validated cryptographic modules are determined by the requirements of FIPS 140."
+Continuous tests: "run indefinitely on the outputs of the noise source while the noise source is operating... these tests are run continuously on all digitized samples obtained from the noise source, and so tests must have a very low probability of raising a false alarm."
+On-demand tests: "can be called at any time... it does require that the entropy source be capable of performing on-demand health tests." Rebooting is an acceptable way to trigger these if it re-runs the start-up tests.
+Quote from: Charles-Tim on August 04, 2026, 11:58:03 AM
+Make use of passphrase that has strong characters orr use a multisig wallet. Add your own protection to it.
+This is trivial routine for me, but not for many users. :)
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: hosemary on August 04, 2026, 12:25:41 PM
+Isn't the amount of entropy determined by the source of entropy and the algorithm the software uses to generate it? For example, if you generate millions of seed phrases through electrum, they all will have 132 bits of entropy, regardless of the final results.
+Also, even if the algorithm is flawed, the final result will still look completely random and there is no way to tell how random it is just by checking the final result.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: satscraper on August 04, 2026, 12:58:54 PM
+Quote from: hosemary on August 04, 2026, 12:25:41 PM
+Isn't the amount of entropy determined by the source of entropy and the algorithm the software uses to generate it?
+Hardware noise sources may fail or degrade. But what would be suitable for given hardware wallet to catch the software bug the current ColdCard case that swaps out the hardware entropy source and  produces the plausible looking but predictable output I don't really know. That is why I have raised the discussion here.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Mia Chloe on August 04, 2026, 01:41:41 PM
+Quote from: satscraper on August 04, 2026, 11:52:06 AM
+Been thinking about this after the Coldcard drama.
+Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
+First off, just like charles tim mentioned, no one was really aware of the firmware issue basically because if they were aware in the first place the developers would have notified them fixed it and that theft wouldn't have happened to start with, most walllets don't even give you option to change where your entropy comes from.
+The average bitcoiner isn't even conscious about entropy and many people till date don't even know you can generate you own entropy source yourself and use it to hash for your seed phrase. To avoid complexities generally it's just best you pick the safest form of entropy generation you can get and allow softwares use it instead of complicating things.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Zaguru12 on August 04, 2026, 01:52:32 PM
+Quote from: hosemary on August 04, 2026, 12:25:41 PM
+Isn't the amount of entropy determined by the source of entropy and the algorithm the software uses to generate it? For example, if you generate millions of seed phrases through electrum, they all will have 132 bits of entropy, regardless of the final results.
+Also, even if the algorithm is flawed, the final result will still look completely random and there is no way to tell how random it is just by checking the final result.
+Exactly the question I wish to ask about the randomness is that isn�t the software of the wallet actually unaware of the degree of the randomness? From my knowledge I think it�s dependent on the underlying software (or after generation they employ NIST to check) and this why in CSPRNG I have read about using Linux been one of the best.
+I think with this a wallet can not identify the true degree its randomness. The only reason why I think most people are challenging or blaming cold card is simply because there was reports that their system source (TRNG) wasn�t that random as it was broke but they didn�t take that warning or acted upon it and it was what lead to this, which is why I also call for them to be blamed
+Quote from: Mia Chloe on August 04, 2026, 01:41:41 PM
+First off, just like charles tim mentioned, no one was really aware of the firmware issue basically because if they were aware in the first place the developers would have notified them fixed it and that theft wouldn't have happened to start with, most walllets don't even give you option to change where your entropy comes from.
+Wasn�t there many warning about this flaws in the past, I have been reading about many links long this forum about that this flaw
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: internetional on August 04, 2026, 02:17:36 PM
+Given what happened to Coldcard, if I were the developer of any wallet that generates seed phrases, I would audit the generation mechanisms used in every single version of my wallet. If it turns out that unreliable randomization tools were used, it is critical to find a way to urgently notify users - or at least the wider public, even if that might trigger a hunt for the discovered vulnerability. For instance, I heard somewhere that the Nunchuk wallet generated its private keys using Coldcard. If that is the case, it needs to be reported. On the flip side, if the audit shows that the randomization was always strong, that is also worth sharing.
+On another note, I have seed phrases generated by wallets that are no longer supported by their developers. Just to be safe, I think I will stop using those seed phrases altogether.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: hosemary on August 04, 2026, 02:18:52 PM
+Quote from: satscraper on August 04, 2026, 12:58:54 PM
+Hardware noise sources may fail or degrade. But what would be suitable for given hardware wallet to catch the software bug the current ColdCard case that swaps out the hardware entropy source and  produces the plausible looking but predictable output I don't really know.
+The problem is you can't tell how good the randomness is just by checking a single seed phrase.
+If you want to determine whether the generated seed phrases are truly random or not, you have to generate a large number of seed phrases, and analyse them to see if they cover the entire 128 bit space uniformly.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: dkbit98 on August 04, 2026, 09:02:11 PM
+It would be a good idea that all wallets are showing how strong entropy is when you are generating, but that would be worthless if you had to trust them only.
+Only good way would be to give you proof that you can easily check and verify yourself that entropy is strong enough.
+I am not sure this is going to be easy to implement for newbies to understand.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Mia Chloe on August 04, 2026, 09:30:05 PM
+Quote from: dkbit98 on August 04, 2026, 09:02:11 PM
+It would be a good idea that all wallets are showing how strong entropy is when you are generating, but that would be worthless if you had to trust them only.
+Only good way would be to give you proof that you can easily check and verify yourself that entropy is strong enough.
+I am not sure this is going to be easy to implement for newbies to understand.
+If this was a feature will basically any wallet not automatically conclude their entropy level is very safe and okay? Basically most centralized wallet and custodial wallets could go out of business if they end up telling you your entropy is weak at the point of seed generation knowing fully well they provided the entropy.
+Instead, what would be more interesting is if we could perfectly mimic random events like die rolls. To make things more complex say 6 dies 100 times if possible to compress.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: PrivacyG on August 04, 2026, 10:33:05 PM
+They definitely should.  It would be some type of 'fail safe' to prevent situations like the Coldcard one.  I suppose other unknown bugs in the code could lead to a similar low quality entropy too with out the user even knowing.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: pooya87 on August 05, 2026, 04:45:38 AM
+Obviously such a feature would be great to have and it may even prevent some losses, but the problem is implementing such a feature is very difficult and to some extent it is impossible since certain bugs would produce an entropy that by all standards look strong but it is not. That's not something that can be caught by the consumer of the entropy (aka the wallet).
+Let me give you a simplified example. Is this a secure entropy?
+Code:
+20b2107b5543df08fdb198d8650e50abb36c1dcefb4e2478413d10538a213dde
+It looks like it. It is 256 bits and it looks random. Look at the binary:
+Code:
+00100000_10110010_00010000_01111011_01010101_01000011_11011111_00001000_11111101_10110001_10011000_11011000_01100101_00001110_01010000_10101011_10110011_01101100_00011101_11001110_11111011_01001110_00100100_01111000_01000001_00111101_00010000_01010011_10001010_00100001_00111101_11011110
+But it is not secure at all. It is double SHA256 hash of my username. At best if we assume it was random characters it provides 41 bits of entropy. Realistically it's 0 bits since it is a known phrase. And this is produced from a "flawed implementation" that does "SHA256d.Compute(userInput)". This can't be caught at the end of the line by the wallet. It can only be caught by looking at the code. That's somewhat what the ColdCard bug is like.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: nc50lc on August 05, 2026, 06:09:13 AM
+Quote from: satscraper on August 04, 2026, 11:52:06 AM
+Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
+AFAIK, detecting if the underlying PRNG/CSPRNG/MT is not working is already being used by well-written software.
+Without it, the software should prevent the user from generating a seed phrase or return with related errors.
+Take IanColeman's BIP39 tool just for example, it will prevent the user from clicking "Generate" and will display a warning if CSPRNG isn't available.
+Ref: iancoleman.io/bip39 (https://iancoleman.io/bip39/#:~:text=If%20cryptographic%20randomness%20isn%27t%20available%20in%20your%20browser%2C%20this%20page%20will%20show%20a%20warning%20and%20the%20generate%20button%20will%20not%20work.)
+But the thing is, that's the best they can do.
+Once they detected that there's a working PRNG that the software requires, it'll work normally without errors since there's no reliable way
+to verify that the randomly generated number by the OS/software is indeed random.
+The code should be audited instead.
+If it's a bug like Coldcard's issue:
+It's a bug, obviously, the developer doesn't know that the vulnerability exist so they can't preemptively add a warning that there could be a bug.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: satscraper on August 05, 2026, 07:21:02 AM
+Quote from: pooya87 on August 05, 2026, 04:45:38 AM
+Obviously such a feature would be great to have and it may even prevent some losses, but the problem is implementing such a feature is very difficult and to some extent it is impossible since certain bugs would produce an entropy that by all standards look strong but it is not.
+If they reduce the attack surface, eliminating even a single bug, it would be appraise as positive.
+Quote from: nc50lc on August 05, 2026, 06:09:13 AM
+But the thing is, that's the best they can do.
+Once they detected that there's a working PRNG that the software requires, it'll work normally without errors since there's no reliable way
+I think you are right.
+HW makers could at least be capable of checking  whether  imbeded hardware TRNG or any other external entropy source is working or not and throw the warning in the case it is out off commission provideng the relevant self test module was in there firmfare implemented and give the chance to user to select the following actions.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: ABCbits on August 05, 2026, 09:00:51 AM
+Quote from: satscraper on August 04, 2026, 12:16:39 PM
+Quote from: Charles-Tim on August 04, 2026, 11:58:03 AM
+How would Coldcard warn that when its developers do not even know about it? Or maybe the developers know and are behind what happened.
+ColdCard and other wallet developers could implement self-testing feature based on NIST SP 800-90B standard.
+Quote from: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf
+4.2 Types of Health Tests
+Start-up tests: run after power-up/reboot, before first use. "The specific conditions in which the startup tests must be run for FIPS-validated cryptographic modules are determined by the requirements of FIPS 140."
+Continuous tests: "run indefinitely on the outputs of the noise source while the noise source is operating... these tests are run continuously on all digitized samples obtained from the noise source, and so tests must have a very low probability of raising a false alarm."
+On-demand tests: "can be called at any time... it does require that the entropy source be capable of performing on-demand health tests." Rebooting is an acceptable way to trigger these if it re-runs the start-up tests.
+FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
+Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
+NIST program written in Python    NIST program written in C++
+IID test    17 h    1 h 10 min
+[IID track] Estimation entropy    −    −
+[Non-IID track] Estimation entropy    15 min    20 s
+Restart tests    2 s    2 min
+Total execution time    17 h 16 min    1 h 13 min
+Over 1 hour for full test isn't practical, i expect most people don't want to wait that long.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: satscraper on August 05, 2026, 04:02:06 PM
+Quote from: ABCbits on August 05, 2026, 09:00:51 AM
+Quote from: satscraper on August 04, 2026, 12:16:39 PM
+Quote from: Charles-Tim on August 04, 2026, 11:58:03 AM
+How would Coldcard warn that when its developers do not even know about it? Or maybe the developers know and are behind what happened.
+ColdCard and other wallet developers could implement self-testing feature based on NIST SP 800-90B standard.
+Quote from: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf
+4.2 Types of Health Tests
+Start-up tests: run after power-up/reboot, before first use. "The specific conditions in which the startup tests must be run for FIPS-validated cryptographic modules are determined by the requirements of FIPS 140."
+Continuous tests: "run indefinitely on the outputs of the noise source while the noise source is operating... these tests are run continuously on all digitized samples obtained from the noise source, and so tests must have a very low probability of raising a false alarm."
+On-demand tests: "can be called at any time... it does require that the entropy source be capable of performing on-demand health tests." Rebooting is an acceptable way to trigger these if it re-runs the start-up tests.
+FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
+Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
+NIST program written in Python    NIST program written in C++
+IID test    17 h    1 h 10 min
+[IID track] Estimation entropy    −    −
+[Non-IID track] Estimation entropy    15 min    20 s
+Restart tests    2 s    2 min
+Total execution time    17 h 16 min    1 h 13 min
+Over 1 hour for full test isn't practical, i expect most people don't wantthat long.
+I think those who value safety could wait even longer to sleep soundly after their device reassures them that SEED it offers meets safety requirements. A similar piece of algo should be part of  wallet's code base. Serious developers could optimize it to run even faster.  If some people don't want to wait, they'll have to accept the consequences..
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: SFR10 on August 05, 2026, 04:34:55 PM
+Quote from: satscraper on August 04, 2026, 11:52:06 AM
+In my view, it would be very welcome if wallets performed the relevant self checking  on the quality of the entropy used to generate  user's wallet, and warned  user if the entropy falls below, say, 128 bits. Either way, something as simple as: "Entropy below recommended minimum, proceed anyway? Yes/No" would at least surface the problem instead of silently handing someone SEED phrase that could potentially be compromised.
+Other users already covered the important bits, but I just wanted to mention that the closest thing I can think of is BlueWallet [they had this feature for "a very long time (https://bitcointalk.org/index.php?topic=5425971.msg61706570#msg61706570)"]... If you choose "provide entropy via dice rolls", it'll show you the exact bits in real time and if you try to proceed to the next step without manually generating enough entropy, it shows a warning and gives you the option to either cancel it or generate the remaining bytes from the system's RNG [unfortunately, it still doesn't have a feature that actually measures its quality, but at least it offers a bit more than what most other software do in this regard].
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Forsyth Jones on August 05, 2026, 08:34:15 PM
+Quote from: pooya87 on August 05, 2026, 04:45:38 AM
+Obviously such a feature would be great to have and it may even prevent some losses, but the problem is implementing such a feature is very difficult and to some extent it is impossible since certain bugs would produce an entropy that by all standards look strong but it is not. That's not something that can be caught by the consumer of the entropy (aka the wallet).
+Let me give you a simplified example. Is this a secure entropy?
+Code:
+20b2107b5543df08fdb198d8650e50abb36c1dcefb4e2478413d10538a213dde
+It looks like it. It is 256 bits and it looks random. Look at the binary:
+Code:
+00100000_10110010_00010000_01111011_01010101_01000011_11011111_00001000_11111101_10110001_10011000_11011000_01100101_00001110_01010000_10101011_10110011_01101100_00011101_11001110_11111011_01001110_00100100_01111000_01000001_00111101_00010000_01010011_10001010_00100001_00111101_11011110
+But it is not secure at all. It is double SHA256 hash of my username. At best if we assume it was random characters it provides 41 bits of entropy. Realistically it's 0 bits since it is a known phrase. And this is produced from a "flawed implementation" that does "SHA256d.Compute(userInput)". This can't be caught at the end of the line by the wallet. It can only be caught by looking at the code. That's somewhat what the ColdCard bug is like.
+A good practical example, as random as it may seem, it is not, because human beings are not good at generating their own entropy.
+In any case, using a wallet with an opensource license, strong passphrase, multisig, adds additional security layers that at least prevent the worst from happening.
+I believe that we will see a increase of culture and greater demand from costumers and users to demand that brands of hardware wallets and software wallets at least demonstrate that they either use multiple entropy sources or show it through the code (even if most of users do not have the technical knowledge to fully understand it).
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: vapourminer on August 08, 2026, 11:43:30 PM
+Quote from: ABCbits on August 05, 2026, 09:00:51 AM
+FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
+Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
+NIST program written in Python    NIST program written in C++
+IID test    17 h    1 h 10 min
+[IID track] Estimation entropy    −    −
+[Non-IID track] Estimation entropy    15 min    20 s
+Restart tests    2 s    2 min
+Total execution time    17 h 16 min    1 h 13 min
+Over 1 hour for full test isn't practical, i expect most people don't want to wait that long.
+i burn in new drives, memory, basically any new computer gear and absolutely hammer them for literally days before i entrust them with even my cat pictures.
+for bitcoin i can see testing for a lot longer if i could figure out how, and im just a end user.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: hd49728 on August 09, 2026, 03:30:34 AM
+Quote from: satscraper on August 04, 2026, 11:52:06 AM
+Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
+Either way, something as simple as: "Entropy below recommended minimum, proceed anyway? Yes/No" would at least surface the problem instead of silently handing someone SEED phrase that could potentially be compromised.
+It can not happen by some following main reasons.
+First of all, it is from the wallet developer team. If they are incapable technically, they don't know that their wallet products/ models have not enough and weak entropy of wallet seeds.
+Second, they can know about that by themselves in wallet development process or by community reports such as the Coldcard team, but they decided to ignore that security weakness.
+Do you think such wallet developers team will add warnings in their own wallet softwares/ products/ models?
+If you want to have such insightful technical warnings, you can make your proposal to this site team https://walletscrutiny.com/. Ask them to add security check on wallets related to seed entropy and add it to their wallet reviews.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: nc50lc on August 09, 2026, 06:15:02 AM
+Quote from: hd49728 on Today at 03:30:34 AM
+If you want to have such insightful technical warnings, you can make your proposal to this site team https://walletscrutiny.com/. Ask them to add security check on wallets related to seed entropy and add it to their wallet reviews.
+I doubt that it'll be 100% reliable.
+For example, the recent Coldcard MK4 warnings (https://walletscrutiny.com/hardware/coldcardMk4/) in their websites are only added after the hack while the issue was present way before their initial code audit.
+Before, it's listed as one of the "good wallets" without any listed issue, archived:
+2025 Nov: web.archive.org/web/20251110132002/https://walletscrutiny.com/hardware/coldcardMk4/ (https://web.archive.org/web/20251110132002/https://walletscrutiny.com/hardware/coldcardMk4/)
+2026 Apr: web.archive.org/web/20260417212232/https://walletscrutiny.com/hardware/coldcardMk4/ (https://web.archive.org/web/20260417212232/https://walletscrutiny.com/hardware/coldcardMk4/)
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: ABCbits on August 09, 2026, 07:13:34 AM
+Quote from: vapourminer on August 08, 2026, 11:43:30 PM
+Quote from: ABCbits on August 05, 2026, 09:00:51 AM
+FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
+Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
+NIST program written in Python    NIST program written in C++
+IID test    17 h    1 h 10 min
+[IID track] Estimation entropy    −    −
+[Non-IID track] Estimation entropy    15 min    20 s
+Restart tests    2 s    2 min
+Total execution time    17 h 16 min    1 h 13 min
+Over 1 hour for full test isn't practical, i expect most people don't want to wait that long.
+i burn in new drives, memory, basically any new computer gear and absolutely hammer them for literally days before i entrust them with even my cat pictures.
+for bitcoin i can see testing for a lot longer if i could figure out how, and im just a end user.
+From what i understand so far, such test can't be done by end or average user. The test itself must use the generated and processed entropy/random number directly from the wallet as the input, which means either,
+1. the wallet itself must implement this test.
+2. you modify the wallet source code to save the generated and processed entropy/random number to a file, before feeding it as input to the test software.
+Following good guide that generate entropy or random number from a dice is more practical option.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Pmalek on August 09, 2026, 07:32:42 AM
+If the developers and project owners have a reliable and secure way to check that the keys are not secure enough and that the numbers aren't random enough, they should display a warning. But it's a question of whether or not it's an easy thing for them to verify.
+Quote from: Zaguru12 on August 04, 2026, 01:52:32 PM
+The only reason why I think most people are challenging or blaming cold card is simply because there was reports that their system source (TRNG) wasn�t that random as it was broke but they didn�t take that warning or acted upon it and it was what lead to this, which is why I also call for them to be blamed
+If NVK didn't decide to switch to a non open-source license and mess around, the scandal wouldn't have happened. He has been arrogant for years. He was the first to gloat whenever something bad happened to other hardware wallet manufacturers and quickly talk about the strengths of his own product. People didn't like him.
+Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
+Post by: Cricktor on August 09, 2026, 08:33:15 PM
+Quote from: satscraper on August 04, 2026, 11:52:06 AM
+Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
+In my view, it would be very welcome if wallets performed the relevant self checking  on the quality of the entropy used to generate  user's wallet, and warned  user if the entropy falls below, say, 128 bits. ...
+This should actually not be necessary. If a software wallet generates entropy, it has to use at least something like a CSPRNG or a HWRNG, if available, usually via some library or OS routines. I would expect that if you call such a RNG, it should return some error codes if there are any issues, like low-entropy pool or whatever.
+Same applies to a hardware wallet which commonly has at least one TRNG (for me synonym to a HWRNGhardware random number generator). I'm pretty sure that TRNGs are implemented in a way that they can indicate to the caller if something is wrong with their entropy (called too often, entropy depletion, circuit instability and whatnot else). Good and reliable TRNGs are known technology with various well working circuit designs that I would call "understood". I'm no expert in this field but at some past I was quite interested in this topic and read a lot about current RNG technology.
+The problem that has been addressed partly already is: how do you quantify "good entropy"? From my knowledge about RNGs, I'd say, you can't from a single or only few samples. All randomness tests I've see and tried with some special test software commonly require a lot of samples to churn them through a plethora of randomness tests. That's hardly feasible for what you have in mind.
+A hardware wallet would need to do this all internally because the entropy should never leave the device, only been converted once to mnemonic recovery words for the human to back it up. Frankly, this would bloat the firmware with stuff that in my opinion shouldn't be necessary.
+A proper system design has to use a TRNG (or CSPRNG) that behaves non-erratic and does its job. Period! It should signal issues and if those are signaled the entropy generation for a crypto wallet has to abort and NEVER divert to a flawed low-entropy shit-RNG under any circumstances. N.E.V.E.R!
+It is of utmost stupidity and arrogance that Coinkite chose to leave such a code path in their firmware AND that apparently they never debugged it properly AND/OR left it in for whatever malicious purpose. (Don't really want to follow the evil conspiracy path here.)
+I don't even understand why they had a terribly weak PRNG as accessible code path in their firmware anyway. No deal for debug builds or for whatever it was there, but for the production firmware for customers? C'mon, no freaking way should this be there.
+If you can't or don't want to trust such RNGs, generate the entropy for your wallet(s) yourself, but do it the right way, knowing and understanding what you're doing, because it's easy to screw up and you can't really know or detect bad entropy easily.
+Powered by SMF 1.1.19 |
+SMF © 2006-2009, Simple Machines

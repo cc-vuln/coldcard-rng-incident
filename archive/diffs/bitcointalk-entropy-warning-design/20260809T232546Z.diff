@@ -1,0 +1,21 @@
+--- bitcointalk-entropy-warning-design@20260809T103743Z
++++ bitcointalk-entropy-warning-design@20260809T232546Z
+@@ -230,5 +230,18 @@
+ Quote from: Zaguru12 on August 04, 2026, 01:52:32 PM
+ The only reason why I think most people are challenging or blaming cold card is simply because there was reports that their system source (TRNG) wasn�t that random as it was broke but they didn�t take that warning or acted upon it and it was what lead to this, which is why I also call for them to be blamed
+ If NVK didn't decide to switch to a non open-source license and mess around, the scandal wouldn't have happened. He has been arrogant for years. He was the first to gloat whenever something bad happened to other hardware wallet manufacturers and quickly talk about the strengths of his own product. People didn't like him.
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: Cricktor on August 09, 2026, 08:33:15 PM
++Quote from: satscraper on August 04, 2026, 11:52:06 AM
++Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
++In my view, it would be very welcome if wallets performed the relevant self checking  on the quality of the entropy used to generate  user's wallet, and warned  user if the entropy falls below, say, 128 bits. ...
++This should actually not be necessary. If a software wallet generates entropy, it has to use at least something like a CSPRNG or a HWRNG, if available, usually via some library or OS routines. I would expect that if you call such a RNG, it should return some error codes if there are any issues, like low-entropy pool or whatever.
++Same applies to a hardware wallet which commonly has at least one TRNG (for me synonym to a HWRNGhardware random number generator). I'm pretty sure that TRNGs are implemented in a way that they can indicate to the caller if something is wrong with their entropy (called too often, entropy depletion, circuit instability and whatnot else). Good and reliable TRNGs are known technology with various well working circuit designs that I would call "understood". I'm no expert in this field but at some past I was quite interested in this topic and read a lot about current RNG technology.
++The problem that has been addressed partly already is: how do you quantify "good entropy"? From my knowledge about RNGs, I'd say, you can't from a single or only few samples. All randomness tests I've see and tried with some special test software commonly require a lot of samples to churn them through a plethora of randomness tests. That's hardly feasible for what you have in mind.
++A hardware wallet would need to do this all internally because the entropy should never leave the device, only been converted once to mnemonic recovery words for the human to back it up. Frankly, this would bloat the firmware with stuff that in my opinion shouldn't be necessary.
++A proper system design has to use a TRNG (or CSPRNG) that behaves non-erratic and does its job. Period! It should signal issues and if those are signaled the entropy generation for a crypto wallet has to abort and NEVER divert to a flawed low-entropy shit-RNG under any circumstances. N.E.V.E.R!
++It is of utmost stupidity and arrogance that Coinkite chose to leave such a code path in their firmware AND that apparently they never debugged it properly AND/OR left it in for whatever malicious purpose. (Don't really want to follow the evil conspiracy path here.)
++I don't even understand why they had a terribly weak PRNG as accessible code path in their firmware anyway. No deal for debug builds or for whatever it was there, but for the production firmware for customers? C'mon, no freaking way should this be there.
++If you can't or don't want to trust such RNGs, generate the entropy for your wallet(s) yourself, but do it the right way, knowing and understanding what you're doing, because it's easy to screw up and you can't really know or detect bad entropy easily.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

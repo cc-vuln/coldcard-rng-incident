@@ -1,0 +1,849 @@
+post: 1vi20y9
+author: 10kpizza
+created_utc: 1786112563
+title: I did 1200 dice rolls to check for bias in ordinary board game dice
+body:
+Result: there is no detected bias, and regular dice can easily and quickly be used to generate good randomness
+
+I saw some FUD that you need special casino dice, and you have to roll them in some special way, and it's easy to get it wrong, and the surface needs to be completely flat, float the dice in water to check they're balanced, etc etc loads of FUD reasons why dice rolling won't work. So I checked myself in the spirit of don't trust verify.
+
+I found three dice lying around my house in some old board games. I rolled them inside a plastic cup that I'd shake for a second or two, then put the cup down bottom-up. The dice bounce off the walls of the cup and each other many times, which creates huge unpredictability.
+
+I originally was only meaning to do this for 200 rolls, but then became hyperfocused and just kept going. This data is brought to you by weaponized autism.
+
+Rolling 50 dice this way only took me 2-3 minutes, and it would be even faster if I had more dice.
+
+Now in any sample there will be some variation just by chance. We can understand that boundary with math. The binomial distribution describes these dice rolls. The standard deviation of the binomial distribution is sqrt(N p (1-p)) where p is probability (1/6 in this case) and N is number of trials (1200 in this case). Put the numbers in the formula, work out the percentage and you get a standard deviation of 1.08%, which means there's a 63% chance that those percentages in my graph will deviate by that much (and therefore 37% that the deviation will be outside that range just by chance). **Since my graph values are within that range there was no bias detected**. I worked out that to detect bias down to 0.1% I would need to roll 138888 time and I'm not going to roll that much. The percentage standard deviation goes as 1/sqrtN so it only improves slowly as you do more rolls.
+
+I was not affected by the recent coldcard hack and I've never owned that wallet, but it's interesting and important to check and improve.
+
+**I think the biggest thing people can do is multi-software multisig.** This is easy to do as many bitcoin wallets have multisig like electrum and sparrow. You just click buttons in the UI and don't need to do any math. Multisig security is additive. It removes a single point of failure. If coldcard users had made a 2-of-2 multisig with the most malware-ridden online desktop computer you've ever seen, then it will still be better security than coldcard alone, and they would still have their bitcoins today because the online desktop would have to be hacked separately which is unlikely.
+
+I've seen a big misunderstanding that most important thing is good randomness for seed generation, so people are thinking of using radioactive decay or something. It's not, **the most important thing for seed generation is having a secret number that nobody else knows**. Dice are perfect for this because they can be understood by anyone, and they can be used offline and behind closed doors.
+
+comment: p29sonv
+parent: t3_1vi20y9
+author: 10kpizza
+created_utc: 1786112730
+edited: false
+body:
+This is the raw data of my dice rolls if anyone wants to reanalyze.
+
+.
+
+    32216412646314564633364534221253213652553224566313163632643544124326236135325523
+    12544123366551535422366613131321211611363555611425665545313262362212631611321363
+    36141542252166133224214114415314116546155162142351413352653624443445561415132245
+    61134644513464136312624512512646433156245243323135316662611541511645524455344443
+    32465121226561635253366236551242321432633512513126411311356145225421645145353411
+    61242653446135335642654326136521133331146233621345452533215454345532544144162225
+    64612245663461634153624544252545665313325243445366532466114341166245111352626635
+    55434546426152421345535116556434565544563462326142163566351544464464354325435365
+    33162114331224454336253215626465525313313416136425441515665561461625446441244425
+    11235526613615344132222645322531222254256535556634525312531566465621245652412653
+    42566146435564135415231533112234362223145555514121622353361263566326123356615636
+    33426431236651423462532223245356232646265143166516623366356612344435246345654224
+    31656312141614211632624462654346431313112234156156512554216434564314413241636542
+    64416511556643421246555166616411464233166332635412533341426612223424456365416265
+    63511261216262252511116651464215453513243513463644552461426414613666522214161232
+
+comment: p29vn9f
+parent: t1_p29sonv
+author: TheVoidKilledMe
+created_utc: 1786113524
+edited: false
+body:
+one of those 4 digits is my bank pin 
+
+pls stop 
+
+comment: p29vopy
+parent: t3_1vi20y9
+author: bullett007
+created_utc: 1786113535
+edited: false
+body:
+Now do passphrases.
+
+comment: p29wcvh
+parent: t1_p29sonv
+author: Appropriate-Talk-735
+created_utc: 1786113715
+edited: false
+body:
+WTH man?? I used this and my coins got stolen within a few minutes??
+
+comment: p2a03u6
+parent: t3_1vi20y9
+author: hpaynecrypto
+created_utc: 1786114702
+edited: false
+body:
+Thank you for running this experiment!
+
+comment: p2a1cpx
+parent: t3_1vi20y9
+author: PoeCollector
+created_utc: 1786115033
+edited: false
+body:
+And I thought I was nuts for rolling 256 dice to create a seed with binary bits. Nice work.
+
+To add to your argument, even if you detected huge bias it would barely affect the bit depth of a hand-rolled key. Worst case scenario you might end up with 254 bits of entropy when you thought you had 256. 128 bits would take billions of years to crack; 256 is extreme overkill just because we can.
+
+comment: p2a1unr
+parent: t3_1vi20y9
+author: corporatony
+created_utc: 1786115166
+edited: false
+body:
+Maybe I don’t understand this that well, but even if the dice you used had some bias, wouldn’t someone have to know what that bias was to be able to use that information effectively? 
+
+comment: p2a2etx
+parent: t1_p2a1unr
+author: Str8CashHomiee
+created_utc: 1786115313
+edited: false
+body:
+I think the theory is the bias is slanted towards higher numbers as the cutouts for the dots makes that side lighter and thus more likely to face up. 
+
+comment: p2a2h4a
+parent: t1_p2a1unr
+author: DrGonzo3000
+created_utc: 1786115331
+edited: false
+body:
+Normally dice have the same bias (6 has six drilled holes, 1 only one, so this side should be the one with most weight) 
+
+comment: p2a30di
+parent: t1_p2a1unr
+author: LeatherMine
+created_utc: 1786115474
+edited: false
+body:
+No. If you think there is bias toward an unknown number, that still helps an attacker a bit. If an attacker knows the bias is toward a particular number, that helps them a bit more. But either is so minimal is your dice aren’t seriously fucked.
+
+comment: p2a3h6b
+parent: t1_p2a2etx
+author: corporatony
+created_utc: 1786115596
+edited: false
+body:
+Yea, but that wouldn’t only be true if the dice were first perfectly made and then cut with those grooves? I guess that’s what this person was investigating, but they are really just showing the results for *these* dice, not all dice. Either way, it has otherwise been shown that dice are random enough and have factors outside of the grooves that make predicting bias in someone else’s dice impossible.
+
+comment: p2a3pst
+parent: t1_p29vn9f
+author: togetherwem0m0
+created_utc: 1786115659
+edited: false
+body:
+well that's on you for ignoring the full addressable space of the 4 digit pin, using only the first 6 digits significantly reduces your security.
+
+comment: p2a4xfy
+parent: t1_p2a30di
+author: corporatony
+created_utc: 1786115976
+edited: false
+body:
+>If you think there is a bias toward an unknown number, that still helps an attacker a bit
+
+I just don’t believe that is practically true here, but I’ll admit I’m out of my element
+
+comment: p2a5jhe
+parent: t1_p2a3pst
+author: corporatony
+created_utc: 1786116134
+edited: false
+body:
+Only if they tell someone they did that
+
+comment: p2a6jba
+parent: t1_p29vn9f
+author: Baiyko
+created_utc: 1786116386
+edited: false
+body:
+Now everyone’s finding their bank pin in this, thanks void
+
+Ps. I found it too lol XD
+
+comment: p2a75bp
+parent: t1_p2a6jba
+author: SSabotage117
+created_utc: 1786116541
+edited: false
+body:
+guys use the full depth of the 10 numbers! 
+
+
+
+comment: p2aa448
+parent: t1_p2a1cpx
+author: 10kpizza
+created_utc: 1786117309
+edited: 1786122113
+body:
+It took surprisingly little time. The method with the plastic cup is pretty fast. Plus I had three dice not one. It took me slightly over an hour but I didnt do it all in one go, more like 10 minutes at a time with breaks doing other things. People could probably use a regular cup from the kitchen.
+
+And as you say a small bias wouldnt even matter.
+
+comment: p2aaczg
+parent: t1_p2a1unr
+author: 10kpizza
+created_utc: 1786117372
+edited: false
+body:
+The binomial distribution math is based on an ideal perfect dice with exactly 1/6 (16.66666666...%) probability. That's what I used to calculate and then compare it against the real dice from my data.
+
+comment: p2aalzh
+parent: t1_p29vopy
+author: 10kpizza
+created_utc: 1786117436
+edited: false
+body:
+What would you like to know exactly?
+
+comment: p2abyql
+parent: t3_1vi20y9
+author: daskalou
+created_utc: 1786117784
+edited: false
+body:
+6 turned up the most because it's the lightest side due to it having 6 cut outs on top.
+
+comment: p2abz9q
+parent: t3_1vi20y9
+author: GodsMoney_Ape
+created_utc: 1786117788
+edited: false
+body:
+N = 1200 
+
+I like your dedication brother 
+
+Nice numbers, showing the expected behaviour, but it’s always good to check
+
+comment: p2aec6a
+parent: t1_p2aaczg
+author: corporatony
+created_utc: 1786118391
+edited: false
+body:
+Ok. Thats not really addressing what I’m asking
+
+comment: p2afjfz
+parent: t1_p2aec6a
+author: 10kpizza
+created_utc: 1786118701
+edited: false
+body:
+I just read your comment again. Yes the attacker would have to know, but its a good guess that the dice is biased towards 6 because on the opposite side is 1 which is slightly heavier because it has less matter removed for the pips. Thats the theory anyway its clear to me that if the dice bounce around enough then this effect doesnt show up.
+
+comment: p2ag1o7
+parent: t3_1vi20y9
+author: dj_destroyer
+created_utc: 1786118831
+edited: false
+body:
+I know a lot of people are shitting on all the recent chatter around dice rolls but I'm personally loving it. I've never learned so much about entropy, RNGs, dice, etc.
+
+Honestly, I just find it so interesting that it's reignited my interest in crypto again. I feel for all the people who lost in the Coldcard hack/fault but it feels riveting to experience history as it unfolds. We'll talk about this for decades, maybe centuries. There will be documentaries about this.
+
+comment: p2agxpa
+parent: t3_1vi20y9
+author: Hoosierlaw
+created_utc: 1786119059
+edited: false
+body:
+Weaponized autism for the win! 
+
+comment: p2ahxhk
+parent: t3_1vi20y9
+author: Sundance37
+created_utc: 1786119313
+edited: false
+body:
+Dice rolling may fix the security, but it doesn’t fix the actual problem. Approachability. The harder you make bitcoin to hold, and transact, the lower its demand will be.
+
+comment: p2ajks3
+parent: t3_1vi20y9
+author: sklantee
+created_utc: 1786119735
+edited: false
+body:
+Fully agree with your methods and conclusion!
+
+comment: p2al5xl
+parent: t1_p2abyql
+author: 10kpizza
+created_utc: 1786120142
+edited: 1786121460
+body:
+That's interesting isnt it. I ran the code to make the histogram as I was going, and 6 only started coming out on top near the end. For a while 2 was in the lead.
+
+The 6 frequency was within one standard deviation of the mean, so that result could just be due to chance.
+
+comment: p2am8zw
+parent: t3_1vi20y9
+author: Strong_Judge_3730
+created_utc: 1786120421
+edited: false
+body:
+What maths qualifications does the op have to conclude that there is no bias... Let me guess none.
+
+My intuition says when computers do guess in the orders of millions and billions a thousand is insignificant.
+
+The most important rule in software dev is don't implement you own crypto if your not an expert. Rolling dice is kind of doing that.
+
+
+
+comment: p2ano14
+parent: t3_1vi20y9
+author: SPEDER
+created_utc: 1786120786
+edited: false
+body:
+Coward! We need all 138888 or I just can’t trust it.  /s
+
+comment: p2anufc
+parent: t3_1vi20y9
+author: acuteioa
+created_utc: 1786120831
+edited: 1786121041
+body:
+If you role 3 dices at once, how do you determine in which order to pick them and feed them for further processing? You should not pick them manually, because humans cant do that randomly enough.
+
+comment: p2apmzj
+parent: t1_p2a2h4a
+author: marvinrabbit
+created_utc: 1786121291
+edited: false
+body:
+Message received. Will proceed to roll dice and throw out every 6 that comes up! Thanks for the help.
+
+comment: p2aq7ty
+parent: t3_1vi20y9
+author: Jayrovers86
+created_utc: 1786121438
+edited: false
+body:
+How bored do you need to be to do this 
+
+comment: p2aqeuq
+parent: t1_p2anufc
+author: 10kpizza
+created_utc: 1786121487
+edited: false
+body:
+I did it left-to-right. Or if they're all in a line then up-to-down.
+
+comment: p2aqox8
+parent: t3_1vi20y9
+author: marvinrabbit
+created_utc: 1786121558
+edited: false
+body:
+As a former nerd, I just want to say 'thank you' for taking the time to document and experiment. I'm too old and tired and I know that I don't have the smarts that I once did. So I appreciate you!
+
+comment: p2at5ir
+parent: t1_p2am8zw
+author: 10kpizza
+created_utc: 1786122189
+edited: false
+body:
+Wait so reading the wikipedia page on binomial distributions isnt enough??
+
+comment: p2aux9j
+parent: t3_1vi20y9
+author: Aidsfordayz
+created_utc: 1786122646
+edited: false
+body:
+this really screams mass adoption
+
+comment: p2avacj
+parent: t1_p2am8zw
+author: stoicparallax
+created_utc: 1786122738
+edited: false
+body:
+Let’s say OP states they’ve since used these same dice to generate a private key. If a someone comes along and has the distribution chart, would that advantage them in guessing OPs key in any meaningful way (assuming OP has done 256 rolls)?
+
+*To your point about maths qualifications, I have none. This is a genuine question.*
+
+comment: p2avhcv
+parent: t1_p2at5ir
+author: Strong_Judge_3730
+created_utc: 1786122787
+edited: false
+body:
+Holy shit didn't realize you can become an expert from reading a wiki page
+
+comment: p2avi14
+parent: t3_1vi20y9
+author: FreezedPeachNow
+created_utc: 1786122792
+edited: false
+body:
+can someone explain the dice roll like I am 5 in order to generate entropy.  because rolling a 6 sided dice 100 times willl just yiel a number between 100 and 600.  Or is it each dice roll is used in conjuction with something else to generate a new word or number?  So now you have 1X6 \^100 possible combinations?  Also there are 24 seed words, but 100 dice rolls.  So I am not sure how those 2 numbers reconcile each other.
+
+comment: p2awteb
+parent: t3_1vi20y9
+author: satoshisfeverdream
+created_utc: 1786123127
+edited: false
+body:
+It’s nice to see this place take a break from the usual mind numbing posts here.   
+
+comment: p2b282x
+parent: t1_p2a2etx
+author: Deto
+created_utc: 1786124508
+edited: false
+body:
+Even if that was very slightly true, it would only very slightly degrade the entropy so it wouldn't be a big deal
+
+comment: p2b78kb
+parent: t3_1vi20y9
+author: Flowa-Powa
+created_utc: 1786125787
+edited: false
+body:
+I used 10 dice, I didn't really care if they had small amounts of bias
+
+comment: p2bc7rc
+parent: t3_1vi20y9
+author: Setting-Conscious
+created_utc: 1786127070
+edited: false
+body:
+What a waste of time
+
+comment: p2bd0vz
+parent: t1_p29vn9f
+author: AlternativeCapybara9
+created_utc: 1786127276
+edited: false
+body:
+Yes, 1111 is in there.
+
+comment: p2bd7a3
+parent: t3_1vi20y9
+author: zooms
+created_utc: 1786127322
+edited: false
+body:
+This seems like a good place to ask. The basic advice is to do 100 rolls for maximum? entropy.. 
+
+What happens if I do 200 or 300 or 1200? Does it reduce the effectiveness of entropy somehow?
+
+comment: p2bdgth
+parent: t3_1vi20y9
+author: coinminer2049er
+created_utc: 1786127390
+edited: false
+body:
+I think the point most people are missing in this whole debacle, is that bias only matters if
+
+1. Someone knows how the item you used to generate them were biased
+2. That person then has the ability to recreate that bias to generate your keys.
+
+Like, say you had a dice that had a +5% bias towards landing on 6. First, someone would need to know that was your bias, and then they'd have to find a way to replicate that bias. Anyone trying to replicate your keys with a standard set of fair dice is going to have a REALLY tough time. In a weird way, it's almost safer to have an uncommon bias.
+
+TL;DR - biases are fine if they're unknowable (i.e. not shared or visible in the source).
+
+comment: p2bdtuk
+parent: t1_p29vn9f
+author: coinminer2049er
+created_utc: 1786127483
+edited: false
+body:
+wait until this guy hears about De Bruijn sequences
+
+comment: p2bkodi
+parent: t1_p2bd7a3
+author: 10kpizza
+created_utc: 1786129261
+edited: false
+body:
+Entropy is additive so doing more rolls wont harm.
+
+comment: p2blj5v
+parent: t1_p2b282x
+author: GoldmezAddams
+created_utc: 1786129487
+edited: false
+body:
+And you could just offset it with a few extra rolls.
+
+comment: p2bmlky
+parent: t3_1vi20y9
+author: OddBritishMan
+created_utc: 1786129768
+edited: false
+body:
+I read that the dice have to be rolled using the same technique everytime... But surely it's better to roll the dice differently everytime to add unpredictability. I  might order some casino dice, and try. Also coin flips might be better, but take longer to generate a seed. 
+
+comment: p2bn085
+parent: t3_1vi20y9
+author: stargate425
+created_utc: 1786129876
+edited: false
+body:
+I rolled 240 times with 12 dices bought from a board game cafe (20 times), then I mentally rolled 16 times. With a passphrase, I'm satisfied with its entropy.
+
+comment: p2boymp
+parent: t1_p2avi14
+author: haltncatchfries
+created_utc: 1786130391
+edited: false
+body:
+If you simply add the dice values, i.e. 5 + 6 + 4 + 3 + 1 + 6 ... , it removes tremendous amounts of entropy because the order of the dice rolls no longer matters and the final values (as you pointed out) will be within a group of 500 unique values, and 500 = \~2\^8.9 (not quite 9 bits of entropy) in base-2, which is bad.
+
+However, if each dice roll becomes a digit in a base-6 integer, which can later be converted into a base-2 integer, then no entropy is lost and the final value becomes the binary data for creating/mixing entropy.
+
+The math for this is that d6 dice create (6)\^(rolls) unique values, i.e. 100 rolls is about 10\^77 (a 77-digit integer, base 10) or about 2\^258. So, effectively, 100 d6 rolls is about 258 bits of entropy, which is quite good.
+
+The seed words are in a list of 2048 (2\^11) or exactly 11 bits of entropy per word. 24 words x 11 bits of entropy is 264 bits of total entropy. We can use dice rolls or words from a bag because in the end the order of them creates a very large integer that comfortably contains at least 256 bits of entropy.
+
+comment: p2bp0pi
+parent: t1_p2avi14
+author: OddBritishMan
+created_utc: 1786130407
+edited: false
+body:
+You don't total the dice results. 
+
+You have to roll a dice 99 times and enter the 99 character result into a seedsigner or coldcard to create the seed.
+
+Or, you can also create a seed using 256 coinflips, and then enter the 23 words into a seedsigner to create the checksum word
+
+comment: p2bv298
+parent: t1_p2apmzj
+author: maidalit
+created_utc: 1786132018
+edited: 1786132334
+body:
+That’s actually a really great idea. Discard rolls of 6 and 1. The remaining numbers translate ~~4~~ 2 binary digits for each dice roll.
+
+This makes it much faster to generate the full key than the usually suggested procedure of translating 1-3 to 0 and  
+4-6 to 1.
+
+Edit: 2 digits per roll, not 4. Rolling two dices would give you 4 digits. There would also be 33% discarded rolls of ones and sixes, so it’s not actually twice as fast, but it should still be faster than generating one digit per roll.
+
+comment: p2bvbyx
+parent: t3_1vi20y9
+author: stanley_fatmax
+created_utc: 1786132090
+edited: false
+body:
+If you weren't confident in dice, throw 100 toothpicks in the air and record their orientation to the nearest 10° upon landing. That'll be plenty of entropy.
+
+comment: p2by0ks
+parent: t1_p2ahxhk
+author: maidalit
+created_utc: 1786132807
+edited: false
+body:
+Completely agree! People will not stop making mistakes. Hardware wallets were supposed to be the safe and easy to use security device for common folks and boost acceptance. 
+
+The damage this hack creates goes way beyond the stolen coins. 
+
+comment: p2c1yma
+parent: t1_p2bdgth
+author: vortexcortex21
+created_utc: 1786133881
+edited: false
+body:
+Nah, there are not that many ways a die can be biased.
+
+Also, it's easy (unless you are coldcard) to replicate a bias programmatically.
+
+comment: p2c4h7k
+parent: t1_p2c1yma
+author: coinminer2049er
+created_utc: 1786134564
+edited: false
+body:
+I think you sort of missed the point.
+
+comment: p2c53se
+parent: t1_p2b282x
+author: Str8CashHomiee
+created_utc: 1786134735
+edited: false
+body:
+Exactly which is the exact purpose of this post showing that 
+
+comment: p2cnm4w
+parent: t1_p2a6jba
+author: SoHigh420IShit360
+created_utc: 1786140033
+edited: false
+body:
+By saying this, I now only need to check 1296 combinations rather than 10000 to find your PIN number 
+
+comment: p2cny9e
+parent: t1_p29vn9f
+author: TheSkunksMisery
+created_utc: 1786140136
+edited: false
+body:
+Funny, I had to check. I'm safe here.
+
+comment: p2d2j6i
+parent: t3_1vi20y9
+author: rocket_beer
+created_utc: 1786144752
+edited: false
+body:
+1200?
+
+Invalid unless you do it 10,000 times
+
+comment: p2d703l
+parent: t3_1vi20y9
+author: OldWolf3
+created_utc: 1786146218
+edited: false
+body:
+Your math isn't good. It's not correct to just say the data is in range for variance therefore the dice are unbiased; because the data is also in range for bias.
+
+For example if there is a loaded coin designed for 55% heads, and you flip it 100 times and get 55 heads, your method would conclude the coin is unbiased .
+
+The proper way involves comparing the null hypothesis with a bias hypothesis and seeing which one the data favours. (It's more complex than this, I am just giving a one line summary for reddit post).
+
+Your data also matches the hypothesis that 6 is more likely on cheap dice, (because that face is lightest and 1 is heaviest) and without actually running the numbers the fact that 6 came up the most suggests the data favours this hypothesis over the null .
+
+comment: p2d7lli
+parent: t1_p2cnm4w
+author: Baiyko
+created_utc: 1786146418
+edited: false
+body:
+And?
+
+comment: p2d7s9c
+parent: t1_p2am8zw
+author: Past_Permission_6123
+created_utc: 1786146479
+edited: false
+body:
+"don't implement you own crypto" applies in software development, it has nothing to do with the entropy of dice rolls.
+
+If you're worried about a small bias, just do some more dice rolls.
+
+comment: p2d9ifg
+parent: t1_p2avacj
+author: Past_Permission_6123
+created_utc: 1786147053
+edited: false
+body:
+The bias of the dice would have to be extreme, to the point you'd easily notice it if you played a game with it. Some people are just bad at estimating probability with their intuition. No-one can guess from the distribution with dice like OP used with 256 dice rolls.
+
+comment: p2dfg4c
+parent: t1_p2d703l
+author: 10kpizza
+created_utc: 1786149067
+edited: 1786150153
+body:
+Yes I'm sure there are other ways of doing it. You could find a way to calculate the observed bias on the dice (and then bias = 0 to within error means unbiased)
+
+For your example N=100 and p=0.5 would result in a standard deviation of 5%, so getting 55/100 heads would not rule out a bias of 5% as you said. Thats because N=100 is too low. If you instead you did N=10000 now the standard deviation is 0.5% so a 5% bias would be very visible, it would be 10 standard deviations away, vanishingly unlikely to happen by chance.
+
+The 6 being slightly more likely as in my data is within one standard deviation. Meaning if there is a bias towards 6 then its very small, it cant be bigger than about 1%. And thats the key point that the dice are good enough to use for seed generation.
+
+EDIT: yeah i guess I shouldnt have said "no detected bias". But the keyword is "detected". If I had a higher N maybe a very small bias could be detected.
+
+comment: p2dr6fj
+parent: t1_p29sonv
+author: randousername888
+created_utc: 1786153129
+edited: false
+body:
+situate pattern peasant bomb cannon unknown coral glare woman effort someone mobile wife mass tent toy mind tunnel improve charge blood weekend style differ
+
+comment: p2dz04r
+parent: t3_1vi20y9
+author: planetpluto3
+created_utc: 1786155857
+edited: false
+body:
+ Bro never studied stats.   Sample size is too small to detect true differences.
+
+comment: p2e01z9
+parent: t1_p29sonv
+author: Vandaine
+created_utc: 1786156231
+edited: false
+body:
+Yahtzee!
+
+comment: p2e1duv
+parent: t1_p29sonv
+author: LNCrizzo
+created_utc: 1786156710
+edited: false
+body:
+I put your rolls into the Ian Coleman tool and got a 186 word seed phrase.
+
+    head lawsuit state vicious tent drop please mandate soda glue tank pet sell turn admit taxi chunk sort fence humble menu erase echo delay battle rare leader myth kid movie enable try toe major beach split icon thought curtain coin acid gospel laundry wheel cannon crush toilet business fluid bachelor usage coast slide rib sustain gaze stuff follow cargo welcome cram sea weasel found smile young mesh exchange sand pupil peasant clever artwork around critic enact extend learn grow job film lucky gallery loop hair broken use erase erode shift behind tide scale jar wheat pigeon kitten connect kangaroo limb use similar behave ghost drastic liar betray lab impose burger duck robust pride wire resist invite bar change modify aerobic tiger derive volcano hole foot spring cloud shiver seminar daughter art key swallow few gadget inherit foster earth dream congress idea glow bottom pledge open card poem lion giant talent flower grant piece educate joy skate century local gift letter choose vintage vault husband chimney stick basket cattle intact crane clip present patrol sadness describe gift anxiety drum ask emotion transfer kick rely promote split vessel
+
+comment: p2e9rda
+parent: t3_1vi20y9
+author: Be_Me_Anon_irl
+created_utc: 1786159862
+edited: false
+body:
+Did you check the cup for bias?
+
+comment: p2ednmo
+parent: t3_1vi20y9
+author: HoldenVJ
+created_utc: 1786161392
+edited: false
+body:
+Kudos!  
+Good job destroying the FUD
+
+comment: p2eii5w
+parent: t1_p2anufc
+author: pizzapizza333
+created_utc: 1786163339
+edited: false
+body:
+I used 3 different color and always counted in same order. Not sure if thats best but it was way faster then rolling 1 by 1
+
+comment: p2ejdfy
+parent: t1_p2d7s9c
+author: Strong_Judge_3730
+created_utc: 1786163700
+edited: false
+body:
+Whether you use software or calculate things by hand the principal of the rule still applies.
+
+Don't implement you own crypto is a rule because software devs generally don't have the maths and statistics background to implement things correctly. It's not just about bugs in the implementation although it's a part of it. 
+
+When a bunch of r/bitcoin cultfluencers recommended avoid trusting reputable hardware wallet vendors because of one shit company and instead shill completely trusting some manual process given by some random non-technical Redditor, you are violating the principal of that rule.
+
+It had everything do to with the rolling the dice method, since that method requires you to follow a complex process to translate dice rolls to a cryptographic key, determining a checksum, avoiding bias and ensuring you have enough enthropy and avoiding op-sec mistakes.
+
+We are not asking you to completely trust a hardware wallet for all sources of enthropy. The best recommendation is to use a strong passphrase, you can roll dice to create this. 
+
+This adds your own enthropy source and combines with the secret generated in a secure environment.
+
+comment: p2etc3m
+parent: t1_p2c1yma
+author: TheMermanly
+created_utc: 1786168146
+edited: false
+body:
+Even if a hacker knew the exact bias with billions of roles of data with the exact bias we see on this post ( which is a very small sample this post so the bias will even be much smaller)
+
+It would still be impossible to get to the key if you generated the key with the standard entropy.  
+
+comment: p2fzx36
+parent: t1_p2a4xfy
+author: Any-Mousse9648
+created_utc: 1786189209
+edited: false
+body:
+Practically I'm not sure but theoretically yes definitely true
+This is information, so it decreases entropy
+
+comment: p2gjia9
+parent: t3_1vi20y9
+author: abercrombezie
+created_utc: 1786196324
+edited: false
+body:
+So, just got into the dice game after last weekend's fiasco with ColdCard.  I've found that the act of jumbling  the dice within the cup is the majority of the random mixing, emptying on the board is just a few tumbles.
+
+comment: p2gjyg0
+parent: t3_1vi20y9
+author: scottmsul
+created_utc: 1786196469
+edited: false
+body:
+If you do the math it's actually quite surprising just how much bias is needed before it starts to become a problem. For instance, a seed phrase generated from biased coin flips only loses 3% of its entropy even with a 60/40 bias [(source)](https://www.wolframalpha.com/input?i=-.4*log2%28.4%29-.6*log2%28.6%29). Meaning that a 24 word seed phrase would drop down to 248 bits of entropy from 256, meanwhile even 128 bits is still secure.
+
+comment: p2hq6na
+parent: t1_p2b282x
+author: RefrigeratorLow1259
+created_utc: 1786208878
+edited: false
+body:
+
+
+Yes, if you roll it 100 times, then even if it seems completely biased towards 6, it will generate enough entropy. That's the Shannon equation for measuring uncertainty.
+ The probability of a number being 50%, and the rest 5 being 10% each, still gives 2.16 bits of entropy on each roll, which is 0.42 less than in a completely unbiased dice, but enough nevertheless if you simply roll it a few times more.
+
+It simply takes time to verify that the dice won't fare worse than that. In contrast, coin flipping using von Neumann's method necessitates no precautionary measures.
+
+comment: p2hyas3
+parent: t3_1vi20y9
+author: RefrigeratorLow1259
+created_utc: 1786211145
+edited: false
+body:
+Bias makes little difference in the entropy calculation...check out Shannon entropy. For dice rolls entropy should be 2.585, but even if the 6 came up twice as often as the other numbers it only reduces entropy to 2.522.
+Also remember that running all the throws through a SHA-256 cryptograohic hashing function destroys any patterns. 
+
+comment: p2i3dox
+parent: t1_p2hq6na
+author: Deto
+created_utc: 1786212580
+edited: false
+body:
+I still don't see how you would even need precautionary measures with dice even.  Like you said - even a large bias (completely unrealistic) just reduces the entropy a little.  And an attacker couldn't even exploit that bias unless it was a systematic bias among ALL dice since they wouldn't be able to infer one accounts dice'  bias anyways. 
+
+All the unnecessary hand wringing and FUD about dice bias is just going to push people to less secure measures.
+
+comment: p2ih6rs
+parent: t1_p2e9rda
+author: marvinrabbit
+created_utc: 1786216538
+edited: false
+body:
+This is effectively doing so. This checks not just the dice, but the rolling technique and any ancillary equipment. Think of an extreme example; if you had perfect, verified, casino grade dice but very carefully placed every one so that it showed as '1'. The graph would show complete bias. So this is testing everything in the dice rolling system
+
+comment: p2iikjf
+parent: t1_p2aux9j
+author: marvinrabbit
+created_utc: 1786216944
+edited: false
+body:
+I think you missed the point, probably very purposely so. This is a mathematical experiment with average dice to show that perfect, casino grade, dice really aren't required and something that you already have should be good enough. This isn't something that every person would go through. 
+
+But your level of snark shows the true reason for your comment, so I don't expect you to see anything but what you already want to see.
+
+comment: p2inc6p
+parent: t1_p2ejdfy
+author: Past_Permission_6123
+created_utc: 1786218345
+edited: 1786296805
+body:
+I think you make dice rolling sound a lot more complicated than it is. Any ColdCard hardware wallet user should be able to do it, the ColdCard devs even recommended to use dice rolls for the best security. It's an optional part of the setup and described in the official user guide: [https://coldcard.com/docs/master-seed/#create-a-new-master-seed](https://coldcard.com/docs/master-seed/#create-a-new-master-seed)
+
+Edit: Just to be clear I am in no way supporting ColdCard, and I've never owned one. I only mentioned them because they recommended dice rolling around the same time the seed generation vulnerability was introduced. Point being it's a simple, established method to generate entropy on your own, and it is/was easy to do on their device.
+
+>The best recommendation is to use a strong passphrase
+
+That's a good idea for sure, but the recent hack demonstrates that a lot of people simply didn't follow this advice. If you can use dice roll for the pass phrase, you can do so with the seed generation as well. Both methods are prone to be vulnerable if you don't know what you are doing. Making up your own pass phrase like many people do is well known to not be very secure.
+
+And I agree most people should not follow a complex process if they don't know what they are doing, but I think this is a given. Actually I think most "regular" people should not own a hardware wallet because of all the potential mistakes, there are many ways you can lose you keys or get hacked.
+
+>What maths qualifications does the op have to conclude that there is no bias... Let me guess none.  
+My intuition says when computers do guess in the orders of millions and billions a thousand is insignificant.
+
+This comment tells me you have no clue about the math involved, so it would be pretty bold of you to imply that dice rolling is not good enough for entropy. This is high school level math, it's really not that hard. Generating good entropy on a computer is hard to do on your own with efficient algorithms, while doing it with dice is easy - anyone can do it. That is the real point I wanted to make in this thread.
+
+I understand the analogy with ‘*Don’t roll your own crypto*’, but I don't think it's fitting to this discussion. As mentioned in [this blogpost](https://samuellucas.com/2024/08/31/debunking-dont-roll-your-own-crypto.html), "Even cryptographers working in teams come up with [broken](https://eprint.iacr.org/2022/214) [algorithms](https://eprint.iacr.org/2022/975) all the time."
+
+comment: p2kvl9n
+parent: t3_1vi20y9
+author: Live-Resident-6650
+created_utc: 1786245196
+edited: false
+body:
+I wonder why you need perfect "casinio" dice playing craps at the Wynn but your 20 year old yahtzze dice will do the job against the most determined hackers on earth using an ever increasing and powerful AI to find "entropy" exploits? The casinos pay a premium for those dice for a reason and change them out frequently. 

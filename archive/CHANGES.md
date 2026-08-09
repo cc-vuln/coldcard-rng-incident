@@ -2069,3 +2069,25 @@
 ## 20260809T224434Z
 
 - coldcard-hack-tracker  +8 -0
+
+## 20260809T231439Z
+
+- btcpp-dettmer-commit-history  +1 -1
+- reddit-shipments-halted-relay  +8 -0
+- reddit-white-hat-drains-relay  +8 -0
+- reddit-bought-last-week  +8 -0
+- reddit-secure-btc-after-incident  +2 -2
+- bitcointalk-large-scale-compromise-thread  +167 -6
+- reddit-hacker-still-progressing  +6 -14
+- bitcointalk-entropy-warning-design  +13 -0
+- reddit-dice-rollers-response  +8 -0
+- reddit-attacker-execution-critique  +8 -0
+- reddit-mk3-seed-entropy-worse  +8 -0
+- reddit-fake-trezor-google-ad  +28 -0
+- reddit-dice-bias-1200-rolls  +16 -1
+- reddit-fidelity-custody-debate  +8 -0
+- coindesk-70m-no-device-touch  +18 -18
+- reddit-dice-rolls-saved-seedsigner  +8 -0
+- reddit-llm-tracing-attackers  +10 -0
+- reddit-ledger-official-incident-statement  +10 -0
+- bitcointalk-short-term-self-custody-impact  (first capture)
