@@ -101,7 +101,9 @@ Classify by these rules:
 
 - Never rewrite, move, or delete anything under `archive/`. Snapshots, diffs,
   and `archive/CHANGES.md` are append-only and owned by the capture runner.
-- Never edit existing entries in `revision-reviews.toml`; only append.
+- Never edit existing entries in `revision-reviews.toml`; only append, and
+  append AT THE END OF THE FILE. An entry inserted mid-file trips the
+  append-only guard (observed 9 Aug 2026) and gets the whole run rejected.
 - Never edit `scripts/capture.py`, `sources.toml`, or any site file.
 - Never commit to git or run destructive commands.
 - Do not inspect site files or general documentation. They are outside this
