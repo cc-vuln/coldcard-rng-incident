@@ -1,0 +1,135 @@
+post: 1viknfe
+author: No_Fuel4693
+created_utc: 1786158158
+title: Blockstream Jade Plus setup - workflow suspect?
+body:
+Like many, I'm assessing my cold wallet options right now and I was watching this youtube video of the setup on the jade plus : [Blockstream Jade Plus: Full Setup & Honest Review - YouTube](https://www.youtube.com/watch?v=gLHsMC7aJj4)
+
+Right around the 9:00 minute mark, after setting up the seed phrase etc, it only then, gives you the option to setup your QR code/bluetooth/usb.  
+
+So the device is powered up, a wallet is created, then you connect to the blockstream website..  
+Is there a way to change the order of that workflow? 
+
+I mean, how do I know that the wallet I have just created isn't being transmitted to their website during this handshake? Wouldn't it make more sense to do all that setup first BEFORE creating the wallet?   
+
+comment: p2e9r7z
+parent: t3_1viknfe
+author: Serbithar
+created_utc: 1786159860
+edited: 1786160144
+body:
+Some Jade users should confirm, but my guess is that, most likely, like with any other wallet, after the first power-up and "initiation" you can go into full offline air gap mode and create a fresh wallet or restore a manually created wallet. New Ledger during the first power-up after the genuineness check anf firmware update also asks you to create a wallet while it is connected to Ledger Live and the internet. But if you distrust the process, you can later just create a fresh wallet when fully offline. I was considering Jade, but decided to choose DIY SeedSigner for for 1/4 or less of Jade's price. But Jade looks like pretty cool device.
+
+comment: p2e9sgh
+parent: t3_1viknfe
+author: DarrelXero
+created_utc: 1786159873
+edited: false
+body:
+Yeah, this is the option to create a seed and use the Jade as a persistent device that is "initialized" and uses Blockstreams Blind Oracle. I agree with you, that sucks. You can 100% create a seed offline, create your QR Code and never once connect to Blockstream website or app. It's how I've used the Jade for years. Generate your seed offline, use the steps to create your QR code and it not be persistent. Temporary signer mode. Power up the Jade, I port the seed via QR, use it to sign transactions or as part of a multisig, then power it off and the device wipes. No need for the Blockstream app or the Blind Oracle.
+
+comment: p2ebj3x
+parent: t1_p2e9sgh
+author: Serbithar
+created_utc: 1786160551
+edited: false
+body:
+If I understand correctly in fully offline airgap mode Jade works exactly like SeedSigner? Keys are not stored, and you need to provide your phrase or scan QR every time you power up the device?
+
+comment: p2ed7w3
+parent: t3_1viknfe
+author: OrangePillar
+created_utc: 1786161220
+edited: false
+body:
+I didn’t watch the video, but use it in air gapped mode without Bluetooth. 
+
+comment: p2edd3o
+parent: t1_p2ebj3x
+author: LeoRisingGemini
+created_utc: 1786161277
+edited: 1786162078
+body:
+Yup, use it stateless. You never have to connect it to anything ever, and you don’t have to use the blind oracle. Use a physical random method to generate the first 23 words of your seed phrase and plug them into the Jade. When the eight options for the final word come up, again, use a random method to select one. It will generate a seedQR. Hand copy the QR code. Use that to sign in to the device and sign transactions each time. Since the seed is not stored in the device, even if the device is stolen, the thief gets nothing. The only thing that can fck you is losing all the copies of your seed phrase.
+
+comment: p2eegfy
+parent: t1_p2ebj3x
+author: DarrelXero
+created_utc: 1786161707
+edited: false
+body:
+Correct. There is some difference about using the Jade as a temporary signing device and using the same exact seed imported to a SeedSigner but I can't remember the exact details. I've run into an issue trying to substitute the SeedSigner with the same seed that I don't have problems with the Jade. AI explained it but I forget the exact reason.
+
+But yes, the Jade can be used 100% airgapped, create a seed, generate the QR to allow you to record it via pen and paper and then wipe the device. No connection of any kind is necessary. Same with Jade Plus. The Jade Core is different. It requires a USB connection to Blockstream App to be functional.
+
+comment: p2efnpo
+parent: t1_p2e9sgh
+author: No_Fuel4693
+created_utc: 1786162179
+edited: false
+body:
+Thanks, and that makes sense. Use the initial wallet to setup, then reset and start again with my actual wallet keeping it air gapped.
+
+comment: p2epcwf
+parent: t1_p2e9sgh
+author: tenuousemphasis
+created_utc: 1786166298
+edited: false
+body:
+So then you can leave the Jade laying out, but you need to securely store your QR code(s). I don't like that.
+
+comment: p2epmjq
+parent: t1_p2epcwf
+author: DarrelXero
+created_utc: 1786166420
+edited: false
+body:
+Everything is a trade off. No different than your seed words. It is literally just a QR representation of your 12 or 24 seed words. You can either type them in each time or you can just scan the QR code to load up the device for signing purposes. Same same.
+
+comment: p2g243e
+parent: t3_1viknfe
+author: lifeanon269
+created_utc: 1786190109
+edited: false
+body:
+The Jade doesn't connect to Blockstream's website at all. The Jade has no network connectivity and is fully offline.
+
+Blockstream's Blind Oracle simple provides a key that is used to decrypt the seed stored on your device. It never receives that seed at all and it is also completely blind as to the PIN you use to retrieve the blind oracle key. Again, your seed phrase never leaves your airgapped device.
+
+One nice feature is that this process is fully open source and the Jade provides an option for you to host this blind oracle PIN server yourself. This means that you'll be in full control of the blind oracle and won't need to rely on Blockstream's server at all. It also means that if you were to ever lose your Jade, you could take your blind oracle server offline and effective remotely brick your HWW, which would prevent anyone from being able to steal your funds from it. You could also host your blind oracle server locally on your LAN without it exposed to the internet, which would make your Jade only usable within the confines of your home. Some neat features that are only available to the Jade HWW.
+
+comment: p2gcv71
+parent: t3_1viknfe
+author: ExplorerBoring9848
+created_utc: 1786194101
+edited: false
+body:
+Don't trust verify...
+
+comment: p2jomsj
+parent: t3_1viknfe
+author: LNCrizzo
+created_utc: 1786229790
+edited: 1786230555
+body:
+1. Don't use Bluetooth. Transfer information via QR codes. I know Bluetooth is convenient, but so is having the HWW create your seed and look how that turned out. Stop sacrificing security for convenience. A Bluetooth HWW is not air gapped.
+
+2. Don't use the app from the same manufacturer as your HWW. You can create a watch only wallet in an app like bluewallet. Bluewallet can read the QR codes to set it up and to receive signed transactions from your device to broadcast. If there is malicious information embedded in the QR code then an app from a different vendor is not going to be set up to receive it and send it to the attacker.
+
+3. QR codes can only contain very small amounts of information. It would be impossible to embed a script or malware in one and get away with it. Like dice rolls they move the security out of the digital world and into the physical world where you have control.
+
+comment: p2kcsn1
+parent: t1_p2edd3o
+author: Ok_Knowledge_4977
+created_utc: 1786238173
+edited: false
+body:
+What about updating the firmware? 
+
+comment: p2khdz6
+parent: t1_p2kcsn1
+author: LeoRisingGemini
+created_utc: 1786239831
+edited: false
+body:
+Go to Blockstream’s official firmware site (make sure it’s http://jadefw.blockstream.com and not some other dodgy scam site!). Download the latest onto a USB-C drive. Blockstream has its own drive for this called Jadelink but you can use any old drive. Plug this into the Jade, choose the option to update firmware, and just follow the instructions on the device. There is a “no radio” version of firmware that disables bluetooth. Use that one if you want to make sure you never turn on bluetooth accidentally.

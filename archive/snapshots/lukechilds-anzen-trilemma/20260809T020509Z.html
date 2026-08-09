@@ -1,0 +1,1751 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Solving Bitcoin’s Self-Custody Trilemma — Luke Childs</title>
+    <meta
+      name="description"
+      content="Every self-custody setup today compromises on security, ease of use, or trustlessness. Anzen is a Bitcoin vault design that doesn’t. No soft fork. No company. No cosigner."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Solving Bitcoin’s Self-Custody Trilemma" />
+    <meta
+      property="og:description"
+      content="Every self-custody setup today compromises on security, ease of use, or trustlessness. Anzen is a Bitcoin vault design that doesn’t. No soft fork. No company. No cosigner."
+    />
+    <meta
+      property="og:url"
+      content="https://lu.ke/self-custody-trilemma"
+    />
+    <meta
+      property="og:image"
+      content="https://lu.ke/self-custody-trilemma/og.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="theme-color"
+      content="#fafafa"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0a0a0a"
+      media="(prefers-color-scheme: dark)"
+    />
+    <style>
+      :root {
+        --bg: #fafafa;
+        --fg: #171717;
+        --dim: #737373;
+        --rule: #e5e5e5;
+        --accent: #0ea5e9;
+        --code-bg: #f0f0f0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0a0a0a;
+          --fg: #e5e5e5;
+          --dim: #737373;
+          --rule: #262626;
+          --accent: #38bdf8;
+          --code-bg: #171717;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.75 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          system-ui,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      .site-header a,
+      .article-meta {
+        color: var(--dim);
+      }
+
+      .site-header a {
+        font-size: 14px;
+      }
+
+      .article-header {
+        padding: 80px 0 40px;
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 40px;
+      }
+
+      .eyebrow {
+        color: var(--dim);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: clamp(32px, 7vw, 48px);
+        font-weight: 600;
+        letter-spacing: -0.045em;
+        line-height: 1.08;
+        margin-bottom: 1.25rem;
+      }
+
+      .article-meta {
+        font-size: 14px;
+      }
+
+      .prose > * + * {
+        margin-top: 1.5rem;
+      }
+
+      .prose h2,
+      .prose h3 {
+        letter-spacing: -0.025em;
+        line-height: 1.3;
+      }
+
+      .prose h2 {
+        font-size: 24px;
+      }
+
+      .prose h3 {
+        font-size: 19px;
+      }
+
+      .prose > h2,
+      .prose > h3 {
+        margin-top: 4rem;
+      }
+
+      .prose ul,
+      .prose ol {
+        padding-left: 1.5rem;
+      }
+
+      .prose li + li {
+        margin-top: 0.5rem;
+      }
+
+      .prose blockquote {
+        border-left: 2px solid var(--accent);
+        color: var(--fg);
+        font-size: 1.025em;
+        padding-left: 1.25rem;
+      }
+
+      .prose blockquote > * + * {
+        margin-top: 1rem;
+      }
+
+      .prose code {
+        background: var(--code-bg);
+        border-radius: 4px;
+        font:
+          0.875em ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        padding: 0.15em 0.35em;
+      }
+
+      .prose pre {
+        background: var(--code-bg);
+        border-radius: 8px;
+        line-height: 1.6;
+        overflow-x: auto;
+        padding: 1rem;
+      }
+
+      .prose pre code {
+        background: none;
+        padding: 0;
+      }
+
+      .prose figure {
+        margin: 2.5rem 0;
+      }
+
+      .prose img {
+        display: block;
+        height: auto;
+        max-width: 100%;
+      }
+
+      .prose figcaption {
+        color: var(--dim);
+        font-size: 13px;
+        margin-top: 0.75rem;
+      }
+
+      .diagram svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      .screenshot img {
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        margin: 0 auto;
+        max-width: 420px;
+        width: 100%;
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+      }
+
+      .table-scroll table {
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.6;
+        min-width: 560px;
+        width: 100%;
+      }
+
+      .table-scroll th {
+        font-weight: 600;
+        text-align: left;
+      }
+
+      .table-scroll th,
+      .table-scroll td {
+        border-bottom: 1px solid var(--rule);
+        padding: 12px 20px 12px 0;
+        vertical-align: top;
+      }
+
+      .table-scroll th:last-child,
+      .table-scroll td:last-child {
+        padding-right: 0;
+      }
+
+      .screenshot figcaption {
+        text-align: center;
+      }
+
+      .diagram text {
+        text-anchor: middle;
+      }
+
+      .d-edge {
+        stroke: var(--rule);
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+
+      .d-edge.on {
+        stroke: var(--accent);
+      }
+
+      .d-dot {
+        fill: var(--fg);
+      }
+
+      .d-corner {
+        fill: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+
+      .d-off {
+        opacity: 0.35;
+      }
+
+      .d-pill rect {
+        fill: var(--bg);
+        stroke: var(--rule);
+        stroke-width: 1.5;
+      }
+
+      .d-pill text {
+        fill: var(--dim);
+        font-size: 14px;
+      }
+
+      .d-pill.on rect {
+        stroke: var(--accent);
+      }
+
+      .d-pill.on text {
+        fill: var(--fg);
+        font-weight: 600;
+      }
+
+      .d-link {
+        stroke: var(--accent);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+      }
+
+      .d-wordmark {
+        fill: var(--fg);
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+      }
+
+      .d-node rect {
+        fill: var(--bg);
+        stroke: var(--accent);
+        stroke-width: 1.5;
+      }
+
+      .d-title {
+        fill: var(--fg);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .d-sub {
+        fill: var(--dim);
+        font-size: 10.5px;
+      }
+
+      .d-fan {
+        fill: none;
+        stroke: var(--rule);
+        stroke-width: 1.25;
+      }
+
+      .d-chip rect {
+        fill: var(--bg);
+        stroke: var(--rule);
+        stroke-width: 1.5;
+      }
+
+      .d-chip text {
+        fill: var(--fg);
+        font-size: 12.5px;
+        font-weight: 500;
+      }
+
+      .d-chip .d-sub {
+        font-weight: 400;
+      }
+
+      .d-x circle {
+        fill: var(--bg);
+        stroke: var(--dim);
+        stroke-width: 1.25;
+      }
+
+      .d-x line {
+        stroke: var(--dim);
+        stroke-width: 1.25;
+        stroke-linecap: round;
+      }
+
+      .d-note {
+        fill: var(--dim);
+        font-size: 12px;
+      }
+
+      .d-utxo rect {
+        fill: var(--bg);
+        stroke: var(--accent);
+        stroke-width: 1.5;
+      }
+
+      .d-utxo.future rect {
+        stroke-dasharray: 4 3;
+      }
+
+      .d-utxo text {
+        fill: var(--fg);
+        font:
+          500 12.5px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+      }
+
+      .d-branchline {
+        fill: none;
+        stroke: var(--dim);
+        stroke-opacity: 0.55;
+        stroke-width: 1.25;
+      }
+
+      .diagram .d-branch {
+        fill: var(--dim);
+        font-size: 11.5px;
+        text-anchor: start;
+      }
+
+      .d-tx rect {
+        fill: var(--bg);
+        stroke: var(--dim);
+        stroke-opacity: 0.45;
+        stroke-width: 1.25;
+      }
+
+      .diagram .d-tx text {
+        fill: var(--dim);
+        font-size: 10.5px;
+        text-anchor: start;
+      }
+
+      .diagram .d-tx .d-when {
+        text-anchor: end;
+      }
+
+      .d-ok circle,
+      .d-no circle {
+        fill: var(--bg);
+        stroke: var(--dim);
+        stroke-opacity: 0.45;
+        stroke-width: 1.25;
+      }
+
+      .d-ok path {
+        fill: none;
+        stroke: #22c55e;
+        stroke-width: 1.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .d-no line {
+        stroke: #ef4444;
+        stroke-width: 1.2;
+        stroke-linecap: round;
+      }
+
+      .ledger {
+        width: min(330px, 100%);
+        margin: 0 auto;
+        padding: 12px 24px 12px 12px;
+        background: linear-gradient(150deg, #31353c, #16181d 45%, #0d0f12);
+        border-radius: 22px 36px 36px 22px;
+        position: relative;
+        box-shadow:
+          0 30px 60px -28px rgba(0, 0, 0, 0.55),
+          0 18px 44px -18px rgba(14, 165, 233, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .ledger::before {
+        content: "";
+        position: absolute;
+        top: 14px;
+        bottom: 14px;
+        right: 9px;
+        width: 3px;
+        border-radius: 3px;
+        background: linear-gradient(
+          rgba(255, 255, 255, 0.16),
+          rgba(255, 255, 255, 0.02)
+        );
+      }
+
+      .ledger::after {
+        content: "";
+        position: absolute;
+        top: 96px;
+        right: -3px;
+        width: 5px;
+        height: 44px;
+        border-radius: 0 4px 4px 0;
+        background: linear-gradient(90deg, #16181d, #2b3037);
+      }
+
+      .ledger-screen {
+        background: radial-gradient(130% 110% at 18% 0%, #161b23, #0a0c10 62%);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px 26px 26px 14px;
+        color: #e9edf3;
+        padding: 18px 18px 16px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .ledger-screen::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          115deg,
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0) 32%
+        );
+        pointer-events: none;
+      }
+
+      .ledger-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #78828f;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .ledger-brand {
+        color: #38bdf8;
+      }
+
+      .ledger-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        font-size: 12.5px;
+        color: #8b93a1;
+      }
+
+      .ledger-val {
+        color: #f4f6f9;
+        font:
+          13px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        text-align: right;
+      }
+
+      .ledger-val em {
+        display: block;
+        font-style: normal;
+        font-size: 10.5px;
+        color: #78828f;
+        margin-top: 2px;
+      }
+
+      .ledger-prompt {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 16px 0 12px;
+        color: #f4f6f9;
+      }
+
+      .ledger-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .ledger-btn {
+        flex: 1;
+        text-align: center;
+        font-size: 13px;
+        padding: 8px 0;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #97a0ae;
+      }
+
+      .ledger-approve {
+        background: #38bdf8;
+        border-color: #38bdf8;
+        color: #04121d;
+        font-weight: 600;
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      @media (max-width: 520px) {
+        main {
+          padding-top: 32px;
+        }
+
+        .article-header {
+          padding-top: 56px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="site-header" aria-label="Home">
+        <a href="/" aria-label="Back to lu.ke">‹ lu.ke</a>
+      </nav>
+
+      <article>
+        <header class="article-header">
+          <p class="eyebrow">Thoughts</p>
+          <h1>Solving Bitcoin’s Self-Custody Trilemma</h1>
+          <p class="article-meta">
+            7th August 2026 ·
+            <a
+              href="https://x.com/lukechilds/status/2085802947670356209"
+              target="_blank"
+              rel="noopener"
+              >Comments on X</a
+            >
+          </p>
+        </header>
+
+        <div class="prose">
+          <p>Last week, attackers started draining Coldcard wallets.</p>
+
+          <p>
+            A firmware bug made its random number generator predictable, so
+            attackers could recreate seeds without ever touching a device.
+            Losses are past $130 million and still climbing.
+          </p>
+
+          <p>
+            My seed was originally generated on a vulnerable Coldcard. The only
+            reason I didn’t lose my life savings is that, years ago when I set
+            it up, I
+            refused to trust its random number generator. I generated 256 bits
+            of entropy on my MacBook, flipped a coin 256 times, and mixed all
+            of it into the Coldcard’s own entropy on the device. Beforehand I
+            did a test run,
+            <a
+              href="https://gist.github.com/lukechilds/410b932f33121d7594c2693bae1b94a5"
+              target="_blank"
+              rel="noopener"
+              >rewriting the Coldcard’s seed-derivation logic from scratch</a
+            >
+            to verify my additional entropy sources would be combined
+            correctly.
+          </p>
+
+          <figure class="screenshot">
+            <img
+              src="/self-custody-trilemma/seed-ceremony.png"
+              alt="Telegram messages from the original setup: rewriting the Coldcard seed derivation in a Node REPL, verifying with a dummy run, then combining 256 bits from the Coldcard, 256 bits from a MacBook, and 256 coin flips — with the curtains closed to protect from spy satellites."
+              width="1002"
+              height="1095"
+              loading="lazy"
+            />
+            <figcaption>
+              Message to a friend when creating my Coldcard seed 5 years ago
+            </figcaption>
+          </figure>
+
+          <p>
+            It is absolutely ridiculous that this is the level of paranoid
+            schizophrenia required to not lose your life savings. Nobody should
+            have to do this.
+          </p>
+
+          <p>
+            The immediate cause was a bug. The real cause is that our industry’s
+            standard advice puts people’s entire savings behind a single device,
+            and just hopes that its hardware, firmware, supply chain, and random
+            number generator are all flawless, forever.
+          </p>
+
+          <p>
+            Everyone is now asking how we stop this from happening again. To
+            answer that, you have to understand why every current option is
+            broken.
+          </p>
+
+          <h2>Bitcoin’s self-custody trilemma</h2>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 372"
+              role="img"
+              aria-label="A triangle whose corners are labeled Secure, Easy to use, and Trustless."
+            >
+              <line class="d-edge" x1="260" y1="56" x2="70" y2="320" />
+              <line class="d-edge" x1="260" y1="56" x2="450" y2="320" />
+              <line class="d-edge" x1="70" y1="320" x2="450" y2="320" />
+              <circle class="d-dot" cx="260" cy="56" r="4" />
+              <circle class="d-dot" cx="70" cy="320" r="4" />
+              <circle class="d-dot" cx="450" cy="320" r="4" />
+              <text class="d-corner" x="260" y="34">SECURE</text>
+              <text class="d-corner" x="70" y="352">EASY TO USE</text>
+              <text class="d-corner" x="450" y="352">TRUSTLESS</text>
+            </svg>
+          </figure>
+
+          <p>
+            Today, you only get to pick two. There’s not a single self-custody
+            solution on the market that delivers all three. Let’s walk through
+            the options.
+          </p>
+
+          <p>
+            <strong>Singlesig (hot wallet or single hardware wallet)</strong> is
+            trustless and easy to use. One device, tap to spend. But it’s also
+            a massive single point of failure. One bug, one theft, or one bad
+            backup away from total loss. Almost every Coldcard victim last week
+            was on this edge of the triangle. And lost their life savings
+            because of it.
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 372"
+              role="img"
+              aria-label="The triangle with singlesig sitting on the edge between Easy to use and Trustless, away from the dimmed Secure corner."
+            >
+              <line class="d-edge" x1="260" y1="56" x2="70" y2="320" />
+              <line class="d-edge" x1="260" y1="56" x2="450" y2="320" />
+              <line class="d-edge on" x1="70" y1="320" x2="450" y2="320" />
+              <g class="d-off">
+                <circle class="d-dot" cx="260" cy="56" r="4" />
+                <text class="d-corner" x="260" y="34">SECURE</text>
+              </g>
+              <circle class="d-dot" cx="70" cy="320" r="4" />
+              <circle class="d-dot" cx="450" cy="320" r="4" />
+              <text class="d-corner" x="70" y="352">EASY TO USE</text>
+              <text class="d-corner" x="450" y="352">TRUSTLESS</text>
+              <g class="d-pill on">
+                <rect x="212" y="305" width="96" height="30" rx="15" />
+                <text x="260" y="325">Singlesig</text>
+              </g>
+            </svg>
+          </figure>
+
+          <p>
+            <strong>Multivendor multisig</strong> is secure and
+            trustless. It’s also miserable: multiple devices, multiple seed
+            backups, multiple secure locations, multiple PINs to not forget,
+            annual pilgrimages to check nothing has rotted. Recommend this to
+            normal people and you’ll eventually lose more money to user error
+            and lockouts than to hackers. It’s not a realistic option for
+            most.
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 372"
+              role="img"
+              aria-label="The triangle with multisig on the edge between Secure and Trustless, away from the dimmed Easy to use corner."
+            >
+              <line class="d-edge" x1="260" y1="56" x2="70" y2="320" />
+              <line class="d-edge on" x1="260" y1="56" x2="450" y2="320" />
+              <line class="d-edge" x1="70" y1="320" x2="450" y2="320" />
+              <circle class="d-dot" cx="260" cy="56" r="4" />
+              <text class="d-corner" x="260" y="34">SECURE</text>
+              <g class="d-off">
+                <circle class="d-dot" cx="70" cy="320" r="4" />
+                <text class="d-corner" x="70" y="352">EASY TO USE</text>
+              </g>
+              <circle class="d-dot" cx="450" cy="320" r="4" />
+              <text class="d-corner" x="450" y="352">TRUSTLESS</text>
+              <g class="d-pill">
+                <rect x="212" y="305" width="96" height="30" rx="15" />
+                <text x="260" y="325">Singlesig</text>
+              </g>
+              <g class="d-pill on">
+                <rect x="309" y="173" width="92" height="30" rx="15" />
+                <text x="355" y="193">Multisig</text>
+              </g>
+            </svg>
+          </figure>
+
+          <p>
+            <strong>Collaborative custody (Casa, Bitkey)</strong> is where
+            things get genuinely interesting. Casa made multisig something
+            normal people can actually use. Bitkey took the UX further still:
+            no seed phrase, phone-only spending up to a limit the hardware
+            pre-authorized. You only touch the hardware for big withdrawals.
+            It’s cold storage that feels like a hot wallet.
+          </p>
+
+          <p>
+            The problem is the trust model. The provider holds a cosigning key
+            <strong>and</strong> controls the update channel for the phone app
+            that holds one of yours. One malicious app update and they have two
+            of the three keys.
+            I’m not saying this is particularly likely, they’re clearly
+            reputable companies and good actors. But imagine a
+            <a
+              href="https://en.wikipedia.org/wiki/Executive_Order_6102"
+              target="_blank"
+              rel="noopener"
+              >6102-style event</a
+            >
+            where private custody becomes illegal and companies are legally
+            compelled to assist with seizure. Their employees aren’t going to
+            prison to protect my stack, nor should I expect them to.
+          </p>
+
+          <p>
+            If that threat model sounds absurd to you, Casa and Bitkey are
+            probably the best options available today. They just don’t fit
+            mine. My paranoia already saved my stack once. I’m going to keep
+            listening to it.
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 372"
+              role="img"
+              aria-label="The triangle with collaborative custody on the edge between Secure and Easy to use, away from the dimmed Trustless corner."
+            >
+              <line class="d-edge on" x1="260" y1="56" x2="70" y2="320" />
+              <line class="d-edge" x1="260" y1="56" x2="450" y2="320" />
+              <line class="d-edge" x1="70" y1="320" x2="450" y2="320" />
+              <circle class="d-dot" cx="260" cy="56" r="4" />
+              <text class="d-corner" x="260" y="34">SECURE</text>
+              <circle class="d-dot" cx="70" cy="320" r="4" />
+              <text class="d-corner" x="70" y="352">EASY TO USE</text>
+              <g class="d-off">
+                <circle class="d-dot" cx="450" cy="320" r="4" />
+                <text class="d-corner" x="450" y="352">TRUSTLESS</text>
+              </g>
+              <g class="d-pill">
+                <rect x="212" y="305" width="96" height="30" rx="15" />
+                <text x="260" y="325">Singlesig</text>
+              </g>
+              <g class="d-pill">
+                <rect x="309" y="173" width="92" height="30" rx="15" />
+                <text x="355" y="193">Multisig</text>
+              </g>
+              <g class="d-pill on">
+                <rect x="68" y="173" width="172" height="30" rx="15" />
+                <text x="154" y="193">Collaborative custody</text>
+              </g>
+            </svg>
+          </figure>
+
+          <p>
+            Three edges of the triangle, three compromises every current
+            solution makes. That’s the self-custody trilemma.
+          </p>
+
+          <h2>Introducing Anzen</h2>
+
+          <p>
+            Like many, I’ve barely slept since the Coldcard incident. My mind
+            has been racing on how to stop something like this from ever
+            happening again. I believe I’ve come up with a novel wallet design
+            that solves for all three points of the self-custody trilemma.
+          </p>
+
+          <p>
+            Anzen is designed to be extremely easy to use and very difficult to
+            mess up, it’s genuinely almost impossible to lose your money.
+            It achieves equivalent security to a 2-of-3 multivendor multisig,
+            yet feels as simple as using a hot wallet, and does so while
+            remaining entirely trustless. No third parties required.
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 372"
+              role="img"
+              aria-label="The triangle with an Anzen pill at its center, connected by straight lines to all three corners, while the three compromised options sit dimmed on the edges."
+            >
+              <line class="d-edge" x1="260" y1="56" x2="70" y2="320" />
+              <line class="d-edge" x1="260" y1="56" x2="450" y2="320" />
+              <line class="d-edge" x1="70" y1="320" x2="450" y2="320" />
+              <line class="d-link" x1="260" y1="56" x2="260" y2="232" />
+              <line class="d-link" x1="70" y1="320" x2="231" y2="232" />
+              <line class="d-link" x1="450" y1="320" x2="289" y2="232" />
+              <circle class="d-dot" cx="260" cy="56" r="4" />
+              <circle class="d-dot" cx="70" cy="320" r="4" />
+              <circle class="d-dot" cx="450" cy="320" r="4" />
+              <text class="d-corner" x="260" y="34">SECURE</text>
+              <text class="d-corner" x="70" y="352">EASY TO USE</text>
+              <text class="d-corner" x="450" y="352">TRUSTLESS</text>
+              <g class="d-pill">
+                <rect x="212" y="305" width="96" height="30" rx="15" />
+                <text x="260" y="325">Singlesig</text>
+              </g>
+              <g class="d-pill">
+                <rect x="309" y="173" width="92" height="30" rx="15" />
+                <text x="355" y="193">Multisig</text>
+              </g>
+              <g class="d-pill">
+                <rect x="68" y="173" width="172" height="30" rx="15" />
+                <text x="154" y="193">Collaborative custody</text>
+              </g>
+              <g class="d-pill on">
+                <rect x="216" y="217" width="88" height="30" rx="15" />
+                <text class="d-wordmark" x="260" y="237">ANZEN</text>
+              </g>
+            </svg>
+          </figure>
+
+          <p>
+            It’s a vault-like construct that works on Bitcoin today. No
+            third-party cosigner. No servers. No soft fork. No new opcodes.
+            Trustlessly enforced by Bitcoin’s consensus rules.
+          </p>
+
+          <p>
+            Anzen uses only two keys: a <strong>phone</strong> and a
+            <strong>hardware wallet</strong>. The vault is your cold storage;
+            the phone doubles as both a day-to-day hot wallet and a vault
+            cosigner. Both keys must be compromised simultaneously to lose
+            funds.
+          </p>
+
+          <p>The Anzen vault script is deceptively simple:</p>
+
+          <pre><code>Phone + Hardware wallet     immediately
+OR
+Phone alone                 after 14 months
+OR
+Hardware wallet alone       after 15 months</code></pre>
+
+          <p>
+            Anzen vaults realise Bitcoin’s intended use case of programmable
+            money. They achieve this by composing the script above with varying
+            chains of presigned timelocked transactions. They support:
+          </p>
+
+          <ul>
+            <li>
+              <strong>Monthly allowances.</strong> Each month, a fixed,
+              pre-determined amount becomes available that your phone can
+              optionally pull out of cold storage into its built-in hot wallet,
+              all on its own.
+            </li>
+            <li>
+              <strong>Emergency access.</strong> A larger withdrawal of
+              predetermined size can be initiated from your phone at any time.
+              It unlocks after a one-week delay, during which it can be
+              cancelled. A thief stealing your phone and triggering it just
+              starts a one-week alarm clock you can shut off.
+            </li>
+            <li>
+              <strong>Revocations.</strong> Every pre-authorized allowance can
+              be instantly and permanently cancelled by returning the funds to
+              cold storage.
+            </li>
+          </ul>
+
+          <p>
+            Think checking and savings. The hot wallet is your checking
+            account. The vault is your savings account. The
+            monthly allowance is an automatic transfer from savings to
+            checking, same amount, 1st of each month. Emergency access is a big
+            transfer request that takes a week to clear and can be cancelled
+            anytime before it lands.
+          </p>
+
+          <p>
+            Once a year, ideally on the same calendar date, you re-approve the
+            vault policy on your hardware wallet. This automates a signing
+            ceremony between your phone and hardware wallet that rolls the
+            vault forward (resetting the timeouts) and pre-authorizes an entire
+            year of spending.
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 520 250"
+              role="img"
+              aria-label="One annual signing ceremony fans out into twelve monthly allowances, January through December, plus emergency access with a one-week delay. Each carries a revoke button that returns funds to cold storage."
+            >
+              <path class="d-fan" d="M260 66 C260 102, 29 108, 29 146" />
+              <path class="d-fan" d="M260 66 C260 102, 61 108, 61 146" />
+              <path class="d-fan" d="M260 66 C260 102, 93 108, 93 146" />
+              <path class="d-fan" d="M260 66 C260 102, 125 108, 125 146" />
+              <path class="d-fan" d="M260 66 C260 102, 157 108, 157 146" />
+              <path class="d-fan" d="M260 66 C260 102, 189 108, 189 146" />
+              <path class="d-fan" d="M260 66 C260 102, 221 108, 221 146" />
+              <path class="d-fan" d="M260 66 C260 102, 253 108, 253 146" />
+              <path class="d-fan" d="M260 66 C260 102, 285 108, 285 146" />
+              <path class="d-fan" d="M260 66 C260 102, 317 108, 317 146" />
+              <path class="d-fan" d="M260 66 C260 102, 349 108, 349 146" />
+              <path class="d-fan" d="M260 66 C260 102, 381 108, 381 146" />
+              <path class="d-fan" d="M260 66 C260 100, 456 104, 456 142" />
+              <g class="d-node">
+                <rect x="140" y="18" width="240" height="48" rx="12" />
+                <text class="d-title" x="260" y="42">Annual signing ceremony</text>
+                <text class="d-sub" x="260" y="59">phone + hardware wallet · once a year</text>
+              </g>
+              <g class="d-chip">
+                <rect x="16" y="148" width="26" height="34" rx="7" />
+                <text x="29" y="170">J</text>
+                <rect x="48" y="148" width="26" height="34" rx="7" />
+                <text x="61" y="170">F</text>
+                <rect x="80" y="148" width="26" height="34" rx="7" />
+                <text x="93" y="170">M</text>
+                <rect x="112" y="148" width="26" height="34" rx="7" />
+                <text x="125" y="170">A</text>
+                <rect x="144" y="148" width="26" height="34" rx="7" />
+                <text x="157" y="170">M</text>
+                <rect x="176" y="148" width="26" height="34" rx="7" />
+                <text x="189" y="170">J</text>
+                <rect x="208" y="148" width="26" height="34" rx="7" />
+                <text x="221" y="170">J</text>
+                <rect x="240" y="148" width="26" height="34" rx="7" />
+                <text x="253" y="170">A</text>
+                <rect x="272" y="148" width="26" height="34" rx="7" />
+                <text x="285" y="170">S</text>
+                <rect x="304" y="148" width="26" height="34" rx="7" />
+                <text x="317" y="170">O</text>
+                <rect x="336" y="148" width="26" height="34" rx="7" />
+                <text x="349" y="170">N</text>
+                <rect x="368" y="148" width="26" height="34" rx="7" />
+                <text x="381" y="170">D</text>
+              </g>
+              <g class="d-chip">
+                <rect x="402" y="144" width="108" height="46" rx="10" />
+                <text x="456" y="164">Emergency</text>
+                <text class="d-sub" x="456" y="180">1-week delay</text>
+              </g>
+              <g class="d-x">
+                <circle cx="40" cy="149" r="6" />
+                <line x1="37.8" y1="146.8" x2="42.2" y2="151.2" />
+                <line x1="42.2" y1="146.8" x2="37.8" y2="151.2" />
+                <circle cx="72" cy="149" r="6" />
+                <line x1="69.8" y1="146.8" x2="74.2" y2="151.2" />
+                <line x1="74.2" y1="146.8" x2="69.8" y2="151.2" />
+                <circle cx="104" cy="149" r="6" />
+                <line x1="101.8" y1="146.8" x2="106.2" y2="151.2" />
+                <line x1="106.2" y1="146.8" x2="101.8" y2="151.2" />
+                <circle cx="136" cy="149" r="6" />
+                <line x1="133.8" y1="146.8" x2="138.2" y2="151.2" />
+                <line x1="138.2" y1="146.8" x2="133.8" y2="151.2" />
+                <circle cx="168" cy="149" r="6" />
+                <line x1="165.8" y1="146.8" x2="170.2" y2="151.2" />
+                <line x1="170.2" y1="146.8" x2="165.8" y2="151.2" />
+                <circle cx="200" cy="149" r="6" />
+                <line x1="197.8" y1="146.8" x2="202.2" y2="151.2" />
+                <line x1="202.2" y1="146.8" x2="197.8" y2="151.2" />
+                <circle cx="232" cy="149" r="6" />
+                <line x1="229.8" y1="146.8" x2="234.2" y2="151.2" />
+                <line x1="234.2" y1="146.8" x2="229.8" y2="151.2" />
+                <circle cx="264" cy="149" r="6" />
+                <line x1="261.8" y1="146.8" x2="266.2" y2="151.2" />
+                <line x1="266.2" y1="146.8" x2="261.8" y2="151.2" />
+                <circle cx="296" cy="149" r="6" />
+                <line x1="293.8" y1="146.8" x2="298.2" y2="151.2" />
+                <line x1="298.2" y1="146.8" x2="293.8" y2="151.2" />
+                <circle cx="328" cy="149" r="6" />
+                <line x1="325.8" y1="146.8" x2="330.2" y2="151.2" />
+                <line x1="330.2" y1="146.8" x2="325.8" y2="151.2" />
+                <circle cx="360" cy="149" r="6" />
+                <line x1="357.8" y1="146.8" x2="362.2" y2="151.2" />
+                <line x1="362.2" y1="146.8" x2="357.8" y2="151.2" />
+                <circle cx="392" cy="149" r="6" />
+                <line x1="389.8" y1="146.8" x2="394.2" y2="151.2" />
+                <line x1="394.2" y1="146.8" x2="389.8" y2="151.2" />
+                <circle cx="504" cy="146" r="6" />
+                <line x1="501.8" y1="143.8" x2="506.2" y2="148.2" />
+                <line x1="506.2" y1="143.8" x2="501.8" y2="148.2" />
+              </g>
+              <text class="d-note" x="260" y="234">
+                every authorization can be revoked back to cold storage at any
+                time
+              </text>
+            </svg>
+          </figure>
+
+          <p>
+            For the other 364 days of the year, your phone is all you need.
+            That’s the point.
+            <strong>The UX of a hot wallet, backed by cold storage.</strong>
+          </p>
+
+          <h2>Why the claims hold</h2>
+
+          <p>
+            I want to be precise here, I’m making some pretty strong claims.
+            But I think each one is accurate and relatively easy to verify.
+          </p>
+
+          <p>
+            <strong>As secure as 2-of-3 multisig.</strong> In a 2-of-3, an
+            attacker needs to compromise two of your devices. Your security
+            equals your two weakest devices. Anzen requires compromising both of
+            two fully independent keys on fully independent devices. It’s the
+            same bar, but with fewer things to manage. And like a 2-of-3, it
+            survives loss or exposure of a single key. Anzen even has an
+            optional social
+            recovery path that allows recovering from losing both devices. This
+            is <strong>even stronger</strong> loss protection than a 2-of-3
+            multisig.
+          </p>
+
+          <p>
+            Whatever goes wrong with one key, the other key wins:
+          </p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>What goes wrong</th>
+                  <th>What you do</th>
+                  <th>What the attacker gets</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Phone lost, broken, or <strong>stolen</strong></td>
+                  <td>Restore from encrypted cloud backup, back in minutes</td>
+                  <td>A locked phone. Nothing.</td>
+                </tr>
+                <tr>
+                  <td>Hardware wallet lost or <strong>stolen</strong></td>
+                  <td>
+                    Live off your allowances; recover the full vault when the
+                    phone’s timelock matures
+                  </td>
+                  <td>A locked device. Nothing.</td>
+                </tr>
+                <tr>
+                  <td>Phone key <strong>compromised</strong></td>
+                  <td>
+                    Restore from backup, cancel any pending withdrawals, move
+                    to a fresh vault
+                  </td>
+                  <td>
+                    At most what was already sitting in the phone’s hot balance
+                  </td>
+                </tr>
+                <tr>
+                  <td>Hardware wallet key <strong>compromised</strong></td>
+                  <td>
+                    Your phone’s unlock date comes one month before theirs.
+                    Move funds, you win the race
+                  </td>
+                  <td>Nothing, if you act in your month-long head start</td>
+                </tr>
+                <tr>
+                  <td>Both devices lost</td>
+                  <td>Optional social recovery path</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>
+                    Both <strong>keys</strong> compromised, same attacker, same
+                    window
+                  </td>
+                  <td>
+                    Total loss. The same bar every top-tier setup fails at
+                  </td>
+                  <td>Everything</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            You really have to try hard to lose your money with Anzen. As long
+            as you don’t walk down the street blindfolded, arms outstretched,
+            unlocked phone in one hand, unlocked hardware wallet in the other,
+            you should be good.
+          </p>
+
+          <p>
+            <strong>Trustless.</strong> There is no third key, no cosigning
+            server, no company update channel with power over your funds. Even
+            the recovery mechanisms add no trust. The cloud backup is your
+            phone key, encrypted so that only your hardware wallet can decrypt
+            it. Social recovery just adds another copy in your cloud, encrypted
+            to a trusted contact’s key: they hold nothing, and don’t even know
+            they’re your recovery contact unless you tell them. They just help
+            you decrypt your cloud backup if you lose both devices. Even then,
+            a recovered key still has to wait out the vault’s timelocks.
+          </p>
+
+          <p>
+            Every way the money can move is written into a Bitcoin script you
+            can read, or a transaction your own hardware signed. Nobody can be
+            subpoenaed into your wallet, because nobody else is in it.
+          </p>
+
+          <p>
+            <strong>Easy to use.</strong> With a well-configured policy the
+            hardware wallet needs one approval a year. Every other action is
+            controlled from your phone. That makes Anzen less effort than a
+            singlesig hardware wallet, which needs the device in your hands for
+            every single spend. Day to day, Anzen approaches hot mobile wallet
+            usability.
+          </p>
+
+          <h2>“But pre-signed transactions sound complicated”</h2>
+
+          <p>
+            Under the hood, yes: the annual ceremony splits the vault into
+            chunks and pre-signs a carefully structured set of transactions. But
+            none of that ever needs to reach the user. This is purely an
+            engineering problem, and a very solvable one. The same way nobody
+            needs to understand how to perform Diffie–Hellman key exchange to
+            use HTTPS, no one needs to understand how to manage a presigned
+            transaction chain to approve a vault policy with Anzen.
+          </p>
+
+          <p>
+            The real gap is hardware. No hardware wallet today properly supports
+            this class of design, because they’re all built around one
+            primitive: <em>sign this transaction</em>. The primitive we need is:
+            <em>approve this policy</em>. Your phone drafts the plan, the
+            hardware wallet’s screen shows you the whole thing in plain
+            language. The vault policy screen on your hardware wallet is to
+            Anzen what the green padlock is in the browser to HTTPS.
+          </p>
+
+          <figure class="device">
+            <div
+              class="ledger"
+              role="img"
+              aria-label="A Ledger-style hardware wallet whose screen reads: Anzen, annual policy. Vault balance 2.1 BTC. Monthly allowance 0.1 BTC. Emergency access 0.5 BTC, 1-week delay. Approve? With Reject and Approve buttons."
+            >
+              <div class="ledger-screen">
+                <div class="ledger-head">
+                  <span class="ledger-brand">Anzen</span>
+                  <span>Annual policy</span>
+                </div>
+                <div class="ledger-row">
+                  <span>Vault balance</span>
+                  <span class="ledger-val">2.1 BTC</span>
+                </div>
+                <div class="ledger-row">
+                  <span>Monthly allowance</span>
+                  <span class="ledger-val">0.1 BTC</span>
+                </div>
+                <div class="ledger-row">
+                  <span>Emergency access</span>
+                  <span class="ledger-val">0.5 BTC<em>1-week delay</em></span>
+                </div>
+                <p class="ledger-prompt">Approve?</p>
+                <div class="ledger-actions">
+                  <span class="ledger-btn">Reject</span>
+                  <span class="ledger-btn ledger-approve">Approve</span>
+                </div>
+              </div>
+            </div>
+          </figure>
+
+          <p>
+            One button press pre-signs the entire year. Here’s exactly what the
+            above would output:
+          </p>
+
+          <figure class="diagram">
+            <svg
+              viewBox="0 0 532 1008"
+              role="img"
+              aria-label="The on-chain structure of a 2.1 BTC vault after the annual ceremony: twelve 0.1 BTC monthly UTXOs, each with a presigned monthly allowance execution and revocation, plus a 0.9 BTC remainder whose presigned emergency trigger would stage 0.5 BTC for withdrawal after a one-week delay alongside 0.4 BTC of cold change."
+            >
+              <text class="d-note" x="64" y="20">On-chain UTXOs</text>
+              <text class="d-branch" x="144" y="20">Presigned transactions</text>
+              <g class="d-utxo">
+                <rect x="28" y="36" width="72" height="24" rx="12" />
+                <text x="64" y="52">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="48" x2="144" y2="37" />
+              <line class="d-branchline" x1="100" y1="48" x2="144" y2="59" />
+              <g class="d-tx">
+                <rect x="144" y="29" width="300" height="16" rx="8" />
+                <text x="152" y="41">Jan monthly allowance execution</text>
+                <text class="d-when" x="434" y="41">valid Jan 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="51" width="300" height="16" rx="8" />
+                <text x="152" y="63">Jan monthly allowance revocation</text>
+                <text class="d-when" x="434" y="63">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="42" r="5" />
+                <path d="M122 42 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="54" r="5" />
+                <line x1="122.4" y1="52.4" x2="125.6" y2="55.6" />
+                <line x1="125.6" y1="52.4" x2="122.4" y2="55.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="86" width="72" height="24" rx="12" />
+                <text x="64" y="102">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="98" x2="144" y2="87" />
+              <line class="d-branchline" x1="100" y1="98" x2="144" y2="109" />
+              <g class="d-tx">
+                <rect x="144" y="79" width="300" height="16" rx="8" />
+                <text x="152" y="91">Feb monthly allowance execution</text>
+                <text class="d-when" x="434" y="91">valid Feb 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="101" width="300" height="16" rx="8" />
+                <text x="152" y="113">Feb monthly allowance revocation</text>
+                <text class="d-when" x="434" y="113">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="92" r="5" />
+                <path d="M122 92 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="104" r="5" />
+                <line x1="122.4" y1="102.4" x2="125.6" y2="105.6" />
+                <line x1="125.6" y1="102.4" x2="122.4" y2="105.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="136" width="72" height="24" rx="12" />
+                <text x="64" y="152">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="148" x2="144" y2="137" />
+              <line class="d-branchline" x1="100" y1="148" x2="144" y2="159" />
+              <g class="d-tx">
+                <rect x="144" y="129" width="300" height="16" rx="8" />
+                <text x="152" y="141">Mar monthly allowance execution</text>
+                <text class="d-when" x="434" y="141">valid Mar 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="151" width="300" height="16" rx="8" />
+                <text x="152" y="163">Mar monthly allowance revocation</text>
+                <text class="d-when" x="434" y="163">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="142" r="5" />
+                <path d="M122 142 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="154" r="5" />
+                <line x1="122.4" y1="152.4" x2="125.6" y2="155.6" />
+                <line x1="125.6" y1="152.4" x2="122.4" y2="155.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="186" width="72" height="24" rx="12" />
+                <text x="64" y="202">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="198" x2="144" y2="187" />
+              <line class="d-branchline" x1="100" y1="198" x2="144" y2="209" />
+              <g class="d-tx">
+                <rect x="144" y="179" width="300" height="16" rx="8" />
+                <text x="152" y="191">Apr monthly allowance execution</text>
+                <text class="d-when" x="434" y="191">valid Apr 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="201" width="300" height="16" rx="8" />
+                <text x="152" y="213">Apr monthly allowance revocation</text>
+                <text class="d-when" x="434" y="213">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="192" r="5" />
+                <path d="M122 192 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="204" r="5" />
+                <line x1="122.4" y1="202.4" x2="125.6" y2="205.6" />
+                <line x1="125.6" y1="202.4" x2="122.4" y2="205.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="236" width="72" height="24" rx="12" />
+                <text x="64" y="252">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="248" x2="144" y2="237" />
+              <line class="d-branchline" x1="100" y1="248" x2="144" y2="259" />
+              <g class="d-tx">
+                <rect x="144" y="229" width="300" height="16" rx="8" />
+                <text x="152" y="241">May monthly allowance execution</text>
+                <text class="d-when" x="434" y="241">valid May 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="251" width="300" height="16" rx="8" />
+                <text x="152" y="263">May monthly allowance revocation</text>
+                <text class="d-when" x="434" y="263">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="242" r="5" />
+                <path d="M122 242 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="254" r="5" />
+                <line x1="122.4" y1="252.4" x2="125.6" y2="255.6" />
+                <line x1="125.6" y1="252.4" x2="122.4" y2="255.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="286" width="72" height="24" rx="12" />
+                <text x="64" y="302">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="298" x2="144" y2="287" />
+              <line class="d-branchline" x1="100" y1="298" x2="144" y2="309" />
+              <g class="d-tx">
+                <rect x="144" y="279" width="300" height="16" rx="8" />
+                <text x="152" y="291">Jun monthly allowance execution</text>
+                <text class="d-when" x="434" y="291">valid Jun 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="301" width="300" height="16" rx="8" />
+                <text x="152" y="313">Jun monthly allowance revocation</text>
+                <text class="d-when" x="434" y="313">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="292" r="5" />
+                <path d="M122 292 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="304" r="5" />
+                <line x1="122.4" y1="302.4" x2="125.6" y2="305.6" />
+                <line x1="125.6" y1="302.4" x2="122.4" y2="305.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="336" width="72" height="24" rx="12" />
+                <text x="64" y="352">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="348" x2="144" y2="337" />
+              <line class="d-branchline" x1="100" y1="348" x2="144" y2="359" />
+              <g class="d-tx">
+                <rect x="144" y="329" width="300" height="16" rx="8" />
+                <text x="152" y="341">Jul monthly allowance execution</text>
+                <text class="d-when" x="434" y="341">valid Jul 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="351" width="300" height="16" rx="8" />
+                <text x="152" y="363">Jul monthly allowance revocation</text>
+                <text class="d-when" x="434" y="363">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="342" r="5" />
+                <path d="M122 342 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="354" r="5" />
+                <line x1="122.4" y1="352.4" x2="125.6" y2="355.6" />
+                <line x1="125.6" y1="352.4" x2="122.4" y2="355.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="386" width="72" height="24" rx="12" />
+                <text x="64" y="402">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="398" x2="144" y2="387" />
+              <line class="d-branchline" x1="100" y1="398" x2="144" y2="409" />
+              <g class="d-tx">
+                <rect x="144" y="379" width="300" height="16" rx="8" />
+                <text x="152" y="391">Aug monthly allowance execution</text>
+                <text class="d-when" x="434" y="391">valid Aug 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="401" width="300" height="16" rx="8" />
+                <text x="152" y="413">Aug monthly allowance revocation</text>
+                <text class="d-when" x="434" y="413">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="392" r="5" />
+                <path d="M122 392 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="404" r="5" />
+                <line x1="122.4" y1="402.4" x2="125.6" y2="405.6" />
+                <line x1="125.6" y1="402.4" x2="122.4" y2="405.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="436" width="72" height="24" rx="12" />
+                <text x="64" y="452">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="448" x2="144" y2="437" />
+              <line class="d-branchline" x1="100" y1="448" x2="144" y2="459" />
+              <g class="d-tx">
+                <rect x="144" y="429" width="300" height="16" rx="8" />
+                <text x="152" y="441">Sep monthly allowance execution</text>
+                <text class="d-when" x="434" y="441">valid Sep 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="451" width="300" height="16" rx="8" />
+                <text x="152" y="463">Sep monthly allowance revocation</text>
+                <text class="d-when" x="434" y="463">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="442" r="5" />
+                <path d="M122 442 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="454" r="5" />
+                <line x1="122.4" y1="452.4" x2="125.6" y2="455.6" />
+                <line x1="125.6" y1="452.4" x2="122.4" y2="455.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="486" width="72" height="24" rx="12" />
+                <text x="64" y="502">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="498" x2="144" y2="487" />
+              <line class="d-branchline" x1="100" y1="498" x2="144" y2="509" />
+              <g class="d-tx">
+                <rect x="144" y="479" width="300" height="16" rx="8" />
+                <text x="152" y="491">Oct monthly allowance execution</text>
+                <text class="d-when" x="434" y="491">valid Oct 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="501" width="300" height="16" rx="8" />
+                <text x="152" y="513">Oct monthly allowance revocation</text>
+                <text class="d-when" x="434" y="513">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="492" r="5" />
+                <path d="M122 492 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="504" r="5" />
+                <line x1="122.4" y1="502.4" x2="125.6" y2="505.6" />
+                <line x1="125.6" y1="502.4" x2="122.4" y2="505.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="536" width="72" height="24" rx="12" />
+                <text x="64" y="552">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="548" x2="144" y2="537" />
+              <line class="d-branchline" x1="100" y1="548" x2="144" y2="559" />
+              <g class="d-tx">
+                <rect x="144" y="529" width="300" height="16" rx="8" />
+                <text x="152" y="541">Nov monthly allowance execution</text>
+                <text class="d-when" x="434" y="541">valid Nov 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="551" width="300" height="16" rx="8" />
+                <text x="152" y="563">Nov monthly allowance revocation</text>
+                <text class="d-when" x="434" y="563">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="542" r="5" />
+                <path d="M122 542 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="554" r="5" />
+                <line x1="122.4" y1="552.4" x2="125.6" y2="555.6" />
+                <line x1="125.6" y1="552.4" x2="122.4" y2="555.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="586" width="72" height="24" rx="12" />
+                <text x="64" y="602">0.1 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="598" x2="144" y2="587" />
+              <line class="d-branchline" x1="100" y1="598" x2="144" y2="609" />
+              <g class="d-tx">
+                <rect x="144" y="579" width="300" height="16" rx="8" />
+                <text x="152" y="591">Dec monthly allowance execution</text>
+                <text class="d-when" x="434" y="591">valid Dec 1</text>
+              </g>
+              <g class="d-tx">
+                <rect x="144" y="601" width="300" height="16" rx="8" />
+                <text x="152" y="613">Dec monthly allowance revocation</text>
+                <text class="d-when" x="434" y="613">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="124" cy="592" r="5" />
+                <path d="M122 592 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="124" cy="604" r="5" />
+                <line x1="122.4" y1="602.4" x2="125.6" y2="605.6" />
+                <line x1="125.6" y1="602.4" x2="122.4" y2="605.6" />
+              </g>
+              <g class="d-utxo">
+                <rect x="28" y="632" width="72" height="216" rx="12" />
+                <text x="64" y="744">0.9 BTC</text>
+              </g>
+              <line class="d-branchline" x1="100" y1="740" x2="144" y2="740" />
+              <g class="d-tx">
+                <rect x="144" y="732" width="220" height="16" rx="8" />
+                <text x="152" y="744">Emergency trigger</text>
+                <text class="d-when" x="354" y="744">valid immediately</text>
+              </g>
+              <path class="d-branchline" d="M156 748 V944 M156 824 H168 M156 944 H168" />
+              <g class="d-utxo future">
+                <rect x="168" y="764" width="72" height="120" rx="12" />
+                <text x="204" y="828">0.5 BTC</text>
+              </g>
+              <line class="d-branchline" x1="240" y1="824" x2="276" y2="813" />
+              <line class="d-branchline" x1="240" y1="824" x2="276" y2="835" />
+              <g class="d-tx">
+                <rect x="276" y="805" width="250" height="16" rx="8" />
+                <text x="284" y="817">Emergency withdrawal</text>
+                <text class="d-when" x="516" y="817">valid after 1 week</text>
+              </g>
+              <g class="d-tx">
+                <rect x="276" y="827" width="250" height="16" rx="8" />
+                <text x="284" y="839">Emergency cancellation</text>
+                <text class="d-when" x="516" y="839">valid immediately</text>
+              </g>
+              <g class="d-ok">
+                <circle cx="260" cy="818" r="5" />
+                <path d="M258 818 l1.4 1.7 l2.7 -3.4" />
+              </g>
+              <g class="d-no">
+                <circle cx="260" cy="830" r="5" />
+                <line x1="258.4" y1="828.4" x2="261.6" y2="831.6" />
+                <line x1="261.6" y1="828.4" x2="258.4" y2="831.6" />
+              </g>
+              <g class="d-utxo future">
+                <rect x="168" y="896" width="72" height="96" rx="12" />
+                <text x="204" y="948">0.4 BTC</text>
+              </g>
+              <line class="d-branchline" x1="240" y1="944" x2="278" y2="944" />
+              <text class="d-branch" x="284" y="948">Change back to vault</text>
+            </svg>
+          </figure>
+
+          <p>
+            Every transaction the vault can need for the next twelve months,
+            signed in one press: the monthly allowances, the revocations that
+            can cancel them, and the emergency package. The phone stores them
+            encrypted and uses them to run the vault for the rest of the year,
+            the hardware wallet goes back in the drawer and is not needed again
+            until the same day next year.
+          </p>
+
+          <h2>Where do we go from here?</h2>
+
+          <p>
+            This is not just an idea. I have a
+            <a
+              href="https://github.com/lukechilds/anzen"
+              target="_blank"
+              rel="noopener"
+              >working prototype</a
+            >
+            running on mainnet with real funds, with all vault functionality
+            and recovery paths fully implemented. It’s definitely not
+            production ready, it’s very early, but it is (just about) usable if
+            you want to test with small amounts of money.
+          </p>
+
+          <p>
+            There is also an
+            <a
+              href="https://github.com/lukechilds/anzen/actions/runs/31161590697/job/92814579265#step:5:10"
+              target="_blank"
+              rel="noopener"
+              >extensive end-to-end test suite</a
+            >
+            that runs on regtest if you want to see the full functionality
+            without risking funds, and an interactive CLI that fully emulates
+            a phone, a
+            hardware wallet, and all operations between them.
+          </p>
+
+          <p>
+            Here’s my mainnet vault, you’re warmly invited to try and rug it:
+          </p>
+
+          <pre><code><a href="https://mempool.space/tx/eca4f60c027b7c54d6959d5e8dfd67b375707dfa06e61fe9edc5c590bd940ba1" target="_blank" rel="noopener">bc1pvaultn3953ns47dw6rpm6ahfpz449vcnns5rpnr5v2d0u55fekxq39v257</a></code></pre>
+
+          <p>
+            I would welcome technical peer review and I’m open to any feedback.
+            The repo is very scrappy for now, but feel free to point your agent
+            at
+            <a
+              href="https://github.com/lukechilds/anzen"
+              target="_blank"
+              rel="noopener"
+              >github.com/lukechilds/anzen</a
+            >
+            and ask it to walk you through the design.
+          </p>
+
+          <p>
+            While it’s just a CLI for now, I’ll be working on a full-stack
+            reference implementation for Anzen to fully demonstrate how slick
+            the UX can be. This will likely be an iPhone app and a custom
+            sideloadable companion Ledger app.
+          </p>
+
+          <p>
+            My goal is to develop both the reference implementation and the
+            open Anzen protocol. The idea is that anyone can implement the
+            protocol. If I can validate the use case with the reference
+            implementation and people see value in this and it gains any
+            traction, potentially we could see a future where you could create
+            an Anzen vault on a vanilla Ledger paired with Ledger Live. Or a
+            Trezor as the hardware wallet signing side
+            and BlueWallet as the hot wallet side. Or Bitkey supporting an
+            optional sovereign mode that replaces their cosigner with Anzen’s
+            consensus-based alternative.
+          </p>
+
+          <p>
+            Anzen is being developed as a personal side project, unaffiliated
+            with Umbrel, open source and MIT licensed.
+          </p>
+
+          <p>
+            Credit where credit is due. Thanks to Casa, Bitkey and Liana for
+            dragging Bitcoin self-custody into the modern age. Anzen’s design
+            is heavily inspired by tricks pioneered by those three teams.
+          </p>
+
+          <h2>Final thoughts</h2>
+
+          <p>
+            The Coldcard situation is extremely sad because the Coldcard users
+            did everything right. As far as I’m concerned, the industry
+            standard recommendation was a singlesig hardware wallet. While this
+            issue manifested as a firmware bug in the Coldcard, this is
+            ultimately a catastrophic failure of the Bitcoin technical
+            community. We have done users a disservice and failed to provide
+            good high quality self-custody tools.
+          </p>
+
+          <p>
+            Since the incident I’ve seen people claim self-custody is not
+            suitable for most users. I’ve seen people claim everyone should be
+            moving to multivendor multisig. I’ve seen people claim it’s the
+            user’s personal responsibility to educate themselves on secure
+            entropy generation. This is disappointing. We are repeating the
+            same mistake.
+          </p>
+
+          <p>
+            Bitcoin’s scripting capabilities are limited, but they are not
+            <em>that</em> limited. Vault-like constructs are criminally
+            underexplored.
+          </p>
+
+          <p>
+            We have the tools to build better self-custody solutions. We just
+            need to start using them.
+          </p>
+        </div>
+      </article>
+    </main>
+    <script
+      defer
+      src="https://lu.ke/_vercel/insights/script.js"
+    ></script>
+    <script
+      defer
+      data-api="https://metrics.lu.ke/api/event"
+      data-domain="lu.ke"
+      src="https://metrics.lu.ke/js/script.js"
+    ></script>
+  </body>
+</html>

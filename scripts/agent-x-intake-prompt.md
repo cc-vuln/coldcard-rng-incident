@@ -170,8 +170,11 @@ Name the URLs you requested in your report. Do not run `just ingest-x`,
 ## Record the verdicts
 
 In `DISCOVERY.md`, move each assessed line from `## Pending` to the end of
-`## Assessed`, keeping its original text intact and appending one verdict
-with a UTC stamp:
+`## Assessed`, immediately before the `## Link review, held for a human
+decision` heading — later sections are not part of `## Assessed`, and a
+verdict appended at the end of the file lands in `## Deferred`, which the
+guard counts as a candidate leaving the queue unverdicted. Keep each line's
+original text intact and append one verdict with a UTC stamp:
 
 - `-> registered as <slug> (YYYYMMDDTHHMMSSZ)`
 - `-> dismissed: <one-line reason> (YYYYMMDDTHHMMSSZ)`

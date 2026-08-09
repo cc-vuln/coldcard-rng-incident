@@ -1,0 +1,122 @@
+post: 1vi6fhi
+author: the_bitcoin_kid
+created_utc: 1786122402
+title: Realistically are there any risks to using a Coldcard Q as a signing device only?
+body:
+The Coldcard Q looks like it could be useful purely as a device for signing transactions, as it's air-gapped and has a keyboard for easier passphrase input 
+
+So if you generate your seed elsewhere and import it, are there any realistic risks?
+
+It doesn't have an Internet connection, so your seed would be safe (I assume). And if there are any bugs, it would mean your transactions don't get signed properly and can't broadcast them.
+
+Is there anything I'm missing?
+
+comment: p2aw15c
+parent: t3_1vi6fhi
+author: GoldmezAddams
+created_utc: 1786122927
+edited: false
+body:
+As I understand it, there are signing attacks that can occur from malice or incompetence, particularly if it is generating predictable nonces. I want more dust to settle before I even consider using my CC to sign again, and even then, the trust is so completely gone I may not even do that.
+
+comment: p2ax2y5
+parent: t1_p2aw15c
+author: the_bitcoin_kid
+created_utc: 1786123193
+edited: false
+body:
+Good point, I didn't think of nonce reuse.
+
+I'm guessing this would only apply if you received multiple payments to the same address, and therefore used the same private key for signing more than once?
+
+comment: p2ayc1v
+parent: t3_1vi6fhi
+author: Fiach_Dubh
+created_utc: 1786123510
+edited: false
+body:
+it's hardware/firmware is buggy too.
+
+you may not be able to login with the pin.
+
+comment: p2azj0f
+parent: t3_1vi6fhi
+author: Cautious_Variation_5
+created_utc: 1786123814
+edited: false
+body:
+As far I know, no risks. The issue was with seed generation only. 
+
+comment: p2azqc8
+parent: t3_1vi6fhi
+author: CiaranCarroll
+created_utc: 1786123866
+edited: false
+body:
+No more than other HWWs. Just check the change addresses and things.
+
+comment: p2buocg
+parent: t3_1vi6fhi
+author: user_name_checks_out
+created_utc: 1786131914
+edited: false
+body:
+It boggles my mind that anybody anywhere is still thinking about using any coldcard for anything.
+
+comment: p2bxay2
+parent: t3_1vi6fhi
+author: azauca
+created_utc: 1786132617
+edited: false
+body:
+I used CC for several years, after this, I’ll never trust them again.  My Q is now in the trash.  
+
+comment: p2cbodu
+parent: t3_1vi6fhi
+author: Mentalextensi0n
+created_utc: 1786136536
+edited: false
+body:
+I dont trust it even for that, so I smashed mine with a hammer. 
+
+comment: p2cfcfz
+parent: t3_1vi6fhi
+author: JumpProfessional3372
+created_utc: 1786137589
+edited: false
+body:
+You are not missing anything. Objectively the issue was with the RNG used to generate a seed and perhaps if you did exported a backup to an encrypted file (I wouldn't do this to be honest) maybe for this the RNG was used as well, so an encrypted back could also be at risk (obviously this issue is a lot less severe because we're talking about a file which container needs to fall in the wrong hands first) 
+
+Subjectively, yeah you can trash it jump to the adjacent wagon trading currents risks for different ones. Or you can keep using it as always, but just remember to follow the paranoid guide approach.
+
+comment: p2cj8uy
+parent: t1_p2buocg
+author: BashCo
+created_utc: 1786138729
+edited: false
+body:
+Understandable, but it's not the biggest leap of logic if you understand the risk profile.
+
+comment: p2cloj7
+parent: t1_p2cfcfz
+author: the_bitcoin_kid
+created_utc: 1786139450
+edited: false
+body:
+Thank you
+
+comment: p2cu0sa
+parent: t1_p2ax2y5
+author: GoldmezAddams
+created_utc: 1786142022
+edited: false
+body:
+I get a little out of my depth here, so DYOR, but as I understand it, multiple receives to the same address don't matter in this case, but signing with the same private key multiple times, does. And, in the case of an attack like Dark Skippy, enough seed material to matter could be leaked in a single transaction.
+
+comment: p2h5jn6
+parent: t1_p2cu0sa
+author: No_Position_8581
+created_utc: 1786202987
+edited: false
+body:
+the current and past past firmware has been looked at for a dark skippy attack but still fuck cold card
