@@ -12926,3 +12926,150 @@ update never arrived. Held as a dated, specific claim about an undisclosed
 prior vulnerability. The existence and details of the vulnerability are the
 poster's own and are not verified here.
 """
+
+# ---- 9 Aug 2026 discovery intake: operator-supplied articles and r/Bitcoin threads ----
+
+[[source]]
+id = "lukechilds-anzen-trilemma"
+title = "Anzen and the self-custody trilemma"
+url = "https://lu.ke/self-custody-trilemma"
+published = "2026-08-09"
+org = "Luke Childs"
+kind = "analysis"
+tier = 3
+capture = "http"
+min_chars = 1000
+required_text = ["Anzen"]
+note = """
+Luke Childs publishes a writeup on Anzen, a wallet design presented as a response
+to Bitcoin's self-custody trilemma in the wake of the COLDCARD incident. Held as
+a dated product launch and design argument from the author. The claims about the
+design and its properties are the author's own and are not verified here.
+"""
+
+[[source]]
+id = "citadel21-paranoid-wallet"
+title = "The Paranoid Wallet"
+url = "https://www.citadel21.com/the-paranoid-wallet"
+published = "2026-08-09"
+org = "Citadel21"
+kind = "analysis"
+tier = 3
+capture = "http"
+min_chars = 1000
+required_text = ["wallet"]
+note = """
+Citadel21 publishes an article titled The Paranoid Wallet, discussing wallet
+design in the context of the COLDCARD entropy incident. Held as a dated
+commentary on post-incident wallet architecture and trust assumptions. The
+arguments are the publisher's own and are not verified here.
+"""
+
+[[source]]
+id = "orangesurf-coldcard-key-exposure"
+title = "Coldcard key exposure"
+url = "https://orange.surf/coldcard-key-exposure/"
+published = "2026-08-09"
+org = "Orange Surf"
+kind = "independent-analysis"
+tier = 3
+capture = "http"
+min_chars = 1000
+required_text = ["Coldcard"]
+note = """
+Orange Surf publishes a technical analysis of the COLDCARD key exposure,
+documenting the author's understanding of the vulnerability and its implications.
+Held as a dated independent technical account. The analysis is the author's own
+and is not verified here.
+"""
+
+[[source]]
+id = "reddit-safely-store-btc-without-hww"
+title = "r/Bitcoin: safely storing BTC without a hardware wallet"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T015742Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+RichHomieWan, a COLDCARD user, asks how to store bitcoin safely without a
+hardware wallet after moving funds to an exchange during the incident. A
+first-hand account of owner uncertainty and the search for non-HWW storage in
+the same space as reddit-where-to-transfer and reddit-safe-seed-without-hardware.
+The advice in the comments is the posters' own and is not verified here.
+"""
+
+[[source]]
+id = "reddit-jade-plus-setup-suspect"
+title = "r/Bitcoin: Blockstream Jade Plus setup workflow suspect"
+url = "https://www.reddit.com/r/Bitcoin/comments/1viknfe/blockstream_jade_plus_setup_workflow_suspect/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T015742Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+No_Fuel4693 questions the Blockstream Jade Plus setup workflow while assessing
+cold-wallet options after the COLDCARD incident, asking whether the device could
+transmit a newly created wallet during its initial connection to Blockstream's
+website. A distinct product-specific security concern in the post-incident
+hardware-wallet comparison space, alongside reddit-hardware-wallet-comparison.
+The concern is the poster's own and is not verified here.
+"""
+
+[[source]]
+id = "reddit-coldcard-mk4-ux-flaw-continued"
+title = "r/Bitcoin: Coldcard Mk4 UX flaw continued"
+url = "https://www.reddit.com/r/Bitcoin/comments/1viixzj/coldcard_mk4_ux_flaw_continued/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260812T015742Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Economy-Cash6726 continues a 2024 claim about a COLDCARD Mk4 UX flaw, alleging
+that paid influencers dismissed the original report as user error. A short
+allegation about prior-issue awareness and community response, distinct from the
+registered retirement-attack discussion. The allegation is the poster's own and
+is not verified here.
+"""
+
+[[source]]
+id = "reddit-llm-tracing-attackers"
+title = "r/Bitcoin: LLM tracing for coldcard attackers"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vi6ify/llm_tracing_for_coldcard_attackers/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T015742Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Sensitive-Variety561 asks whether inference companies could be subpoenaed to
+identify attackers who used LLM APIs to write sweep code. A distinct attribution
+speculation thread about the attacker and LLM usage, alongside
+reddit-ai-discovery-thread. The legal theory is the poster's own and is not
+verified here.
+"""
+
+[[source]]
+id = "reddit-coldcard-q-signing-device-only"
+title = "r/Bitcoin: risks of using a Coldcard Q as a signing device only"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vi6fhi/realistically_are_there_any_risks_to_using_a/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T015742Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+the_bitcoin_kid asks whether a COLDCARD Q can safely be used purely as an
+air-gapped signing device if the seed is generated elsewhere. A specific
+mitigation question in the same space as reddit-ccq-multisig-safety and
+reddit-device-useful-if-company-closes. The answers are the posters' own and are
+not verified here.
+"""

@@ -35,21 +35,7 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-09 [@keithmukai post (text available during approved intake)](https://x.com/keithmukai/status/2085707272043266521) (X @keithmukai, operator-supplied)
 - 2026-08-09 [@rot13maxi post (text available during approved intake)](https://x.com/rot13maxi/status/2086245656369246691) (X @rot13maxi)
 
-- 2026-08-09 [Luke Childs: Anzen and the self-custody trilemma](https://lu.ke/self-custody-trilemma) (operator-supplied)
-- 2026-08-09 [Citadel21: The Paranoid Wallet](https://www.citadel21.com/the-paranoid-wallet) (operator-supplied)
-- 2026-08-09 [Orange Surf: Coldcard key exposure](https://orange.surf/coldcard-key-exposure/) (operator-supplied)
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout.
-- 2026-08-08 [You don't need to roll dice 50-100 times for BIP39 entropy. Just grab a deck of playing cards](https://www.reddit.com/r/Bitcoin/comments/1vime6a/you_dont_need_to_roll_dice_50100_times_for_bip39/) by HoldenVJ, 3 comments (r/Bitcoin) [topical]
-- 2026-08-08 [Safely store BTC w/o HWW](https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/) by RichHomieWan, 23 comments (r/Bitcoin) [body]
-- 2026-08-08 [Blockstream Jade Plus setup - workflow suspect?](https://www.reddit.com/r/Bitcoin/comments/1viknfe/blockstream_jade_plus_setup_workflow_suspect/) by No_Fuel4693, 7 comments (r/Bitcoin) [body]
-- 2026-08-08 [Easiest entropy generator](https://www.reddit.com/r/Bitcoin/comments/1vikjl2/easiest_entropy_generator/) by cheesymod, 5 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Seed Slab - A seed phrase storage tool.](https://www.reddit.com/r/Bitcoin/comments/1vieeyc/seed_slab_a_seed_phrase_storage_tool/) by badfish_gg, 27 comments (r/Bitcoin) [topical]
-- 2026-08-08 [Coldcard Mk4 UX flaw continued](https://www.reddit.com/r/Bitcoin/comments/1viixzj/coldcard_mk4_ux_flaw_continued/) by Economy-Cash6726, 2 comments (r/Bitcoin)
-- 2026-08-07 [Where to sell with lowest fees?](https://www.reddit.com/r/Bitcoin/comments/1vi57yl/where_to_sell_with_lowest_fees/) by Sweaty_Camel_118, 16 comments (r/Bitcoin) [body]
-- 2026-08-07 [LLM tracing for coldcard attackers](https://www.reddit.com/r/Bitcoin/comments/1vi6ify/llm_tracing_for_coldcard_attackers/) by Sensitive-Variety561, 17 comments (r/Bitcoin)
-- 2026-08-07 [Realistically are there any risks to using a Coldcard Q as a signing device only?](https://www.reddit.com/r/Bitcoin/comments/1vi6fhi/realistically_are_there_any_risks_to_using_a/) by the_bitcoin_kid, 12 comments (r/Bitcoin)
-- 2026-08-07 [Why do you need dice when you can just pick bip39 words at random?](https://www.reddit.com/r/Bitcoin/comments/1vie7ci/why_do_you_need_dice_when_you_can_just_pick_bip39/) by slvbtc, 30 comments (r/Bitcoin) [topical]
-- 2026-08-07 [Idea for easy entropy](https://www.reddit.com/r/Bitcoin/comments/1vicfjn/idea_for_easy_entropy/) by rest_me123, 24 comments (r/Bitcoin) [topical]
 - 2026-08-07 [Anyone else planning on implementing their own elliptic curve geometry library after the cold card exploit?](https://www.reddit.com/r/Bitcoin/comments/1vi7boc/anyone_else_planning_on_implementing_their_own/) by very_bug_like, 9 comments (r/Bitcoin)
 - 2026-08-07 [Audio-based entropy wallet](https://bitcointalk.org/index.php?topic=5590622.0) by barrysty1e, 3 comments (bct/1) [topical]
 - 2026-08-08 [How to Set Up BTCPay Server Better After the Hack?](https://stacker.news/items/1543355) by Natalia, 14 comments (~bitcoin) [topical]
@@ -612,6 +598,21 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-09 [@odudex post (text available during approved intake)](https://x.com/odudex/status/2085470724584603874) (X @odudex, operator-supplied) -> dismissed: content-free reply with no identifiable incident claim (20260809T013459Z)
 - 2026-08-09 [@oomahq post (text available during approved intake)](https://x.com/oomahq/status/2085717166884618584) (X @oomahq, operator-supplied) -> registered as oomahq-2085717166884618584 (20260809T013459Z)
 - 2026-08-09 [@btchip post (text available during approved intake)](https://x.com/btchip/status/2085696775407456513) (X @btchip, operator-supplied) -> dismissed: general hardware-wallet secure-element commentary about Blockstream Jade, not specific to the COLDCARD incident (20260809T013459Z)
+
+- 2026-08-09 [Luke Childs: Anzen and the self-custody trilemma](https://lu.ke/self-custody-trilemma) (operator-supplied) -> registered as lukechilds-anzen-trilemma (20260809T015742Z)
+- 2026-08-09 [Citadel21: The Paranoid Wallet](https://www.citadel21.com/the-paranoid-wallet) (operator-supplied) -> registered as citadel21-paranoid-wallet (20260809T015742Z)
+- 2026-08-09 [Orange Surf: Coldcard key exposure](https://orange.surf/coldcard-key-exposure/) (operator-supplied) -> registered as orangesurf-coldcard-key-exposure (20260809T015742Z)
+- 2026-08-08 [You don't need to roll dice 50-100 times for BIP39 entropy. Just grab a deck of playing cards](https://www.reddit.com/r/Bitcoin/comments/1vime6a/you_dont_need_to_roll_dice_50100_times_for_bip39/) by HoldenVJ, 3 comments (r/Bitcoin) [topical] -> dismissed: repetitive dice-and-alternative-entropy discussion already represented by reddit-dice-seed-generation (20260809T015742Z)
+- 2026-08-08 [Safely store BTC w/o HWW](https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/) by RichHomieWan, 23 comments (r/Bitcoin) [body] -> registered as reddit-safely-store-btc-without-hww (20260809T015742Z)
+- 2026-08-08 [Blockstream Jade Plus setup - workflow suspect?](https://www.reddit.com/r/Bitcoin/comments/1viknfe/blockstream_jade_plus_setup_workflow_suspect/) by No_Fuel4693, 7 comments (r/Bitcoin) [body] -> registered as reddit-jade-plus-setup-suspect (20260809T015742Z)
+- 2026-08-08 [Easiest entropy generator](https://www.reddit.com/r/Bitcoin/comments/1vikjl2/easiest_entropy_generator/) by cheesymod, 5 comments (r/Bitcoin) [topical] -> dismissed: repetitive entropy-tool discussion already represented by reddit-dice-seed-generation (20260809T015742Z)
+- 2026-08-07 [Seed Slab - A seed phrase storage tool.](https://www.reddit.com/r/Bitcoin/comments/1vieeyc/seed_slab_a_seed_phrase_storage_tool/) by badfish_gg, 27 comments (r/Bitcoin) [topical] -> dismissed: product-promotion thread with no incident-specific record value (20260809T015742Z)
+- 2026-08-08 [Coldcard Mk4 UX flaw continued](https://www.reddit.com/r/Bitcoin/comments/1viixzj/coldcard_mk4_ux_flaw_continued/) by Economy-Cash6726, 2 comments (r/Bitcoin) -> registered as reddit-coldcard-mk4-ux-flaw-continued (20260809T015742Z)
+- 2026-08-07 [Where to sell with lowest fees?](https://www.reddit.com/r/Bitcoin/comments/1vi57yl/where_to_sell_with_lowest_fees/) by Sweaty_Camel_118, 16 comments (r/Bitcoin) [body] -> dismissed: exchange-fee question only tangentially related to the incident (20260809T015742Z)
+- 2026-08-07 [LLM tracing for coldcard attackers](https://www.reddit.com/r/Bitcoin/comments/1vi6ify/llm_tracing_for_coldcard_attackers/) by Sensitive-Variety561, 17 comments (r/Bitcoin) -> registered as reddit-llm-tracing-attackers (20260809T015742Z)
+- 2026-08-07 [Realistically are there any risks to using a Coldcard Q as a signing device only?](https://www.reddit.com/r/Bitcoin/comments/1vi6fhi/realistically_are_there_any_risks_to_using_a/) by the_bitcoin_kid, 12 comments (r/Bitcoin) -> registered as reddit-coldcard-q-signing-device-only (20260809T015742Z)
+- 2026-08-07 [Why do you need dice when you can just pick bip39 words at random?](https://www.reddit.com/r/Bitcoin/comments/1vie7ci/why_do_you_need_dice_when_you_can_just_pick_bip39/) by slvbtc, 30 comments (r/Bitcoin) [topical] -> dismissed: repetitive entropy-generation discussion already represented by reddit-dice-seed-generation (20260809T015742Z)
+- 2026-08-07 [Idea for easy entropy](https://www.reddit.com/r/Bitcoin/comments/1vicfjn/idea_for_easy_entropy/) by rest_me123, 24 comments (r/Bitcoin) [topical] -> dismissed: repetitive user-entropy-option discussion already represented by reddit-dice-seed-generation and reddit-user-entropy-options (20260809T015742Z)
 
 ## Link review, held for a human decision
 
