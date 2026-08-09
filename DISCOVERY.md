@@ -29,6 +29,15 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
+- 2026-08-09 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2085731170768032228) (X @mandrik, operator-supplied)
+- 2026-08-09 [@grassfedbitcoin post (text available during approved intake)](https://x.com/grassfedbitcoin/status/2085827241162981757) (X @grassfedbitcoin, operator-supplied)
+- 2026-08-09 [@documentingbtc post (text available during approved intake)](https://x.com/documentingbtc/status/2085725415537049738) (X @documentingbtc, operator-supplied)
+- 2026-08-09 [@keithmukai post (text available during approved intake)](https://x.com/keithmukai/status/2085707272043266521) (X @keithmukai, operator-supplied)
+- 2026-08-09 [@rot13maxi post (text available during approved intake)](https://x.com/rot13maxi/status/2086245656369246691) (X @rot13maxi)
+
+- 2026-08-09 [Luke Childs: Anzen and the self-custody trilemma](https://lu.ke/self-custody-trilemma) (operator-supplied)
+- 2026-08-09 [Citadel21: The Paranoid Wallet](https://www.citadel21.com/the-paranoid-wallet) (operator-supplied)
+- 2026-08-09 [Orange Surf: Coldcard key exposure](https://orange.surf/coldcard-key-exposure/) (operator-supplied)
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout.
 - 2026-08-08 [You don't need to roll dice 50-100 times for BIP39 entropy. Just grab a deck of playing cards](https://www.reddit.com/r/Bitcoin/comments/1vime6a/you_dont_need_to_roll_dice_50100_times_for_bip39/) by HoldenVJ, 3 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Safely store BTC w/o HWW](https://www.reddit.com/r/Bitcoin/comments/1vil2qs/safely_store_btc_wo_hww/) by RichHomieWan, 23 comments (r/Bitcoin) [body]
@@ -56,7 +65,12 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-08 [SeedSigner Hardware Wallet](https://www.reddit.com/r/Bitcoin/comments/1viomps/seedsigner_hardware_wallet/) by PlanNo3321, 11 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Passphrase length](https://www.reddit.com/r/Bitcoin/comments/1viocw9/passphrase_length/) by Intelligent_Map_246, 22 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Short-term impact of the Coldcard incident on Self-Custody](https://bitcointalk.org/index.php?topic=5590691.0) by Abiky, 26 comments (bct/1)
-
+- 2026-08-09 [@callebtc post (text available during approved intake)](https://x.com/callebtc/status/2086256904460783838) (X @callebtc)
+- 2026-08-08 [@realizingerin post (text available during approved intake)](https://x.com/realizingerin/status/2086134060724765000) (X @realizingerin)
+- 2026-08-08 [@francispouliot_ post (text available during approved intake)](https://x.com/francispouliot_/status/2086107376277397570) (X @francispouliot_)
+- 2026-08-08 [@thefuzzstone post (text available during approved intake)](https://x.com/thefuzzstone/status/2086023689359724660) (X @thefuzzstone)
+- 2026-08-08 [@KLoaec post (text available during approved intake)](https://x.com/KLoaec/status/2086177431761940720) (X @KLoaec)
+- 2026-08-09 [@OrangeSurfBTC post (text available during approved intake)](https://x.com/OrangeSurfBTC/status/2086241888256802837) (X @OrangeSurfBTC)
 
 ## Assessed
 
@@ -583,6 +597,22 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-08 [@intangiblecoins post (text available during approved intake)](https://x.com/intangiblecoins/status/2086198479047569915) (X @intangiblecoins) -> registered as intangiblecoins-block-961635-opreturn (20260808T220527Z)
 - 2026-08-08 [@peterktodd post (text available during approved intake)](https://x.com/peterktodd/status/2086044703133221207) (X @peterktodd) -> dismissed: generic hardware-wallet secure-element opinion with no specific incident claim (20260808T220527Z)
 
+- 2026-08-09 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2085823098742317223) (X @coletu, operator-supplied) -> registered as coletu-2085823098742317223 (20260809T013459Z)
+- 2026-08-09 [@noosphere888x2 post (text available during approved intake)](https://x.com/noosphere888x2/status/2085817128414851434) (X @noosphere888x2, operator-supplied) -> registered as noosphere888x2-2085817128414851434 (20260809T013459Z)
+- 2026-08-09 [@glxyresearch post (text available during approved intake)](https://x.com/glxyresearch/status/2085748541633261936) (X @glxyresearch, operator-supplied) -> registered as glxyresearch-2085748541633261936 (20260809T013459Z)
+- 2026-08-09 [@americanhodl8 post (text available during approved intake)](https://x.com/americanhodl8/status/2085777580494631029) (X @americanhodl8, operator-supplied) -> dismissed: repetitive amplification of Alex Thorn victim-outreach message already represented by glxyresearch-2085748541633261936 (20260809T013459Z)
+- 2026-08-09 [@intangiblecoins post (text available during approved intake)](https://x.com/intangiblecoins/status/2085752444236005465) (X @intangiblecoins, operator-supplied) -> registered as intangiblecoins-2085752444236005465 (20260809T013459Z)
+- 2026-08-09 [@btcpayserver post (text available during approved intake)](https://x.com/btcpayserver/status/2085771939008667869) (X @btcpayserver, operator-supplied) -> registered as btcpayserver-2085771939008667869 (20260809T013459Z)
+- 2026-08-09 [@reallybadday99 post (text available during approved intake)](https://x.com/reallybadday99/status/2085454877719675354) (X @reallybadday99, operator-supplied) -> registered as reallybadday99-2085454877719675354 (20260809T013459Z)
+- 2026-08-09 [@zherbert post (text available during approved intake)](https://x.com/zherbert/status/2085788368365875378) (X @zherbert, operator-supplied) -> registered as zherbert-2085788368365875378 (20260809T013459Z)
+- 2026-08-09 [@pavlenex post (text available during approved intake)](https://x.com/pavlenex/status/2085756609741930534) (X @pavlenex, operator-supplied) -> registered as pavlenex-2085756609741930534 (20260809T013459Z)
+- 2026-08-09 [@nicolasdorier post (text available during approved intake)](https://x.com/nicolasdorier/status/2085772944895025622) (X @nicolasdorier, operator-supplied) -> registered as nicolasdorier-2085772944895025622 (20260809T013459Z)
+- 2026-08-09 [@btcsessions post (text available during approved intake)](https://x.com/btcsessions/status/2085698751558009085) (X @btcsessions, operator-supplied) -> registered as btcsessions-2085698751558009085 (20260809T013459Z)
+- 2026-08-09 [@tftc21 post (text available during approved intake)](https://x.com/tftc21/status/2085789285962416527) (X @tftc21, operator-supplied) -> registered as tftc21-2085789285962416527 (20260809T013459Z)
+- 2026-08-09 [@odudex post (text available during approved intake)](https://x.com/odudex/status/2085470724584603874) (X @odudex, operator-supplied) -> dismissed: content-free reply with no identifiable incident claim (20260809T013459Z)
+- 2026-08-09 [@oomahq post (text available during approved intake)](https://x.com/oomahq/status/2085717166884618584) (X @oomahq, operator-supplied) -> registered as oomahq-2085717166884618584 (20260809T013459Z)
+- 2026-08-09 [@btchip post (text available during approved intake)](https://x.com/btchip/status/2085696775407456513) (X @btchip, operator-supplied) -> dismissed: general hardware-wallet secure-element commentary about Blockstream Jade, not specific to the COLDCARD incident (20260809T013459Z)
+
 ## Link review, held for a human decision
 
 Empty as of 8 Aug 2026. The three candidates this section was holding (the
@@ -606,3 +636,19 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-08-07 [Your Hardware Wallet MUST Be Open Source [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vi3g4c/your_hardware_wallet_must_be_open_source_clip/) by Cryptoconomy, 0 comments (r/Bitcoin) [topical]
 - 2026-08-07 [Is it hack season ?](https://www.reddit.com/r/Bitcoin/comments/1vi7b8q/is_it_hack_season/) by Ok-Pea4148, 2 comments (r/Bitcoin) [topical]
 - 2026-08-07 [In Case It Helps You Discover Better Entropy](https://www.reddit.com/r/Bitcoin/comments/1vho3dp/in_case_it_helps_you_discover_better_entropy/) by JuxtaposeLife, 1 comments (r/Bitcoin) [topical]
+
+- 2026-08-09 [@jamesob post (text available during approved intake)](https://x.com/jamesob/status/2085847410102645036) (X @jamesob, operator-supplied) -> registered as jamesob-2085847410102645036 (20260809T015256Z)
+- 2026-08-09 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2085731170768032228) (X @mandrik, operator-supplied) -> dismissed: general community-sentiment post with no incident-specific claim or first-hand account (20260809T015256Z)
+- 2026-08-09 [@tftc21 post (text available during approved intake)](https://x.com/tftc21/status/2085782189392974208) (X @tftc21, operator-supplied) -> registered as tftc21-2085782189392974208 (20260809T015256Z)
+- 2026-08-09 [@grassfedbitcoin post (text available during approved intake)](https://x.com/grassfedbitcoin/status/2085827241162981757) (X @grassfedbitcoin, operator-supplied) -> dismissed: unverifiable state-attack speculation without new factual content (20260809T015256Z)
+- 2026-08-09 [@evankaloudis post (text available during approved intake)](https://x.com/evankaloudis/status/2085763304165630110) (X @evankaloudis, operator-supplied) -> registered as evankaloudis-2085763304165630110 (20260809T015256Z)
+- 2026-08-09 [@documentingbtc post (text available during approved intake)](https://x.com/documentingbtc/status/2085725415537049738) (X @documentingbtc, operator-supplied) -> already registered as tftc21-2085789285962416527 (20260809T015256Z)
+- 2026-08-09 [@lukechilds post (text available during approved intake)](https://x.com/lukechilds/status/2085802947670356209) (X @lukechilds, operator-supplied) -> registered as lukechilds-2085802947670356209 (20260809T015256Z)
+- 2026-08-09 [@coldcardwallet post (text available during approved intake)](https://x.com/coldcardwallet/status/2085782970258854229) (X @coldcardwallet, operator-supplied) -> registered as coldcardwallet-2085782970258854229 (20260809T015256Z)
+- 2026-08-09 [@simondixontwitt post (text available during approved intake)](https://x.com/simondixontwitt/status/2085783291290890717) (X @simondixontwitt, operator-supplied) -> registered as simondixontwitt-2085783291290890717 (20260809T015256Z)
+- 2026-08-09 [@coinspect post (text available during approved intake)](https://x.com/coinspect/status/2085717059329990946) (X @coinspect, operator-supplied) -> registered as coinspect-2085717059329990946 (20260809T015256Z)
+- 2026-08-09 [@unchained post (text available during approved intake)](https://x.com/unchained/status/2085771806498066808) (X @unchained, operator-supplied) -> registered as unchained-2085771806498066808 (20260809T015256Z)
+- 2026-08-09 [@keithmukai post (text available during approved intake)](https://x.com/keithmukai/status/2085707272043266521) (X @keithmukai, operator-supplied) -> dismissed: explanatory Yasmarang analogy already represented by technical sources (20260809T015256Z)
+- 2026-08-09 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2085698235616596143) (X @sesi_the_man, operator-supplied) -> registered as sesi_the_man-2085698235616596143 (20260809T015256Z)
+- 2026-08-09 [@a_ferron post (text available during approved intake)](https://x.com/a_ferron/status/2085731252657696911) (X @a_ferron, operator-supplied) -> registered as a_ferron-2085731252657696911 (20260809T015256Z)
+- 2026-08-09 [@rot13maxi post (text available during approved intake)](https://x.com/rot13maxi/status/2086245656369246691) (X @rot13maxi) -> dismissed: off-topic Bitcoin Core relay-policy relay with no incident content (20260809T015256Z)
