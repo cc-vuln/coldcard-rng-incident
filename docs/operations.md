@@ -107,15 +107,22 @@ The following jobs are deliberately not active yet:
 
 Nine further units are installed and enabled under the operator's 8 Aug
 2026 full-automation directive, alongside the pre-existing `archive-poll`,
-`archive-review`, `discover-community` and `claim-sweep` timers. Human
+`discover-community` and `claim-sweep` timers. Human
 review of what they produce is retroactive — the alert stream, the journals
 and git history — not a gate. Each has a `*.{service,timer}.example` pair
 under `scripts/`, installed the same way as the capture units above.
 
+The pipeline stages are pinned to run in order within the hour (9 Aug 2026):
+poll `:23`, review `:29` (half-hourly since that day — the 30-minute poll
+creates diffs continuously and a two-hourly review left an unreviewed
+window that stalled the publish gate), commit `:37`, publish `:50`, so each
+stage consumes the previous stage's output.
+
 | Timer | Cadence | What it runs |
 |---|---:|---|
-| `record-commit` | hourly | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist. Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit`, a held writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
-| `publish-scheduled` | 3 hours | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. The skip conditions are unchanged (`.no-publish`, non-main `HEAD`, dirt outside `archive/`, unreviewed diffs, the build lock) and only a genuine publish failure fails the unit |
+| `archive-review` | 30 minutes, :29 | `agent-review.sh`: mechanical noise classification, then the review agent over a bounded batch of unreviewed diffs |
+| `record-commit` | hourly, :37 | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist, its audit being `audit-core` (no review gate — classification is a publish concern). Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit-core`, a held writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
+| `publish-scheduled` | 3 hours, :50 | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. The skip conditions are unchanged (`.no-publish`, non-main `HEAD`, dirt outside `archive/`, unreviewed diffs, the build lock) and only a genuine publish failure fails the unit |
 | `alert-sweep` | 30 minutes | `alert.py sweep`: turns the repo's state files — failure streaks, stale host proposals, failing units, publish-skip streaks — into alerts on the operator-UI stream |
 | `corroborate-gone` | 6 hours | `corroborate_gone.py`: re-resolves `dns-unresolved` streaks through public DNS-over-HTTPS resolvers and sets `gone = true` only when the streak and the independent resolvers agree, recording the transcript in `gone_note` and alerting |
 | `discover-x` | 12 hours | `discover_x_browser.py` then `agent-x-intake.sh`: home-timeline and watched-profile discovery through the capture browser, with registering-xintake assessment and driver-side first captures. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |

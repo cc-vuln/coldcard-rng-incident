@@ -315,7 +315,7 @@ poll to finish, runs the command, and always restarts both timers afterwards.
 
 `just audit` also runs the review gate (`scripts/check_reviews.py`), which
 fails while any detected difference lacks a classification in
-`revision-reviews.toml`. Between a poll and the two-hourly review timer a window
+`revision-reviews.toml`. Between a poll and the half-hourly review timer a window
 of unreviewed diffs is normal; classify by hand when the agent is wrong.
 
 ## Do not
