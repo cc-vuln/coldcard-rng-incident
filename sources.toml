@@ -13111,3 +13111,69 @@ checks, 100 or more rolls, and offline operation. Held as a dated technical
 proposal for user-supplied entropy made in response to the incident. The
 protocol design is the poster's own and is not verified here.
 """
+
+# ---- 9 Aug 2026 discovery intake: community threads ------------------------
+
+[[source]]
+id = "reddit-roll-own-crypto-library"
+title = "r/Bitcoin: proposal to implement a custom elliptic-curve library after the Coldcard exploit"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vi7boc/anyone_else_planning_on_implementing_their_own/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260812T045937Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+very_bug_like arguing that the Coldcard exploit justifies building a personal elliptic-curve geometry library rather than relying on third-party implementations, and urging others to do the same. A distinct community-reaction thread documenting the move-toward-extreme-DIY sentiment. The technical claims are the poster's own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-attacker-praise-heist"
+title = "r/coldcard: poster praising the planning and execution of the drain"
+url = "https://www.reddit.com/r/coldcard/comments/1vizpea/you_have_to_admit/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260812T045937Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Familiar_Yak9343 posting that the heist required careful planning and brilliant execution and that the attackers almost earned the stolen coins. A sentiment thread documenting one strand of community reaction to the attacker. Nothing in it is verified here.
+"""
+
+[[source]]
+id = "bitcointalk-audio-entropy-wallet"
+title = "Audio-based entropy wallet"
+url = "https://bitcointalk.org/index.php?topic=5590622.0"
+published = "2026-08-07"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T045937Z"
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590622.0"
+required_text = ["Post by:"]
+note = """
+barrysty1e proposing an audio-based entropy wallet after recent hardware-wallet entropy flaws, with discussion of microphone preprocessing, frame-selection determinism, entropy measurement and mixing independent sources. A community-driven mitigation proposal in the incident's wake. The technical claims are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "stackernews-btcpay-setup-after-hack"
+title = "How to Set Up BTCPay Server Better After the Hack?"
+url = "https://stacker.news/items/1543355"
+published = "2026-08-08"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260812T045937Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1543355) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Natalia posting a merchant-oriented BTCPay Server setup guide framed around improving security after recent hacks, comparing xpub deposit workflows, Lightning receive options and third-party plugins. Incident-contextual guidance for merchants; the setup advice and product claims are the poster's own, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

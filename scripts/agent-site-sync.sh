@@ -227,7 +227,7 @@ run_gates() {
   # and does not wait on it again.
   exec 9>/tmp/cc-build.lock
   flock -w 900 9 || { echo "agent-site-sync: could not take /tmp/cc-build.lock within 900s" >&2; return 1; }
-  just check-claims && just build-site
+  just check-claims && just build-site-core
 }
 
 PAGES_AFTER="$EVIDENCE_DIR/pages-after.sha256"

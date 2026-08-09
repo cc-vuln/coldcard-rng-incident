@@ -1965,3 +1965,13 @@
 - reddit-fidelity-custody-debate  +62 -0
 - coindesk-70m-no-device-touch  +10 -10
 - reddit-dice-rolls-saved-seedsigner  +19 -0
+
+## 20260809T052638Z
+
+- checkonchain-coldcard-psa  +2 -2
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +25 -25
+- reddit-vendor-checklist  +2 -2
+- clay-attribution  +19 -19
+- grassfedbitcoin-2085463112048873485  +1 -1
+- oomahq-2085717166884618584  +209 -34

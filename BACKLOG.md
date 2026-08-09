@@ -163,19 +163,20 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Checked 8 August 2026.
+- **MONITOR: official technical follow-up.** Checked 9 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
   detailed scope, no captured source announces a post-incident independent audit
-  of the fixed firmware, and NVD/MITRE remained unreachable from this host so
-  the CVE question could not be re-queried directly. The firmware repository
-  did move: PR #707 was closed unmerged and replaced by PR #713, which remains
-  open as of this recheck, and the libngu changes it referenced (#68 and #56)
-  were merged on 7 and 6 August 2026. No new release tag or shipped firmware
-  has appeared. Those developments are registered and requested for capture;
-  they describe a proposal, not a shipped release, audit or postmortem.
+  of the fixed firmware, and NVD/MITRE remained unreachable or inconclusive from
+  this host so the CVE question could not be re-queried directly. The firmware
+  repository did move: PR #707 was closed unmerged and replaced by PR #713,
+  which remains open as of this recheck, and the libngu changes it referenced
+  (#68 and #56) were merged on 7 and 6 August 2026. No new release tag or
+  shipped firmware has appeared. Those developments are registered and requested
+  for capture; they describe a proposal, not a shipped release, audit or
+  postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.** Checked
-  8 August 2026. Coinkite's 7 August customer-data retention post states that
+  9 August 2026. Coinkite's 7 August customer-data retention post states that
   records are being preserved for "ongoing and anticipated legal proceedings,"
   which is the first public vendor acknowledgement of legal activity, but it is
   not a filing, regulator statement, insurer decision or compensation offer.

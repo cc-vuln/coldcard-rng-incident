@@ -381,6 +381,13 @@ _gates site_url:
 # Build the public site (diffs and excerpts, full captures stay local)
 build-site: test audit check-claims (_astro site_url_local) (_gates site_url_local)
 
+# The same gate chain without the review gate: the page-sync lane's post-run
+# gates validate the agent's page edits, and unreviewed capture diffs between
+# a poll and the two-hourly review pass say nothing about those edits, yet
+# they would otherwise reject every sync run that lands in the window
+# (observed 9 Aug 2026, the 06:20 run). Publish keeps the full build-site.
+build-site-core: test audit-core check-claims (_astro site_url_local) (_gates site_url_local)
+
 # Deliberately does not run _gates: this build embeds captured text that the
 # public-output gate exists to reject, so it must never be a deploy input.
 

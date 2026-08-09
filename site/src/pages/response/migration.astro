@@ -48,7 +48,7 @@ import Disclosure from '../../components/Disclosure.astro';
     <Claim
       basis="unverified"
       scope="Whether the vendor-published hotfix binaries provide the intended entropy at runtime"
-      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of an 8 August 2026 recheck"
+      source="The source-level fix and release record were verified, but the signed images had not been independently reproduced, rebuilt or disassembled as of a 9 August 2026 recheck"
       href="/record/firmware/"
       compact
     />
@@ -234,6 +234,17 @@ import Disclosure from '../../components/Disclosure.astro';
         href="/record/sources/coldcard-firmware-pr-693/"
         compact
       />
+      On 9 August a comment in the same r/coldcard thread linked to a
+      MicroPython postmortem by Damien George and said the original guard defect
+      was that LibNgU checked whether the <code>MICROPY_HW_ENABLE_RNG</code>
+      macro was defined rather than whether it was enabled.
+      <Claim
+        basis="reported"
+        scope="The 9 August comment in the r/coldcard thread linking to Damien George's MicroPython postmortem and attributing the guard defect to a defined-rather-than-enabled macro check"
+        source="scruss, r/coldcard thread, captured 9 Aug 2026"
+        href="/record/sources/reddit-mk4-bricked-hotfix/"
+        compact
+      />
       Neither the Lopp nor the Bitcoin News post cites a device count, and the
       posters' accounts of cause are their own, not verified here. The
       vendor-side accounts are likewise their own: the poster's screen read
@@ -386,7 +397,7 @@ import Disclosure from '../../components/Disclosure.astro';
     <Claim
       basis="unverified"
       scope="Whether any exchange screens withdrawal destinations against the incident address lists, and whether the described ongoing-loss vector has occurred"
-      source="Not established by any source held in this archive as of 8 August 2026"
+      source="Not established by any source held in this archive as of 9 August 2026"
       href="/record/sources/reddit-auto-dca-drained-addresses/"
       compact
     />
