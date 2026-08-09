@@ -28,6 +28,7 @@ const markerExemptPages = new Set([
   'about.astro',
   'cite.astro',
   'corrections.astro',
+  'methods.astro',
   'record/changes/index.astro',
   'record/index.astro',
   'record/sources/[id].astro',

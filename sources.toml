@@ -2261,9 +2261,8 @@ min_chars = 1200
 # stays the human permalink the site links and a reader would check.
 capture = "http"
 fetch_url = "https://hn.algolia.com/api/v1/items/49141886"
-json_pretty = true
-required_text = ['"author": "nullc"']
-normalizers = ["hn-api-points"]
+json_thread = "hn-algolia"
+required_text = ["author: nullc"]
 note = """
 Greg Maxwell (nullc), commenting on the bitcoin++ Insider writeup, disputes the
 framing of the defect as a small build-flag change and states the mechanism
@@ -2491,9 +2490,8 @@ min_chars = 1000
 # hn-maxwell-mechanism: HN 429s this collector. See that entry.
 capture = "http"
 fetch_url = "https://hn.algolia.com/api/v1/items/49140405"
-json_pretty = true
-required_text = ['"author": "Funes-"']
-normalizers = ["hn-api-points"]
+json_thread = "hn-algolia"
+required_text = ["author: Funes-"]
 note = """
 The thread on Dettmer's commit-history writeup, and the place where the
 correction this archive already holds separately was published: Greg Maxwell's
@@ -2501,9 +2499,9 @@ comment disputing the small-flag-change framing sits inside it, registered as
 hn-maxwell-mechanism. Held for the discussion around that correction rather
 than for the article itself, which is tracked as btcpp-dettmer-commit-history.
 
-The story's point total moves, so the normalizer suppresses it and only
-substantive text changes are recorded as source-content differences. Comment
-nodes carry a null total in this view, so a new or edited comment stays loud.
+The held text recursively flattens the item tree by stable comment id, decodes
+the API's HTML and omits point totals, so a new or edited comment stays loud
+without vote changes producing revisions.
 """
 
 # ---------------------------------------------------------------- custody providers
@@ -13159,6 +13157,303 @@ note = """
 barrysty1e proposing an audio-based entropy wallet after recent hardware-wallet entropy flaws, with discussion of microphone preprocessing, frame-selection determinism, entropy measurement and mixing independent sources. A community-driven mitigation proposal in the incident's wake. The technical claims are the posters' own and are not verified here.
 """
 
+# ---- 9 Aug 2026 historical gap fill: early community and primary response --
+
+[[source]]
+id = "coindesk-third-wave-89m"
+title = "Bitcoin cold wallet attack spreads to 4,500 addresses as losses near $89 million"
+url = "https://www.coindesk.com/tech/2026/08/02/bitcoin-cold-wallet-attack-spreads-to-4-500-addresses-as-losses-near-usd89-million"
+published = "2026-08-02"
+org = "CoinDesk"
+kind = "reporting"
+tier = 2
+min_chars = 1200
+note = """
+CoinDesk's third-wave follow-up records the changing address and loss estimates
+on 2 August and distinguishes transaction patterns across waves. Held as a
+dated reporting state in the evolving funds-attribution record. The figures,
+wave groupings and causation account are the publisher's and are not verified
+by registration here.
+"""
+
+[[source]]
+id = "ledger-primary-incident-article"
+title = "The COLDCARD incident"
+url = "https://www.ledger.com/blog-coldcard-incident"
+published = "2026-08-02"
+org = "Ledger"
+kind = "vendor-response"
+tier = 2
+min_chars = 1200
+note = """
+Ledger chief technology officer Charles Guillemet's primary incident article,
+covering Ledger's account of the mechanism, entropy, certification, source
+availability and AI-assisted exploitation. Held directly rather than through
+the Reddit relay that first led to it. Ledger is a competing wallet vendor and
+the technical and comparative claims are its own.
+"""
+
+[[source]]
+id = "ledger-open-source-security-position"
+title = "Open source is not a security property"
+url = "https://www.ledger.com/blog-open-source-not-security-property"
+published = "2026-08-06"
+org = "Ledger"
+kind = "vendor-response"
+tier = 2
+min_chars = 1200
+note = """
+Charles Guillemet's follow-up position on open source and security, published
+in the incident's aftermath and promoted by Ledger's already registered social
+post. Held as the direct article behind that response. Its comparisons and
+claims about Ledger's security model are the competing vendor's own.
+"""
+
+[[source]]
+id = "ledger-incident-faq"
+title = "FAQs related to the COLDCARD incident, July 2026"
+url = "https://support.ledger.com/article/FAQs-Related-to-the-Coldcard-Incident-July-2026"
+published = "2026-08-07"
+org = "Ledger"
+kind = "vendor-response"
+tier = 2
+capture = "browser"  # Salesforce serves an empty shell to the plain HTTP extractor
+browser_text_selector = "c-display-article >>> lightning-formatted-rich-text"
+browser_include_hidden = true  # answers are present in DOM but CSS-collapsed
+required_text = ["Ledger is not affected", "True Random Number Generator"]
+min_chars = 1500
+note = """
+Ledger's official incident FAQ, linked from its stickied community-moderator
+statement. Held as a primary competing-vendor response and as the direct
+support document behind the moderator post. Security and product claims in it
+are Ledger's own and are not endorsed by registration.
+"""
+
+[[source]]
+id = "thehackernews-incident-synthesis"
+title = "COLDCARD hardware wallet flaw linked to bitcoin theft"
+url = "https://thehackernews.com/2026/08/coldcard-hardware-wallet-flaw-linked-to.html"
+published = "2026-08-01"
+org = "The Hacker News"
+kind = "reporting"
+tier = 2
+min_chars = 1200
+note = """
+A dated security-news synthesis that separately attributes Coinkite, Block and
+theft-accounting claims rather than combining them into one archive-authored
+account. Held for that source separation and its contemporaneous chronology;
+the technical and attribution claims remain those of the named publishers.
+"""
+
+[[source]]
+id = "bleepingcomputer-88m-report"
+title = "Coldcard wallet RNG flaw likely linked to $88 million bitcoin theft"
+url = "https://www.bleepingcomputer.com/news/security/coldcard-wallet-rng-flaw-likely-linked-to-88-million-bitcoin-theft/"
+published = "2026-08-02"
+org = "BleepingComputer"
+kind = "reporting"
+tier = 2
+min_chars = 1200
+note = """
+BleepingComputer's 2 August security report on the generator flaw and the
+then-current theft attribution. Held as distinct mainstream security reporting
+from the first weekend of the incident. Its total, causation and technical
+framing are attributed to the outlet and its cited sources.
+"""
+
+[[source]]
+id = "web3isgoinggreat-incident-entry"
+title = "COLDCARD hardware wallet flaw"
+url = "https://www.web3isgoinggreat.com/single/coldcard-hardware-wallet-flaw"
+org = "Web3 is Going Just Great"
+kind = "reporting"
+tier = 3
+min_chars = 600
+note = """
+A stable incident-database entry with independent framing and outbound archive
+links. Held as a compact secondary chronology and discovery aid, not as a
+substitute for the primary publications it cites. Its summary and loss figure
+are the publisher's own.
+"""
+
+[[source]]
+id = "reddit-ledger-early-risk-discussion"
+title = "r/ledgerwallet: Coldcard wallets drained due to poor entropy"
+url = "https://www.reddit.com/r/ledgerwallet/comments/1vbddgv/coldcard_wallets_drained_due_to_poor_entropy_how/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A 31 July Ledger-community thread with substantial contemporaneous discussion
+of whether the same entropy failure could affect Ledger devices and an official
+response in the thread. Held for the early cross-vendor risk discussion and the
+vendor's participation; technical and safety claims remain the posters' own.
+"""
+
+[[source]]
+id = "reddit-trezor-official-response"
+title = "r/TREZOR: official response to the Coldcard event"
+url = "https://www.reddit.com/r/TREZOR/comments/1vbjtlo/trezor_users_your_funds_are_safe_cc_related_event/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A moderator-distinguished, stickied 31 July Trezor community statement and its
+substantial public discussion. The direct Trezor article is already held, but
+this thread preserves how the response was distributed, questioned and
+received during the first day of wider attention.
+"""
+
+[[source]]
+id = "reddit-bitcoin-early-explanation"
+title = "r/Bitcoin: about the recent Coldcard attack"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vbnvzn/about_the_recent_coldcard_attack/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A substantive 31 July explanation and debate in r/Bitcoin, posted while the
+mechanism and affected scope were still being established publicly. Held to
+fill the early community-discourse gap; the explanations and advice are the
+posters' own and are not verified by inclusion.
+"""
+
+[[source]]
+id = "reddit-ledger-official-incident-statement"
+title = "r/ledgerwallet: the Coldcard incident and Ledger seed generation"
+url = "https://www.reddit.com/r/ledgerwallet/comments/1vi0ut3/the_coldcard_incident_how_ledger_wallet_seed/"
+org = "reddit"
+kind = "vendor-response"
+tier = 2
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A stickied 7 August statement by an official Ledger community moderator about
+the COLDCARD incident, Ledger's seed-generation claims and the company's linked
+FAQ. Held as a direct competing-vendor response and for the public questions
+and replies around it; its security claims are Ledger's own.
+"""
+
+[[source]]
+id = "reddit-ledger-source-availability-debate"
+title = "r/ledgerwallet: source availability and vendor trust after Coldcard"
+url = "https://www.reddit.com/r/ledgerwallet/comments/1vc81y1/3_years_ago_ledger_was_deemed_the_worst_wallet/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A large 1 August discussion comparing Ledger and COLDCARD through source-code
+availability, secure-element design and vendor trust. Held as a high-engagement
+record of how the incident changed cross-vendor arguments; the comparisons and
+recommendations are the posters' own.
+"""
+
+[[source]]
+id = "reddit-cryptocurrency-incident-explanation"
+title = "r/CryptoCurrency: what people misunderstood about the Coldcard incident"
+url = "https://www.reddit.com/r/CryptoCurrency/comments/1vd4f2e/it_seems_people_did_not_understand_what_happened/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260816T000000Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+A broader cryptocurrency-community explanation of the entropy failure and its
+implications, adding reception outside the bitcoin and wallet-specific forums
+already sampled. The technical framing and any advice are attributed community
+material and are not verified by registration.
+"""
+
+[[x_post]]
+id = "btcconsortium-incident-announcement"
+title = "Bitcoin Security Consortium incident announcement"
+url = "https://x.com/BTCconsortium/status/2084643715922960416"
+author = "BTCconsortium"
+org = "Bitcoin Security Consortium"
+why = """
+The Bitcoin Security Consortium's 4 August announcement connecting member
+company Block, Project Loupe and the COLDCARD incident. Held as the missing
+primary institutional source for a relationship previously represented only
+through secondary references. The consortium's description is its own.
+"""
+
+[[x_post]]
+id = "anchorwatch-incident-safe-harbor"
+title = "AnchorWatch safe-harbor offer to affected owners"
+url = "https://x.com/AnchorWatch/status/2083900673398047022"
+author = "AnchorWatch"
+org = "AnchorWatch"
+why = """
+AnchorWatch's 2 August organizational response offering affected owners a
+temporary multi-institution custody arrangement. Held as a concrete industry
+response to the incident. The terms, suitability and safety claims are the
+publisher's and inclusion is not a recommendation.
+"""
+
+[[x_post]]
+id = "blockunmasked-three-wave-update"
+title = "Blockchain Unmasked three-wave trace update"
+url = "https://x.com/BlockUnmasked/status/2084624650097590458"
+author = "BlockUnmasked"
+org = "Blockchain Unmasked"
+why = """
+Blockchain Unmasked's 4 August investigator update describing three waves and
+an aggregate above $100 million. Held as a dated primary update in that
+investigator's changing attribution record. The grouping, total and causation
+claims are the publisher's and remain separate from other monitors' figures.
+"""
+
+[[x_post]]
+id = "deconflict-victim-reporting-advice"
+title = "Law-enforcement reporting advice for alleged victims"
+url = "https://x.com/deconflict_/status/2083932479904244120"
+author = "deconflict_"
+why = """
+A dated incident-response post directing alleged victims toward law-enforcement
+reporting. Held as public response discourse rather than guidance authored by
+this archive. The advice, characterization of victims and implied process are
+the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "futurebit-responder-funds-saved-claim"
+title = "FutureBit claim about funds saved by incident responders"
+url = "https://x.com/FutureBit/status/2084656750951535101"
+author = "FutureBit"
+org = "FutureBit"
+why = """
+FutureBit's 4 August claim about funds saved by people responding to the
+incident. Held as a dated industry-response claim with a distinct outcome
+figure. The amount, attribution and counterfactual are the publisher's own and
+are not treated as verified by this record.
+"""
+
+[[x_post]]
+id = "jstefanop1-industry-response-critique"
+title = "Industry incident-response process critique"
+url = "https://x.com/JStefanop1/status/2085792631418704140"
+author = "JStefanop1"
+why = """
+A public critique of how the bitcoin hardware and custody industry responded
+to the COLDCARD incident. Held as a distinct process-focused reaction from a
+known industry participant rather than for any new technical finding. The
+assessment is the poster's own.
+"""
+
 [[source]]
 id = "stackernews-btcpay-setup-after-hack"
 title = "How to Set Up BTCPay Server Better After the Hack?"
@@ -13176,4 +13471,554 @@ json_pretty = true
 required_text = ['"title"']
 note = """
 Natalia posting a merchant-oriented BTCPay Server setup guide framed around improving security after recent hacks, comparing xpub deposit workflows, Lightning receive options and third-party plugins. Incident-contextual guidance for merchants; the setup advice and product claims are the poster's own, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[x_post]]
+id = "bitkey-block-findings-pointer"
+title = "Bitkey pointer to Block findings"
+url = "https://x.com/Bitkey/status/2083011704225448269"
+author = "Bitkey"
+org = "Block"
+posted = "2026-07-31T02:07:45Z"
+why = """
+Bitkey, Block's self-custody wallet, tells Coldcard users to review findings from Block Engineering and Security teams to assess whether they may be affected. Held as an organizational statement from a primary party during the incident response period.
+"""
+
+[[x_post]]
+id = "claygarrett-bitkey-verify-wallet"
+title = "Bitkey wallet verification guidance"
+url = "https://x.com/clay_garrett/status/2083001740324966807"
+author = "clay_garrett"
+org = "Block"
+posted = "2026-07-31T01:28:09Z"
+why = """
+Clay Garrett of Block opens a seven-post thread explaining how users can verify a Bitkey wallet is in proper shape before transferring funds into it, including adding backup fingerprints for extra security. Held as incident-response guidance from the Bitkey lead during the COLDCARD migration window.
+"""
+
+[[x_post]]
+id = "grok-2085542181050224762"
+title = "Why the bug survived code review"
+url = "https://x.com/grok/status/2085542181050224762"
+author = "grok"
+posted = "2026-08-07T01:42:58Z"
+why = """
+Grok's generated explanation of why the vulnerable code path remained undetected: human and AI reviews confirmed the hardware TRNG code existed but did not trace linker resolution, the definedness guard checked definition rather than value, and no end-to-end entropy tests existed. Held as a record of the chatbot's answer, not as verified analysis.
+"""
+
+[[x_post]]
+id = "tftc21-dice-user-error-clarification"
+title = "Dice-roll path user-error clarification"
+url = "https://x.com/TFTC21/status/2085095791757316539"
+author = "tftc21"
+org = "TFTC"
+posted = "2026-08-05T20:09:10Z"
+why = """
+TFTC clarifies that one reported case was user error on the dice-roll path, not the firmware RNG bug: the user pressed the same die face 99 times, producing a deterministic seed that collided with an existing wallet. The post distinguishes this case from the firmware vulnerability.
+"""
+
+[[x_post]]
+id = "coldcardwallet-historical-disclosures-reply"
+title = "Historical-disclosure reply"
+url = "https://x.com/COLDCARDwallet/status/2085051503241199944"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-05T17:13:11Z"
+tag = "vendor-response"
+why = """
+Coinkite replies that the issue being discussed was already publicly disclosed and points to the COLDCARD security disclosure history page. Held as a vendor statement about prior disclosure.
+"""
+
+[[x_post]]
+id = "coldcardwallet-repl-disclosure-reply"
+title = "REPL disclosure reply"
+url = "https://x.com/COLDCARDwallet/status/2085039725333618852"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-05T16:26:23Z"
+tag = "vendor-response"
+why = """
+Coinkite states that the issue was disclosed on the disclosure history page and is related to the REPL. Held as a vendor statement about prior disclosure.
+"""
+
+[[x_post]]
+id = "lunaticoin-decision-tree"
+title = "Coldcard seed risk decision tree"
+url = "https://x.com/lunaticoin/status/2084915928047988999"
+author = "lunaticoin"
+posted = "2026-08-05T08:14:27Z"
+why = """
+Lunaticoin advertises a decision-tree tool at coldcard.semillabitcoin.com to help owners assess whether their funds are at risk. The archive has not verified the tool or the site; it is recorded as a third-party response that appeared during the migration window.
+"""
+
+[[x_post]]
+id = "coldcardwallet-ui-bug-1-3-4q"
+title = "UI bug fixed in 1.3.4Q"
+url = "https://x.com/COLDCARDwallet/status/2084961506186113338"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-05T11:15:34Z"
+tag = "vendor-response"
+why = """
+Coinkite identifies a reported issue as a UI display bug that was fixed in COLDCARD version 1.3.4Q released on 2025-09-30, distinguishing it from the entropy vulnerability.
+"""
+
+[[x_post]]
+id = "gustavojfe-recovery-assistance"
+title = "Assisted MK3 recovery during the migration window"
+url = "https://x.com/gustavojfe/status/2084829859394490751"
+author = "gustavojfe"
+posted = "2026-08-05T02:32:27Z"
+why = """
+Gustavo of Aureo says he helped a friend move bitcoin from a COLDCARD MK3 to a new wallet, notes the friend did not use dice rolls or a passphrase, and states recovery is still possible. He says he has helped secure tens of BTC over the preceding days and remains available to assist others. Held as a first-hand assistance account from the migration window.
+"""
+
+[[x_post]]
+id = "rob1ham-red-team-operations-reflection"
+title = "Red Team acceleration and personal reflection"
+url = "https://x.com/Rob1Ham/status/2084927733725839503"
+author = "Rob1Ham"
+posted = "2026-08-05T09:01:22Z"
+why = """
+Rob Hamilton reports that the Red Team effort is accelerating, covering over 300 repositories and spending almost $40,000, and describes integrating disclosure feedback into the scanning harness. He also states he is numb over the death of the COLDCARD and has blocked out processing the harm to friends and families. Held as a dated operational update and a first-hand emotional reaction from a known participant.
+"""
+
+[[x_post]]
+id = "bitcoinnewscom-ai-code-review-missed"
+title = "AI code reviews missed critical bug"
+url = "https://x.com/BitcoinNewsCom/status/2084735084691914879"
+author = "BitcoinNewsCom"
+org = "Bitcoin News"
+posted = "2026-08-04T20:15:51Z"
+why = """
+Bitcoin News reports Coinkite's statement that the vulnerability lived at the boundary between two unrelated firmware submodules and therefore evaded human and AI-assisted code reviews for years. The post names Kimi K3, Claude Fable and Codex 5.6 as frontier models tested after the incident and relays Coinkite's recommendation that security-critical projects audit build systems and submodule boundaries. Held as media coverage of the vendor's AI-review explanation.
+"""
+
+[[x_post]]
+id = "zackvoell-frontier-models-nerfed"
+title = "Frontier AI models nerfed for Bitcoin vulnerability hunt"
+url = "https://x.com/zackvoell/status/2084724839915417669"
+author = "zackvoell"
+posted = "2026-08-04T19:35:08Z"
+why = """
+Zack Voell describes an enormous ongoing effort to find and fix vulnerabilities across hundreds of open-source Bitcoin projects and states that almost no one is using OpenAI or Anthropic models because they are nerfed. Held as a participant's framing of the post-incident red-team tooling choices. The assessment of the models is the poster's own.
+"""
+
+[[x_post]]
+id = "bitcoinnewscom-bricking-correction"
+title = "Bricking claims correction and RNG recovery patch"
+url = "https://x.com/BitcoinNewsCom/status/2084635131281612930"
+author = "BitcoinNewsCom"
+org = "Bitcoin News"
+posted = "2026-08-04T13:38:40Z"
+why = """
+Bitcoin News relays a developer correction that claims current COLDCARD firmware permanently bricks devices are incorrect. The post explains that a full power cycle should recover a device after a transient TRNG seed error because the error is volatile and nothing is written to flash, and notes a proposed patch that further hardens RNG recovery with bounded retries and seed-error detection. Held as a technical incident-response correction.
+"""
+
+[[x_post]]
+id = "mrhodl-ecdsa-not-broken"
+title = "Broken RNG does not break normal ECDSA spending"
+url = "https://x.com/MrHodl/status/2084470259357024379"
+author = "MrHodl"
+posted = "2026-08-04T02:43:32Z"
+why = """
+MrHodl amplifies Rob Hamilton's analysis that the broken RNG does not break normal ECDSA spending because RFC6979 deterministic nonces are used. Held as a technical clarification amplified during the incident. The claim is attributed to Rob Hamilton and has not been independently verified here.
+"""
+
+[[x_post]]
+id = "skwp-ai-attackers-startups"
+title = "AI attackers and enterprise security overhead"
+url = "https://x.com/skwp/status/2084360024877347166"
+author = "skwp"
+posted = "2026-08-03T19:25:30Z"
+why = """
+Yan at Swan says AI attackers are getting more sophisticated and that small teams will have a tough time keeping up. He argues there is significant overhead to building and running enterprise security in the age of LLMs, which will price out many innovative startups working with client funds. Held as an industry participant's post-incident reaction.
+"""
+
+[[x_post]]
+id = "bourbonni-mk4-dice-validation"
+title = "Mk4 dice-roll validation after the incident"
+url = "https://x.com/bourbonni/status/2084113000252748030"
+author = "bourbonni"
+posted = "2026-08-03T03:03:54Z"
+why = """
+Nico describes validating the COLDCARD Mk4 dice-rolling feature at home by generating a 24-word seed from dice rolls, explaining that he had already verified it previously but re-checked out of paranoia. Held as a first-hand account of user verification behaviour during the post-incident confidence window. The procedure and result are the poster's own.
+"""
+
+[[x_post]]
+id = "coldcardwallet-destroy-inventory-reason"
+title = "Why affected inventory was destroyed"
+url = "https://x.com/COLDCARDwallet/status/2084218493931499850"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-03T10:03:06Z"
+tag = "vendor-response"
+why = """
+Coinkite explains why it destroyed affected inventory, stating that COLDCARD's high-security system locks prevent re-upgrade until the user initializes the device. It says shipping units with affected firmware would risk users missing the upgrade, so the safest action was to destroy affected stock and ship only devices with the new fixed firmware. Held as a vendor incident-response statement.
+"""
+
+[[x_post]]
+id = "coldhodl-sales-halted-refunds"
+title = "ColdHodl halts sales and offers refunds"
+url = "https://x.com/coldhodlMk/status/2084276705351319572"
+author = "coldhodlMk"
+org = "ColdHodl"
+posted = "2026-08-03T13:54:25Z"
+why = """
+ColdHodl says it has stopped all sales and is processing full refunds for orders placed on or after the week of the disclosure. It adds that all clients were notified about the bug on the preceding Saturday and that it never sold MK3 or earlier COLDCARD devices. Held as a reseller incident-response statement; the claims have not been independently verified.
+"""
+
+[[x_post]]
+id = "ferenckovacs-dice-q-validation"
+title = "Dice-roll seed validation on COLDCARD Q"
+url = "https://x.com/ferenckovacs/status/2084032857610006761"
+author = "ferenckovacs"
+posted = "2026-08-02T21:45:27Z"
+why = """
+Ferenc Kovacs reports testing 204 dice rolls on a COLDCARD Q running the new firmware and verifying that the resulting seed matches the one produced by a companion app. He presents it as evidence that the device now behaves like a standard signer when dice entropy is used. Held as a first-hand technical validation account; the procedure and result are the poster's own.
+"""
+
+[[x_post]]
+id = "jonatack-knots-110-observation"
+title = "Knots peers no longer report subversion 110"
+url = "https://x.com/jonatack/status/2086183080176316783"
+author = "jonatack"
+posted = "2026-08-08T20:09:40Z"
+why = """
+Jon Atack notes that 16 to 20 percent of his Bitcoin Core node's peers still run Knots, but none of them advertise the 110 subversion anymore. Held as a dated network observation from the incident week. The measurement is attributed to the poster and has not been independently verified.
+"""
+
+[[x_post]]
+id = "jbrauck-unchained-response-day"
+title = "Unchained's incident-response workload"
+url = "https://x.com/jbrauck_/status/2083272580828471787"
+author = "jbrauck_"
+posted = "2026-07-31T19:24:23Z"
+why = """
+Jesse Brauck describes an intense day at Unchained helping clients respond to the COLDCARD disclosure, with product managers and leadership fielding support requests across the company. Held as a first-hand account of a custodial-services firm's internal response during the initial migration window. The claims are the poster's own.
+"""
+
+[[x_post]]
+id = "glxyresearch-attack-ongoing-600-addresses"
+title = "Galaxy Research reports attack ongoing and ~600 addresses to investigators"
+url = "https://x.com/glxyresearch/status/2083705254172864861"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-02T00:03:40Z"
+tag = "on-chain-analysis"
+why = """
+Galaxy Research warns that the COLDCARD exploit is ongoing, urges single-sig users to move funds, and says it has reported roughly 600 attacker-held addresses to federal investigators, compliance firms, and cyber investigators. It also thanks victims who shared addresses and invites further reports via direct message to @intangiblecoins. Held as an incident-response and investigation update from the response team tracking the drain.
+"""
+
+[[x_post]]
+id = "glxyresearch-block-961635-opreturn"
+title = "OP_RETURN messages in block 961,635"
+url = "https://x.com/glxyresearch/status/2086198342145724486"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-08T21:10:19Z"
+tag = "on-chain-analysis"
+why = """
+Galaxy Research posts two OP_RETURN outputs from block 961,635, one quoting a statement attributed to Mechanic and another claiming that some commentators had spent two years saying a chain split was impossible. Held as a dated on-chain artefact observation related to the incident. The message attributions and their meaning are the poster's own.
+"""
+
+[[x_post]]
+id = "glxyresearch-promotion-criteria-2300-btc"
+title = "Galaxy Research promotion criteria and 2,300 BTC ceiling"
+part_of = "glxyresearch-2085748513015488758"  # reply in that conversation, per the 9 Aug thread enablement
+url = "https://x.com/glxyresearch/status/2085748538172944787"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-07T15:22:57Z"
+tag = "on-chain-analysis"
+why = """
+Galaxy Research explains that it promotes addresses to the confirmed victim or attacker set only when it has high confidence, usually from multiple victim confirmations. It says outstanding candidates for promotion could take the total loss above 2,300 BTC if they are eventually confirmed. Held as a methodology and loss-estimate update.
+"""
+
+[[x_post]]
+id = "wowens-rbf-rescue"
+title = "Fee-mogging a COLDCARD attacker with RBF"
+url = "https://x.com/wowens/status/2084041966212591963"
+author = "wowens"
+posted = "2026-08-02T22:21:39Z"
+why = """
+Will Owens reports a first-hand rescue during the incident: after migrating most
+funds from a compromised COLDCARDwallet, he left ~0.0025 BTC as bait, then
+broadcast an RBF replacement to snatch it back when the attacker underpaid fees.
+Held as a dated victim account of an on-chain fee race.
+"""
+
+[[x_post]]
+id = "intangiblecoins-ongoing-attack-update"
+title = "Ongoing attack update and victim-address appeal"
+url = "https://x.com/intangiblecoins/status/2083756710510895255"
+author = "intangiblecoins"
+posted = "2026-08-02T03:28:08Z"
+why = """
+Alex Thorn of Galaxy Research reports the attack is ongoing, says wave 1, 2 and
+3 coins remain inert while smaller opportunistic operators are moving funds,
+gives average and median coin dormancy of 3.18 and 3.55 years, and states that
+every single-sig Coldcard address generated after the March 2021 firmware
+upgrade will eventually be drained. He also says US LLM models are hindering
+response efforts and that victim reports via DM have helped identify attacker
+addresses. Held as a reported incident-response update from the primary tracking
+team.
+"""
+
+[[x_post]]
+id = "tftc21-galaxy-third-wave-summary"
+title = "Galaxy Research third-wave accounting summary"
+url = "https://x.com/TFTC21/status/2083632877301121482"
+author = "TFTC21"
+posted = "2026-08-01T19:16:04Z"
+why = """
+TFTC amplifies Galaxy Research's 1 August update: three waves, 1,367 BTC
+(~$88.6M) drained from 4,585 addresses, a 41-minute first wave hitting 1,196
+addresses with identical 30 sat/vB fees, and Galaxy's observation that the loss
+profile matches individual self-custody. Held as evidence of how the tracking
+data was relayed by an outlet during the incident.
+"""
+
+[[x_post]]
+id = "glxyresearch-address-tip-request"
+title = "Request for suspected attacker and victim addresses"
+url = "https://x.com/glxyresearch/status/2083623559826424043"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-01T18:39:03Z"
+why = """
+Galaxy Research asks the public to reply with or direct-message suspected
+attacker and victim addresses so it can add them to the investigation. Held as
+the start of the public address-collection appeal that later produced reported
+totals.
+"""
+
+[[x_post]]
+id = "glxyresearch-drained-addresses-by-month"
+title = "Drained addresses by last-receive month"
+url = "https://x.com/glxyresearch/status/2083623552545165409"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-01T18:39:01Z"
+why = """
+Galaxy Research posts a chart showing the same drained-address population
+counted by address rather than value, with each address placed in the month it
+last received funds before being drained. Held as a distinct view of the
+temporal distribution of affected wallets.
+"""
+
+[[x_post]]
+id = "glxy-migration-advice"
+title = "Single-sig migration guidance"
+url = "https://x.com/glxyresearch/status/2083560984422064516"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-01T14:30:24Z"
+why = """
+Galaxy Research advises single-sig COLDCARD users to migrate funds to a fresh
+seed not generated by the COLDCARD, warns that remaining vulnerable addresses
+will eventually be drained, and states that multisig and collaborative custody
+setups where COLDCARD alone cannot reach threshold are safe but should still
+rotate keys. Held as a reported incident-response recommendation from the
+primary tracking team.
+"""
+
+[[x_post]]
+id = "glxy-victim-report-intake"
+title = "Victim report intake via Alex Thorn DM"
+url = "https://x.com/glxyresearch/status/2083567904180609190"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-01T14:57:53Z"
+why = """
+Galaxy Research invites additional theft reports by reply or by direct message
+to Alex Thorn, offering a private channel for victims to submit addresses or
+transaction IDs. Held as evidence of the public intake process used to build
+the investigation's victim set.
+"""
+
+[[x_post]]
+id = "intangiblecoins-attacker-data-firm"
+title = "Attacker data-firm use and recovery hope"
+url = "https://x.com/intangiblecoins/status/2083391403086721146"
+author = "intangiblecoins"
+posted = "2026-08-01T03:16:32Z"
+why = """
+Alex Thorn reports that the stolen coins remain in four second-hop addresses,
+the attacker has not resumed the onchain pattern, the attacker may have used a
+paid account at a data firm and therefore may be identifiable, and recovery
+remains possible. Held as a reported investigative update amplified by Galaxy
+Research.
+"""
+
+[[x_post]]
+id = "glxy-totality-fingerprint"
+title = "Totality of matching transactions and future attack warning"
+url = "https://x.com/glxyresearch/status/2083255552633635183"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-01T18:16:43Z"
+why = """
+Galaxy Research states that a 30-day review of Bitcoin transactions found no
+additional matches to the attack fingerprint, clarifies that the pattern
+identifies a single attacker rather than the attack itself, and repeats the
+warning to move coins out of single-signature COLDCARD addresses. Held as a
+reported forensic accounting update.
+"""
+
+[[x_post]]
+id = "glxy-loss-profile-self-custody"
+title = "Loss profile dominated by sub-1 BTC addresses in count"
+url = "https://x.com/glxyresearch/status/2083207444906299851"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-07-31T15:05:33Z"
+why = """
+Galaxy Research states that the loss profile is dominated by sub-1 BTC addresses
+in count but by 1-50 BTC addresses in value, and that this shape matches
+individual self-custody rather than institutional or exchange holdings. Held as
+a reported characterisation of the affected wallet population.
+"""
+
+[[x_post]]
+id = "glxy-attacker-consolidation-addresses"
+title = "Four consolidation addresses being monitored"
+url = "https://x.com/glxyresearch/status/2083207448903491584"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-07-31T15:05:34Z"
+why = """
+Galaxy Research lists four Bitcoin addresses it says hold the funds identified
+in this wave and states that it is monitoring them. Held as a reported
+attribution of the then-current consolidation addresses.
+"""
+
+[[x_post]]
+id = "callebtc-red-team-108-hour-update"
+title = "Bitcoin Red Team update at 108 hours"
+url = "https://x.com/callebtc/status/2086220411084103707"
+author = "callebtc"
+posted = "2026-08-08T22:38:00Z"
+why = """
+Calle reports that the Bitcoin Red Team is continuing a large-scale security
+review of the Bitcoin open-source ecosystem, with 25 Bitcoin developers working
+non-stop for 108 hours. Held as a reported progress update on the community
+red-team effort that followed the disclosure.
+"""
+
+[[x_post]]
+id = "jamesob-honeypot-intent"
+title = "High-value low-entropy honeypots"
+url = "https://x.com/jamesob/status/2085861078513180715"
+author = "jamesob"
+posted = "2026-08-07T22:50:09Z"
+why = """
+James O'Beirne says he is about to deploy high-value low-entropy honeypots.
+Held as a dated statement of intent related to the CKTRIPWIRE honeypot
+monitoring that the record already tracks. Whether the honeypots were actually
+deployed is checked against later captures.
+"""
+
+[[x_post]]
+id = "jamesob-btcpay-update-warning"
+title = "BTCPay Server update warning"
+url = "https://x.com/jamesob/status/2085760804050071668"
+author = "jamesob"
+posted = "2026-08-07T16:11:41Z"
+why = """
+James O'Beirne urges anyone running BTCPay Server to update immediately. Held
+as a distinct incident-response amplification of the BTCPay Server
+vulnerability warning that followed the COLDCARD disclosure. The underlying
+vulnerability is tracked separately in btcpayserver-2085771939008667869.
+"""
+
+# ---- 9 Aug 2026 discovery intake: bounded community-thread batch ----------
+
+[[source]]
+id = "bitcointalk-short-term-self-custody-impact"
+title = "Short-term impact of the Coldcard incident on Self-Custody"
+url = "https://bitcointalk.org/index.php?topic=5590691.0"
+published = "2026-08-08"
+org = "BitcoinTalk"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T165800Z"
+min_chars = 1500
+capture = "http"
+fetch_url = "https://bitcointalk.org/index.php?action=printpage;topic=5590691.0"
+required_text = ["Post by:"]
+note = """
+Abiky asking how the COLDCARD incident will affect the self-custodial industry,
+whether users will abandon hardware wallets for CEXs or ETFs, and how long the
+trust damage will last. Replies debate whether centralised custody is a rational
+response and whether the impact is short-lived. A BitcoinTalk community sentiment
+and response record. The views and figures are the posters' own, not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-social-media-messaging"
+title = "r/coldcard: critique of Coinkite's incident-week social media messaging"
+url = "https://www.reddit.com/r/coldcard/comments/1vjbjrr/what_is_up_with_coldcardcoinkites_messaging_on/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T165800Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+scrandlle criticizing Coinkite's social media response, naming HodlDee and
+Rodolfo Novak and alleging deflection and insensitive conduct toward victims. A
+community response record documenting sentiment around vendor communications during
+the incident. The allegations are the poster's own, not verified here.
+"""
+
+[[source]]
+id = "reddit-creator-patent-application"
+title = "r/coldcard: patent application from the bug's creator"
+url = "https://www.reddit.com/r/coldcard/comments/1viduvp/wonder_what_more_could_be_hidden/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T165800Z"
+min_chars = 1000
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 pointing to a patent application from the creator of the
+reported bug, with a small discussion. Held as a community-sourced lead to an
+independent artefact related to the incident's origin. The patent claims and
+their relevance are unverified here.
+"""
+
+[[source]]
+id = "reddit-bitcoin-not-broken-explainer"
+title = "r/Bitcoin: 'Bitcoin wasn't broken; the random key generation was' explainer"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vjf9jw/bitcoin_wasnt_broken_the_random_key_generation/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T165800Z"
+min_chars = 3000
+capture = "reddit-json"
+why = """
+kisscardano posting an analogy-driven explanation of how the COLDCARD
+vulnerability reduced the private-key search space, drawing a substantial
+discussion. A community-education thread documenting how participants explained
+the incident to a general audience. The technical claims are the poster's own,
+not verified here.
+"""
+
+[[source]]
+id = "reddit-coldcard-future-design-philosophy"
+title = "r/Bitcoin: future of ColdCard hardware and firmware design"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vjfyzv/the_future_of_coldcard_hardware_and_firmware/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260816T165800Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+PoeCollector arguing that ColdCard's design philosophy and feature set should
+survive even if Coinkite does not, and asking how existing users can keep the
+platform alive. A community response record about the incident's longer-term
+product implications. The speculation is the poster's own, not verified here.
 """

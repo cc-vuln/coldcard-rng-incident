@@ -49,6 +49,7 @@ import tomllib
 import urllib.error
 import urllib.parse
 import urllib.request
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -190,6 +191,21 @@ def extract_text(body: bytes, url: str) -> str:
 def extract_source_text(body: bytes, url: str, src: dict) -> str:
     """Extract the comparison text declared by one registered source."""
 
+    json_thread = src.get("json_thread")
+    if json_thread:
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError as exc:
+            raise SourceConfigError(
+                f"{src.get('id', '<unknown>')}: response is not valid JSON: {exc}"
+            ) from exc
+        if json_thread == "hn-algolia":
+            return flatten_hn_algolia_thread(payload)
+        raise SourceConfigError(
+            f"{src.get('id', '<unknown>')}: unknown JSON thread "
+            f"extractor {json_thread!r}"
+        )
+
     json_html_field = src.get("json_html_field")
     if json_html_field:
         try:
@@ -238,6 +254,82 @@ def extract_source_text(body: bytes, url: str, src: dict) -> str:
             sort_keys=True,
         )
     return extract_text(body, url)
+
+
+def flatten_hn_algolia_thread(payload: object) -> str:
+    """Readable, deterministic text for one HN Algolia item subtree.
+
+    The item endpoint returns a story or comment plus recursively nested
+    ``children``. Raw pretty JSON preserves the data but makes excerpts and
+    diffs read as syntax, leaves HTML entities encoded, and lets irrelevant
+    API fields dominate a change. This view retains the source identity,
+    authorship, absolute timestamps, parent relation and text of every node.
+    Children sort by numeric id so API ordering changes cannot reorder the
+    record; scores, options and other live presentation fields are omitted.
+    """
+    if not isinstance(payload, dict):
+        raise SourceConfigError("HN Algolia item is not a JSON object")
+
+    def ident(node: dict) -> str:
+        value = node.get("id")
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise SourceConfigError("HN Algolia node has no numeric id")
+        return str(value)
+
+    def readable(value: object) -> str:
+        if value is None:
+            return "[deleted]"
+        if not isinstance(value, str):
+            raise SourceConfigError("HN Algolia node text is not a string")
+        # Decode entities before the HTML parser. ``extract_text`` deliberately
+        # leaves tag-free strings alone, while HN encodes apostrophes and URL
+        # slashes even in text with no paragraph tag.
+        return extract_text(unescape(value).encode("utf-8"), "")
+
+    root_id = ident(payload)
+    root_type = str(payload.get("type") or "item")
+    lines = [
+        f"{root_type}: {root_id}",
+        "author: " + str(payload.get("author") or "[deleted]"),
+        "created_at: " + str(payload.get("created_at") or ""),
+    ]
+    parent = payload.get("parent_id")
+    if isinstance(parent, int) and not isinstance(parent, bool):
+        lines.append(f"parent: {parent}")
+    title = payload.get("title")
+    if isinstance(title, str) and title.strip():
+        lines += ["title:", readable(title)]
+    target = payload.get("url")
+    if isinstance(target, str) and target.strip():
+        lines.append("url: " + unescape(target).strip())
+    lines += ["body:", readable(payload.get("text"))]
+
+    comments: list[dict] = []
+
+    def collect(node: dict) -> None:
+        children = node.get("children", [])
+        if not isinstance(children, list):
+            raise SourceConfigError("HN Algolia node children is not a list")
+        for child in children:
+            if not isinstance(child, dict):
+                raise SourceConfigError("HN Algolia child is not an object")
+            ident(child)  # validate before sorting or recursing
+            comments.append(child)
+            collect(child)
+
+    collect(payload)
+    comments.sort(key=lambda node: int(ident(node)))
+    for comment in comments:
+        lines += [
+            "",
+            "comment: " + ident(comment),
+            "parent: " + str(comment.get("parent_id") or ""),
+            "author: " + str(comment.get("author") or "[deleted]"),
+            "created_at: " + str(comment.get("created_at") or ""),
+            "body:",
+            readable(comment.get("text")),
+        ]
+    return "\n".join(lines).rstrip()
 
 
 # Change detection hashes a source-specific canonical view.  The held text is
@@ -306,6 +398,22 @@ def _normalise_theblock_ticker_shell(text: str) -> str:
         "NEW\n<live-market-ticker-region>\n",
         text,
     )
+
+
+def _normalise_theblock_article(text: str) -> str:
+    """Keep The Block incident article, excluding live navigation and rails."""
+
+    title = (
+        "Bitcoin losses linked to Coldcard vulnerability grow to $70 million, "
+        "Galaxy Research says"
+    )
+    start = text.find(title)
+    end = text.find("\nDisclaimer:", start if start >= 0 else 0)
+    if start >= 0 and end > start:
+        return text[start:end].rstrip()
+    # A changed headline or access challenge must stay loud rather than being
+    # reduced to an empty or misleadingly stable comparison.
+    return text
 
 
 def _normalise_rolling_last_update(text: str) -> str:
@@ -504,6 +612,20 @@ def _normalise_coindesk_article(text: str) -> str:
     return text
 
 
+def _normalise_bleepingcomputer_article(text: str) -> str:
+    """Keep the BleepingComputer incident article, excluding site rails."""
+
+    title = "COLDCARD wallet RNG flaw likely linked to $88 million Bitcoin theft"
+    end = text.find("\nRelated Articles:\n")
+    # The rotating Latest rail sometimes repeats this article's title before
+    # the real breadcrumb/headline pair. The last occurrence before the
+    # stable Related Articles boundary is the article heading.
+    start = text.rfind(title, 0, end if end >= 0 else len(text))
+    if start >= 0 and end > start:
+        return text[start:end].rstrip()
+    return text
+
+
 def _normalise_chaincatcher_article(text: str) -> str:
     """Compare ChainCatcher's Nunchuk article rather than live page chrome."""
 
@@ -539,6 +661,7 @@ NORMALISERS = {
     "tftc-related": _normalise_tftc_related,
     "theblock-tickers": _normalise_theblock_tickers,
     "theblock-ticker-shell": _normalise_theblock_ticker_shell,
+    "theblock-article": _normalise_theblock_article,
     "rolling-last-update": _normalise_rolling_last_update,
     "reddit-achievement-badges": _normalise_reddit_achievement_badges,
     "reddit-chrome": _normalise_reddit_chrome,
@@ -553,6 +676,7 @@ NORMALISERS = {
     "newsbtc-article": _normalise_newsbtc_article,
     "substack-engagement": _normalise_substack_engagement,
     "coindesk-article": _normalise_coindesk_article,
+    "bleepingcomputer-article": _normalise_bleepingcomputer_article,
     "chaincatcher-article": _normalise_chaincatcher_article,
 }
 
@@ -566,6 +690,9 @@ NORMALISERS = {
 # recompute old change hashes with filters that did not exist at capture time.
 SOURCE_NORMALISERS: dict[str, list[str]] = {
     "coindesk-25-minute-sweep": ["coindesk-article"],
+    "coindesk-third-wave-89m": ["coindesk-article"],
+    "bleepingcomputer-88m-report": ["bleepingcomputer-article"],
+    "theblock-galaxy-total": ["theblock-article"],
     "chaincatcher-nunchuk-response": ["chaincatcher-article"],
     "coldcard-hack-tracker": ["tracker-footer-live-state"],
     "cryptonews-build-error-38m": ["cryptonews-chrome"],
@@ -744,9 +871,20 @@ def validate_sources(cfg: dict) -> None:
                     raise SourceConfigError(
                         f"source {sid!r}: json_pretty must be a boolean"
                     )
-                if json_html_field is not None and json_pretty:
+                json_thread = item.get("json_thread")
+                if json_thread is not None and json_thread != "hn-algolia":
                     raise SourceConfigError(
-                        f"source {sid!r}: choose json_html_field or json_pretty, not both"
+                        f"source {sid!r}: json_thread must be 'hn-algolia'"
+                    )
+                extractors = sum((
+                    json_html_field is not None,
+                    json_pretty,
+                    json_thread is not None,
+                ))
+                if extractors > 1:
+                    raise SourceConfigError(
+                        f"source {sid!r}: choose one of json_html_field, "
+                        "json_pretty or json_thread"
                     )
                 json_text_fields = item.get("json_text_fields", [])
                 if not isinstance(json_text_fields, list) or any(
@@ -762,7 +900,8 @@ def validate_sources(cfg: dict) -> None:
                         f"source {sid!r}: json_text_fields requires json_html_field"
                     )
                 if method != "http" and (
-                    json_html_field is not None or json_pretty or json_text_fields
+                    json_html_field is not None or json_pretty
+                    or json_thread is not None or json_text_fields
                 ):
                     raise SourceConfigError(
                         f"source {sid!r}: JSON extraction is supported only for http capture"
@@ -782,6 +921,38 @@ def validate_sources(cfg: dict) -> None:
                     raise SourceConfigError(
                         f"source {sid!r}: required_text must contain "
                         "non-empty strings"
+                    )
+                browser_text_selector = item.get("browser_text_selector")
+                if browser_text_selector is not None and (
+                    not isinstance(browser_text_selector, str)
+                    or not browser_text_selector.strip()
+                    or any(
+                        not part.strip()
+                        for part in browser_text_selector.split(">>>")
+                    )
+                ):
+                    raise SourceConfigError(
+                        f"source {sid!r}: browser_text_selector must be a "
+                        "non-empty CSS selector path"
+                    )
+                browser_include_hidden = item.get(
+                    "browser_include_hidden", False
+                )
+                if type(browser_include_hidden) is not bool:
+                    raise SourceConfigError(
+                        f"source {sid!r}: browser_include_hidden must be a boolean"
+                    )
+                if method != "browser" and (
+                    browser_text_selector is not None or browser_include_hidden
+                ):
+                    raise SourceConfigError(
+                        f"source {sid!r}: browser text selection is supported "
+                        "only for browser capture"
+                    )
+                if browser_include_hidden and browser_text_selector is None:
+                    raise SourceConfigError(
+                        f"source {sid!r}: browser_include_hidden requires "
+                        "browser_text_selector"
                     )
 
             if section == "x_post":
@@ -1233,7 +1404,9 @@ def fetch_browser(
     scroll: bool,
     pdf_path: Path | None = None,
     required_text: tuple[str, ...] = (),
-) -> tuple[str, int]:
+    text_selector: str | None = None,
+    include_hidden: bool = False,
+) -> tuple[str, int, dict]:
     """Render url in the owner's browser. Returns (visible text, pdf bytes).
 
     The PDF, when asked for, is saved while the tab is still open: closing
@@ -1258,13 +1431,38 @@ def fetch_browser(
             raise BrowserUnavailable(
                 f"tab shows {shown or 'nothing'}, not {wanted}: target crashed?"
             )
+        selector_json = json.dumps(text_selector) if text_selector else "null"
+        # HTML serialization is deliberate for hidden content. Salesforce's
+        # synthetic shadow DOM, for example, keeps accordion answers in a
+        # nested shadow root while exposing neither child nodes nor
+        # textContent on the host. The normal stdlib HTML extractor then
+        # produces the same kind of readable text as an HTTP capture.
+        hidden_read = (
+            "(m.shadowRoot ? m.shadowRoot.innerHTML : m.outerHTML)"
+            if include_hidden else "m.innerText"
+        )
+        read_text_js = (
+            "(() => {"
+            f" const path = {selector_json};"
+            " let m = null;"
+            " if (path) {"
+            "   let root = document;"
+            "   for (const part of path.split('>>>').map(s => s.trim())) {"
+            "     m = root.querySelector(part);"
+            "     if (!m) return '';"
+            "     root = m.shadowRoot || m;"
+            "   }"
+            " } else { m = document.querySelector('main') || document.body; }"
+            f" return {hidden_read};"
+            "})()"
+        )
         deadline = time.monotonic() + BROWSER_READY_TIMEOUT
         text = ""
         while True:
-            data = wb_cmd("evaluate", {"code":
-                "(() => { const m = document.querySelector('main') || document.body;"
-                " return m.innerText; })()"})
-            text = data.get("value", "")
+            data = wb_cmd("evaluate", {"code": read_text_js})
+            text = data.get("value", "") or ""
+            if include_hidden and text:
+                text = extract_text(text.encode("utf-8"), url)
             if not required_text or all(marker in text for marker in required_text):
                 break
             if time.monotonic() >= deadline:
@@ -1275,10 +1473,10 @@ def fetch_browser(
                 wb_cmd("evaluate", {"code":
                     "window.scrollTo(0, document.body.scrollHeight); 'scrolled'"})
                 time.sleep(2)
-            data = wb_cmd("evaluate", {"code":
-                "(() => { const m = document.querySelector('main') || document.body;"
-                " return m.innerText; })()"})
-            text = data.get("value", "")
+            data = wb_cmd("evaluate", {"code": read_text_js})
+            text = data.get("value", "") or ""
+            if include_hidden and text:
+                text = extract_text(text.encode("utf-8"), url)
         pdf_bytes = 0
         if pdf_path is not None:
             wb_cmd("save_as_pdf", {"paper_format": "a4", "print_background": True,
@@ -1709,6 +1907,8 @@ def capture_one(src: dict, dry: bool = False) -> dict:
                     bool(src.get("browser_scroll")),
                     None if dry else tmp_pdf,
                     tuple(src.get("required_text", [])),
+                    src.get("browser_text_selector"),
+                    bool(src.get("browser_include_hidden")),
                 )
                 text = normalize_browser_text(text)
             elif method == "reddit-json":

@@ -6,6 +6,9 @@ import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import ModelExplorer from '../../components/ModelExplorer.astro';
 import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.astro';
+import { BITFIG, BUTTON_VARIANTS, SYSTICK_STATES } from '../../lib/entropy-models';
+
+const systickStates = SYSTICK_STATES.toLocaleString('en-GB');
 ---
 
 <Article
@@ -26,7 +29,7 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
       Nobody has measured how much entropy an affected COLDCARD seed actually
       had. What exists are published models of how many candidate seeds an
       attacker would have to enumerate, and they run from a single candidate to
-      roughly <code>2^88</code> depending on what that attacker is assumed to
+      roughly <code set:text={BITFIG.otaliptusWorkingHigh} /> depending on what that attacker is assumed to
       already know about the device. The narrow figures assume the chip's unique
       ID, the call history and the relevant timing state are known or tightly
       constrained; the broad ones are enumeration ceilings that treat correlated
@@ -74,51 +77,51 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
         <tbody>
           <tr>
             <td class="nw"><strong><a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block</a></strong></td>
-            <td class="nw"><code>2^0</code> with timers known;<br /><code>~2^16.3</code> with stable RTC;<br /><code>2^32</code> ceiling with the UID-XOR-SysTick word unknown;<br /><code>&lt;2^40.7</code> loose ceiling</td>
-            <td class="nw"><code>&le;2^32</code> with known fallback state;<br /><code>&lt;2^73.3</code> loose ceiling</td>
-            <td class="wide">For Mk4-class devices, these figures assume a successful reseed. Block's narrow cases assume the UID, call history and relevant timing state are known or constrained. The <code>2^32</code> Mk2/Mk3 figure is the ceiling Block gives when the effective 32-bit UID-XOR-SysTick value is entirely unknown; Block adds that unknown call history multiplies these counts further. Its broader figures deliberately treat correlated timer fields independently.</td>
+            <td class="nw"><code set:text={BITFIG.knownState} /> with timers known;<br /><code set:text={`~${BITFIG.mk23SysTick}`} /> with stable RTC;<br /><code set:text={BITFIG.mk4Reseed} /> ceiling with the UID-XOR-SysTick word unknown;<br /><code set:text={`<${BITFIG.mk23LooseCeiling}`} /> loose ceiling</td>
+            <td class="nw"><code set:text={`≤${BITFIG.mk4Reseed}`} /> with known fallback state;<br /><code set:text={`<${BITFIG.mk4LooseCeiling}`} /> loose ceiling</td>
+            <td class="wide">For Mk4-class devices, these figures assume a successful reseed. Block's narrow cases assume the UID, call history and relevant timing state are known or constrained. The <code set:text={BITFIG.mk4Reseed} /> Mk2/Mk3 figure is the ceiling Block gives when the effective 32-bit UID-XOR-SysTick value is entirely unknown; Block adds that unknown call history multiplies these counts further. Its broader figures deliberately treat correlated timer fields independently.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware" rel="noopener nofollow">Block, conditional no-reseed path</a></strong></td>
             <td class="nw">not applicable</td>
-            <td class="nw"><code>2^0</code> with fallback state known;<br /><code>&lt;2^41.3</code> loose ceiling</td>
+            <td class="nw"><code set:text={BITFIG.knownState} /> with fallback state known;<br /><code set:text={`<${BITFIG.noReseedLooseCeiling}`} /> loose ceiling</td>
             <td class="wide">A catchable early-initialisation error could leave libngu at its public initial state. Block says ordinary secure-element failures appear to halt instead, so this source path remains conditional pending hardware validation.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://blog.coinkite.com/entropy-technical-backgrounder/" rel="noopener nofollow">Coinkite</a></strong></td>
-            <td class="nw">Mk3: <code>~2^40</code><br />Mk2: not separately stated</td>
-            <td class="nw"><code>~2^72</code></td>
+            <td class="nw">Mk3: <code set:text={`~${BITFIG.coinkiteMk3}`} /><br />Mk2: not separately stated</td>
+            <td class="nw"><code set:text={`~${BITFIG.coinkiteMk4}`} /></td>
             <td class="wide">Upper scenarios that retain uncertainty from the MCU identifier and timing inputs. These are estimates, not measurements across a device population.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN</a></strong></td>
-            <td class="nw">Mk3: <code>~2^40.3</code><br />Mk2: not separately stated</td>
-            <td class="nw"><code>~2^72.3</code></td>
-            <td class="wide">A stated Mk3 model of about <code>2^20</code> possible MCU identifiers, <code>80,000</code> timing states and 16 button-press variants, plus the 32-bit reseed term on Mk4-class devices. The source does not decompose the 16 variants further.</td>
+            <td class="nw">Mk3: <code set:text={`~${BITFIG.llfournMk3}`} /><br />Mk2: not separately stated</td>
+            <td class="nw"><code set:text={`~${BITFIG.llfournMk4}`} /></td>
+            <td class="wide">A stated Mk3 model of about <code set:text={BITFIG.llfournUid} /> possible MCU identifiers, <code set:text={systickStates} /> timing states and {BUTTON_VARIANTS} button-press variants, plus the 32-bit reseed term on Mk4-class devices. The source does not decompose the {BUTTON_VARIANTS} variants further.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2083296357662765399" rel="noopener nofollow">LLFOURN follow-up</a></strong></td>
             <td class="nw">not separately quantified</td>
-            <td class="nw"><code>~2^58.3</code> to <code>~2^62.3</code></td>
-            <td class="wide">LLFOURN later said the Mk4-class space was probably around 10 to 14 bits smaller than the original <code>2^72.3</code> estimate, and that it could be smaller still depending on the clock behaviour. The subtraction shown here is derived from that statement, and its lower end is not a floor the source claims.</td>
+            <td class="nw"><code set:text={`~${BITFIG.llfournFollowupLow}`} /> to <code set:text={`~${BITFIG.llfournFollowupHigh}`} /></td>
+            <td class="wide">LLFOURN later said the Mk4-class space was probably around 10 to 14 bits smaller than the original <code set:text={BITFIG.llfournMk4} /> estimate, and that it could be smaller still depending on the clock behaviour. The subtraction shown here is derived from that statement, and its lower end is not a floor the source claims.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/LLFOURN/status/2083312169316499663" rel="noopener nofollow">LLFOURN, known-UID scenario</a></strong></td>
             <td class="nw">not stated</td>
-            <td class="nw"><code>2^32</code></td>
+            <td class="nw"><code set:text={BITFIG.mk4Reseed} /></td>
             <td class="wide">In a later reply, LLFOURN said a pessimistic view in which the UID is known and button presses and clock behaviour are more predictable leaves 32 bits of work per Mk4 theft. This converges on Block's lower scenario through an explicit attacker-knowledge assumption.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="https://x.com/otaliptus/status/2083365327740543404" rel="noopener nofollow">otaliptus, tentative model</a></strong></td>
             <td class="nw">not stated</td>
-            <td class="nw"><code>~2^52</code> to <code>~2^63</code> if RTC is problematic; <code>~2^77</code> to <code>~2^88</code> otherwise, or <code>~2^75</code> on the author's most pessimistic aside</td>
+            <td class="nw"><code set:text={`~${BITFIG.otaliptusProblematicLow}`} /> to <code set:text={`~${BITFIG.otaliptusProblematicHigh}`} /> if RTC is problematic; <code set:text={`~${BITFIG.otaliptusWorkingLow}`} /> to <code set:text={`~${BITFIG.otaliptusWorkingHigh}`} /> otherwise, or <code set:text={`~${BITFIG.otaliptusPessimisticAside}`} /> on the author's most pessimistic aside</td>
             <td class="wide">Assumes a remote attacker does not know the UID, estimates 20 to 21 bits from the wafer-coordinate word, narrows practical SysTick positions, and treats the Mk4 RTC contribution as unresolved. The author explicitly labels the post brainstorming and lists details that may be wrong.</td>
           </tr>
           <tr>
             <td class="nw"><strong><a href="/record/sources/reddit-mk3-seed-entropy-worse/">ineedanamegenerator, 7 August</a></strong></td>
-            <td class="nw">Mk3 seeding word: <code>~2^23</code></td>
+            <td class="nw">Mk3 seeding word: <code set:text={`~${BITFIG.communityMk3Word}`} /></td>
             <td class="nw">not stated</td>
-            <td class="wide">A bound on one term rather than a full candidate space: it narrows the same 32-bit UID-XOR-SysTick word Block bounds at <code>2^32</code>. The argument is that SysTick's roughly 16.3 bits sit in the low 17 bits, so the UID's low half adds nothing under the XOR, and that the upper wafer-coordinate half carries about 7.2 bits given a stated ceiling of 20,000 chips per wafer. The wafer ceiling is the author's own assumption, and the post corrects itself mid-way to withdraw an earlier BCD-encoding argument.</td>
+            <td class="wide">A bound on one term rather than a full candidate space: it narrows the same 32-bit UID-XOR-SysTick word Block bounds at <code set:text={BITFIG.mk4Reseed} />. The argument is that SysTick's roughly 16.3 bits sit in the low 17 bits, so the UID's low half adds nothing under the XOR, and that the upper wafer-coordinate half carries about 7.2 bits given a stated ceiling of 20,000 chips per wafer. The wafer ceiling is the author's own assumption, and the post corrects itself mid-way to withdraw an earlier BCD-encoding argument.</td>
           </tr>
         </tbody>
       </table>
@@ -146,7 +149,7 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
       Whether the first word's field layout narrows the practical range across
       shipped COLDCARD devices is unresolved in this record. This project holds
       no population sample of device UIDs as of a 9 August 2026 recheck, so
-      <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code>2^20</code> assumption</a>
+      <a href="https://x.com/LLFOURN/status/2082990000896147942" rel="noopener nofollow">LLFOURN's <code set:text={BITFIG.llfournUid} /> assumption</a>
       remains unchecked here.<Claim
         basis="unverified"
         scope="The practical distribution of the 32-bit UID word across shipped COLDCARD devices"
@@ -174,7 +177,7 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
       <a href="/record/sources/reddit-mk3-seed-entropy-worse/">ineedanamegenerator put the whole Mk3 seeding word at about 23 bits</a>
       rather than 32, by the reasoning set out in the table above. That is one
       poster's derivation from a stated wafer-size assumption, not a measurement,
-      and it is narrower than the <code>2^32</code> ceiling Block gives for the
+      and it is narrower than the <code set:text={BITFIG.mk4Reseed} /> ceiling Block gives for the
       same word.<Claim
         basis="reported"
         contested
@@ -237,11 +240,11 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
           </tr>
         </thead>
         <tbody>
-          <tr><td class="wide">Mk2/Mk3, Block stable-RTC scenario</td><td class="nw"><code>2^16.3</code></td><td class="nw">10 seconds</td><td class="nw">0.02 seconds</td><td class="nw">0.003 seconds</td><td class="nw">0.00004 seconds</td></tr>
-          <tr><td class="wide">Mk3, approximately 40-bit scenario</td><td class="nw"><code>2^40</code></td><td class="nw">4.4 years</td><td class="nw">3.2 days</td><td class="nw">9.5 hours</td><td class="nw">9.2 minutes</td></tr>
-          <tr><td class="wide">Mk4-class, Block successful-reseed scenario with known fallback state</td><td class="nw"><code>2^32</code></td><td class="nw">6.2 days</td><td class="nw">17.9 minutes</td><td class="nw">2.2 minutes</td><td class="nw">2.1 seconds</td></tr>
-          <tr><td class="wide"><a href="https://x.com/LLFOURN/status/2083296357662765399" rel="noopener nofollow">LLFOURN follow-up range</a></td><td class="nw"><code>2^58.3</code> to <code>2^62.3</code></td><td class="nw">1.4 to 22.5 million years</td><td class="nw">2,800 to 45,000 years</td><td class="nw">351 to 5,600 years</td><td class="nw">5.6 to 90 years</td></tr>
-          <tr><td class="wide">Approximately 72-bit scenario</td><td class="nw"><code>2^72</code></td><td class="nw">18.7 billion years</td><td class="nw">37.4 million years</td><td class="nw">4.7 million years</td><td class="nw">74,800 years</td></tr>
+          <tr><td class="wide">Mk2/Mk3, Block stable-RTC scenario</td><td class="nw"><code set:text={BITFIG.mk23SysTick} /></td><td class="nw">10 seconds</td><td class="nw">0.02 seconds</td><td class="nw">0.003 seconds</td><td class="nw">0.00004 seconds</td></tr>
+          <tr><td class="wide">Mk3, approximately 40-bit scenario</td><td class="nw"><code set:text={BITFIG.coinkiteMk3} /></td><td class="nw">4.4 years</td><td class="nw">3.2 days</td><td class="nw">9.5 hours</td><td class="nw">9.2 minutes</td></tr>
+          <tr><td class="wide">Mk4-class, Block successful-reseed scenario with known fallback state</td><td class="nw"><code set:text={BITFIG.mk4Reseed} /></td><td class="nw">6.2 days</td><td class="nw">17.9 minutes</td><td class="nw">2.2 minutes</td><td class="nw">2.1 seconds</td></tr>
+          <tr><td class="wide"><a href="https://x.com/LLFOURN/status/2083296357662765399" rel="noopener nofollow">LLFOURN follow-up range</a></td><td class="nw"><code set:text={BITFIG.llfournFollowupLow} /> to <code set:text={BITFIG.llfournFollowupHigh} /></td><td class="nw">1.4 to 22.5 million years</td><td class="nw">2,800 to 45,000 years</td><td class="nw">351 to 5,600 years</td><td class="nw">5.6 to 90 years</td></tr>
+          <tr><td class="wide">Approximately 72-bit scenario</td><td class="nw"><code set:text={BITFIG.coinkiteMk4} /></td><td class="nw">18.7 billion years</td><td class="nw">37.4 million years</td><td class="nw">4.7 million years</td><td class="nw">74,800 years</td></tr>
         </tbody>
       </table>
     </div>
@@ -251,7 +254,7 @@ import FigureCandidateSpace from '../../components/figures/FigureCandidateSpace.
     Published rate and cost figures sit beside that model, none of them
     reproduced here. The
     <a href="/record/sources/bitcoindevs-explainer-thread/">Bitcoin Dev Project's explainer thread</a>
-    put a <code>2^40</code> Mk3 search at 20 to 45 minutes on rented specialised
+    put a <code set:text={BITFIG.coinkiteMk3} /> Mk3 search at 20 to 45 minutes on rented specialised
     GPUs, for under a dollar of compute.<Claim
       basis="reported"
       scope="The 20-to-45-minute, under-a-dollar rented-GPU figure for a 2^40 Mk3 search"

@@ -11,7 +11,7 @@
 #
 # The decision logic lives in the script, not here. It exits 1 when a
 # precondition blocks (a red `just test` or `just audit`, .no-publish, an
-# unresolved agent-guard run, the poll holding the writer lock), and a block
+# unresolved agent-guard run, a build, or the poll holding the writer lock), and a block
 # is routine: the timer fires again in an hour and the alert stream carries
 # anything persistent. SuccessExitStatus keeps a blocked tick from reading as
 # a failed unit; exit 2 (usage) still fails, because that means the unit and

@@ -405,12 +405,13 @@ def registered_urls(canonical: Callable[[str], str | None],
 def persist_run(*, state: dict, seen: set, candidates: list[dict],
                 known: set[str], state_path: Path, candidates_path: Path,
                 save: bool = True) -> None:
-    """Commit a lane's run: candidate log, seen checkpoint, intake queue.
+    """Commit a lane's run: intake queue, candidate log, seen checkpoint.
 
-    The order matters on a crash. The JSONL log is appended first because it
-    is the lane's own raw record and a duplicate line there is harmless; the
-    seen checkpoint advances next, so a crash before it re-queues rather than
-    drops; DISCOVERY.md is reconciled last, under the intake lock.
+    The order matters on a crash. DISCOVERY.md is reconciled first, under its
+    lock, because it is the durable work queue. The JSONL log follows; a
+    duplicate line there is harmless. The seen checkpoint advances last and
+    atomically, so any earlier failure causes a replay rather than silently
+    losing a candidate.
 
     `save` is each lane's --no-state: look at the feed without spending the
     checkpoint, so the next real run still reports what it found.
@@ -418,13 +419,13 @@ def persist_run(*, state: dict, seen: set, candidates: list[dict],
     WORK.mkdir(exist_ok=True)
     if not save:
         return
+    update_intake(candidates, known)
     if candidates:
         with candidates_path.open("a", encoding="utf-8") as fh:
             for c in candidates:
                 fh.write(json.dumps(c, sort_keys=True) + "\n")
     state["seen"] = sorted(seen)[-SEEN_KEEP:]
-    state_path.write_text(json.dumps(state) + "\n", encoding="utf-8")
-    update_intake(candidates, known)
+    atomic_text(state_path, json.dumps(state) + "\n")
 
 
 def report_queued(candidates: list[dict], candidates_path: Path,

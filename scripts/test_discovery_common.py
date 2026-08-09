@@ -23,6 +23,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -311,6 +312,15 @@ class PersistRunTests(unittest.TestCase):
         self.assertFalse(self.state_path.exists())
         self.assertFalse(self.candidates_path.exists())
         self.assertEqual(dc.INTAKE.read_text(encoding="utf-8"), EXISTING)
+
+    def test_queue_failure_does_not_advance_checkpoint_or_log(self):
+        with mock.patch.object(
+            dc, "update_intake", side_effect=TimeoutError("busy")
+        ):
+            with self.assertRaisesRegex(TimeoutError, "busy"):
+                self.run_persist(save=True)
+        self.assertFalse(self.state_path.exists())
+        self.assertFalse(self.candidates_path.exists())
 
     def test_seen_set_is_trimmed_to_the_cap(self):
         state = {"seen": []}

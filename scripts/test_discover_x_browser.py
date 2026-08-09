@@ -304,12 +304,19 @@ class WatchDecisionTests(unittest.TestCase):
             dxb.normalize_post(raw_post(id="100", time="2026-07-01T10:00:00Z")),
         ]
 
-    def test_first_contact_baselines_without_queuing(self):
+    def test_first_contact_queues_history_without_repair_flag(self):
         queueable, baseline = dxb.decide_watch(
             self.posts, {}, self.watch, set(), set(),
             queue_initial=False, overflow=False)
         self.assertTrue(baseline)
-        self.assertEqual(queueable, [])
+        self.assertEqual([post["id"] for post in queueable], ["300", "200"])
+
+    def test_first_contact_reconsiders_global_seen(self):
+        queueable, baseline = dxb.decide_watch(
+            self.posts, {}, self.watch, {"300", "200"}, set(),
+            queue_initial=False, overflow=False)
+        self.assertTrue(baseline)
+        self.assertEqual([post["id"] for post in queueable], ["300", "200"])
 
     def test_queue_initial_imports_history(self):
         queueable, baseline = dxb.decide_watch(
@@ -317,6 +324,19 @@ class WatchDecisionTests(unittest.TestCase):
             queue_initial=True, overflow=False)
         self.assertTrue(baseline)
         self.assertEqual([post["id"] for post in queueable], ["300", "200"])
+
+    def test_queue_initial_reconsiders_ids_marked_seen_by_baseline(self):
+        queueable, baseline = dxb.decide_watch(
+            self.posts, {"last_success": "20260807T000000Z"}, self.watch,
+            {"300", "200"}, set(), queue_initial=True, overflow=False)
+        self.assertFalse(baseline)
+        self.assertEqual([post["id"] for post in queueable], ["300", "200"])
+
+    def test_queue_initial_still_skips_registered_ids(self):
+        queueable, _ = dxb.decide_watch(
+            self.posts, {}, self.watch, {"300", "200"}, {"300"},
+            queue_initial=True, overflow=False)
+        self.assertEqual([post["id"] for post in queueable], ["200"])
 
     def test_incremental_skips_seen_registered_and_before_since(self):
         prior = {"last_success": "20260807T000000Z", "newest_id": "200"}
@@ -400,6 +420,26 @@ class AdvanceWatchTests(unittest.TestCase):
                                   "window-exceeded", "checkpoint held")
         self.assertEqual(state["newest_id"], "200")
         self.assertNotIn("baseline_count", state)
+
+
+class CoverageRecordTests(unittest.TestCase):
+    def test_records_requested_boundary_observed_range_and_stop(self):
+        watch = discover_x.Watch(
+            handle="Researcher", why="work", since="2026-07-29"
+        )
+        posts = [
+            dxb.normalize_post(raw_post(id="300", time="2026-08-08T10:00:00Z")),
+            dxb.normalize_post(raw_post(id="200", time="2026-07-29T09:00:00Z")),
+        ]
+        record = dxb.coverage_record(
+            watch, posts, passes=7, stop_reason="since-reached", queued=2
+        )
+        self.assertEqual(record["requested_since"], "2026-07-29")
+        self.assertEqual(record["oldest_observed"], "2026-07-29")
+        self.assertEqual(record["newest_observed"], "2026-08-08")
+        self.assertEqual(record["passes"], 7)
+        self.assertEqual(record["stop_reason"], "since-reached")
+        self.assertEqual(record["queued"], 2)
 
 
 class StateFileTests(unittest.TestCase):

@@ -4,6 +4,121 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-09
+
+### Site
+
+- The historical funds-movement comparison now reads its MOVED totals and
+  still-held percentages from the exact two archive snapshots named in the
+  prose, failing the build if either labelled field cannot be read. The attack-
+  cost register now imports every repeated candidate-space label and published
+  input from `entropy-models.ts`, including the 7 August community bound,
+  instead of maintaining a second hand-typed set.
+- The public-record boundary was tightened after an editorial review. The
+  landing page and machine orientation no longer rank the incident against
+  other Bitcoin events. The technical explainer no longer publishes this
+  project's post-merge libngu derivation, and the legal page no longer selects
+  or applies Ontario consumer statutes; it remains a register of published
+  terms, statements, claimant organising, legal opinions and record-retention
+  notices. Interpretive language that appeared to decide between competing
+  disclosure accounts was made descriptive. A new `/methods/` page states the
+  collection surfaces, intake criteria, archival process, prominence model,
+  reproducibility and known coverage limits for journalists and researchers.
+  These removals are scope changes, not corrections. The durable boundary is recorded in
+  `docs/design/public-record-editorial-boundary.md`.
+- The repository's proposed STM32 device-identifier population study was
+  removed with its backlog item. It asked this project to gather new physical-
+  device evidence and publish a new finding, which is outside the public-record
+  mission. The record retains the published models and their attributed limits.
+- The human change log now shows the 240 newest reviewed differences rather
+  than rendering the complete unbounded history into one page. The complete
+  machine-readable change feed remains available alongside it.
+- The conditions explainer now reflects the held 8 August CKTRIPWIRE state:
+  two low-dice honeypots had been swept, while no passphrase-hardened case had
+  been swept. The record presents those observations without generalising from
+  the small, self-selected set.
+
+### Archive and automation
+
+- Hacker News API captures gained a deterministic readable-thread extractor,
+  preserving story and comment identity, authorship, timestamps, parentage and
+  text while ignoring volatile score and option fields. The two registered HN
+  threads were recaptured once under the new representation; both subsequent
+  dry runs were unchanged.
+- Nineteen high-signal gaps were registered and first-captured: Ledger's
+  incident article, open-source position and complete FAQ; three independent
+  reporting/chronology pages; CoinDesk's third-wave report; six early Reddit
+  discussions; and six primary X responses including the Bitcoin Security
+  Consortium, AnchorWatch and Blockchain Unmasked. Twenty-one distinct
+  Internet Archive states recover the pre-registration history of the
+  CoinDesk, Ledger, BleepingComputer and Web3 Is Going Great pages.
+- Browser capture can now select a single component, cross declared shadow-
+  root boundaries and extract CSS-hidden text. Ledger's Salesforce FAQ uses
+  this mode because its six answers exist only inside a collapsed nested
+  component; completeness markers reject the visible question-only shell. A
+  repeat dry run matched the 6,237-character first capture.
+- Article-boundary normalizers now keep the editorial text of the recovered
+  CoinDesk, BleepingComputer and The Block reports while excluding their live
+  tickers, localized share controls, rotating news rails and ads. Across the
+  held history, nine CoinDesk states and eleven BleepingComputer states each
+  reduce to one unchanged article; The Block's ten states reduce to its article
+  plus the preserved Cloudflare challenge, so access failures remain visible.
+- Internet Archive replays now pass through the same collector-geolocation
+  body scrub as direct captures before extraction, hashing or storage, and
+  record the scrub count in their sidecars. Eight newly recovered CoinDesk
+  replay files were sanitized before publication; their publisher text and
+  citable text hashes did not change.
+- X watched-profile discovery now supports bounded multi-pass history reads,
+  can deliberately reconsider legacy seen state while still excluding
+  registered posts, and never marks overflowed posts seen. A controlled
+  recovery pass covered all 35 watched profiles and queued 896 candidates
+  skipped by the old first-contact baseline; the two profiles that first hit
+  the history cap were completed in a 40-pass follow-up. Scheduled X intake
+  can drain up to eight separately
+  rendered and guarded 15-item batches per tick, while stopping immediately
+  when no queue progress is possible.
+- Site prose sync now consumes the additive review ledger through an explicit
+  offset. Packet generation cannot advance it, bounded batches advance only
+  through the last review they consumed, and failed or unconfigured runs leave
+  the cursor unchanged for retry. The uncited-source inventory remains useful
+  for research but no longer creates editorial work by itself.
+- Discovery persistence now writes the public queue before its raw log and
+  checkpoints seen state atomically only after both durable records succeed.
+  The Reddit, Stacker News and BitcoinTalk lanes can deliberately replay their
+  currently visible windows without bypassing registered/assessed deduplication.
+  Like X intake, scheduled community intake can drain eight separately
+  rendered and guarded 15-item batches per tick and stops on no progress.
+- Agent egress is now provider-only. The claim sweep no longer fetches live
+  evidence, direct agent DNS is blocked, and both the proxy and host-vetting
+  path reject non-global DNS answers and pin connections to validated public
+  addresses. The tracked source-host admission mirror is no longer live proxy
+  authority.
+- Revision reviews now implement their documented additive contract: a later
+  human entry may supersede a machine classification for the same diff, and
+  readers consistently use the latest entry. Machine classifier names are
+  validated.
+- The build-time archive data layer now parses the append-only poll log once
+  and caches immutable snapshot, revision and social-capture projections for
+  the duration of the serialized build. The record register and JSON source
+  feed also group revisions once instead of rescanning the complete review set
+  for every source, removing quadratic work as the archive grows. On the same
+  host, a 993-page build fell from roughly five minutes to under 20 seconds.
+- Publication now fails before upload unless the built `/version.json`,
+  current `HEAD` and tracked tree identify the same clean commit. The hourly
+  committer shares the build lock, scheduled publication refuses uncommitted
+  archive churn as well as editorial dirt, and its pre-build generated-index
+  commit is included in the state stamp. This closes both commit/build races
+  observed by the first unattended deploy.
+- X conversation records are now explicit in the machine-readable source
+  register: each X item declares whether it is a single post, conversation
+  head or member, and captured conversations expose copy, post, reply and gap
+  counts. `/llms.txt` reports the conversation total, completing the existing
+  capture, per-status withholding and bounded thread-reader path.
+- The source-register JSON now publishes corpus coverage denominators and
+  stable breakdowns by kind, organisation, current poll state, capture-count
+  band and publication/capture date range, giving research users a citable
+  inventory without deriving its denominator from presentation cards.
+
 ## 2026-08-08
 
 ### Site

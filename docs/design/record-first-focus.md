@@ -1,9 +1,10 @@
 # Design: record-first focus
 
-**Status:** implemented 5 August 2026. A post-implementation review the same
-day verified the gates and the retired-route redirects. Its residual items were
-fixed the same day and remain recorded under "Post-implementation review"
-below as completion history.
+**Status:** implemented 5 August 2026 and refined by
+[`public-record-editorial-boundary.md`](public-record-editorial-boundary.md) on
+9 August. A post-implementation review the same day verified the gates and the
+retired-route redirects. Its residual items were fixed the same day and remain
+recorded under "Post-implementation review" below as completion history.
 
 ## Decision
 
@@ -11,12 +12,11 @@ The site is the public record of the July 2026 COLDCARD predictable-RNG
 incident: it preserves what each party published and how it changed, organises
 the material, and explains it without adjudicating between the people involved.
 
-The record has a historical purpose as well as an immediate one. The scale
-already documented supports the provisional editorial assessment that this is
-likely to rank among the most consequential incidents in Bitcoin's history,
-without presenting that assessment as a settled comparative ranking. The
-archive is intended to preserve the contemporaneous public record for
-posterity, including material later edited or removed.
+The record has a historical purpose as well as an immediate one. It is intended
+to preserve the contemporaneous public record for posterity, including
+material later edited or removed. The 9 August refinement removes comparative
+significance rankings authored by this project; published estimates remain
+attributed to their publishers.
 
 The record also preserves the evolution of public interpretation. Explanations,
 opinions and speculation are organised in time, including rapid changes and

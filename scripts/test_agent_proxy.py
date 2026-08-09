@@ -18,6 +18,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -70,6 +71,17 @@ class AllowlistTests(unittest.TestCase):
             with self.subTest(host=host):
                 self.assertFalse(self.allowed(host))
 
+    def test_public_connector_rejects_any_private_dns_answer(self):
+        public = (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "",
+                  ("93.184.216.34", 443))
+        private = (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "",
+                   ("127.0.0.1", 443))
+        with mock.patch.object(
+            agent_proxy.socket, "getaddrinfo", return_value=[public, private]
+        ):
+            with self.assertRaisesRegex(OSError, "non-global"):
+                agent_proxy.connect_public(("allowed.example", 443), 1)
+
     def test_the_live_policy_files_load_and_cover_the_record(self):
         """The tracked policy covers what the registry may name, and no more.
 
@@ -95,15 +107,14 @@ class AllowlistTests(unittest.TestCase):
         happen to allow a provider, and the local file must actually widen it.
         Asserted by counting, so the provider is never named here.
         """
-        tracked, tracked_suffixes = agent_proxy.load_allowlist(
-            (agent_proxy.REGISTRY_HOSTS, agent_proxy.EGRESS_HOSTS))
-        full, full_suffixes = agent_proxy.load_allowlist(
-            (agent_proxy.REGISTRY_HOSTS, agent_proxy.EGRESS_HOSTS,
-             agent_proxy.LOCAL_HOSTS))
         if not agent_proxy.LOCAL_HOSTS.exists():
             self.skipTest("no local provider list on this machine")
-        self.assertGreater(len(full) + len(full_suffixes),
-                           len(tracked) + len(tracked_suffixes))
+        provider, provider_suffixes = agent_proxy.load_allowlist(
+            (agent_proxy.LOCAL_HOSTS,))
+        self.assertGreater(len(provider) + len(provider_suffixes), 0)
+        self.assertFalse(agent_proxy.is_allowed(
+            "stacker.news", provider, provider_suffixes
+        ))
 
     def test_a_missing_local_list_is_survivable(self):
         """An absent file must not crash the proxy, only narrow it."""
@@ -139,6 +150,8 @@ class ProxyProtocolTests(unittest.TestCase):
         cls.tmp = Path(tempfile.mkdtemp())
         policy = cls.tmp / "policy.toml"
         policy.write_text('[hosts]\nlocal = ["localhost"]\n')
+        cls.original_connector = agent_proxy.Proxy.connector
+        agent_proxy.Proxy.connector = staticmethod(socket.create_connection)
         cls.server, _ = agent_proxy.start_for_test(paths=(policy,))
         cls.proxy_port = cls.server.server_address[1]
 
@@ -157,6 +170,7 @@ class ProxyProtocolTests(unittest.TestCase):
         cls.server.shutdown()
         cls.server.server_close()
         cls.sink.close()
+        agent_proxy.Proxy.connector = staticmethod(cls.original_connector)
 
     def connect(self, target: str) -> tuple[int, str]:
         conn = http.client.HTTPConnection("127.0.0.1", self.proxy_port, timeout=10)
@@ -189,7 +203,7 @@ class ProxyProtocolTests(unittest.TestCase):
     def test_a_denied_host_is_refused_with_a_reason(self):
         status, body = self.connect("collector.example.invalid:443")
         self.assertEqual(403, status)
-        self.assertIn("not in registry_hosts.toml", body)
+        self.assertIn("model-provider allowlist", body)
 
     def test_a_non_443_port_is_refused(self):
         status, body = self.connect("localhost:22")

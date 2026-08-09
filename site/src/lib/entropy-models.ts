@@ -2,12 +2,11 @@
  * The candidate-space models, in one place.
  *
  * Every value below is a published model's stated input or result, not a
- * measurement of any device. Three sources publish candidate-space models
- * with different attacker-knowledge assumptions: Block's engineering
- * disclosure, LLFOURN's posted model and follow-ups, and Coinkite's
- * technical backgrounder. Keeping the constants here, each attributed to
- * its source model, stops the same figure being retyped slightly
- * differently across the model explorer, the firmware table and the
+ * measurement of any device. Block, LLFOURN, Coinkite, otaliptus and one
+ * community analysis publish candidate-space models or bounds with different
+ * attacker-knowledge assumptions. Keeping the constants here, each attributed
+ * to its source model, stops the same figure being retyped slightly
+ * differently across the model register, explorer, firmware table and
  * multisig arithmetic.
  */
 
@@ -34,16 +33,38 @@ export const LLFOURN_MK4_BITS = LLFOURN_MK3_BITS + RESEED_BITS;
 
 /** Bit figures rendered in prose and tables, formatted as they should appear. */
 export const BITFIG = {
+  /** A fully known state or Block's conditional public-initial-state path. */
+  knownState: '2^0',
   /** Block: the stable-RTC Mk2/Mk3 scenario, log2(80,000) as published. */
   mk23SysTick: '2^16.3',
+  /** LLFOURN: modelled MCU identifier states. */
+  llfournUid: '2^20',
+  /** ineedanamegenerator: stated bound on the Mk3 UID-XOR-SysTick word. */
+  communityMk3Word: '2^23',
   /** Block: the at-most-32-bit Mk4-class reseed scenario. */
   mk4Reseed: '2^32',
+  /** Coinkite: its rounded Mk3 estimate. */
+  coinkiteMk3: '2^40',
   /** Block: the loose Mk2/Mk3 enumeration ceiling, stated as a strict upper bound. */
   mk23LooseCeiling: '2^40.7',
+  /** Block: conditional no-reseed loose ceiling. */
+  noReseedLooseCeiling: '2^41.3',
+  /** otaliptus: lower tentative Mk4 range when RTC behaviour is problematic. */
+  otaliptusProblematicLow: '2^52',
+  otaliptusProblematicHigh: '2^63',
+  /** LLFOURN: later range, derived by subtracting the reported 10 to 14 bits. */
+  llfournFollowupLow: '2^58.3',
+  llfournFollowupHigh: '2^62.3',
+  /** Coinkite: its rounded Mk4-class estimate. */
+  coinkiteMk4: '2^72',
   /** Block: the loose Mk4-class enumeration ceiling, stated as a strict upper bound. */
   mk4LooseCeiling: '2^73.3',
   /** LLFOURN: the Mk3 model result. */
   llfournMk3: '2^40.3',
   /** LLFOURN: the initial Mk4-class model result, later narrowed by 10 to 14 bits. */
   llfournMk4: '2^72.3',
+  /** otaliptus: tentative Mk4 results when the RTC contributes variation. */
+  otaliptusPessimisticAside: '2^75',
+  otaliptusWorkingLow: '2^77',
+  otaliptusWorkingHigh: '2^88',
 } as const;

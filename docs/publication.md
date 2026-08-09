@@ -89,9 +89,11 @@ A citation to a record that changes has to name which state was read, so every
 build stamps the commit it was made from in the page footer and at
 `/version.json`, together with the size and freshness of the record at that
 commit. `matches_commit` is false when the build carried edits that commit does
-not contain, which is normal for a review build and worth noticing for a
-published one. Nothing here is hand-maintained: `src/lib/version.ts` reads git,
-for the same reason `src/lib/updated.ts` does.
+not contain, which is normal for a review build and forbidden for a deploy:
+`just check-version-exact` runs after an indexable build and before upload,
+requiring the stamp, current `HEAD` and tracked tree to agree. Nothing here is
+hand-maintained: `src/lib/version.ts` reads git, for the same reason
+`src/lib/updated.ts` does.
 
 No DOI is minted yet, and the route to one was decided on 7 Aug 2026: an open
 Zenodo record of project-created material only, tagged `vYYYY.MM.DD`, with

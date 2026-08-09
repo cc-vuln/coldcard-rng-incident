@@ -9,10 +9,9 @@
 # does the agent: a source the sweep registers is first-captured here, after
 # the guard has accepted the registry change.
 #
-# This is the one agent that reads the open web, so it is the one whose
-# reading cannot be pre-fetched. It is contained the other three ways
-# (docs/design/agent-sandbox.md): its own account, an environment built from
-# nothing, and a gate over everything it wrote.
+# The sweep reads only repository state and captures the driver already holds.
+# New evidence acquisition belongs to the driver-side discovery and capture
+# lanes; an agent never fetches the evidence it uses to alter a claim.
 #
 # Exit codes:
 #   0  sweep completed
@@ -62,8 +61,7 @@ agent_begin sweep
 
 agent_render "$PROMPT_TEMPLATE" "$PROMPT_RENDERED" \
   --value "SINCE=$SINCE" \
-  --value "REPORT_PATH=$REPORT_PATH" \
-  --value "CAPTURE_REQUESTS=.work/capture-requests.txt"
+  --value "REPORT_PATH=$REPORT_PATH"
 
 rc=0
 agent_invoke "$AGENT_BIN" "$PROMPT_RENDERED" || rc=$?
@@ -79,8 +77,6 @@ if [[ $rc -ne 0 ]]; then
   echo "claim-sweep: agent run failed; marker NOT advanced" >&2
   exit 1
 fi
-
-agent_run_captures
 
 if [[ ! -f "$ROOT/$REPORT_PATH" ]]; then
   echo "claim-sweep: WARNING - agent succeeded but wrote no report to $REPORT_PATH" >&2

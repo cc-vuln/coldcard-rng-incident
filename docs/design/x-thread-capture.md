@@ -646,17 +646,17 @@ conversation, not a reason to revisit the posture.
    entry with `tweet_id in url`, a substring test. X ids vary in length, so a
    shorter id could match inside a longer one and file a capture under another
    post's id. It now compares the id parsed out of the registered URL.
-4. Pilot: **`clay-attribution` registered and live at tier 3 since 6 Aug 2026**;
-   `trustwallet-wasm-update` and `bitcoindevs-explainer-thread` still to add.
-   Watch the diff shape across several days before adding more: additions-only
-   is the healthy state, and any removal is worth reading before it is
-   classified.
-5. The display policy revision in section 8, including the per-status withhold.
-6. `stage-x-media.mjs`, `x-thread.ts`, `ThreadReader.astro`, the source page.
-7. Registry declarations in `sources.json` and `/llms.txt`, then the card
-   markers.
-8. Review agent prompt: the X-thread absence case, so ranking churn classifies
-   as `capture-noise` without a human touching every one.
+4. **Done 7–9 Aug 2026.** The curated tier expanded from `clay-attribution`
+   through TrustWallet, Bitcoin_Devs and later selected conversations. The
+   archive review keeps additions-only growth distinct from removal or
+   under-collection.
+5. **Done.** The display policy includes per-status withholding.
+6. **Done.** `stage-x-media.mjs`, `x-thread.ts`, `ThreadReader.astro` and the
+   source page provide the bounded conversation reader and mechanical muting.
+7. **Done.** `/record/sources.json`, `/llms.txt` and record cards declare and
+   distinguish conversation heads, members and individual posts.
+8. **Done 8 Aug 2026.** Deterministic X-thread churn classification handles
+   the ordinary absence/ranking case without a human reading every diff.
 
 ## 10. Risks
 

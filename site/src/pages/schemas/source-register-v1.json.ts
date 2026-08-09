@@ -10,13 +10,14 @@ const schema = {
   additionalProperties: false,
   required: [
     'schema', 'incident', 'archive_last_capture', 'interpretation',
-    'web_sources', 'social_posts',
+    'coverage', 'web_sources', 'social_posts',
   ],
   properties: {
     schema: { const: 'https://cc-vuln.org/schemas/source-register-v1.json' },
     incident: { type: 'string' },
     archive_last_capture: { type: ['string', 'null'], format: 'date-time' },
     interpretation: { type: 'object', additionalProperties: { type: 'string' } },
+    coverage: { type: 'object' },
     web_sources: {
       type: 'array',
       items: {
@@ -51,6 +52,17 @@ const schema = {
           posted: { type: ['string', 'null'], format: 'date-time' },
           role: { type: 'string' },
           why_registered: { type: ['string', 'null'] },
+          relation: {
+            type: 'object',
+            required: ['kind', 'head_id'],
+            properties: {
+              kind: {
+                type: 'string',
+                enum: ['single-post', 'conversation-head', 'conversation-member'],
+              },
+              head_id: { type: ['string', 'null'] },
+            },
+          },
           capture: { type: 'object' },
         },
       },

@@ -25,7 +25,7 @@ Type=oneshot
 User=USER
 WorkingDirectory=REPO
 ExecStart=-REPO/.venv/bin/python scripts/discover_x_browser.py
-ExecStart=REPO/scripts/agent-x-intake.sh
+ExecStart=REPO/scripts/agent-x-intake.sh --batches 8
 Environment=PATH=/home/cc-vuln/.local/bin:/usr/local/bin:/usr/bin:/bin
 # X_BROWSER_DISCOVERY_ENABLED comes from .env. discover_x_browser.py reads
 # only its environment and cannot self-load the file, so the unit supplies

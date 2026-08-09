@@ -21,16 +21,15 @@ the current absence is already documented and should change only when new
 public material appears · **BLOCKED** needs an operator choice, external access
 or evidence from a third party.
 
-Last reviewed: 8 Aug 2026, recording the operator's three pipeline decisions
-of that date: X discovery moved to the capture browser with automated
-promotion, failure delivery resolved onto the operator-UI alert stream, and
-the guard-passed pipeline moved to unattended commit, publish and push. All
-three are built and installed the same day; the entries below record what
-landed and what stays open.
-Previous review: 7 Aug 2026, after the site-wide prose pass against the 6 and
-7 August record: 143 new registrations read into the editorial pages, three
-corrections published, and the placeholder registry notes on the new X posts
-replaced.
+Last reviewed: 9 Aug 2026, after the public-record scope, historical coverage,
+discovery durability, agent containment, site-sync cursor and presentation-
+scale audit. The completed entries below record the gap-fill and tooling work;
+remaining entries are evidence gaps, monitoring questions or discrete scale
+work rather than a second site mission.
+Previous review: 8 Aug 2026, when X discovery moved to the capture browser
+with automated promotion, failure delivery resolved onto the operator-UI alert
+stream, and the guard-passed pipeline moved to unattended commit, publish and
+push.
 
 Ordered by value, not effort.
 
@@ -122,21 +121,6 @@ Ordered by value, not effort.
   locating them. Keep the result attributed rather than inferring a method from
   the short posts.
 
-- **GAP: a real-device STM32 UID low-word distribution.** No population sample
-  has been identified. It would constrain one term in published candidate-count
-  models without settling SysTick, RTC, call-history or derivation-cost
-  assumptions. The privacy-preserving measurement plan is in
-  `docs/research/uid-distribution-measurement.md`.
-
-  Two sources registered on 6 and 7 August bear on the term without filling it,
-  and the difference matters. The honeypot operator's methodology reports one
-  instrumented sacrificial Mk3 whose UID word held packed die coordinates rather
-  than a uniform value, with SysTick in a narrow early-boot range and the RTC
-  registers reading zero; that is one device, and it describes the field's shape,
-  not its distribution. A 7 August community derivation bounds the word at
-  roughly 23 bits from an assumed wafer yield, which is an assumption rather
-  than a measurement. A population sample is still the thing that is missing.
-
 - **GAP: incident population denominators.** The number of distinct human
   victims and the number of seeds generated under vulnerable firmware remain
   unknown. Address counts overstate owners, and no captured unit-sales or seed
@@ -154,12 +138,13 @@ Ordered by value, not effort.
   `/response/developers/` shipping a page that pointed at the withdrawn
   version.
 
-- **GAP: the Bitcoin Security Consortium.** One held X post is the only source
-  in the record that mentions it at all, and it carries a US$15M pledge figure
-  and a claim that only two named firms visibly responded. Nothing primary is
-  held: no announcement, membership list or pledge document. Register a primary
-  if one is public, or leave the single post standing as the only evidence and
-  say so wherever it is used.
+- **DONE 9 Aug 2026: hold the Bitcoin Security Consortium's primary incident
+  announcement.** The consortium's 4 August X announcement connecting member
+  company Block, Project Loupe and the incident is registered and captured as
+  `btcconsortium-incident-announcement`. It fills the missing institutional
+  source without adopting the consortium's account. No separate public pledge
+  document or membership register has been identified, so figures from other
+  posts remain attributed to those posts.
 
 ### Current-state monitoring
 
@@ -186,20 +171,15 @@ Ordered by value, not effort.
 
 ## 2. Archive tooling and operations
 
-- **DONE 6 Aug 2026: an egress allowlist for the agent runs.** The last gap
-  in the agent containment is closed. `scripts/agent_proxy.py` refuses a
-  CONNECT to any host not in `scripts/registry_hosts.toml` or
-  `scripts/agent_egress_hosts.toml`, and `scripts/agent-egress.nft.example`
-  drops everything else from the agent account, keyed on uid rather than on a
-  systemd unit because `discover-community` runs the driver's own hydration
-  and the agent in one cgroup.
-
-  The policy question this was blocked on dissolved rather than being
-  answered. Once candidate hydration moved to the driver, only `claim-sweep`
-  reads the open web at all, and what it may read is already
-  `registry_hosts.toml`: anything it finds has to be registerable to be worth
-  reading. So the rule is that an agent may reach its model provider and may
-  read what the registry may name, and no new list needs maintaining.
+- **DONE 9 Aug 2026: make agent egress provider-only.**
+  `scripts/agent_proxy.py` reads only the gitignored provider allowlist and
+  rejects registered source hosts. Evidence acquisition, including the claim
+  sweep, now stays driver-side; missing held evidence becomes a coverage gap.
+  The uid firewall permits the local proxy only and no longer permits direct
+  DNS. Proxy and host vetting reject non-global DNS answers and connect to the
+  validated address, closing rebinding and mixed-answer gaps. The tracked
+  `agent_egress_hosts.toml` remains an additive admission mirror, not live
+  authority.
 
   Verified on the host: direct HTTPS, the capture browser and the cloud
   metadata endpoint all time out from the agent account; an allowed host
@@ -257,16 +237,18 @@ Ordered by value, not effort.
   the Astro cache. Waiting is the contention behaviour throughout; the
   timer's own skip-on-lock logic is unchanged.
 
-- **OPEN: flatten Hacker News API captures into readable text.** Both HN
+- **DONE 9 Aug 2026: flatten Hacker News API captures into readable text.** Both HN
   sources moved to the Algolia item API on 6 Aug 2026 because HN 429s this
   exit. `json_pretty` holds the thread completely and deterministically, but
   the stored text is JSON carrying HN's HTML entities and paragraph tags, so
   site excerpts from these two sources read worse than the rendered page did.
   `json_text_fields` cannot help: it requires `json_html_field` and walks a
-  flat path, not a comment tree. The fix is a recursive flattener mirroring
-  `flatten_reddit_thread`, which would also make the diffs legible.
+  flat path, not a comment tree. The new `hn-algolia` flattener recursively
+  preserves story/comment identity, authorship, timestamps, parentage and
+  readable text while omitting volatile scores and request options. Both
+  threads were recaptured and then returned `same` on a repeat dry run.
 
-- **OPEN: integrate curated X-thread capture.** The accepted design is in
+- **DONE 9 Aug 2026: integrate curated X-thread capture.** The accepted design is in
   `docs/design/x-thread-capture.md`. Extraction (`scripts/x_thread.py`) and the
   `capture.py` `x-thread` method, registry validation and audit support landed
   6 Aug 2026, with `clay-attribution` live at tier 3 as the pilot. The lane is
@@ -288,8 +270,11 @@ Ordered by value, not effort.
   arrived truncated and had to be expanded. Neither produced a diff, because a
   first capture has nothing to diff against.
 
-  Remaining: per-status `withhold_posts`; staging and source-page presentation
-  including the reply muting rules.
+  Per-status `withhold_posts`, thread screenshot staging, the bounded
+  source-page conversation reader and mechanical reply muting are live. The
+  machine-readable source register declares conversation heads, members,
+  capture counts, held-post counts and declared gaps; cards label whole
+  conversations separately from individual X posts.
 
   Closed 8 Aug 2026: the X-thread absence case now classifies without a human
   reading every one. `auto_classify_noise.py` gained a deterministic X-thread
@@ -310,9 +295,9 @@ Ordered by value, not effort.
   `afilini-2085269060028170742`, was found by the new gate rather than by
   reading.
 
-  Still to do before extending the tier to those groups: split LLFOURN's
-  fourteen entries into the conversations they actually belong to. The status
-  ids span 31 July to 6 August, so that is not one thread.
+  LLFOURN's fourteen individual entries span 31 July to 6 August and are not
+  treated as one conversation. Any future grouping must follow the actual X
+  conversation ids rather than joining them by author.
 
   Watch the pilot's diff shape for several days. Additions-only is the healthy
   state. Any removal means either a real deletion or under-collection, and the
@@ -508,10 +493,10 @@ Ordered by value, not effort.
 - **BUILT 8 Aug 2026: `publish-scheduled.timer` installed.** The timer
   publishes guard-passed, committed work every three hours, and a git push
   follows each successful deploy so `/version.json` and `/cite/` never
-  resolve nowhere. The skip conditions are unchanged: `.no-publish`, a
-  non-main `HEAD`, a dirty tree outside `archive/`, unreviewed diffs and
-  the build lock all still stop the line, and only a genuine publish
-  failure fails the unit.
+  resolve nowhere. `.no-publish`, a non-main `HEAD`, any uncommitted state,
+  unreviewed diffs and the build lock stop the line, and the pre-deploy gate
+  additionally requires the stamped commit, `HEAD` and tracked tree to agree.
+  Only a genuine publish failure fails the unit.
 
 - **OPEN: evaluate Wayback as a per-source fallback.** For a registered source
   that repeatedly refuses direct capture while the Internet Archive can reach
@@ -524,48 +509,50 @@ Ordered by value, not effort.
   interstitial. What remains is per-source refusal thresholds: one global
   `WAYBACK_AFTER_REFUSALS` still serves every source.
 
-- **OPEN 8 Aug 2026: close the two races the first automated publish exposed.**
+- **DONE 9 Aug 2026: close the two races the first automated publish exposed.**
   The first scheduled publish deployed and pushed cleanly, but the
   `matches_commit` tripwire fired: the build had regenerated
   `site/src/data/x-thread-media.json` with the day's nine new X captures,
   which landed between the record-commit tick and the build. The publish
-  should stage the regenerated `site/src/data/` indexes itself (pre-build,
-  or commit them post-build pre-push), so new X media arriving mid-window
-  stops flipping the published stamp. Second: `record_commit.py` does not
-  take the build lock, so it can commit while a publish build is reading
+  now stages and commits the regenerated `site/src/data/` index under the
+  build lock before the build and recomputes the publication stamp afterward.
+  Second: `record_commit.py` now takes the build lock before its archive lock,
+  so it cannot commit while a publish build is reading
   git for `/version.json` — the 8 Aug deploy stamped `f91b758` while
   `a933d74` landed mid-build. Harmless this time (the stamped commit was
-  pushed), but the committer should skip or wait when
-  `/tmp/cc-build.lock` is held.
+  pushed). A final pre-deploy gate now also requires the built
+  `/version.json`, current `HEAD` and tracked tree to agree, so a capture or
+  commit in the remaining build window fails before upload rather than merely
+  raising the tripwire afterward.
 
 ---
 
 ## 3. Publication and corpus usability
 
-- **OPEN: two figures on `/record/funds/` are typed literals that should be
-  read from the archive.** The page now carries the tracker's MOVED total and
-  its still-held percentage as prose dated to two named captures, because
-  `site/src/lib/trackers.ts` reads headline totals only. That is the failure
-  mode the module exists to end, one level down. Add readers for the sub-figures
-  rather than leaving a hand-typed number to go stale on the next poll.
+- **DONE 9 Aug 2026: read the funds movement comparison from its named
+  captures.** The coldcard-hack-tracker MOVED totals and still-held percentages
+  on `/record/funds/` now come from the exact 4 and 7 August snapshots the prose
+  compares. The build fails if either capture stops exposing those labelled
+  fields; it cannot silently substitute a current, older or pinned value.
 
-- **OPEN: `/how-it-broke/entropy/` does not import `entropy-models.ts`.** Every
-  candidate-space figure on that page is hand-typed and every one currently
-  agrees with the module, which `/record/firmware/`, `/how-it-broke/conditions/`
-  and `ModelExplorer` all import. It is the page most exposed to silent drift.
-  A 7 August community model putting the Mk3 seeding word nearer 2^23 than 2^32
-  is on the page as a table row and is not in the module either.
+- **DONE 9 Aug 2026: give the entropy model register one source of display
+  figures.** `/how-it-broke/entropy/` now imports `entropy-models.ts` for every
+  repeated candidate-space label and published input. The module also carries
+  the 7 August community bound on the Mk3 seeding word and the other published
+  ranges that were previously local to the page.
 
-- **OPEN: publish a corpus-methods page.** Turn the relevant parts of
-  `docs/capture.md` into a reader-facing account of source registration,
-  sampling frame, normalizers, capture cadences and known coverage bias. Keep it
-  distinct from `/about/#known-limits`, which describes limits of incident
-  claims rather than limits of the corpus.
+- **DONE 9 Aug 2026: publish a corpus-methods page.** The new `/methods/`
+  gives a reader-facing account of source registration, the unit of record,
+  intake and prominence criteria, capture/change handling, editorial scope,
+  reproducibility and known coverage bias. It remains distinct from
+  `/about/#known-limits`, which describes limits of incident claims rather
+  than limits of the corpus.
 
-- **OPEN: publish coverage statistics as data.** Add stable breakdowns by
-  source organisation and kind, date range, poll outcome and capture count.
-  Define denominators and machine-readable fields before designing charts.
-  `/version.json` already supplies top-level totals.
+- **DONE 9 Aug 2026: publish coverage statistics as data.**
+  `/record/sources.json` now carries explicit web/X/nostr denominators and
+  stable breakdowns by source kind, organisation, current poll state, capture-
+  count band and publication/capture date range. The fields precede any chart,
+  so later presentation cannot silently change the denominator.
 
 - **DONE 7 Aug 2026: explain the cited dice entropy arithmetic.** A
   derived-basis block now sits after the roll-count table on

@@ -1,0 +1,738 @@
+post: 1vb8taw
+author: RetiredAvocado
+created_utc: 1785451514
+title: Security Advisory for Coldcard Hardware Wallet
+body:
+Related threads:
+
+[https://www.reddit.com/r/Bitcoin/comments/1vatgl4/full\_panic\_one\_of\_my\_wallets\_was\_drained/](https://www.reddit.com/r/Bitcoin/comments/1vatgl4/full_panic_one_of_my_wallets_was_drained/)
+
+[https://www.reddit.com/r/Bitcoin/comments/1vb6teq/wallet\_drained\_timeline/](https://www.reddit.com/r/Bitcoin/comments/1vb6teq/wallet_drained_timeline/)
+
+comment: p0rkzw9
+parent: t3_1vb8taw
+author: makeshiftballer
+created_utc: 1785451916
+edited: false
+body:
+Mannnnn get the popcorn 
+
+comment: p0rlpny
+parent: t1_p0rkzw9
+author: DirtyDoog
+created_utc: 1785452136
+edited: false
+body:
+I checked my wallet, now I can't afford popcorn.
+
+comment: p0rmrhl
+parent: t3_1vb8taw
+author: CortaCircuit
+created_utc: 1785452462
+edited: false
+body:
+>**Out of an abundance of caution, Coinkite is warning all users who generated a seed using a Mk3 on version 4.0.1 (March 2021) or any subsequent version that their funds may be at risk.**
+
+>**Mk4, Q and Mk5 are not affected based on our early analysis of the issue.**
+
+comment: p0ro0b8
+parent: t3_1vb8taw
+author: [deleted]
+created_utc: 1785452850
+edited: false
+body:
+[deleted]
+
+comment: p0royc1
+parent: t3_1vb8taw
+author: Critical_Watcher_414
+created_utc: 1785453148
+edited: false
+body:
+Shit, this is no good. Saw a thread in an earlier post that the total theft was up to $38 million+
+
+comment: p0rpgde
+parent: t3_1vb8taw
+author: blinkOneEightyBewb
+created_utc: 1785453305
+edited: false
+body:
+Interested to see what the vulnerability is
+
+comment: p0rqs8y
+parent: t1_p0ro0b8
+author: Makunouchiipp0
+created_utc: 1785453724
+edited: false
+body:
+Clearly you didn’t read the blog post?
+
+comment: p0rqvdo
+parent: t1_p0rpgde
+author: Makunouchiipp0
+created_utc: 1785453752
+edited: false
+body:
+Rng on mk3
+
+comment: p0rr816
+parent: t1_p0rqvdo
+author: blinkOneEightyBewb
+created_utc: 1785453863
+edited: false
+body:
+Ouch
+
+comment: p0rr8am
+parent: t1_p0rqvdo
+author: ThenComparison5926
+created_utc: 1785453866
+edited: false
+body:
+Clearly you didn’t read the blog post?
+
+comment: p0rronb
+parent: t3_1vb8taw
+author: bitusher
+created_utc: 1785454008
+edited: 1785711932
+body:
+https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/
+
+An exploit , likely a flaw in rng generation with lower entropy in firmware but waiting on more details from investigation, has allowed an attacker to drain what appears over ~~594 BTC~~ 1,433 BTC from over 500 wallets with the highest risk being  Cold Card MK2 through MK3 wallets thus far . MK1 wallets are safe. 
+
+https://coldcard-hack-tracker.vercel.app/
+
+This doesn't seem to have effected MK4 or MK5 or Q initially because those later models used more entropy thus are much harder to attack but you need to still update the firmware and eventually migrate to a new seed regardless to be safe longterm. Hypothetically 60 to 73 bits of entropy found in the MK4,MK5 and Q seeds can be brute forced by a large GPU cluster in as soon as 1 week to centuries. Thus its best to upgrade your security on these in the next week **at the latest**. 
+
+https://blog.coinkite.com/entropy-technical-backgrounder/
+
+https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware
+
+Users using multisig created with a majority of other wallets or if you used an extended passphrase like our FAQ has always recommended should be safe although you should consider migrating in time to a new seed. 
+
+Thus if you setup a single sig wallet with Cold Card MK3, first **do not panic** as that  is when mistakes will happen. 
+
+Ideally setup a new seed on a second hardware wallet that is not an MK3 and move your bitcoin over with an onchain transaction. 
+
+Do not send your bitcoin to a hot wallet or an exchange that lacks secure U2F/FIDO 2fa 
+
+If you lack a second hardware wallet than create a extended passphrase and move your btc to a new address within that account as a temporary measure.
+
+https://coldcard.com/docs/passphrase/
+
+Please be aware that extended passphrases should be 
+
+1) 6-8 random words (not found as a phrase or in movies or literature) 
+
+2) stored separately than your seed words and written down at least once 
+
+3) written exactly as entered . Capitalization and white space matters. Any slight deviation in the extended passphrase will show a new wallet with a 0 balance so its important you write it down and test it exactly . 
+
+Again do not panic or rush , but read about using the passphrase feature or new wallet
+
+comment: p0rsdeh
+parent: t1_p0rr8am
+author: Makunouchiipp0
+created_utc: 1785454226
+edited: false
+body:
+The mk3 has been creating low entropy mnemonics. Sorry my description wasn’t right on point.
+
+comment: p0rsl5a
+parent: t3_1vb8taw
+author: TheOnlyVibemaster
+created_utc: 1785454295
+edited: false
+body:
+idk why we still think hardware wallets are a good idea
+
+it’s so dumb and i’ll never think it isn’t
+
+make an offline wallet, only ever send to the wallet, never withdraw (so public seed isn’t revealed), write down the offline wallet secret, literally bury it underground.
+
+comment: p0rsstx
+parent: t1_p0ro0b8
+author: bitusher
+created_utc: 1785454364
+edited: false
+body:
+As long as you used a sufficiently secure extended passphrase :
+
+https://old.reddit.com/r/Bitcoin/comments/1vb8taw/security_advisory_for_coldcard_hardware_wallet/p0rronb/
+
+you likely are fine but you should still plan on eventually migrating over to a new seed with or without the same extended passphrase
+
+comment: p0rteuc
+parent: t1_p0rsl5a
+author: RetiredAvocado
+created_utc: 1785454555
+edited: false
+body:
+Hardware wallets are still a good idea. How will you make your "offline wallet?" Probably a tool someone else made. There is no such thing as "public seed." The funds in this exploit were taken from addresses which never sent out and did not expose the address's public key. Burying anything would not have helped here.
+
+comment: p0rulxa
+parent: t1_p0rteuc
+author: TheOnlyVibemaster
+created_utc: 1785454933
+edited: false
+body:
+Hardware wallets are a very bad idea because you’re trusting that someone won’t mess up, which in crypto is a bad bet.
+
+This has existed since Bitcoin was made and can generate an address without an internet connection:
+
+https://www.bitaddress.org/bitaddress.org-v3.3.0-SHA256-dec17c07685e1870960903d8f58090475b25af946fe95a734f88408cef4aa194.html
+
+There is a such thing as a public address, which is what I meant to say.
+
+Burying was a figure of speech
+
+comment: p0rux1f
+parent: t1_p0rulxa
+author: RetiredAvocado
+created_utc: 1785455030
+edited: 1785456612
+body:
+What tells you that this tool you didn't write will generate strong random keys? Internet connection irrelevant here. The keys weren't leaked, they appear to be created using bad RNG.
+
+There's is no "public address" either. It would be a public key. Addresses aren't public or private. Only keys are.
+
+comment: p0rw05r
+parent: t3_1vb8taw
+author: ShittingOutPosts
+created_utc: 1785455371
+edited: false
+body:
+For once, I’m happy I went with Ledger. 
+
+comment: p0ryffk
+parent: t1_p0rsl5a
+author: IllllIIlIllIllllIlll
+created_utc: 1785456142
+edited: false
+body:
+"never withdraw"
+
+Lol what's the point of getting Bitcoin if you never withdraw? That's such a weird statement to make. At some point you will want to make a transaction. A hardware wallet is the safest way to make a transaction.
+
+The problem is not with hardware wallets, the problem is with seed generation. If you "make an offline wallet" as you suggest you still have to generate a seed and you're exposed to exactly the same threats.
+
+comment: p0rz2ki
+parent: t1_p0rulxa
+author: IllllIIlIllIllllIlll
+created_utc: 1785456352
+edited: false
+body:
+"oh I don't want to trust that someone didn't mess up with a hardware wallet, let me instead trust that someone didn't mess up with a website"
+
+comment: p0rz63p
+parent: t3_1vb8taw
+author: obeywasabi
+created_utc: 1785456383
+edited: false
+body:
+Holy hell I was really hoping it was user mistake… this is huge
+
+comment: p0rz9z6
+parent: t3_1vb8taw
+author: pharmecist
+created_utc: 1785456419
+edited: false
+body:
+More support that we should use multisig to avoid exploits from one manufacturer being used.
+
+comment: p0s3z7d
+parent: t1_p0rsl5a
+author: shadowmage666
+created_utc: 1785457951
+edited: false
+body:
+Yea it wasn’t the wallet but the RNG , so you can do your method and still fuck up
+
+comment: p0s5ntw
+parent: t1_p0rsl5a
+author: Strong_Judge_3730
+created_utc: 1785458504
+edited: false
+body:
+LOL can you think a little bit about how to "make an offline wallet"
+
+
+comment: p0s61nj
+parent: t1_p0rulxa
+author: Strong_Judge_3730
+created_utc: 1785458631
+edited: 1785459251
+body:
+You are trusting someones software and your hardware to generate a seed. 
+
+If you are this clueless then you should not be in crypto for your own sake.
+
+The blog post explained the issue was bad RNG. Which could have happened with your setup of software and hardware, theoretically.
+
+This is what happens when you put ideology and tribalism above knowledge.
+
+comment: p0s6dzo
+parent: t1_p0rronb
+author: ultron290196
+created_utc: 1785458746
+edited: false
+body:
+Can't believe ledger users are safer atm😂
+
+comment: p0s6i4a
+parent: t1_p0rw05r
+author: Strong_Judge_3730
+created_utc: 1785458785
+edited: false
+body:
+I was thinking of using this company instead of trezor glad i didn't migrate lol
+
+comment: p0s72yk
+parent: t1_p0s6dzo
+author: bitusher
+created_utc: 1785458977
+edited: 1785601393
+body:
+The problem is they might not be. Thus this is more of a systemic issue where large amounts in self custody should always be recommended to use either an extended passphrase(easiest solution to setup and recover) , or multisig. This IMHO is too much of a stumbling block for future mainstream adoption. There are plenty of solutions being developed like Vaults and using miniscript and better UX to address this but its not mature yet
+
+comment: p0scr24
+parent: t1_p0s72yk
+author: [deleted]
+created_utc: 1785460851
+edited: false
+body:
+[removed]
+
+comment: p0sdq7w
+parent: t1_p0scr24
+author: bitusher
+created_utc: 1785461175
+edited: false
+body:
+Yes, but the problem might not be with the multiple SE , but a bug in the way the RNG is developed with cold cards that led to this exploit. Thus you want to not depend upon a single wallet to develop the entropy alone for you or yes , roll your own seed.
+
+comment: p0sf21i
+parent: t3_1vb8taw
+author: Laakhesis
+created_utc: 1785461614
+edited: false
+body:
+Mass adoption is coming.
+
+comment: p0sfdwq
+parent: t1_p0s6i4a
+author: ContentBlackberry0
+created_utc: 1785461724
+edited: false
+body:
+I knew the second I saw a calculator and dice rolls to stay away. So glad I did. 
+
+comment: p0sg50i
+parent: t1_p0sdq7w
+author: Strong_Judge_3730
+created_utc: 1785461971
+edited: false
+body:
+I think a strong passphrase is key to protecting the seed from physical attacks - where someone has access to your seed without you knowledge and flawed implementation of RNG.
+
+Do you think it's wise to put a small amount of crypto without a passphrase to act as a honey pot or warning for your seed being compromised.
+
+Or will this signal an attacker to brute force passphrases for that seed with crypto
+
+comment: p0sgjer
+parent: t1_p0sg50i
+author: bitusher
+created_utc: 1785462105
+edited: false
+body:
+> I think a strong passphrase is key to protecting the seed from physical attacks 
+
+Yes , under duress its an excellent tool and also as a honeypot to see if someone found your seed alone and swept your decoy balance 
+
+>Or will this signal an attacker to brute force passphrases for that seed with crypto
+
+The attacker will not know if they get a hold of your seed if you are using an extended passphrase or not . Most people don't so the default assumption is not
+
+comment: p0si027
+parent: t3_1vb8taw
+author: roconnor
+created_utc: 1785462597
+edited: false
+body:
+This issue with seed generation was one of the reasons behind the development of Codex32 (BIP-93).  The problem is that hardware uses an opaque process to generate the initial HD master seed (BIP-32).  Because of the awkward "checksum" in BIP-39’s mnemonic code it is really hard to generate a mnemonic code yourself, and the resulting checksum end up being both extremely low quality while also having no error-correction properties at all.
+
+There are some pieces of hardware for turning dice or coinflips into BIP-39 mnemonic codes, but they still rely on the software to correctly hash that entropy into the word list; and it is all but impossible to validate the end result.  While this is an improvement, we can do better.
+
+With Codex32 users at least have the choice to  take master seed generation *literally* into their own hands by rolling their own secret with dice, and even computing their own error-correcting checksum themselves using paper computers.  Furthermore, secret-sharing provides even more options for distributing backups, which can also be generated with Codex32's paper computers.
+
+Now, I'm not suggesting average users go out and use Codex32 today; there is barely any wallet support for Codex32 at this time, and generating a fresh master seed is tedious work.  But perhaps it would be useful for the industry to consider Codex32 as a new standard which empowers their user by giving them more options on how much trust they are willing to put into their hardware wallet's critical entropy generation step.
+
+comment: p0snh2t
+parent: t3_1vb8taw
+author: confuzzledfather
+created_utc: 1785464464
+edited: false
+body:
+I wonder, if the exploit was developed with the help of Fable et al. if it might end up being a trail that investigators follow. Subpoena Anthropic etc for the identity of those involved maybe. We shall see. Would not surprise me if it was developed with the help of a frontier model.
+
+comment: p0sucjo
+parent: t1_p0rkzw9
+author: ultron290196
+created_utc: 1785466853
+edited: false
+body:
+Buttcoin sub gonna have a field day huh
+
+comment: p0sy58p
+parent: t3_1vb8taw
+author: [deleted]
+created_utc: 1785468240
+edited: false
+body:
+[deleted]
+
+comment: p0t0745
+parent: t1_p0rmrhl
+author: krvi
+created_utc: 1785469020
+edited: false
+body:
+https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware
+
+According to Block, all coldcard models with 2021+ firmware are affected
+
+comment: p0t74lg
+parent: t1_p0t0745
+author: SpareEconomy1849
+created_utc: 1785471707
+edited: false
+body:
+Affected by the bug, but in practice, probably not an issue due to the secure element entropy added by mk4 and mk5? 
+
+comment: p0t7egn
+parent: t1_p0royc1
+author: SpareEconomy1849
+created_utc: 1785471817
+edited: false
+body:
+Yep, 594 BTC so far
+
+comment: p0t7znk
+parent: t1_p0sfdwq
+author: SpareEconomy1849
+created_utc: 1785472054
+edited: 1785494970
+body:
+If you used dice rolls you wouldn't be affected though. This is only for people who used the built in RNG like Ledger (probably most users).
+
+Dice rolls are ideal from a safety perspective, just not user friendly. What you're saying is like you saw a car crash, and you're glad you ran away from buying that model because it had seatbelts
+
+comment: p0t923j
+parent: t1_p0sy58p
+author: SpareEconomy1849
+created_utc: 1785472489
+edited: false
+body:
+Not sure why human generated entropy would be insufficient, a well shuffled 2 decks of cards or 50 dice rolls is more entropy than BIP 39 12 words
+
+comment: p0t9af3
+parent: t3_1vb8taw
+author: SpareEconomy1849
+created_utc: 1785472585
+edited: false
+body:
+Considering pulling out my ol Ledger rn
+
+comment: p0tbajl
+parent: t1_p0t74lg
+author: krvi
+created_utc: 1785473424
+edited: false
+body:
+As far as I understand, Mk4/Q/Mk5 are affected to a slightly lesser degree and the entropy they generate remains insufficient.
+
+comment: p0ttap5
+parent: t1_p0rz63p
+author: Syonoq
+created_utc: 1785481513
+edited: false
+body:
+And it sucks for the original OP. Guy did everything right and still got robbed. 
+
+comment: p0ucjvp
+parent: t1_p0s72yk
+author: swiftpwns
+created_utc: 1785490829
+edited: false
+body:
+Its not a stumbling block for future adoption because in mainstream adoption you wont have your own keys and you wont be on layer 1 unless you are super rich or a big company 
+
+comment: p0uctz1
+parent: t1_p0scr24
+author: swiftpwns
+created_utc: 1785490961
+edited: false
+body:
+And these are all environmentallly sourced, unlike the standard software one with cold cars. 
+
+comment: p0upktu
+parent: t1_p0rz9z6
+author: Scholes_SC2
+created_utc: 1785496378
+edited: false
+body:
+I've been saying that for a while but it's not really user friendly. Self custody is definitely not for most people, now more than ever
+
+comment: p0uq0uz
+parent: t1_p0rz9z6
+author: user_name_checks_out
+created_utc: 1785496550
+edited: false
+body:
+Multivendor multisig.
+
+comment: p0uqdp4
+parent: t1_p0t923j
+author: user_name_checks_out
+created_utc: 1785496686
+edited: false
+body:
+When people say that human generated entropy is insufficient, they mean for example that you should not just choose the seed words yourself.  50 dice rolls is fine.
+
+comment: p0v1exg
+parent: t3_1vb8taw
+author: rtublin
+created_utc: 1785500590
+edited: false
+body:
+It seems like 2\^72 is still too much to brute force, right? It seems like there must be something else going on.
+
+comment: p0v3ozx
+parent: t3_1vb8taw
+author: ItsAlwaysThemBooBoo
+created_utc: 1785501319
+edited: false
+body:
+kratter just published a video a few minutes ago, apparently the breach is the seed phrase generated by coldcard 3s, did not use enough randomness.
+
+for example if the seed phrase was generated by a trezor and then used to restore a wallet on a coldcard, that would be safe. the problem is the seed phrase, generated by the cold card. 
+
+comment: p0v4eb0
+parent: t1_p0uqdp4
+author: [deleted]
+created_utc: 1785501539
+edited: false
+body:
+[deleted]
+
+comment: p0vae0r
+parent: t1_p0v4eb0
+author: user_name_checks_out
+created_utc: 1785503358
+edited: false
+body:
+> Why is rolling dice by hand better than rolling dice in your mind?
+
+Because the brain is useless at generating entropy.  This topic has been beaten into the ground.
+
+comment: p0vhnqm
+parent: t3_1vb8taw
+author: ImpossibleSleep3986
+created_utc: 1785505421
+edited: 1785599601
+body:
+Man am I glad I used a passphrase on top of a 24 word seed and then derived another seed from that. Thank goodness for BIP85.
+
+comment: p0y1u70
+parent: t1_p0vae0r
+author: [deleted]
+created_utc: 1785529595
+edited: false
+body:
+[deleted]
+
+comment: p0y68ew
+parent: t1_p0rronb
+author: darosior
+created_utc: 1785530803
+edited: false
+body:
+Just an update in case people rely on this information. Seeds generated on a Coldcard MK4, MK5 or Q are *also at risk*. If you generated your seed on one of those devices, move your funds ASAP.
+
+comment: p0yax5p
+parent: t1_p0y68ew
+author: bitusher
+created_utc: 1785532108
+edited: false
+body:
+yes, which is why I said this
+
+>  but you need to still update the firmware and eventually migrate to a new seed regardless to be safe longterm. 
+
+
+
+comment: p0yg8ww
+parent: t1_p0y1u70
+author: user_name_checks_out
+created_utc: 1785533636
+edited: false
+body:
+> Well, it processes dice rolls just like it would process anything else.
+
+Rolling dice good. Making up random numbers bad.
+
+> I apologize for asking questions here when the answer is simply "it is because it is".
+
+That is not at all what I said. I said that the question has been beaten into the ground, it is no longer up for debate.
+
+comment: p0ygmza
+parent: t1_p0yax5p
+author: darosior
+created_utc: 1785533750
+edited: false
+body:
+Not eventually. They are getting drained now.
+
+comment: p0yidrv
+parent: t1_p0ygmza
+author: bitusher
+created_utc: 1785534263
+edited: 1785601147
+body:
+So far I am only aware of examples of MK2 and MK3 that used specific versions of firmware that are being drained or have been. 
+
+Can you give me an example of a MK4, MK5, or Q that was during this attack ? they have around ~73 bits of entropy(yes, I know this is best case and can be lower)  unlike the seeds that are being attacked which is far from ideal but takes time to brute force
+
+For example some of these cases are merely seeds that were generated from MK2 and MK3 wallets that were than migrated over to new hardware 
+
+https://x.com/TomerStrolight/status/2083578868191957292
+
+What is important is not where the seed ends up but what hardware and firmware combination generated the seed with insufficient entropy . Also you need to consider that some users are taking this opportunity to claim they lost all their btc in a "boating accident" due to the exploit or just have unreliable memories from years ago . 
+
+This being said we don't know when the attacker started brute forcing these seeds and they can be cracked in hypothetically as little as a week so its best to take action ASAP regardless
+
+comment: p0ysqp3
+parent: t1_p0ygmza
+author: bitusher
+created_utc: 1785537432
+edited: 1785598873
+body:
+Further clarification : The amount of entropy found in the mk4, 5 and Q is varies per device typically from ~60 to 73bits
+
+Hypothetically 60 to 73 bits of entropy found in the MK4,MK5 and Q seeds can be brute forced by a large GPU cluster in as soon as 1 week to centuries. Thus its best to upgrade your security on these in the next week **at the latest**. 
+
+Its unlikely we will see these wallets be attacked in a week but hypothetically possible with a well funded attacker
+
+comment: p111u9p
+parent: t1_p0rulxa
+author: striata
+created_utc: 1785568854
+edited: false
+body:
+You realize the website you linked is subject to the exact same security implications as the hardware wallets right? Nobody "exposed" their public address. Internet connection vs offline was not the issue.
+
+You're pretty clueless 
+
+comment: p13fdgd
+parent: t1_p0s72yk
+author: rockorangebear
+created_utc: 1785601785
+edited: false
+body:
+The coldcard people were a bunch of clowns that literally commented out their random number generator in their code.
+
+comment: p13tff1
+parent: t1_p0sdq7w
+author: frankenmint
+created_utc: 1785605813
+edited: false
+body:
+the path failed open.... it should have done a hard reject with the entropy check but it did not so because it failed silently and the path remained open, falty keys were being created
+
+comment: p13tli9
+parent: t3_1vb8taw
+author: TheGreatMuffin
+created_utc: 1785605861
+edited: false
+body:
+Affected Coldcard firmware versions: 
+
+| Model        | Firmware Version                  | Status                                      |
+|--------------|----------------------------------|---------------------------------------------|
+| Mk1          | 3.0.6 max                        | Not affected, cannot run affected firmware  |
+| Mk2 and Mk3  | 3.2.2 and earlier                | Safe, the seed came from the real TRNG      |
+| Mk2 and Mk3  | 4.0.1 to 4.1.9                   | Critical, about 40 bits                     |
+| Mk3          | 5.0.1-mk3 and 5.0.3-mk3          | Critical, about 40 bits                     |
+| Mk3          | 4.2.0 and later                  | Post-discovery fix                          |
+| Mk4          | 5.0.0-mk4 to 5.5.x               | Vulnerable, about 72 bits                   |
+| Mk5          | All up to 5.5.x                  | Vulnerable, about 72 bits                   |
+| Mk4 and Mk5  | 5.6.0 and later                  | Post-discovery fix                          |
+| Q            | All up to 1.4.x                  | Vulnerable, about 72 bits                   |
+| Q            | 1.5.0Q and later                 | Post-discovery fix                          |
+
+comment: p14b7t3
+parent: t1_p0ysqp3
+author: darosior
+created_utc: 1785610921
+edited: false
+body:
+What a terrible advice. I should have checked back on this thread earlier. Still time to delete.
+
+comment: p14w8v7
+parent: t3_1vb8taw
+author: Parikh1234
+created_utc: 1785617191
+edited: false
+body:
+Why are we even using banks anymore? 
+
+Saw this come out. Had a wallet I lost in a lake that was mk3 but I think the seed was made feb/mar 2021 and don’t remember the fw version when generated. So why risk it. 
+
+Literally transferred everything to a new multisig holding wallet in a few minutes for 93 cents. Not that I remember but probably wasn’t a small amount of sats. 
+
+Gonna take the time to recreate my backup metal seeds and everything this week but honestly to do that in the middle of the night for so cheap would have never been possible at a bank.
+
+Also sucks. I went boating in the ocean this morning, was kinda rough and my temp wallet fell into the water. Dammit. 
+
+comment: p1544s2
+parent: t1_p0rmrhl
+author: redrumeight
+created_utc: 1785619608
+edited: false
+body:
+So, does that mean seeds generated before March 2021 are safe?
+
+comment: p1608ol
+parent: t1_p14b7t3
+author: bitusher
+created_utc: 1785630303
+edited: false
+body:
+https://old.reddit.com/r/Bitcoin/comments/1vb8taw/security_advisory_for_coldcard_hardware_wallet/p0yidrv/
+
+comment: p16xx3z
+parent: t1_p0si027
+author: TangerineHors3
+created_utc: 1785642912
+edited: false
+body:
+“Banks lend out your money bro, just buy bitcoin it’s so simple.”
+
+comment: p1ihfvs
+parent: t3_1vb8taw
+author: Confident_Jacket_344
+created_utc: 1785787000
+edited: false
+body:
+The amount of schadenfreude the hackers are feeling right now is through the roof. Don't give them the satisfaction, they are reading everything and finding so much joy through your frustrations.
+
+comment: p1rp4a5
+parent: t1_p0si027
+author: Buttoshi
+created_utc: 1785893370
+edited: false
+body:
+I want to generate my own seed with dice/coins. How do I go about this? 
+
+I'm stuck on the part of generating the last word/checksum with a paper computer. 

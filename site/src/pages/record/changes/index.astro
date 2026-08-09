@@ -17,12 +17,8 @@ import { xMedia } from '../../../lib/xmedia';
  * captures, registered X posts and the operational log interleave because to
  * a reader they are the same kind of event, something entered the record on a
  * date. The filter defaults to reviewed source changes, which is the view
- * this page has always led with; everything else is one click away and stays
- * in the DOM.
- *
- * Known trade-off: the merged page ships roughly 2.3 MB of HTML by design
- * (every entry in the DOM, revealed progressively), consistent with the feed
- * approach and the no-JS rule that everything stays visible.
+ * this page has always led with. The newest bounded window stays in the DOM;
+ * older revisions remain on their source pages and in the JSON change feed.
  *
  * Everything the template needs is precomputed here. No conditionals or
  * string escapes in the markup: .astro expression parsing is fussier than
@@ -241,9 +237,17 @@ const nostrEntries: Entry[] = nostrPosts().map((post) => {
   };
 });
 
-const ordered = [...revisionEntries, ...firstEntries, ...postEntries, ...nostrEntries, ...opEntries]
+const orderedAll = [...revisionEntries, ...firstEntries, ...postEntries, ...nostrEntries, ...opEntries]
   .filter((e) => e.iso)
   .sort((a, b) => (a.iso < b.iso ? 1 : a.iso > b.iso ? -1 : 0));
+
+// A single ever-growing DOM made this route 7.4 MB within the first ten days.
+// Keep a useful recent search window here. Every older revision remains
+// human-readable on its source page, and the structured change feed is
+// complete for detected differences.
+const WINDOW = 240;
+const ordered = orderedAll.slice(0, WINDOW);
+const omittedCount = orderedAll.length - ordered.length;
 
 // Month grouping over the newest-first list, with the progressive-reveal flag
 // assigned by position in the whole stream rather than per month.
@@ -312,8 +316,8 @@ const FACET_SETS = [
 
 <Article
   title="Source change record"
-  description="Every capture, detected difference, registered post and operational event in the archive, in one chronological stream defaulting to the reviewed source changes."
-  standfirst="Everything that entered the record, in order: each difference the archive holds between two states of a tracked page, each first capture, each registered post, classified and dated."
+  description="Recent detected differences, first captures, registered posts and operational events, with complete revision history on each source page and in the JSON feed."
+  standfirst="The newest activity in one searchable stream. Older revisions remain on their source pages and in the complete structured change feed."
   depth="plain"
   kicker="The record / changes"
   next={{
@@ -348,10 +352,12 @@ const FACET_SETS = [
 
     <p>
       This record is part of the <a href="/record/">evidence section</a>, which
-      lists every tracked source and what is held for it. To follow it without
-      revisiting the page, the same entries are published as a JSON feed at
-      <a href="/record/changes.json">/record/changes.json</a>, carrying the
-      bounded revision window and provenance flags per item.
+      lists every tracked source and what is held for it. To follow detected
+      differences without revisiting the page, the complete revision series is
+      published as a JSON feed at
+      <a href="/record/changes.json">/record/changes.json</a>, carrying each
+      bounded revision window and its provenance flags. First captures,
+      registered social posts and poll diagnostics are not part of that feed.
     </p>
 
     <div class="ch__stats">
@@ -369,6 +375,13 @@ const FACET_SETS = [
         facetSets={FACET_SETS}
       />
     </div>
+
+    <p class="ch__window" hidden={omittedCount === 0}>
+      Search covers the newest {ordered.length} of {orderedAll.length} activity
+      entries. {omittedCount} older entries remain available on individual
+      source pages; all {revList.length} detected differences are in the
+      <a href="/record/changes.json">JSON change feed</a>.
+    </p>
 
     <p class="ch__empty" hidden={!isEmpty}>No source-content changes recorded yet.</p>
 
@@ -428,8 +441,8 @@ const FACET_SETS = [
     </noscript>
 
     <p class="ch__foot">
-      Back to <a href="/record/">the evidence index</a>, or read the same
-      differences as structured data in
+      Back to <a href="/record/">the evidence index</a>, or read every detected
+      difference as structured data in
       <a href="/record/changes.json">the JSON change feed</a>.
     </p>
 

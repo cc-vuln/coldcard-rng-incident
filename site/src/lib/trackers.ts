@@ -241,6 +241,36 @@ function shortTime(ts: string | null): string {
   return `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]} ${m[4]}:${m[5]} UTC`;
 }
 
+export interface TrackerMovementReading {
+  /** Capture this historical comparison is read from. */
+  at: string;
+  atLabel: string;
+  /** BTC the tracker labels MOVED, without the unit. */
+  movedBtc: string;
+  /** Percentage the tracker labels STILL HELD, without the percent sign. */
+  stillHeldPercent: string;
+}
+
+/**
+ * Read the movement summary from one named coldcard-hack-tracker capture.
+ *
+ * Unlike the headline cards, this deliberately does not fall back to a newer,
+ * older or pinned capture: editorial prose uses it to compare two historical
+ * states. Substituting another timestamp would silently change the assertion.
+ */
+export function hackTrackerMovementAt(at: string): TrackerMovementReading {
+  const text = snapshotText('coldcard-hack-tracker', at);
+  const movedBtc = /\bMOVED\s+([\d,]+\.\d+)\s+BTC\b/.exec(text)?.[1];
+  const stillHeldPercent = /\bSTILL HELD\s+([\d,]+(?:\.\d+)?)%(?:\s|$)/.exec(text)?.[1];
+  if (!movedBtc || !stillHeldPercent) {
+    throw new Error(
+      `trackers: coldcard-hack-tracker capture ${at} does not expose its ` +
+      'MOVED and STILL HELD summary',
+    );
+  }
+  return { at, atLabel: shortTime(at), movedBtc, stillHeldPercent };
+}
+
 function readOne(spec: TrackerSpec): TrackerReading {
   const snaps = snapshots(spec.id);
   const href = `/record/sources/${spec.id}/`;

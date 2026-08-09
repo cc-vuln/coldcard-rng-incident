@@ -1,0 +1,171 @@
+News
+Featured
+Latest
+CISA warns of cyberattacks disrupting U.S. water utilities
+Amazon links Debug, Chalk NPM supply-chain attacks to North Korean hackers
+Anthropic's Claude breached 3 orgs, uploaded PyPI malware during tests
+VMware fixes three critical flaws allowing auth bypass, VM escapes
+COLDCARD wallet RNG flaw likely linked to $88 million Bitcoin theft
+Google Chrome may soon block New Tab hijacker extensions by default
+Today only: This AI course bundle is just $14 in this deal
+Rails patches critical Active Storage flaw with RCE potential
+Tutorials
+Latest
+Popular
+How to access the Dark Web using the Tor Browser
+How to enable Kernel-mode Hardware-enforced Stack Protection in Windows 11
+How to use the Windows Registry Editor
+How to backup and restore the Windows Registry
+How to start Windows in Safe Mode
+How to remove a Trojan, Virus, Worm, or other Malware
+How to show hidden files in Windows 7
+How to see hidden files in Windows
+Webinars
+Downloads
+Latest
+Most Downloaded
+Qualys BrowserCheck
+STOPDecrypter
+AuroraDecrypter
+FilesLockerDecrypter
+AdwCleaner
+ComboFix
+RKill
+Junkware Removal Tool
+Deals
+Categories
+eLearning
+IT Certification Courses
+Gear + Gadgets
+Security
+VPNs
+Popular
+Best VPNs
+How to change IP address
+Access the dark web safely
+Best VPN for YouTube
+Forums
+More
+Virus Removal Guides
+Startup Database
+Uninstall Database
+Glossary
+Send us a Tip!
+Welcome Guide
+Home
+News
+Security
+COLDCARD wallet RNG flaw likely linked to $88 million Bitcoin theft
+COLDCARD wallet RNG flaw likely linked to $88 million Bitcoin theft
+By
+Lawrence Abrams
+August 2, 2026
+05:14 PM
+0
+Researchers suspect that a vulnerability in COLDCARD hardware wallet firmware was exploited to steal an estimated $88.6 million in Bitcoin from thousands of wallets whose seeds were generated using a flawed random number generator.
+Digital asset research firm Galaxy Research says it identified an initial wave of transactions that it believes was likely linked to the vulnerability, draining approximately 1,083 BTC, worth $70.2 million, from 1,196 addresses on July 30.
+The 41-minute attack occurred approximately 30 hours before Coinkite publicly disclosed the flaw.
+Every transaction used an identical hardcoded fee rate of 30 satoshis per virtual byte and left no change output, making Galaxy believe the attackers used an automated tool.
+"Signature: every sweep paid an identical hardcoded 30.0 sat/vB — a 30-75x overpay vs the 0.4-1.0 sat/vB median that week — and left no change output, explained Galaxy.
+"That looks like an automated tool spending keys it already held, not owners moving funds."
+On August 1, Galaxy Research identified a second and third wave, raising the estimated total to 1,367 Bitcoin, worth approximately $88.6 million, stolen from 4,585 addresses. The stolen Bitcoin remained in the attacker-controlled addresses at the time of its report.
+Chainalysis found that the attacker prioritized high-value wallets, stealing approximately $30 million during the first ten minutes and taking $1.8 million from one victim.
+The company said this suggested the attacker had identified and studied the affected wallets before beginning the thefts.
+Transactions for stolen COLDCARD assets over time
+Source: Chainalysis
+Flaw in COLDCARD RNG
+Block's Bitcoin Engineering and Security teams say that after seeing reports of Bitcoin being stolen from COLDCARD wallets, it worked with other researchers to analyze the device's firmware and identify the underlying vulnerability.
+Block says the researchers traced the issue to an integration error in COLDCARD's random number generation (RNG) code and disclosed their findings to Coinkite on July 30.
+"COLDCARD firmware contains an RNG integration error that causes ngu.random to use MicroPython's deterministic Yasmarang fallback instead of the STM32 hardware RNG," explains Block's report.
+COLDCARD includes a separate hardware random number generator, but an incorrect check in the firmware caused it to use a deterministic software generator instead.
+The fallback generator relied on the device's microcontroller identifier and system timing values, which Block says are not cryptographically secure sources of randomness and may be observable or reconstructable.
+This allowed attackers to generate possible wallet seeds offline, determine their Bitcoin addresses, and compare them with addresses visible on the blockchain. A match would confirm the correct seed, allowing the attacker to generate the private keys needed to steal the funds.
+A Coinkite advisory says affected seeds include those generated on Mk2 and Mk3 firmware versions 4.0.1 through 4.1.9, Mk4 and Mk5 devices before standard version 5.6.0 or Edge version 6.6.0X, and Q devices before standard version 1.5.0Q or Edge version 6.6.0QX.
+New firmware that fixes the flaw is available as version 4.2.0 or later for Mk2 and Mk3, 5.6.0 or later for standard Mk4 and Mk5 devices, 1.5.0Q or later for standard Q devices, and version 6.6.0X or 6.6.0QX for the corresponding Edge releases.
+However, it should be noted that updating the firmware does not repair a seed that was previously generated.
+Affected users should verify their existing backup, install the fixed firmware, generate and securely record a new seed, verify the new wallet address on the device, send a small test transaction, and then move the remaining funds.
+The old backup should be retained until the migration is complete and confirmed.
+Coinkite says seeds supplemented with at least 50 fair, independent, and private dice rolls are not considered at risk from this flaw alone.
+A strong, unique BIP-39 passphrase also makes it harder to exploit, but users should still migrate because it does not repair the underlying seed.
+Coinkit says that their TAPSIGNER, OPENDIME, and SATSCARD products are not affected because they use different codebases.
+Coinkite says it also destroyed all COLDCARD devices that were awaiting shipment with the affected firmware.
+Customers whose devices had already shipped were contacted by email with the security advisory and instructions for migrating their funds.
+Test every layer before attackers do
+Security teams log 54% of successful attacks and alert on just 14%. The rest move through your environment unseen.
+The Picus whitepaper shows how breach and attack simulation tests your SIEM and EDR rules so threats stop slipping by detection.
+Get the whitepaper
+Related Articles:
+Apple sued over fake App Store crypto wallet app stealing $1.8M in Bitcoin
+Rails patches critical Active Storage flaw with RCE potential
+Online ad firm Adform’s script compromised to steal cryptocurrency
+JetBrains warns of critical TeamCity remote code execution flaw
+VMware fixes three critical flaws allowing auth bypass, VM escapes
+Bitcoin
+COLDCARD
+CryptoCurrency
+Hardware Wallet
+Random Number Generator
+Vulnerability
+Lawrence Abrams
+Lawrence Abrams is the owner and Editor in Chief of BleepingComputer.com. Lawrence's area of expertise includes Windows, malware removal, and computer forensics. Lawrence Abrams is a co-author of the Winternals Defragmentation, Recovery, and Administration Field Guide and the technical editor for Rootkits for Dummies.
+Previous Article
+Post a Comment Community Rules
+You need to login in order to post a comment
+Not a member yet? Register Now
+You may also like:
+Popular Stories
+Anthropic's Claude breached 3 orgs, uploaded PyPI malware during tests
+Arch Linux disables AUR package adoption to stop malware flood
+Microsoft Teams vishing attacks lead to Chaos ransomware attacks
+Sponsor Posts
+Pixellot discovered and secured hundreds of unmanaged AI agent identities in weeks, not months. Download the case study for how.
+Stay one step ahead of new threats in the new year. Join Huntress for the monthly Tradecraft Tuesday.
+Explore ESET’s H1 2026 Threat Report to uncover the latest AI, phishing, and ransomware trends.
+Uncover shadow AI apps, agents, and risky data sharing. Get started in 5 min.
+Overdue a password health-check? Audit your Active Directory for free
+Follow us:
+Main Sections
+News
+Webinars
+VPN Buyer Guides
+SysAdmin Software Guides
+Downloads
+Virus Removal Guides
+Tutorials
+Startup Database
+Uninstall Database
+Glossary
+Community
+Forums
+Forum Rules
+Chat
+Useful Resources
+Welcome Guide
+Sitemap
+Company
+About BleepingComputer
+Contact Us
+Send us a Tip!
+Advertising
+Write for BleepingComputer
+Social & Feeds
+Changelog
+Terms of Use - Privacy Policy - Ethics Statement - Affiliate Disclosure
+Copyright @ 2003 - 2026 Bleeping Computer® LLC - All Rights Reserved
+Login
+Username
+Password
+Remember Me
+Sign in anonymously
+Sign in with Twitter
+Not a member yet? Register Now
+Reporter
+Help us understand the problem. What is going on with this comment?
+Spam
+Abusive or Harmful
+Inappropriate content
+Strong language
+Other
+Read our posting guidelinese to learn what content is prohibited.
+Submitting...
+SUBMIT

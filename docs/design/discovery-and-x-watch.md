@@ -222,9 +222,17 @@ a follow from the project account.
 
 **Amended 8 Aug 2026:** the API mechanics below are struck with the lane.
 `discover_x_browser.py` keeps the same shape over capture-browser reads — the
-caps, first-run baselining, ID-only queue, cooldown and atomic checkpoint —
+caps, ID-only queue, cooldown and atomic checkpoint —
 and the retired read-only triage flow in step 7 is replaced by the automated
 promotion in §7. The details are kept as the record of what was built.
+
+**Amended 9 Aug 2026:** first-run baselining was found to have suppressed
+watched-profile posts without ever offering them to intake. Browser first
+contact now reads back to the watch's `since` date or stable exhaustion and
+queues the bounded history. If the hard pass cap is reached first, it queues
+nothing and leaves the checkpoint untouched. `--queue-initial` is retained as
+the explicit repair path for legacy baseline ids, not as normal first-contact
+behaviour. The API steps below remain only a history of the retired lane.
 
 `scripts/discover_x.py` is stdlib-only:
 

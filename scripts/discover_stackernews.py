@@ -135,6 +135,8 @@ def main() -> int:
                     help="report every new item, not just keyword matches")
     ap.add_argument("--no-state", action="store_true",
                     help="do not update the seen state (a look, not a sweep)")
+    ap.add_argument("--reconsider-seen", action="store_true",
+                    help="re-evaluate the current listing despite saved seen state")
     ap.add_argument("--show", metavar="ITEM_ID",
                     help="print one thread's item body and exit (for hydration)")
     args = ap.parse_args()
@@ -147,6 +149,7 @@ def main() -> int:
     pages = min(args.pages, MAX_PAGES)
     state = load_state(STATE)
     seen = set(state.get("seen", []))
+    skip_seen = set() if args.reconsider_seen else seen
     known = registered_urls_sn()
     deferred = deferred_urls()
     cutoff = datetime.now(timezone.utc)
@@ -179,7 +182,7 @@ def main() -> int:
                 # A deferred candidate is re-reported while it is still in
                 # the listing window, so it can promote itself once the
                 # thread grows.
-                if iid in seen and url not in deferred:
+                if iid in skip_seen and url not in deferred:
                     continue
                 seen.add(iid)
                 title = it.get("title") or "(comment or untitled)"

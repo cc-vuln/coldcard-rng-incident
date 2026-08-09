@@ -1,0 +1,930 @@
+post: 1vd4f2e
+author: FunWithSkooma
+created_utc: 1785633549
+title: It seems people did not understand what happened to ColdCard
+body:
+Self custody is not a problem, what happened is that generating your seed with a ColdCard MK3 would not have enough entropy, making your private key easy to be guessed, thats it. Your MK3 is still usable, but you should NOT use it to generate a seed, instead you have to use any other solution to generate your seed and then load it on your MK3.
+
+[https://iancoleman.io/bip39/](https://iancoleman.io/bip39/)
+
+[https://sparrowwallet.com/](https://sparrowwallet.com/)
+
+[https://electrum.org/](https://electrum.org/)
+
+Your MK3 is not useless, it still works as intended.
+
+comment: p16epgf
+parent: t3_1vd4f2e
+author: Forymanarysanar
+created_utc: 1785635484
+edited: false
+body:
+You really shouldn't use any of these "solutions" to generate seed. They all could be vulnerable to the same issue. Use dice instead. 
+
+comment: p16eyoq
+parent: t3_1vd4f2e
+author: so7ow
+created_utc: 1785635577
+edited: false
+body:
+I think some of what you're seeing is "if they could fuck up something so integral to the foundation of their product so completely and so fundamentally, what else is fucked up in this product line, and do I really want to find out the hard way?" 
+
+comment: p16fbhj
+parent: t1_p16epgf
+author: FunWithSkooma
+created_utc: 1785635708
+edited: false
+body:
+if you take an actual look at iancoleman solution, it provides you entropy options, and dice is there, as well as binary, Base 6, Base 10, Hex and Card entropy.
+
+comment: p16fixz
+parent: t1_p16eyoq
+author: FunWithSkooma
+created_utc: 1785635785
+edited: false
+body:
+nothing, the problem was only with the generation of the seeds, as a signer it works 100%
+
+comment: p16flfo
+parent: t1_p16fixz
+author: so7ow
+created_utc: 1785635811
+edited: false
+body:
+lol, says you??
+
+comment: p16fy2e
+parent: t1_p16flfo
+author: FunWithSkooma
+created_utc: 1785635940
+edited: false
+body:
+what? Have you read what was the actual problem with the MK3?
+
+comment: p16gaz7
+parent: t1_p16fy2e
+author: so7ow
+created_utc: 1785636072
+edited: false
+body:
+That's the issue that was discovered and exploited. I'm saying, right or wrong, it's understandable if people think there could be other *as yet undiscovered* flaws in a product implemented by a team this careless/incompetent.
+
+comment: p16gfq6
+parent: t3_1vd4f2e
+author: Lost-Bowl3269
+created_utc: 1785636119
+edited: false
+body:
+Esse lixo de produto se vendia como um cofre seguro. É uma propaganda enganosa.   
+Ainda que tenha alguma utilidade marginal, ninguem mais deveria usar isso e deveriam boicotar a empresa.  
+Todos os lesados devem processar os responsáveis e essa empresa deve falir e ir para o limbo da vergonha.
+
+Joguem sua coldcards no lixo e apoiem outras empresas que levam a segurança a sério e não façam propaganda enganosa. 
+
+comment: p16gm9s
+parent: t3_1vd4f2e
+author: CipherScarlatti
+created_utc: 1785636187
+edited: false
+body:
+It's not that I don't understand. It's that I just don't care.
+
+comment: p16gusq
+parent: t1_p16fixz
+author: mickalawl
+created_utc: 1785636274
+edited: false
+body:
+Does be your own bank involve you now needing to be a code reviewer to verify implementation details of every solution you might interact with now and in the future? 
+
+How do you know as a signer it's sound? 
+
+comment: p16gz7w
+parent: t1_p16epgf
+author: CipherScarlatti
+created_utc: 1785636319
+edited: false
+body:
+This is the real issue. Adding outside/additional things introduce more opportunities for problems.
+
+comment: p16h3g9
+parent: t1_p16fbhj
+author: Lost-Bowl3269
+created_utc: 1785636362
+edited: false
+body:
+Toda a entropia gerada por software é uma pseudo entropia. As entropias das hardwallets boas são geradas fisicamente através do chip de elemento seguro calculando impulsos elétricos no mundo físico.  
+Se você não confiar no chip de elemento seguro, pode usar dados reais jogandos no mundo real, jogar uma moeda para cara ou coroa, dados d20 de rgp, etc. 
+
+Softwares e sites que simulam entropia, apenas simulam. Nâo tente gerar suas chaves online, é estupidez. É apenas demonstração.   
+A coldcard deveria usar um chip de elemento seguro para calcular entropia automática, mas enganou as pessoas com um erro de programação primário e soltou um firmware release fazendo uma geração de aleatóriedade por software, ou seja "pseudo" aleatório, apenas parecendo que é aleatório. 
+
+Use Iancoleman apenas para fins educacionais. 
+
+comment: p16hdot
+parent: t1_p16h3g9
+author: FunWithSkooma
+created_utc: 1785636467
+edited: false
+body:
+Voce parece nunca ter usado a solução do ian, ele oferce entropia do mundo real na geração. ele é a solução mais conhecida e mais segura que temos no momento, literalmente todo bitcoinheiro raiz usa ele, já recomendou.
+
+comment: p16hqs3
+parent: t1_p16gusq
+author: FunWithSkooma
+created_utc: 1785636602
+edited: false
+body:
+you can import your PST and generate a PSBT with it completly airgapped so you can then broadcast using your online device, so it still works for that.
+
+comment: p16hzbz
+parent: t1_p16hdot
+author: Lost-Bowl3269
+created_utc: 1785636690
+edited: false
+body:
+Todos os bitconheiros raizes indicavam coldcard também. Pare de acreditar em imbecis do youtube e adolescentes.   
+O iancoleman é pseudoaleatório, porém com uma aleatóriedade muito mais forte que o lixo da coldcard usando micropython. 
+
+Mas se não quiser acreditar em mim, não acredite. Use e seja feliz. Eu usaria apenas para fins educacionais e geraria entropia usando dados físicos.  
+
+comment: p16i5mq
+parent: t1_p16hzbz
+author: FunWithSkooma
+created_utc: 1785636755
+edited: false
+body:
+Quem indica qualquer hardware wallet não considero um bitcoinheiro, apenas um influencer msm. Bitconheiro raiz faz uso de DIY.
+
+comment: p16i9uv
+parent: t1_p16hzbz
+author: Lost-Bowl3269
+created_utc: 1785636799
+edited: false
+body:
+PS: isso que não estou chegando sequer nos problemas de navegador adulterado, keylogger, extensões maliciosas, etc. Nenhuma seed realmente segura deve chegar proxima de um computador com acesso a internet. 
+
+comment: p16ihoc
+parent: t1_p16gaz7
+author: FunWithSkooma
+created_utc: 1785636881
+edited: false
+body:
+i doubt there will be any other insane flaw with it, a signer is simple a signer, it does sign your PST so you can broadcast it, the only secure issue would be if the MK3 had access to the internet and leak your private key during that process, which it does not.
+
+comment: p16ipuw
+parent: t1_p16i9uv
+author: FunWithSkooma
+created_utc: 1785636967
+edited: false
+body:
+você ficaria extremamente abismado como eu guardo minha seed :) Mas como programador e amante de criptografia, eu sei justamente oq eu faço.
+
+comment: p16jdv1
+parent: t1_p16fbhj
+author: UpbeatFix7299
+created_utc: 1785637218
+edited: false
+body:
+Lol crypto mass adoption imminent. People will definitely want to do all this shit just to make sure their money doesn't vanish overnight. 
+
+comment: p16jna6
+parent: t1_p16ihoc
+author: so7ow
+created_utc: 1785637316
+edited: false
+body:
+Nonsense. There could be any number of flaws. As far as I know, not having read the code, maybe it time-locks your change until the year 2140 if you send a transaction on leap year. Should I take your word that it doesn't, because you doubt it, or should I go read the code to make sure?
+
+comment: p16jwzw
+parent: t3_1vd4f2e
+author: Coeruleus_
+created_utc: 1785637419
+edited: false
+body:
+lol ok dude where were you telling people this 3 years ago when all you bots were shilling it.  no one should use this product. company should go bankrupt 
+
+comment: p16jyg9
+parent: t1_p16jna6
+author: [deleted]
+created_utc: 1785637434
+edited: false
+body:
+[removed]
+
+comment: p16k34z
+parent: t1_p16fy2e
+author: Coeruleus_
+created_utc: 1785637484
+edited: false
+body:
+the question is what the hell did you read to ever want to trust them again. you sound insane 
+
+comment: p16k75y
+parent: t1_p16jwzw
+author: FunWithSkooma
+created_utc: 1785637527
+edited: false
+body:
+I was accumulating bitcoin and storing it all on my wallet generated outside of any hardware wallet env and loaded on my shitty android phone with no internet that has no other use besides being a hardware wallet, and teaching people how to make it right too.
+
+i always dismissed hardware wallets, people should not buy those, instead, people should learn how to generate a bitcoin wallet and use DIY solutions, seedsigner, old phones with Electrum Bitcoin Wallet of Cupcake from Cake Wallet etc.
+
+comment: p16k9k3
+parent: t1_p16jyg9
+author: so7ow
+created_utc: 1785637552
+edited: false
+body:
+I'm saying Coinkite has lost the presumption of competence and I'm not touching their stuff with a 10-ft pole, for signing or anything else. 
+
+comment: p16kinm
+parent: t1_p16k75y
+author: Coeruleus_
+created_utc: 1785637648
+edited: false
+body:
+https://i.redd.it/vz9ix40ihvgh1.gif
+
+comment: p16kk4g
+parent: t1_p16k9k3
+author: FunWithSkooma
+created_utc: 1785637663
+edited: false
+body:
+fair
+
+comment: p16kpsn
+parent: t1_p16k34z
+author: FunWithSkooma
+created_utc: 1785637721
+edited: false
+body:
+I never trusted hardware wallets to buy one lol, I dont like them, just stating that the problem with the MK3 was the psudo random bullshit they used, but as a signer, it still usable.
+
+comment: p16lmo8
+parent: t1_p16gfq6
+author: zzx101
+created_utc: 1785638064
+edited: false
+body:
+I’m wondering if at some point we’ll find out this was an inside job. 
+
+If I were this company I’d take a good hard look at anyone that could have masterminded this. 
+
+To be honest it’s kind of brilliant, with plausible deniability etc. 
+
+comment: p16lqh8
+parent: t1_p16kpsn
+author: Vessbot
+created_utc: 1785638102
+edited: false
+body:
+Remember 3 minutes ago when the other guy explained that the argument is that they have lost the presumption of competence and, correspondingly, the concern is other potential undiscovered problems, and not "the" problem we're already familiar with, and you said you understood? 
+
+comment: p16lvij
+parent: t1_p16lqh8
+author: so7ow
+created_utc: 1785638153
+edited: false
+body:
+🤣
+
+comment: p16n4na
+parent: t1_p16lvij
+author: Vessbot
+created_utc: 1785638629
+edited: false
+body:
+What do you think is likelier, that this time it sticks, or that Coldcard has no other flaws? 
+
+comment: p16n6yb
+parent: t3_1vd4f2e
+author: GreedVault
+created_utc: 1785638654
+edited: false
+body:
+You only mentioned the surface of the problem, the deeper issue is whether these self-custody wallets are trustworthy to begin with, who knows what other vulnerabilities they might have? The unknown unknowns are the scariest part. Unless you can personally review the entire codebase of the self custody wallet and have the security expertise to audit it throughly, if not you will never know what's lurking beneath. Even then, there could still be bug that nobody has discovered yet, Its definitely worrying, if you are only holding small amount of crypto, I would just keep it on a reputable CEX. Even FTX goes bankrupt, users at least have a legal process and a chance of recovering some of their funds, and in the case like the coldcard, recovery is going to be much harder, unless you have faith in the law enforcement capable of identifies and catches whoever is responsible.
+
+comment: p16ogg5
+parent: t1_p16k75y
+author: relephants
+created_utc: 1785639136
+edited: false
+body:
+If that's the only way to do it, cryptocurrency is 100% DOA
+
+comment: p16olos
+parent: t3_1vd4f2e
+author: bocajake
+created_utc: 1785639192
+edited: false
+body:
+OP is the hacker and he wants to make sure your funds are still in the wallet
+
+comment: p16paz7
+parent: t1_p16eyoq
+author: TCr0wn
+created_utc: 1785639464
+edited: false
+body:
+And the answer is no. Not worth the risk. 
+
+comment: p16pfyn
+parent: t1_p16fixz
+author: TCr0wn
+created_utc: 1785639518
+edited: false
+body:
+How do we know this 100% right now? How can we be certain that’s the cause at this point?  
+Regardless not worth the risk, not sure why you’d think otherwise unless you’re on their payroll
+
+comment: p16pjjv
+parent: t1_p16ihoc
+author: TCr0wn
+created_utc: 1785639557
+edited: false
+body:
+“I doubt” bro stfu 
+
+comment: p16plfw
+parent: t1_p16n6yb
+author: FunWithSkooma
+created_utc: 1785639577
+edited: false
+body:
+what other issues might there be with MK3? The only other problem I see that is if for some reason it leaks the private key when signing a PST, and if it does, it leaks to whom? Because if I can use a MK3 to sign a PST generated in Electrum Bitcoin Wallet, how will the MK3 leak my private key to Electrum if it does not expect it?
+
+comment: p16q3j3
+parent: t3_1vd4f2e
+author: hiimtashy
+created_utc: 1785639775
+edited: false
+body:
+Honestly self custody is proving to be too hard for the normies myself included 
+
+comment: p16qh3q
+parent: t1_p16q3j3
+author: FunWithSkooma
+created_utc: 1785639924
+edited: false
+body:
+it not.
+
+just dont use internal hardware wallets random to generate a seed, use well known open source wallets generators from the links I gave, iancoleman be the best one since it gives you all the tools.
+
+comment: p16qtzl
+parent: t3_1vd4f2e
+author: shadowmage666
+created_utc: 1785640067
+edited: false
+body:
+I wouldn’t trust coldcard after this. Who knows what else is wrong with it 
+
+comment: p16r335
+parent: t1_p16plfw
+author: GreedVault
+created_utc: 1785640169
+edited: false
+body:
+The firmware might be secure, the code might be perfectly fine, but that doesnt mean the device you receive is. Someone could hijack it during shipping, tamper the hardware or firmware, and send it on to you without you ever knowing.
+
+And who knows what other libraries the cold wallet depends on that might already have vulnerabilities to begin with?
+
+comment: p16r6df
+parent: t1_p16qh3q
+author: hiimtashy
+created_utc: 1785640206
+edited: false
+body:
+It's too late for me. I sold my hardware wallet stack last night. Will holding my ETFs forever. I honestly am just de risking. I've got three kids. I'm tired of playing cat and mouse with hackers. 
+
+comment: p16r8e3
+parent: t1_p16r335
+author: FunWithSkooma
+created_utc: 1785640228
+edited: false
+body:
+you basically described all hardware wallets, including Trezor, Ledge, ColdCard, Tangem, all could be tampered with.
+
+So in the end:
+
+Android phone with no internet as a offline signer is the best of all options, or buy the parts you need to build your own seedsigner or Krux
+
+comment: p16rgoc
+parent: t1_p16r6df
+author: FunWithSkooma
+created_utc: 1785640320
+edited: false
+body:
+fair
+
+comment: p16rnoq
+parent: t1_p16r8e3
+author: GreedVault
+created_utc: 1785640398
+edited: false
+body:
+no, just use a reputable CEX, if it goes bankrupt, at least you have a legal entity you can pursue through the courts.
+
+comment: p16skcl
+parent: t3_1vd4f2e
+author: 5khan1
+created_utc: 1785640759
+edited: false
+body:
+You really think the average person would understand entropy failures. 
+If a hardware wallet can generate a seedphrase with insufficient entropy then that hardware wallet is useless. This is a really big mess and it's all coldcards fault. 
+
+You always hear people saying get your coins off exchanges and put them in self custody, So that's what these people done and now they have lost it all. 
+
+comment: p16uolf
+parent: t1_p16qh3q
+author: vortexcortex21
+created_utc: 1785641616
+edited: false
+body:
+You must be autistic, if you don't realise that your suggested solution is not feasible for the mainstream.
+
+comment: p16zlaz
+parent: t3_1vd4f2e
+author: VendettaKarma
+created_utc: 1785643584
+edited: false
+body:
+Anyone left in this space just hears: “Now the self custody everyone preached got hacked.” 
+
+This might be the thing that really kills everything not named BTC, ETH or SOL
+
+comment: p1757kp
+parent: t3_1vd4f2e
+author: VegetableMousse8077
+created_utc: 1785645957
+edited: false
+body:
+They majorly fucked up and deserve to find out. No one should use such a fail tech
+
+comment: p175whs
+parent: t3_1vd4f2e
+author: Bagmasterflash
+created_utc: 1785646259
+edited: false
+body:
+People are dumb. They think BTC is actual bitcoin. 
+
+comment: p176abe
+parent: t3_1vd4f2e
+author: doghairpile
+created_utc: 1785646427
+edited: false
+body:
+Or don’t “invest” in this overly complex, hackable garbage that has still not become mainstream. Maybe because it’s pointless? This nonsense doesn’t happen with banks. 
+
+comment: p17ar4l
+parent: t3_1vd4f2e
+author: k0lt1
+created_utc: 1785648448
+edited: false
+body:
+Tell that to people who lost their money. This is cryptos flaw plain and simple
+
+comment: p17f9z7
+parent: t1_p16k75y
+author: GesturalAbstraction
+created_utc: 1785650590
+edited: false
+body:
+Im not directly picking on you of course, but I must say, it is so funny when people say this kind of thing, and then in the next breath complain about how institutional adoption opposes the early spirit and objective of crypto, and whine about mass adoption.
+
+The truth is that as long as crypto remains this hard to use even after all these years, with zero recourse or insurance against being defrauded or stolen from, mass adoption will never be a thing.  The only meaningful utility we are left with is RWT.
+
+comment: p17hvr9
+parent: t3_1vd4f2e
+author: gunscythe
+created_utc: 1785651825
+edited: false
+body:
+Banks have layers upon layers of security and fraud prevention.  With bitcoin there’s literally no one watching over you.  There is no proactive security.  And there is nothing you can do once the money is stolen from you.
+
+comment: p17i3wk
+parent: t1_p16ogg5
+author: anymonero
+created_utc: 1785651934
+edited: false
+body:
+Why? Everybody has an old phone they don't use anymore.
+
+comment: p17n56c
+parent: t1_p16jwzw
+author: no_choice99
+created_utc: 1785654372
+edited: 1785675113
+body:
+To be fully honest, I had never heard of that turd of a cold wallet before the incident.
+
+comment: p17oqz1
+parent: t1_p16h3g9
+author: no_choice99
+created_utc: 1785655147
+edited: false
+body:
+Dados e moneda não são aleatórios! 
+
+Dices and coin throwing are not random! There is a heavy bias towards the side that is upward when you take it in your hand. Don't use these methods.
+
+comment: p17sajb
+parent: t1_p17f9z7
+author: futurefloridaman87
+created_utc: 1785656894
+edited: false
+body:
+Right? Imagine explaining to Grandma how she needs to protect her bitcoin. It’s fucking insane to expect mass adoption at this point. Even if you say “ well, what about the lightning system?” it’s still all in 100 steps too complicated for the masses.
+
+comment: p17v0vg
+parent: t1_p16k75y
+author: meremah_boob
+created_utc: 1785658265
+edited: false
+body:
+cake wallet suffered from same entropy issue back in 2020/21 and got 550+ bitcoins and numerous monero stolen. Would you trust a company again after such events?
+
+comment: p17vc7z
+parent: t1_p16lmo8
+author: meremah_boob
+created_utc: 1785658425
+edited: false
+body:
+This is highly possible and such events only happen during bear markets only. I guess dev's were like it's time to exploit the bug and let's call it a day. NVK is a smart guy and it doesn't makes sense for him to not find the bug in last 5 years.. Also For 5 years nobody exploited it but randomly one day someone decided to fuck with a cold wallet's open source code, instead of going after other things. That's weird and raises doubts.
+
+comment: p17x5vm
+parent: t1_p16plfw
+author: gigasawblade
+created_utc: 1785659355
+edited: false
+body:
+Imagine you asked the same "what issues might there be with MK3?" a month ago? Nobody would point out to current issue too. This is what is meant by "unknown unknowns"
+
+comment: p17yhrn
+parent: t3_1vd4f2e
+author: Aphelion
+created_utc: 1785660040
+edited: false
+body:
+Is that you coinkite?
+
+comment: p17zaxh
+parent: t1_p175whs
+author: ExcellentFall7197
+created_utc: 1785660451
+edited: false
+body:
+Obviously you’re retarded.
+
+comment: p181nr5
+parent: t3_1vd4f2e
+author: DKDamian
+created_utc: 1785661675
+edited: false
+body:
+Ok. Great. And what’s the next “trustworthy” company to fall? Two weeks ago this company was apparently rock solid and completely safe. And now it’s not. And people who followed all of the ridiculous rules and mantras, have lost money. 
+
+Future of finance? Perhaps not. 
+
+comment: p182mmh
+parent: t1_p16ogg5
+author: Hertzegovina
+created_utc: 1785662175
+edited: false
+body:
+no shit 😂😂😂😂
+
+comment: p184zdq
+parent: t3_1vd4f2e
+author: I_am_Regarded
+created_utc: 1785663403
+edited: false
+body:
+Bro just buy two more and a dice - funniest advices out there.
+
+When is time to start thinking about conviction?
+
+comment: p18appi
+parent: t3_1vd4f2e
+author: Kaiser3rd
+created_utc: 1785666320
+edited: false
+body:
+Got it. Adoption requires a computer science major. 
+
+comment: p18av5y
+parent: t1_p17i3wk
+author: Thomas5020
+created_utc: 1785666395
+edited: false
+body:
+They don't, no. 
+
+comment: p18d5q5
+parent: t1_p16eyoq
+author: Halocandle
+created_utc: 1785667509
+edited: false
+body:
+Yeah the developer who made the fatal code change both destroyed the company and cost their clients thousands. He might wanna lay low for a while… 
+
+comment: p18de1s
+parent: t1_p16jwzw
+author: Dmoan
+created_utc: 1785667616
+edited: false
+body:
+You are assuming this wasn’t an inside job,  If you are small developer who makes few thousand selling cold wallets. 
+
+What’s stopping you from enabling a compromise/back door on purpose and waiting a few years. Then selling this to 3rd party hacking group for few million and cashing out and walking away.
+
+comment: p18eooj
+parent: t1_p17vc7z
+author: murderette
+created_utc: 1785668219
+edited: false
+body:
+It’s probably undiscovered until a very high end AI like kimi K3 is asked to review the code (unlike closed models like Fable5 it has no guardrails, which is a two sided sword )
+
+comment: p18stzz
+parent: t1_p17i3wk
+author: relephants
+created_utc: 1785674110
+edited: false
+body:
+They don't. And even if they did, they wouldn't do all of that when they can just put money in their bank 
+
+comment: p18ten4
+parent: t3_1vd4f2e
+author: EasyEar0
+created_utc: 1785674316
+edited: false
+body:
+> Self custody is not a problem
+
+Wrong.
+
+It's a problem because it's too complicated for the average person to do securely. Just being possible to do it securely in principle is not good enough if your goal is mass adoption.
+
+comment: p18u3kz
+parent: t1_p16epgf
+author: EasyEar0
+created_utc: 1785674567
+edited: 1785674800
+body:
+Or you could open a bank account, invest in assets with real tangible value, and have them protected by actual security and accountability if something goes wrong.
+
+comment: p194qnq
+parent: t1_p16k75y
+author: paymentnerdfoo
+created_utc: 1785678176
+edited: false
+body:
+So you’re not at all worried about your shitty android phone suddenly bricking itself?  You have a single failure point for all of it on a piece of hardware not designed for that responsibility. I mean neither was cold card. Lack of entropy is a terrible bug.  It’s like building a bank vault out of aluminum foil. 
+
+comment: p1960me
+parent: t1_p194qnq
+author: FunWithSkooma
+created_utc: 1785678586
+edited: false
+body:
+bricking? You know you have to backup your seed in a paper or steel plate, right? Your old phone is there to SIGN transactions only
+
+comment: p197jr2
+parent: t1_p17zaxh
+author: Bagmasterflash
+created_utc: 1785679067
+edited: false
+body:
+Bet. 
+
+What’s the title of the white paper?
+
+comment: p19b33v
+parent: t1_p16qh3q
+author: meme_2
+created_utc: 1785680161
+edited: false
+body:
+![gif](giphy|NcrhM3USM6TABpus85)
+
+People that just lost hundreds of thousands of dollars reading your post. 
+
+comment: p19cbgb
+parent: t1_p16lmo8
+author: meme_2
+created_utc: 1785680536
+edited: false
+body:
+Occam’s razor would suggest it was just poor coding. I would have expected an inside job to have occurred a long time ago. 
+
+The flaw was technically discoverable by anyone, right? So wouldn’t waiting a long time would reduce the chances of an insider carrying out the job?
+
+comment: p19eb5l
+parent: t1_p18u3kz
+author: Forymanarysanar
+created_utc: 1785681131
+edited: false
+body:
+See this works when you live in a first world country with strong currency and protections. If you live in third world garbage where currency can (and has) lost half of its value overnight and your investments basically seized, that's another question. 
+
+comment: p19ebcs
+parent: t1_p19cbgb
+author: zzx101
+created_utc: 1785681133
+edited: false
+body:
+Yeah if the faulty code was public then I’m thinking now likely an AI discovered it. 
+
+comment: p19hzpp
+parent: t3_1vd4f2e
+author: iiJokerzace
+created_utc: 1785682215
+edited: false
+body:
+So just trust me bro?
+
+That's the problem; 99.99% have no choice but to trust the bro telling us what we use is secure, for an industry with hardly any insurance.
+
+comment: p1a8khn
+parent: t3_1vd4f2e
+author: CeramicDrip
+created_utc: 1785689614
+edited: false
+body:
+No, we all understand what happened. We just think this “if we can’t trust the fucking device to do certain things safely, we should start to question this method of storage altogether” 
+
+comment: p1a8rak
+parent: t1_p16skcl
+author: CeramicDrip
+created_utc: 1785689665
+edited: false
+body:
+Exactly
+
+comment: p1aayzx
+parent: t3_1vd4f2e
+author: SassySirennn
+created_utc: 1785690262
+edited: false
+body:
+Your right. But it’s besides the point. This latest round of news is just another thing driving holdrs towards exhaustion.
+
+comment: p1akf9k
+parent: t3_1vd4f2e
+author: razvanciuy
+created_utc: 1785692789
+edited: false
+body:
+Bottom line it was suppose to be safe. Turned out to be a ticking bomb
+
+comment: p1b0q3x
+parent: t1_p16ogg5
+author: lurkerlevel-expert
+created_utc: 1785697195
+edited: false
+body:
+Don't yall have phones 
+😂
+
+comment: p1b1fe4
+parent: t1_p16qh3q
+author: lurkerlevel-expert
+created_utc: 1785697390
+edited: false
+body:
+Just be your own bank + software/security/network/hardware engineer. Oh and don't lose that piece of paper secret under your mattress 
+😂
+
+comment: p1badph
+parent: t3_1vd4f2e
+author: NHLroyrocks
+created_utc: 1785699873
+edited: false
+body:
+I get what you are trying to say but the reality is that coldcard failed at doing the single most important thing their product advertised as being able to do. You say it can still do everything else but at this point why would anyone trust that it can do those things right either. Any aspect of coldcard can have a nasty bug somewhere and they just ruined their reputation and trust with anyone with more than 2 brain cells.
+
+comment: p1c8nwm
+parent: t3_1vd4f2e
+author: Zanthious
+created_utc: 1785709872
+edited: false
+body:
+So it point is the hardware device made by and coded by clowns is still good? U willing to bet ur BTC on it?
+
+comment: p1ckay0
+parent: t1_p16r6df
+author: shydude101
+created_utc: 1785713582
+edited: false
+body:
+Just put everything on Coinbase. These weird cold storage wallets are just a no. That includes Trezor. 
+
+comment: p1clttd
+parent: t1_p1ckay0
+author: hiimtashy
+created_utc: 1785714084
+edited: false
+body:
+I have had my Trezor 10 years and its been fine but I agree. I just can't do it anymore. My time and energy is too valuable to me and I can't be bothered playing chicken and egg with hackers. if Coldcard can get hacked which was meant to be the best any hardware wallet can with incompetence. I suppose Coinbase can too but one would hope they have spread their risk and they have have the financial means to stay up to date with the latest threats.
+
+comment: p1d4sat
+parent: t1_p16ihoc
+author: Chimbopowae
+created_utc: 1785720457
+edited: false
+body:
+lol fuckin regard 🤣
+
+comment: p1f8j5u
+parent: t1_p16hqs3
+author: ExcellentFall7197
+created_utc: 1785754288
+edited: false
+body:
+R•E•T•A•R•D
+
+comment: p1gaers
+parent: t3_1vd4f2e
+author: PlutoPlaneta
+created_utc: 1785766792
+edited: false
+body:
+"its not a problem"
+
+continues to describe why its a problem
+
+comment: p1ipko0
+parent: t1_p16ihoc
+author: spicybright
+created_utc: 1785789133
+edited: false
+body:
+"The wheel fell off my car on the highway and I nearly died, but I'm sure there's not much else wrong with it even though I'm not a car mechanic."
+
+You are the exact kind of person that shouldn't do self-custody lol
+
+comment: p1ipx7n
+parent: t1_p16kpsn
+author: spicybright
+created_utc: 1785789225
+edited: false
+body:
+ok but really, how much are they paying you to shill like this. no one can be this stupid for free.
+
+comment: p1iql2a
+parent: t1_p16r8e3
+author: spicybright
+created_utc: 1785789402
+edited: false
+body:
+The software stack of a modern phone + wireless capabilities as part of the hardware makes a massive attack surface. You seriously have no idea what you're talking about, and it's so sad you can't see that.
+
+comment: p1isxuo
+parent: t1_p18appi
+author: spicybright
+created_utc: 1785790023
+edited: false
+body:
+Any half decent CS major would realize auditing cybersecurity code themselves isn't enough to declare something safe. I'm guessing Cold card had a whole team of really smart people spend years on it and that didn't even work.
+
+comment: p1mt35w
+parent: t1_p16jwzw
+author: ICantWatchYouDoThis
+created_utc: 1785844502
+edited: false
+body:
+Bankrupt from fine? They should compensate everyone, and all their employees should be put to work to recover all customers' funds
+
+comment: p1mznhp
+parent: t1_p1badph
+author: PracticalPianist6189
+created_utc: 1785846714
+edited: false
+body:
+I dont know man people are still using atomic wallet and their company still advertising their “safe” wallet. Human stupidity has no limits. 
+
+comment: p1y93h0
+parent: t3_1vd4f2e
+author: JumpProfessional3372
+created_utc: 1785970064
+edited: false
+body:
+Yeah and not just MK3. I don't know why Coinkite put only MK3 in the title, instead of also putting MK4 and Q.  
+It is a common bug in them.
+
+I agree that people did not understand wtf happened because they think everyone with CC is impacted and people who followed the paranoid guide are not impacted by this issue because they never used CC RNG.
+
+comment: p2bqqxb
+parent: t3_1vd4f2e
+author: Pitiful-Inflation-31
+created_utc: 1786130865
+edited: false
+body:
+the real issues, how we can trust any hardware wallet 100% from the mistake they make or in the code. cuz opne times, ppl would lose. even it's more dangerous than top software wallet that you can check and test opensource 100% especially from audit but for hw wallet, hard ware is another story cuz something changes you wouldn't know at all
+
+

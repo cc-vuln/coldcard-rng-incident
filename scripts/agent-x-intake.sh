@@ -10,8 +10,9 @@
 # candidates; this one takes only them.
 #
 # A backlog is assessed in bounded chunks: --max N caps how many pending
-# entries one agent run sees. Assessed entries leave Pending, so successive
-# runs work through the rest.
+# entries one agent run sees, and --batches N lets a scheduled invocation run
+# several separately rendered, invoked and guarded chunks. Assessed entries
+# leave Pending, so each batch works through the next part of the queue.
 #
 # Candidate bodies are text strangers wrote, so three things happen around the
 # agent rather than inside it (docs/design/agent-sandbox.md):
@@ -41,12 +42,47 @@ source "$ROOT/scripts/agent-run-common.sh"
 agent_load_env
 
 MAX=15
+BATCHES=1
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --max) MAX="$2"; shift 2 ;;
+    --batches) BATCHES="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+if ! [[ "$MAX" =~ ^[1-9][0-9]*$ && "$BATCHES" =~ ^[1-9][0-9]*$ ]]; then
+  echo "--max and --batches must be positive integers" >&2
+  exit 2
+fi
+
+# Keep every agent prompt and guard decision independent. The outer process
+# holds no intake lock; each child acquires and releases it normally. Stop if
+# a successful child made no queue progress (no configured agent, hydration
+# could not supply evidence, or nothing remains) rather than spinning through
+# the requested batch count.
+if (( BATCHES > 1 )); then
+  pending_x_count() {
+    awk '/^## Pending/{p=1; next} /^## Assessed/{p=0} p && /^- / && /https:\/\/x\.com\//{n++} END{print n+0}' \
+      "$ROOT/DISCOVERY.md" 2>/dev/null || printf '0\n'
+  }
+
+  for ((batch = 1; batch <= BATCHES; batch++)); do
+    before="$(pending_x_count)"
+    if (( before == 0 )); then
+      echo "agent-x-intake: backlog drained after $((batch - 1)) batch(es)"
+      exit 0
+    fi
+    echo "agent-x-intake: batch ${batch}/${BATCHES}; ${before} pending"
+    "$0" --max "$MAX" --batches 1
+    after="$(pending_x_count)"
+    if (( after >= before )); then
+      echo "agent-x-intake: no queue progress; stopping bounded drain"
+      exit 0
+    fi
+  done
+  exit 0
+fi
 
 INTAKE="$ROOT/DISCOVERY.md"
 STATE_DIR="$ROOT/.work/agent-x-intake"

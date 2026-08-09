@@ -23,7 +23,7 @@ ExecStart=REPO/.venv/bin/python scripts/agent_proxy.py
 Restart=always
 RestartSec=2
 
-# It reads two policy files and opens sockets. Nothing else.
+# It reads the gitignored local provider policy and opens sockets. Nothing else.
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only

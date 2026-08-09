@@ -1,0 +1,83 @@
+Bitcoin
+Security
+Product Updates
+Casa Website
+Search
+Sign up
+Log in
+Casa Blog - Bitcoin Security Made Easy
+AI
+The Rise of the Machines
+by
+Jameson Lopp
+3 days ago
+8 min read
+What the Coldcard vulnerability means for Bitcoin security and what Casa is doing about it.
+On July 30, 2026, roughly 1,200 Coldcard wallets were drained in about 40 minutes. More than 1,000 bitcoin (tens of millions of dollars) moved to an attacker's wallet in a quick burst. No devices were touched. No phishing emails were sent. No seeds were leaked.
+The attacker never needed to.
+Security researchers at Block, working with others across the industry, traced the root cause of the theft to a firmware integration error: a build configuration check was written in a way that silently disabled Coldcard's hardware random number generator. In its place, the firmware fell back to a deterministic software pseudo-random generator seeded from values an attacker can predict or reconstruct - the chip's serial number and its clock state. On older devices, the effective space of possible seeds collapsed from 128 bits to something on the order of 40. An attacker can enumerate every seed those devices could ever produce, derive the addresses, and check them against the public blockchain - entirely offline. Any match is a wallet they can control.
+The detail that should focus every security team in this industry: the source code was viewable the entire time. Human reviewers looked at it for years. They confirmed the hardware RNG existed. Nobody checked whether the seed generator actually called it correctly. Researchers now believe the vulnerability was most likely found by a frontier AI model - someone pointed the best available model at the public source, and it surfaced what human eyes had missed.
+Whether or not that attribution is ever confirmed, it doesn't matter. It is plausible today, and it will be normal tomorrow. The threat environment has changed, and we'd like to talk plainly about what Casa is doing.
+The lesson: assume machines read your code
+The economics of vulnerability discovery have inverted. Reading a large codebase well enough to find a subtle logic flaw used to require a scarce, expensive expert and weeks of their time. It now requires an API key and an afternoon. Attackers know this. They are running frontier models against every line of security-critical public code they can find - firmware, wallet libraries, smart contracts, custody platforms.
+The only rational response for defenders is to run the same machines first, and to run them continuously.
+The accelerating pace of vulnerability discovery should be a wake up call for all software developers!
+The threat landscape has changed.
+If you wish to retain a strong defensive posture then you MUST adopt the same LLM tooling that attackers are using to find vunerabilities.
+— Jameson Lopp (@lopp) August 6, 2026
+Manual audits and pentests: necessary, yet nowhere near sufficient
+We've had a standing concern about security audits for years, and the Coldcard incident is a perfect illustration of it: an audit is a photograph, not a film.
+A traditional audit or penetration test is a point-in-time engagement. Smart, bounded humans review a scoped slice of your system over a few weeks and produce a report. The day that report ships, it begins to rot. Code changes daily. New dependencies land. A build flag flips somewhere in a firmware integration, and the photograph from six months ago is now a picture of a system that no longer exists.
+Coldcard's firmware was public and had been reviewed by numerous security researchers. The bug survived anyway - because the bug wasn't in the cryptographic library everyone scrutinized. It was in the build system: one wrong macro check that rerouted entropy to a fallback nobody thought to question. Glue is often where catastrophic bugs live, and glue is exactly what scoped, time-boxed human review tends to skip.
+This doesn't mean audits are worthless. It means they are one layer, and you should be honest about their limits. Casa's practice:
+External penetration tests across the platform on a regular cadence - at least annually, full-scope - covering our APIs, web applications, and mobile apps.
+Targeted audits for major new features and services before launch, so new code gets expert scrutiny while it's still cheap to change.
+Event-driven re-engagement: when the threat environment moves - a new attack class, an industry incident like this one - we don't wait for the calendar. We scope a fresh review around the lessons of the incident.
+Continuous layers underneath the point-in-time ones, so the gaps between audits are covered by something that never sleeps.
+That last bullet is where we think the industry has to go, and it's where we've invested the most resources over the past year.
+Fighting AI with AI
+If frontier AI models can find vulnerabilities like this one, we intend to find ours first.
+Earlier this year we built an AI penetration-testing harness that runs across all of our code on a recurring basis. We’re using it to regularly audit our code using the latest frontier models, like Kimi K3 and Qwen 3.8 Max. We're also pleased to share that Casa has been accepted into Anthropic's Cyber Verification Program, which gives our security engineering team access to the full capabilities of Anthropic's newest models for vulnerability exploitation analysis, adversarial reasoning, and exploit-chain modeling. The same class of reasoning an attacker would point at us, now gets pointed by us, first.
+We want to be specific about what the harness actually does, because "we use AI for security" is a claim anyone can make. Ours is engineered beyond simply extensive prompting, and the engineering is the interesting part. We use a Carlini-style multi-phase approach to reduce the likelihood of hallucinations wasting our human engineers’ time. Soon we will publish a more detailed post about the test harness, but at a very high level, it works like so:
+Discover: reviews every in-scope code file with prompts tuned to the bug classes that matter most for bitcoin custody.
+Verify: each discovery goes back to the model under a strict tool-use contract: return a verdict, and cite the exact file and line span that proves the bug, quoting the code verbatim. If there’s a mismatch, demote the discovery as having insufficient evidence.
+Report: emits a human-readable triage report ordered by severity, machine-readable JSON, and SARIF for code-scanning integrations. Each verified finding files a ticket in our internal issue management system and critical findings page on-call engineers.
+The result is that every week, or on-demand, the most capable reasoning models available take a fresh, adversarial pass over the code that protects our members' funds, with a rigor designed to keep us honest about its own output. And because the harness is flexible to run against the "best available model" rather than any fixed model, it gets sharper every time the frontier moves. As attackers' tooling improves; so does ours.
+Guardrails: every line reviewed, by people and by machines
+AI pentesting is one layer in a review stack that assumes any single layer can fail:
+Automated review on every change. Every pull request is checked by an automated review system enforcing a written, versioned rule set - our secure-coding standards, authentication invariants, and architecture constraints - before a human ever looks at it.
+Human review on every change. Branch protection requires human approval to merge. No exceptions for seniority, no exceptions for AI-generated code. Cryptographically signed commits create a strong audit trail.
+Test-first bug fixing. When we find a bug, the first artifact is a failing test that reproduces it. The fix isn't done until that test passes and the full suite is green. Bugs don't just get fixed; they get regression protection.
+End-to-end testing across every platform - automated browser and mobile suites that exercise real user flows against a full local environment: real Bitcoin nodes, real signing flows, and hardware-wallet emulators.
+A dedicated QA team that does what no automation does well: exploratory testing, release sign-off, and adversarial "what happens if I do something weird" thinking across web and mobile. Our QA engineers are part of the security process, not an afterthought - the strangest edge cases in a custody product are usually found as a result of curiosity.
+The philosophy is simple: people and machines are good at finding different kinds of bugs. We want both looking at everything, all the time, and we want the process to assume each one will occasionally miss something the other catches.
+Architecture that assumes failure
+Processes can fail. Reviews can fail. Audits can fail. So the deepest layer of our security model isn't process at all - it's the product itself.
+Casa vaults are multisignature. Your bitcoin is secured by multiple keys, generated on different devices, from different vendors, stored in different places. A typical vault might spread keys across your phone, hardware wallets, and the Casa Recovery Key. Moving funds requires a quorum - multiple signatures from independent keys.
+The Coldcard incident is a case study in why this matters. If a Casa member had a Coldcard holding one key of their vault, and that Coldcard's seed was generated on vulnerable firmware, the attacker who reconstructed that seed would hold exactly one key. One key is not a quorum. The funds do not move. A catastrophic, headline-grabbing, industry-shaking vulnerability degrades, inside a multisig architecture, to a maintenance task: rotate in a fresh key at your convenience, using your remaining healthy keys - which you can do calmly, because the attacker can't race you.
+That is the entire design goal. We assume that individual devices will have bugs, that individual vendors will have bad years, that firmware updates will occasionally betray you, and that any single key can be lost, stolen, or mathematically enumerated. Catastrophe requires multiple independent failures at once, and we work to ensure no single event can cause a cascade.
+The same principle runs through our infrastructure. Our backend systems never hold your private keys - there is no server to breach that could leak them. Transactions are constructed by our servers but verified and signed on your devices, so even a compromised backend can't trick you into sending funds to a malicious address you didn't intend. Casa's own recovery key is a single factor that is useless alone. Important operations within our infrastructure are event-sourced and create an immutable, replayable audit trail, so tampering is visible rather than silent. Admin operations are role-scoped and logged. Extensive monitoring and alerting is on the lookout for abnormal behavior 24/7/365.
+We can't guarantee that no component of Casa’s infrastructure will ever fail. Coldcard just proved that security-focused vendors can ship a devastating bug. What we can promise is that we've built the system so that no single failure is catastrophic for our clients.
+What we did after July 30
+When the incident broke, we treated it the way we treat every major industry event: as a fire drill we didn't schedule but intend to learn from.
+We verified our own exposure. Our teams reviewed every place Casa systems interact with entropy and key generation. The review confirmed that the few places where Casa software does generate keys (for mobile keys and yubikeys) are properly sourcing entropy from available hardware.
+We ran the harness out of cycle against new models. We didn't wait for the next scheduled scan. We triggered a full run of our AI pentest across all services, with the discovery phase weighted toward the bug classes this incident represents: silent fallbacks, configuration-guard checks that test the wrong condition, and security-critical behavior hiding in integration glue logic.
+We reached out to Casa clients who needed to act. For members with less than a quorum of affected devices as part of their vault, the guidance was straightforward precisely because of the nature of multi-vendor multisig: no panic, no emergency - update firmware, generate a new seed on fixed firmware, and rotate the key in your vault.
+The road ahead
+The Coldcard theft is a milestone. Not because it was one of the largest thefts in Bitcoin's history - it wasn't - but because of how the bug was likely found and how the theft was executed: no devices touched, no users phished, no malware deployed. Just a model, a public codebase, and patience.
+That is the future of offensive security, for everyone, forever. Defenders who treat audits as ceremonies and security as a destination will lose to it. Our answer is the opposite posture: continuous adversarial scrutiny from the most capable models in the world, verified by engineering that distrusts their output, wrapped in human review and a QA organization that sweats the edge cases - all sitting on top of an architecture designed so that when a layer fails, and one always eventually does, your bitcoin doesn't care.
+Security isn't a state of being. It's a cadence. And in 2026 that cadence runs a little faster everywhere - including at Casa.
+If you're a Casa member with questions about a hardware device in your vault, our team is standing by to assist. Don't hesitate to reach out through our official support channels.
+If you're not a Casa member and are moving off an affected Coldcard setup, we're also offering free security consultations to help you evaluate your options and migrate safely.
+Read more posts by this author
+Jameson Lopp
+Jameson Lopp is co-founder and Chief Security Officer of Casa. He is passionate about creating tools to empower individuals; he has been building bitcoin wallets since 2015.
+The link has been copied!
+Older Post
+The Coldcard Vulnerability, Explained: Who's at Risk and What to Do Now
+Bitcoin
+Security
+Product Updates
+Casa Website
+© 2026 Casa Blog.
+All Rights Reserved.

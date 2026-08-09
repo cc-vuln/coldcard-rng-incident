@@ -38,12 +38,9 @@
 #
 # So the deny is total and the allow list is the complement: every IPv4 range
 # except 127.0.0.0/8 and 169.254.0.0/16, computed once with
-# ipaddress.address_exclude, plus two deliberate exceptions.
-#
-# 127.0.0.53/32 is systemd-resolved's stub listener. Without it the agent
-# cannot resolve a name at all, which looks like a broken model API rather
-# than a firewall rule. It is a resolver, not a service the agent can act
-# through.
+# ipaddress.address_exclude, plus one deliberate exception. The agent does not
+# need DNS: it sends the provider hostname in CONNECT and the proxy resolves
+# it. Keeping 127.0.0.53 closed removes DNS as a separate data channel.
 #
 # 2000::/3 is global-unicast IPv6, which excludes ::1 by construction. This
 # host has a global IPv6 address, and denying the family outright would leave
@@ -65,6 +62,5 @@ IPAddressAllow=124.0.0.0/7 126.0.0.0/8 128.0.0.0/3 160.0.0.0/5 168.0.0.0/8
 IPAddressAllow=169.0.0.0/9 169.128.0.0/10 169.192.0.0/11 169.224.0.0/12
 IPAddressAllow=169.240.0.0/13 169.248.0.0/14 169.252.0.0/15 169.255.0.0/16
 IPAddressAllow=170.0.0.0/7 172.0.0.0/6 176.0.0.0/4 192.0.0.0/2
-IPAddressAllow=127.0.0.53/32
 IPAddressAllow=127.0.0.2/32
 IPAddressAllow=2000::/3

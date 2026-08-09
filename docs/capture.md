@@ -27,6 +27,16 @@ each browser snapshot's meta.json records the list name, mechanism and
 retrieval date, and first-party promotions (Reddit's Promoted slots) are
 unaffected by design. `WEBBRIDGE_BLOCK_MODE=off` disables the blocking.
 
+Most browser sources record the visible text under `main`. A page that keeps
+material in a CSS-collapsed component may instead declare one
+`browser_text_selector`; `>>>` separates an ordinary selector from a nested
+shadow root. `browser_include_hidden = true` serializes only that selected
+component (or its shadow root) and passes it through the same stdlib HTML-to-
+text extractor used for HTTP captures. The option requires a selector so it
+cannot silently turn hidden chrome for the whole page into evidence. A
+`required_text` guard should identify content that exists only in the expanded
+body, ensuring a component-shell change fails closed.
+
 The daemon keys one current tab per **session name**, and `navigate` and
 `close_tab` act on that session's tab, so every caller class drives the
 browser under its own name and concurrent callers cannot close each other's
@@ -189,9 +199,13 @@ just rebuild-diffs                          # diff in chronological order
 ```
 
 Recovered snapshots carry `provenance: wayback`, the original Wayback timestamp,
-and the replay URL, so they are never confused with our own captures. Coverage
-must be checked per source; an absent Wayback result does not prove that an
-earlier version never existed.
+the replay URL and the Internet Archive digest, so they are never confused with
+our own captures. Before extraction, hashing or storage, replayed response
+bodies pass through the same narrow collector-geolocation scrub as a live
+capture; the sidecar records the number of removed fields. This removes only
+machine-readable location values attached to known delivery keys, not places
+mentioned by the publisher. Coverage must be checked per source; an absent
+Wayback result does not prove that an earlier version never existed.
 
 ## X capture
 

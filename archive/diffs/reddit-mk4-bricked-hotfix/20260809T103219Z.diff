@@ -1,0 +1,30 @@
+--- reddit-mk4-bricked-hotfix@20260809T040233Z
++++ reddit-mk4-bricked-hotfix@20260809T103219Z
+@@ -694,3 +694,27 @@
+ Damien George, the lead MicroPython developer, released an analysis of the problem: [Coldcard postmortem from MicroPython's perspective](https://github.com/orgs/micropython/discussions/19588).
+ 
+ The problem was in LibNgU (not part of MicroPython) which checked if the `MICROPY_HW_ENABLE_RNG` macro was defined, rather than if it was enabled. Oops.
++
++comment: p2ltylc
++parent: t1_p1xen2l
++author: Charming-Designer944
++created_utc: 1786260881
++edited: false
++body:
++Me too.
++
++I don't see it very likely a third party dev would notice the TRNG error. Not even one who adds another entropy source to the seed mixing.
++
++I agree they will notice the stupid crippled mixing of the safe elements entropy into the main entropy. But not necessarily the failure to use the main TRNG of the main CPU.
++
++If the third party dev had used another line of CPUs then they will not even look at the Coldcard "improved" STM32 TRNG integration attempt
++
++If the third party developer had used the same CPU family as Coldcard then there is a high risk that they had accepted the coldcard TRNG integration as verified working, not thinking that Couldcard cold fail the  integration at such fundamental level.
++
++comment: p2mcn5g
++parent: t1_p2hekmj
++author: lucapocchio
++created_utc: 1786270523
++edited: false
++body:
++That message was before the edit. After carching the why, the problem is not the passphrase, it’s the keyboard press. Coldcard uses HW RNG to randomize the scan order. So every press could potentially send it in a soft bricked state.

@@ -6,7 +6,11 @@ import Answer from '../../components/Answer.astro';
 import CorrectionNotice from '../../components/CorrectionNotice.astro';
 import FigureFundsFlow from '../../components/figures/FigureFundsFlow.astro';
 import { fig } from '../../lib/figures';
-import { trackerReadings, trackerRange } from '../../lib/trackers';
+import {
+  hackTrackerMovementAt,
+  trackerReadings,
+  trackerRange,
+} from '../../lib/trackers';
 
 /*
  * The three community trackers' headline totals are read out of this archive's
@@ -22,6 +26,8 @@ const byId = Object.fromEntries(readings.map((r) => [r.id, r]));
 const watch = byId['coldcard-watch'];
 const rip = byId['coldcard-rip-tracker'];
 const hack = byId['coldcard-hack-tracker'];
+const movementStart = hackTrackerMovementAt('20260804T030519Z');
+const movementEnd = hackTrackerMovementAt('20260807T132028Z');
 
 /*
  * The KPI cards show the bare number beside a <sup>BTC</sup>, while fig()
@@ -831,9 +837,11 @@ const cards = readings.map((reading, i) => {
     <code>bc1qmd5m5k&hellip;9n8jp6</code> emptied, 30.18476329 BTC leaving in a
     93-input consolidation confirmed at block 961,368, and qualified its own
     Galaxy source note to say that waves 1 to 3 coins were then still unmoved.
-    Its moved total ran from 6.81368697 BTC in the capture of 4 Aug 03:05 UTC
-    to 118.60759628 BTC in the capture of 7 Aug 13:20 UTC, and its still-held
-    share from 99.5 to 92.0 percent. The rest of the movement it records sits
+    Its moved total ran from {movementStart.movedBtc} BTC in the capture of
+    {movementStart.atLabel} to {movementEnd.movedBtc} BTC in the capture of
+    {movementEnd.atLabel}, and its still-held share from
+    {movementStart.stillHeldPercent} to {movementEnd.stillHeldPercent} percent.
+    The rest of the movement it records sits
     outside the four holdings, in the suspected wave-4 park, the later Taproot
     wave and the smaller incidents: deposits it attributes to Bullish.com,
     Coinbase Prime Custody, KuCoin and Binance, and an ETH leg it says ran
@@ -1044,7 +1052,7 @@ const cards = readings.map((reading, i) => {
       <Claim
         basis="unverified"
         scope="Whether the 14 smaller footprints and the earlier 695 transactions were controlled by the same operator as the mass waves"
-        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in an 8 August 2026 recheck"
+        source="Galaxy's captured 3 August thread and Block's captured preliminary accounting thread, which explicitly says the relationship to the drain was not confirmed; no later confirmation was captured in a 9 August 2026 recheck"
         href="/record/sources/clay-earlier-waves-thread/"
       />
     </li>

@@ -10,16 +10,13 @@ The site is the public record of the July 2026 COLDCARD predictable-RNG
 incident: it preserves what each party published and how it changed, organises
 the material, and explains it without adjudicating between the people involved.
 
-The scale already documented makes the incident likely to rank among the most
-consequential in Bitcoin's history. That is a provisional editorial assessment,
-not a settled ranking: attribution totals differ and the number of distinct
-people affected is unknown. The project's historical role is to preserve the
-contemporaneous public record for posterity, so future readers can assess the
-incident from what participants published at the time, including material later
-edited or removed. The record also organises explanations, opinions and
-speculation chronologically so readers can understand how public interpretation
-changed, sometimes within hours. Conspiracy theories are retained only as
-dated, attributed reaction, never as evidence that they were true.
+The project's historical role is to preserve the contemporaneous public record
+for posterity, so future readers can assess the incident from what participants
+published at the time, including material later edited or removed. The record
+also organises explanations, opinions and speculation chronologically so
+readers can understand how public interpretation changed, sometimes within
+hours. Conspiracy theories are retained only as dated, attributed reaction,
+never as evidence that they were true.
 
 The material is scattered across vendor advisories that get edited, threads that
 scroll away, repositories, blog posts and reporting that restates other

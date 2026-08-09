@@ -19,9 +19,11 @@ timer feed one intake queue:
   user counters
 - `just discover-x` reads the home timeline and the curated `[[x_watch]]`
   profiles through the capture browser, driver-side only, under the
-  `X_BROWSER_DISCOVERY_ENABLED` kill switch. It baselines first contact and
-  fails closed with a cooldown on the session-health classes (login wall,
-  challenge, rate limit). Since 8 Aug 2026 it runs on its own
+  `X_BROWSER_DISCOVERY_ENABLED` kill switch. First contact reads back to the
+  watch's `since` date or stable exhaustion and queues that history; reaching
+  the hard pass cap first leaves the watch uncheckpointed. It fails closed
+  with a cooldown on the session-health classes (login wall, challenge, rate
+  limit). Since 8 Aug 2026 it runs on its own
   `discover-x.timer`, separate from `discover-community`. The official-API
   lane it replaced (`scripts/discover_x.py`) is deprecated
 
@@ -48,6 +50,15 @@ community intake does, and the driver captures each approved post with
 xtriage prompt and the `--include-x` admission flag are retired. Direct manual
 `just ingest-x` capture is unchanged and does not pass through this queue.
 Full polls remain the scheduled runner's alone.
+
+The three community listing commands accept `--reconsider-seen` for a bounded
+historical audit of the listing surface they can currently read. It ignores the
+lane's saved seen set but still deduplicates registered and assessed URLs.
+Combine it with `--no-state` for a read-only inspection or omit `--no-state`
+to requeue newly relevant items. This does not make the listing historical:
+Reddit `/new`, the selected Stacker News pages and the selected BitcoinTalk
+board pages remain bounded windows, and older material needs a dated search or
+direct candidate intake.
 
 ## What the agent is not asked to read
 

@@ -9,7 +9,9 @@ removed it.
 
 Snapshots recovered here are stored alongside our own with
 `"provenance": "wayback"` in the meta, so a reader can always tell which
-captures we took and which we inherited.
+captures we took and which we inherited. Replayed bodies receive the same
+narrow collector-geolocation scrub as a direct capture before any hash or
+artefact is written.
 
     wayback.py list ID [--from YYYYMMDD] [--to YYYYMMDD]
     wayback.py backfill ID [--from ...] [--to ...] [--limit N]
@@ -40,6 +42,7 @@ from archive_lock import (  # noqa: E402
     ArchiveLockBusy,
     archive_lock,
 )
+from response_headers import scrub_geo  # noqa: E402
 
 CDX = "http://web.archive.org/cdx/search/cdx"
 WB = "http://web.archive.org/web/{ts}id_/{url}"
@@ -47,6 +50,14 @@ UA = (
     "coldcard-rng-incident/1.0 "
     "(+https://github.com/cc-vuln/coldcard-rng-incident; historical preservation)"
 )
+
+
+def scrub_replay_geo(body: bytes) -> tuple[bytes, int]:
+    """Apply the live collector's body privacy rule to a replayed response."""
+
+    text = body.decode("utf-8", errors="ignore")
+    scrubbed, hits = scrub_geo(text)
+    return (scrubbed.encode("utf-8"), hits) if hits else (body, 0)
 
 
 def _get(url: str, timeout: int = 60) -> bytes:
@@ -112,6 +123,7 @@ def newest_snapshot(url: str) -> tuple[str, bytes] | None:
         return None
     if not body:
         return None
+    body, _ = scrub_replay_geo(body)
     return newest["timestamp"], body
 
 
@@ -152,6 +164,7 @@ def backfill_one(sid: str, src: dict, frm: str | None, to: str | None,
         except Exception as e:
             print(f"  {sid} {ts}: fetch failed ({str(e)[:60]})")
             continue
+        body, geo_scrubbed = scrub_replay_geo(body)
         text = extract_text(body, src["url"])
         if len(text) < 200:
             print(f"  {sid} {ts}: extracted only {len(text)} chars, skipping")
@@ -165,6 +178,7 @@ def backfill_one(sid: str, src: dict, frm: str | None, to: str | None,
             "wayback_timestamp": r["timestamp"],
             "wayback_url": WB.format(ts=r["timestamp"], url=src["url"]),
             "wayback_digest": r["digest"],
+            "geo_fields_scrubbed": geo_scrubbed,
             "note": "recovered from the Internet Archive, not captured by this project",
         }, indent=2, sort_keys=True), encoding="utf-8")
         append_event({"ts": ts, "id": sid, "url": src["url"], "event": "first",

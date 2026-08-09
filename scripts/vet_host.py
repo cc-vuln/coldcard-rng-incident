@@ -19,6 +19,9 @@ proposal is sound by checks that do not depend on anyone's judgement:
   Agreement that the name does not exist is a rejection; disagreement or a
   resolver error is inconclusive, not a rejection, because this host's own
   resolver has been wrong before (corrections.toml, 6 Aug 2026).
+- **public addresses only.** Any address literal returned by the local or
+  public resolvers must be globally routable. A private, loopback, link-local,
+  reserved or otherwise non-global answer rejects the host before HTTP.
 - **redirect shape.** `https://<host>/` is fetched without following
   redirects. A 3xx to a www/subdomain variant of the same domain is normal
   and the admitted host is the redirect target. A 3xx to a different domain
@@ -62,6 +65,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import http.client
 import ipaddress
 import json
 import os
@@ -77,6 +81,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from capture import UA
+from agent_proxy import connect_public
 from check_registry import allowed_hosts
 from corroborate_gone import DOH_SERVERS, doh_query, local_resolve
 from corroborate_gone import verdict as resolver_verdict
@@ -235,7 +240,29 @@ def fetch(url: str, timeout: int) -> dict:
         def redirect_request(self, req, fp, code, msg, headers, newurl):
             return None
 
-    opener = urllib.request.build_opener(NoRedirect)
+    class PublicHTTPSConnection(http.client.HTTPSConnection):
+        """HTTPSConnection pinned to one globally routable DNS answer."""
+        def connect(self):
+            self.sock = connect_public((self.host, self.port), self.timeout)
+            if self._tunnel_host:
+                self._tunnel()
+            server_hostname = self._tunnel_host or self.host
+            self.sock = self._context.wrap_socket(
+                self.sock, server_hostname=server_hostname
+            )
+
+    class PublicHTTPSHandler(urllib.request.HTTPSHandler):
+        def https_open(self, req):
+            return self.do_open(
+                PublicHTTPSConnection, req,
+                context=getattr(self, "_context", None),
+            )
+
+    # Ignore process proxy variables here. Vetting must connect to the exact
+    # public address it checked, not hand an untrusted proposal to a proxy.
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}), NoRedirect, PublicHTTPSHandler()
+    )
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
         with opener.open(req, timeout=timeout) as resp:
@@ -250,6 +277,24 @@ def fetch(url: str, timeout: int) -> dict:
 def same_domain(a: str, b: str) -> bool:
     """A www/subdomain variant of the same name in either direction."""
     return a == b or a.endswith("." + b) or b.endswith("." + a)
+
+
+def non_global_answers(local: dict, resolvers: list[dict]) -> list[str]:
+    """Non-global IP literals present in local or public resolver answers."""
+    values = list(local.get("addresses") or [])
+    for resolver in resolvers:
+        query = (resolver.get("queries") or {}).get("A") or {}
+        values.extend(query.get("answers") or [])
+    unsafe = set()
+    for value in values:
+        try:
+            address = ipaddress.ip_address(str(value).strip())
+        except ValueError:
+            # An A response may include a CNAME before its address.
+            continue
+        if not address.is_global:
+            unsafe.add(str(address))
+    return sorted(unsafe)
 
 
 def vet(host: str, candidate_url: str | None = None, timeout: int = TIMEOUT,
@@ -278,23 +323,34 @@ def vet(host: str, candidate_url: str | None = None, timeout: int = TIMEOUT,
     checks.append("name: a valid public hostname")
 
     # 2. DNS: this host's getaddrinfo and both DoH resolvers must agree the
-    # name exists. Agreement it does not is a rejection; anything else is
-    # inconclusive, because one resolver being wrong is weather.
-    local = resolve(host)
-    resolvers = [doh(host, s) for s in DOH_SERVERS]
-    verdicts = [resolver_verdict(r) for r in resolvers]
-    local_txt = (", ".join(local["addresses"]) if local["ok"]
-                 else f"failed ({local['error']})")
-    checks.append(f"dns: getaddrinfo {local_txt}; " + "; ".join(
-        f"{r['server']} {resolver_verdict(r)}" for r in resolvers))
-    if local["ok"] and all(v == "answers" for v in verdicts):
-        pass
-    elif not local["ok"] and all(v == "absent" for v in verdicts):
-        return done("reject", "does not resolve: this host's resolver and "
-                    "both public DoH resolvers agree the name is absent")
-    else:
-        return done("inconclusive", "dns: resolvers disagree or errored; "
-                    "left for a later run")
+    # name exists, and every address literal they return must be global.
+    def dns_gate(name: str) -> tuple[str, str | None]:
+        local = resolve(name)
+        resolvers = [doh(name, s) for s in DOH_SERVERS]
+        verdicts = [resolver_verdict(r) for r in resolvers]
+        local_txt = (", ".join(local["addresses"]) if local["ok"]
+                     else f"failed ({local['error']})")
+        checks.append(f"dns {name}: getaddrinfo {local_txt}; " + "; ".join(
+            f"{r['server']} {resolver_verdict(r)}" for r in resolvers))
+        unsafe = non_global_answers(local, resolvers)
+        if unsafe:
+            return "reject", (
+                "resolves to non-global address(es): " + ", ".join(unsafe)
+            )
+        if local["ok"] and all(v == "answers" for v in verdicts):
+            return "ok", None
+        if not local["ok"] and all(v == "absent" for v in verdicts):
+            return "reject", (
+                "does not resolve: this host's resolver and both public DoH "
+                "resolvers agree the name is absent"
+            )
+        return "inconclusive", (
+            "dns: resolvers disagree or errored; left for a later run"
+        )
+
+    dns_outcome, dns_reason = dns_gate(host)
+    if dns_outcome != "ok":
+        return done(dns_outcome, dns_reason)
 
     # 3. redirect shape at the root, redirects not followed
     try:
@@ -317,6 +373,9 @@ def vet(host: str, candidate_url: str | None = None, timeout: int = TIMEOUT,
             normalised = thost
             if normalised != host:
                 checks.append(f"redirect: normalised to {normalised}")
+                dns_outcome, dns_reason = dns_gate(normalised)
+                if dns_outcome != "ok":
+                    return done(dns_outcome, dns_reason)
         else:
             return done("reject", f"redirect to {thost}")
     else:

@@ -1,0 +1,375 @@
+post: 1vil2qs
+author: RichHomieWan
+created_utc: 1786159432
+title: Safely store BTC w/o HWW
+body:
+Due to the recent events with CC and the war on BTC, I am trying to find a safe way to store my coins. I’m by no means an expert In this space, just doing my part to stack sats. I am a CC user and have moved my BTC to strike as I wait for a new HWW which arrives tomorrow.
+
+Apparently tomorrow there is a potential chain split In BTC or something like that and I want to make sure my coins are safe. Outside of an exchange, is there a place where I can import a dice rolled seed phrase somewhere to secure my coins? 
+
+comment: p2e9q03
+parent: t3_1vil2qs
+author: OrangePillar
+created_utc: 1786159847
+edited: false
+body:
+Roll your own seed.
+
+https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/
+
+comment: p2e9vcv
+parent: t3_1vil2qs
+author: [deleted]
+created_utc: 1786159904
+edited: false
+body:
+[deleted]
+
+comment: p2eahts
+parent: t3_1vil2qs
+author: abercrombezie
+created_utc: 1786160146
+edited: false
+body:
+Hardware wallets are overkill for pure HODLers. You just need a hardware wallet if you're going to send/spend.  You just need one receiving address and a way to generate the original seed offline:
+
+1. Use Ian Coleman's BIP39 tool on an air‑gapped computer, click "Show entropy details" and use the dice option.
+2. Enter the dice rolls to the Entropy box to generate a 24‑word seed + 25th passphrase.
+3. Write it down and record a few receiving addresses.
+4. Test the seed once on a hardware wallet to confirm the seed, passphrase, and receiving address was the same from the Ian Coleman tool.
+5. Then wipe the shiney hardware wallet—it's a $5 wrench attack liability if you're ever under duress.
+
+Stay offline. Stay safe.
+
+comment: p2ec9q6
+parent: t1_p2eahts
+author: RichHomieWan
+created_utc: 1786160846
+edited: false
+body:
+Thanks for the insight. I will try to get this done tonight. Will my coins be safe if btc were to split?
+
+comment: p2ecalk
+parent: t1_p2e9q03
+author: RichHomieWan
+created_utc: 1786160856
+edited: false
+body:
+I will do this.
+
+comment: p2ecflh
+parent: t1_p2e9vcv
+author: RichHomieWan
+created_utc: 1786160911
+edited: false
+body:
+Thank you. Now that I’m leaving CC I decided to pick up the Trezor 5.
+
+comment: p2eddvg
+parent: t1_p2ec9q6
+author: NiagaraBTC
+created_utc: 1786161285
+edited: false
+body:
+Your coins are safe as long as you just hold. 
+
+Spending during the split is the only way your coins can be at risk. If you try to sell 110coin for Bitcoin or vice versa, the person you sell to will be able to take *both* coins. 
+
+Just hold and you'll be fine. 
+
+comment: p2edhix
+parent: t1_p2ec9q6
+author: abercrombezie
+created_utc: 1786161325
+edited: false
+body:
+Yeah totally safe. 
+
+comment: p2ediot
+parent: t3_1vil2qs
+author: blackratsnakes
+created_utc: 1786161338
+edited: false
+body:
+Call me crazy but I still use a paper wallet to this day.  6 years strong and counting. 
+
+comment: p2ednhd
+parent: t1_p2eahts
+author: Swimming-Impress5220
+created_utc: 1786161390
+edited: false
+body:
+A dice rolled seed on a permanently offline machine is about as secure as it gets, then just etch the words into steel and hide it well.
+
+comment: p2edyyy
+parent: t3_1vil2qs
+author: Inevitable-Waltz-889
+created_utc: 1786161516
+edited: false
+body:
+Don't worry about the chain split.  I think there's like a 1% chance that actually happens.  Probably less.
+
+comment: p2eeuh4
+parent: t1_p2eddvg
+author: RichHomieWan
+created_utc: 1786161860
+edited: false
+body:
+Good to know. I know the saying not your keys, not your coins but they are on an exchange atm. I am trying to get them moved as soon as possible. Thanks!
+
+comment: p2eeyt3
+parent: t1_p2ednhd
+author: RichHomieWan
+created_utc: 1786161907
+edited: false
+body:
+I’ve seen people use old phones as wallets also. I have a few old devices lying around which is also an option.
+
+comment: p2ef0fz
+parent: t1_p2ediot
+author: RichHomieWan
+created_utc: 1786161925
+edited: false
+body:
+I wish you the best of luck lol
+
+comment: p2ef9yl
+parent: t1_p2edyyy
+author: RichHomieWan
+created_utc: 1786162027
+edited: false
+body:
+But hypothetically if It does?
+
+comment: p2egzj2
+parent: t3_1vil2qs
+author: leopard-monch
+created_utc: 1786162719
+edited: 1786167460
+body:
+One of the best and cheapest methods to get cold storage has been for over a decade to use an old laptop. Either one you have laying around or you buy off of eBay or something.
+
+Install Linuxmint on it. Never connect it to the internet. Or any network at all. Disable bluetooth. If you can, you might want to even physically remove the wifi/bt module.
+
+On your online computer go to [https://electrum.org](https://electrum.org) and download the Electrum AppImage for Linux.
+
+Verify its integrity with GPG against the authors gpg-pub-key.
+
+Transfer that appimage with a USB thumb drive to your offline laptop.
+
+Create wallet. Secure seed. Export master public key and save to the USB thumb drive.
+
+Install Electrum on your online machine. Import master public key.
+
+Done.
+
+To transfer unsigned and signed transactions to and from the offline laptop, you can use the QR method from within Electrum.
+
+Here are old but still valuable videos of how this works, roughly. The process is much easier now that AppImages exist:
+
+[https://www.youtube.com/watch?v=z9K3CozQpzM](https://www.youtube.com/watch?v=z9K3CozQpzM)
+
+[https://www.youtube.com/watch?v=WK4JmfMCDBg](https://www.youtube.com/watch?v=WK4JmfMCDBg)
+
+[https://www.youtube.com/watch?v=SBVyFRb6ZZc](https://www.youtube.com/watch?v=SBVyFRb6ZZc)
+
+Electrum uses its own version of seed words, though. If you want to use BIP39 seed, you can use Sparrow Wallet ( [https://sparrowwallet.com/](https://sparrowwallet.com/) ) instead of Electrum. The principle and process is basically the same.
+
+comment: p2ejkbh
+parent: t1_p2ef9yl
+author: Inevitable-Waltz-889
+created_utc: 1786163781
+edited: false
+body:
+They exchange will most likely honor the chain with the highest hashrate.
+
+comment: p2ek24o
+parent: t3_1vil2qs
+author: Strong_Judge_3730
+created_utc: 1786163988
+edited: false
+body:
+Buy a hardware wallet from a reputable company like trezor 
+
+Using a passphrase adds your own enthropy 
+Use a strong passphrase and write it down on paper. 
+
+
+comment: p2el1cn
+parent: t1_p2ef0fz
+author: blade0r
+created_utc: 1786164403
+edited: false
+body:
+There’s no need to “lol”.
+
+His paper card is just as secure as your cold wallet with a seed phrase.
+
+comment: p2elbny
+parent: t1_p2el1cn
+author: RichHomieWan
+created_utc: 1786164523
+edited: false
+body:
+Apologize for my ignorance. I was under the impression that anything outside of a cold wallet was dangerous. As mentioned In the original post, I am nowhere near an expert 
+
+comment: p2elhxl
+parent: t1_p2egzj2
+author: RichHomieWan
+created_utc: 1786164599
+edited: false
+body:
+This is very insightful. Thank you!!!
+
+comment: p2elmx1
+parent: t1_p2elbny
+author: blade0r
+created_utc: 1786164658
+edited: false
+body:
+A seed phrase is secure as long as you’re able to protect your secret words.
+
+Otherwise, a cold or a paper wallet makes no difference.
+
+comment: p2eoq1f
+parent: t1_p2ediot
+author: tenuousemphasis
+created_utc: 1786166015
+edited: false
+body:
+Have you ever tried to spend from it? Doing so securely is not trivial.
+
+comment: p2f43rx
+parent: t3_1vil2qs
+author: Charming-Designer944
+created_utc: 1786173409
+edited: false
+body:
+What threat vectors are your main concerns?
+
+Discarding CC and moving to a soft wallet is not an improvement in nearly all aspects.
+
+comment: p2fvqda
+parent: t3_1vil2qs
+author: ContentBlackberry0
+created_utc: 1786187394
+edited: false
+body:
+Bip110 was shot down I believe. 
+
+comment: p2g8ck9
+parent: t1_p2elbny
+author: blackratsnakes
+created_utc: 1786192501
+edited: false
+body:
+A paper wallet is a cold wallet / cold storage.  "Cold" means it's not connected to the internet.  So a paper wallet is in fact the coldest storage there is.
+
+comment: p2g8m3i
+parent: t1_p2eoq1f
+author: blackratsnakes
+created_utc: 1786192597
+edited: false
+body:
+Yes.  Spending presents almost no security risk as long as you don't reuse it.  Setting it up correctly is where the security risk lies.  It is analogous to the risk of not buying  a hardware wallet directly from the manufacturer and someone having planted spyware on it that steals your Bitcoin or seed phrase.  As long as you set it up securely, you're good.
+
+comment: p2gbkv6
+parent: t1_p2eeyt3
+author: TechnologyGrouchy679
+created_utc: 1786193651
+edited: false
+body:
+https://cryptosteel.com/product/cryptosteel-cassette-solo/
+
+some use these.  basically similar  function as paper wallet, just more robust against fire and water damage.
+
+comment: p2hc351
+parent: t1_p2g8m3i
+author: tenuousemphasis
+created_utc: 1786204866
+edited: false
+body:
+>  Spending presents almost no security risk as long as you don't reuse it
+
+False.
+
+If you have a computer you can trust to generate the private key, print it, then import the private key from the paper wallet for spending, then you can just keep that key on that computer. The paper wallet adds zero security.
+
+If you don't have such a computer, then spending from a key or generating one is NOT SAFE.
+
+comment: p2hefkx
+parent: t1_p2hc351
+author: blackratsnakes
+created_utc: 1786205529
+edited: false
+body:
+you're badly missing the point on spending.  When you go to spend a paper wallet, you sweep the complete contents into a hot wallet (or exchange directly if they allow it).  At that point, your private keys can potentially get exposed but your money is already on its way to your hot wallet or exchange.  This is why you don't want to reuse a paper wallet since the keys have been potentially exposed at that point.
+
+The only risk in spending is the same as any other wallet, if you type an incorrect address or something and your money goes off to never never land.
+
+The risk is all in creating it.  Now it's not for everyone.  If you spend or move your bitcoin a lot, then there's no practicality in a paper wallet.  If you are storing it for long term, then it's amazing.
+
+comment: p2hgc7a
+parent: t1_p2hefkx
+author: tenuousemphasis
+created_utc: 1786206072
+edited: false
+body:
+Tell me, what computer are you doing this spending on? What computer are you generating the new private key?
+
+You are not even responding to my statements at all, are you a shitty bot?
+
+comment: p2hjl49
+parent: t1_p2hgc7a
+author: blackratsnakes
+created_utc: 1786207001
+edited: false
+body:
+I'll give you one more reply just for the fun of it.  
+
+Spending from a paper wallet (which is what we're debating) does not require generating a new private key.  That's pretty much Bitcoin101.  So the fact you don't even understand that nullifies any kind of chance of having an intelligent conversation about it.  
+
+If you want to make a case against a paper wallet, stick to the creation side of things, you'll have a better shot at it with your limited understanding ;)
+
+comment: p2hmicb
+parent: t3_1vil2qs
+author: marshyr3d1and
+created_utc: 1786207832
+edited: false
+body:
+"the war on BTC" ???
+Explain, what have I missed?
+
+comment: p2i8qy0
+parent: t1_p2hjl49
+author: tenuousemphasis
+created_utc: 1786214096
+edited: false
+body:
+>Spending from a paper wallet (which is what we're debating) does not require generating a new private key.
+
+It does if you don't want to reuse a key, as you said. Have you heard of change outputs?
+
+It's clear you don't have the technical knowledge to assess whether it's safe or not.
+
+comment: p2ifvlb
+parent: t1_p2gbkv6
+author: MiguelLancaster
+created_utc: 1786216154
+edited: false
+body:
+not robust against crushing
+
+those little letter pieces fall out and you've lost your seed
+
+trash device, overpriced
+
+you can get a whole stack of stainless steel 'credit card' blanks and an engraving pen for like 20 bucks on amazon and have 10 seed backups for like a tenth of the price of that gimmicky thing
+
+comment: p2jh966
+parent: t1_p2ifvlb
+author: TechnologyGrouchy679
+created_utc: 1786227388
+edited: false
+body:
+well okay fair. sorry. 

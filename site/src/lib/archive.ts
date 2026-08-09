@@ -238,17 +238,11 @@ export interface XArtifact {
   bytes: number;
 }
 
-let _xFiles: string[] | null = null;
-function walkFiles(dir: string): string[] {
-  if (!existsSync(dir)) return [];
-  const out: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...walkFiles(path));
-    else if (entry.isFile()) out.push(path);
-  }
-  return out;
-}
+// Astro renders nearly a thousand routes in one process from an archive that
+// cannot change during the serialised build. Cache filesystem projections for
+// that build: without this, the register, JSON feeds and individual source
+// pages repeatedly walk the same capture directories.
+const _xArtifactsByPost = new Map<string, XArtifact[]>();
 
 /**
  * Captured artefacts held for one registered X post.
@@ -260,8 +254,14 @@ function walkFiles(dir: string): string[] {
  * an attached photo in place of a post the first time this was built.
  */
 export function xArtifacts(post: XPost): XArtifact[] {
+  const cached = _xArtifactsByPost.get(post.id);
+  if (cached) return cached;
   const dir = join(ARCHIVE, 'x', post.id);
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) {
+    const empty: XArtifact[] = [];
+    _xArtifactsByPost.set(post.id, empty);
+    return empty;
+  }
   const out: XArtifact[] = [];
   for (const capture of readdirSync(dir, { withFileTypes: true })) {
     if (!capture.isDirectory()) continue;
@@ -277,7 +277,9 @@ export function xArtifacts(post: XPost): XArtifact[] {
       });
     }
   }
-  return out.sort((a, b) => a.path.localeCompare(b.path));
+  out.sort((a, b) => a.path.localeCompare(b.path));
+  _xArtifactsByPost.set(post.id, out);
+  return out;
 }
 
 export interface NostrCapture {
@@ -289,6 +291,8 @@ export interface NostrCapture {
   files: XArtifact[];
 }
 
+const _nostrCapturesByPost = new Map<string, NostrCapture[]>();
+
 /**
  * Every capture held for one registered nostr post, oldest first.
  *
@@ -299,8 +303,14 @@ export interface NostrCapture {
  * artefact a reader can recheck against any relay.
  */
 export function nostrCaptures(post: NostrPost): NostrCapture[] {
+  const cached = _nostrCapturesByPost.get(post.id);
+  if (cached) return cached;
   const dir = join(ARCHIVE, 'nostr', post.id);
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) {
+    const empty: NostrCapture[] = [];
+    _nostrCapturesByPost.set(post.id, empty);
+    return empty;
+  }
   const out: NostrCapture[] = [];
   for (const capture of readdirSync(dir, { withFileTypes: true })) {
     if (!capture.isDirectory()) continue;
@@ -319,7 +329,9 @@ export function nostrCaptures(post: NostrPost): NostrCapture[] {
     files.sort((a, b) => a.path.localeCompare(b.path));
     out.push({ ts: capture.name, iso: tsToIso(capture.name), files });
   }
-  return out.sort((a, b) => a.ts.localeCompare(b.ts));
+  out.sort((a, b) => a.ts.localeCompare(b.ts));
+  _nostrCapturesByPost.set(post.id, out);
+  return out;
 }
 
 /**
@@ -503,9 +515,11 @@ export interface RevisionReview {
   ts: string;
   status: RevisionReviewStatus;
   summary: string;
+  classifier?: string;
 }
 
 let _reviews: RevisionReview[] | null = null;
+let _reviewsByKey: Map<string, RevisionReview> | null = null;
 function revisionReviews(): RevisionReview[] {
   if (_reviews !== null) return _reviews;
   const path = join(REPO, 'revision-reviews.toml');
@@ -514,10 +528,12 @@ function revisionReviews(): RevisionReview[] {
   const allowed = new Set<RevisionReviewStatus>([
     'source-content', 'capture-noise', 'capture-correction', 'unreviewed',
   ]);
-  const seen = new Set<string>();
-  _reviews = (parsed.revision ?? []).map((r: any) => {
+  const byKey = new Map<string, RevisionReview>();
+  for (const r of (parsed.revision ?? [])) {
     const key = `${r.source}@${r.timestamp}`;
-    if (seen.has(key)) throw new Error(`duplicate revision review: ${key}`);
+    if (byKey.has(key) && r.classifier !== 'human') {
+      throw new Error(`revision review override is not human: ${key}`);
+    }
     if (!sourceById(r.source)) throw new Error(`revision review has unknown source: ${key}`);
     if (!/^\d{8}T\d{6}Z$/.test(r.timestamp ?? '')) {
       throw new Error(`revision review has invalid UTC timestamp: ${key}`);
@@ -526,28 +542,39 @@ function revisionReviews(): RevisionReview[] {
     if (typeof r.summary !== 'string' || !r.summary.trim()) {
       throw new Error(`revision review has no summary: ${key}`);
     }
-    seen.add(key);
-    return {
+    byKey.set(key, {
       sourceId: r.source,
       ts: r.timestamp,
       status: r.status,
       summary: r.summary,
-    };
-  });
+      classifier: r.classifier,
+    });
+  }
+  _reviewsByKey = byKey;
+  _reviews = [...byKey.values()];
   return _reviews;
 }
 
 export function reviewForRevision(sourceId: string, ts: string): RevisionReview {
-  return revisionReviews().find((r) => r.sourceId === sourceId && r.ts === ts) ?? {
+  revisionReviews();
+  return _reviewsByKey!.get(`${sourceId}@${ts}`) ?? {
     sourceId, ts, status: 'unreviewed',
     summary: 'This detected difference has not yet been reviewed for capture noise.',
   };
 }
 
+const _snapshotsBySource = new Map<string, Snapshot[]>();
+
 /** Every stored snapshot for a source, oldest first. */
 export function snapshots(sourceId: string): Snapshot[] {
+  const cached = _snapshotsBySource.get(sourceId);
+  if (cached) return cached;
   const dir = join(SNAPSHOTS, sourceId);
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) {
+    const empty: Snapshot[] = [];
+    _snapshotsBySource.set(sourceId, empty);
+    return empty;
+  }
   const out: Snapshot[] = [];
   for (const f of readdirSync(dir).filter((f) => f.endsWith('.txt')).sort()) {
     const ts = f.replace(/\.txt$/, '');
@@ -570,6 +597,7 @@ export function snapshots(sourceId: string): Snapshot[] {
       hasDiff: existsSync(join(DIFFS, sourceId, `${ts}.diff`)),
     });
   }
+  _snapshotsBySource.set(sourceId, out);
   return out;
 }
 
@@ -583,15 +611,53 @@ export function diffText(sourceId: string, ts: string): string | null {
   return existsSync(p) ? readFileSync(p, 'utf8') : null;
 }
 
-/** All change/first/error events, newest first. Unchanged polls are excluded. */
-export function changeLog(): ChangeEvent[] {
+let _indexEntries: any[] | null = null;
+function indexEntries(): any[] {
+  if (_indexEntries !== null) return _indexEntries;
   const p = join(ARCHIVE, 'index.jsonl');
-  if (!existsSync(p)) return [];
-  const evs: ChangeEvent[] = [];
+  if (!existsSync(p)) return (_indexEntries = []);
+  const entries: any[] = [];
   for (const line of readFileSync(p, 'utf8').split('\n')) {
     if (!line.trim()) continue;
     try {
-      const e = JSON.parse(line);
+      entries.push(JSON.parse(line));
+    } catch { /* a malformed line is not worth failing a build over */ }
+  }
+  return (_indexEntries = entries);
+}
+
+interface IndexedPoll {
+  ts: string;
+  event: string;
+  entry: any;
+}
+
+let _pollsBySource: Map<string, IndexedPoll[]> | null = null;
+function pollsBySource(): Map<string, IndexedPoll[]> {
+  if (_pollsBySource !== null) return _pollsBySource;
+  const grouped = new Map<string, IndexedPoll[]>();
+  for (const e of indexEntries()) {
+    if (typeof e.id !== 'string' || typeof e.ts !== 'string') continue;
+    const polls = grouped.get(e.id) ?? [];
+    polls.push({ ts: e.ts, event: String(e.event ?? ''), entry: e });
+    grouped.set(e.id, polls);
+  }
+  // Wayback recovery appends historical observations after newer live polls,
+  // so every consumer reasons by timestamp rather than JSONL position.
+  for (const polls of grouped.values()) {
+    polls.sort((a, b) => a.ts.localeCompare(b.ts));
+  }
+  return (_pollsBySource = grouped);
+}
+
+let _changeLog: ChangeEvent[] | null = null;
+
+/** All change/first/error events, newest first. Unchanged polls are excluded. */
+export function changeLog(): ChangeEvent[] {
+  if (_changeLog !== null) return _changeLog;
+  const evs: ChangeEvent[] = [];
+  for (const e of indexEntries()) {
+    try {
       if (e.event === 'unchanged') continue;
       evs.push({
         ts: e.ts, iso: tsToIso(e.ts), id: e.id, event: e.event,
@@ -600,24 +666,15 @@ export function changeLog(): ChangeEvent[] {
       });
     } catch { /* a malformed line is not worth failing a build over */ }
   }
-  return evs.sort((a, b) => b.ts.localeCompare(a.ts));
+  evs.sort((a, b) => b.ts.localeCompare(a.ts));
+  return (_changeLog = evs);
 }
 
 /** When was this source last confirmed unchanged? Bounds when an edit happened. */
 export function lastPolled(sourceId: string): string | null {
-  const p = join(ARCHIVE, 'index.jsonl');
-  if (!existsSync(p)) return null;
   let last: string | null = null;
-  for (const line of readFileSync(p, 'utf8').split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const e = JSON.parse(line);
-      // Latest by timestamp, not by file position. The log is append-ordered by
-      // when a run happened, and Wayback backfill appends older observations to
-      // the end, so trusting file order reports an earlier time as the most
-      // recent one.
-      if (e.id === sourceId && e.event !== 'error' && (!last || e.ts > last)) last = e.ts;
-    } catch { /* ignore */ }
+  for (const poll of pollsBySource().get(sourceId) ?? []) {
+    if (poll.event !== 'error') last = poll.ts;
   }
   return last;
 }
@@ -671,22 +728,7 @@ function blockedState(e: any): PollHealth['state'] {
 }
 
 export function pollHealth(sourceId: string): PollHealth {
-  const p = join(ARCHIVE, 'index.jsonl');
-  const polls: { ts: string; event: string; entry: any }[] = [];
-  if (existsSync(p)) {
-    for (const line of readFileSync(p, 'utf8').split('\n')) {
-      if (!line.trim()) continue;
-      try {
-        const e = JSON.parse(line);
-        if (e.id === sourceId && typeof e.ts === 'string') {
-          polls.push({ ts: e.ts, event: String(e.event ?? ''), entry: e });
-        }
-      } catch { /* a malformed line is not worth failing a build over */ }
-    }
-  }
-  // By timestamp, not file order: Wayback backfill appends older observations
-  // to the end of the log, and the tail is what this function reasons about.
-  polls.sort((a, b) => a.ts.localeCompare(b.ts));
+  const polls = pollsBySource().get(sourceId) ?? [];
   if (!polls.length) {
     return { lastGood: null, lastAttempt: null, state: 'never-polled', failingSince: null };
   }
@@ -723,20 +765,14 @@ export function pollHealth(sourceId: string): PollHealth {
  * publisher blocks the archive outright.
  */
 export function lastCaptureError(sourceId: string): string | null {
-  const p = join(ARCHIVE, 'index.jsonl');
-  if (!existsSync(p)) return null;
   let latestTs: string | null = null;
   let latestErr: string | null = null;
-  for (const line of readFileSync(p, 'utf8').split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const e = JSON.parse(line);
-      if (e.id !== sourceId) continue;
-      if (!latestTs || e.ts > latestTs) {
-        latestTs = e.ts;
-        latestErr = e.event === 'error' ? (e.error ?? 'capture failed') : null;
-      }
-    } catch { /* ignore */ }
+  for (const poll of pollsBySource().get(sourceId) ?? []) {
+    const e = poll.entry;
+    if (!latestTs || poll.ts > latestTs) {
+      latestTs = poll.ts;
+      latestErr = poll.event === 'error' ? (e.error ?? 'capture failed') : null;
+    }
   }
   return latestErr;
 }
@@ -785,7 +821,10 @@ export interface Revision {
  *
  * `inherited` keeps the distinction visible rather than flattening it.
  */
+let _revisions: Revision[] | null = null;
+
 export function revisions(): Revision[] {
+  if (_revisions !== null) return _revisions;
   const out: Revision[] = [];
   for (const s of sources()) {
     const snaps = snapshots(s.id);
@@ -817,7 +856,8 @@ export function revisions(): Revision[] {
       });
     }
   }
-  return out.sort((a, b) => b.ts.localeCompare(a.ts));
+  out.sort((a, b) => b.ts.localeCompare(a.ts));
+  return (_revisions = out);
 }
 
 export interface ArchiveStats {
@@ -840,7 +880,10 @@ export interface ArchiveStats {
   bytes: number;
 }
 
+let _stats: ArchiveStats | null = null;
+
 export function stats(): ArchiveStats {
+  if (_stats !== null) return _stats;
   const srcs = sources();
   let snaps = 0, bytes = 0;
   let first: string | null = null, last: string | null = null;
@@ -853,7 +896,7 @@ export function stats(): ArchiveStats {
     }
   }
   const revs = revisions();
-  return {
+  return (_stats = {
     sources: srcs.length,
     snapshots: snaps,
     revisions: revs.length,
@@ -868,7 +911,7 @@ export function stats(): ArchiveStats {
     firstCapture: first,
     lastCapture: last,
     bytes,
-  };
+  });
 }
 
 /** Parse a unified diff into rendered hunks. */

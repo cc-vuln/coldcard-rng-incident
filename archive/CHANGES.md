@@ -1979,3 +1979,93 @@
 ## 20260809T065639Z
 
 - coldcard-hack-tracker  +0 -7
+
+## 20260809T075659Z
+
+- coldcard-hack-tracker  +7 -8
+
+## 20260809T085715Z
+
+- coldcard-hack-tracker  +8 -0
+
+## 20260809T102729Z
+
+- libngu-pr-64  +59 -2
+- reddit-mk4-bricked-hotfix  +24 -0
+- reddit-5-13-btc-loss  +8 -0
+- reddit-self-custody-to-etf  +8 -0
+- reddit-passphrase-extra-security  +0 -8
+- bitcointalk-large-scale-compromise-thread  +65 -0
+- blockchainunmasked-prior-warning  +1 -1
+- bitcointalk-entropy-warning-design  +34 -0
+- reddit-fake-trezor-google-ad  +28 -4
+- coindesk-70m-no-device-touch  +21 -21
+- reddit-dice-rolls-saved-seedsigner  +8 -0
+- reddit-safely-store-btc-without-hww  +2 -8
+- bitcointalk-audio-entropy-wallet  +22 -0
+
+## 20260809T105729Z
+
+- coldcard-hack-tracker  +0 -7
+
+## 20260809T115739Z
+
+- coldcard-hack-tracker  +7 -0
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +24 -24
+- reddit-coldcard-mk4-ux-flaw-continued  +8 -0
+- reddit-attacker-praise-heist  +8 -0
+- trustwallet-wasm-update  +0 -9
+- clay-attribution  +65 -1
+- oomahq-2085717166884618584  +107 -0
+
+## 20260809T134204Z
+
+- coldcard-hack-tracker  +19 -3
+
+## 20260809T144204Z
+
+- coldcard-hack-tracker  +3 -27
+
+## 20260809T164309Z
+
+- casa-blog-index  +4 -4
+- reddit-mk4-bricked-hotfix  +18 -0
+- reddit-security-advisory-relay  +2 -10
+- reddit-5-13-btc-loss  +14 -0
+- reddit-trezor-user-alert-email  +4 -12
+- reddit-lost-one-bitcoin-victim  +16 -8
+- reddit-coldcard-never-again  +0 -8
+- bitcointalk-large-scale-compromise-thread  +142 -0
+- reddit-hacker-still-progressing  +16 -19
+- reddit-attacker-execution-critique  +18 -4
+- reddit-mk3-seed-entropy-worse  +8 -8
+- reddit-casino-dice-myths  +9 -0
+- casa-rise-of-machines  +1 -1
+- coindesk-70m-no-device-touch  +18 -18
+- bitcointalk-audio-entropy-wallet  +62 -0
+- reddit-ledger-official-incident-statement  +16 -0
+
+## 20260809T184327Z
+
+- newsbitcom-who-lost-who-at-risk  +11 -0
+- ncfacanada-self-custody-commentary  +5 -5
+- newsbitcom-class-action-threat  +24 -24
+- reddit-cancelled-order-shipped  +13 -0
+- reddit-passphrase-entropy-ten-char  +18 -0
+- reddit-coldcard-mk4-ux-flaw-continued  +8 -0
+- reddit-attacker-praise-heist  +8 -0
+- grassfedbitcoin-2085463112048873485  +1 -12
+- oomahq-2085717166884618584  +11 -20
+
+## 20260809T204329Z
+
+- coldcard-hack-tracker  +5 -5
+
+## 20260809T214426Z
+
+- coldcard-hack-tracker  +5 -13
+
+## 20260809T224434Z
+
+- coldcard-hack-tracker  +8 -0

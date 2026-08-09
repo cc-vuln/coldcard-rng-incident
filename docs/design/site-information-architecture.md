@@ -11,9 +11,9 @@ the material, and explains it without adjudicating between the people involved.
 
 The record is intended to outlast the immediate incident. It preserves the
 contemporaneous public record for posterity, including material later edited or
-removed, while treating the incident's likely place among the most consequential
-in Bitcoin's history as a provisional editorial assessment rather than a
-settled ranking.
+removed. Comparative significance rankings are outside the project's
+editorial role; published estimates remain attributed and available deeper in
+the record.
 
 Chronology applies to interpretation as well as source revisions. The timeline
 and response record should let readers follow changing explanations, opinions

@@ -12,7 +12,7 @@ const body = `<h2 id="what-this-record-is">What this record is</h2>
 
 <p>When people publish conspiracy theories alleging an inside job or that law-enforcement or intelligence agencies caused or directed the incident, those claims are part of the historical reaction record. They are preserved as dated, attributed public reaction, never as evidence that the theory was true. Later retractions, corrections and changes of view belong beside the original claim.</p>
 
-<p>The whole project is open source: the collection, the capture tooling and this site are all public at <a href="${REPO}" rel="noopener">the source repository</a>, under licences that let anyone re-run the captures, check the record against the originals or reuse the material elsewhere. Being checkable is the point: the record links to originals and independent copies where they are available, and states when a supporting copy is held only by this project.</p>
+<p>The whole project is open source: the collection, the capture tooling and this site are all public at <a href="${REPO}" rel="noopener">the source repository</a>, under licences that let anyone re-run the captures, check the record against the originals or reuse the material elsewhere. Being checkable is the point: the record links to originals and independent copies where they are available, and states when a supporting copy is held only by this project. <a href="/methods/">Collection and editorial methods</a> describe how material enters the record and where coverage remains incomplete.</p>
 
 <h2 id="who-publishes-this">Who publishes this</h2>
 
@@ -107,9 +107,9 @@ const renderedBody = body.replaceAll(
   depth="plain"
   kicker="About"
   next={{
-    href: '/cite/',
-    label: 'How to cite',
-    note: 'Citing a preserved source state, naming the state you read, and what a citation to this record does and does not assert.',
+    href: '/methods/',
+    label: 'Methods',
+    note: 'How material enters the record, what a capture establishes, and where coverage remains incomplete.',
   }}
 >
   <div class="ported" set:html={renderedBody} />

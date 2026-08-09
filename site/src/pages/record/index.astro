@@ -18,6 +18,15 @@ import { xMedia } from '../../lib/xmedia';
 // row on one card nobody scrolls to.
 const vanished = goneSources();
 const s = stats();
+const sourceList = sources();
+const sourceContentRevisions = new Map<string, number>();
+for (const revision of revisions()) {
+  if (revision.review.status !== 'source-content') continue;
+  sourceContentRevisions.set(
+    revision.sourceId,
+    (sourceContentRevisions.get(revision.sourceId) ?? 0) + 1,
+  );
+}
 
 /*
  * Summary freshness stamp. Every card below already carries its own "checked"
@@ -94,12 +103,10 @@ const GROUPS = [
 const grouped = GROUPS
   .map(([key, title, blurb]) => ({
     key, title, blurb,
-    items: sources().filter((x) => groupOf(x) === key).map((src) => {
+    items: sourceList.filter((x) => groupOf(x) === key).map((src) => {
       const snaps = snapshots(src.id);
       const checked = lastPolled(src.id);
-      const revCount = revisions().filter((r) =>
-        r.sourceId === src.id && r.review.status === 'source-content'
-      ).length;
+      const revCount = sourceContentRevisions.get(src.id) ?? 0;
       return {
         ...src,
         title: displayTitle(src),

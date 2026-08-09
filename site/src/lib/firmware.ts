@@ -84,9 +84,9 @@ export interface ModelRange {
  * changes, so the pin moves on unchanged polls as well as on new states: the
  * advisory's last changed state is 1 August 2026 at 18:44 UTC and the
  * backgrounder's is 4 August 2026, both giving 4.0.1 through 4.1.9, and both
- * pages were polled without change through 7 August 2026.
+ * pages were polled without change through 9 August 2026.
  */
-export const VENDOR_RANGE_AS_OF = '7 August 2026';
+export const VENDOR_RANGE_AS_OF = '9 August 2026';
 
 /**
  * The Mk2 and Mk3 lower-bound divergence, stated once. Neither boundary is a

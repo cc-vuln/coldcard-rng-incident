@@ -5,7 +5,7 @@ Until 8 Aug 2026 the churn this repository accumulates between human sessions
 — poll captures, review classifications, registrations, discovery verdicts,
 generated site indexes — sat uncommitted until a person swept it up, and while
 it sat there publish-scheduled.sh refused to deploy: its clean-tree guard reads
-dirt outside archive/ as "somebody is mid-change", so the public site fell
+any uncommitted state as "not a reconstructible release", so the public site fell
 behind the record for exactly as long as the record was busiest. On 8 Aug 2026
 the operator directed the pipeline to run unattended, with human review
 retroactive rather than a gate. This script is the commit step of that
@@ -38,7 +38,9 @@ Every precondition prints its reason when it blocks, and a block exits 1:
      without one was rejected, is still in flight, or died mid-run. All three
      block: a rejected run's edits are evidence a person has to read, and
      committing them would launder an injection into the record.
-  6. The archive writer lock is free, and is then HELD across staging and the
+  6. The site build lock is free, and is then HELD across staging and the
+     commit. A publish build must read one stable HEAD for its version stamp.
+  7. The archive writer lock is free, and is then HELD across staging and the
      commit. Staging archive/ while a poll is mid-write could commit a
      snapshot without its index.jsonl line, which is the change record this
      repository exists to get right.
@@ -63,6 +65,8 @@ Installed as record-commit.timer (see the .example units beside this file).
 from __future__ import annotations
 
 import argparse
+import contextlib
+import fcntl
 import json
 import os
 import re
@@ -73,6 +77,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Iterator
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -83,10 +88,9 @@ from archive_lock import ArchiveLockBusy, archive_lock  # noqa: E402
 # the machine-readable half of "guard-passed pipeline output", and anything
 # not named here — .work/, .env, an operator's scratch file — is unreachable.
 # site/src/data/ lives inside site/src/ and is named anyway because it is the
-# entry that matters most: the publish build regenerates the tracked X media
-# index there, and committing it BEFORE a publish build is what keeps
-# /version.json reading matches_commit = true. A publish that dirties the
-# tree publishes a commit hash that does not reproduce what it serves.
+# generated-index path. The scheduled publisher regenerates that index under
+# the build lock before its build; the next ordinary commit tick must also be
+# able to carry any index produced by a manual build.
 STAGE_PATHS: tuple[str, ...] = (
     "archive/",
     "revision-reviews.toml",
@@ -117,6 +121,7 @@ FORBIDDEN_MESSAGE_STRINGS: tuple[str, ...] = (
 # shared lock, so a poll mid-run turns the audit gate into a 21; that is a
 # reason to retry, not a reason to stay blocked.
 LOCK_BUSY_EXIT = 21
+BUILD_LOCK_PATH = Path("/tmp/cc-build.lock")
 # A tier poll can hold the lock for a quarter of an hour now that browser
 # captures and the chain monitors share the tick (observed 9 Aug 2026); the
 # retry span covers that. Skipping a tick costs nothing.
@@ -124,6 +129,35 @@ AUDIT_RETRY_WAITS_SECONDS = (120, 180, 240, 300)
 
 GUARD_RUNS = Path(".work/agent-guard")
 RUN_ID_RE = re.compile(r"^(\d{8}T\d{6}Z)-")
+
+
+class BuildLockBusy(RuntimeError):
+    """Raised when a site build or publish owns the shared build lock."""
+
+
+@contextlib.contextmanager
+def build_lock(path: Path = BUILD_LOCK_PATH) -> Iterator[None]:
+    """Hold the same non-blocking lock as every Astro build.
+
+    The committer changes HEAD. A build reads HEAD near the end when it writes
+    ``version.json``, so committing during route generation can stamp a commit
+    different from the one whose files the earlier routes read. The publisher
+    skips when this lock is busy; the committer follows the same rule and lets
+    its next hourly tick retry.
+    """
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = path.open("a+", encoding="utf-8")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as exc:
+        handle.close()
+        raise BuildLockBusy(str(path)) from exc
+    try:
+        yield
+    finally:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
 
 
 def git(root: Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -522,29 +556,33 @@ def main(argv: list[str] | None = None) -> int:
             print("---\nrecord-commit: dry run, nothing committed")
             return 0
 
-    # --yes. The writer lock is the last precondition and is then held across
-    # staging and the commit: archive/ is staged from disk, and a poll writing
-    # mid-stage could put a snapshot in the commit without its index.jsonl
-    # line. A busy lock is contention with the poll, so it blocks rather than
-    # waits — the timer fires again in an hour.
+    # --yes. Lock order is build, then archive. publish-scheduled holds the
+    # build lock while it audits; taking the archive lock first here would let
+    # the two processes wait on each other. Both acquisitions are non-blocking,
+    # so routine contention simply defers this hourly tick.
     try:
-        with archive_lock("record-commit"):
-            staged = stage(ROOT)
-            if not staged:
-                print("record-commit: nothing to commit")
-                return 0
-            message = build_message(summarize(ROOT, staged))
-            problems = lint_message(ROOT, message)
-            if problems:
-                # The staged changes stay staged: the next tick re-derives
-                # them, and an operator looking at the tree sees what was
-                # about to ship.
-                print("record-commit: blocked, the assembled message fails "
-                      "the no-attribution lint:", file=sys.stderr)
-                for problem in problems:
-                    print(f"  - {problem}", file=sys.stderr)
-                return 1
-            short = commit_staged(ROOT, message)
+        with build_lock():
+            with archive_lock("record-commit"):
+                staged = stage(ROOT)
+                if not staged:
+                    print("record-commit: nothing to commit")
+                    return 0
+                message = build_message(summarize(ROOT, staged))
+                problems = lint_message(ROOT, message)
+                if problems:
+                    # The staged changes stay staged: the next tick re-derives
+                    # them, and an operator looking at the tree sees what was
+                    # about to ship.
+                    print("record-commit: blocked, the assembled message fails "
+                          "the no-attribution lint:", file=sys.stderr)
+                    for problem in problems:
+                        print(f"  - {problem}", file=sys.stderr)
+                    return 1
+                short = commit_staged(ROOT, message)
+    except BuildLockBusy as exc:
+        print(f"record-commit: blocked, a build holds {exc}; "
+              "the next tick retries", file=sys.stderr)
+        return 1
     except ArchiveLockBusy as exc:
         print(f"record-commit: blocked, the archive writer lock is held "
               f"({exc}); the next tick retries", file=sys.stderr)

@@ -1,20 +1,17 @@
-# Hosts the unattended agents may reach, beyond the record's own sources.
+# Historical mirror of hosts admitted through vet_host.py.
 #
-# scripts/agent_proxy.py allows a CONNECT only to a host named here or in
-# scripts/registry_hosts.toml. Everything else from the agent account is
-# refused by the proxy and, before that, dropped by the nftables rule keyed on
-# its uid. Both files live in scripts/, which is read-only to the agent, so a
-# run cannot widen its own reach.
+# Since 9 August 2026 scripts/agent_proxy.py does NOT read this file or
+# registry_hosts.toml. Agents receive held evidence from the driver and may
+# reach only provider endpoints named in the gitignored
+# agent-egress.local.toml. The uid firewall permits only that local proxy and
+# does not permit direct DNS. This file stays additive for audit continuity
+# while vet_host.py admits source hosts; its contents do not grant access.
 #
 # A leading dot means the domain and its subdomains: ".example.com" matches
 # api.example.com and counterexample.com does not. Bare names match exactly.
 #
-# The research half of the policy is deliberately not repeated here. A sweep
-# may read what the registry may name, because anything it finds has to be
-# registerable to be worth reading, and registry_hosts.toml is already the
-# human-maintained list for that. If the sweep needs a host that is not on
-# either list, the answer is a person adding it, which is the same answer the
-# sweep prompt already gives.
+# Evidence acquisition, including the claim sweep, is driver-side. A missing
+# held capture is reported as a coverage gap rather than fetched by an agent.
 
 # WHICH MODEL PROVIDER THIS PROJECT USES IS NOT IN THIS FILE, and must not be
 # added to it. Its API hostnames live in `agent-egress.local.toml` beside this
@@ -24,9 +21,9 @@
 # models and CLIs those agents are, or a reader of this repository has a
 # specification for attacking them.
 #
-# The proxy reads both files and does not care which host came from which. A
-# missing local file is reported at startup rather than assumed away, because
-# an allowlist that silently lost the provider looks exactly like an outage.
+# A missing local provider file is reported at proxy startup rather than
+# assumed away, because an allowlist that silently lost the provider looks
+# exactly like an outage.
 #
 # See `agent-egress.local.toml.example` for the shape.
 
@@ -57,5 +54,10 @@ admitted = [
   "chainabuse.com",
   "lu.ke",
   "orange.surf",
+  "support.ledger.com",
+  "thehackernews.com",
+  "www.bleepingcomputer.com",
   "www.citadel21.com",
+  "www.ledger.com",
+  "www.web3isgoinggreat.com",
 ]

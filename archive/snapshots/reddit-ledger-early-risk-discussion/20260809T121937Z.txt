@@ -1,0 +1,1197 @@
+post: 1vbddgv
+author: locustsandhoney
+created_utc: 1785463397
+title: ColdCard Wallets drained due to poor entropy. How do Ledger wallets compare?
+body:
+EDIT:
+
+As far as any information I can find goes, **there is  absolutely no reason to have confidence that a similar exploit won’t happen on a Ledger or similar wallet**. They tout that their Secure Element is certified by a third party, but they do not get their firmware certified. Therefore, a hypothetical bug in any current or past version of firmware could interfere with the seed generation process (which is exactly what happened with ColdCard).
+
+If Ledger is not willing to put all firmware versions – past, current, and future – through a certification process similar to what they’ve done with their Secure Element, it is not safe to trust them, or any hardware wallet, to generate your seed.
+
+The only solution I see now is to add a sufficiently complex passphrase to your seed, which you generate yourself in a completely random way without the use of any software. The passphrase should have at least 80 bits of entropy, such as 6 genuinely random words, or 20 random alphanumeric characters. (Some have mentioned rolling dice to generate your own seed, this can also work but be warned many implementations still require you to input your dice rolls into a wallet or software and trust that it is functioning correctly to utilize that entropy.) A passphrase you generate yourself ensures that you have provided your own entropy, end to end, without any intermediary and potentially flawed process from a manufacturer, programmer, or any other third party.
+
+**Sadly, the new mantra must be “not your entropy, not your keys.”**
+
+
+
+Original Post:
+
+Can anyone provide an objective comparison for how various Ledger Wallet models compare to ColdCard when it comes to entropy in creating the seed phrase? Over 500 ColdCard wallets have just been drained today due to the seed phrases being guessed, despite having been generated completely offline on a hardware wallet similar to Ledger (see linked article).
+
+
+
+comment: p0skcwo
+parent: t3_1vbddgv
+author: AutoModerator
+created_utc: 1785463397
+edited: false
+body:
+&#128680; **Beware of Scammers – Stay Safe on the Ledger Subreddit**
+Scammers regularly target this subreddit.
+Ledger Support will **never** contact you first — whether through private messages, comments, or phone calls.
+
+If you need help, always open a support ticket yourself via our official website: [Ledger Support](https://support.ledger.com/contact-us)
+
+&#128272; **Never share your 24-word Secret Recovery Phrase**  
+Ledger will never ask for it. Do not enter it online — even if a site or message looks official.  
+Keep it offline and secure — on paper, your Ledger Recovery Key, or a metal backup. **Never store it digitally.**
+
+&#128218; **Learn more about common scams targeting crypto users** (fake support, phishing emails, physical mail scams, fake airdrops, malicious NFTs, and more): [How to Spot a Scam](https://support.ledger.com/article/scams-targeting-crypto-holders)
+
+&#128736; **Facing a bug or technical issue?**
+Check our [Ongoing Issues](https://support.ledger.com/article/15158192560157-zd) page for updates and workarounds.
+
+
+*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/ledgerwallet) if you have any questions or concerns.*
+
+comment: p0sp9ln
+parent: t3_1vbddgv
+author: thinkingperson
+created_utc: 1785465078
+edited: false
+body:
+How are ledger wallets similar to ColdCard wallets, specifically the mk 3 models?
+
+comment: p0sq3xi
+parent: t1_p0sp9ln
+author: locustsandhoney
+created_utc: 1785465366
+edited: false
+body:
+Similar in the sense that they are hardware wallets which generate your seed completely offline. ColdCard wallets generated this way are being actively compromised and drained today, even though the users did everything right. The problem appears to be due to poor entropy on the part of the wallet when generating the seed. So, it’s worth knowing how much better (presumably) each specific Ledger wallet is for entropy, by how much, and whether it’s by a sufficient amount to not need to worry about an exploit like this.
+
+comment: p0sq79o
+parent: t3_1vbddgv
+author: nupods
+created_utc: 1785465398
+edited: false
+body:
+Asking the right questions.  
+
+comment: p0sqnmo
+parent: t1_p0sq3xi
+author: thinkingperson
+created_utc: 1785465557
+edited: false
+body:
+So do you know the diff in entropy between how the two generate the seed before stating that they are similar? 
+
+By your standard, you should be stating similar to all hardware wallets and not be singling out ledger wallets.
+
+comment: p0srbyx
+parent: t1_p0sqnmo
+author: locustsandhoney
+created_utc: 1785465793
+edited: false
+body:
+I’m not presenting “a standard,” I’m asking a question. And I agree Ledger Wallets shouldn’t be singled out – this is something that every hardware wallet company should be addressing right now. However, check the page you’re on, this is the Ledger subreddit. So, obviously, discussion is going to center around Ledger here. And the users here are going to be those who have Ledger wallets, so obviously that’s the wallet we are most interested in getting answers on.
+
+No, I don’t know the diff in entropy, that is literally what I’m asking someone for.
+
+comment: p0sz2w4
+parent: t3_1vbddgv
+author: MrNotSoRight
+created_utc: 1785468591
+edited: 1785558851
+body:
+**Ledger hardware wallets are designed very differently for seed randomness and do not have this specific Coldcard Mk3 problem.**
+
+**What happened with Coldcard Mk3 (simple explanation)**
+
+A hardware wallet’s most important job at setup is creating a **truly random seed** (the 12/24-word recovery phrase). That seed must be unpredictable so no one can guess or recreate it.
+
+On Coldcard Mk3 devices running firmware 4.0.1 (March 2021) through 5.0.3, a firmware bug caused the random-number generator to fall back to a weak, mostly predictable software method instead of proper hardware randomness. It relied on things like the device’s unique ID and timer values (and in some descriptions, limited input like button-press timing). This made many seeds far less random than they should be.
+
+Attackers who understood the flaw could (in some cases) reconstruct the seed offline by testing possibilities against a known public address or xpub, then steal the funds. This appears linked to recent drains of hundreds of BTC from affected single-signature wallets that lacked extra protections. Newer Coldcards (Mk4, Q, Mk5) are not affected by the same full issue according to Coinkite.2  
+Adding a strong BIP-39 passphrase on top of the seed greatly reduces the risk. Using dice rolls for entropy (instead of the device’s generator) also avoids it. Simply upgrading firmware does **not** fix an already-generated weak seed.
+
+**How Ledger compares**
+
+Ledger devices generate the seed inside a **Secure Element** chip (the same class of chip used in bank cards and passports) using its built-in **True Random Number Generator (TRNG)**. This draws randomness from physical hardware noise sources.
+
+Key points in simple terms:
+
+The TRNG is tested and certified to a high standard (EAL5+ and AIS-31) by independent labs. These certifications involve rigorous statistical tests under different conditions (temperature, voltage, etc.) to confirm the numbers are high-quality and unpredictable.
+
+Ledger generates a full 256-bit random number this way, then turns it into a 24-word BIP-39 phrase using the standard process. The number of possible seeds is enormous (2²⁵⁶) — far beyond what anyone could brute-force.
+
+There is no known equivalent “weak fallback to predictable software RNG based on device ID/timers” issue of the kind that hit the Mk3.
+
+Ledger has never had a reported seed-generation flaw that allowed widespread offline reconstruction of seeds the way this Mk3 issue did. Their security model emphasizes the certified Secure Element TRNG for the master seed.
+
+**Important caveats (honest comparison)**
+
+**No hardware wallet is perfect.**
+
+Bugs can and do happen in firmware, chips, or software. Ledger has had other issues in the past (e.g., physical extraction research, supply-chain concerns, or the Ledger Recover feature controversy), but nothing matching this specific low-entropy seed-generation problem.
+
+Both companies stress best practices: use a strong BIP-39 passphrase, consider multisig, verify addresses on the device screen, and never share your seed.
+
+Coldcard’s open-source firmware and air-gapped design are strengths in other areas; the Mk3 bug was a specific regression in how randomness was sourced in certain firmware versions.
+
+**Bottom line:** Ledger’s seed generation relies on a certified hardware TRNG inside a Secure Element and is not vulnerable to the same predictable-RNG fallback that affected Coldcard Mk3. If you hold significant funds, the usual advice applies regardless of brand: use a passphrase, prefer multisig for large amounts, keep backups secure, and migrate carefully if you ever suspect an issue.
+
+Info on TRNG: [https://support.ledger.com/article/360010073520-zd](https://support.ledger.com/article/360010073520-zd)
+
+Edit: just to be clear, I’m not associated with Ledger in anyway.
+
+comment: p0szm1p
+parent: t3_1vbddgv
+author: Fit-Ad9887
+created_utc: 1785468793
+edited: false
+body:
+Wouldn't using a strong passphrase wallet make this a lot harder?
+
+comment: p0t03gb
+parent: t1_p0szm1p
+author: Lyt_Diamond_Hands
+created_utc: 1785468981
+edited: false
+body:
+Yes a unique passphrase helps protect you. 
+
+comment: p0t08y2
+parent: t1_p0t03gb
+author: Fit-Ad9887
+created_utc: 1785469040
+edited: 1785469510
+body:
+This is standard practice for every cold wallet to me...
+
+comment: p0t3bg0
+parent: t1_p0sz2w4
+author: locustsandhoney
+created_utc: 1785470223
+edited: false
+body:
+Thanks, you seem knowledgeable so I hope you don’t mind if I ask some follow up questions.
+
+First, what source did you get all this from? (It appears copied from an article or something perhaps, given the orphaned footnote reference).
+
+How can we verify the certification Ledger has on their RNG system, beyond their claim that it’s certified? And, does that same certification apply to ALL Ledger devices (current and previous)? And ALL firmware versions? Since, like you said, firmware can have bugs (as they did in ColdCard’s case) every single iteration would need to be independently certified. How could we verify whether any given hardware/firmware combo is certified as claimed?
+
+I have to disagree that Ledger stresses best practices like use of a passphrase or multisig. When I set up my wallet, these were not encouraged at all, at any level, by Ledger. Not in any of their documentation or instructions that came with their devices, nor online on their website.
+
+comment: p0t8lh4
+parent: t1_p0t3bg0
+author: MrNotSoRight
+created_utc: 1785472300
+edited: false
+body:
+Ledger states that the Random Number Generator inside the Secure Element has been evaluated by a third-party laboratory and obtained EAL5+ (or higher) and AIS-31 certification. AIS-31 is a German BSI methodology specifically for evaluating physical true random number generators (functionality classes such as PTG.2). It involves mathematical models of the noise source, statistical testing under varied conditions (temperature, voltage, frequency, etc.), and mechanisms for detecting defects or attacks. See support.ledger.com
+
+**What is actually certified?**
+
+\- The **Secure Element chip itself** (the STMicroelectronics ST33-series chips) carries Common Criteria certifications (EAL5+ or EAL6+ depending on the exact variant and revision). These are public or semi-public via the Common Criteria portal and national schemes (ANSSI in France, BSI in Germany, etc.). Examples include certificates and reports for ST33J2M0 (used in older Nano X models, typically EAL5+) and ST33K1M5 / ST33K1M5C variants (used in Nano S Plus, Stax, Flex, and some others, often EAL6+).  
+\- The TRNG inside those chips is evaluated under AIS-31 (commonly claiming Class PTG.2). Ledger also adds software post-processing on top.  
+\- Separate product-level certifications exist in some cases (e.g., ANSSI CSPN evaluations for specific Ledger Nano models and firmware versions). These cover aspects including the TRNG and seed generation in the evaluated configuration.
+
+**Does it apply to all devices, all firmware, and every iteration?** No. Certifications attach to specific chip versions/revisions and, for product-level evaluations, specific firmware versions and configurations. Newer chips or major firmware changes generally require re-evaluation or composition analysis. Not every firmware update receives a full independent re-certification of the RNG; the hardware TRNG properties are more stable, while software usage of the RNG could theoretically introduce issues (as happened with Coldcard’s firmware regression).
+
+**How can an independent person verify?**
+
+Look up the specific Secure Element part number for your device model (publicly documented by Ledger for current models) on the Common Criteria portal (commoncriteriaportal.org) or the issuing body’s site (ANSSI, BSI, etc.). Download the certification report / security target where available.
+
+Check AIS-31 / PTG.2 claims in the chip’s security target or related application notes.
+
+For product-level claims, search ANSSI’s published CSPN or CC certificates for the exact Ledger model + firmware version.
+
+Ledger publishes some third-party security assessment reports (for Ledger OS) on their GitHub; those can be signature-verified.
+
+Device genuineness can be checked cryptographically via Ledger Wallet / Ledger Live (the “genuine check”), which confirms a genuine Secure Element with the factory-provisioned attestation keys. This does not re-prove the RNG quality of that specific unit, but it confirms you have an authentic chip from the certified family.
+
+comment: p0u1q7n
+parent: t3_1vbddgv
+author: CleanCow3691
+created_utc: 1785485596
+edited: false
+body:
+how does ledger nano s generated seed from 2017 or 2018 compares to this? how was it generated?
+
+comment: p0u2d1r
+parent: t1_p0t8lh4
+author: CleanCow3691
+created_utc: 1785485904
+edited: false
+body:
+> used in Nano S Plus, Stax, Flex, and some others, often E
+
+hey, what about Ledger Nano S, the old model, how was the seed generated there?
+
+comment: p0u3m60
+parent: t1_p0u2d1r
+author: Davahkiin89
+created_utc: 1785486519
+edited: false
+body:
+Yes, i was wondering about the Nano S as well.
+
+comment: p0u881a
+parent: t1_p0t03gb
+author: mastermilian
+created_utc: 1785488762
+edited: false
+body:
+If someone was trying to brute-force the seed in the particular circumstance, would you be safe by using only 1 extra unique word in your passphrase? 
+How is the attack conducted? Do they make attempts on the 12 word passphrase? 
+
+comment: p0udnar
+parent: t3_1vbddgv
+author: CleanCow3691
+created_utc: 1785491336
+edited: false
+body:
+will anyone from ledger make the statement about this?
+
+comment: p0urqij
+parent: t3_1vbddgv
+author: Suspicious-Holiday42
+created_utc: 1785497201
+edited: false
+body:
+As long as EVERY possible seedphrase can theoretically be created with a ledger device, there should be no problem, then its as safe as making it with a dice. I hope thats the case. The problem with coldcard was that it could only make limited combinations, making it very easy to brute force seedphrases by only concentrating on the small amount of combinations possible
+
+comment: p0urwgr
+parent: t3_1vbddgv
+author: poremdevemos
+created_utc: 1785497263
+edited: false
+body:
+So we are good? No official communication yet?
+
+comment: p0us002
+parent: t3_1vbddgv
+author: Gooner_93
+created_utc: 1785497301
+edited: false
+body:
+Im sure we'll have people looking closely at how other wallets generate seedphrases, after this devastating situation with coldcard. Now this is only my assumption beccause Im not too knowledgable on it but Im pretty happy to continue using my Ledger generated seedphrase, because they use a variety of things to ensure high entropy.
+
+Its a sad situation for coldcard users that got drained but if something comes out of this, its that hopefully people will learn how to use the passphrase feature and other ways to add extra security such as multisig.
+
+Ive been advocating for people to learn how to use a passphrase for years, its one of the first things I did when I bought a Ledger and set up my wallet.
+
+comment: p0uug2p
+parent: t1_p0urwgr
+author: locustsandhoney
+created_utc: 1785498210
+edited: false
+body:
+No official response that I’m aware of.
+
+comment: p0uvwqb
+parent: t1_p0szm1p
+author: poughkeepsee
+created_utc: 1785498735
+edited: false
+body:
+Yes but it’s not a perfect solution. A passphrase works like a 25th word for your seed. This means attackers now know 24 words out of 25. I would assume it makes you exponentially more prone to brute force attacks. It’s a good measure to buy you some extra time to send funds to another address but I would still treat it as a compromised wallet. 
+
+comment: p0ux998
+parent: t1_p0urwgr
+author: Suspicious-Holiday42
+created_utc: 1785499205
+edited: false
+body:
+Ledger doesn't have that problem, the coldcard only had that problem temporarily because of a bug that came with an update which basically crippled its random seed phrase generator so that it only created a limited variation of combinations (so easy to brute force)- coldcard now already released an update that eliminates that bug.
+
+comment: p0v77u6
+parent: t1_p0ux998
+author: poremdevemos
+created_utc: 1785502406
+edited: false
+body:
+I understand your point, but I think it is valid to reach your users and say everything is fine. Most don't know anything about that and when they see it the first thing they will do is search to see if Ledger is compromised as well.
+
+comment: p0vb6ru
+parent: t3_1vbddgv
+author: KIG45
+created_utc: 1785503592
+edited: false
+body:
+Ledger and Trezor are the truths in hardware security. Create passwords and you're good to go!
+
+comment: p0vgac9
+parent: t1_p0sz2w4
+author: slykethephoxenix
+created_utc: 1785505042
+edited: false
+body:
+How do we know they are using the full 256 bits of randomness provided by the TRNG chip, and not the first 40 bits, like what ColdCard MK3 did?
+
+To be clear, I am not saying that the Ledger device isn't generating them correctly.
+
+What I am asking is how do we know that it is?
+
+comment: p0vjzg6
+parent: t1_p0v77u6
+author: cyanopsis
+created_utc: 1785506053
+edited: false
+body:
+Imagine if there's a vulnerability and all the people that had been posting here for years about their funds being stolen were actually right all along. 
+
+comment: p0vou1z
+parent: t1_p0vb6ru
+author: locustsandhoney
+created_utc: 1785507365
+edited: false
+body:
+Yes, if there’s one thing this incident should teach all of us, it’s that a passphrase or multisig by wallets from separate vendors is unfortunately a necessity for self-custody. However, I need to push back on your statement a bit. 
+If the seed generation process is insufficient, you’re going to need a very complex password (much longer and more complex than what most people consider a “password”) for your wallet to be good to go. You’re much better off just starting with a secure seed in the first place. And that’s what we really need to re-evaluate and verify here, across the board for all wallets. Generating a seed manually with dice and coins may also actually need to become the standard procedure.
+
+comment: p0w0toy
+parent: t1_p0uvwqb
+author: Suspicious-Holiday42
+created_utc: 1785510506
+edited: false
+body:
+So you should send a little  amount to your 24 words adress and when that gets drained its a warning that they found out your 24 words
+
+comment: p0w3ap7
+parent: t1_p0w0toy
+author: poughkeepsee
+created_utc: 1785511150
+edited: false
+body:
+Understand your point but you can just create a new seed and use that if you’re affected, security wise this a thousand times safer. 
+
+comment: p0wn9p6
+parent: t3_1vbddgv
+author: Rosie_Ledger
+created_utc: 1785516280
+edited: false
+body:
+Hey there, 
+
+Ledger is not affected by the recently published Coldcard Mk3 advisory.
+
+Ledger devices use a certified True Random Number Generator (TRNG) built directly into our Secure Element chip, generating full 256 bits of entropy for every 24-word Secret Recovery Phrase. Please refer to this article for more information: [https://support.ledger.com/article/4415198323089-zd](https://support.ledger.com/article/4415198323089-zd)
+
+Coinkite has published a security advisory regarding certain Coldcard Mk3 firmware versions - you can read their notice here: [https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/](https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/)
+
+comment: p0wuvja
+parent: t1_p0wn9p6
+author: locustsandhoney
+created_utc: 1785518235
+edited: 1785519271
+body:
+Sincere thanks for your reply! However, this is a very surface level response that leaves many questions.
+
+Do ALL Ledger wallets (both past/legacy as well as current, since many existing seeds were generated on past wallets) have the same certification and follow the same exact TRNG process?
+
+Is every firmware version on every model wallet independently certified? If not, can you explain why we should still have confidence in the security regardless of what firmware and wallet model we may have used?
+
+Is there any technical possibility that a firmware version could ever affect the way the Secure Element chip generates the seed? The Secure Element could be perfect but if a firmware bug could interfere with its process (as it did with the ColdCard), the certified Secure Element does no good; unless you can tell me that any such bug is a technical and physical impossibility – or that each firmware is independently certified.
+
+I know this *specific* ColdCard advisory does not apply to Ledger. The question is whether there is any possibility for a similar vulnerability, which could (and WOULD) be exploited any time in the future. AI tools will continue pounding on every door, and we need to check the locks.
+
+Thank you!
+
+comment: p0wy68t
+parent: t1_p0wn9p6
+author: vacterio
+created_utc: 1785519075
+edited: false
+body:
+Thanks for the clarification. Just to confirm:
+
+Does every Ledger model ever released (Nano S, Nano X, Nano S Plus, Stax, Flex, etc.) use the same Secure Element-based TRNG architecture for seed generation, or have there been differences between generations?
+
+From a security standpoint, is any model considered better than another regarding entropy generation, or do they all provide the same cryptographic guarantees for generating a recovery phrase?
+
+Finally, is it technically possible for firmware to influence, bypass, or reduce the entropy provided by the Secure Element during seed generation, or is that prevented by the hardware design itself?
+
+comment: p0wzny3
+parent: t1_p0wy68t
+author: locustsandhoney
+created_utc: 1785519460
+edited: false
+body:
+Well put questions. Hoping Ledger gives us the follow-up we all need!
+
+comment: p0x1r88
+parent: t1_p0vgac9
+author: The_Faceless1
+created_utc: 1785519998
+edited: false
+body:
+I dont think you can.
+
+comment: p0x99t8
+parent: t3_1vbddgv
+author: Leynnox
+created_utc: 1785521942
+edited: false
+body:
+A 24 words seedphrase created with a Ledger Wallet has 256 bits of raw entropy. With **256 bits of entropy**, there are $2\^{256}$ (roughly $1.15 \\times 10\^{77}$) possible seed phrase combinations. BIP-39 standards.
+
+So it is practically immune to brute force attacks by modern standards, and probably even quantum computing.
+
+The Coldcards concerned had only a 40 bits of entropy, a modern GPU cluster could crack that in under 30mn.
+
+comment: p0xkndg
+parent: t1_p0x99t8
+author: locustsandhoney
+created_utc: 1785524949
+edited: false
+body:
+They are SUPPOSED to have 256 bits of entropy. The ColdCards were advertised as having the exact same thing! They used the same BIP-39 standard! So simply stating how Ledger wallets are *supposed* to work does nothing to assure that it couldn’t have had similar problems to what happened with ColdCard.
+
+The way to verify whether Ledger doesn’t have such a problem would be an independent certification, which they say they have, but have yet to clarify whether that certification actually tested all firmware versions or if it just tested the secure element itself. The problem with the ColdCard was that a firmware bug interfered with a proper generation of the BIP-39 seed, and it is certainly theoretically possible that any given Ledger firmware could have had a similar problem.
+
+Certifying the Secure Element, but not certifying every firmware version that they ever released, means we don’t really have much, if any, assurance other than “it’s probably fine, it’s supposed to be fine.”
+
+comment: p0xo1b9
+parent: t1_p0w0toy
+author: procabiak
+created_utc: 1785525858
+edited: false
+body:
+dont do this.
+
+if the balance is suspiciously small, the attacker may decide not to steal the balance immediately, and run a brute force or dictionary to see if there's more honey in the pot. if they crack it, then you won't get the warning you were expecting.
+
+it takes merely a few minutes to cycle through all 2^40 seed combinations. but if the attacker also has to assume a passphrase behind every single one of them because they don't know which one to target, then there's still much work to do.
+
+Say if they decide to spend only one second of a password dictionary (which would normally be hours):
+
+2^40 / 60 / 60 / 24 / 365 = 34,800 years to finish.
+
+no where near as safe as 2^256 with its billions of yrs, of course. but it's enough of a reasonable delay to your attacker for you to move funds, in case you are subjected to entropy vulnerability.
+
+comment: p0xpm31
+parent: t1_p0wuvja
+author: PurityAndDanger
+created_utc: 1785526279
+edited: false
+body:
+Up!
+
+comment: p0xpnbt
+parent: t1_p0wy68t
+author: PurityAndDanger
+created_utc: 1785526288
+edited: false
+body:
+Up!
+
+comment: p0xpsxr
+parent: t1_p0wn9p6
+author: PurityAndDanger
+created_utc: 1785526331
+edited: false
+body:
+Thank you for your reply. Kindly respond to the following comments with more detailed information.
+
+comment: p0xy56w
+parent: t1_p0vgac9
+author: loupiote2
+created_utc: 1785528596
+edited: false
+body:
+If that was the case, many ledger wallets would have been bruteforced and drained already.
+
+comment: p0xyvdq
+parent: t1_p0wy68t
+author: loupiote2
+created_utc: 1785528794
+edited: false
+body:
+\> Does every Ledger model ever released (Nano S, Nano X, Nano S Plus, Stax, Flex, etc.) use the same Secure Element-based TRNG architecture for seed generation, or have there been differences between generations?
+
+The TRNG is in the ST-Microelectronics secure element chip. Various ledger use various ST chips, and each has a TRNG, that is well documented, tested by independent organizations , and certified based on the tests required by specific levels of certifications. All this is documented in the ST chip specifications (ledger does not manufacture those chips, ST does).
+
+See previous comments by @[MrNotSoRight](https://www.reddit.com/user/MrNotSoRight/) for more info on this.
+
+comment: p0xz656
+parent: t1_p0u1q7n
+author: knightsofren2021
+created_utc: 1785528875
+edited: false
+body:
+This is the first question everyone wants answering. Great answer to begin with, but how far back does the feature go?
+
+comment: p0xzqlk
+parent: t1_p0xkndg
+author: loupiote2
+created_utc: 1785529027
+edited: false
+body:
+\> They are SUPPOSED to have 256 bits of entropy.
+
+However, don't forget that BTC private keys (and most other types of private keys) have only 128 bits of entropy, so having 256 bits for the seed phrase / bip39 entropy is in fact an overkill. 
+
+comment: p0y2qx1
+parent: t1_p0xkndg
+author: Leynnox
+created_utc: 1785529845
+edited: false
+body:
+I don't know what you want to argue about exactly, if you don't trust Ledger about what they provide, or claim to provide, your only solution is to create your seed phrase yourself using the dices method. It's not open source so I'm not sure what you want to know exactly lol
+
+comment: p0yf0rb
+parent: t1_p0y2qx1
+author: locustsandhoney
+created_utc: 1785533278
+edited: false
+body:
+What I’m arguing about is people who make over-simplistic statements that hand-wave away the security risk without realizing that they are not, in fact, addressing the concerns at all. I don’t want people to have a false sense of security, especially given that’s exactly what the ColdCard victims had, and many more, who may not be victims, have nonetheless likewise assumed.
+
+To be as clear as possible about what I’d like to hear from Ledger: they should clarify whether the independent certification of their product is just of the secure element chip itself, or if it extends to all firmware versions and models of their wallets. If it does not extend to all of them, then I’d like them to explain why we should still consider any given iteration or model to be secure in light of the fact that a firmware or software bug can theoretically break the entropy that the Secure Element is meant to provide.
+
+And, yes, I think your conclusion is probably correct: this incident shows we cannot trust any vendor, software, or algorithm to generate our seed for us, and we likely should be using dice and coins to generate them manually as a standard practice.
+
+comment: p0yngzx
+parent: t3_1vbddgv
+author: LeRubanBleu
+created_utc: 1785535791
+edited: false
+body:
+This makes me re-think the assomption: open source is the best, Ledger isn’t open source so it’s bad
+
+Well actually we discover after many years of open source firmware that coldcard has a bug and nobody saw it coming.  
+Now who’s laughing?Ledger with it’s closed source or Coldcard full open source?
+
+Still on their mainpage ATM:  
+**COLDCARD is a Bitcoin-only hardware wallet made by Coinkite since 2017. It protects private keys with dual secure elements, supports air-gapped signing, and runs open-source firmware you can verify yourself.**
+
+Don’t trust, verify as they say.  Well i guess no one took the time to verify
+
+comment: p0ypqsy
+parent: t1_p0yngzx
+author: Xen7963
+created_utc: 1785536492
+edited: false
+body:
+Open source only works if there are guaranteed enough competent peers who actually review it. It is less and less possible if the field is highly skilled. Imagine aerospace engineers rely on voluntary open source to debug space shuttle, you get an idea how long you have to wait if that will ever happen.
+
+comment: p0ytohe
+parent: t1_p0yf0rb
+author: Leynnox
+created_utc: 1785537724
+edited: false
+body:
+Idk man, you keep saying Coldcards were on BIP39, but the entropy issue is from when they replaced it, so no, compromised ones were not BIP39 and they made an announcement about it when they did it. 
+
+Source : [https://blog.coinkite.com/version-4.0.0-released/](https://blog.coinkite.com/version-4.0.0-released/)
+
+
+
+comment: p0ywb58
+parent: t1_p0yngzx
+author: Either_Display_6624
+created_utc: 1785538553
+edited: false
+body:
+Most people don't even know that Ledger is open source just not the firmware.
+
+comment: p0yx2qd
+parent: t1_p0ytohe
+author: locustsandhoney
+created_utc: 1785538801
+edited: false
+body:
+I don’t “keep saying” ColdCards were on BIP-39, I said that exactly one time, and it wasn’t even in the comment you’re replying to. So you haven’t addressed a single one of my points.
+
+You may be correct that ColdCards didn’t always use BIP-39. I mistakenly thought that BIP-39 just referred to the use of the standard 12/24 words to represent the seed. Fair enough. That makes exactly zero difference in any of my underlying arguments.
+
+Ledger says they have 256-bits of entropy, so you say they’re fine. Did not ColdCard, regardless of BIP-39, also make the same claim to 256-bits of entropy? So the point stands that it doesn’t friggin’ matter what someone says they have. It needs to be verified.
+
+Ledger has third-party industry standard certification of their Secure Element. That’s great! But ColdCard also had a secure element, and that’s not the component that failed! It was a bad firmware which broke the utilization of the secure element. Ledger’s secure element could be pristine as the Virgin Mary, but if it has a firmware bug, it doesn’t matter.
+
+THEREFORE Ledger needs to get not only their secure element, but all wallet models and firmware versions certified. Perhaps they did this already (I doubt it), and if so, they should really be making that clear. But if they haven’t, they need to go back and get all past, current, and future versions certified. That is the only way anyone can have any kind of reasonable confidence that the seed they generated on their Ledger is currently safe and will remain safe.
+
+If none of that matters to you, ok, fine? Take whatever risks you want. But you’re not making any kind of counter argument.
+
+comment: p0z5xd4
+parent: t1_p0yx2qd
+author: bwhite2018
+created_utc: 1785541719
+edited: false
+body:
+Just don’t use ledger then. Who are you arguing with 
+
+comment: p0zcfir
+parent: t1_p0sz2w4
+author: Left_Entrepreneur918
+created_utc: 1785543930
+edited: false
+body:
+Question, i generated my key in 2020 with a nano at that time did ledger utilize the tools to generate a key that would be safe?
+
+comment: p0ziith
+parent: t1_p0z5xd4
+author: locustsandhoney
+created_utc: 1785546057
+edited: false
+body:
+You?
+
+Thanks for your contributions buddy.
+
+comment: p0zjkhh
+parent: t1_p0t8lh4
+author: locustsandhoney
+created_utc: 1785546425
+edited: 1785546961
+body:
+The fact that the secure element chip is certified is not sufficient. ColdCard also had a secure element, and that is not the component that failed. The failure was due to a firmware bug that broke the device’s interaction with its secure element to properly generate a seed.
+
+Therefore, since you’re saying that Ledger’s firmware and device hardware beyond the secure element are not certified, we can have exactly zero confidence that anything Ledger claims is accurate. They can claim to have 256-bits of entropy, but so did ColdCard. They can get the secure element certified, but that’s not the only point of failure that matters.
+
+Let me know me where I’m wrong here. I’d be happy to be wrong. But I am concluding from all of this that the only secure way to generate a seed is manually with coins and dice. No vendor, software, or algorithm can be trusted for long term security. Because they clearly don’t do enough to confirm that there are no vulnerabilities (why in the world wouldn’t Ledger want to get their firmware certified??), and because any vulnerabilities that exist WILL eventually be exploited.
+
+There’s nothing stopping ledger from providing their past firmware history to a certifying agency to give all of us reasonable confidence that any seed generated from any version of their devices is safe. Any company not willing to do this is negligent at this point.
+
+comment: p0zlaoj
+parent: t1_p0xy56w
+author: locustsandhoney
+created_utc: 1785547029
+edited: false
+body:
+Imagine using this exact same rationalization about ColdCards two days ago. “It hasn’t happened yet so it will never happen.”
+
+comment: p0zpvey
+parent: t3_1vbddgv
+author: Filmexec21
+created_utc: 1785548658
+edited: 1785551913
+body:
+Update: It ended up going through, but it took 50 minutes which has never happened before. 
+
+I am sending some BTC from Trezor to Ledger as a test, does anyone know why it is taking so long?  I currently am at 40 minutes.
+
+comment: p0zucs8
+parent: t1_p0zlaoj
+author: loupiote2
+created_utc: 1785550287
+edited: false
+body:
+The TRNG hardware in the secure element chips used by ledger have been tested by independent organizations, and certified. All this is very well documented on the ledger website.
+
+comment: p0zuntg
+parent: t1_p0xz656
+author: loupiote2
+created_utc: 1785550400
+edited: false
+body:
+It goes as far back as the HW.1, the very first hardware device produced by ledger. the HW.1 used the TRNG of the hardware secure element chip.
+
+comment: p0zvf6c
+parent: t1_p0yx2qd
+author: Leynnox
+created_utc: 1785550681
+edited: false
+body:
+Learn what is a TRNG ship that Ledger uses, then you'll understand you don't make any sense
+
+comment: p0zy0u5
+parent: t1_p0zucs8
+author: locustsandhoney
+created_utc: 1785551639
+edited: false
+body:
+The secure element is certified. The firmware is not. ColdCard’s secure element is not what failed. It was the firmware. There is no reason to think that same type of bug hasn’t happened with Ledger and the vulnerability just hasn’t been discovered and exploited yet.
+
+comment: p105y9i
+parent: t1_p0zucs8
+author: slykethephoxenix
+created_utc: 1785554646
+edited: false
+body:
+I don't care what's documented on a website. I want a way to know myself. This is the whole "Don't trust, verify".
+
+comment: p1114bh
+parent: t1_p0yx2qd
+author: Background_Pause34
+created_utc: 1785568492
+edited: false
+body:
+What cold wallet to use?
+
+comment: p119ul1
+parent: t1_p1114bh
+author: locustsandhoney
+created_utc: 1785572934
+edited: false
+body:
+Not an easy question to answer right now, but I would say regardless of which one you use: manually generate your own seed using dice or coins, and add a strong passphrase in addition to the 12/24 words.
+
+comment: p11vxdh
+parent: t1_p0zuntg
+author: knightsofren2021
+created_utc: 1785583832
+edited: false
+body:
+Thank you that is comforting but is there a source available to verify please?  I see the ledger articles but they never seem to delve into historical relevance per device/firmware
+
+comment: p11w8xa
+parent: t3_1vbddgv
+author: Luann1497
+created_utc: 1785583970
+edited: false
+body:
+ Ledger uses a secure element chip (ST33) for entropy generation, so it doesn't share the same RNG fallback issue that hit the Mk3 firmware. The ColdCard bug was pretty specific to how that firmware handled the entropy pool under certain conditions. That said, if you generated a seed on any hardware wallet around 2021 and haven't verified the firmware version it was running at the time, worth double checking before assuming you're clean
+
+comment: p126g88
+parent: t1_p0t3bg0
+author: postexitus
+created_utc: 1785587946
+edited: false
+body:
+They are not knowledgable. It is AI slop. You could get the same answer from any modern LLM. 
+
+comment: p126l7g
+parent: t1_p0vgac9
+author: postexitus
+created_utc: 1785587997
+edited: false
+body:
+We don’t. Until we do. 
+
+comment: p12voza
+parent: t1_p0sz2w4
+author: VeryThicknLong
+created_utc: 1785596086
+edited: false
+body:
+Is there a way of adding a pass phrase to an existing seedphrase using Ledger?
+
+comment: p12x5n6
+parent: t1_p126l7g
+author: slykethephoxenix
+created_utc: 1785596516
+edited: false
+body:
+You can never know if it did.
+
+But you will find out if it didn't.
+
+comment: p12zfcd
+parent: t1_p11w8xa
+author: [deleted]
+created_utc: 1785597185
+edited: false
+body:
+[deleted]
+
+comment: p136pa5
+parent: t1_p12zfcd
+author: Luann1497
+created_utc: 1785599296
+edited: false
+body:
+Yeah that's basically Ledger's whole pitch. They do code signing and the firmware gets verified on the device before it runs. You can actually check the attestation yourself if you want to go down that rabbit hole.
+
+That said, trusting any closed source firmware chain means putting some faith in the vendor. The Coldcard bug wasn't caught before release either, so open source doesn't magically fix everything. Just a different set of tradeoffs.
+
+comment: p138kfm
+parent: t1_p126g88
+author: locustsandhoney
+created_utc: 1785599831
+edited: false
+body:
+I know it’s AI, but there can still be a person behind it. I was just trying to get an answer to the pressing questions, but of course they dipped out before actually addressing the real points.
+
+comment: p139pde
+parent: t1_p0xy56w
+author: postexitus
+created_utc: 1785600158
+edited: false
+body:
+The naïveté of some people is beyond belief. 
+
+comment: p13md1c
+parent: t1_p0wuvja
+author: Ok-Form7265
+created_utc: 1785603797
+edited: false
+body:
+good quetions! Up!
+
+comment: p13vr5q
+parent: t1_p0wn9p6
+author: locustsandhoney
+created_utc: 1785606475
+edited: false
+body:
+Please reply to my other comment below here, thank you!
+
+comment: p1437gf
+parent: t3_1vbddgv
+author: Impressive-Key938
+created_utc: 1785608621
+edited: false
+body:
+How many of these were drained? All of them? Fml
+
+comment: p14ln5v
+parent: t3_1vbddgv
+author: MrDryGuy_
+created_utc: 1785614006
+edited: false
+body:
+Ledger secure chip is not open source. That was the problem with coldcard
+
+comment: p14qwbf
+parent: t1_p14ln5v
+author: locustsandhoney
+created_utc: 1785615587
+edited: false
+body:
+The fact that ColdCard is/was open source may have contributed to the situation in a small, partial way, but the underlying problem was there regardless of it being open source. Ledger being closed source doesn’t add any special protection (or disadvantage either).
+
+comment: p156q7z
+parent: t1_p0t8lh4
+author: PassionInevitable589
+created_utc: 1785620422
+edited: false
+body:
+Ai slop post, literally does not even answer the ACTUAL QUESTION. THE SECURE CHIP AND THE FIRMWARE ARE NOT THE SAME 
+
+comment: p158mli
+parent: t1_p11vxdh
+author: loupiote2
+created_utc: 1785621020
+edited: false
+body:
+I have seen this documented in old developer's  info files, but since the HW.1 has been unsupported and deprecated by Ledger for many years, it would now be very hard to find this info.
+
+The HW.1 API documentation file is probably still somewhere on the ledger developer's portal.
+
+comment: p16m3rp
+parent: t1_p0u881a
+author: Lyt_Diamond_Hands
+created_utc: 1785638240
+edited: false
+body:
+Well the passphrase is just another word for the attacker to brute force. My u ser standing is that the benefit to the passphrase is it can be any word, not just a word associated with the BIP words used. As time goes on more will be known about this attack on Cold Card, I don’t know enough to comment, but my understanding is that the attackers were able to look at public accounts and develop a way to crack the seed phrase of those wallets. 
+
+Best rule of thumb for me is to have a pass phrase and if you were using a Cold Card with an automatically generated seed move your funds ASAP. 
+
+\*\*Note the affected seeds were generated on specific Cold Cards with specific software updates. 
+
+comment: p16ppyz
+parent: t1_p105y9i
+author: AllKnowingFlan
+created_utc: 1785639626
+edited: false
+body:
+Do you even have the expertise to truly analyze any possibly shared information yourself, or would you still be taking someone else’s analysis as word anyway?
+
+comment: p16wfyp
+parent: t1_p16ppyz
+author: slykethephoxenix
+created_utc: 1785642323
+edited: false
+body:
+I've written my own cryptocurrency as a PoC, complete with mining & node services. Mixed between C++ & NodeJS. I can code in ASM (Z80/6502) and have written several emulators for Atari, Sega Master System, Sega Megadrive, SNES, GBC & GBA. I regularly post on this sub ways to modify the LedgerLive binary, recompute the binary hash & repack to remove all the bloat they put on the screen so it just shows your portfolio (usually removed by mods until they "verify" it). I run a multimaster Kubernetes cluster at home, complete with LetsEncrypt for public TLS & create my own CA & cert issuing for internal domains
+
+So I think I somewhat might have some idea, yeah.
+
+comment: p174too
+parent: t1_p16wfyp
+author: AllKnowingFlan
+created_utc: 1785645788
+edited: false
+body:
+Could’ve just said yes
+
+comment: p179ih3
+parent: t1_p0sz2w4
+author: website-buyer
+created_utc: 1785647875
+edited: false
+body:
+Just because it’s has that high entropy hardware thing doesn’t mean it uses correctly. So I wouldn’t trust 100%
+
+comment: p17etfj
+parent: t1_p174too
+author: slykethephoxenix
+created_utc: 1785650367
+edited: false
+body:
+But then how will I brag about all the nerdy stuff I do?
+
+comment: p195b7n
+parent: t1_p0vjzg6
+author: Potential_Balance223
+created_utc: 1785678361
+edited: false
+body:
+There's an old thread on Coldcard where this was happening to folks in 2022.
+
+comment: p19ar8c
+parent: t3_1vbddgv
+author: bmoreRavens1995
+created_utc: 1785680059
+edited: false
+body:
+What do you mean "I can't find how ledger compares "? In a most basic Google search you will find tons of explanations. Let alone Ai ......
+
+comment: p19czul
+parent: t1_p14ln5v
+author: josh2751
+created_utc: 1785680740
+edited: false
+body:
+That’s definitely not the problem with coldcard. The problem was bad software engineering. 
+
+comment: p19ebi2
+parent: t1_p105y9i
+author: josh2751
+created_utc: 1785681134
+edited: false
+body:
+Then write your own firmware. 
+
+comment: p19eixx
+parent: t1_p16wfyp
+author: josh2751
+created_utc: 1785681195
+edited: false
+body:
+Then why are you asking stupid questions. If you don’t trust ledger, write your own and stop asking stupid questions that don’t have answers. 
+
+comment: p19eva8
+parent: t1_p16m3rp
+author: vortexcortex21
+created_utc: 1785681296
+edited: false
+body:
+"
+, I don’t know enough to comment, but my understanding is that the attackers were able to look at public accounts and develop a way to crack the seed phrase of those wallets."
+
+No, they created seed phrases and then checked the derived wallets for any available funds.
+
+comment: p19tv62
+parent: t1_p19czul
+author: MrDryGuy_
+created_utc: 1785685597
+edited: false
+body:
+If it wasn't open source, the "bad programming" wouldn't have been found that easily by AI
+
+comment: p19u6jl
+parent: t1_p19tv62
+author: josh2751
+created_utc: 1785685685
+edited: false
+body:
+There’s no evidence whatsoever for that statement. 
+
+comment: p19uok5
+parent: t1_p14qwbf
+author: MrDryGuy_
+created_utc: 1785685822
+edited: false
+body:
+The bug might not have been found, if it wasn't open source. That's all I'm saying
+
+comment: p19w7b1
+parent: t1_p19eixx
+author: slykethephoxenix
+created_utc: 1785686237
+edited: false
+body:
+Provide me with multiple Ledger devices, an electron microscope, oscilloscope, logic analysers & device schematics and I will. Stop telling people to blindly trust their life savings with "trust me bro", this is exactly how people lost their savings in the ColdCard attack.
+
+comment: p1a1eoj
+parent: t1_p19ar8c
+author: locustsandhoney
+created_utc: 1785687655
+edited: 1785687857
+body:
+No, not at all, not even close. As a test, I just asked ChatGPT how ColdCard compares to Ledger when it comes to security and seed generation, and the AI replied that ColdCard is “generally considered more secure.”
+
+You can’t go based on Google and AI vibes. We need something objective, quantifiable, and unbiased. Such as a third-party certification of not just the Secure Element, but also each hardware model, firmware version, and software interface. Since that ain’t gonna happen (because Ledger doesn’t care), the solution is to not trust passphrases generated by software or hardware.
+
+comment: p1a2k5x
+parent: t1_p19uok5
+author: locustsandhoney
+created_utc: 1785687970
+edited: false
+body:
+Yeah but that’s circumstantial. It’s like saying “no need to get the brakes on my car checked because the last wreck that happened was because the tires blew out.” Closed-source software can be just as vulnerable as open-source.
+
+comment: p1dxvo8
+parent: t1_p12voza
+author: EconomyDoctor3287
+created_utc: 1785731636
+edited: false
+body:
+If your seed is weak, you have to create a new one and move everything 
+
+comment: p1elnj2
+parent: t1_p1a1eoj
+author: 35mm-dreams-
+created_utc: 1785743139
+edited: false
+body:
+If you use dice rolls with the list supplied by EFF that’s fairly good physical entropy. You don’t need to use a software RNG. 
+
+comment: p1etc18
+parent: t1_p0t8lh4
+author: Maleficent_Pool_4456
+created_utc: 1785747068
+edited: false
+body:
+First, thank you for taking the time to explain things... As for this part... "**Does it apply to all devices, all firmware, and every iteration?** No. Certifications attach to specific chip versions/revisions and, for product-level evaluations, specific firmware versions and configurations. Newer chips or major firmware changes generally require re-evaluation or composition analysis. Not every firmware update receives a full independent re-certification of the RNG; the hardware TRNG properties are more stable, while software usage of the RNG could theoretically introduce issues (as happened with Coldcard’s firmware regression)." 
+
+So does this mean that very early versions may not have the TRNG technology way of deriving the randomness?   
+
+
+comment: p1f416o
+parent: t1_p0zy0u5
+author: Yardash
+created_utc: 1785752291
+edited: false
+body:
+This is one case though where closed source is more secure than open source.   
+You are 100% correct there could be a bug in the FW that would potentially be exploitable.   
+BUT not being able to see the source code its much more difficult to determine where the weak points in the code might be. 
+
+On the other hand with the ColdCards FW being open source the hacker was able to examine the code, see the fault and build an targeted attack vector. 
+
+But I think we all are looking at this the wrong way.   
+No matter what storage method you use there are risks associated with it. 
+
+You generate your own private key pair, you risk losing the pkey.   
+You use those keys ever, you risk vulnerabilities on whatever code you use to sign the transaction.  (There was a recent incident where a hacker spent years gaining trust on a python lib in order to sneak in a back door)   
+You use a hardware wallet, there is a non-zero chance there are bugs on it.   
+You store the crypto on an exchange, you're vulnerable to the whims of the company. 
+
+  
+Sadly in life there is nothing that is 100%, and you have to pick your poison. 
+
+Personally I'm still as comfortable as I can be keeping the majority of my holdings on a ledger device. That for me seems like the lowest risk spot.   
+If I was worried, I might consider breaking it up across a couple different hardware wallets, or across a couple exchanges.  (Greater risk of some hack affecting you, but mitigating the loss should it happen) 
+
+Or of course if you really cant sleep at night, you could always just gift me all your crypto and then you wouldnt have to worry about it :D 
+
+comment: p1g4zzz
+parent: t1_p1f416o
+author: locustsandhoney
+created_utc: 1785765287
+edited: false
+body:
+Firmware can be certified by a professional third party without being open source. The fact that Ledger doesn’t do this is, itself, a major red flag for security. Anyone who uses a seed generated by software or a hardware wallet needs to add a secure, lengthy, complex passphrase to have any confidence in safety.
+
+comment: p1gj70f
+parent: t1_p1dxvo8
+author: VeryThicknLong
+created_utc: 1785769132
+edited: false
+body:
+That wasn’t my question. How do you add a paraphrase to a Ledger wallet?
+
+comment: p1h6wgu
+parent: t3_1vbddgv
+author: sQtWLgK
+created_utc: 1785775190
+edited: false
+body:
+The ColdCard has a TRNG, similar to Ledger's, which is well capable of providing enough entropy. The problem was a bug which made it not use it.
+
+We don't know if the Ledger has a similar bug; it's closed source after all.
+
+comment: p1hawqg
+parent: t3_1vbddgv
+author: nabu_lines
+created_utc: 1785776181
+edited: false
+body:
+nothing to worry about, youre in good hands
+
+comment: p1ij5ea
+parent: t1_p0zlaoj
+author: PDX-ROB
+created_utc: 1785787446
+edited: false
+body:
+But in this specific situation, isn't it true?  If it had the same issue the hackers don't know if it's a coldcard or ledger that generated the seed.  Sp when they drain the wallet, they do them all at the same time.
+
+comment: p1iqn1u
+parent: t1_p1ij5ea
+author: locustsandhoney
+created_utc: 1785789416
+edited: false
+body:
+A hypothetical vulnerability in Ledger doesn’t need to be exactly identical to the vulnerability in ColdCard. So, it wouldn’t be discovered at the exact same time. There could still be a vulnerability that gets discovered next year, next month, ten years from now, or whenever. It happens with computers all the time.
+
+comment: p1ivd7f
+parent: t1_p0u1q7n
+author: PDX-ROB
+created_utc: 1785790669
+edited: 1785797358
+body:
+Ledger confirmed today on their twitter (in the comments) that all their devices from their original Nano S to modern devices are not impacted.
+
+comment: p1k1sgg
+parent: t3_1vbddgv
+author: AutoModerator
+created_utc: 1785803407
+edited: false
+body:
+&#128680; **Beware of Scammers – Stay Safe on the Ledger Subreddit**
+Scammers regularly target this subreddit.
+Ledger Support will **never** contact you first — whether through private messages, comments, or phone calls.
+
+If you need help, always open a support ticket yourself via our official website: [Ledger Support](https://support.ledger.com/contact-us)
+
+&#128272; **Never share your 24-word Secret Recovery Phrase**  
+Ledger will never ask for it. Do not enter it online — even if a site or message looks official.  
+Keep it offline and secure — on paper, your Ledger Recovery Key, or a metal backup. **Never store it digitally.**
+
+&#128218; **Learn more about common scams targeting crypto users** (fake support, phishing emails, physical mail scams, fake airdrops, malicious NFTs, and more): [How to Spot a Scam](https://support.ledger.com/article/scams-targeting-crypto-holders)
+
+&#128736; **Facing a bug or technical issue?**
+Check our [Ongoing Issues](https://support.ledger.com/article/15158192560157-zd) page for updates and workarounds.
+
+
+*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/ledgerwallet) if you have any questions or concerns.*
+
+comment: p1q92ag
+parent: t1_p156q7z
+author: ReMeDyIII
+created_utc: 1785877545
+edited: false
+body:
+A huge clue was most AI's like to end statements by saying "Bottom line" or "the bottom line is." 
+
+I like to imagine it's Dwayne the Rock Johnson, lol.
+
+comment: p1qaddk
+parent: t1_p0u881a
+author: ReMeDyIII
+created_utc: 1785877899
+edited: 1785878106
+body:
+That extra word tho can be a combination of letters, numbers, and special characters that **you** create, which makes it significantly better than an extra generic word. Once I realized that, I immediately expanded my old 24 word seed phrase to 25, which unfortunately meant I had to move all my crypto over to the new expanded seed phrase, but it was worth it for the peace of mind.
+
+comment: p1uwtv5
+parent: t1_p1qaddk
+author: PDX-ROB
+created_utc: 1785938665
+edited: false
+body:
+Question: in regards to the coldcard hack, if you generated a seed using an impacted firmware, are you safer with a passphrase on a new impacted seed vs a no pass phrase wallet?
+
+What I'm trying to ask is does the existance of dust on an impacted wallet signal to the hackers to begin trying to search for pass phrase wallets from that seed?  So in that case it would be better to generate a new wallet (even if it is impacted) and only use passphrase wallets and never the base wallet.
+
+comment: p1xbztx
+parent: t1_p1uwtv5
+author: ReMeDyIII
+created_utc: 1785960676
+edited: false
+body:
+I've never used coldcard, but when it comes to being compromised, I wouldn't take any chances; purchase a completely new device (to get a new seed phrase), and move all the crypto over. Cold wallets are as little as $60, such as Nano-S-Plus.
+
+The pass phrase and wallet you create is completely disassociated with the compromised wallet, with the exception of the crypto you transfer over from your affected wallet will show on the blockchain of addresses you sent the crypto too. The only thing a hacker can do at that point is a dust attack against the new wallet. Easy solution: Mark it as spam, ignore it, and move on.
+
+For coldcard specifically, IMO everyone should move away from it. It's not worth the risk.
+
+more-stub: parent t1_p19w7b1 count 0

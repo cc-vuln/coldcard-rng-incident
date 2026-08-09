@@ -130,6 +130,8 @@ def main() -> int:
                     help="report every new post, not just keyword matches")
     ap.add_argument("--no-state", action="store_true",
                     help="do not update the seen state (a look, not a sweep)")
+    ap.add_argument("--reconsider-seen", action="store_true",
+                    help="re-evaluate the current listing despite saved seen state")
     ap.add_argument("--show", metavar="POST_ID",
                     help="print one thread's post body and exit (for the intake agent)")
     args = ap.parse_args()
@@ -146,6 +148,7 @@ def main() -> int:
     subs = args.subs or DEFAULT_SUBS
     state = load_state(STATE)
     seen = set(state.get("seen", []))
+    skip_seen = set() if args.reconsider_seen else seen
     known = registered_urls_reddit()
     deferred = deferred_urls()
     now = datetime.now(timezone.utc)
@@ -174,7 +177,7 @@ def main() -> int:
             # A deferred candidate is re-reported for as long as it is in the
             # listing window, so its comment count stays current and it can
             # promote itself once the thread grows.
-            if pid in seen and url not in deferred:
+            if pid in skip_seen and url not in deferred:
                 continue
             seen.add(pid)
             title = d.get("title") or "(untitled)"

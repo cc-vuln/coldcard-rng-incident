@@ -8,8 +8,8 @@
 # Replace USER and REPO with the account and checkout path. Requires
 # REVIEW_AGENT_BIN or CLAIM_SWEEP_AGENT_BIN in REPO/.env (see .env.example).
 #
-# This is the agent that reads the open web, so install the shared hardening
-# drop-in beside it (scripts/agent-hardening.conf.example) and the agent
+# Install the shared hardening drop-in beside it
+# (scripts/agent-hardening.conf.example) and the agent
 # account it drops to (docs/operations.md, "The agent account"). Without them
 # claim-sweep.sh refuses to run rather than running unprotected.
 [Unit]
@@ -26,8 +26,8 @@ TimeoutStartSec=3600
 # NoNewPrivileges is not set: it would block the setuid transition the driver
 # uses to drop into the agent account. See agent-hardening.conf.example.
 #
-# This agent reads the open web and needs to, so its outbound access stays. It
-# has no business on this host though, so it also takes the loopback drop-in,
+# Evidence is driver-held and the agent reaches only its model provider through
+# the egress proxy. It has no business on other host services, so it also takes the loopback drop-in,
 # scripts/agent-loopback-deny.conf.example, which puts the capture browser and
 # the cloud metadata endpoint out of reach. Do not write that rule inline as
 # `IPAddressAllow=any` plus `IPAddressDeny=localhost`: an allow entry beats a

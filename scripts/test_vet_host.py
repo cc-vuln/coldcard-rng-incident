@@ -32,7 +32,7 @@ import vet_host as vh  # noqa: E402
 
 NOW = datetime(2026, 8, 8, 9, 0, 0, tzinfo=timezone.utc)
 
-LOCAL_OK = {"ok": True, "addresses": ["203.0.113.7"], "error": None}
+LOCAL_OK = {"ok": True, "addresses": ["93.184.216.34"], "error": None}
 LOCAL_FAIL = {"ok": False, "addresses": [], "error": "[Errno -3] nope"}
 
 
@@ -47,7 +47,7 @@ def resolver(name, a=None, ns=None):
     return {"server": name, "queries": queries}
 
 
-ANSWERS = {"status": 0, "answers": ["203.0.113.7"]}
+ANSWERS = {"status": 0, "answers": ["93.184.216.34"]}
 NXDOMAIN = {"status": 3, "answers": []}
 QUERY_ERR = {"error": "TimeoutError: timed out"}
 
@@ -165,6 +165,21 @@ class VetTests(unittest.TestCase):
         doh = lambda h, s: resolver(s["name"], a=QUERY_ERR, ns=QUERY_ERR)  # noqa: E731
         result = self.vet("example.com", ok("example.com"), doh=doh)
         self.assertEqual(result["outcome"], "inconclusive")
+
+    def test_private_local_answer_is_rejected_before_http(self):
+        private = {"ok": True, "addresses": ["127.0.0.1"], "error": None}
+        result = self.vet("example.com", {}, resolve=private)
+        self.assertEqual(result["outcome"], "reject")
+        self.assertIn("non-global", result["reason"])
+
+    def test_private_public_resolver_answer_is_rejected(self):
+        private_answer = {"status": 0, "answers": ["169.254.169.254"]}
+        private_doh = lambda h, s: resolver(  # noqa: E731
+            s["name"], a=private_answer, ns=ANSWERS
+        )
+        result = self.vet("example.com", {}, doh=private_doh)
+        self.assertEqual(result["outcome"], "reject")
+        self.assertIn("169.254.169.254", result["reason"])
 
     def test_redirect_to_a_different_domain_is_rejected(self):
         routes = ok("example.com")

@@ -8,20 +8,19 @@ reach, so the gap was tolerable rather than fine. This closes it.
 
 Two halves, and neither works without the other:
 
-  nftables    drops every packet from the agent account except DNS and this
-              proxy, keyed on uid rather than on a systemd unit. The unit is
+  nftables    drops every packet from the agent account except this proxy,
+              keyed on uid rather than on a systemd unit. The unit is
               the wrong key: discover-community runs the driver's own Reddit
               hydration and the agent in one cgroup, so IPAddress* cannot tell
               them apart. A uid can
-  this proxy  refuses a CONNECT to any host not named in
-              scripts/registry_hosts.toml or scripts/agent_egress_hosts.toml
+  this proxy  refuses a CONNECT to any host not named in the gitignored local
+              model-provider allowlist
 
-The policy is one sentence: an agent may reach its model provider, and may
-read what the registry is allowed to name. The second half falls out of the
-work rather than being invented for it, because anything a sweep reads has to
-be registerable to be worth reading, and that list is already maintained by
-hand. Both files live in scripts/, which is read-only to the agent, so a run
-cannot widen its own reach by editing them.
+The policy is one sentence: an agent may reach its model provider. Evidence is
+hydrated by a driver before every agent run, including the claim sweep since
+9 Aug 2026, so source hosts are neither needed nor allowed. The provider file
+lives beside this script, is unreadable to the agent account and is not
+published.
 
 It binds 127.0.0.2 rather than 127.0.0.1 deliberately. The capture browser is
 on 127.0.0.1:10086 with signed-in sessions behind it, and the nftables rule
@@ -44,6 +43,7 @@ else that has to still work in ten years.
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import selectors
 import socket
 import sys
@@ -54,6 +54,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+# Exposed for policy-audit tests and tooling; the live proxy deliberately does
+# not load either file. They govern registration and driver-side acquisition.
 REGISTRY_HOSTS = HERE / "registry_hosts.toml"
 EGRESS_HOSTS = HERE / "agent_egress_hosts.toml"
 # Gitignored. Holds the model provider's API hostnames, which are deliberately
@@ -109,6 +111,42 @@ def is_allowed(host: str, exact: frozenset[str], suffixes: frozenset[str]) -> bo
     return any(host == suffix[1:] or host.endswith(suffix) for suffix in suffixes)
 
 
+def connect_public(address: tuple[str, int], timeout: float | None = None) -> socket.socket:
+    """Resolve once, reject every non-global answer, then connect by address.
+
+    Checking a hostname and then handing it back to ``create_connection``
+    would resolve it a second time and leave a DNS-rebinding window. All
+    answers must be globally routable, and the socket connects to the exact
+    sockaddr that passed that check. The TLS client inside the CONNECT tunnel
+    still uses the original hostname for SNI and certificate validation.
+    """
+    host, port = address
+    infos = socket.getaddrinfo(
+        host, port, type=socket.SOCK_STREAM, proto=socket.IPPROTO_TCP
+    )
+    if not infos:
+        raise OSError("name resolved to no stream addresses")
+    unsafe = sorted({
+        info[4][0] for info in infos
+        if not ipaddress.ip_address(info[4][0]).is_global
+    })
+    if unsafe:
+        raise OSError(
+            "refusing non-global resolved address(es): " + ", ".join(unsafe)
+        )
+    last_error: OSError | None = None
+    for family, socktype, proto, _, sockaddr in infos:
+        upstream = socket.socket(family, socktype, proto)
+        try:
+            upstream.settimeout(timeout)
+            upstream.connect(sockaddr)
+            return upstream
+        except OSError as exc:
+            last_error = exc
+            upstream.close()
+    raise last_error or OSError("no resolved address accepted a connection")
+
+
 def pump(client: socket.socket, upstream: socket.socket) -> None:
     """Move bytes both ways until either side closes."""
     selector = selectors.DefaultSelector()
@@ -142,6 +180,7 @@ class Proxy(BaseHTTPRequestHandler):
     # A class attribute so the tests can open a tunnel to a socket they own
     # without needing to bind 443. In service it is exactly {443}.
     ports: frozenset[int] = ALLOWED_PORTS
+    connector = staticmethod(connect_public)
 
     def log_message(self, *args) -> None:  # our own lines instead
         pass
@@ -169,12 +208,11 @@ class Proxy(BaseHTTPRequestHandler):
         if not is_allowed(host, *self.allow):
             self._refuse(
                 403,
-                "host is not in registry_hosts.toml or agent_egress_hosts.toml; "
-                "adding one is a human edit",
+                "host is not in the local model-provider allowlist",
                 target)
             return
         try:
-            upstream = socket.create_connection((host, port), CONNECT_TIMEOUT)
+            upstream = self.connector((host, port), CONNECT_TIMEOUT)
         except OSError as exc:
             self._refuse(502, f"upstream unreachable ({exc})", target)
             return
@@ -207,7 +245,7 @@ def serve(address: str, port: int, paths: tuple[Path, ...]) -> int:
     server.daemon_threads = True
     log(f"agent proxy on {address}:{port}, "
         f"{len(exact)} exact host(s) and {len(suffixes)} domain(s) allowed")
-    log("policy: the model provider, plus what the registry may name")
+    log("policy: model provider only; evidence is driver-hydrated")
     if not LOCAL_HOSTS.exists():
         log(f"WARNING: no {LOCAL_HOSTS.name}, so no model provider is "
             f"allowed and every agent run will fail to reach one. Copy "
@@ -231,7 +269,7 @@ def main() -> int:
                         help="report whether a host would be allowed, and exit")
     args = parser.parse_args()
 
-    paths = (REGISTRY_HOSTS, EGRESS_HOSTS, LOCAL_HOSTS)
+    paths = (LOCAL_HOSTS,)
     exact, suffixes = load_allowlist(paths)
 
     if args.test_host:
@@ -257,7 +295,7 @@ if __name__ == "__main__":
 
 # Kept out of main() so a test can start the server without argparse.
 def start_for_test(address: str = "127.0.0.1", port: int = 0,
-                   paths: tuple[Path, ...] = (REGISTRY_HOSTS, EGRESS_HOSTS, LOCAL_HOSTS)):
+                   paths: tuple[Path, ...] = (LOCAL_HOSTS,)):
     exact, suffixes = load_allowlist(paths)
     Proxy.allow = (exact, suffixes)
     server = ThreadingHTTPServer((address, port), Proxy)

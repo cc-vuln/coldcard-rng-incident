@@ -10,7 +10,7 @@
 # `sudo -u USER ./scripts/publish-scheduled.sh --dry-run` before enabling.
 #
 # Guards live in the script, not here: it exits 0 and logs a reason when the
-# tree has uncommitted work outside archive/, when .no-publish exists, when a
+# tree has any uncommitted work, when .no-publish exists, when a
 # difference is still unreviewed, or when nothing has changed since the last
 # publish. Only a genuine failure fails the unit.
 [Unit]

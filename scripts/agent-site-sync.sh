@@ -3,8 +3,8 @@
 #
 # Site-prose maintenance is agent work since 8 Aug 2026, gated by the build
 # gates rather than a human read. scripts/report_site_staleness.py routes
-# what may have fallen behind (unreferenced registered sources, pages citing
-# a source that moved, aging dated assertions); this script regenerates that
+# what may have fallen behind (pages citing a source that moved and aging
+# dated assertions); this script regenerates that
 # packet, hydrates the pages and capture excerpts it names as the operator
 # account, and hands the lot to the agent fenced. The agent edits
 # site/src/pages/ only; it never fetches, and the guard's sync role makes
@@ -24,7 +24,7 @@
 #   0  sync completed, the packet named nothing, or no agent is configured
 #      (the packet still regenerates for a human to read)
 #   1  agent run failed, the guard rejected the run, or a post-run gate
-#      failed (marker NOT advanced; next tick retries)
+#      failed (revision cursor NOT advanced; next tick retries)
 #
 # State lives in .work/site-sync/: evidence packs, rendered prompts and
 # per-run reports. .work/ is ignored and never committed.
@@ -39,7 +39,7 @@ source "$ROOT/scripts/agent-run-common.sh"
 agent_load_env
 
 STATE_DIR="$ROOT/.work/site-sync"
-MARKER="$STATE_DIR/last-run"
+REVISION_CURSOR="$STATE_DIR/revision-offset"
 PROMPT_TEMPLATE="$ROOT/scripts/agent-site-sync-prompt.md"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 EVIDENCE_DIR="$STATE_DIR/$TS"
@@ -51,24 +51,56 @@ mkdir -p "$EVIDENCE_DIR"
 # so make them group-writable (the agent account shares the group).
 chmod 2775 "$STATE_DIR" "$EVIDENCE_DIR"
 
+# The cursor is an offset into revision-reviews.toml's append-only [[revision]]
+# list. A timestamp cannot safely checkpoint this lane: a review may be
+# appended today for an older capture, and a bounded batch may contain only
+# some of the reviews that existed when the packet was generated.
+REVISION_OFFSET=0
+if [[ -f "$REVISION_CURSOR" ]]; then
+  REVISION_OFFSET="$(tr -d '[:space:]' < "$REVISION_CURSOR")"
+  if [[ ! "$REVISION_OFFSET" =~ ^[0-9]+$ ]]; then
+    echo "agent-site-sync: corrupt revision cursor at $REVISION_CURSOR" >&2
+    exit 1
+  fi
+fi
+
+advance_revision_cursor() {
+  local next="$1"
+  if [[ ! "$next" =~ ^[0-9]+$ ]]; then
+    echo "agent-site-sync: refusing invalid next revision cursor '$next'" >&2
+    return 1
+  fi
+  printf '%s\n' "$next" > "$REVISION_CURSOR.tmp"
+  chmod 600 "$REVISION_CURSOR.tmp"
+  mv "$REVISION_CURSOR.tmp" "$REVISION_CURSOR"
+}
+
 # The packet is this lane's trigger and its main input; regenerate it so the
 # agent works from current state, not from whatever the last packet said.
-"$ROOT/.venv/bin/python" scripts/report_site_staleness.py --json >/dev/null
+"$ROOT/.venv/bin/python" scripts/report_site_staleness.py --json \
+  --revision-offset "$REVISION_OFFSET" >/dev/null
 cp "$ROOT/.work/site-staleness.md" "$EVIDENCE_DIR/packet.md"
 
-# Nothing routed, nothing to do. The unreferenced list alone counts: an
-# unreviewed backlog of unlinked sources is exactly what the lane exists for.
+# The register is already the public home of uncited sources. Only a newly
+# classified source-content revision or an aging assertion triggers prose
+# work; the unreferenced inventory remains in the packet for human research.
 ACTIONABLE="$("$ROOT/.venv/bin/python" - <<'PY'
 import json
 from pathlib import Path
 packet = json.loads(Path(".work/site-staleness.json").read_text())
-n = (sum(len(v) for v in packet["unreferenced"]["groups"].values())
-     + len(packet["revision_routing"])
+n = (len(packet["revision_routing"])
      + len(packet["dated_assertions"]))
 print(n)
 PY
 )"
 if [[ "$ACTIONABLE" == "0" ]]; then
+  REVISION_TOTAL="$("$ROOT/.venv/bin/python" - <<'PY'
+import json
+from pathlib import Path
+print(json.loads(Path(".work/site-staleness.json").read_text())["revision_total"])
+PY
+)"
+  advance_revision_cursor "$REVISION_TOTAL"
   echo "agent-site-sync: the packet names nothing; nothing to do"
   exit 0
 fi
@@ -86,14 +118,14 @@ fi
 
 # Hydrate the evidence pack here, as the operator account, so the agent
 # needs no network. The packet can name hundreds of entries (the
-# unreferenced register alone is 600+), and run-agent.sh passes the prompt
+# review ledger alone can be large), and run-agent.sh passes the prompt
 # as ONE command-line argument, so the whole prompt must stay under the
 # kernel's 128 KiB single-argument ceiling. This lane therefore batches
-# like the intake lane: a bounded slice per run (timely signals first:
-# dated assertions, revision routing, then unreferenced entries), with
+# like the intake lane: a bounded slice per run (dated assertions and then
+# revision routing), with
 # byte budgets on the hydrated page texts and capture excerpts. What does
-# not fit waits for the next tick; unlinked sources repeat until linked,
-# so nothing is lost by deferring.
+# not fit waits for the next tick. The next review-ledger offset is staged in
+# the evidence directory and committed only after the agent and gates pass.
 #
 #   packet.md    the selected batch (source titles and revision summaries
 #                are stranger-written: rendered untrusted)
@@ -109,20 +141,20 @@ from pathlib import Path
 root, evidence_dir = Path(sys.argv[1]), Path(sys.argv[2])
 packet = json.loads((root / ".work" / "site-staleness.json").read_text())
 
-MAX_DATED, MAX_ROUTING, MAX_UNREF = 10, 25, 25
+MAX_DATED, MAX_ROUTING = 10, 25
 PAGES_BUDGET, CAPTURES_BUDGET = 55_000, 25_000
 
 dated = packet["dated_assertions"][:MAX_DATED]
 routing = packet["revision_routing"][:MAX_ROUTING]
-unref = []
-for group, entries in packet["unreferenced"]["groups"].items():
-    for e in entries:
-        unref.append((group, e))
-unref = unref[:MAX_UNREF]
 deferred = (len(packet["dated_assertions"]) - len(dated)
-            + len(packet["revision_routing"]) - len(routing)
-            + sum(len(v) for v in packet["unreferenced"]["groups"].values())
-            - len(unref))
+            + len(packet["revision_routing"]) - len(routing))
+
+# Advance through exactly the ledger entries this bounded batch consumed.
+# Non-source-content entries before the next routed review are implicitly
+# consumed because they can never require page-sync work.
+next_offset = (routing[-1]["review_index"] + 1
+               if routing else packet["revision_total"])
+(evidence_dir / "next-revision-offset").write_text(f"{next_offset}\n")
 
 batch = ["# staleness batch (bounded slice of the full packet)", ""]
 batch.append("## Dated assertions")
@@ -132,10 +164,6 @@ batch.append("\n## Revision routing")
 for r in routing:
     batch.append(f"- {r['source']} ({r['timestamp']}): {r['summary']} "
                  f"-- pages: {', '.join(r['pages']) or 'none'}")
-batch.append("\n## Unreferenced registered sources")
-for group, e in unref:
-    batch.append(f"- [{group}] {e['id']} -- weak mentions: "
-                 f"{', '.join(e['files']) or 'none'}")
 batch.append("")
 (evidence_dir / "packet.md").write_text("\n".join(batch))
 
@@ -144,8 +172,6 @@ for a in dated:
     pages.add(a["file"])
 for r in routing:
     pages.update(r["pages"])
-for _, e in unref:
-    pages.update(e["files"])
 
 pages_out, pages_used = [], 0
 pages_root = root / "site" / "src" / "pages"
@@ -181,7 +207,7 @@ for r in routing:
 (evidence_dir / "captures.md").write_text(
     "\n\n".join(captures_out) + "\n" if captures_out else "(none)\n")
 
-print(f"agent-site-sync: batch of {len(dated) + len(routing) + len(unref)} "
+print(f"agent-site-sync: batch of {len(dated) + len(routing)} "
       f"({deferred} deferred to later ticks); "
       f"{pages_used // 1024} KiB pages, {captures_used // 1024} KiB captures")
 PY
@@ -211,7 +237,7 @@ if [[ $grc -ne 0 ]]; then
   exit 1
 fi
 if [[ $rc -ne 0 ]]; then
-  echo "agent-site-sync: agent run failed; marker NOT advanced" >&2
+  echo "agent-site-sync: agent run failed; revision cursor NOT advanced" >&2
   exit 1
 fi
 
@@ -264,7 +290,7 @@ fi
 if [[ ! -f "$ROOT/$REPORT_PATH" ]]; then
   echo "agent-site-sync: WARNING - agent succeeded but wrote no report to $REPORT_PATH" >&2
 fi
-touch "$MARKER"
-chmod 600 "$MARKER"
-echo "agent-site-sync: run complete; marker advanced to $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+NEXT_REVISION_OFFSET="$(tr -d '[:space:]' < "$EVIDENCE_DIR/next-revision-offset")"
+advance_revision_cursor "$NEXT_REVISION_OFFSET"
+echo "agent-site-sync: run complete; revision cursor advanced to $NEXT_REVISION_OFFSET"
 exit 0

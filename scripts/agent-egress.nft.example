@@ -1,6 +1,6 @@
 #!/usr/sbin/nft -f
 #
-# Drop every packet from the agent account except DNS and the egress proxy.
+# Drop every packet from the agent account except the egress proxy.
 #
 #   sudo cp agent-egress.nft.example /etc/nftables.d/agent-egress.nft
 #   sudo nft -f /etc/nftables.d/agent-egress.nft
@@ -22,10 +22,9 @@
 #   127.0.0.2:8118   the egress proxy, which enforces the host allowlist. Not
 #                    127.0.0.1: the capture browser is there, holding
 #                    signed-in sessions, and this rule matches addresses
-#   127.0.0.53:53    systemd-resolved's stub. Without it nothing resolves and
-#                    every failure looks like a broken model API. A resolver
-#                    is not a channel: it answers queries and carries no
-#                    payload the proxy would not also see
+# DNS is deliberately not open to the agent account. Proxy CONNECT requests
+# carry hostnames to the operator-side proxy, which resolves them. Allowing
+# arbitrary DNS would create a separate label-sized exfiltration channel.
 #
 # Everything else from that uid is dropped and counted. Check the counters
 # when a run misbehaves:
@@ -43,8 +42,6 @@ table inet cc_agent_egress {
     ct state established,related accept
 
     ip daddr 127.0.0.2 tcp dport 8118 accept
-    ip daddr 127.0.0.53 udp dport 53 accept
-    ip daddr 127.0.0.53 tcp dport 53 accept
 
     # Unix sockets and same-host IPC are not matched by this hook at all, so
     # nothing here affects the agent reading or writing files.

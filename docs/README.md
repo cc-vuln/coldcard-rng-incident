@@ -45,18 +45,14 @@ Future-facing technical designs and implementation rationale.
 - [`design/record-first-focus.md`](design/record-first-focus.md): narrowing
   the site to the public record, the retained material and the completed route
   refit
+- [`design/public-record-editorial-boundary.md`](design/public-record-editorial-boundary.md):
+  the line between an archival record and this project's own technical, legal
+  or comparative conclusions
 - [`design/site-information-architecture.md`](design/site-information-architecture.md):
   current record-first navigation, route ownership and progressive disclosure
 - [`design/x-thread-capture.md`](design/x-thread-capture.md): extending the
   whole-conversation capture model from the community forums to X, and the
   display policy revision it requires
-
-## Research
-
-Self-contained work packages for open questions that require new evidence.
-
-- [`research/uid-distribution-measurement.md`](research/uid-distribution-measurement.md):
-  measure the STM32 UID low-word distribution across real COLDCARD devices
 
 ## Reviews
 

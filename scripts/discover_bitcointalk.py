@@ -132,6 +132,8 @@ def main() -> int:
                     help="report every new topic, not just keyword matches")
     ap.add_argument("--no-state", action="store_true",
                     help="do not update the seen state (a look, not a sweep)")
+    ap.add_argument("--reconsider-seen", action="store_true",
+                    help="re-evaluate the current board page despite saved seen state")
     ap.add_argument("--show", metavar="TOPIC_ID",
                     help="print one thread's print-view text and exit (for the intake agent)")
     args = ap.parse_args()
@@ -143,6 +145,7 @@ def main() -> int:
     boards = args.boards or DEFAULT_BOARDS
     state = load_state(STATE)
     seen = set(state.get("seen", []))
+    skip_seen = set() if args.reconsider_seen else seen
     known = registered_urls_bct()
     deferred = deferred_urls()
     now = datetime.now(timezone.utc)
@@ -166,7 +169,7 @@ def main() -> int:
                 continue
             # A deferred topic is re-reported while it is still on the board
             # page, so it can promote itself once the thread grows.
-            if t["id"] in seen and url not in deferred:
+            if t["id"] in skip_seen and url not in deferred:
                 continue
             seen.add(t["id"])
             tier = match_tier(t["title"])

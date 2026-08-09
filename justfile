@@ -50,10 +50,10 @@ discover-reddit *ARGS:
 discover-bitcointalk *ARGS:
     @{{py}} scripts/discover_bitcointalk.py {{ARGS}}
 
-# Discover new posts from watched X accounts through the official read-only
-# API. Manual and opt-in during probation; requires X_DISCOVERY_ENABLED=true.
+# Discover new posts from the home timeline and watched X accounts through the
+# read-only capture-browser lane.
 discover-x *ARGS:
-    @{{py}} scripts/discover_x.py {{ARGS}}
+    @{{py}} scripts/discover_x_browser.py {{ARGS}}
 
 # Assess community candidates. X candidates are the separate X lane's.
 discovery-intake *ARGS:
@@ -192,7 +192,7 @@ test-capture:
         case "$t" in scripts/test_scheduler.py) continue ;; esac; \
         PYTHONPATH=scripts {{py}} -m unittest "$t"; \
     done
-    @{{py}} scripts/discover_x.py --list >/dev/null
+    @{{py}} scripts/discover_x_browser.py --list >/dev/null
     @{{py}} scripts/discover_nostr.py --check >/dev/null
     @{{py}} -m py_compile scripts/*.py
     @set -e; for s in scripts/*.sh; do /bin/bash -n "$s"; done
@@ -378,6 +378,12 @@ _gates site_url:
     @node site/tools/check-trackers.mjs
     @node site/tools/check-links.mjs
 
+# An indexable deploy promises that its stamped commit reconstructs the exact
+# site. Run after the build and immediately before upload so a capture, commit
+# or generated-index change in that window refuses the deploy.
+check-version-exact:
+    @{{py}} scripts/check_version_exact.py
+
 # Build the public site (diffs and excerpts, full captures stay local)
 build-site: test audit check-claims (_astro site_url_local) (_gates site_url_local)
 
@@ -424,7 +430,7 @@ preview: capture-gate audit build-preview deploy
 # the content is settled: unlike preview, the output invites indexing.
 
 # Audit, rebuild and publish for real.
-publish: audit build-site-indexable deploy
+publish: audit build-site-indexable check-version-exact deploy
 
 # Publish only if the tree is clean and the record has actually moved. This is
 # what the publish-scheduled timer runs; --dry-run reports the decision only.
@@ -433,7 +439,7 @@ publish-scheduled *ARGS:
 
 # The strict path: capture first and refuse to deploy an incomplete poll.
 # Exit 10 (healthy changes) does not block; a source erroring does.
-publish-fresh: capture-gate audit build-site-indexable deploy
+publish-fresh: capture-gate audit build-site-indexable check-version-exact deploy
 
 # Separated from build-site so that nothing indexable is ever produced
 # without asking for it by name.

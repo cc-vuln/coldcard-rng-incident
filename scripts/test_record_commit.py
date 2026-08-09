@@ -246,6 +246,13 @@ class TestMessageLint(RepoFixture):
 
 class TestCommitFlow(RepoFixture):
 
+    def test_build_lock_is_exclusive(self) -> None:
+        path = self.root / "build.lock"
+        with rc.build_lock(path):
+            with self.assertRaises(rc.BuildLockBusy):
+                with rc.build_lock(path):
+                    self.fail("a second owner acquired the build lock")
+
     def test_stage_and_commit_leaves_a_clean_tree(self) -> None:
         self.write("archive/snapshots/stackernews-example-thread/"
                    "20260808T000000Z.txt", "changed\n")

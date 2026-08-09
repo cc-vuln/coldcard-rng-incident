@@ -10,9 +10,9 @@
 # a review removes a classification, never the diff, so an override is recorded
 # as an addition, not a rewrite. scripts/report_review_signal.py counts these
 # entries, which is what makes trust in the review agent measurable. The audit
-# gate (scripts/check_reviews.py) currently refuses a second settled entry for
-# one diff; it relaxes to latest-wins when the first override lands, per its
-# own comment.
+# gate (scripts/check_reviews.py) applies that contract: duplicate keys are
+# accepted only for a later `classifier = "human"` entry, and the latest entry
+# wins everywhere the classification is read.
 
 [[revision]]
 source = "coinkite-mk3-advisory"
@@ -10181,4 +10181,534 @@ status = "source-content"
 summary = "The movement feed dropped a 64.9037 BTC line item that had moved from the Aug 2 vault to bc1pynd6...7h92 in block 961,065."
 classifier = "review-agent"
 
+[[revision]]
+source = "libngu-pr-64"
+timestamp = "20260809T102811Z"
+status = "source-content"
+summary = "Reviewer scgbckbone approved the pull request and left two comments, a general approval and a nit on the MICROPY_PY_STM conditional. The reviewer and participant counts updated accordingly."
+classifier = "review-agent"
 
+[[revision]]
+source = "reddit-mk4-bricked-hotfix"
+timestamp = "20260809T103219Z"
+status = "source-content"
+summary = "The thread gained two comments: one arguing third-party developers might not notice the TRNG failure, and another by the original poster explaining that keyboard-press randomization using the hardware RNG can soft-brick the device."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-5-13-btc-loss"
+timestamp = "20260809T103413Z"
+status = "source-content"
+summary = "The thread gained a one-line comment asking for a TL;DR."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-self-custody-to-etf"
+timestamp = "20260809T103623Z"
+status = "source-content"
+summary = "The thread gained a short reply questioning the point of selling self-custodied bitcoin for a spot ETF."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-passphrase-extra-security"
+timestamp = "20260809T103647Z"
+status = "source-content"
+summary = "A comment linking to a diceware passphrase generator was removed from the thread."
+classifier = "review-agent"
+
+[[revision]]
+source = "bitcointalk-large-scale-compromise-thread"
+timestamp = "20260809T103656Z"
+status = "source-content"
+summary = "The megathread gained several posts discussing OP_Return suicide messages, the hacker's possible reflection, and passphrase search economics, and its title was updated to 1596 BTC stolen."
+classifier = "review-agent"
+
+[[revision]]
+source = "blockchainunmasked-prior-warning"
+timestamp = "20260809T103731Z"
+status = "source-content"
+summary = "The page changed the headline of a related article from a specific repository count to a generic public-git-history framing."
+classifier = "review-agent"
+
+[[revision]]
+source = "bitcointalk-entropy-warning-design"
+timestamp = "20260809T103743Z"
+status = "source-content"
+summary = "The thread gained posts noting WalletScrutiny added Coldcard Mk4 warnings only after the hack, benchmarking NIST entropy-assessment runtimes, and debating developer responsibility for entropy warnings."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-fake-trezor-google-ad"
+timestamp = "20260809T104026Z"
+status = "source-content"
+summary = "One existing comment was deleted and the thread gained three new comments about sponsored-link scams, near-misses, and reactions."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-70m-no-device-touch"
+timestamp = "20260809T104058Z"
+status = "capture-noise"
+summary = "Only relative timestamps, live cryptocurrency ticker values, and rotating related-story cards changed; the article text was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-dice-rolls-saved-seedsigner"
+timestamp = "20260809T104101Z"
+status = "source-content"
+summary = "A new reply notes that Coldcard would have been trusted just over a week ago."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-safely-store-btc-without-hww"
+timestamp = "20260809T104106Z"
+status = "source-content"
+summary = "One comment was deleted, leaving only a [deleted] stub."
+classifier = "review-agent"
+
+[[revision]]
+source = "bitcointalk-audio-entropy-wallet"
+timestamp = "20260809T104126Z"
+status = "source-content"
+summary = "The thread gained posts arguing audio-based entropy is not a new idea, raising privacy concerns about microphone leakage, and questioning microphone noise defects."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T105819Z"
+status = "source-content"
+summary = "The movement feed removed a -0.50980268 BTC entry from the Evening vault."
+classifier = "review-agent"
+
+[[revision]]
+source = "hn-maxwell-mechanism"
+timestamp = "20260809T113939Z"
+status = "capture-correction"
+summary = "The collector changed this Algolia item from pretty-printed API JSON to deterministic readable thread text; the same comment subtree is held, with HTML decoded and volatile API fields omitted."
+classifier = "canonical-equivalence"
+
+[[revision]]
+source = "hn-dettmer-writeup-thread"
+timestamp = "20260809T113940Z"
+status = "capture-correction"
+summary = "The collector changed this Algolia item from pretty-printed API JSON to deterministic readable thread text; the same discussion tree is held, with HTML decoded and volatile API fields omitted."
+classifier = "canonical-equivalence"
+
+[[revision]]
+source = "reddit-coldcard-mk4-ux-flaw-continued"
+timestamp = "20260809T120336Z"
+status = "source-content"
+summary = "Reddit served 1 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "reddit-attacker-praise-heist"
+timestamp = "20260809T120346Z"
+status = "source-content"
+summary = "Reddit served 1 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T115831Z"
+status = "source-content"
+summary = "The movement feed added a new −0.50980268 BTC spend from the Evening vault at block 960,666."
+classifier = "review-agent"
+
+[[revision]]
+source = "ncfacanada-self-custody-commentary"
+timestamp = "20260809T120231Z"
+status = "capture-noise"
+summary = "Only the rotating related-content cards below the article and the page hit counters changed; the article text was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "newsbitcom-class-action-threat"
+timestamp = "20260809T120253Z"
+status = "capture-noise"
+summary = "Only the rotating latest-news headlines and their relative timestamps changed; the article text was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "trustwallet-wasm-update"
+timestamp = "20260809T120353Z"
+status = "capture-noise"
+summary = "A 2023 reply dropped from a deeper capture that still observed fewer total replies, so the absence is ranking or hydration variance, not a deletion."
+classifier = "review-agent"
+
+[[revision]]
+source = "clay-attribution"
+timestamp = "20260809T120504Z"
+status = "capture-noise"
+summary = "The deeper capture (30 scroll rounds vs 29) recovered older replies and one updated display name; the depth records show ranking recovery, not new content."
+classifier = "review-agent"
+
+[[revision]]
+source = "oomahq-2085717166884618584"
+timestamp = "20260809T121400Z"
+status = "capture-noise"
+summary = "The deeper capture (17 scroll rounds vs 14) recovered older replies and a few newer August 9 replies; the depth records show ranking recovery, not pure new content."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260802T140309Z"
+status = "capture-noise"
+summary = "Only rotating related-story cards, their relative timestamps and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260802T152450Z"
+status = "capture-noise"
+summary = "Only relative story timestamps and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260803T022643Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines, advertisement blocks and adjacent navigation chrome changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260803T023109Z"
+status = "capture-noise"
+summary = "Only rotating related-story cards, their relative timestamps and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260803T030502Z"
+status = "capture-noise"
+summary = "Only rotating advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260803T064809Z"
+status = "capture-noise"
+summary = "Only rotating related-story cards, their relative timestamps and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260803T081658Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines and advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260803T110409Z"
+status = "capture-noise"
+summary = "Only the order of rotating advertisement lines changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260803T111731Z"
+status = "capture-noise"
+summary = "Only rotating related-story cards, their relative timestamps, live cryptocurrency ticker values and page locale for timestamps changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260803T111920Z"
+status = "capture-noise"
+summary = "Only rotating advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260804T112846Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines, advertisement blocks and adjacent navigation chrome changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "ledger-primary-incident-article"
+timestamp = "20260804T153945Z"
+status = "capture-noise"
+summary = "Only the top promotional banner text for Ledger products changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260804T175137Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines and advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260805T041317Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines and advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260805T231458Z"
+status = "capture-noise"
+summary = "Only rotating related-story cards, their relative timestamps and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260806T213815Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines and advertisement blocks on the homepage and article rail changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "theblock-galaxy-total"
+timestamp = "20260807T033458Z"
+status = "capture-noise"
+summary = "The capture received a Cloudflare security-verification interstitial instead of the article body. No incident article text changed."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260807T042244Z"
+status = "capture-noise"
+summary = "Only the page locale for share controls and relative timestamps flipped to Indonesian, while rotating related-story cards and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-third-wave-89m"
+timestamp = "20260809T121904Z"
+status = "capture-noise"
+summary = "Only the page locale for share controls flipped back to English, relative timestamps rolled, the language selector expanded, and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "ledger-primary-incident-article"
+timestamp = "20260809T122006Z"
+status = "capture-noise"
+summary = "Only Ledger product-promotion banners and the language-selector chrome changed. The incident article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bleepingcomputer-88m-report"
+timestamp = "20260809T123308Z"
+status = "capture-noise"
+summary = "Only rotating latest-news headlines and advertisement blocks changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "web3isgoinggreat-incident-entry"
+timestamp = "20260809T123310Z"
+status = "source-content"
+summary = "The entry raised its loss figure from more than 1,367 BTC (about $89 million) to more than 2,000 BTC (about $130 million), restated the body as at least 2,055 BTC (about $130 million), added Galaxy Research's estimate of 15 unique attacker groups, and added a link to the Galaxy Research tweet thread."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T134255Z"
+status = "source-content"
+summary = "The movement feed updated from block 961,598 to block 961,731 and added new Hop 1 and Hop 2 spends, including a 0.0077407 BTC movement from the Wave 4 park vault and a 0.00308496 BTC onward spend."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T144255Z"
+status = "source-content"
+summary = "The tracker relabeled one destination as a Bybit deposit and removed several older Wave 4 park hop entries from the movement feed. It also updated its dice/passphrase honeypot notes to report that ~5-bit low/dice honeypots were swept by Aug 8, with mid/high passphrase bands still live."
+classifier = "review-agent"
+
+[[revision]]
+source = "casa-blog-index"
+timestamp = "20260809T164647Z"
+status = "capture-noise"
+summary = "Only relative post timestamps on the Casa blog index rolled. No incident post appeared and no article body changed."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-mk4-bricked-hotfix"
+timestamp = "20260809T164917Z"
+status = "source-content"
+summary = "Two new comments were added: one argues the hotfix bricking is triggered by the hardware RNG randomizing keyboard scan order on each press, and the poster confirms this is unintended and links the pull requests containing the fix."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-security-advisory-relay"
+timestamp = "20260809T165053Z"
+status = "source-content"
+summary = "A comment comparing Trezor entropy sources to COLDCARD was removed by Reddit, with the author shown as [deleted] and the body as [removed]."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-5-13-btc-loss"
+timestamp = "20260809T165112Z"
+status = "source-content"
+summary = "A new comment was added arguing that cryptocurrency is never truly possessed, that owners must be right every minute while attackers need only be right once."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-trezor-user-alert-email"
+timestamp = "20260809T165140Z"
+status = "source-content"
+summary = "Two comments by the same author comparing Trezor entropy redundancy to COLDCARD were removed by Reddit, with the author shown as [deleted] and the bodies as [removed]."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-lost-one-bitcoin-victim"
+timestamp = "20260809T165345Z"
+status = "source-content"
+summary = "A short comment was removed and three new comments were added, including the poster mentioning a first Ledger wallet and asking about migration fees."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-coldcard-never-again"
+timestamp = "20260809T165407Z"
+status = "source-content"
+summary = "A comment comparing the incident to Bitcointalk OGs recommending 256 coin flips was removed."
+classifier = "review-agent"
+
+[[revision]]
+source = "bitcointalk-large-scale-compromise-thread"
+timestamp = "20260809T165441Z"
+status = "source-content"
+summary = "The megathread title updated its tally to 1596 BTC stolen, with a later figure of 1485.77 BTC also appearing, and many new posts were added debating whether the attacker might return funds, how laundering would work, and the emotional impact on victims."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-hacker-still-progressing"
+timestamp = "20260809T165502Z"
+status = "source-content"
+summary = "Two new comments were added: one asks why the known attacker addresses cannot simply be frozen, and another asks how stolen bitcoin can be converted to cash without being caught."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-attacker-execution-critique"
+timestamp = "20260809T165652Z"
+status = "source-content"
+summary = "A comment arguing that stolen funds could not be safely spent was removed by Reddit, and two new comments were added: one about building a white hat agent and another alleging an inside job by the CEO."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-mk3-seed-entropy-worse"
+timestamp = "20260809T165657Z"
+status = "source-content"
+summary = "A comment about moderator removals was deleted and a new short comment was added stating that fewer people will understand the technical discussion."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-casino-dice-myths"
+timestamp = "20260809T165706Z"
+status = "source-content"
+summary = "A new comment was added arguing that dice are a poor entropy source for computers because a die has only six values, which introduces predictability."
+classifier = "review-agent"
+
+[[revision]]
+source = "casa-rise-of-machines"
+timestamp = "20260809T165729Z"
+status = "capture-noise"
+summary = "Only the relative timestamp on the Casa article rolled. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "coindesk-70m-no-device-touch"
+timestamp = "20260809T165905Z"
+status = "capture-noise"
+summary = "Only rotating related-news headlines, relative timestamps, and live cryptocurrency ticker values changed. The article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "bitcointalk-audio-entropy-wallet"
+timestamp = "20260809T170008Z"
+status = "source-content"
+summary = "Several new posts were added discussing microphone preprocessing, AI-generated voice as an attack vector, whether frame selection is deterministic, and using audio entropy as an additional source rather than replacing a CSPRNG."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-ledger-official-incident-statement"
+timestamp = "20260809T170048Z"
+status = "source-content"
+summary = "The stickied Ledger statement thread gained two new replies: btchip said a BIP-39 passphrase can be as simple as 'ac1' or 'ac2' and can be tied to a PIN as a duress code, and _speedoflight_ questioned whether such short passphrases are strong enough if the recovery phrase is exposed."
+classifier = "review-agent"
+
+[[revision]]
+source = "reddit-cancelled-order-shipped"
+timestamp = "20260809T184841Z"
+status = "source-content"
+summary = "Reddit served 1 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "reddit-passphrase-entropy-ten-char"
+timestamp = "20260809T184851Z"
+status = "source-content"
+summary = "Reddit served 2 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "reddit-coldcard-mk4-ux-flaw-continued"
+timestamp = "20260809T184908Z"
+status = "source-content"
+summary = "Reddit served 1 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "reddit-attacker-praise-heist"
+timestamp = "20260809T184918Z"
+status = "source-content"
+summary = "Reddit served 1 additional comment record(s); the diff preserves their text and any edits to existing records."
+classifier = "reddit-structure"
+
+[[revision]]
+source = "newsbitcom-who-lost-who-at-risk"
+timestamp = "20260809T184716Z"
+status = "capture-noise"
+summary = "Only the rotating MOST POPULAR sidebar headlines and their age labels changed; the article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "ncfacanada-self-custody-commentary"
+timestamp = "20260809T184804Z"
+status = "capture-noise"
+summary = "Only rotating recommendation cards and No. of Hits counters in the sidebar changed; the commentary body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "newsbitcom-class-action-threat"
+timestamp = "20260809T184827Z"
+status = "capture-noise"
+summary = "Only rotating LATEST NEWS and MOST POPULAR sidebar headlines and their timestamps changed; the article body was unchanged."
+classifier = "review-agent"
+
+[[revision]]
+source = "grassfedbitcoin-2085463112048873485"
+timestamp = "20260809T185853Z"
+status = "source-content"
+summary = "A reply by ConradHart12 was removed and SchlemmerMaul5's display name dropped the ' | BIP110' suffix, with both captures reaching the same scroll depth and the reply count falling by one."
+classifier = "review-agent"
+
+[[revision]]
+source = "oomahq-2085717166884618584"
+timestamp = "20260809T185943Z"
+status = "source-content"
+summary = "A new reply by LibertyTrek was added and two users' display names lost their BIP110 suffixes, while two older replies are missing in a capture that stopped one scroll round earlier."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T204420Z"
+status = "source-content"
+summary = "The tracker raised its total watched balance from 1,367.16824986 BTC to 1,367.16826524 BTC, and the bc1qq85v2c holding balance rose from 562.02138056 BTC to 562.02139594 BTC while its HELD count moved from 56 to 57. The movement-feed total changed in the same capture."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T214515Z"
+status = "source-content"
+summary = "The tracker raised its total watched balance from 1,367.16826524 BTC to 1,367.16828024 BTC, the bc1qq85v2c holding balance rose from 562.02139594 BTC to 562.02141094 BTC, and its HELD count moved from 57 to 58. The movement feed also lost the HOP 1 entry from Wave 4."
+classifier = "review-agent"
+
+[[revision]]
+source = "coldcard-hack-tracker"
+timestamp = "20260809T224523Z"
+status = "source-content"
+summary = "The movement feed added a new Hop 1 spend of 0.02374887 BTC from the Wave 4 park vault at block 960,794 to bc1qhfdz...3wcx."
+classifier = "review-agent"

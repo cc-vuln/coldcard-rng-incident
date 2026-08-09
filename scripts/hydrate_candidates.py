@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
@@ -64,17 +63,15 @@ PLATFORMS = (
 # because reading a post needs the capture browser's signed-in session.
 # Pre-hydrating means the session stays in the driver and the agent never
 # reaches the browser at all.
-X_PLATFORM = ("x", re.compile(r"x\.com/[^/]+/status/(\d+)"), "discover_x.py")
+X_PLATFORM = ("x", re.compile(r"x\.com/[^/]+/status/(\d+)"), "x_browser.py")
 
 X_URL = re.compile(r"https://x\.com/[^/]+/status/\d+")
 
-# The browser lane's client, written alongside this switch. Imported
-# tolerantly: until scripts/x_browser.py lands, X hydration falls back to the
-# deprecated API lane's --show, which still works wherever the old credential
-# is present, and says so on stderr.
+# The browser lane's client. X hydration fails closed if it is unavailable;
+# the deprecated API lane and its bearer credential are never a fallback.
 try:
     import x_browser
-except ImportError:  # scripts/x_browser.py not merged yet
+except ImportError:
     x_browser = None
 
 # Own webbridge session name, same convention as discover_x_browser.py: the
@@ -169,22 +166,12 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
                   f"\n--- post text (verbatim) ---\n\n{info['text']}")
 
 
-_x_fallback_noted = False
-
-
 def fetch_x(script: str, ident: str, line: str) -> tuple[bool, str]:
-    """X hydration: the capture browser when its client exists, else the
-    deprecated API lane's --show with a one-time note."""
-    global _x_fallback_noted
+    """X hydration through the capture browser, with no credential fallback."""
     url = X_URL.search(line)
     if x_browser is not None and url:
         return fetch_x_browser(url.group(0), ident)
-    if not _x_fallback_noted:
-        print("hydrate-candidates: scripts/x_browser.py could not be "
-              "imported; falling back to the deprecated discover_x.py "
-              "--show API lane for X hydration", file=sys.stderr)
-        _x_fallback_noted = True
-    return fetch(script, ident)
+    return False, "capture-browser X client unavailable; candidate stays pending"
 
 
 def classify(line: str, include_x: bool) -> tuple[str, str, str] | None:
@@ -197,17 +184,10 @@ def classify(line: str, include_x: bool) -> tuple[str, str, str] | None:
 
 
 def fetch(script: str, ident: str) -> tuple[bool, str]:
-    env = None
-    if script == "discover_x.py":
-        # The deprecated API lane fails closed unless told it may make a
-        # live read. Reached only as the fallback when scripts/x_browser.py
-        # is unavailable; the driver has already decided by passing
-        # --include-x.
-        env = {**os.environ, "X_DISCOVERY_ENABLED": "true"}
     try:
         result = subprocess.run(
             [PY, str(ROOT / "scripts" / script), "--show", ident],
-            cwd=ROOT, capture_output=True, text=True, timeout=TIMEOUT, env=env)
+            cwd=ROOT, capture_output=True, text=True, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         return False, f"timed out after {TIMEOUT}s"
     if result.returncode != 0:

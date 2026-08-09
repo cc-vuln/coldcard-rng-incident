@@ -2,11 +2,12 @@
 
 6 August 2026.
 
-Four agents run on the capture host without anyone watching, and all four read
+Agent lanes run on the capture host without anyone watching, and all read
 text that strangers wrote. `agent-review.sh` reads captured diffs.
 `agent-discovery-intake.sh` reads Reddit, Stacker News, BitcoinTalk and nostr
-threads. The X triage prompt reads post bodies. `claim-sweep.sh` reads the open
-web. That is the archive working as intended: the material is the point.
+threads. The X intake prompt reads post bodies, the site-sync agent reads held
+capture excerpts, and `claim-sweep.sh` reads held states. That is the archive
+working as intended: the material is the point.
 
 It is also a prompt-injection surface, and the honest way to think about it is
 that the injection lands. Not "might land": a project whose subject is an
@@ -88,8 +89,7 @@ clone that has no such account.
 ### 2. It has nothing local to talk to
 
 `archive-review.service` and `claim-sweep.service` deny loopback outright.
-Neither needs it: the review agent classifies from packets rendered before it
-starts, and the sweep agent's reading is all remote. The deny also covers
+Neither needs it: each agent reads material prepared before it starts. The deny also covers
 169.254.169.254, the cloud metadata endpoint, which hands out instance
 credentials to anything that asks.
 
@@ -104,9 +104,9 @@ An allow entry beats a deny entry regardless of prefix length, so `any`
 permits everything and the deny line is dead config that reads exactly like a
 working control. It was in this design until it was measured. The rule that
 works is a total deny plus the complement as an allow list, in
-`scripts/agent-loopback-deny.conf.example`, with `127.0.0.53/32` added back
-because systemd-resolved's stub listener is on loopback and without it the
-agent cannot resolve a name.
+`scripts/agent-loopback-deny.conf.example`. DNS stays denied: an HTTPS proxy
+CONNECT carries the provider hostname to the proxy, which resolves it, while
+opening the resolver to the agent would create a separate exfiltration path.
 
 Two more things had to be measured rather than assumed. `NoNewPrivileges`
 blocks the setuid transition `sudo` needs, so the units must set it to
@@ -237,21 +237,16 @@ layers first shipped, and building it turned out to be smaller than the
 BACKLOG entry assumed, for two reasons that only became true once hydration
 moved to the driver.
 
-The review and intake agents need no web access at all now. Their evidence is
-in the prompt. Only `claim-sweep` reads the open web, so there is one policy
-question rather than three.
-
-And the sweep's allowlist already existed. Its prompt names its targets, and
-anything it wants to register has to be in `scripts/registry_hosts.toml`
-anyway. So the policy is one sentence, and it falls out of the work rather
-than being invented for it: **an agent may reach its model provider, and may
-read what the registry is allowed to name.** A host that is on neither list is
-a host a person adds, which is the same answer the sweep prompt already gave.
+Every agent receives its evidence from the driver and needs no source-web
+access. Since 9 August the claim sweep follows the same rule: it checks held
+states and reports acquisition gaps for driver-side discovery. The live egress
+policy is therefore one sentence: **an agent may reach its model provider.**
 
 Two halves, and neither is any use alone:
 
 - `scripts/agent_proxy.py`, on 127.0.0.2:8118, refuses a CONNECT to anything
-  not on those two lists. CONNECT only, port 443 only, and every refusal
+  outside the gitignored local provider list. CONNECT only, port 443 only,
+  globally routable resolved addresses only, and every refusal
   logged with its reason. It binds 127.0.0.2 rather than 127.0.0.1 because the
   capture browser is on 127.0.0.1 and the firewall rule below permits one
   address
@@ -262,10 +257,11 @@ Two halves, and neither is any use alone:
   uid can, and it also covers a manual `just discovery-intake`, which no unit
   setting reaches
 
-Measured after applying: as `cc-agent`, a direct HTTPS connection, the capture
-browser and 169.254.169.254 all time out; through the proxy, an allowed host
-returns 200 and a denied one is refused; the operator account is untouched.
-All three providers complete a full run.
+Measured after the original rule was applied: as `cc-agent`, a direct HTTPS
+connection, the capture browser and 169.254.169.254 all time out; through the
+proxy, an allowed host returns 200 and a denied one is refused; the operator
+account is untouched. The 9 August tightening also removes direct DNS and
+source hosts from the proxy policy.
 
 Provider telemetry is refused on purpose. An agent here reads victim accounts
 and attribution disputes, and a crash reporter is a route for fragments of
@@ -273,11 +269,10 @@ that to leave the host to a party with no relationship to this archive. All
 three providers work with it blocked; if a future one does not, that is worth
 knowing before choosing it.
 
-What remains is narrower and stated plainly: the proxy authorises a host, not
-a payload. An injected agent could still put data in a request to a host on
-the list, for example by opening a GitHub issue. That is bounded by the
-account holding no secret, by every such host being one this project already
-reads in public, and by the run record showing what was written.
+What remains is narrower and stated plainly: the proxy authorises the provider
+host, not a payload. Material needed for inference necessarily goes to the
+configured provider. The environment contains no project secret, and provider
+telemetry endpoints remain refused.
 
 **`NoNewPrivileges` is off on the three agent units.** It blocks the setuid
 transition `sudo` needs, and `sudo` is how the privilege drop happens. Keeping

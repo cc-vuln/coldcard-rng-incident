@@ -115,9 +115,8 @@ class Fixture(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.root, self.pages = make_tree(Path(self._tmp.name))
 
-    def packet(self, days=21, since=None):
-        since = since or (NOW - dt.timedelta(days=7))
-        return rss.build_packet(self.root, self.pages, days, NOW, since)
+    def packet(self, days=21, offset=0):
+        return rss.build_packet(self.root, self.pages, days, NOW, offset)
 
 
 class TestReferences(Fixture):
@@ -128,10 +127,9 @@ class TestReferences(Fixture):
         self.assertEqual(refs["weak-source"]["weak"], ["about.astro"])
         self.assertEqual(refs["lost-source"], {"strong": [], "weak": []})
 
-    def test_x_watch_handle_is_the_match_string(self):
+    def test_x_watch_is_discovery_config_not_a_public_source_record(self):
         items = rss.load_registry(self.root)
-        handles = [i["id"] for i in items if i["table"] == "x_watch"]
-        self.assertEqual(handles, ["watchedhandle"])
+        self.assertNotIn("watchedhandle", {i["id"] for i in items})
 
     def test_unreferenced_groups_and_exclusions(self):
         unref = self.packet()["unreferenced"]
@@ -139,8 +137,7 @@ class TestReferences(Fixture):
         self.assertEqual(unref["excluded"],
                          {"gone": 1, "frozen": 1, "withheld": 1})
         flat = {e["id"] for entries in unref["groups"].values() for e in entries}
-        self.assertEqual(flat, {"weak-source", "lost-source",
-                                "lost-note", "watchedhandle"})
+        self.assertEqual(flat, {"weak-source", "lost-source", "lost-note"})
         self.assertNotIn("gone-source", flat)
         self.assertNotIn("frozen-source", flat)
         self.assertNotIn("withheld-source", flat)
@@ -154,11 +151,11 @@ class TestReferences(Fixture):
 
 
 class TestRevisionRouting(Fixture):
-    def test_only_source_content_newer_than_marker(self):
+    def test_only_source_content_at_or_after_offset(self):
         routed = self.packet()["revision_routing"]
         got = {r["source"] for r in routed}
-        # capture-noise is not routed; the pre-marker revision is not routed.
-        self.assertEqual(got, {"linked-source", "never-cited"})
+        # Capture-noise is not routed; every source-content entry is.
+        self.assertEqual(got, {"linked-source", "gone-source", "never-cited"})
 
     def test_pages_and_summary(self):
         routed = {r["source"]: r for r in self.packet()["revision_routing"]}
@@ -171,11 +168,16 @@ class TestRevisionRouting(Fixture):
             "The advisory rewrote its migration section.",
         )
 
-    def test_marker_boundary(self):
-        since = rss.parse_ts("20260807T033234Z")
-        routed = self.packet(since=since)["revision_routing"]
-        # Strictly newer: the boundary timestamp itself drops out.
-        self.assertEqual([r["source"] for r in routed], ["never-cited"])
+    def test_offset_boundary_and_total(self):
+        packet = self.packet(offset=3)
+        self.assertEqual([r["source"] for r in packet["revision_routing"]],
+                         ["never-cited"])
+        self.assertEqual(packet["revision_total"], 4)
+        self.assertEqual(packet["revision_routing"][0]["review_index"], 3)
+
+    def test_bad_offset_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, "outside"):
+            self.packet(offset=99)
 
 
 class TestDatedAssertions(Fixture):
@@ -221,23 +223,6 @@ class TestTrackers(Fixture):
         self.assertIsNotNone(trackers["built"])
 
 
-class TestMarker(Fixture):
-    def test_first_run_falls_back_seven_days(self):
-        since = rss.read_marker(self.root / "nope.json", NOW)
-        self.assertEqual(since, NOW - dt.timedelta(days=7))
-
-    def test_roundtrip(self):
-        path = self.root / ".work" / "marker.json"
-        rss.write_marker(path, NOW)
-        self.assertEqual(rss.read_marker(path, NOW), NOW)
-
-    def test_corrupt_marker_falls_back(self):
-        path = self.root / "marker.json"
-        path.write_text("{ not json")
-        self.assertEqual(rss.read_marker(path, NOW),
-                         NOW - dt.timedelta(days=7))
-
-
 class TestPacketShape(Fixture):
     def test_markdown_sections(self):
         md = rss.render_markdown(self.packet())
@@ -257,7 +242,7 @@ class TestPacketShape(Fixture):
         (empty / "site" / "src" / "pages").mkdir(parents=True)
         packet = rss.build_packet(
             empty, empty / "site" / "src" / "pages", 21, NOW,
-            NOW - dt.timedelta(days=7),
+            0,
         )
         self.assertEqual(packet["unreferenced"]["groups"], {})
         self.assertEqual(packet["revision_routing"], [])

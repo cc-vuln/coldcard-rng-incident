@@ -1,0 +1,122 @@
+---
+import Article from '../layouts/Article.astro';
+---
+
+<Article
+  title="Collection and editorial methods"
+  description="How the COLDCARD incident record discovers, selects, captures, reviews and presents public material, including its known coverage limits."
+  standfirst="How material enters the record, what a capture establishes, how prominence is decided, and where coverage remains incomplete."
+  depth="plain"
+  kicker="Methods"
+  next={{
+    href: '/cite/',
+    label: 'How to cite',
+    note: 'Cite the publisher first, then name the preserved state and record version you used.',
+  }}
+>
+  <h2>Purpose and unit of record</h2>
+
+  <p>
+    This project collects public material about the July 2026 COLDCARD
+    predictable-RNG incident. A registered source is normally one stable URL,
+    social post, or discussion thread. Its record page identifies the original
+    publisher, publication time where known, every state held, the capture
+    method, and reviewed changes between states. Registration means the item is
+    part of the record. It does not mean the project endorses it or that it must
+    appear in narrative prose.
+  </p>
+
+  <h2>Discovery and selection</h2>
+
+  <p>
+    Known URLs are polled on schedules recorded in the source registry.
+    Separate discovery lanes inspect selected community listings, watched X
+    accounts and the signed-in X home timeline. Candidates are hydrated by the
+    driver before an intake agent reads them. Agents do not browse for their
+    own evidence and cannot write the archive.
+  </p>
+
+  <p>Intake considers several questions separately:</p>
+
+  <ul>
+    <li>whether the item is a primary statement, first-hand account, technical analysis, reporting, or materially significant reaction;</li>
+    <li>whether it adds evidence or context not already held;</li>
+    <li>how close it was to the event and how likely the original is to change or disappear;</li>
+    <li>whether its provenance is clear enough to preserve responsibly; and</li>
+    <li>whether a crosspost or repeated account adds its own discussion or distribution context.</li>
+  </ul>
+
+  <p>
+    Selection for preservation is deliberately broader than selection for
+    prominence. The register holds useful incident material that may never be
+    quoted elsewhere. Landing, timeline and explainer placement require a
+    stronger contribution to orientation, chronology, a disputed question, or
+    an evidenced explanation.
+  </p>
+
+  <h2>Capture and change history</h2>
+
+  <p>
+    A capture records what the collector received from a URL at a stated time.
+    Text extraction is deterministic and the capture metadata records hashes,
+    response details and provenance. Every poll appends an index entry whether
+    the normalised text changed or not. A changed state creates a new snapshot
+    and difference; earlier states remain in place. The append-only rule applies
+    from 6 August 2026, with the earlier Reddit migration exception disclosed at
+    <a href="/corrections/">/corrections/</a> and in
+    <a href="/cite/#stable-identifiers">the citation guidance</a>.
+  </p>
+
+  <p>
+    Differences are classified as source content, capture noise, or capture
+    correction. Classification says what kind of change the collector saw; it
+    does not verify claims in the new text. Public source pages show short
+    excerpts and differences. Full third-party captures remain local rather
+    than being published as mirrors.
+  </p>
+
+  <h2>Editorial treatment</h2>
+
+  <p>
+    The record reports and attributes. When parties disagree, it presents each
+    account with its date and assumptions and does not choose a winner.
+    Material claims use the evidence bases defined on
+    <a href="/about/#claim-statuses">the About page</a>. The project does not
+    publish independent firmware findings, comparative rankings, legal
+    conclusions, or guidance authored by the archive itself. Its current
+    editorial boundary is recorded in the public repository.
+  </p>
+
+  <h2>Coverage limits</h2>
+
+  <div class="ve-card ve-card--recessed">
+    <div class="ve-card__label lbl-blue">No completeness claim</div>
+    <ul class="node-list" style="margin-bottom:0">
+      <li>Discovery began after the story broke, so early material may be recovered later and its first archive capture may post-date publication.</li>
+      <li>Community discovery samples bounded listing and search surfaces. Deleted, private, unindexed, paywalled or never-linked material may be absent.</li>
+      <li>X discovery depends on a signed-in read-only session and the platform's rendered results. A watched-account list is not a complete index of X.</li>
+      <li>Nostr discovery is probationary, and podcasts or video are normally represented by publisher metadata, transcripts or show notes rather than broad media mirroring.</li>
+      <li>Publication time and capture time are distinct. A recovered Wayback state is labelled with Internet Archive provenance.</li>
+    </ul>
+  </div>
+
+  <p>
+    Current evidence gaps are gathered at
+    <a href="/about/#known-limits">Known limits</a>. Suggestions of missed public
+    material and corrections are welcome through the contact route on the
+    <a href="/about/#editorial-standards">About page</a>.
+  </p>
+
+  <h2>Reproducibility and citation</h2>
+
+  <p>
+    The source registry, reviewed change ledger, capture tooling and site are
+    public. Machine-readable source and change records are published at
+    <a href="/record/sources.json">/record/sources.json</a> and
+    <a href="/record/changes.json">/record/changes.json</a>. Each build names
+    its repository commit at <a href="/version.json">/version.json</a> so a
+    reader can identify the state used. A held capture establishes publication,
+    not truth; <a href="/cite/">the citation guide</a> explains how to carry
+    that distinction into reporting or research.
+  </p>
+</Article>

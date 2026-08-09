@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { meta, stats, tsToIso } from '../lib/archive';
+import { meta, stats, tsToIso, xPosts } from '../lib/archive';
 
 export const prerender = true;
 
@@ -9,17 +9,20 @@ export const GET: APIRoute = ({ site }) => {
   const archive = stats();
   const incident = meta();
   const lastCapture = archive.lastCapture ? tsToIso(archive.lastCapture) : 'none held';
-  // One extra line only while nostr posts exist, so an empty lane leaves the
-  // document byte-identical.
+  // Optional lane counts leave the document unchanged when the lane is empty.
   const nostrLine = archive.nostrPosts
     ? `Registered nostr posts: ${archive.nostrPosts}\n`
+    : '';
+  const xThreadCount = xPosts().filter((post) => post.thread).length;
+  const xThreadLine = xThreadCount
+    ? `Captured X conversations: ${xThreadCount}\n`
     : '';
 
   const body = `# cc-vuln.org
 
 > The site is the public record of the July 2026 COLDCARD predictable-RNG incident: it preserves what each party published and how it changed, organises the material, and explains it without adjudicating between the people involved.
 
-The scale already documented makes the incident likely to rank among the most consequential in Bitcoin's history. This is a provisional editorial assessment, not a settled ranking: attribution totals differ and the number of distinct people affected is unknown. The project's historical role is to preserve the contemporaneous public record for posterity, including material later edited or removed.
+The project's historical role is to preserve the contemporaneous public record for posterity, including material later edited or removed. Published estimates of scale remain attributed to the parties that produced them; the record does not turn those estimates into its own comparative ranking.
 
 The record also organises explanations, opinions and speculation chronologically so changes in public interpretation remain legible. Conspiracy theories alleging an inside job or that law-enforcement or intelligence agencies caused or directed the incident are dated and attributed as public reaction. Their inclusion is not evidence that they were true; later retractions, corrections and changes of view belong beside them.
 
@@ -28,7 +31,7 @@ Registered web sources: ${archive.sources}
 Snapshots held: ${archive.snapshots}
 Reviewed source-content changes: ${archive.sourceChanges}
 Registered social posts: ${archive.xPosts}
-${nostrLine}
+${xThreadLine}${nostrLine}
 ## Interpretation rules
 
 - verified: checked against source code, a repository file or a captured snapshot
@@ -62,6 +65,7 @@ ${nostrLine}
 - [What was disclosed before: the vendor's disclosure history](${link('/response/disclosure-history/')})
 - [Legal context: terms, statutes and public claims activity](${link('/response/legal/')})
 - [Editorial standards and corrections](${link('/about/#editorial-standards')})
+- [Collection and editorial methods, including coverage limits](${link('/methods/')})
 - [How to cite this record](${link('/cite/')})
 - [Corrections to this site](${link('/corrections/')})
 

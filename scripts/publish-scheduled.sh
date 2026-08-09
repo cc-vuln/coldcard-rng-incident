@@ -39,11 +39,11 @@ skip() { echo "publish-scheduled: skipped, $1"; exit 0; }
 branch="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
 [[ "$branch" == "main" ]] || skip "HEAD is on ${branch}, not main"
 
-# Work in progress. archive/ is excluded deliberately: capture dirties it
-# continuously and the whole point of this timer is to publish that churn.
-# Everything else, tracked or not, means somebody is mid-change.
-dirty="$(git -C "$ROOT" status --porcelain -- ':(exclude)archive' | head -5)"
-[[ -z "$dirty" ]] || skip "uncommitted work outside archive/:
+# Work in progress, including archive churn not yet committed by the hourly
+# record committer. An indexable build must match one reconstructible commit;
+# publishing an uncommitted capture would make /version.json say otherwise.
+dirty="$(git -C "$ROOT" status --porcelain | head -5)"
+[[ -z "$dirty" ]] || skip "uncommitted work:
 ${dirty}"
 
 # An unreviewed difference is normal between a poll and the review pass, and
@@ -57,13 +57,14 @@ fi
 # filenames are the archive's own record of content changing: a poll that finds
 # no change writes no file. Pair them with HEAD and the review classifications,
 # which are what the site renders around them.
-current="$(
+state_digest() {
   {
     git -C "$ROOT" rev-parse HEAD
     find "${ROOT}/archive/snapshots" "${ROOT}/archive/x" -name '*.txt' -printf '%P\n' 2>/dev/null | sort
     sha256sum "${ROOT}/revision-reviews.toml" "${ROOT}/sources.toml"
   } | sha256sum | cut -d' ' -f1
-)"
+}
+current="$(state_digest)"
 if [[ -f "$STAMP" && "$(cat "$STAMP")" == "$current" ]]; then
   skip "nothing has changed since the last publish"
 fi
@@ -92,6 +93,9 @@ node site/tools/stage-x-media.mjs >/dev/null 2>&1 || true
 if ! git -C "$ROOT" diff --quiet -- site/src/data; then
   git -C "$ROOT" add site/src/data
   git -C "$ROOT" commit -q -m "site: the media index the publish build regenerates"
+  # HEAD is part of the stamp. Record the state actually published rather than
+  # forcing one redundant deploy on the next tick after this pre-build commit.
+  current="$(state_digest)"
 fi
 
 publish_rc=0
@@ -126,12 +130,12 @@ fi
 
 # The build regenerates tracked files (site/src/data/x-thread-media.json is
 # the known one), and matches_commit in /version.json reads false while they
-# sit uncommitted. record_commit.py stages the generated indexes before any
-# publish build, so a dirty tracked tree here means that pre-staging broke —
+# sit uncommitted. This script stages the generated indexes before its publish
+# build, so a dirty tracked tree here means that pre-staging broke —
 # say so loudly rather than publishing a stamp that does not reproduce.
 tracked_dirt="$(git -C "$ROOT" status --porcelain --untracked-files=no)"
 if [[ -n "$tracked_dirt" ]]; then
-  echo "publish-scheduled: ERROR the build left tracked files modified; matches_commit is false for this deploy. record_commit.py should have staged these first:" >&2
+  echo "publish-scheduled: ERROR the build left tracked files modified; the pre-build generated-index commit should have staged these first:" >&2
   echo "$tracked_dirt" >&2
   exit 1
 fi

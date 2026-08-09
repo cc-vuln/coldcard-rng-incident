@@ -1,0 +1,42 @@
+--- bitcointalk-entropy-warning-design@20260809T040759Z
++++ bitcointalk-entropy-warning-design@20260809T103743Z
+@@ -196,5 +196,39 @@
+ Second, they can know about that by themselves in wallet development process or by community reports such as the Coldcard team, but they decided to ignore that security weakness.
+ Do you think such wallet developers team will add warnings in their own wallet softwares/ products/ models?
+ If you want to have such insightful technical warnings, you can make your proposal to this site team https://walletscrutiny.com/. Ask them to add security check on wallets related to seed entropy and add it to their wallet reviews.
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: nc50lc on August 09, 2026, 06:15:02 AM
++Quote from: hd49728 on Today at 03:30:34 AM
++If you want to have such insightful technical warnings, you can make your proposal to this site team https://walletscrutiny.com/. Ask them to add security check on wallets related to seed entropy and add it to their wallet reviews.
++I doubt that it'll be 100% reliable.
++For example, the recent Coldcard MK4 warnings (https://walletscrutiny.com/hardware/coldcardMk4/) in their websites are only added after the hack while the issue was present way before their initial code audit.
++Before, it's listed as one of the "good wallets" without any listed issue, archived:
++2025 Nov: web.archive.org/web/20251110132002/https://walletscrutiny.com/hardware/coldcardMk4/ (https://web.archive.org/web/20251110132002/https://walletscrutiny.com/hardware/coldcardMk4/)
++2026 Apr: web.archive.org/web/20260417212232/https://walletscrutiny.com/hardware/coldcardMk4/ (https://web.archive.org/web/20260417212232/https://walletscrutiny.com/hardware/coldcardMk4/)
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: ABCbits on August 09, 2026, 07:13:34 AM
++Quote from: vapourminer on August 08, 2026, 11:43:30 PM
++Quote from: ABCbits on August 05, 2026, 09:00:51 AM
++FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
++Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
++NIST program written in Python    NIST program written in C++
++IID test    17 h    1 h 10 min
++[IID track] Estimation entropy    −    −
++[Non-IID track] Estimation entropy    15 min    20 s
++Restart tests    2 s    2 min
++Total execution time    17 h 16 min    1 h 13 min
++Over 1 hour for full test isn't practical, i expect most people don't want to wait that long.
++i burn in new drives, memory, basically any new computer gear and absolutely hammer them for literally days before i entrust them with even my cat pictures.
++for bitcoin i can see testing for a lot longer if i could figure out how, and im just a end user.
++From what i understand so far, such test can't be done by end or average user. The test itself must use the generated and processed entropy/random number directly from the wallet as the input, which means either,
++1. the wallet itself must implement this test.
++2. you modify the wallet source code to save the generated and processed entropy/random number to a file, before feeding it as input to the test software.
++Following good guide that generate entropy or random number from a dice is more practical option.
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: Pmalek on August 09, 2026, 07:32:42 AM
++If the developers and project owners have a reliable and secure way to check that the keys are not secure enough and that the numbers aren't random enough, they should display a warning. But it's a question of whether or not it's an easy thing for them to verify.
++Quote from: Zaguru12 on August 04, 2026, 01:52:32 PM
++The only reason why I think most people are challenging or blaming cold card is simply because there was reports that their system source (TRNG) wasn�t that random as it was broke but they didn�t take that warning or acted upon it and it was what lead to this, which is why I also call for them to be blamed
++If NVK didn't decide to switch to a non open-source license and mess around, the scandal wouldn't have happened. He has been arrogant for years. He was the first to gloat whenever something bad happened to other hardware wallet manufacturers and quickly talk about the strengths of his own product. People didn't like him.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

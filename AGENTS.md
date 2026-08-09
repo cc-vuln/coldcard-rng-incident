@@ -263,16 +263,18 @@ from an allowlist and it runs as `cc-agent`, which cannot read `.env`,
 actions are arbitrary JavaScript and raw DevTools inside a signed-in session.
 - **Every run is checked afterwards.** `agent_guard.py` enforces the role's
 path allowlist and scans for secret values.
-- **A new host is admitted by vetting, not by hand.** `registry_hosts.toml` says what
-`sources.toml` may name, and it plus `agent_egress_hosts.toml` say what an
-agent may connect to at all. Until 8 Aug 2026, adding a host to either was a
-human edit, twice over. Since then, an intake agent files a proposal in
+- **A new source host is admitted by vetting, not by hand.**
+`registry_hosts.toml` says what `sources.toml` may name. Until 8 Aug 2026,
+adding a host was a human edit. Since then, an intake agent files a proposal in
 `.work/host-proposals.txt` and the driver-side `vet_host.py` applies it after
 deterministic checks (https only, independent DNS, robots.txt); every
 admission raises an alert and is auditable, and the quarantine path is
 unchanged. A proposal that fails vetting waits for a human.
-`sources.toml` may name, and it plus `agent_egress_hosts.toml` say what an
-agent may connect to at all.
+- **An agent's network is provider-only.** Evidence acquisition belongs to the
+driver. The proxy therefore reads only the gitignored provider allowlist;
+registered source hosts and the historical `agent_egress_hosts.toml` mirror
+do not widen an agent's live policy. The uid firewall permits only the local
+proxy and does not permit direct DNS.
 
 ## The pipeline runs unattended (8 Aug 2026)
 
@@ -356,9 +358,11 @@ nowhere. After publishing, check that `git status -sb` reports no `ahead`
 count. The same holds in reverse: if history is rewritten after a deploy, the
 stamped hash no longer exists and the site has to be rebuilt and redeployed.
 
-Watch for `matches_commit: false` in `/version.json`. The build regenerates
-`site/src/data/x-thread-media.json`, which is tracked, so publishing with it
-uncommitted dirties the tree and the published stamp stops being exact.
+`just publish` refuses before upload unless `/version.json` says
+`matches_commit: true`, its commit is current `HEAD`, and the tracked tree is
+still clean. The build regenerates `site/src/data/x-thread-media.json`, which
+is tracked; the scheduled publisher commits that generated index under the
+build lock before building.
 
 ## Testing a change
 

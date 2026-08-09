@@ -121,11 +121,11 @@ stage consumes the previous stage's output.
 | Timer | Cadence | What it runs |
 |---|---:|---|
 | `archive-review` | 30 minutes, :29 | `agent-review.sh`: mechanical noise classification, then the review agent over a bounded batch of unreviewed diffs |
-| `record-commit` | hourly, :37 | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist, its audit being `audit-core` (no review gate — classification is a publish concern). Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit-core`, a held writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
-| `publish-scheduled` | 3 hours, :50 | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. The skip conditions are unchanged (`.no-publish`, non-main `HEAD`, dirt outside `archive/`, unreviewed diffs, the build lock) and only a genuine publish failure fails the unit |
+| `record-commit` | hourly, :37 | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist, its audit being `audit-core` (no review gate — classification is a publish concern). Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit-core`, a held build or writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
+| `publish-scheduled` | 3 hours, :50 | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. It skips on `.no-publish`, non-main `HEAD`, any uncommitted state, unreviewed diffs or the build lock; the pre-deploy exactness gate refuses a build unless its `/version.json`, current `HEAD` and tracked tree agree. Only a genuine publish failure fails the unit |
 | `alert-sweep` | 30 minutes | `alert.py sweep`: turns the repo's state files — failure streaks, stale host proposals, failing units, publish-skip streaks — into alerts on the operator-UI stream |
 | `corroborate-gone` | 6 hours | `corroborate_gone.py`: re-resolves `dns-unresolved` streaks through public DNS-over-HTTPS resolvers and sets `gone = true` only when the streak and the independent resolvers agree, recording the transcript in `gone_note` and alerting |
-| `discover-x` | 12 hours | `discover_x_browser.py` then `agent-x-intake.sh`: home-timeline and watched-profile discovery through the capture browser, with registering-xintake assessment and driver-side first captures. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |
+| `discover-x` | 12 hours | `discover_x_browser.py` then up to eight separately guarded 15-item `agent-x-intake.sh` batches: home-timeline and watched-profile discovery through the capture browser, with registering-xintake assessment and driver-side first captures. The drain stops on no progress. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |
 | `x-availability` | 12 hours | `check_x_availability.py`: re-checks that registered X posts are still observable; a single absence is info, two consecutive observations escalate. Kill switch `X_BROWSER_AVAILABILITY_ENABLED`, off by default |
 | `x-media` | weekly | `capture-x.sh --skip-unchanged`: the gallery-dl media pull for every registered `[[x_post]]`, writing nothing when nothing new downloads. `SuccessExitStatus=0 21`: exit 21 is a poll holding the writer lock, a routine skip retried next week, not an alert |
 | `corrections-watch` | Sun 06:40 UTC | `agent-corrections.sh`: the propose-only corrections role drafts corrections from the claim sweep's state-changed flags; `apply_corrections.py` applies validated proposals all-or-nothing, dry run unless `--yes`, with an alert per applied correction |
@@ -174,6 +174,13 @@ afterwards; the agent never reaches the browser itself. The read-only xtriage
 prompt and the `--include-x` admission flag are retired. What still never
 moves unattended: withheld sources, anything identifying a private individual,
 and discovery-queue material itself.
+
+Both intake drivers keep each prompt at 15 candidates, then may run up to
+eight independently rendered and guarded batches in one scheduled tick. A
+batch that makes no queue progress stops the drain, so an unset provider or an
+evidence-hydration failure does not spin. This lets a recovery enumeration
+clear promptly without turning hundreds of strangers' posts into one prompt or
+one guard decision.
 
 The lane runs on its own `discover-x.timer`, separate from
 `discover-community`: an X session failure must not stall the community
@@ -364,10 +371,14 @@ sudo nft -f /etc/nftables.d/agent-egress.nft
 To survive a reboot, `/etc/nftables.conf` needs `include "/etc/nftables.d/*.nft"`
 and `nftables.service` needs enabling.
 
-The allowlist is `scripts/registry_hosts.toml` plus
-`scripts/agent_egress_hosts.toml`, both read-only to the agent. Adding a host
-is a human edit followed by `sudo systemctl restart agent-proxy`, because the
-policy is read once at startup.
+The live allowlist is only the gitignored
+`scripts/agent-egress.local.toml`, which names the configured model provider's
+required endpoints. Registered source hosts do not widen it: candidate bodies
+and claim evidence are hydrated by the driver before an agent runs. Restart
+`agent-proxy` after changing the local provider file because policy is read
+once at startup. `scripts/agent_egress_hosts.toml` remains an auditable legacy
+mirror of hosts admitted before this boundary tightened; the proxy does not
+read it.
 
 What each run reached, and what it was refused:
 
@@ -463,9 +474,10 @@ and logs a reason, rather than failing, when any of these hold:
 - `.no-publish` exists at the repo root. The kill switch to reach for before
   starting a long edit; untracked, so it is never committed or published
 - `HEAD` is not on `main`
-- anything outside `archive/` is uncommitted, tracked or not. Capture dirties
-  `archive/` continuously and publishing that churn is the point; a modified
-  page, script or registry entry means somebody is mid-change
+- anything is uncommitted, including archive churn. The hourly record
+  committer turns captures into a reconstructible state before publication;
+  publishing directly from its uncommitted interval would make the commit in
+  `/version.json` incomplete
 - a detected difference is still unreviewed, which `just audit` would refuse
   to build through anyway. Between a poll and the review pass this is normal,
   so it logs as a skip and the next tick picks it up
@@ -473,6 +485,13 @@ and logs a reason, rather than failing, when any of these hold:
   `.work/publish-scheduled.stamp` covers `HEAD`, the snapshot filenames (a
   poll that finds no change writes no file) and the two registries
 - another build holds `/tmp/cc-build.lock`
+
+The publisher regenerates the tracked media index under that lock and commits
+it before building. Immediately before upload, `just check-version-exact`
+requires the built `/version.json` to say `matches_commit: true`, requires its
+commit to equal current `HEAD`, and requires the tracked tree still to be
+clean. A capture or commit landing during the build therefore refuses the
+deploy before upload and is retried from a committed state on the next tick.
 
 Only a genuine publish failure fails the unit, and the stamp is written after
 success, so a failed deploy retries on the next tick. Check the decision

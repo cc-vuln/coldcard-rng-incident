@@ -7,13 +7,12 @@ The script routes; it never decides.
 
 Sections:
 
-1. Unreferenced registered sources. Every id in sources.toml's four tables
-   (`source`, `x_post`, `nostr_post`, `x_watch`) against every file under
-   site/src/pages/. A reference is "strong" when the file links the source's
+1. Unreferenced registered sources. Every public record id in sources.toml's
+   three evidence tables (`source`, `x_post`, `nostr_post`) against every file
+   under site/src/pages/. A reference is "strong" when the file links the source's
    record page (`/record/sources/<id>/`), "weak" when the bare id string
-   appears without a link. `x_watch` entries have no id, so their handle is
-   the match string; a weak handle mention is a substring hit and may be a
-   display name rather than a citation, which is for the reader to judge.
+   appears without a link. `x_watch` entries are discovery configuration, not
+   public source records, and are excluded.
 
    Exclusions, stated so they can be argued with:
    - `gone = true`: the origin stopped serving; the held capture is the
@@ -24,10 +23,15 @@ Sections:
      page that does not cite it is following policy, not lagging.
    Excluded ids are counted in the section header, not listed.
 
+   This is an inventory, not editorial debt. A registered source already has
+   a public, citable record page and need not be woven into narrative prose.
+
 2. Editorial-attention routing. Every `[[revision]]` with
-   `status = "source-content"` newer than the previous packet's generated-at,
-   with the pages that reference that source. "The source moved; these pages
-   cite it." Which page, if any, needs an edit is downstream work.
+   `status = "source-content"` at or after an explicit append-only ledger
+   offset, with the pages that reference that source. "The source moved;
+   these pages cite it." Which page, if any, needs an edit is downstream work.
+   Packet generation never advances the offset; the consuming lane does so
+   only after its bounded batch and gates succeed.
 
 3. Dated assertions aging. Lines under site/src/pages/ carrying both a
    current-state phrase and a date, older than --days. The phrase set is the
@@ -52,13 +56,12 @@ import datetime as dt
 import json
 import os
 import re
-import tempfile
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-REGISTRY_TABLES = ("source", "x_post", "nostr_post", "x_watch")
+REGISTRY_TABLES = ("source", "x_post", "nostr_post")
 
 # The claim-sweep's current-state phrase set (scripts/claim-sweep-prompt.md).
 PHRASE_RE = re.compile(
@@ -130,7 +133,7 @@ def page_files(pages_root: Path) -> dict[str, str]:
 
 
 def load_registry(root: Path) -> list[dict]:
-    """Every registered item across the four tables, with its table name."""
+    """Every registered item across the three evidence tables."""
     path = root / "sources.toml"
     if not path.is_file():
         return []
@@ -140,7 +143,6 @@ def load_registry(root: Path) -> list[dict]:
         for entry in data.get(table, []):
             items.append({
                 "table": table,
-                # x_watch is keyed by handle; the other tables by id.
                 "id": entry.get("id") or entry.get("handle") or "",
                 "group": entry.get("kind") or entry.get("tag") or "untagged",
                 "gone": bool(entry.get("gone")),
@@ -195,30 +197,37 @@ def unreferenced(items: list[dict], refs: dict[str, dict]) -> dict:
 
 
 def revision_routing(
-    root: Path, since: dt.datetime, refs: dict[str, dict]
-) -> list[dict]:
-    """Section 2: source-content revisions newer than `since`, with pages."""
+    root: Path, offset: int, refs: dict[str, dict]
+) -> tuple[list[dict], int]:
+    """Source-content reviews appended at or after ``offset``, with pages.
+
+    The review file is the durable append-only decision ledger. Its list
+    position is safer than a capture timestamp because a classification may
+    be appended well after the older diff it settles.
+    """
     path = root / "revision-reviews.toml"
     if not path.is_file():
-        return []
+        return [], 0
     data = tomllib.loads(path.read_text(encoding="utf-8"))
+    revisions = data.get("revision", [])
+    if offset < 0 or offset > len(revisions):
+        raise ValueError(
+            f"revision offset {offset} is outside 0..{len(revisions)}"
+        )
     out = []
-    for rev in data.get("revision", []):
+    for index, rev in enumerate(revisions[offset:], start=offset):
         if rev.get("status") != "source-content":
-            continue
-        ts = parse_ts(str(rev.get("timestamp", "")))
-        if ts is None or ts <= since:
             continue
         sid = str(rev.get("source", ""))
         r = refs.get(sid, {"strong": [], "weak": []})
         out.append({
+            "review_index": index,
             "source": sid,
             "timestamp": str(rev.get("timestamp", "")),
             "summary": " ".join(str(rev.get("summary", "")).split()),
             "pages": sorted(set(r["strong"]) | set(r["weak"])),
         })
-    out.sort(key=lambda e: e["timestamp"], reverse=True)
-    return out
+    return out, len(revisions)
 
 
 def dated_assertions(
@@ -271,37 +280,6 @@ def tracker_states(root: Path) -> dict:
     return {"built": built, "readings": readings, "note": ""}
 
 
-def read_marker(path: Path, now: dt.datetime) -> dt.datetime:
-    """Previous generated-at; seven days back when there is no marker."""
-    fallback = now - dt.timedelta(days=7)
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        ts = parse_ts(str(data.get("generated_at", "")))
-        if ts is not None:
-            return ts
-    except (OSError, json.JSONDecodeError):
-        pass
-    return fallback
-
-
-def write_marker(path: Path, now: dt.datetime) -> None:
-    """Atomic: a torn write must never look like a newer packet ran."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(
-        {"generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ")}, indent=2
-    ) + "\n"
-    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=path.name, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            fh.write(payload)
-        os.replace(tmp, path)
-    except OSError:
-        try:
-            os.unlink(tmp)
-        except OSError:
-            pass
-
-
 def iso(now: dt.datetime) -> str:
     return now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -311,13 +289,13 @@ def build_packet(
     pages_root: Path,
     days: int,
     now: dt.datetime,
-    marker_since: dt.datetime,
+    revision_offset: int,
 ) -> dict:
     pages = page_files(pages_root)
     items = load_registry(root)
     refs = reference_map(items, pages)
     unref = unreferenced(items, refs)
-    revisions = revision_routing(root, marker_since, refs)
+    revisions, revision_total = revision_routing(root, revision_offset, refs)
     assertions = dated_assertions(pages, days, now.date())
     trackers = tracker_states(root)
     degraded = [t for t in trackers["readings"] if t["state"] != "current"]
@@ -332,7 +310,8 @@ def build_packet(
             ),
         },
         "days": days,
-        "marker_since": iso(marker_since),
+        "revision_offset": revision_offset,
+        "revision_total": revision_total,
         "unreferenced": unref,
         "revision_routing": revisions,
         "dated_assertions": assertions,
@@ -351,7 +330,8 @@ def render_markdown(packet: dict) -> str:
     add(f"- pages: {packet['inputs']['pages']}")
     add(f"- funds-build: {packet['inputs']['funds_build']}")
     add(f"- dated-assertion threshold: {packet['days']} days")
-    add(f"- revision marker: newer than {packet['marker_since']}")
+    add(f"- revision cursor: entries {packet['revision_offset']} through "
+        f"{packet['revision_total'] - 1}")
     add("")
 
     add("## 1. Unreferenced registered sources")
@@ -371,8 +351,8 @@ def render_markdown(packet: dict) -> str:
                 add(f"- {e['id']}: no reference under pages root")
     add("")
 
-    add("## 2. Editorial-attention routing (source-content revisions "
-        f"newer than {packet['marker_since']})")
+    add("## 2. Editorial-attention routing (unprocessed source-content "
+        "review entries)")
     if not packet["revision_routing"]:
         add("(none)")
     for r in packet["revision_routing"]:
@@ -414,19 +394,20 @@ def main() -> int:
                         help="also write .work/site-staleness.json")
     parser.add_argument("--out", type=Path, default=None,
                         help="packet path (default: <root>/.work/site-staleness.md)")
-    parser.add_argument("--marker", type=Path, default=None,
-                        help="marker path (default: <root>/.work/site-staleness-marker.json)")
+    parser.add_argument("--revision-offset", type=int, default=0,
+                        help="append-only revision ledger offset (default: 0)")
     args = parser.parse_args()
 
     root = args.root.resolve()
     pages_root = (args.pages or root / "site" / "src" / "pages").resolve()
     out_path = args.out or root / ".work" / "site-staleness.md"
-    marker_path = args.marker or root / ".work" / "site-staleness-marker.json"
-
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
-    since = read_marker(marker_path, now)
-
-    packet = build_packet(root, pages_root, args.days, now, since)
+    try:
+        packet = build_packet(
+            root, pages_root, args.days, now, args.revision_offset
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(render_markdown(packet), encoding="utf-8")
@@ -435,8 +416,6 @@ def main() -> int:
         json_path.write_text(
             json.dumps(packet, indent=2) + "\n", encoding="utf-8"
         )
-    write_marker(marker_path, now)
-
     counts = (
         sum(len(v) for v in packet["unreferenced"]["groups"].values()),
         len(packet["revision_routing"]),

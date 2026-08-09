@@ -14,17 +14,19 @@ Account-safety boundaries, carried over from the API lane:
 - read-only: navigate and evaluate only. Nothing posts, follows, likes,
   submits a form or clicks a login button; a dead session stops the lane
   for a person, it never triggers an automated sign-in
-- bounded: at most 12 timeline scroll passes and 10 profiles per run, with
-  fixed spacing between browser actions
+- bounded: at most 12 timeline scroll passes, 40 profile scroll passes and
+  10 profiles per run, with fixed spacing between browser actions
 - fail closed: a login wall, a challenge and a rate limit are distinct
   session-health classes; any of them stops the run, writes a persistent
   24h cooldown and raises an x-session-health alert instead of pushing
   through. A login wall needs a person to renew the session
-- first contact is a baseline: a profile's existing posts are marked seen
-  but not queued unless --queue-initial is deliberately supplied
+- first contact is a bounded history read: it queues posts back to the watch's
+  ``since`` date (or stable exhaustion) and refuses to checkpoint if the hard
+  pass cap is reached first. ``--queue-initial`` remains a repair switch for
+  reconsidering ids suppressed by the retired baseline behaviour
 - overflow is an error: if a profile's window fills with new posts without
   reaching the previous checkpoint, nothing is queued and the checkpoint
-  does not advance past posts that may not have been seen
+  and global seen set do not advance past posts that may not have been seen
 
 Reading a signed-in home timeline carries X's automation-rule suspension
 risk (non-API website scripting can lead to permanent account suspension).
@@ -80,6 +82,8 @@ DEFAULT_TIMELINE_PASSES = 6
 HARD_MAX_TIMELINE_PASSES = 12
 DEFAULT_MAX_WATCHES = 6
 HARD_MAX_WATCHES = 10
+DEFAULT_PROFILE_PASSES = 2
+HARD_MAX_PROFILE_PASSES = 40
 # Fixed waits, not adaptive polling: predictability beats cleverness for an
 # account the project would rather not lose.
 PROBE_SETTLE = 6.0
@@ -341,16 +345,23 @@ def decide_watch(
 ) -> tuple[list[dict], bool]:
     """Which of a profile's posts queue, and whether this was first contact.
 
-    Baseline runs queue nothing without --queue-initial. Overflow queues
-    nothing either: the window never reached the previous checkpoint, so
-    posts between it and the window may have been missed, and checkpointing
-    past them would lose them silently.
+    First contact always queues the history it read. ``queue_initial`` also
+    lets a deliberate repair reconsider ids written to global seen by the
+    retired baseline behaviour. Overflow queues nothing: the window did not
+    establish a safe coverage boundary, and checkpointing past it would lose
+    posts silently.
     """
     baseline = not prior.get("last_success")
     queueable: list[dict] = []
-    if not overflow and (queue_initial or not baseline):
+    if not overflow:
         for post in posts:
-            if post["id"] in seen or post["id"] in registered_ids:
+            # An explicit history import must be able to reconsider the ids a
+            # first-contact baseline put in the global seen set. Registered
+            # posts still never re-enter intake, and update_intake performs a
+            # second URL-level deduplication against the queue.
+            if (not (queue_initial or baseline) and post["id"] in seen) or (
+                post["id"] in registered_ids
+            ):
                 continue
             if not _after_since(post, watch.since):
                 continue
@@ -464,12 +475,19 @@ def read_timeline(session: str, passes: int) -> tuple[list[dict], bool, int]:
     return list(collected.values()), exhausted, run
 
 
-def read_profile(session: str, watch: Watch) -> tuple[str, list[dict], str]:
-    """One watched profile: (outcome, posts, detail).
+def read_profile(
+    session: str,
+    watch: Watch,
+    passes: int = DEFAULT_PROFILE_PASSES,
+) -> tuple[str, list[dict], str, bool, int, str]:
+    """One watched profile with pass count and a bounded stop reason.
 
-    One bounded scroll pass: read the settled viewport, scroll once, wait a
-    fixed settle, read again. Deeper paging to backfill is a one-off
-    enumeration job, not this lane's.
+    Incremental reads use the scheduled pass budget. First contact is called
+    with the hard budget by ``main``; a deliberate ``--queue-initial`` repair
+    may also raise ``--profile-passes``. Reading stops as soon as the watch's
+    ``since`` date is reached or after two no-growth passes. A true
+    ``budget_exhausted`` means the configured cap was hit before either safe
+    boundary.
     """
     navigate_url = f"https://x.com/{watch.handle}"
     x_browser.navigate(navigate_url, session)
@@ -477,15 +495,58 @@ def read_profile(session: str, watch: Watch) -> tuple[str, list[dict], str]:
     probe = json.loads(x_browser.evaluate(PROFILE_PROBE_JS, session)["value"])
     outcome = classify_profile(probe)
     if outcome != "ok":
-        return outcome, [], PROFILE_DETAIL.get(outcome, "")
+        return outcome, [], PROFILE_DETAIL.get(outcome, ""), False, 0, outcome
     collected: dict[str, dict] = {}
-    for post in extract_posts(session):
-        collected.setdefault(post["id"], post)
-    x_browser.evaluate(SCROLL_JS, session)
-    time.sleep(SCROLL_SETTLE)
-    for post in extract_posts(session):
-        collected.setdefault(post["id"], post)
-    return "ok", list(collected.values()), ""
+    stagnant = 0
+    exhausted = True
+    run = 0
+    stop_reason = "pass-cap"
+    for index in range(passes):
+        run += 1
+        before = len(collected)
+        for post in extract_posts(session):
+            collected.setdefault(post["id"], post)
+        stagnant = stagnant + 1 if len(collected) == before else 0
+        observed_dates = [
+            str(post.get("time") or "")[:10]
+            for post in collected.values()
+            if post.get("time")
+        ]
+        if watch.since and observed_dates and min(observed_dates) <= watch.since:
+            exhausted = False
+            stop_reason = "since-reached"
+            break
+        if stagnant >= 2:
+            exhausted = False
+            stop_reason = "stable-exhaustion"
+            break
+        if index + 1 < passes:
+            x_browser.evaluate(SCROLL_JS, session)
+            time.sleep(SCROLL_SETTLE)
+    return "ok", list(collected.values()), "", exhausted, run, stop_reason
+
+
+def coverage_record(
+    watch: Watch,
+    posts: list[dict],
+    passes: int,
+    stop_reason: str,
+    queued: int,
+) -> dict:
+    """Auditable bounds for one watched-profile observation."""
+    dates = sorted(
+        (str(post.get("createdAt") or "")[:10] for post in posts),
+    )
+    dates = [date for date in dates if date]
+    return {
+        "requested_since": watch.since,
+        "oldest_observed": dates[0] if dates else None,
+        "newest_observed": dates[-1] if dates else None,
+        "passes": passes,
+        "stop_reason": stop_reason,
+        "observed": len(posts),
+        "queued": queued,
+    }
 
 
 def emit_health_alert(health_class: str) -> None:
@@ -593,8 +654,19 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--profile-passes", type=int,
+        default=parse_int_env(
+            "X_BROWSER_DISCOVERY_PROFILE_PASSES", DEFAULT_PROFILE_PASSES
+        ),
+        help=(
+            f"scroll-and-read passes per watched profile (default "
+            f"{DEFAULT_PROFILE_PASSES}, hard max {HARD_MAX_PROFILE_PASSES}); "
+            "raise deliberately with --queue-initial for legacy backfill"
+        ),
+    )
+    parser.add_argument(
         "--queue-initial", action="store_true",
-        help="queue first-contact history instead of only baselining it",
+        help="reconsider legacy baseline ids while doing a bounded backfill",
     )
     parser.add_argument(
         "--no-state", action="store_true",
@@ -637,6 +709,10 @@ def main() -> int:
             )
         if not 1 <= args.max_watches <= HARD_MAX_WATCHES:
             raise ConfigError(f"--max-watches must be 1..{HARD_MAX_WATCHES}")
+        if not 1 <= args.profile_passes <= HARD_MAX_PROFILE_PASSES:
+            raise ConfigError(
+                f"--profile-passes must be 1..{HARD_MAX_PROFILE_PASSES}"
+            )
 
         # An active cooldown exits before the browser is touched. A malformed
         # one fails closed as a config error rather than being assumed away.
@@ -690,7 +766,10 @@ def main() -> int:
 
         stamp = compact_ts(now_utc())
         candidates: list[dict] = []
-        fetched_ids: set[str] = set()
+        # IDs enter global seen only after the corresponding read was safely
+        # processed. In particular, an overflowed watched-profile window must
+        # not suppress the very posts the held checkpoint is meant to recover.
+        processed_ids: set[str] = set()
         failures = 0
 
         def queue_timeline() -> None:
@@ -700,7 +779,7 @@ def main() -> int:
                 (normalize_post(raw) for raw in posts)
                 if post is not None
             ]
-            fetched_ids.update(post["id"] for post in normalized)
+            processed_ids.update(post["id"] for post in normalized)
             queued = 0
             for post in normalized:
                 tier = queue_decision(post, watched_handles)
@@ -735,7 +814,14 @@ def main() -> int:
                 key = watch.handle.casefold()
                 prior = watch_state.get(key, {})
                 try:
-                    outcome, raw_posts, detail = read_profile(SESSION, watch)
+                    profile_passes = (
+                        HARD_MAX_PROFILE_PASSES
+                        if not prior.get("last_success")
+                        else args.profile_passes
+                    )
+                    read = read_profile(SESSION, watch, profile_passes)
+                    (outcome, raw_posts, detail, exhausted,
+                     passes_run, stop_reason) = read
                 except x_browser.BridgeError as exc:
                     print(f"@{watch.handle}: bridge error: {exc}",
                           file=sys.stderr)
@@ -760,7 +846,6 @@ def main() -> int:
                     )
                     if post is not None
                 ]
-                fetched_ids.update(post["id"] for post in posts)
                 if outcome != "ok":
                     failures += 1
                     watch_state[key] = advance_watch(
@@ -769,8 +854,10 @@ def main() -> int:
                     print(f"@{watch.handle}: {outcome}: {detail}",
                           file=sys.stderr)
                     continue
-                overflow = window_overflow(
-                    posts, prior, exhausted=True
+                baseline = not prior.get("last_success")
+                overflow = (
+                    exhausted if baseline else
+                    window_overflow(posts, prior, exhausted=exhausted)
                 )
                 queueable, baseline = decide_watch(
                     posts, prior, watch, seen, registered_ids,
@@ -778,28 +865,29 @@ def main() -> int:
                 )
                 status = "window-exceeded" if overflow else "ok"
                 detail = (
-                    "the window filled with new posts without reaching the "
-                    "previous checkpoint; nothing queued, checkpoint held"
+                    "the bounded read reached its pass cap before the "
+                    "configured since date, stable exhaustion, or previous "
+                    "checkpoint; nothing queued, checkpoint held"
                 ) if overflow else ""
                 watch_state[key] = advance_watch(
                     prior, watch, [] if overflow else posts, stamp,
                     status, detail,
+                )
+                watch_state[key]["coverage"] = coverage_record(
+                    watch, posts, passes_run, stop_reason, len(queueable)
                 )
                 if overflow:
                     failures += 1
                     print(f"@{watch.handle}: window-exceeded: {detail}",
                           file=sys.stderr)
                     continue
+                processed_ids.update(post["id"] for post in posts)
                 for post in queueable:
                     candidates.append(candidate_for_intake(
                         post, stamp, source=f"watch:{watch.handle}",
                         tier="watch", watch=watch,
                     ))
-                action = (
-                    "baselined" if baseline and not args.queue_initial
-                    else "scanned"
-                )
-                print(f"@{watch.handle}: {action} {len(posts)} post(s); "
+                print(f"@{watch.handle}: scanned {len(posts)} post(s); "
                       f"{len(queueable)} new candidate(s)")
             return 0
 
@@ -815,7 +903,7 @@ def main() -> int:
                 update_intake(candidates, registered_urls)
             # The checkpoint advances only after the intake queue accepted
             # the candidates, so a crash before this point safely re-queues.
-            seen.update(fetched_ids)
+            seen.update(processed_ids)
             state["seen"] = sorted(seen, key=int)[-SEEN_KEEP:]
             atomic_json(STATE, state)
             if candidates:

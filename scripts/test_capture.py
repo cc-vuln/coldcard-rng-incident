@@ -277,6 +277,30 @@ class RegistryTests(unittest.TestCase):
             ):
                 capture.validate_sources({"source": [source]})
 
+    def test_browser_text_selection_is_narrowly_validated(self) -> None:
+        invalid = (
+            self.source(capture="browser", browser_text_selector=""),
+            self.source(capture="browser", browser_include_hidden="yes"),
+            self.source(capture="browser", browser_include_hidden=True),
+            self.source(capture="browser", browser_text_selector="x >>> "),
+            self.source(browser_text_selector="article"),
+            self.source(browser_include_hidden=True,
+                        browser_text_selector="article"),
+        )
+        for source in invalid:
+            with self.subTest(source=source), self.assertRaises(
+                capture.SourceConfigError
+            ):
+                capture.validate_sources({"source": [source]})
+
+        capture.validate_sources({"source": [self.source(
+            capture="browser",
+            browser_text_selector=(
+                "c-display-article >>> lightning-formatted-rich-text"
+            ),
+            browser_include_hidden=True,
+        )]})
+
     def test_fetch_url_and_json_extractors_are_validated(self) -> None:
         invalid = (
             self.source(fetch_url=""),
@@ -287,10 +311,13 @@ class RegistryTests(unittest.TestCase):
             self.source(json_html_field=""),
             self.source(json_pretty="yes"),
             self.source(json_html_field="content", json_pretty=True),
+            self.source(json_thread="unknown"),
+            self.source(json_thread="hn-algolia", json_pretty=True),
             self.source(json_text_fields=["title"]),
             self.source(json_html_field="content", json_text_fields=[""]),
             self.source(capture="browser", json_html_field="content"),
             self.source(capture="browser", json_pretty=True),
+            self.source(capture="browser", json_thread="hn-algolia"),
         )
         for source in invalid:
             with self.subTest(source=source), self.assertRaises(
@@ -330,6 +357,54 @@ class RegistryTests(unittest.TestCase):
             capture.extract_source_text(after, source["url"], source),
         )
 
+    def test_hn_algolia_thread_is_readable_stable_and_recursive(self) -> None:
+        payload = {
+            "id": 10, "type": "story", "author": "alice",
+            "created_at": "2026-08-02T01:00:00Z",
+            "title": "A &amp; B", "url": "https://example.test/a",
+            "text": "I&#x27;m the lead.<p>Second paragraph.",
+            "points": 99,
+            "children": [
+                {"id": 30, "parent_id": 10, "author": "carol",
+                 "created_at": "2026-08-02T03:00:00Z",
+                 "text": "Later", "children": []},
+                {"id": 20, "parent_id": 10, "author": "bob",
+                 "created_at": "2026-08-02T02:00:00Z",
+                 "text": "A &lt;b&gt;literal&lt;/b&gt;", "children": [
+                    {"id": 25, "parent_id": 20, "author": None,
+                     "created_at": "2026-08-02T02:30:00Z",
+                     "text": None, "children": []},
+                 ]},
+            ],
+        }
+        source = self.source(json_thread="hn-algolia")
+        text = capture.extract_source_text(
+            json.dumps(payload).encode(), source["url"], source)
+        self.assertIn("story: 10\nauthor: alice", text)
+        self.assertIn("title:\nA & B", text)
+        self.assertIn("body:\nI'm the lead.\nSecond paragraph.", text)
+        self.assertLess(text.index("comment: 20"), text.index("comment: 25"))
+        self.assertLess(text.index("comment: 25"), text.index("comment: 30"))
+        self.assertIn("author: [deleted]\ncreated_at:", text)
+        self.assertIn("body:\n[deleted]", text)
+        self.assertNotIn("points", text)
+
+        payload["points"] = 100
+        payload["children"].reverse()
+        after = capture.extract_source_text(
+            json.dumps(payload).encode(), source["url"], source)
+        self.assertEqual(text, after)
+
+    def test_hn_algolia_thread_rejects_ambiguous_shapes(self) -> None:
+        source = self.source(json_thread="hn-algolia")
+        for payload in ([], {"id": "10", "children": []},
+                        {"id": 10, "children": {}}):
+            with self.subTest(payload=payload), self.assertRaises(
+                capture.SourceConfigError
+            ):
+                capture.extract_source_text(
+                    json.dumps(payload).encode(), source["url"], source)
+
 
 class NormalizerTests(unittest.TestCase):
     def canonical(self, text: str, *rules: str) -> str:
@@ -344,6 +419,39 @@ class NormalizerTests(unittest.TestCase):
             self.canonical(before, "relative-time"),
             self.canonical(after, "relative-time"),
         )
+
+    def test_bleepingcomputer_article_ignores_surrounding_rails(self) -> None:
+        title = "COLDCARD wallet RNG flaw likely linked to $88 million Bitcoin theft"
+        before = (
+            "old latest-news rail\n" + title + "\nBy Reporter\nArticle body\n"
+            "Related Articles:\nold ads"
+        )
+        after = (
+            "new latest-news rail\n" + title + "\nBy Reporter\nArticle body\n"
+            "Related Articles:\nnew ads"
+        )
+        edited = after.replace("Article body", "Edited article body")
+        rule = "bleepingcomputer-article"
+        self.assertEqual(self.canonical(before, rule), self.canonical(after, rule))
+        self.assertNotEqual(self.canonical(before, rule), self.canonical(edited, rule))
+
+    def test_theblock_article_ignores_live_navigation_and_footer(self) -> None:
+        title = (
+            "Bitcoin losses linked to Coldcard vulnerability grow to $70 million, "
+            "Galaxy Research says"
+        )
+        before = (
+            "BTCUSD$1\nLatest Crypto News\nold story\n" + title
+            + "\nBy Reporter\nArticle body\nDisclaimer: old footer"
+        )
+        after = (
+            "BTCUSD$2\nLatest Crypto News\nnew story\n" + title
+            + "\nBy Reporter\nArticle body\nDisclaimer: new footer"
+        )
+        edited = after.replace("Article body", "Article body changed")
+        rule = "theblock-article"
+        self.assertEqual(self.canonical(before, rule), self.canonical(after, rule))
+        self.assertNotEqual(self.canonical(before, rule), self.canonical(edited, rule))
 
     def test_fiat_changes_do_not_hide_btc_changes(self) -> None:
         a = "1,082.57 BTC\n$68,205,137\n$63,003/BTC"
@@ -893,6 +1001,37 @@ class RedditJsonBindingTests(unittest.TestCase):
 
 
 class BrowserReadinessTests(unittest.TestCase):
+    def test_browser_capture_can_read_hidden_text_from_one_selector(self) -> None:
+        evaluated = []
+
+        def command(action, args=None, timeout=60):
+            if action == "evaluate":
+                code = (args or {}).get("code", "")
+                evaluated.append(code)
+                if "location.hostname" in code:
+                    return {"value": "example.test"}
+                return {"value": (
+                    '<article><h2>Question</h2>'
+                    '<div hidden><p>Hidden answer</p></div></article>'
+                )}
+            return {}
+
+        with mock.patch.object(capture, "wb_available", return_value=True), \
+                mock.patch.object(capture, "wb_cmd", side_effect=command), \
+                mock.patch.object(capture.time, "sleep"):
+            text, _, _ = capture.fetch_browser(
+                "https://example.test",
+                scroll=False,
+                text_selector=(
+                    "c-display-article >>> lightning-formatted-rich-text"
+                ),
+                include_hidden=True,
+            )
+
+        self.assertEqual(text, "Question\nHidden answer")
+        read_code = next(code for code in evaluated if "shadowRoot" in code)
+        self.assertIn("lightning-formatted-rich-text", read_code)
+
     def test_browser_capture_waits_for_required_rendered_text(self) -> None:
         rendered = iter(("Loading holdings", "Loaded holdings\nMovement feed"))
         actions = []

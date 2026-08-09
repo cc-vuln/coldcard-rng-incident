@@ -61,7 +61,7 @@ ROLES: dict[str, tuple[str, ...]] = {
     # Registers community threads and records verdicts.
     "intake": ("sources.toml", "DISCOVERY.md", ".work/"),
     # Rechecks unverified claims across the editorial pages.
-    "sweep": ("site/src/pages/", "sources.toml", "BACKLOG.md", ".work/"),
+    "sweep": ("site/src/pages/", "BACKLOG.md", ".work/"),
     # Registers queued X posts as [[x_post]] blocks and records verdicts.
     # Replaced the read-only xtriage role on 8 Aug 2026, when X promotion
     # was automated; its first captures are ingests, not polls.
@@ -87,7 +87,7 @@ ROLES: dict[str, tuple[str, ...]] = {
 
 # Roles whose remit includes registering sources, and therefore asking for a
 # first capture. The driver performs the capture itself, after this gate.
-REGISTERING_ROLES = {"intake", "sweep", "xintake"}
+REGISTERING_ROLES = {"intake", "xintake"}
 
 # The two files other tooling in this repository legitimately writes while an
 # agent is running: `ingest-x.py` and `ingest_nostr.py` register into the

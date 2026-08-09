@@ -1,0 +1,60 @@
+--- coldcard-hack-tracker@20260809T134255Z
++++ coldcard-hack-tracker@20260809T144255Z
+@@ -795,7 +795,7 @@
+ From Hop 1 from Wave 4 park bc1q72k7…aamt
+ Block 961,731
+ 
+-To 17fqFGPG…FcFL
++To Bybit deposit 17fqFGPG…FcFL
+ 
+ HOP 1
+ da5064ee…21977f
+@@ -925,30 +925,6 @@
+ Block 960,898
+ 
+ To bc1qcgjn…tdt7
+-
+-HOP 2
+-822230d2…e3083a
+-−0.47797906 BTC
+-From Hop 2 from Hop 1 from Wave 4 park bc1qq0j5…vfz9
+-Block 960,832
+-
+-To bc1qx7pu…xevf, bc1qspw0…vy3w, bc1q728v…gedk +12 more
+-
+-HOP 1
+-15d1287d…e9bdf0
+-−0.50633044 BTC
+-From Hop 1 from Wave 4 park bc1qa2xv…c3y9
+-Block 960,822
+-
+-To bc1qq0j5…vfz9, bc1qhcpk…c3tl, 38maz2s8…erUH +13 more
+-
+-HOP 2
+-24ed08ad…a7f583
+-−4.27762101 BTC
+-From Hop 2 from Hop 1 from Wave 4 park bc1qhfdz…3wcx
+-Block 960,797
+-
+-To P2WPKH service hub bc1qactq…80gh, bc1qm26v…3q52, bc1qemas…ahmt +27 more
+ 
+ HOP 1
+ 6c85668e…d30bbb
+@@ -1068,7 +1044,7 @@
+ BEYOND THE MAIN SEED
+ Weak RNG also hit paper-wallet keys, clone / Key Teleport material, and some Secure Notes passwords — even when the BIP-39 seed itself came from dice (WizardSardine / Block).
+ LOWER RISK
+-At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase. CK tripwire is mapping live how far added dice/passphrase entropy currently stops sweeps (zero-entropy control swept in ~1h; low-band honeypots still live as of Aug 4). Still migrate when practical.
++At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase. CK tripwire is mapping live how far added dice/passphrase entropy currently stops sweeps (zero-entropy control swept in ~1h; ~5-bit low/dice honeypots swept by Aug 8; mid/high bands still live). Still migrate when practical.
+ NOT THIS BUG
+ TAPSIGNER, Opendime, and Satscard use different codebases and are not affected. Mk1 and pre-4.0.1 Mk2/Mk3 firmware used the real TRNG.
+ SOURCES
+@@ -1086,7 +1062,7 @@
+ 
+ James O'Beirne · CK tripwire
+ 
+-Aug 4: live honeypot scoreboard mapping attacker brute-force depth via decoys with added dice/passphrase entropy (cktripwire.com; announcement). Zero-entropy control swept in ~1h; low-band (11–13 bit) honeypots still live at launch. Defensive research only — do not add honeypot sinks to holdings.
++Aug 4: live honeypot scoreboard mapping attacker brute-force depth via decoys with added dice/passphrase entropy (cktripwire.com; announcement). Zero-entropy control swept in ~1h. By Aug 8, multiple ~5-bit low (dice) honeypots were swept (jamesob); frontier still ~5 bits with mid/high passphrase bands live. Defensive research only — do not add honeypot sinks to holdings.
+ 
+ Galaxy Research · Wave 3
+ 

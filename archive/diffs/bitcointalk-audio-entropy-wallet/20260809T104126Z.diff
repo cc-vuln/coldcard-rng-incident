@@ -1,0 +1,30 @@
+--- bitcointalk-audio-entropy-wallet@20260809T050229Z
++++ bitcointalk-audio-entropy-wallet@20260809T104126Z
+@@ -68,5 +68,27 @@
+ System produced RNG is great until it doesn't work or even worse backdoored.
+ I liked the idea of not trusting the manufacturer RNG too much, manual entropy method is great if done right and mixed with other independent entropy sources. Even better, system produced RNG mixed with manual entropy.
+ I'm sure that somebody out there already thought about audio-based entropy but might pass on the idea because the environment where audio signal shaped itself can be a bias, but I'm also by no means an expert so I might be wrong.
++Title: Re: Audio-based entropy wallet
++Post by: ABCbits on August 09, 2026, 07:59:30 AM
++Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
++After the recent entropy flaws with a number of hardware wallets, this is a new idea as to how to gather entropy.
++It's not new idea. You can easily find past similar discussion[1] or even find such implementation[2].
++Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
++Thoughts?
++I would rather follow good guide about getting random seed from a dice. I'm not expert, but there are things that could less secure than expected. For example,
++1. How "detects audio" is determined? Is near quiet environment enough to trigger it?
++2. "is going to yield a different result each time.", but how different is it and what are the entropy bits or possible value range?
++The multiple hashing doesn't really matter when the attacker know step-by-step to generate the random number from audio.
++[1] https://dsp.stackexchange.com/questions/42016/how-can-i-calculate-the-entropy-of-a-signal-thats-not-independent-from-itself (https://dsp.stackexchange.com/questions/42016/how-can-i-calculate-the-entropy-of-a-signal-thats-not-independent-from-itself)
++[2] https://github.com/gianlucamazza/audio-entropy-bip39 (https://github.com/gianlucamazza/audio-entropy-bip39) (i don't vouch this code at all, proceed with caution)
++Title: Re: Audio-based entropy wallet
++Post by: pawanjain on August 09, 2026, 08:42:50 AM
++Personally, I wouldn't trust any type of audio source to be used with cryptocurrency whether it be for encryption or for entropy selection.
++The simple reason is because our audio is present almost everywhere. Instagram, whatsapp, 3rd party apps., games etc...
++We never know when and how our audio data is getting leaked from our phone. A simple phone call reveals our audio to them.
++So why should we consider using audio for encryption and entropy.
++Title: Re: Audio-based entropy wallet
++Post by: Pumpsta on August 09, 2026, 09:39:20 AM
++But won't these mics kinda screw up the final result if there's background static noise? Like, I've had mics before that had a manufacturing defect & they kept looping the same background static frequency ???
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

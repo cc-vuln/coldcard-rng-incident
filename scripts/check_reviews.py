@@ -11,8 +11,9 @@ The review agent appends those classifications unattended, so the file is
 checked rather than trusted. Before the unreviewed gate runs, every
 [[revision]] entry is validated for shape: a status from the vocabulary in
 scripts/agent-review-prompt.md, a timestamp that names an existing diff file
-for that source, a non-empty summary, and at most one settled classification
-per diff. A malformed entry is worse than a missing one: it classifies
+for that source, a non-empty summary, and a controlled classifier when named.
+A later entry may override one diff only when it carries
+``classifier = "human"``; the latest entry wins. A malformed entry is worse than a missing one: it classifies
 nothing the site can find, or says something nobody checked.
 
 Run by `just audit`, so every build and deploy recipe inherits the gate.
@@ -34,6 +35,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # classified": an entry carrying it is well-formed but settles nothing.
 STATUSES = {"source-content", "capture-noise", "capture-correction",
             "unreviewed"}
+CLASSIFIERS = {
+    "review-agent", "reddit-structure", "x-thread-structure",
+    "canonical-equivalence", "human",
+}
 
 TIMESTAMP = re.compile(r"^\d{8}T\d{6}Z$")
 
@@ -41,7 +46,7 @@ TIMESTAMP = re.compile(r"^\d{8}T\d{6}Z$")
 def shape_problems(revisions: list[dict], diffs: set[tuple[str, str]]) -> list[str]:
     """Each entry must be a well-formed classification of a real diff."""
     problems = []
-    settled: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str]] = set()
     for index, entry in enumerate(revisions, start=1):
         label = (f"entry {index} ({entry.get('source', '?')} "
                  f"{entry.get('timestamp', '?')})")
@@ -66,18 +71,19 @@ def shape_problems(revisions: list[dict], diffs: set[tuple[str, str]]) -> list[s
                 f"{label}: names no diff at "
                 f"archive/diffs/{source}/{timestamp}.diff; a classification "
                 f"of nothing classifies nothing")
-        if status != "unreviewed":
-            # The file is additive and a later correction entry is the stated
-            # convention, but the live file has never carried two settled
-            # entries for one diff, so a duplicate is an agent appending
-            # without checking rather than a convention in use. If a genuine
-            # correction entry ever lands, relax this to latest-wins then,
-            # with the example in hand.
-            if (source, timestamp) in settled:
-                problems.append(
-                    f"{label}: second settled classification of the same "
-                    f"diff; never classify the same diff twice")
-            settled.add((source, timestamp))
+        classifier = entry.get("classifier")
+        if classifier is not None and classifier not in CLASSIFIERS:
+            problems.append(
+                f"{label}: unknown classifier {classifier!r}; the vocabulary "
+                f"is {', '.join(sorted(CLASSIFIERS))}"
+            )
+        key = (source, timestamp)
+        if key in seen and classifier != "human":
+            problems.append(
+                f"{label}: a later classification of the same diff must "
+                "carry classifier = \"human\""
+            )
+        seen.add(key)
     return problems
 
 
@@ -89,11 +95,12 @@ def unreviewed(root: Path) -> tuple[list[tuple[str, str]], int]:
     on, rather than a second reading of it that can drift.
     """
     reviews = tomllib.loads((root / "revision-reviews.toml").read_text())
-    classified = {
-        (r["source"], r["timestamp"])
+    latest = {
+        (r["source"], r["timestamp"]): r.get("status")
         for r in reviews.get("revision", [])
-        if r.get("status") != "unreviewed"
     }
+    classified = {key for key, status in latest.items()
+                  if status != "unreviewed"}
     diffs = {
         (p.parent.name, p.stem)
         for p in (root / "archive" / "diffs").glob("*/*.diff")

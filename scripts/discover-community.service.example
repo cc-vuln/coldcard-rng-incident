@@ -28,7 +28,7 @@ WorkingDirectory=REPO
 ExecStart=-REPO/.venv/bin/python scripts/discover_stackernews.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_reddit.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_bitcointalk.py
-ExecStart=REPO/scripts/agent-discovery-intake.sh
+ExecStart=REPO/scripts/agent-discovery-intake.sh --batches 8
 # Age old verdicts out of DISCOVERY.md once the intake agent is done with
 # the queue. Carries "-": a rotation hiccup must not fail the run, and the
 # worst case is the queue stays unrotated until the next tick.
