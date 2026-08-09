@@ -117,11 +117,10 @@ FORBIDDEN_MESSAGE_STRINGS: tuple[str, ...] = (
 # shared lock, so a poll mid-run turns the audit gate into a 21; that is a
 # reason to retry, not a reason to stay blocked.
 LOCK_BUSY_EXIT = 21
-# A tier poll holds the lock for three to five minutes; one 45-second retry
-# usually landed inside the same poll window, which is why the first day of
-# this timer blocked on locks more often than it committed. Three attempts
-# across about four minutes spans a typical poll.
-AUDIT_RETRY_WAITS_SECONDS = (90, 135)
+# A tier poll can hold the lock for a quarter of an hour now that browser
+# captures and the chain monitors share the tick (observed 9 Aug 2026); the
+# retry span covers that. Skipping a tick costs nothing.
+AUDIT_RETRY_WAITS_SECONDS = (120, 180, 240, 300)
 
 GUARD_RUNS = Path(".work/agent-guard")
 RUN_ID_RE = re.compile(r"^(\d{8}T\d{6}Z)-")

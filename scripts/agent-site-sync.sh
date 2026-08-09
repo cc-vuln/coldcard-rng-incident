@@ -12,8 +12,9 @@
 #
 # The point of the lane is the post-run gate chain. When the run changed
 # site/src/pages/, the driver runs `just check-claims` and a full gated
-# build (`just build-site`: test, audit, check-claims, the Astro build and
-# the output gates) under flock /tmp/cc-build.lock, queueing behind any
+# build (`just build-site-core`: test, audit-core, check-claims, the Astro
+# build and the output gates — the review gate is a publish concern, not a
+# page-edit concern) under flock /tmp/cc-build.lock, queueing behind any
 # build in progress the way an operator's build does. A gate failure rejects
 # the run: the edits stay in place as evidence (the same posture as a guard
 # rejection), an urgent gate-failure alert goes out, and the unit exits

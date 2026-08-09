@@ -174,7 +174,12 @@ Reddit:
 - `tier` as above
 - `watch_until` seven days after this intake run for Tier 2, or three days
   after it for Tier 3, in UTC compact format
-- `min_chars = 1500` for short threads, `3000` for long ones
+- `min_chars = 1500` for short threads, `3000` for long ones. The floor's
+  job is to keep interstitials and empty shells out, so it needs headroom
+  under the size you observed at assessment: a live thread's flattened text
+  shrinks as comments are deleted or collapse, and a floor set at the
+  first-capture size trips within days (three sources on 9 Aug 2026). When
+  in doubt, set the floor at roughly two thirds of the observed size.
 - `capture = "reddit-json"` and nothing else: the flattening is
   deterministic, and the reddit-* normalizers bind only to browser captures,
   so no normalizer entry anywhere is needed
