@@ -1,10 +1,17 @@
-# Fire archive-review.service every 2 hours. See archive-review.service.example.
+# Fire archive-review.service every 30 minutes. See archive-review.service.example.
+#
+# Half-hourly since 9 Aug 2026 (was 2-hourly): the 30-minute poll creates
+# diffs continuously, and a two-hourly review pass left an unreviewed window
+# that stalled the publish gate for most of the day. :29 lands after the :23
+# poll's writes (the review lane reads diffs and appends classifications, so
+# a poll still running does not block it), ahead of the :37 commit and the
+# 3-hourly :50 publish. Batches stay bounded; a quiet run is cheap.
 [Unit]
-Description=archive agent review every 2 hours
+Description=archive agent review every 30 minutes
 
 [Timer]
-OnBootSec=900
-OnUnitActiveSec=7200
+OnCalendar=*-*-* *:29:00 UTC
+RandomizedDelaySec=120
 Unit=archive-review.service
 
 [Install]
