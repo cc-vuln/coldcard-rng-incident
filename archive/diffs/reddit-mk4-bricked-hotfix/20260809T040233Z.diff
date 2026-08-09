@@ -1,0 +1,16 @@
+--- reddit-mk4-bricked-hotfix@20260808T213008Z
++++ reddit-mk4-bricked-hotfix@20260809T040233Z
+@@ -684,3 +684,13 @@
+ "If you are running the new firmware and messing with passphrases, PLEASE BE CAREFUL."
+ 
+ What exactly do you mean by "be careful"? It sounds like you did everything right, so I don't get what action(s) you're advising others against taking other than maybe avoiding the new firmware.
++
++comment: p2k01mt
++parent: t1_p1xdvg6
++author: scruss
++created_utc: 1786233653
++edited: false
++body:
++Damien George, the lead MicroPython developer, released an analysis of the problem: [Coldcard postmortem from MicroPython's perspective](https://github.com/orgs/micropython/discussions/19588).
++
++The problem was in LibNgU (not part of MicroPython) which checked if the `MICROPY_HW_ENABLE_RNG` macro was defined, rather than if it was enabled. Oops.

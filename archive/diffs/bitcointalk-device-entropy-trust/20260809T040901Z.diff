@@ -1,0 +1,11 @@
+--- bitcointalk-device-entropy-trust@20260808T083624Z
++++ bitcointalk-device-entropy-trust@20260809T040901Z
+@@ -217,5 +217,8 @@
+ As far as I know that was never the intended design, otherwise it would be a really bad design for something that is designed to be very secure, they intended to use hardware TRNG by disabling MICROPHY_HW_ENABLE_RNG to 0 but MicroPhyton is falling back to use inferior software PRNG. They thought the MicroPython fallback didn't exist.
+ Quote from: https://blog.coinkite.com/entropy-technical-backgrounder/
+ The bulk of randomness on the COLDCARD was coming from a PRNG that I didn�t know was actually in the source code base (it is from a submodule, Micropython). At the same time the carefully crafted TRNG code I wrote was being used, but just by chance, and only for less important things.
++Title: Re: Possible all Bitcoin Hardware Wallets be hacked due to 'Trust in Device Entropy?
++Post by: dim_mak5 on August 09, 2026, 01:09:14 AM
++The Entropy hardware chip should be Isolated from firmware updates because buggy firmware/software updates can compromise the entropy randomness of the chip correct? For example you can have the state of the art military grade 1zillion bit entropy randomness generator hardware chip that took $billions in R&D that can be ruined compromised by a slave wage below minimum wage low paid cheap programmer in India working 20hr shifts in the software team releasing a buggy firmware update because the hardware wallet company want to cut operation costs to appease their shareholders.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines

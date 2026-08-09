@@ -1941,3 +1941,27 @@
 ## 20260808T235539Z
 
 - coldcard-hack-tracker  +5 -5
+
+## 20260809T025612Z
+
+- reddit-full-panic-drain-report  +16 -10
+
+## 20260809T035622Z
+
+- reddit-coinkite-next-steps  +0 -8
+- reddit-mk4-bricked-hotfix  +10 -0
+- reddit-0-7-btc-drained  +11 -1
+- reddit-5-13-btc-loss  +16 -0
+- reddit-passphrase-vulnerable-question  +8 -0
+- reddit-where-store-bitcoin-now  +8 -0
+- bitcointalk-large-scale-compromise-thread  +63 -45
+- bitcointalk-entropy-warning-design  +24 -0
+- reddit-64-btc-mixing-discussion  +8 -0
+- bitcointalk-device-entropy-trust  +3 -0
+- reddit-ccq-stuck-splash-support  +8 -0
+- reddit-fake-trezor-google-ad  +64 -0
+- reddit-dice-bias-1200-rolls  +8 -0
+- reddit-dice-seed-mistakes  +8 -0
+- reddit-fidelity-custody-debate  +62 -0
+- coindesk-70m-no-device-touch  +10 -10
+- reddit-dice-rolls-saved-seedsigner  +19 -0

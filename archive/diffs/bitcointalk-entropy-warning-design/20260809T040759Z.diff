@@ -1,0 +1,32 @@
+--- bitcointalk-entropy-warning-design@20260806T050818Z
++++ bitcointalk-entropy-warning-design@20260809T040759Z
+@@ -172,5 +172,29 @@
+ A good practical example, as random as it may seem, it is not, because human beings are not good at generating their own entropy.
+ In any case, using a wallet with an opensource license, strong passphrase, multisig, adds additional security layers that at least prevent the worst from happening.
+ I believe that we will see a increase of culture and greater demand from costumers and users to demand that brands of hardware wallets and software wallets at least demonstrate that they either use multiple entropy sources or show it through the code (even if most of users do not have the technical knowledge to fully understand it).
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: vapourminer on August 08, 2026, 11:43:30 PM
++Quote from: ABCbits on August 05, 2026, 09:00:51 AM
++FWIW, the implementation for that standard already exist on https://github.com/usnistgov/SP800-90B_EntropyAssessment (https://github.com/usnistgov/SP800-90B_EntropyAssessment). NIST code and PDF doesn't mention how long the test took. But i found a research that benchmark the test time.
++Quote from: https://pmc.ncbi.nlm.nih.gov/articles/PMC7959633/
++NIST program written in Python    NIST program written in C++
++IID test    17 h    1 h 10 min
++[IID track] Estimation entropy    −    −
++[Non-IID track] Estimation entropy    15 min    20 s
++Restart tests    2 s    2 min
++Total execution time    17 h 16 min    1 h 13 min
++Over 1 hour for full test isn't practical, i expect most people don't want to wait that long.
++i burn in new drives, memory, basically any new computer gear and absolutely hammer them for literally days before i entrust them with even my cat pictures.
++for bitcoin i can see testing for a lot longer if i could figure out how, and im just a end user.
++Title: Re: Should wallets warn users about low-quality entropy during SEED generation?
++Post by: hd49728 on August 09, 2026, 03:30:34 AM
++Quote from: satscraper on August 04, 2026, 11:52:06 AM
++Right now, most wallets software and hardware generate your SEED phrase and hand it to you with zero indication of whether the underlying randomness was actually good. No warning, no way to know.
++Either way, something as simple as: "Entropy below recommended minimum, proceed anyway? Yes/No" would at least surface the problem instead of silently handing someone SEED phrase that could potentially be compromised.
++It can not happen by some following main reasons.
++First of all, it is from the wallet developer team. If they are incapable technically, they don't know that their wallet products/ models have not enough and weak entropy of wallet seeds.
++Second, they can know about that by themselves in wallet development process or by community reports such as the Coldcard team, but they decided to ignore that security weakness.
++Do you think such wallet developers team will add warnings in their own wallet softwares/ products/ models?
++If you want to have such insightful technical warnings, you can make your proposal to this site team https://walletscrutiny.com/. Ask them to add security check on wallets related to seed entropy and add it to their wallet reviews.
+ Powered by SMF 1.1.19 |
+ SMF © 2006-2009, Simple Machines
