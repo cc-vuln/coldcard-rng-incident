@@ -359,6 +359,15 @@ site_url_public := '${SITE_URL:?set SITE_URL}'
 # description blocks behind the lock its own ancestor holds: deadlock.
 # Verified 8 Aug 2026 on this host: nested flock on the inherited fd succeeds
 # at once, a fresh open waits until the holder exits.
+# Regenerate the staged X-media manifests under the site's own environment:
+# dotenv-load supplies PUBLIC_X_MEDIA, which the raw node call does not get
+# from a systemd unit. publish-scheduled.sh stages through this recipe so its
+# pre-build index commit matches what the build regenerates (12 Aug 2026: the
+# unit's bare `node` call saw PUBLIC_X_MEDIA unset, committed empty manifests,
+# and check-version-exact refused the deploy over the build's full ones).
+stage-x-media:
+    @node site/tools/stage-x-media.mjs
+
 _astro site_url env="":
     @node site/tools/stage-x-media.mjs
     @if flock -n 9 2>/dev/null; then \

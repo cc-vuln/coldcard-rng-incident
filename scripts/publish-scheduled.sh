@@ -88,8 +88,11 @@ echo "publish-scheduled: publishing (stamp ${current:0:12})"
 # hourly commit and this build would otherwise dirty the tree mid-build and
 # flip matches_commit false on the deployed stamp (8 and 9 Aug 2026).
 # Regenerate and commit them here, before the build, so the tripwire below
-# only ever fires on a genuinely unexpected dirtying.
-node site/tools/stage-x-media.mjs >/dev/null 2>&1 || true
+# only ever fires on a genuinely unexpected dirtying. Staging must run under
+# the site's dotenv environment (PUBLIC_X_MEDIA), exactly as the build's own
+# staging step does, or this commit records empty manifests and the build
+# immediately dirties them again (observed 12 Aug 2026).
+just stage-x-media >/dev/null 2>&1 || true
 if ! git -C "$ROOT" diff --quiet -- site/src/data; then
   git -C "$ROOT" add site/src/data
   git -C "$ROOT" commit -q -m "site: the media index the publish build regenerates"
