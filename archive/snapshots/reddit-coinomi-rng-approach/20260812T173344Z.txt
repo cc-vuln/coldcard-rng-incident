@@ -1,0 +1,87 @@
+post: 1vke7kg
+author: Coinomi
+created_utc: 1786347510
+title: How we handle RNG at Coinomi
+body:
+Given everything that's happened with Coldcard, we wanted to share how Coinomi approaches random number generation.
+
+The Coldcard failure came down to an RNG quietly falling back to a predictable software substitute — seeds that looked fine but carried far less entropy than they should have.
+
+We've never used a home-grown RNG. Instead we request raw cryptographic randomness directly from the OS. On Android, we read straight from the kernel (/dev/urandom), bypassing the Java provider stack entirely.
+
+We wrote about it in more detail here if anyone's interested:  
+[https://medium.com/@coinomi/security-is-not-one-feature-building-layers-of-defence-with-coinomi-171f638ac724?sharedUserId=coinomi](https://medium.com/@coinomi/security-is-not-one-feature-building-layers-of-defence-with-coinomi-171f638ac724?sharedUserId=coinomi)
+
+comment: p2sukgo
+parent: t3_1vke7kg
+author: CornFly2014
+created_utc: 1786352572
+edited: false
+body:
+Best to use dice 🎲   
+Other methods cannot be easily audited by the user
+
+comment: p2sw8qt
+parent: t3_1vke7kg
+author: scrandlle
+created_utc: 1786353430
+edited: false
+body:
+Coming into a competitors space to dance on their grave, as funny as it is, isn't really something that engenders trust in you as a company. Not for me at least. 
+
+comment: p2td8am
+parent: t3_1vke7kg
+author: Charming-Designer944
+created_utc: 1786361169
+edited: false
+body:
+To the best of the knowledge of the Coldcard developers the Coldcard firmware also relied on a TRNG source, but things are not always what they seem.
+
+comment: p2zcxqs
+parent: t3_1vke7kg
+author: Separate-Forever-447
+created_utc: 1786425972
+edited: false
+body:
+a bit of hand-waving and “we request randomness directly from the OS"?
+
+that doesn’t inspire a lot of confidence, especially given how different OS’s generate that randomness, and the fact that there are scenarios where those system RNG’s don’t generate full entropy (seeding/reseeding schedules, early-boot entropy starvation, for example).
+
+maybe update the blog post with actual details of how that varies per platform, and how you’ve verified in specific usage scenarios that its strong.
+
+it was exactly that lack of specific detail, and testing, that caused coldcard’s problems.
+
+comment: p2zrk89
+parent: t1_p2zcxqs
+author: Coinomi
+created_utc: 1786432996
+edited: false
+body:
+Fair point! On Android we pull directly from `/dev/urandom` at the kernel level (bypassing Java providers), and iOS uses its native kernel CSPRNG backend. We keep it strictly to OS kernel entropy to avoid extra abstraction layers. Good call on adding these platform specifics to our docs! 
+
+[https://medium.com/@coinomi/security-is-not-one-feature-building-layers-of-defence-with-coinomi-171f638ac724?sharedUserId=coinomi](https://medium.com/@coinomi/security-is-not-one-feature-building-layers-of-defence-with-coinomi-171f638ac724?sharedUserId=coinomi)
+
+comment: p2zrm1h
+parent: t1_p2sw8qt
+author: Coinomi
+created_utc: 1786433022
+edited: false
+body:
+Totally get why it reads like that, but not our intent! Coldcard is a great team and those users did nothing wrong. The point isn't "software > hardware" it's that *any* single point of failure can break. Layers (like passphrases) give you a safety net when bugs happen 
+
+comment: p2zrnbi
+parent: t1_p2sukgo
+author: Coinomi
+created_utc: 1786433039
+edited: false
+body:
+100% agree on dice.   
+We're actually adding physical entropy generation (dice/flips) in an update later this year! Until then, a strong BIP39 passphrase is the best way to secure a seed.
+
+comment: p2zrods
+parent: t1_p2td8am
+author: Coinomi
+created_utc: 1786433054
+edited: false
+body:
+Exactly, that's what makes it scary. Even with the best intentions, a quiet fallback bug bypassed the hardware RNG. That's why we preach layers: if the RNG silently fails, a passphrase stops total loss.

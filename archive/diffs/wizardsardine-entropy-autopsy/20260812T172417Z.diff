@@ -1,0 +1,52 @@
+--- wizardsardine-entropy-autopsy@20260812T125431Z
++++ wizardsardine-entropy-autopsy@20260812T172417Z
+@@ -46,7 +46,7 @@
+ 15 - What this incident says about engineering generators
+ Sources
+ TL;DR
+-The cause sits at link time: the board’s rng.c exported no rng_get, so the linker bound the seed path to MicroPython’s software generator. The faulty #ifndef guard is still in place after the fix. The regression spent 1,978 days in the source tree, from 1 March 2021 to 31 July 2026.
++The cause sits at link time: the board’s rng.c exported no rng_get, so the linker bound the seed path to MicroPython’s software generator. The regression spent 1,978 days in the source tree, from 1 March 2021 to 31 July 2026.
+ The word that seeds that generator has 2 inputs: 32 bits of the chip identifier, and the SysTick, a counter that wraps every millisecond. The identifier bits hold the die’s coordinates on the wafer, so under the encoding model used here 14 bits carry information at most, and 12 of those are reachable: about 3,300 positions per wafer on an Mk3, 2,300 on a recent model.
+ A XOR lands both inputs in the same 32-bit word, so their bits do not add up. Enumeration gives 4,456,448 starting states on an Mk3, or 2^22.09.
+ The 24.4 bits credited to the RTC are worth zero on the Mk2 and Mk3, where the RTC points at an oscillator the firmware never starts. On recent models it runs at 250 kHz and measures the time since power-on.
+@@ -135,14 +135,19 @@
+ #define MICROPY_HW_ENABLE_RNG (0)
+ #endif
+ ports/stm32/mpconfigboard_common.h:56-58 - Coldcard/micropython @ 4107246f
+-That guard was therefore structurally unable to fire on this platform, whatever the project configuration. It should have read #if !MICROPY_HW_ENABLE_RNG. The most troubling part is that the correct form already existed in the same source tree, in the Coldcard’s own rng.c, the very file whose symbol was not exported:
++That guard was therefore structurally unable to fire on this platform, whatever the project configuration.
++Testing the value instead of the definition does not fix it either. #if !MICROPY_HW_ENABLE_RNG fires the error on every Coldcard build, because the macro is 0 on purpose :
++// We have our own version of this code.
++// LATER: when zero, this selected some PRNG code we really didnt want.
++#define MICROPY_HW_ENABLE_RNG (0)
++stm32/COLDCARD_MK4/mpconfigboard.h:77-79 - Coldcard/firmware @ master
++And the board’s own rng.c enforces that choice in the same tree, in the very file whose symbol was not exported:
+ #if MICROPY_HW_ENABLE_RNG
+ #error "this code replaces normal RNG module"
+ #endif
+ stm32/COLDCARD/rng.c:40-42 - Coldcard/firmware @ bcc2c382
+-#if, not #ifndef.
+-So the right construct was known and in use a few directories away from the one that failed.
+-That faulty guard is still in the repository today, incidentally. The firmware does not pin libngu’s main branch but a specific commit, 537519a8, and that pointer did not move with the July 2026 fixes. Coldcards built today still ship a libngu whose guard cannot fire, even though the underlying bug has indeed been fixed.
++Set the macro to 0 and libngu’s test rejects the build. Set it to 1 and this second guard rejects it, because the board file only compiles when it replaces the platform module. No value passes both. Coinkite merged that exact change into libngu on 6 August 2026, from #ifndef to #if MICROPY_HW_ENABLE_RNG == 0, and reverted it the next day. The revert message states that it breaks all Coldcard firmware builds.
++The guard that actually works therefore tests 2 conditions instead of one: #if MICROPY_HW_ENABLE_RNG != 1 && NGU_STM32_EXTERNAL_RNG_GET != 1. The second macro is the board’s explicit opt-in, the signal that an external, hardware-backed rng_get is on the way. This is the form libngu’s main branch carries today, at ngu/random_backend.h:27.
+ 2 - Yasmarang, the generator that took the TRNG’s place
+ Since everything rested on this generator, it is worth a closer look.
+ One clarification first, because the firmware ships 2 copies of it. The one that matters here is MicroPython’s: that is the one that took the TRNG’s place, and the one the unique identifier seeds. libngu’s, met earlier, is a separate copy of the same algorithm with its own constants. In the shipped firmware, then, the same algorithm runs in 2 places at once, in 2 libraries that know nothing of each other, and their 2 outputs end up mixed by the XOR.
+@@ -274,6 +279,7 @@
+ Mk4, Mk5 and Q
+ about 2,300
+ 11.2
++The 0 to 61 columns and 0 to 67 rows are grid indices under my counting convention, not the raw values the identifier word takes. ST documents no coordinate origin, and the few real readings I found (X from 35 to 41 and Y from 59 to 74) suggest the factory numbering starts above zero. A shift of origin changes none of these counts because sliding the labels along an axis renames every cell, but the number of cells inside the disc stays the same.
+ The funnel has 3 stages. First, the 32 bits on offer, the size of the word the code reads. Then at most 14 bits carrying information, once you remove the unused sign bit and the magnitude bits the wafer size never reaches. And finally about a dozen genuinely reachable, because a wafer is round and the grid has only a finite number of cells.
+ Some twenty bits have therefore evaporated along the way, dividing the search space by a factor close to a million. We also correct our previous article here, which credited these coordinates with about 16 bits: that was an upper bound taken from the orders of magnitude circulating at the time, but the detailed computation brings it down to 12.
+ 3.3 - That word is not a secret
+@@ -602,7 +608,7 @@
+ MicroPython’s #if MICROPY_HW_ENABLE_RNG block did exactly what it said, but it guarded the hardware implementation, not the software one.
+ Finally a statistical test existed. testing/test_rng.py was added on 16 March 2021, 15 days after the regression went in, and it runs Dieharder on ngu.random.bytes(). Without --dev it draws from the simulator, where CHIP_TRNG_32() is wired to the host’s libc, so the bytes under test never come from MicroPython’s copy.
+ 12 - What the fix actually changes
+-The fix of 31 July 2026 is worth examining, because it is not where you would expect it. Neither libngu nor MicroPython is modified, and the submodule pointers are identical before and after. MICROPY_HW_ENABLE_RNG stays at 0, and the faulty #ifndef guard stays in place.
++The fix of 31 July 2026 is worth examining, because it is not where you would expect it. Neither libngu nor MicroPython is modified, and the submodule pointers are identical before and after. MICROPY_HW_ENABLE_RNG stays at 0, and this commit leaves the faulty #ifndef guard untouched.
+ The workaround happens entirely at build time. In commit ca724637, the board exports its own global symbol:
+ uint32_t rng_get(void)
+ {

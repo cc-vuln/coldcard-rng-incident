@@ -1,0 +1,173 @@
+-->
+#1 Trusted Cybersecurity News Platform
+Followed by 5.70+ million
+
+
+
+
+ Get the Latest News
+Home
+Newsletter
+Webinars
+Home
+Threat Intelligence
+Vulnerabilities
+Cyber Attacks
+Webinars
+Expert Insights
+Awards
+
+
+
+Resources
+Webinars
+Awards
+Free eBooks
+About Site
+About THN
+Jobs
+Advertise with us
+Contact/Tip Us
+
+Reach out to get featured—contact us to send your exclusive story idea, research, hacks, or ask us a question or leave a comment/feedback!
+Follow Us On Social Media
+
+
+
+
+
+ RSS Feeds
+ Email Alerts
+Coldcard Hardware Wallet Flaw Linked to $70 Million Bitcoin Theft in 41 Minutes
+Swati KhandelwalAug 01, 2026Vulnerability / Threat Intelligence
+An attacker drained 1,196 Bitcoin addresses in 41 minutes on July 30, taking 1,082.65 BTC worth about $70.2 million at the time. Galaxy Research mapped the sweep and tied it to a firmware flaw in Coldcard, the Bitcoin-only hardware wallet made by Canadian firm Coinkite.
+A March 2021 firmware integration error routed seed generation to a deterministic software pseudorandom number generator (PRNG) instead of the STM32 hardware random number generator (RNG).
+Block says an attacker who can determine or sufficiently constrain the device UID, timer state, and prior RNG-call history can reproduce candidate output streams offline without accessing the device. Candidate seeds can then be checked by deriving their addresses and comparing them with public blockchain data.
+Coinkite shipped emergency firmware for every affected model and release track on July 31, but installing it does not repair an existing seed. Coinkite tells owners with exposed seeds to generate a new one on patched firmware and move their coins.
+Restoring the old seed to updated firmware or another wallet carries the weakness forward. No public report has reconstructed a victim's seed and matched it to a drained address.
+Block traced the fault to Coldcard's production config, which defines MICROPY_HW_ENABLE_RNG as zero because Coinkite supplies its own hardware-RNG wrapper. The libngu library checked whether the macro existed rather than whether it was enabled, binding the build to MicroPython's Yasmarang fallback. The MicroPython fallback was initialized from the chip's unique ID and timer registers and collected no fresh entropy after initialization.
+Coinkite estimates effective entropy at roughly 40 bits on the Mk3 and about 72 bits on the Mk4, Mk5 and Q, against 128 bits for a 12-word BIP-39 seed. Block does not give one practical figure. It sets conditional ceilings below 240.7 and 273.3 and warns that the latter is not equivalent to 73-bit cryptographic security. It published no brute-force benchmark.
+Image Source: Galaxy Research
+The later-model reseed raises the number of candidates, but Block says practical cost depends on available UID information, boot timing, prior RNG calls and derivation cost.
+Exposure depends on the firmware running when the seed was created, not the version installed now:
+Mk2 and Mk3: Coinkite lists Mk3 versions 4.0.1 through 4.1.9, fixed in 4.2.0, and does not name Mk2. Block places both Mk2 and Mk3 versions 4.0.0 through 4.1.9 on the vulnerable path.
+Mk4 and Mk5: anything before 5.6.0.
+Q: anything before 1.5.0Q.
+Edge builds: before 6.6.0X for Mk4 and Mk5, before 6.6.0QX for Q.
+Coinkite says a seed built with at least 50 fair, independent, private dice rolls is not at risk from this bug alone. If the number or privacy of the rolls is uncertain, Coinkite says to migrate. A strong, unique BIP-39 passphrase creates a separate wallet the seed words cannot reach on their own, but the company still recommends replacing the seed.
+Multisig helps only when the quorum is not built entirely from affected devices. TAPSIGNER, OPENDIME and SATSCARD use different codebases and are unaffected.
+No one has named the attacker. Galaxy, which mapped the 1,196-address sweep, said it found no other Bitcoin transactions in the previous 30 days with the same 30 sat/vB, no-change signature.
+It warned that the pattern identifies the operator, not the theft, because a sweep "looks the same as if a coin owner chose to move coins."
+The disclosure follows Coinspect's Ill Bloom research in early July, a separate weak-PRNG flaw in older software wallets tied to more than $5 million drained from addresses across Bitcoin, Ethereum, Tron, Rootstock and Polygon since May.
+Two More Waves Raise Suspected Coldcard-Linked Losses to $88.6 Million
+Update: Galaxy Research has since identified two additional suspected waves of Coldcard-related sweeps, raising its observed estimate to 1,367.05 BTC, worth about $88.6 million, across 4,585 addresses.
+The firm said Waves 1 and 2 may share an operator based on their transaction patterns, but warned that Wave 3 should not be assumed to involve the same attacker. Galaxy also cautioned that its findings are based on on-chain analysis and that it has not computationally confirmed that every identified address was generated with weak Coldcard entropy.
+Galaxy said the activity remains ongoing and that it has reported roughly 600 suspected attacker-controlled addresses to federal investigators, compliance firms, and cybersecurity investigators.
+Found this article interesting? Follow us on Google News, Twitter and LinkedIn to read more exclusive content we post.
+SHARE
+
+
+
+
+Tweet
+Share
+Share
+Share
+
+Share on Facebook
+Share on Twitter
+Share on Linkedin
+Share on Reddit
+Share on Hacker News
+Share on Email
+Share on WhatsApp
+Share on Facebook Messenger
+Share on Telegram
+SHARE 
+Bitcoin, cryptocurrency, cryptography, Cybercrime, Firmware Security, hardware security, Threat Intelligence, Vulnerability
+⚡ Top Stories This Week
+Azure Cosmos DB Flaw Exposed Platform-Wide Key That Could Access Any Database
+Anthropic Says Claude Mistook the Open Internet for a CTF and Breached Three Organizations
+Researchers Report 84 Flaws in 4G and 5G Cores, Including a Session Hijacking Flaw
+Cheap Android TV Boxes Pose as Phones and Turn Owners’ Broadband Into Proxies
+N-able Says Attackers Take Over N-central Servers After Initial Fix Proves Incomplete
+Google Password Manager Attacks Could Let Malware Hijack Passkey-Protected Accounts
+New cPanel Critical Flaw Could Let Hosting Customers Run SQL as Database Root
+Keyv-Linked npm Worm Poisons Hundreds of Packages, Plants Claude Code and VS Code Hooks
+Claude Mythos 5 Tried to Backdoor a Real Open-Source Project in Testing, Then Vouched for Itself
+Critical Gitea Flaw Let Unauthenticated Attackers Read Server Files via Org-Mode Markup
+Poison Claude Sells Discounted Claude Access While Its Operator Sees Every Customer Prompt
+Over 250 ClickFix Domains Use Browser Fingerprinting to Hide macOS Malware Lures
+Chinese-Made Zbtlink Routers Ship With Backdoor That Opens Unauthenticated Root Shells
+Apple iCloud Private Relay Can Expose Real IPs Through WebKit Proxy Bypasses
+ThreatsDay: Odysseus RCE, Samsung One-Click Takeover, iCloud Backdoor Fight + 27 More Stories
+New Interrupt Injection Attack Can Bypass Spectre v2 Defenses on Intel and AMD CPUs
+New Zapscape KVM Flaw Could Let Privileged L1 Guest Code Escape to Linux Hosts
+New NatJack Attacks Hijack TCP Sessions and Spoof DNS by Manipulating NAT Tables
+18-Year-Old Linux SCTP Flaw Could Let Local Users Gain Root and Escape Containers
+New WordPress Pre-Auth XSS Could Lead to PHP Code Execution - Patch ASAP
+Metabase Zero-Day Exploited in Wild Allows Admin Access Without Authentication
+Atlassian Rovo Can Be Tricked Into Sending Jira and Confluence Data to Attackers
+⭐ Featured Resources
+See How to Stop the Browser-Based Attacks Your Existing Stack Misses [Book a Live Demo]
+[Webinar] See Where Claude Fits in the SOC and Where It Falls Short at Scale
+Defend Against One-Click AI Memory Poisoning — Download the Cheat Sheet
+Benchmark Your Defenses Against 338M+ Attack Simulations — Download the Blue Report 2026
+Cybersecurity Webinars
+AI Attacks Are Moving Faster.
+Watch: How to Prepare Your Security Program for AI-Powered Attacks
+AI can find and chain vulnerabilities in minutes. This session gives you a practical roadmap to strengthen visibility, response, and remediation.
+Register
+See What 300 Leaders Found
+Shipping 10–50× More Code? Learn How to Keep Security in Control
+AI is helping teams ship code 10–50× faster. This session shows how to keep security from falling behind.
+Register
+⚡ Latest News
+Cybersecurity Resources
+11 Real Stories: How Identity Exposure Unlocks Active Attack Paths
+Map cross-domain privilege escalation to sever breach routes at key choke points.
+Burp, sqlmap, SSRF, XXE, SSTI: Web Exploitation, Hands-On
+35 labs plus a live CTF take you from recon to remote code execution. GWAPT prep, SANS CDI in D.C.
+SANS AI Cybersecurity Summit Returns This November
+Learn how practitioners are applying AI to today's cybersecurity challenges.
+​
+Expert Insights Articles
+Videos
+AI Agent Lifecycle Risks
+August 10, 2026
+Read ➝
+Agents Work Everywhere Now. Governance Has to See Everywhere Too.
+August 10, 2026
+Read ➝
+The Blind Spot in Modern Email Security
+August 10, 2026
+Read ➝
+How AI-Assisted Attacks Are Breaking Legacy SIEM Tools
+August 3, 2026
+Read ➝
+Get the Latest News in Your Inbox
+Get the latest news, expert insights, exclusive resources, and strategies from industry leaders, all for free.
+Email
+Connect with us!
+
+2,000,000 Followers
+
+725,000 Followers
+
+25,500 Subscribers
+
+172,000 Followers
+
+1,990,000 Followers
+60,000 Followers
+Company
+About THN
+Advertise with us
+Contact
+Pages
+Webinars
+Awards
+Privacy Policy
+ RSS Feeds
+ Contact Us
+© 2026 The Hacker News. All Rights Reserved.

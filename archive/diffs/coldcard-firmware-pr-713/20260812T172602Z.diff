@@ -1,0 +1,39 @@
+--- coldcard-firmware-pr-713@20260812T043737Z
++++ coldcard-firmware-pr-713@20260812T172602Z
+@@ -248,6 +248,27 @@
+ rng: verify libngu bytes path reaches hardware driver
+ #700
+ Open
++doc-hex
++commented
++Aug 12, 2026
++Copy link
++Copy Markdown
++Contributor
++My thoughts:
++dice / mosh and coin flips are all the same thing: you are just pressing 1-6 vs. any vs. 1-2/h/t or something
++IMHO unify the UX for all of them, and still force them into it
++we should look at number of unique values received, and assume the entropy credit is based on that set size: so if they press a/b/b/b/b/b/a ... that gets credit as 6 samples of 1 bit of entropy
++that generalizes what we would show as contribution to entropy
++naturally handles the "just pressing 7 key 50 times" problem.. since samples from a set of size 1 add no entropy
++intra-key times need not be so precisely measured, I would recommend starting a hardware timer at max speed
++it will be 16 bit limited, and also maybe only use 12 lower bits [depending on what the hardware can do as a max speed vs. edge times of key events]
++but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
++for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
++then we wouldn't need to change the API so much => less bugs
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters
+@@ -269,7 +290,7 @@
+ Successfully merging this pull request may close these issues.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+-1 participant
++2 participants
+ Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+ Footer
+ © 2026 GitHub, Inc.

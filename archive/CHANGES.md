@@ -2209,3 +2209,22 @@
 - bitkey-relationship-enrollment-report  +1 -0
 - coldcard-hack-tracker  +6 -2
 - samsamskies-tracker-readme  +2 -2
+
+## 20260812T172335Z
+
+- wizardsardine-entropy-autopsy  +12 -6
+- bitkey-relationship-enrollment-report  +0 -1
+- coldcard-firmware-pr-713  +22 -1
+- reddit-attacker-execution-critique  +8 -0
+- reddit-dice-bias-1200-rolls  +0 -9
+- coindesk-70m-no-device-touch  +21 -21
+- thehackernews-incident-synthesis  +10 -10
+- reddit-ledger-official-incident-statement  +8 -0
+- reddit-nvk-scammer-regulation-call  (first capture)
+- stackernews-technical-autopsy-entropy-failure  (first capture)
+- reddit-steel-plates-wasted  (first capture)
+- reddit-randomness-collision-question  (first capture)
+- reddit-steelplate-refund-demand  (first capture)
+- reddit-gold-standard-banner  (first capture)
+- reddit-stolen-funds-recovery-hope  (first capture)
+- reddit-coinomi-rng-approach  (first capture)

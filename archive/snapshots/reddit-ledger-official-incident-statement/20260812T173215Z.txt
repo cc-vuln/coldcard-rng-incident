@@ -1,0 +1,328 @@
+post: 1vi0ut3
+author: Steven_Ledger
+created_utc: 1786109767
+title: The Coldcard incident: How Ledger wallet seed generation works, and why weak randomness is invisible
+body:
+https://preview.redd.it/nj2ru4hxlyhh1.png?width=1920&format=png&auto=webp&s=4db06c072daed7cebb679b7eb3f2192bb07abdaa
+
+# TLDR: Ledger is not affected by the Coldcard Mk3 advisory
+
+# What happened
+
+Per [Coinkite's advisory](https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/) and [Block's technical analysis](https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware), On July 31st, 2026, Coldcard reported that a firmware bug had weakened how some devices generated seed phrases leading to significant user losses. 
+
+# Why this specific failure matters
+
+Every wallet you create is derived from your Secret Recovery Phrase. If that can be predicted, so can everything built on top of it.
+
+A weak Secret Recovery Phrase looks identical to a strong one. Nothing errors, nothing feels wrong, bad randomness is silent. The Secret Recovery Phrase keeps working, but is vulnerable. That is how this survived five years in shipped firmware.
+
+# How Ledger devices generate a seed
+
+Ledger hardware signers use a true hardware random number generator inside a certified Secure Element, with no software fallback. The generator is compliant with AIS-31/PTG.2, which evaluates the physical entropy source itself rather than just testing whether its output looks random. Every 24-word Secret Recovery Phrase gets the full 256 bits of entropy.
+
+>*The generation of that entropy must be anchored in secure hardware, with an architecture that cannot silently downgrade to an untrusted software-based source.*
+
+The Secure Element is certified at Common Criteria (EAL5+ for *Ledger Nano S*^(TM) and *Ledger Nano X*^(TM); EAL6+ for *Ledger Nano S Plus*^(TM), *Ledger Stax*^(TM), *Ledger Flex*^(TM) and *Ledger Nano Gen5*^(TM)), and various devices by ANSSI. Producing a predictable random number is listed as Threat #1 in our published security targets, and has been for years.
+
+# If you hold a Coldcard
+
+Follow[ Coinkite's guidance](https://blog.coinkite.com/update-sunday/) directly, they own that process. 
+
+# Resources To Learn More
+
+One of the key conversations emerging from the Coldcard incident is the value of open source code. Read this response from our CTO on that topic:[ https://x.com/P3b7\_/status/2085089893328499156?s=20](https://x.com/P3b7_/status/2085089893328499156?s=20)
+
+We also have an FAQ page that covers questions we’ve seen on social media so far: [https://support.ledger.com/article/FAQs-Related-to-the-Coldcard-Incident-July-2026](https://support.ledger.com/article/FAQs-Related-to-the-Coldcard-Incident-July-2026)
+
+comment: p29hz8w
+parent: t3_1vi0ut3
+author: AutoModerator
+created_utc: 1786109768
+edited: false
+body:
+&#128680; **Beware of Scammers – Stay Safe on the Ledger Subreddit**
+Scammers regularly target this subreddit.
+Ledger Support will **never** contact you first — whether through private messages, comments, or phone calls.
+
+If you need help, always open a support ticket yourself via our official website: [Ledger Support](https://support.ledger.com/contact-us)
+
+&#128272; **Never share your 24-word Secret Recovery Phrase**  
+Ledger will never ask for it. Do not enter it online — even if a site or message looks official.  
+Keep it offline and secure — on paper, your Ledger Recovery Key, or a metal backup. **Never store it digitally.**
+
+&#128218; **Learn more about common scams targeting crypto users** (fake support, phishing emails, physical mail scams, fake airdrops, malicious NFTs, and more): [How to Spot a Scam](https://support.ledger.com/article/scams-targeting-crypto-holders)
+
+&#128736; **Facing a bug or technical issue?**
+Check our [Ongoing Issues](https://support.ledger.com/article/15158192560157-zd) page for updates and workarounds.
+
+
+*I am a bot, and this action was performed automatically. Please [contact the moderators of this subreddit](/message/compose/?to=/r/ledgerwallet) if you have any questions or concerns.*
+
+comment: p2a5rts
+parent: t3_1vi0ut3
+author: macetheface
+created_utc: 1786116194
+edited: false
+body:
+I read before Ledger was 3rd party audited. 
+
+Can you provide more information on that 3rd party audit including the link to the audit report? 
+
+Did they audit the TRNG process as well? If so can you expand on that?
+
+comment: p2acsng
+parent: t1_p2a5rts
+author: _speedoflight_
+created_utc: 1786117997
+edited: false
+body:
+\+1
+
+comment: p2ae5z8
+parent: t3_1vi0ut3
+author: New_Cartographer8865
+created_utc: 1786118348
+edited: false
+body:
+You can generate a lot of seed and verify its randomness
+
+comment: p2aer72
+parent: t1_p2a5rts
+author: [deleted]
+created_utc: 1786118498
+edited: false
+body:
+[deleted]
+
+comment: p2afo0p
+parent: t1_p2aer72
+author: macetheface
+created_utc: 1786118733
+edited: false
+body:
+I don't want the reply to come from chatgpt, nor should it. Should come from the company directly.
+
+comment: p2b5e4d
+parent: t3_1vi0ut3
+author: gphie
+created_utc: 1786125314
+edited: false
+body:
+Do you plan on adding support for rolling dice during the setup process?
+
+comment: p2b95v7
+parent: t1_p2aer72
+author: _speedoflight_
+created_utc: 1786126286
+edited: false
+body:
+Isn't the whole purpose of this post from a moderator, to receive questions and answer them.
+
+comment: p2bgf6x
+parent: t1_p2afo0p
+author: [deleted]
+created_utc: 1786128154
+edited: false
+body:
+[deleted]
+
+comment: p2bjs5s
+parent: t1_p2bgf6x
+author: macetheface
+created_utc: 1786129025
+edited: false
+body:
+So don't trust an official company rep reply on a public forum but trust their wallet & device encryption, entropy, security, TRNG, etc. got it.
+
+comment: p2bsdrr
+parent: t1_p2a5rts
+author: nitrogenmath
+created_utc: 1786131301
+edited: false
+body:
+https://www.ledger.com/ledger-nano-x-recognized-as-certified-crypto-hardware-wallet
+
+comment: p2buh4z
+parent: t3_1vi0ut3
+author: BigvalBROski
+created_utc: 1786131861
+edited: false
+body:
+Use a passphrase…… it’s easy and not advanced 
+
+comment: p2c4buu
+parent: t1_p2b5e4d
+author: LiveRosin710
+created_utc: 1786134522
+edited: false
+body:
+/u/Steven_Ledger please add this.
+
+comment: p2c7imv
+parent: t1_p2b5e4d
+author: robodan918
+created_utc: 1786135391
+edited: false
+body:
+How many sides does the dice have? 
+
+if it's less than 12 I'll be disappointed
+
+comment: p2cpsqn
+parent: t1_p2c4buu
+author: Aqua-Barracuda
+created_utc: 1786140706
+edited: false
+body:
+No point. It’s stupid. 
+
+comment: p2cvgb8
+parent: t1_p2b95v7
+author: Ark3tech
+created_utc: 1786142474
+edited: false
+body:
+It’s a statement and information source. Where did you get the idea that they were taking questions?
+
+comment: p2d8w11
+parent: t3_1vi0ut3
+author: 44gallonsoflube
+created_utc: 1786146847
+edited: false
+body:
+About a week after the horse bolted, thanks.
+
+comment: p2e6izk
+parent: t1_p2b5e4d
+author: ancillarycheese
+created_utc: 1786158620
+edited: false
+body:
+If you want to generate your own randomness you can just do that to generate a seed phrase with dice and paper, and set up the Ledger with that phrase instead of having it generate one for you. 
+
+comment: p2fbhwc
+parent: t1_p2ae5z8
+author: znseta
+created_utc: 1786177189
+edited: false
+body:
+this is not true.
+
+comment: p2fca7b
+parent: t1_p2buh4z
+author: btchip
+created_utc: 1786177601
+edited: false
+body:
+Using a passphrase will cause more harm than good (by not remembering it correctly) if you're not absolutely sure about what you're doing, and using a passphrase because you don't trust the firmware is irrational
+
+comment: p2fdi89
+parent: t1_p2fbhwc
+author: New_Cartographer8865
+created_utc: 1786178248
+edited: false
+body:
+Ok, then generate a lot of seed and verifty that it's always the same, noted!
+
+comment: p2fl0g1
+parent: t1_p2fca7b
+author: BigvalBROski
+created_utc: 1786182176
+edited: false
+body:
+What the hell are you talking about?  It’s very simple to set up and confirm it’s correct.  This is why there will never be mass adoption with crypto. 
+
+comment: p2gudjw
+parent: t3_1vi0ut3
+author: ClockerXP
+created_utc: 1786199704
+edited: false
+body:
+What is the benefit of a seed generated on a Nano S Plus (EAL6+)  vs a seed generated on a Nano S (EAL5+)?
+
+comment: p2j4r40
+parent: t1_p2e6izk
+author: nagydk
+created_utc: 1786223521
+edited: false
+body:
+And how do you calculate the checksum (24th word)?
+
+comment: p2jd33z
+parent: t1_p2fl0g1
+author: btchip
+created_utc: 1786226072
+edited: false
+body:
+My experience handling customer support tickets disagrees sorry
+
+comment: p2jrvtd
+parent: t1_p2jd33z
+author: _speedoflight_
+created_utc: 1786230874
+edited: false
+body:
+For folks who are comfortable to handle passphrase, any tips when setting and managing one?
+
+comment: p2n08xn
+parent: t1_p2jrvtd
+author: btchip
+created_utc: 1786280395
+edited: false
+body:
+It can be anything you want, if you want to just create more accounts it could be something as simple as "ac1" "ac2" ... and you can have one associated to a PIN which is nice as a duress code
+
+comment: p2ne6id
+parent: t1_p2n08xn
+author: _speedoflight_
+created_utc: 1786284853
+edited: false
+body:
+Thanks, some people say it needs to be a very long and strong word or collection of words. Having “ac1”, “ac2” will be easy to brute force if someone happens to get their hands on the recovery pass phrase isn’t? Isn’t it recommended to be at least 12 characters long?
+
+comment: p2pcsm7
+parent: t1_p2ne6id
+author: btchip
+created_utc: 1786304982
+edited: false
+body:
+It really depends what's your threat model - if it is to protect against an attacker finding a copy of your seed phrase, then it should be long (how long is a good question considering how quickly computes evolve - consider the size of a good password in 2026) - unless you use the raw seed phrase as a decoy, in this case you'd move the assets immediately if it's drained.
+
+If it is just to be used as a duress pin, it can be as short as you want
+
+comment: p2qr85j
+parent: t1_p2j4r40
+author: severact
+created_utc: 1786320661
+edited: false
+body:
+Thats the hard part. I would love a feature where you enter your own 23 random words and the ledger device tells you the valid last words and lets you pick one. 
+
+comment: p2zxp9j
+parent: t1_p2fdi89
+author: znseta
+created_utc: 1786436125
+edited: false
+body:
+The fact that you cannot test against known values is exactly why it's difficult to verify the quality of a PRNG. It can be hard enough to not find a collision, but still far lower than a cryptographic standard.
+
+comment: p30k5ad
+parent: t1_p2fca7b
+author: Strong_Judge_3730
+created_utc: 1786446661
+edited: false
+body:
+You can literally write it down and leave it next to the seed.
+
+Trusting the firmware 100% is literally what got people cold carded.
+
+The passphrase can be used to protect the seed from physical attack too, then it needs to have a different backup method
+
+comment: p38dr1n
+parent: t1_p2gudjw
+author: KIG45
+created_utc: 1786539345
+edited: false
+body:
+No security advantage, just physically the new chip is impenetrable even for the government.
