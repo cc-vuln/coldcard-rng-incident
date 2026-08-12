@@ -1,0 +1,187 @@
+url:      https://x.com/thefuzzstone/status/2086023689359724660
+author:   TheFuzzStone
+handle:   @thefuzzstone
+posted:   2026-08-08T09:36:18.000Z (from the page's <time> element)
+captured: 20260812T074141Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HO8ypQmWYAAnn-7?format=jpg&name=small (680 x 475 pixels)
+
+--- post text (verbatim) ---
+
+ The update of the timeline of #Coldcard Heist 
+----
+
+The #Coldcard Exploit, an analysis by 'Laser' [npub1vjk0gp2l4qnte2uy2l3ya78m5ays4wc7wmd6k64gw5498g8tf49qtkd33q].
+
+In March 2021, Coinkite CTO Peter Gray (DocHex) introduced a critical entropy vulnerability into Coldcard firmware under the public alias "Switck." GPG signatures later proved he authored and signed the vulnerable libngu commits. 
+
+The defect silently fell back to a weak software PRNG, producing seeds with drastically reduced entropy. It shipped in public firmware for five years while Coinkite marketed the devices as using proper hardware randomness. In late July 2026, attackers exploited the vulnerability to drain roughly 1,600-1,800+ BTC (approximately $100-130 million) from thousands of wallets.
+
+Circumstantial evidence from a late March/early April 2021 private warning by CEO Rodolfo Novak (NVK) to Matt Odell is consistent with knowledge of a critical remote-theft risk at the time of distribution: NVK described a flaw in the newly released 4.0 firmware whose details would enable theft of customers' bitcoin and indicated that Odell's dice-roll-heavy self-custody guide would protect users. 
+
+That combination is difficult to reconcile with the never-shipped, physical-access-only USB serial REPL bug and is far more consistent with the entropy vulnerability that actually shipped. Coinkite's historical disclosures page attributes the contemporaneous issue to the REPL bug, and the company has denied prior knowledge of the entropy defect.
+
+Civil product-liability claims are being coordinated, though collectability is limited. Ten31, the sole external investor (associated with Matt Odell and Marty Bent), faces no realistic direct liability as a passive investor.
+----
+
+ 16 October 2020
+From the 
+@switck
+ X account: "Thanks for merge 
+@DocHex
+ ... I'm making yet another bitcoin library. Could be useful on 
+@COLDCARDwallet
+ someday."
+
+ 21 October 2020
+On GitHub (switck/libngu issue #7),
+
+doc-hex writes asking permission to use the library in Coldcard projects. Switck replies the same day. Additional public activity shows doc-hex opening issues, answering in a maintainer role, and contributing commits that the switck account merges. The switck accounts exist solely within the Coinkite/Coldcard ecosystem.
+
+ 21 December 2020
+Coinkite CEO Rodolfo Novak (NVK) publicly states that users are more likely to lose bitcoin through their own mistakes than any vendor retirement attack, adding that people could "just use dice."
+
+ 1 March 2021
+Commit b18723dd ("First pass w/ libNgU") by doc-hex integrates the switck/libngu library into Coldcard firmware and changes the seed-generation path. This introduces the entropy vulnerability (faulty preprocessor guard causing fallback to weak Yasmarang software PRNG).
+
+ 17 March 2021
+Coinkite publishes the blog post "Version 4.0.0 Released," stating "Huge thanks to 
+@switck
+ for the new source code library!" Firmware 4.0.0 is built and tested internally. It also contains a separate USB serial REPL issue (ckcc_vcp_enabled defaulted true) that is later recorded as never publicly distributed.
+
+ Late March / early April 2021
+NVK privately informs Matt Odell of a critical vulnerability in the newly distributed 4.0 firmware. NVK indicates that Odell's self-custody guide-which is distinct for instructing 100 dice rolls-would keep affected users safe, and that he could not tell Odell more because knowledge of the details would enable Odell to steal the affected users' Bitcoin. 
+
+That combination of remote-theft language and dice-roll protection is difficult to reconcile with the never-shipped USB serial REPL bug (which required physical USB access to an unlocked device and is outside the scope of dice rolls for entropy generation). It is far more consistent with the entropy vulnerability that actually shipped. Coinkite's historical disclosures page attributes the contemporaneous issue to the REPL bug.
+
+ 29 March 2021
+Firmware 4.0.1 is publicly released. It corrects the USB serial REPL issue present in the unreleased 4.0.0. The entropy vulnerability remains and ships to customers. Seeds generated on affected firmware without sufficient independent dice rolls (or a strong unique BIP-39 passphrase) have severely reduced effective entropy (~40 bits on Mk2/Mk3, ~72 bits on later models).
+
+ 1 April 2021
+On a TFTC / Rabbit Hole Recap episode, Odell publicly discusses the private warning from NVK.
+
+ Mid-2021
+A public comment raises entropy concerns about the new code path introduced with the 4.0 series. NVK dismisses it as FUD (archived screenshot later circulated).
+
+ 2021-2025
+Coinkite continues to sell and market Coldcard devices as highly secure hardware-RNG products while the entropy vulnerability remains in production firmware across multiple models. The switck identity continues to be presented publicly as a separate contributor.
+
+ May 2025
+Bitcoin developer James O'Beirne audits Coldcard firmware, identifies the low-star libngu dependency and hardcoded Yasmarang constants, and warns Coinkite that the true hardware RNG may not be in use. He advises removing the library. The response is that if something were wrong "we'd already know about it by now." O'Beirne later identifies the recipient as Peter Gray (DocHex).
+
+ 30-31 July 2026
+Attackers begin sweeping funds from addresses whose seeds were generated on vulnerable firmware. Multiple waves occur. Coinkite publishes a security advisory and technical backgrounder acknowledging the entropy vulnerability. Emergency fixed firmware is released. Updating firmware does not repair already-generated weak seeds. Coinkite states it was unaware of the bug until the incident.
+
+ 1-7 August 2026
+Losses continue. Galaxy Research tracks confirmed thefts in the range of approximately 1,596-1,816+ BTC (suspected higher with later waves, ~$100-130 million). Multiple independent attackers are identified.
+4 August 2026: James O'Beirne publishes GPG signature analysis proving that 58 commits authored as "Switck" on libngu were signed with Peter D. Gray's (doc-hex / Coinkite CTO) personal key-the same key used for his own commits. Supporting evidence includes phone-number digit overlaps and domain registrations. The analysis establishes that the CTO authored the vulnerable library under the alias.
+
+Coinkite support specialist 
+@HodlDee
+ publicly states that the company "didn't know" about the entropy vulnerability, clarifies that proper dice rolls (50+ for 12-word seeds) supply full entropy, and distinguishes the main bug from a separate earlier concern about users making insufficient dice rolls.
+
+Public discussion intensifies around the 2020-2021 self-interactions, the constructed nature of the switck identity, the 2021 Odell/NVK conversation, the dismissal of the 2025 warning, and whether company leadership knew of the distributed entropy vulnerability at the time of release.
+
+ As of 7 August 2026, Coinkite has not publicly addressed the cryptographic proof that switck = DocHex or the inference of prior knowledge. Civil coordination for product-liability claims against Coinkite is underway (primarily Canadian jurisdiction); collectability remains the central practical obstacle. Ten31 (Matt Odell and Marty Bent's investment platform) is the sole external investor after an early seed round and faces no realistic direct legal liability as a passive investor.
+---- 
+
+Sources
+
+Switck thanks DocHex on X (16 Oct 2020):
+
+https://
+x.com/switck/status/
+1317230987294740480
+…
+
+GitHub issue where DocHex requests to use the library:
+
+https://
+github.com/switck/libngu/
+issues/7
+…
+
+Coinkite blog post thanking 
+@switck
+ for the new library (17 Mar 2021):
+
+https://
+blog.coinkite.com/version-4.0.0-
+released/
+…
+
+Commit that introduced the entropy vulnerability (1 Mar 2021):
+
+https://
+github.com/Coldcard/firmw
+are/commit/b18723dddb6d751c39978e4364b56b2414f68b47
+…
+
+Firmware 4.0.1 release tag (29 Mar 2021):
+
+https://
+github.com/Coldcard/firmw
+are/releases/tag/2021-03-29T1927-v4.0.1
+…
+
+Coinkite historical security disclosures page (USB REPL details):
+
+https://
+coinkite.com/historical-dis
+closures
+…
+
+Coinkite technical backgrounder on the entropy vulnerability:
+
+https://
+blog.coinkite.com/entropy-techni
+cal-backgrounder/
+…
+
+James O'Beirne GPG analysis proving Switck = DocHex / Peter Gray:
+
+https://
+gist.github.com/jamesob/ca9b4c
+a384969b4cfd62813419854d69
+…
+
+James O'Beirne X post announcing the GPG findings:
+
+https://
+x.com/jamesob/status
+/2084624605969350915
+…
+
+JP Technology post discussing the April 2021 Odell podcast:
+
+https://
+x.com/JP_Technology/
+status/2085031289141232016
+…
+
+HodlDee (Coinkite) posts on the vulnerability and dice rolls:
+
+https://
+x.com/HodlDee
+
+Galaxy Research loss tracking (The Block coverage):
+
+https://
+theblock.co/post/410533/co
+ldcard-hack-130-million-galaxy-research
+…
+
+Wizard Sardine analysis of the Coldcard RNG vulnerability:
+
+https://
+wizardsardine.com/blog/coldcard-
+rng-vulnerability/
+…
+
+Protos timeline of the Coldcard thefts:
+
+https://
+protos.com/a-timeline-of-
+coldcards-85m-bitcoin-theft/
+…

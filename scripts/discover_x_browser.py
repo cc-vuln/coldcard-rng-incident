@@ -771,14 +771,17 @@ def main() -> int:
         # not suppress the very posts the held checkpoint is meant to recover.
         processed_ids: set[str] = set()
         failures = 0
+        scanned_total = 0
 
         def queue_timeline() -> None:
+            nonlocal scanned_total
             posts, exhausted, run = read_timeline(SESSION, args.timeline_passes)
             normalized = [
                 post for post in
                 (normalize_post(raw) for raw in posts)
                 if post is not None
             ]
+            scanned_total += len(normalized)
             processed_ids.update(post["id"] for post in normalized)
             queued = 0
             for post in normalized:
@@ -804,7 +807,7 @@ def main() -> int:
                   f"{queued} new candidate(s)")
 
         def queue_watches() -> int:
-            nonlocal failures
+            nonlocal failures, scanned_total
             selected = choose_watches(
                 watches, state, args.handle, args.max_watches
             )
@@ -889,6 +892,7 @@ def main() -> int:
                     ))
                 print(f"@{watch.handle}: scanned {len(posts)} post(s); "
                       f"{len(queueable)} new candidate(s)")
+                scanned_total += len(posts)
             return 0
 
         stop_code = 0
@@ -896,6 +900,23 @@ def main() -> int:
             queue_timeline()
         if not args.timeline_only:
             stop_code = queue_watches()
+
+        # A full run that parsed nothing anywhere is not a quiet day: watched
+        # profiles carry historical posts on any healthy read, so zero across
+        # the timeline and every watch means the pages rendered empty while
+        # the structural probe read "ok" (observed 10-11 Aug 2026, the login
+        # wall serving contentless pages a day and a half before the probe
+        # classified it). Fail closed like any other sick session rather
+        # than recording a healthy empty read. Subset runs (--timeline-only,
+        # --watches-only, --handle) legitimately scan less and are exempt.
+        if (stop_code == 0 and failures == 0 and scanned_total == 0
+                and not args.timeline_only and not args.watches_only
+                and not args.handle):
+            x_browser.close_session(SESSION)
+            print("session health: probe read ok but 0 posts parsed across "
+                  "timeline and watches; treating as a challenge",
+                  file=sys.stderr)
+            return session_stop("challenge")
 
         if not args.no_state:
             if candidates:

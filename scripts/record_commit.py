@@ -513,6 +513,35 @@ def commit_staged(root: Path, message: str) -> str:
     return git(root, "rev-parse", "--short", "HEAD").stdout.strip()
 
 
+def push_committed(root: Path) -> None:
+    """Push after every commit, not only after a deploy.
+
+    Until 12 Aug 2026 the only push followed a successful publish, so routine
+    publish skips held the record's off-machine copy hostage to the deploy
+    gates: over 10-12 Aug two days of commits sat unpushed while publishes
+    skipped. The pushed history is the only off-machine copy until the backup
+    item lands, and /cite/ points readers at it. HEAD is known to be on main
+    (precondition 1). A failed push changes nothing here: the next commit
+    tick retries, and publish-scheduled still pushes after a deploy as
+    before. Never fails the tick: the commit is the durable thing.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "push"],
+            capture_output=True, text=True, check=False, timeout=120)
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"record-commit: push could not run ({exc}); the next tick "
+              "retries", file=sys.stderr)
+        return
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip().splitlines()
+        print(f"record-commit: push failed "
+              f"({detail[-1] if detail else 'no output'}); the next tick "
+              "retries", file=sys.stderr)
+        return
+    print("record-commit: pushed")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
@@ -588,6 +617,7 @@ def main(argv: list[str] | None = None) -> int:
               f"({exc}); the next tick retries", file=sys.stderr)
         return 1
     print(f"record-commit: committed {short} — {message.splitlines()[0]}")
+    push_committed(ROOT)
     return 0
 
 

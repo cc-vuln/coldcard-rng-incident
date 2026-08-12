@@ -64,14 +64,19 @@ scripts/
                         append) and applies all-or-nothing; dry run unless
                         --yes, alert per applied correction
   record_commit.py    commit guard-passed pipeline output, deterministically
-                      (record-commit.timer); --dry-run is the default
+                      (record-commit.timer), and push it: a deploy is no longer
+                      the only push path; --dry-run is the default
+  queue_candidates.py queue operator-dropped URLs (one per line in
+                      .work/operator-candidates.txt) into DISCOVERY.md's
+                      Pending; both intake drivers call it at the top of a run
   agent-maintenance.sh  run agent work with the capture timers paused
   agent-run-common.sh   the containment every agent driver shares
   run-agent.sh        run one agent deprivileged, with a built environment
   agent-prompt-rules.md  standing rules injected into all five prompts
   agent_guard.py      check what an agent run did; refuse if it overreached
   check_registry.py   registry host, fetch_post, no-mutation and
-                      placeholder-prose rules
+                      placeholder-prose rules; audit mode also warns on a
+                      registered social post with no capture on disk
   report_status.py    operator summary for `just status`: quarantine, host
                       proposals, failure streaks, capture failures, unreviewed
   report_site_staleness.py  deterministic page-sync inventory for the agent
@@ -281,7 +286,8 @@ proxy and does not permit direct DNS.
 Human review of this pipeline is retroactive, not a gate. On the operator's
 8 Aug 2026 directive, guard-passed agent output is committed by
 `scripts/record_commit.py`, published by `publish-scheduled.timer`, and pushed
-after each successful deploy. Discovery, intake assessment, registration,
+after each successful commit (since 12 Aug 2026; before that, only a
+successful deploy pushed, and publish skips stranded the off-machine copy). Discovery, intake assessment, registration,
 diff classification, X and nostr promotion, site-prose sync and corrections
 drafting are all agent or driver work under the containment above. What
 reaches a person is the alert stream: `scripts/alert.py` appends to

@@ -3,8 +3,14 @@
 Description=archive capture every 30 minutes
 
 [Timer]
+# Fixed clock times, not a boot-relative interval: the review gate fires at
+# :29, the committer at :37 and the publisher at :50, and a poll anchored to
+# boot time lands wherever the boot left it. After the 10 Aug 2026 reboot
+# that was :05/:35, so a changed :35 poll's diffs were always unreviewed at
+# :50 and every publish skipped for two days. OnBootSec stays so a fresh
+# boot polls once promptly; the calendar entries own the steady phase.
 OnBootSec=120
-OnUnitActiveSec=1800
+OnCalendar=*-*-* *:23,53:00 UTC
 Unit=archive-poll.service
 
 [Install]

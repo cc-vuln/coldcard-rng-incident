@@ -189,6 +189,33 @@ def check_placeholders(block: dict,
     return problems
 
 
+def uncaptured_posts(registry: dict, archive: Path | None = None) -> list[str]:
+    """Registered social posts with no capture on disk.
+
+    A registration asks the driver for a first capture; a run that dies
+    between the two (observed 9 and 12 Aug 2026) leaves the block behind
+    with the capture silently never taken, and no poll or availability
+    re-check notices, because both only look at posts that have a capture.
+    Any capture directory counts, however old: publication gating by session
+    cutover is a separate question from whether anything is held at all.
+    """
+    archive = archive or (ROOT / "archive")
+    missing = []
+    for table, subdir in (("x_post", "x"), ("nostr_post", "nostr")):
+        for block in blocks(registry).get(table, {}).values():
+            ident = block.get("id")
+            if not isinstance(ident, str):
+                continue
+            post_dir = archive / subdir / ident
+            try:
+                held = any(child.is_dir() for child in post_dir.iterdir())
+            except OSError:
+                held = False
+            if not held:
+                missing.append(ident)
+    return missing
+
+
 def check_registry(registry: dict, hosts: set[str]) -> list[str]:
     problems = []
     for table, by_id in blocks(registry).items():
@@ -283,6 +310,20 @@ def main() -> int:
                 print(f"  - {problem}", file=sys.stderr)
             if len(legacy) > 20:
                 print(f"  ... and {len(legacy) - 20} more", file=sys.stderr)
+        # The same holds for a registered post with no capture: warned about
+        # rather than failed, because a post deleted between registration and
+        # first capture can never be captured, and stopping the audit over it
+        # would wedge the pipeline on a fact rather than a mistake.
+        missing = uncaptured_posts(after)
+        if missing:
+            print(f"registry check warning: {len(missing)} registered social "
+                  f"post(s) have no capture on disk; a first capture was "
+                  f"requested but never landed (`just ingest-x <url>` repairs "
+                  f"an X post):", file=sys.stderr)
+            for ident in missing[:20]:
+                print(f"  - {ident}", file=sys.stderr)
+            if len(missing) > 20:
+                print(f"  ... and {len(missing) - 20} more", file=sys.stderr)
         counts = {table: len(by_id) for table, by_id in blocks(after).items()}
         print("registry check ok: " + ", ".join(
             f"{n} {table}" for table, n in counts.items() if n))

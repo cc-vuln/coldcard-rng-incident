@@ -163,6 +163,26 @@ def correction_proposals() -> None:
     print()
 
 
+def uncaptured() -> None:
+    print("== registered social posts with no capture ==")
+    # check_registry owns the rule; import it rather than restate it.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import check_registry
+    missing = check_registry.uncaptured_posts(check_registry.load(
+        ROOT / "sources.toml"))
+    if not missing:
+        print("none\n")
+        return
+    print(f"{len(missing)} registered but never captured (a run died between "
+          f"registration and first capture; `just ingest-x <url>` repairs an "
+          f"X post):")
+    for ident in missing[:10]:
+        print(f"  {ident}")
+    if len(missing) > 10:
+        print(f"  ... and {len(missing) - 10} more")
+    print()
+
+
 def unreviewed_diffs() -> None:
     print("== unreviewed detected differences ==")
     # check_reviews owns the gate's rule; import it rather than restate it.
@@ -186,6 +206,7 @@ def main() -> int:
     host_proposals()
     streaks()
     capture_failures()
+    uncaptured()
     correction_proposals()
     unreviewed_diffs()
     return 0

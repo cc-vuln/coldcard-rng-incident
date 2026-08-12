@@ -23,7 +23,11 @@ timer feed one intake queue:
   watch's `since` date or stable exhaustion and queues that history; reaching
   the hard pass cap first leaves the watch uncheckpointed. It fails closed
   with a cooldown on the session-health classes (login wall, challenge, rate
-  limit). Since 8 Aug 2026 it runs on its own
+  limit). A full run that parses zero posts across the timeline and every
+  watch is also a sick session — pages can render empty while the structural
+  probe reads "ok" (observed 10-11 Aug 2026) — and stops the same way. While
+  a cooldown is active the X intake skips its agent run: no candidate body
+  can hydrate, so there is nothing to assess. Since 8 Aug 2026 it runs on its own
   `discover-x.timer`, separate from `discover-community`. The official-API
   lane it replaced (`scripts/discover_x.py`) is deprecated
 
@@ -50,6 +54,14 @@ community intake does, and the driver captures each approved post with
 xtriage prompt and the `--include-x` admission flag are retired. Direct manual
 `just ingest-x` capture is unchanged and does not pass through this queue.
 Full polls remain the scheduled runner's alone.
+
+A person with candidate URLs in hand drops them in
+`.work/operator-candidates.txt`, one per line; both intake drivers run
+`scripts/queue_candidates.py` at the top of a run, which queues X status
+permalinks as X candidates and community-platform URLs as community
+candidates (duplicates and unrecognized URLs are reported, not queued).
+Dropped candidates are hydrated, assessed and verdicted exactly like
+lane-found ones.
 
 The three community listing commands accept `--reconsider-seen` for a bounded
 historical audit of the listing surface they can currently read. It ignores the

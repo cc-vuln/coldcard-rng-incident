@@ -100,6 +100,11 @@ mkdir -p "$STATE_DIR"
 # community run never hold the queue at once. A contender waits a minute,
 # then skips quietly; the next tick continues the work.
 mkdir -p "$ROOT/.work/agent-discovery-intake"
+
+# Operator-dropped candidate URLs join the queue before anything counts it.
+# Runs before this driver takes the lock: the script takes it itself.
+.venv/bin/python scripts/queue_candidates.py || true
+
 exec 9>"$ROOT/.work/agent-discovery-intake/intake.lock"
 if ! flock -w 60 9; then
   echo "agent-x-intake: another run holds the lock; skipping"
@@ -125,6 +130,20 @@ PENDING=("${ALL_PENDING[@]:0:$MAX}")
 
 if [[ ${#ALL_PENDING[@]} -eq 0 ]]; then
   echo "agent-x-intake: no pending X candidates; nothing to do"
+  exit 0
+fi
+
+# An active X browser cooldown means no candidate body can hydrate, so an
+# agent run here would spend itself deciding nothing (observed 12 Aug 2026:
+# a full run over 15 unhydratable candidates). The discovery lane owns the
+# cooldown and the candidates wait; when it clears, the next tick assesses.
+if .venv/bin/python -c "
+import sys
+sys.path.insert(0, 'scripts')
+import x_browser
+sys.exit(0 if x_browser.read_cooldown() is not None else 1)
+"; then
+  echo "agent-x-intake: X browser cooldown active; ${#ALL_PENDING[@]} candidate(s) wait in DISCOVERY.md"
   exit 0
 fi
 

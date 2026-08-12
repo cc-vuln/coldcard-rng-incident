@@ -3,12 +3,19 @@
 # Weekly, not daily: media attached to an already-captured post does not
 # change, so the pass exists to catch posts registered since the last run and
 # the rare repair. Staggered from the poll and the discovery lanes.
+#
+# Two calendar slots, six hours apart: the second is the retry window. When
+# the weekly pull was boot-anchored, a transient post-boot DNS failure on
+# 10 Aug 2026 killed the run and the next attempt came a week later. A
+# healthy rerun is cheap (skip-unchanged), so a standing second slot beats
+# retry machinery.
 [Unit]
 Description=X media pull weekly
 
 [Timer]
 OnBootSec=7200
-OnUnitActiveSec=604800
+OnCalendar=Mon *-*-* 03:15:00 UTC
+OnCalendar=Mon *-*-* 09:15:00 UTC
 Unit=x-media.service
 
 [Install]

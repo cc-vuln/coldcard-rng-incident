@@ -1,0 +1,128 @@
+{
+    "tweet_id": 2084265598368809390,
+    "retweet_id": 0,
+    "quote_id": 0,
+    "reply_id": 0,
+    "conversation_id": 2084265598368809390,
+    "source_id": 0,
+    "date": "2026-08-03 13:10:17",
+    "author": {
+        "id": 1512594021654401027,
+        "name": "the_smart_ape",
+        "nick": "The Smart Ape 🔥",
+        "date": "2022-04-09 00:51:40",
+        "profile_banner": "https://pbs.twimg.com/profile_banners/1512594021654401027/1740129695",
+        "favourites_count": 24271,
+        "followers_count": 72983,
+        "friends_count": 749,
+        "listed_count": 1665,
+        "media_count": 7534,
+        "statuses_count": 29893,
+        "location": "On-Chain",
+        "verified": false,
+        "protected": false,
+        "profile_image": "https://pbs.twimg.com/profile_images/1997469349955727360/xLnz_tJN.jpg",
+        "url": "https://t.me/alpha_smartApe",
+        "description": "Father | Pudgy Penguin #3588 | just talking about crypto, AI and finance | Love you Mom | Nothing is financial advice | DM open 📩 |"
+    },
+    "user": {
+        "id": 1512594021654401027,
+        "name": "the_smart_ape",
+        "nick": "The Smart Ape 🔥",
+        "date": "2022-04-09 00:51:40",
+        "profile_banner": "https://pbs.twimg.com/profile_banners/1512594021654401027/1740129695",
+        "favourites_count": 24271,
+        "followers_count": 72983,
+        "friends_count": 749,
+        "listed_count": 1665,
+        "media_count": 7534,
+        "statuses_count": 29893,
+        "location": "On-Chain",
+        "verified": false,
+        "protected": false,
+        "profile_image": "https://pbs.twimg.com/profile_images/1997469349955727360/xLnz_tJN.jpg",
+        "url": "https://t.me/alpha_smartApe",
+        "description": "Father | Pudgy Penguin #3588 | just talking about crypto, AI and finance | Love you Mom | Nothing is financial advice | DM open 📩 |"
+    },
+    "lang": "en",
+    "source": "Twitter Web App",
+    "sensitive": false,
+    "sensitive_flags": [],
+    "favorite_count": 2836,
+    "quote_count": 84,
+    "reply_count": 231,
+    "retweet_count": 574,
+    "bookmark_count": 2422,
+    "view_count": 284872,
+    "mentions": [
+        {
+            "id": 1431204614,
+            "name": "Trezor",
+            "nick": "Trezor"
+        },
+        {
+            "id": 2517439500,
+            "name": "BitBoxSwiss",
+            "nick": "BitBox"
+        },
+        {
+            "id": 1237445215335723008,
+            "name": "FoundationHQ",
+            "nick": "FOUNDATION"
+        },
+        {
+            "id": 106631384,
+            "name": "KeystoneWallet",
+            "nick": "Keystone Hardware Wallet"
+        },
+        {
+            "id": 2307692107,
+            "name": "Blockstream",
+            "nick": "Blockstream"
+        },
+        {
+            "id": 1327059338675036160,
+            "name": "SeedSigner",
+            "nick": "SeedSigner"
+        },
+        {
+            "id": 134644235,
+            "name": "OneKey",
+            "nick": "Juan C Ramos"
+        },
+        {
+            "id": 2652239532,
+            "name": "Ledger",
+            "nick": "Ledger"
+        },
+        {
+            "id": 922794323233603584,
+            "name": "Tangem",
+            "nick": "Tangem"
+        },
+        {
+            "id": 952093518943653888,
+            "name": "ngrave_official",
+            "nick": "NGRAVE"
+        },
+        {
+            "id": 1003602915171319809,
+            "name": "ELLIPAL",
+            "nick": "ELLIPAL"
+        },
+        {
+            "id": 1068417957686992896,
+            "name": "SafePal",
+            "nick": "SafePal - Crypto Wallet"
+        },
+        {
+            "id": 939222089831088129,
+            "name": "COLDCARDwallet",
+            "nick": "COLDCARD"
+        }
+    ],
+    "content": "people who stored their btc on coldcard got drained because of entropy.\n\nthe seed generation was reproducible, anyone could recompute their keys.\n\nso i went through every other hardware wallet to see how they make your seed, and whether the same thing can happen again.\n\n@Trezor: mixes the device's randomness with randomness from your computer, and the device has to prove it used both. even if its chip is fully broken, you're still fine. the best design here by far.\n\n@BitBoxSwiss: 5 separate sources of randomness combined. one bad source can't sink you. open source, reproducible builds, dice supported.\n\n@FoundationHQ: built their own randomness circuit out of plain resistors and capacitors, open source, on top of two other sources. no black-box chip to trust. supports dice.\n\n@KeystoneWallet: 2 secure chips from 2 different manufacturers, combined. also lets you roll 99 dice and publishes how to check the result yourself.\n\n@Blockstream: jade pulls from 7 things: radio noise, cpu counters, battery, temperature, camera, your input, the app. very hard to break all of them.\n\n@SeedSigner: your dice are the only source. no chip to trust at all. and they ship a guide teaching you to verify their own math. weakest hardware, strongest proof.\n\n@OneKey: secure element plus mcu combined on device, open source firmware. solid, but you can't add your own randomness.\n\n@Ledger: one certified chip (AIS-31, EAL5+). good randomness. but it's a single source, closed source, and you cannot verify any of it. you're trusting them completely.\n\n@Tangem: key is born inside the chip and never comes out. audited by three firms. same trade: strong, and impossible for you to check by design.\n\n@ngrave_official: mixes chip randomness with your fingerprint and room light. clever. but the \"EAL7\" badge covers one software component, not the whole device.\n\n@ELLIPAL: single certified chip, no software fallback, fails closed instead of guessing. closed source, so take it on faith.\n\n@SafePal: 2 chips mixed. they've never published the details.\n\n@COLDCARDwallet: patched now, and dice on coldcard were always verifiable. but every seed made between 2021 and 2026 is permanently burned.\n\none source = ledger, tangem, ellipal. that one source fails, everything fails. their answer is to make it excellent and certified. that's exactly the bet coldcard lost.\n\nmany sources = trezor, bitbox, passport, jade, keystone. one broken source never reaches your key.\n\nand every one of these claims 128 or 256 bits.\n\ncoldcard did too. certification doesn't help either, coldcard's chip was fine, the code just stopped calling it.\n\nthe only thing that saves you is being able to check.\nroll your own dice. verify the words yourself.",
+    "count": 1,
+    "category": "twitter",
+    "subcategory": "tweet"
+}

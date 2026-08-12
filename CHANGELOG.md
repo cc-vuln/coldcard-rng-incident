@@ -4,6 +4,37 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-12
+
+### Tooling
+
+- Fixed the scheduled publish's pre-build media-index staging, which ran
+  with a bare systemd environment and never saw `PUBLIC_X_MEDIA` from `.env`:
+  it committed empty manifests, the build regenerated the full ones, and
+  `check-version-exact` refused the deploy. Staging now runs through
+  `just stage-x-media`, the same dotenv path the build uses.
+- New `guard-run-silent` alert: an agent run that dies between its edits and
+  its guard verdict blocks record-commit by design, but nothing said so;
+  the alert sweep now names such a run (pass verdict and rejection alert both
+  absent, driver pid gone, quiet for over three hours).
+- A registered X or nostr post with no capture on disk is now warned about
+  by the registry audit and listed in `just status`; two such posts (their
+  registering run died mid-finish on 9 Aug) were captured by hand.
+- X browser discovery fails closed when a full run parses zero posts across
+  the home timeline and every watched profile: pages can render empty while
+  the structural session probe reads "ok", which hid the forming login wall
+  for a day and a half before the 11 Aug cooldown.
+- The X intake skips its agent run while a browser cooldown is active
+  instead of assessing candidates whose bodies cannot hydrate.
+- record-commit pushes after every commit; pushing no longer waits for a
+  successful deploy, so publish skips cannot strand the off-machine copy.
+- archive-poll.timer is pinned to fixed clock times (:23/:53) instead of a
+  boot-relative interval that reshuffled the pipeline cadence on every
+  reboot; x-media's weekly pull gained a same-day retry slot.
+- Operator-supplied candidate URLs (one per line in
+  `.work/operator-candidates.txt`) are queued into DISCOVERY.md's Pending by
+  both intake drivers via the new `scripts/queue_candidates.py`.
+
 ## 2026-08-09
 
 ### Site

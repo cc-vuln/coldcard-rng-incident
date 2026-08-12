@@ -1,0 +1,70 @@
+{
+    "tweet_id": 2084940899767800055,
+    "retweet_id": 0,
+    "quote_id": 0,
+    "reply_id": 0,
+    "conversation_id": 2084940899767800055,
+    "source_id": 0,
+    "date": "2026-08-05 09:53:41",
+    "author": {
+        "id": 845580088460619777,
+        "name": "thefuzzstone",
+        "nick": "TheFuzzStone",
+        "date": "2017-03-25 10:16:18",
+        "profile_banner": "https://pbs.twimg.com/profile_banners/845580088460619777/1733580727",
+        "favourites_count": 22453,
+        "followers_count": 2672,
+        "friends_count": 5373,
+        "listed_count": 46,
+        "media_count": 690,
+        "statuses_count": 6327,
+        "location": "",
+        "verified": false,
+        "protected": false,
+        "profile_image": "https://pbs.twimg.com/profile_images/1199000112690794497/KVVIoURR.jpg",
+        "description": "Agorist ┃ FOSS enthusiast"
+    },
+    "user": {
+        "id": 845580088460619777,
+        "name": "thefuzzstone",
+        "nick": "TheFuzzStone",
+        "date": "2017-03-25 10:16:18",
+        "profile_banner": "https://pbs.twimg.com/profile_banners/845580088460619777/1733580727",
+        "favourites_count": 22453,
+        "followers_count": 2672,
+        "friends_count": 5373,
+        "listed_count": 46,
+        "media_count": 690,
+        "statuses_count": 6327,
+        "location": "",
+        "verified": false,
+        "protected": false,
+        "profile_image": "https://pbs.twimg.com/profile_images/1199000112690794497/KVVIoURR.jpg",
+        "description": "Agorist ┃ FOSS enthusiast"
+    },
+    "lang": "en",
+    "source": "Twitter Web App",
+    "sensitive": false,
+    "sensitive_flags": [],
+    "favorite_count": 452,
+    "quote_count": 18,
+    "reply_count": 19,
+    "retweet_count": 96,
+    "bookmark_count": 258,
+    "view_count": 45108,
+    "hashtags": [
+        "Coldcard",
+        "ifndef"
+    ],
+    "mentions": [
+        {
+            "id": 1157857508775608320,
+            "name": "switck",
+            "nick": "switck"
+        }
+    ],
+    "content": "Timeline of #Coldcard Heist.\n\n2010\nPeter D. Gray and Rodolfo Novak (NVK) begin working together at Ripe Apps, an iPhone/iPad app development studio in Toronto. Predates their Bitcoin involvement by a year.\n\n2011\nGray discovers the Bitcoin whitepaper and shares it with Novak, his existing business partner.\n\n2012\nThe pair builds http://btclook.com, a visual blockchain explorer, as a Ripe Apps side project. Later that year they build PCI-certified Bitcoin payment terminals and begin international deployment, ahead of incorporating.\n\n2012–2013\nPeter D. Gray and Rodolfo Novak (NVK) co-found Coinkite in Toronto. Gray becomes CTO, Novak becomes CEO. Debuts a working terminal at the Bitcoin Conference. Raises a $120K seed round, the company’s only funding round to date. Remains a team of around five.\n\nNovember 7, 2013\nPeter D. Gray creates his GPG key (uid “Peter D. Gray peter@coinkite.com”). This key later signs dozens of commits under the switck identity, including the critical libngu changes.\n\nEarly 2016\nCoinkite shuts down its web wallet/exchange service, citing legal complications and DDoS attacks, and pivots fully to hardware — the turn that leads to Opendime and eventually Coldcard.\n\nDecember 2017\nCoinkite announces the Coldcard hardware wallet. Pre-orders open for 2018 shipping.\n\nJuly 25, 2018\nFirst Coldcard Mk1 units ship.\n\nAugust 2019\nPeter creates the anonymous identity “switch,” named after the Matrix character Switch, using a still of that character as the profile picture. First posts note DEF CON is a good time to start a new identity. Later commits under this name are often single-word or extremely terse.\n\n2019–2020 onward\nBitcoin educators and influencers, including BTC Sessions, begin promoting Coldcard as one of the most secure Bitcoin hardware wallets.\n\nJuly 2020\nFoundation Devices announces the Passport, built in part on Coldcard’s then-GPLv3 firmware.\n\nEarly 2020s\nTen31 becomes Coinkite’s sole external investor, confirmed on record by NVK in podcast disclosures.\n\nJanuary 8, 2021\nColdcard firmware 3.2.1 announces the license change from GPL to MIT + Commons Clause.\n\nJanuary 5, 2021\nDomain http://switck.com is registered via a privacy service. The switck account posts the single word “got” the same day.\n\nJanuary 28, 2021\nUnder switck, the vulnerable preprocessor guard (#ifndef MICROPY_HW_ENABLE_RNG) is committed to libngu. This fails to force the hardware TRNG when the macro is set to zero. The library is co-maintained with scgbckbone.\n\nMarch 1, 2021\nUnder doc-hex, the commit “First pass w/ libNgU” (b18723dd) replaces remaining Trezor-derived GPL crypto and BIP-39 code with libngu. Seed generation switches from hardware path to ngu.random.bytes(). This is the point real hardware entropy is replaced by the weak software PRNG. Coinkite release notes later thank @switck for the library.\n\nMarch 17, 2021\nFirmware v4.0.0 released, stating all crypto and BIP39 code had been replaced and the last remaining GPL code removed.\n\nMarch 29, 2021\nFirmware 4.0.1 ships. Seeds generated under this and later affected versions fall back to the software PRNG, yielding roughly 40 bits of effective entropy on Mk2/Mk3 (roughly 72 bits on later models with limited secure-element mixing).\n\nAround April 2021\nPublic users begin questioning the libngu rewrite and the replacement of the prior crypto stack.\n\n2022\nAs DocHex, Gray publicly states that as CTO he encourages Coinkite developers to operate under nyms and stay low-profile about their employer, and notes he may appear to author his own GitHub commits under a different identity. In a podcast appearance the same year, Novak refers to Gray directly as “Doc Hex, my co-founder.”\n\nMay 2025\nJames O’Beirne audits the firmware, identifies the low-star, pseudonymously maintained libngu library as the RNG source. In his own words, posted on X: he wanted to figure out conclusively where the Coldcard RNG was sourced from, and traced it to a shady library. He contacts Coinkite. Reported response: if something were wrong, they’d likely already know about it by now. The warning is not acted on.\n\nJuly 30, 2026\nAttackers begin draining wallets. Initial wave: roughly 594 BTC (~$38M) from about 500 addresses in ~25 minutes. Coinkite publishes a security advisory the same day acknowledging the 2021 entropy failure.\n\nJuly 31, 2026\nCoinkite releases fixed firmware (4.2.0 Mk3, 5.6.0 Mk4/Mk5, 1.5.0Q). Existing weak seeds remain compromised and must be migrated. Independent verification beyond Coinkite’s own account: Bitcoin Core developer instagibbs reproduces the vulnerability on a fresh Mk3 device. Kevin Loaec of Wizardsardine is among the first to publicly sound the alarm. Peter Todd flags a specific multisig risk for 2-of-3 setups using compromised Coldcards. Multiple reports note NVK deleting older tweets related to the 2020–2021 license change and open-source decisions.\n----\n\nAuthors: \n\n- Contra [npub14hq5lgadtyy9dhvtszq46dnl0s0xwdddqr7e32rdqqhma8a4xhsspxjjzu]\n\n- Laser [npub1vjk0gp2l4qnte2uy2l3ya78m5ays4wc7wmd6k64gw5498g8tf49qtkd33q]",
+    "count": 1,
+    "category": "twitter",
+    "subcategory": "tweet"
+}

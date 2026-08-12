@@ -43,6 +43,7 @@ CAPTURE_FAILURES = WORK / "capture-failures.txt"
 CAPTURE_FAILURES_ALERTED = WORK / "capture-failures-alerted.txt"
 HOST_PROPOSALS = WORK / "host-proposals.txt"
 PUBLISH_STAMP = WORK / "publish-scheduled.stamp"
+GUARD_RUNS = WORK / "agent-guard"
 
 ALERTS_NAME = "alerts.jsonl"
 TS_FORMAT = "%Y%m%dT%H%M%SZ"
@@ -54,6 +55,7 @@ KINDS = (
     "unit-failure",
     "publish-failure",
     "publish-skip-streak",
+    "guard-run-silent",
     "host-admission",
     "correction-applied",
     "capture-failure",
@@ -85,6 +87,7 @@ STREAK_THRESHOLDS = (
 
 HOST_PROPOSAL_AGE = timedelta(hours=48)
 PUBLISH_STAMP_AGE = timedelta(hours=8)
+GUARD_RUN_SILENT_AGE = timedelta(hours=3)
 
 # Units the sweep watches, with the exit statuses that are ROUTINE for each.
 # Alerting on a routine status is a false alarm every 24 hours:
@@ -378,6 +381,73 @@ def _sweep_publish_skips(now: datetime) -> list[dict]:
     }]
 
 
+def _last_commit_epoch() -> int | None:
+    """HEAD's commit time, or None when git cannot say. A monitoring sweep
+    fails quiet: no answer from git means no filtering, not an alarm."""
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "log", "-1", "--format=%ct"],
+        capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        return None
+    try:
+        return int(result.stdout.strip())
+    except ValueError:
+        return None
+
+
+def _sweep_guard_runs(now: datetime) -> list[dict]:
+    """A guard run that went quiet with no verdict blocks every commit.
+
+    agent_guard.py's after pass writes approved-captures.txt on a pass, and
+    the shared driver emits a guard-rejection alert on a rejection. A run
+    directory with neither, hours after it went quiet and with its driver
+    pid gone, died between the agent's edits and the verdict: the edits sit
+    on disk, record-commit refuses every tick until a person reads them, and
+    the block line in that unit's journal is otherwise the only place that
+    says so (observed 9 and 12 Aug 2026). Three hours is far past the
+    slowest healthy run; the pid check keeps a slow live run quiet, at the
+    price of one missed cycle if the pid is ever reused. A run older than
+    HEAD has already been through the human read (record_commit's own "seen"
+    semantics), so it is not reported again.
+    """
+    try:
+        entries = sorted(GUARD_RUNS.iterdir())
+    except OSError:
+        return []
+    head_epoch = _last_commit_epoch()
+    alerts = []
+    for entry in entries:
+        if not entry.is_dir() or (entry / "approved-captures.txt").exists():
+            continue
+        stamp, _, pid = entry.name.rpartition("-")
+        try:
+            started = datetime.strptime(stamp, TS_FORMAT).replace(
+                tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        if head_epoch is not None and started.timestamp() < head_epoch:
+            continue
+        try:
+            quiet = now - datetime.fromtimestamp(
+                entry.stat().st_mtime, tz=timezone.utc)
+        except OSError:
+            continue
+        if quiet <= GUARD_RUN_SILENT_AGE:
+            continue
+        if pid.isdigit() and Path(f"/proc/{pid}").exists():
+            continue
+        alerts.append({
+            "kind": "guard-run-silent",
+            "severity": "warning",
+            "key": f"guard-run-silent-{entry.name}",
+            "summary": (f"agent run {entry.name} died before its guard "
+                        "verdict; its edits stay uncommitted and "
+                        "record-commit blocks until a person reads them"),
+            "detail": None,
+        })
+    return alerts
+
+
 def _sweep_unit_failures(now: datetime) -> list[dict]:
     """Alert when a scheduled unit's most recent run exited non-zero.
 
@@ -422,6 +492,7 @@ def sweep(now: datetime | None = None,
     candidates.extend(_sweep_capture_failures(now))
     candidates.extend(_sweep_host_proposals(now))
     candidates.extend(_sweep_publish_skips(now))
+    candidates.extend(_sweep_guard_runs(now))
     candidates.extend(_sweep_unit_failures(now))
     emitted = suppressed = 0
     for alert in candidates:

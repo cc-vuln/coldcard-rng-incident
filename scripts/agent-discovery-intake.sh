@@ -88,6 +88,10 @@ COVERAGE="$STATE_DIR/coverage.md"
 
 mkdir -p "$STATE_DIR"
 
+# Operator-dropped candidate URLs join the queue before anything counts it.
+# Runs before this driver takes the lock: the script takes it itself.
+.venv/bin/python scripts/queue_candidates.py || true
+
 # One agent at a time over DISCOVERY.md and sources.toml: the 12-hourly timer
 # and manual drain runs must never overlap. A contender waits a minute, then
 # skips quietly; the next tick continues the work.

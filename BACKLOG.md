@@ -304,6 +304,49 @@ Ordered by value, not effort.
   two are not distinguishable from the text alone, so read the depth record in
   the capture's `<TS>.json` before classifying.
 
+- **RESOLVED 12 Aug 2026: two silent-loss holes the X outage exposed.**
+  Found while answering "are X posts being missed" — the honest answer was
+  yes, and the mechanisms were these, not the sieve:
+
+  1. **A registered `[[x_post]]` with zero captures was invisible to every
+     retry path.** The Aug 9 02:14 intake run registered
+     `thefuzzstone-coldcard-timeline-update` and
+     `orangesurfbtc-casino-dice-protocol` and then died between the agent's
+     edits and the guard/finish step, so the first captures it requested were
+     never taken; the registrations were swept into a later commit and the
+     site staged "2 of 602 posts have no capture" for three days. Both were
+     captured by hand on 12 Aug. The gate now exists:
+     `check_registry.uncaptured_posts` warns in audit mode and the same list
+     prints in `just status`. It warns rather than fails because a post
+     deleted between registration and capture can never be captured.
+  2. **The session health probe could not tell an empty render from a
+     healthy one.** On 10 Aug 14:02 and 11 Aug 02:02 the probe read "ok"
+     while the home timeline and every watched profile parsed zero posts;
+     the wall only became probe-visible at 11 Aug 14:01. The run-level guard
+     now fails closed: a full discovery run (timeline plus watches) that
+     parses zero posts with no failures is treated as a challenge, with the
+     usual cooldown and urgent alert. Subset runs are exempt.
+
+  Related hardening landed the same day: a `guard-run-silent` alert for a
+  run that dies before its verdict (record-commit's block was previously
+  the only surface); the X intake skips its agent run while a browser
+  cooldown is active instead of spending a run on unhydratable candidates;
+  record-commit pushes after every commit rather than only after a deploy,
+  so publish skips no longer hold the off-machine copy; archive-poll.timer
+  is pinned to `OnCalendar` :23/:53 (a boot-anchored poll phase landed on
+  :05/:35 after the 10 Aug reboot, which is what starved the :50 publishes
+  of classified diffs); and x-media's weekly pull gained a same-day retry
+  slot after a transient post-boot DNS failure cost it a week. The
+  publish-skip-streak and unit-failure alerts turned out to have fired all
+  along (8-12 Aug, daily); they were not being watched, which is an
+  operator-habit note rather than a code gap.
+
+  Consequences absorbed, not re-fixed: discovery queued nothing between
+  9 Aug and the 12 Aug cooldown clear (906 of 924 lifetime candidates are
+  from the 9 Aug sweep), the intake backlog stood at 747 pending, and the
+  home-timeline window of 10-12 Aug is unrecoverable — watched profiles
+  re-read with a since-cursor, the timeline does not.
+
 - **The nostr lane is the noisiest discovery source by a wide margin, and
   deferral does not reach it.** Of 38 nostr candidates assessed, 36 were
   dismissed; the two that were not were both first dismissed on their title
