@@ -101,8 +101,21 @@ if ! git -C "$ROOT" diff --quiet -- site/src/data; then
   current="$(state_digest)"
 fi
 
+# The version stamp must describe one stable tree. The build and its gates
+# read the archive while polls keep writing it; a poll landing mid-build
+# dirties a tracked file after version.json is generated and fails
+# check-version-exact (observed 12 Aug 2026, twice: the pre-build index fix
+# alone could not close this, because the racing writer is the poll, not the
+# staging). Hold the read-side shared lock across the build so a poll defers
+# with its routine exit 21 instead of racing the stamp. Lock order matches
+# record_commit.py — build lock (fd 9, held above) first, then the archive
+# lock — and this acquisition is non-blocking, so a writer mid-poll simply
+# defers this tick.
 publish_rc=0
-just publish || publish_rc=$?
+.venv/bin/python scripts/archive_lock.py --shared --label publish -- just publish || publish_rc=$?
+if [[ "$publish_rc" -eq 21 ]]; then
+  skip "an archive writer holds the lock; the next tick retries"
+fi
 if [[ "$publish_rc" -ne 0 ]]; then
   # A failed publish is retried on the next tick (the stamp is only written
   # on success), but a retry loop nobody reads is a silent outage. Alerting

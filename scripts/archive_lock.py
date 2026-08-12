@@ -82,6 +82,10 @@ def archive_lock(label: str, *, shared: bool = False) -> Iterator[None]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", default="archive-writer")
+    parser.add_argument("--shared", action="store_true",
+                        help="take the read-side shared lock (a build or "
+                             "gate that must not be written under) instead "
+                             "of the exclusive writer lock")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command
@@ -91,8 +95,14 @@ def main() -> int:
         parser.error("a command is required after --")
 
     try:
-        with archive_lock(args.label):
-            env = {**os.environ, "COLDCARD_ARCHIVE_LOCK_HELD": "1"}
+        with archive_lock(args.label, shared=args.shared):
+            # The held-marker tells a nested writer its parent serialized
+            # the archive. Only an exclusive holder may make that claim: a
+            # child writing under a shared lock is exactly what the lock
+            # exists to prevent.
+            env = dict(os.environ)
+            if not args.shared:
+                env["COLDCARD_ARCHIVE_LOCK_HELD"] = "1"
             return subprocess.run(command, env=env, check=False).returncode
     except ArchiveLockBusy as exc:
         print(f"archive writer lock busy: {exc}", file=sys.stderr)
