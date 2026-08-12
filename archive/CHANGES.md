@@ -2202,3 +2202,10 @@
 
 - wizardsardine-entropy-autopsy  (first capture)
 - cktripwire-honeypot-monitor  +13 -13
+
+## 20260812T162349Z
+
+- reddit-full-panic-drain-report  +2 -10
+- bitkey-relationship-enrollment-report  +1 -0
+- coldcard-hack-tracker  +6 -2
+- samsamskies-tracker-readme  +2 -2

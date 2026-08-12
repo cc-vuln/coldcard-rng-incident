@@ -1,0 +1,31 @@
+--- coldcard-hack-tracker@20260812T000628Z
++++ coldcard-hack-tracker@20260812T162442Z
+@@ -1028,7 +1028,7 @@
+ BEYOND THE MAIN SEED
+ Weak RNG also hit paper-wallet keys, clone / Key Teleport material, and some Secure Notes passwords — even when the BIP-39 seed itself came from dice (WizardSardine / Block).
+ LOWER RISK
+-At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase. CK tripwire is mapping live how far added dice/passphrase entropy currently stops sweeps (zero-entropy control swept in ~1h; ~5-bit low/dice honeypots swept by Aug 8; mid/high bands still live). Still migrate when practical.
++At least 50 private dice rolls at seed creation. A long truly random BIP-39 passphrase (not the device PIN) may buy time, but weak passphrases are not enough — BTC Sessions reported a confirmed Mk3 drain with a two-word passphrase; ColeTU saw 1–3 BIP39-word passphrases on a compromised Mk3 seed swept in ~6–7 days. CK tripwire is mapping live how far added dice/passphrase entropy currently stops sweeps (zero-entropy control swept in ~1h; frontier ~11 bits by Aug 12 after a low/pass honeypot sweep; mid/high bands still live). Still migrate when practical.
+ NOT THIS BUG
+ TAPSIGNER, Opendime, and Satscard use different codebases and are not affected. Mk1 and pre-4.0.1 Mk2/Mk3 firmware used the real TRNG.
+ SOURCES
+@@ -1046,7 +1046,7 @@
+ 
+ James O'Beirne · CK tripwire
+ 
+-Aug 4: live honeypot scoreboard mapping attacker brute-force depth via decoys with added dice/passphrase entropy (cktripwire.com; announcement). Zero-entropy control swept in ~1h. By Aug 8, multiple ~5-bit low (dice) honeypots were swept (jamesob); frontier still ~5 bits with mid/high passphrase bands live. Defensive research only — do not add honeypot sinks to holdings.
++Aug 4: live honeypot scoreboard mapping attacker brute-force depth via decoys with added dice/passphrase entropy (cktripwire.com; announcement). Zero-entropy control swept in ~1h. By Aug 8, multiple ~5-bit low (dice) honeypots were swept (jamesob). By Aug 12, frontier ~11 bits after a low (pass) honeypot (HP-9C4F) was swept; mid/high/extreme bands still live. ColeTU’s weak BIP-39 passphrase experiment is listed as an external honeypot (1–3 word Mk3 passphrases swept in ~6–7d; claimed Mk4 seed still live). Defensive research only — do not add honeypot sinks to holdings.
+ 
+ Galaxy Research · Wave 3
+ 
+@@ -1108,6 +1108,10 @@
+ 
+ Aug 1 deep dive: who is affected (including Mk3 5.0.x), advanced features still broken with dice seeds, and migration guidance.
+ 
++SlowMist
++
++Aug 12: reproduces the Mk3 4.1.9 attack chain (Yasmarang fallback, button-press profiles, GPU pad search) and MistTrack consolidations aligned with Galaxy W1–3 / Early Aug 2 / P2TR cash-outs. Uses Galaxy’s 1,719 BTC headline; their “Wave 4” label for bc1q0rvn88… is our Early Aug 2 vault, not Thorn’s Likely Wave 4.
++
+ Nunchuk · Slipstream migration
+ 
+ Aug 3: multisig urgency tiers (Coldcard keys alone vs below threshold) and MARA Slipstream to avoid RBF-sniping during migration; Slipstream now public with no code.
