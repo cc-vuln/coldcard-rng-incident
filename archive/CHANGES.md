@@ -2091,3 +2091,11 @@
 - reddit-llm-tracing-attackers  +10 -0
 - reddit-ledger-official-incident-statement  +10 -0
 - bitcointalk-short-term-self-custody-impact  (first capture)
+
+## 20260812T000439Z
+
+- coldcard-downloads  +0 -3
+- reddit-full-panic-drain-report  +2 -20
+- coldcard-docs-faq  +3 -0
+- coldcard-hack-tracker  +6 -22
+- samsamskies-tracker-readme  +1 -1
