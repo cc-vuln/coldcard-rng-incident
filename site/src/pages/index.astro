@@ -3,8 +3,7 @@ import Base from '../layouts/Base.astro';
 import Claim from '../components/Claim.astro';
 import EvidenceRegister from '../components/EvidenceRegister.astro';
 import Timestamp from '../components/Timestamp.astro';
-import CorrectionNotice from '../components/CorrectionNotice.astro';
-import { stats, goneSources, displayTitle, tsToIso } from '../lib/archive';
+import { stats, tsToIso } from '../lib/archive';
 import { latestEvents } from '../lib/latest-events';
 import { fig } from '../lib/figures';
 import { humanDate } from '../lib/updated';
@@ -43,24 +42,13 @@ if (s.lastCapture) {
 // "when was this last updated", and a date answers it without arithmetic.
 const recordUpdated = s.lastCapture ? humanDate(tsToIso(s.lastCapture)) : '';
 
-/*
- * Sources whose originals no longer exist are the strongest single argument
- * for holding captures, so the line names them and links to the copies rather
- * than asserting a count. A few are listed inline; beyond that the register's
- * own gone list (and its filter) takes over, because a landing line is not a
- * place to grow an unbounded list.
- */
-const GONE_NAMED = 3;
-const gone = goneSources();
-const goneCount = gone.length;
-const goneLine = goneCount === 1
-  ? '1 source has since disappeared from the web; the copy held here is the only public one left:'
-  : `${goneCount} sources have since disappeared from the web; the copies held here are the only public ones left:`;
-const goneLinks = gone.slice(0, GONE_NAMED).map((s) => ({
-  href: `/record/sources/${s.id}/`,
-  title: displayTitle(s),
-}));
-const goneRest = goneCount - goneLinks.length;
+// X and nostr share one card: two counts made four cards, and the platforms
+// are the same kind of record to a reader. The label only names nostr when
+// there is something to count.
+const socialPosts = s.xPosts + s.nostrPosts;
+const socialLabel = s.nostrPosts === 0
+  ? 'X posts registered'
+  : 'X and nostr posts registered';
 
 ---
 
@@ -71,7 +59,6 @@ const goneRest = goneCount - goneLinks.length;
 >
   <section class="hero">
     <div class="wrap hero__inner">
-      <p class="mono-label hero__kicker">Incident record &middot; disclosed 30 July 2026</p>
       <p class="mono-label hero__updated" hidden={!recordUpdated}>Record updated {recordUpdated} &middot; sources re-captured on a schedule</p>
       <h1 class="hero__title">
         The public record of the COLDCARD entropy incident.
@@ -166,24 +153,10 @@ const goneRest = goneCount - goneLinks.length;
         <span>reviewed source changes</span>
       </a>
       <a class="rb-stat" href="/record/">
-        <strong>{s.xPosts}</strong>
-        <span>X posts registered</span>
-      </a>
-      <a class="rb-stat" href="/record/" hidden={s.nostrPosts === 0}>
-        <strong>{s.nostrPosts}</strong>
-        <span>nostr posts registered</span>
+        <strong>{socialPosts}</strong>
+        <span>{socialLabel}</span>
       </a>
     </div>
-
-    <CorrectionNotice page="/" />
-
-    <p class="recordband__gone" hidden={goneCount === 0}>
-      {goneLine}
-      {goneLinks.map((g) => (
-        <a href={g.href}>{g.title}</a>
-      ))}
-      <a href="/record/#gone" hidden={goneRest <= 0}>and {goneRest} more</a>
-    </p>
 
     <h3 class="recordband__sub">Latest in the record</h3>
     <ol class="recordband__latest">
@@ -251,7 +224,6 @@ const goneRest = goneCount - goneLinks.length;
 
 <style>
   .hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2rem, 5vw, 3.2rem); }
-  .hero__kicker { margin-bottom: 0.4rem; }
   .hero__updated { margin-bottom: 1.1rem; opacity: 0.75; }
   .hero__title {
     font-size: clamp(2.1rem, 5.6vw, 3.8rem);
@@ -335,15 +307,6 @@ const goneRest = goneCount - goneLinks.length;
     font-family: var(--font-mono); font-size: .62rem; color: var(--ink-3);
     letter-spacing: .07em; text-transform: uppercase;
   }
-  .recordband__gone {
-    font-size: .92rem; color: var(--ink-2); margin-top: 1rem; max-width: 62ch;
-    border-left: 2px solid var(--rule); padding-left: .9rem;
-  }
-  /* Separators are drawn rather than written, so the list reads correctly at
-     any count without the template branching on it. */
-  .recordband__gone a { color: var(--ink); }
-  .recordband__gone a:hover { text-decoration: underline; }
-  .recordband__gone a + a::before { content: ", "; color: var(--ink-3); }
   .recordband__sub {
     font-family: var(--font-mono); font-size: .68rem; font-weight: 600;
     color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase;
