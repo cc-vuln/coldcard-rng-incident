@@ -2099,3 +2099,77 @@
 - coldcard-docs-faq  +3 -0
 - coldcard-hack-tracker  +6 -22
 - samsamskies-tracker-readme  +1 -1
+
+## 20260812T030525Z
+
+- cktripwire-honeypot-monitor  +12 -12
+
+## 20260812T040539Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+
+## 20260812T043544Z
+
+- libngu-random-c  +22 -57
+- libngu-pr-58  +5 -0
+- libngu-pr-59  +3 -0
+- libngu-pr-61  +2 -1
+- libngu-pr-62  +3 -1
+- libngu-pr-63  +3 -1
+- libngu-pr-64  +39 -6
+- libngu-pr-64-patch  +43 -3
+- coldcard-firmware-pr-691  +40 -1
+- coldcard-firmware-pr-713  +78 -15
+- coldcard-firmware-pr-713-patch  +68 -53
+- btcpp-dettmer-commit-history  +1 -1
+- casa-blog-index  +10 -11
+- blockchainunmasked-prior-warning  +1 -1
+- bitcointalk-entropy-warning-design  +1 -1
+- reddit-64-btc-mixing-discussion  +8 -0
+- reddit-dice-rollers-response  +24 -8
+- afilini-seed-rng-migration-report  +5 -3
+- reddit-attacker-execution-critique  +25 -0
+- reddit-mk3-seed-entropy-worse  +16 -24
+- reddit-dice-entropy-explainer  +20 -0
+- casa-rise-of-machines  +3 -1
+- sparrow-pr-2047  +28 -0
+- reddit-fake-trezor-google-ad  +40 -10
+- reddit-dice-bias-1200-rolls  +12 -0
+- reddit-audit-cold-wallets-ai  +20 -0
+- reddit-fidelity-custody-debate  +52 -4
+- coindesk-70m-no-device-touch  +27 -25
+- reddit-dice-rolls-saved-seedsigner  +85 -3
+- reddit-jade-plus-setup-suspect  +10 -0
+- bitcointalk-audio-entropy-wallet  +1 -1
+- ledger-primary-incident-article  +105 -81
+- thehackernews-incident-synthesis  +31 -29
+- reddit-ledger-official-incident-statement  +28 -0
+- bitcointalk-short-term-self-custody-impact  +148 -4
+- reddit-coinkite-social-media-messaging  (first capture)
+- reddit-bitcoin-not-broken-explainer  (first capture)
+- reddit-coldcard-future-design-philosophy  (first capture)
+- reddit-multi-source-fail-closed-entropy  (first capture)
+- reddit-bip85-passphrase-entropy-mix  (first capture)
+- reddit-multisig-coldcard-bitbox-setup  (first capture)
+- reddit-dice-adoption-critique  (first capture)
+
+## 20260812T050549Z
+
+- cktripwire-honeypot-monitor  +7 -7
+- trezor-coldcard-not-affected  +2 -0
+- bitcoinmag-fix-and-ai  +10 -10
+- coin360-drain  +1 -1
+- newsbitcom-who-lost-who-at-risk  +1 -11
+- checkonchain-coldcard-psa  +4 -4
+- nvkwtf-articles  +12 -1
+- ncfacanada-self-custody-commentary  +35 -35
+- bitcoinmag-self-custody-response  +10 -10
+- newsbitcom-class-action-threat  +28 -28
+- bitcoinmag-red-team-390-repos  +10 -10
+- bitcoinmag-closed-source-era  +10 -10
+- reddit-cryptocurrency-incident-explanation  +16 -0
+- clay-attribution  +58 -11
+- trezor-2084975929948766645  +26 -30
+- afilini-2085269060028170742  +86 -0
+- grassfedbitcoin-2085463112048873485  +16 -14
+- oomahq-2085717166884618584  +46 -10

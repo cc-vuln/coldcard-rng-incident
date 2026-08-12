@@ -21,7 +21,7 @@ the current absence is already documented and should change only when new
 public material appears · **BLOCKED** needs an operator choice, external access
 or evidence from a third party.
 
-Last reviewed: 9 Aug 2026, after the public-record scope, historical coverage,
+Last reviewed: 12 Aug 2026, after the public-record scope, historical coverage,
 discovery durability, agent containment, site-sync cursor and presentation-
 scale audit. The completed entries below record the gap-fill and tooling work;
 remaining entries are evidence gaps, monitoring questions or discrete scale
@@ -148,7 +148,7 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Checked 9 August 2026.
+- **MONITOR: official technical follow-up.** Checked 12 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
   detailed scope, no captured source announces a post-incident independent audit
   of the fixed firmware, and NVD/MITRE remained unreachable or inconclusive from
@@ -161,7 +161,7 @@ Ordered by value, not effort.
   postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.** Checked
-  9 August 2026. Coinkite's 7 August customer-data retention post states that
+  12 August 2026. Coinkite's 7 August customer-data retention post states that
   records are being preserved for "ongoing and anticipated legal proceedings,"
   which is the first public vendor acknowledgement of legal activity, but it is
   not a filing, regulator statement, insurer decision or compensation offer.
