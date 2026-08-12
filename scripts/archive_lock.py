@@ -103,7 +103,13 @@ def main() -> int:
             env = dict(os.environ)
             if not args.shared:
                 env["COLDCARD_ARCHIVE_LOCK_HELD"] = "1"
-            return subprocess.run(command, env=env, check=False).returncode
+            # close_fds=False matches flock(1): a lock wrapper must not
+            # change which descriptors the wrapped command inherits. The
+            # publish build probes the inherited build-lock fd to tell an
+            # ancestor-held lock from a free one, and silently dropping it
+            # deadlocks the build behind its own ancestor (12 Aug 2026).
+            return subprocess.run(command, env=env, check=False,
+                                  close_fds=False).returncode
     except ArchiveLockBusy as exc:
         print(f"archive writer lock busy: {exc}", file=sys.stderr)
         return LOCK_BUSY_EXIT
