@@ -5,6 +5,7 @@
 import '../styles/fonts.css';
 import '../styles/tokens.css';
 import { buildVersion } from '../lib/version';
+import { humanDate } from '../lib/updated';
 
 interface Props {
   title: string;
@@ -43,6 +44,9 @@ const buildCommitHref = version.commit
 // A build carrying uncommitted edits is not reproducible from the commit it
 // names, and saying so is cheaper than a reader discovering it.
 const buildDirty = version.matchesCommit === false;
+// The commit's date, so the footer answers "when was this last updated"
+// without the reader decoding a hash. Empty when git gave no commit time.
+const buildDate = version.commitTime ? humanDate(version.commitTime) : '';
 
 const nav: { href: string; label: string; match?: string[] }[] = [
   { href: '/', label: 'Overview' },
@@ -360,7 +364,7 @@ const subCurrent = (n: SubnavItem) => subExact(n)
     <div class="wrap foot__build">
       <p class="foot__dim">
         <span hidden={!buildCommitHref}>
-          Built from commit <a href={buildCommitHref} rel="noopener">{version.short}</a>.
+          Built from commit <a href={buildCommitHref} rel="noopener">{version.short}</a><span hidden={!buildDate}>, dated {buildDate}</span>.
         </span>
         <span hidden={Boolean(buildCommitHref)}>{buildStamp}.</span>
         <a href="/version.json">Build and record state as data</a>.

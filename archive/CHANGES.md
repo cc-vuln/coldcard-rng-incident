@@ -2184,3 +2184,16 @@
 - reddit-dice-bias-1200-rolls  +1 -21
 - coindesk-70m-no-device-touch  +27 -27
 - bleepingcomputer-88m-report  +4 -4
+
+## 20260812T115309Z
+
+- bitcoinmag-fix-and-ai  +8 -8
+- newsbitcom-who-lost-who-at-risk  +11 -0
+- ncfacanada-self-custody-commentary  +6 -6
+- bitcoinmag-self-custody-response  +8 -8
+- newsbitcom-class-action-threat  +27 -27
+- bitcoinmag-red-team-390-repos  +8 -8
+- bitcoinmag-closed-source-era  +7 -7
+- clay-attribution  +9 -47
+- afilini-2085269060028170742  +0 -77
+- oomahq-2085717166884618584  +2 -30

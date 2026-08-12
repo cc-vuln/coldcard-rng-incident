@@ -29,6 +29,29 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
+- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087467596098556048) (X @coletu)
+- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087472903256203544) (X @coletu)
+- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2087466637964288234) (X @profedustream)
+- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2085367401336525284) (X @profedustream)
+- 2026-08-12 [@hardblockbtc post (text available during approved intake)](https://x.com/hardblockbtc/status/2085306134815265260) (X @hardblockbtc)
+- 2026-08-12 [@kloaec post (text available during approved intake)](https://x.com/kloaec/status/2087240258203070640) (X @kloaec)
+- 2026-08-12 [@rob1ham post (text available during approved intake)](https://x.com/rob1ham/status/2087259969913557007) (X @rob1ham)
+- 2026-08-12 [@cointelegraph post (text available during approved intake)](https://x.com/cointelegraph/status/2087056701031620854) (X @cointelegraph)
+- 2026-08-12 [@katakoto post (text available during approved intake)](https://x.com/katakoto/status/2087324167851127151) (X @katakoto)
+- 2026-08-12 [@pastorcoin post (text available during approved intake)](https://x.com/pastorcoin/status/2087175264119779659) (X @pastorcoin)
+- 2026-08-12 [@w_s_bitcoin post (text available during approved intake)](https://x.com/w_s_bitcoin/status/2086971108071285190) (X @w_s_bitcoin)
+- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087279253251305910) (X @sesi_the_man)
+- 2026-08-12 [@alexesnakamoto post (text available during approved intake)](https://x.com/alexesnakamoto/status/2087428725675635068) (X @alexesnakamoto)
+- 2026-08-12 [@nunchuk_io post (text available during approved intake)](https://x.com/nunchuk_io/status/2087197360162226251) (X @nunchuk_io)
+- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087204035969467442) (X @sesi_the_man)
+- 2026-08-12 [@slowmist_team post (text available during approved intake)](https://x.com/slowmist_team/status/2087438490518892592) (X @slowmist_team)
+- 2026-08-12 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2087147003285246175) (X @mandrik)
+- 2026-08-12 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2086977400538022122) (X @mandrik)
+- 2026-08-12 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2087114991732232440) (X @mandrik)
+- 2026-08-12 [@rob1ham post (text available during approved intake)](https://x.com/rob1ham/status/2087221120428659029) (X @rob1ham)
+- 2026-08-12 [@bitcoinnewscom post (text available during approved intake)](https://x.com/bitcoinnewscom/status/2086843044788101605) (X @bitcoinnewscom)
+- 2026-08-12 [@theretailbull post (text available during approved intake)](https://x.com/theretailbull/status/2087222946297266552) (X @theretailbull)
+- 2026-08-12 [@natbrunell post (text available during approved intake)](https://x.com/natbrunell/status/2087180531687436447) (X @natbrunell)
 - 2026-07-30 [@Crackfux post (text available during approved intake)](https://x.com/Crackfux/status/2082886729736810689) (X @Crackfux)
 - 2026-07-30 [@KLoaec post (text available during approved intake)](https://x.com/KLoaec/status/2082919510248509512) (X @KLoaec)
 - 2026-07-30 [@TFTC21 post (text available during approved intake)](https://x.com/TFTC21/status/2082933533329543188) (X @TFTC21)
@@ -1546,6 +1569,7 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-08 [Grown men rolling dice](https://www.reddit.com/r/Bitcoin/comments/1vj4lq4/grown_men_rolling_dice/) by Neat-Finger197, 55 comments (r/Bitcoin) [topical] -> Pending: body fetch failed (20260809T165800Z) -> registered as reddit-dice-adoption-critique (20260812T012443Z)
 - 2026-08-09 [P2TR vs P2WSH-P2MS multisig](https://www.reddit.com/r/coldcard/comments/1vjf9ie/p2tr_vs_p2wshp2ms_multisig/) by Either_Display_6624, 3 comments (r/coldcard) -> Pending: body fetch failed (20260809T165800Z) -> dismissed: generic multisig technical question, tangential to the incident (20260812T012443Z)
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout. -> dismissed: misplaced social-post candidate with no community platform URL; the item is already covered by the registered X post bitcoinnewscom-2085700535772934469 (20260809T045937Z)
+
 ## Link review, held for a human decision
 
 Empty as of 8 Aug 2026. The three candidates this section was holding (the

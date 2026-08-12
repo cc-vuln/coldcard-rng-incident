@@ -12,7 +12,11 @@ drop box is
 one URL per line, `#` comments allowed. Both intake drivers call this script
 at the top of every run, so a dropped URL joins the ordinary queue on the
 next tick and is hydrated, assessed and verdicted like anything the lanes
-found themselves. X status permalinks become X candidates; the community
+found themselves, with one difference: drops go to the HEAD of Pending.
+A dropped URL was already judged worth reading by the person dropping it,
+which is a stronger signal than the sieve produces, and the 12 Aug 2026
+incident-day drops would otherwise have waited days behind the backlog.
+X status permalinks become X candidates; the community
 platforms' URLs (reddit, stacker.news, bitcointalk, njump) become community
 candidates, classified by hydrate_candidates' own patterns so there is one
 place that knows what a candidate URL looks like. URLs already present
@@ -103,9 +107,9 @@ def queue(urls: list[str], today: str) -> tuple[list[str], list[str]]:
         for heading, lines in sections:
             if heading == discovery_common.PENDING_H:
                 body = lines[:]
-                while body and not body[-1].strip():
-                    body.pop()
-                lines = body + queued
+                while body and not body[0].strip():
+                    body.pop(0)
+                lines = queued + body
             rebuilt.append((heading, lines))
         discovery_common.atomic_text(
             discovery_common.INTAKE, discovery_common.join_sections(rebuilt))

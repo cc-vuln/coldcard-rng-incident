@@ -1,0 +1,83 @@
+--- afilini-2085269060028170742@20260812T051920Z
++++ afilini-2085269060028170742@20260812T120551Z
+@@ -126,80 +126,3 @@
+ media: 0
+ body:
+ Does my tweet sound like I’m defending them?
+-
+-post: 2087102876371841435
+-role: reply
+-author: callebtc
+-name: calle
+-created: 2026-08-11T09:04:36Z
+-media: 1
+-body:
+-The sacrifice to end the bear market has been offered to the Bitcoin gods.
+-
+-post: 2087179372247576800
+-role: reply
+-author: bitschmidty
+-name: Mike Schmidt
+-created: 2026-08-11T14:08:34Z
+-media: 0
+-body:
+-Bitcoin Core v32.0 is targeted for release in October:
+-
+-- Up to 3x faster initial sync. Block validation now fetches transaction inputs from disk in parallel instead of one at a time
+-
+-- The libevent external dependency is fully removed, continuing Core's push to cut third-party dependencies
+-
+-- Max peer connections raised from 125 to 200 to have more open slots for new nodes to sync from, faster block propagation, and a harder network to eclipse or partition
+-
+-- Mempool-based fee estimation to cut fee overestimation (in progress)
+-
+-- Transaction relay rate limiting is now global instead of per-peer, keeping a node's CPU and memory usage steady when transaction volume spikes
+-
+-- Ships with features from libsecp256k1 0.8.0 with verification up to 11% faster, plus the new Silent Payments module (BIP 352)
+-
+-- PSBTv2 (BIP 370) support, now the default for PSBT-creating RPCs for better coordination of unsigned transactions for multisig and hardware wallet setups
+-
+-- New exportwatchonlywallet command to export a wallet as a watch-only file, no private keys, and restore it on your online node
+-
+-- Core now enables Tor's proof-of-work DDoS defense on the onion service it creates for your node, where the Tor daemon supports it
+-
+-Additional tests, bugfixes, and features included as well.
+-
+-Feature freeze is ~August 20, rc1 ~September 10, final release targeted for ~October 10. (Test the release candidates when they ship!)
+-
+-post: 2087194653019746734
+-role: reply
+-author: peterktodd
+-name: Peter Todd
+-created: 2026-08-11T15:09:18Z
+-media: 3
+-body:
+-tl;dr: 
+-@lukedashjr
+- decided to use a testnet4 block hash as the random beacon to pick BIP-110-chain's new PoW function.
+-
+-An absolutely batshit decision. It's clearly possible to manipulate that by just mining blocks with the right hash. Mining a testnet4 block has a trivial cost. So mining one with a specific last byte in the block hash – thus forcing a particular PoW choice – also has a trivial cost.
+-
+-When Zcash did something similar for a trusted setup, they picked a Bitcoin block in the future, and they specified that the block hash would in turn be re-hashed 2⁴² times¹ to ensure that absolutely no-one could possibly pick the value in advance (that's a 2-3 weeks of sequential computation).
+-
+-There's two possibilities here:
+-
+-1) Luke is incompetent.
+-2) Luke is malicious, and is trying to pick a specific PoW.
+-
+-The possibilities are not exclusive.
+-
+-1) 
+-https://
+-zips.z.cash/protocol/proto
+-col.pdf
+-…
+-
+-post: 2087233919070429349
+-role: reply
+-author: afilini
+-name: Alekos Filini
+-created: 2026-08-11T17:45:19Z
+-media: 1
+-body:
+-

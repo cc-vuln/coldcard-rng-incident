@@ -7,6 +7,7 @@ import CorrectionNotice from '../components/CorrectionNotice.astro';
 import { stats, goneSources, displayTitle, tsToIso } from '../lib/archive';
 import { latestEvents } from '../lib/latest-events';
 import { fig } from '../lib/figures';
+import { humanDate } from '../lib/updated';
 
 const s = stats();
 
@@ -37,6 +38,11 @@ if (s.lastCapture) {
       : `Last capture ${Math.round(hours / 24)} days ago.`;
 }
 
+// The hero's own freshness line, as a plain date: the record band below
+// speaks in relative hours, but the top of the page is where a reader asks
+// "when was this last updated", and a date answers it without arithmetic.
+const recordUpdated = s.lastCapture ? humanDate(tsToIso(s.lastCapture)) : '';
+
 /*
  * Sources whose originals no longer exist are the strongest single argument
  * for holding captures, so the line names them and links to the copies rather
@@ -66,6 +72,7 @@ const goneRest = goneCount - goneLinks.length;
   <section class="hero">
     <div class="wrap hero__inner">
       <p class="mono-label hero__kicker">Incident record &middot; disclosed 30 July 2026</p>
+      <p class="mono-label hero__updated" hidden={!recordUpdated}>Record updated {recordUpdated} &middot; sources re-captured on a schedule</p>
       <h1 class="hero__title">
         The public record of the COLDCARD entropy incident.
       </h1>
@@ -244,7 +251,8 @@ const goneRest = goneCount - goneLinks.length;
 
 <style>
   .hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2rem, 5vw, 3.2rem); }
-  .hero__kicker { margin-bottom: 1.1rem; }
+  .hero__kicker { margin-bottom: 0.4rem; }
+  .hero__updated { margin-bottom: 1.1rem; opacity: 0.75; }
   .hero__title {
     font-size: clamp(2.1rem, 5.6vw, 3.8rem);
     line-height: 1.08;
