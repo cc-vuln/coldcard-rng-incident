@@ -1,0 +1,1736 @@
+post: 1vh0lm7
+author: ineedanamegenerator
+created_utc: 1786012708
+title: Coldcard entropy even worse than feared
+body:
+TL;DR: The random number generator is initialized with a 32 bit value (4B+ possibilities). But only less than 10M options are possible because of how they generate the value.
+
+The PRNG used in Coldcard MK3 is initialized with UID\[31:0\] XOR SysTick->VAL
+
+SysTick->VAL gives 80k possibilities \~16.3 bit, all located in the lowest 17 bits of the value.
+
+UID encodes the X and Y coordinates of wafer position of the STM32 in the 32 bits that are used by the code. ~~This is encoded in BCD, which means only 10 out of 16 possible values of each nibble are used. This means the 32 bit value at most encodes 100M options (26.6 bits), but there are nowhere near 100M chips in a wafer.~~  
+The BCD encoding seems to be an mistake in some STM32 manuals. The number is plain HEX encoded, but that doesn't matter here. There are never 2\^16 rows or columns in a wafer.
+
+I don't know how many there are in a wafer, but google gives an upper bound of 20k chips per wafer.
+
+The lower 16 bits overlap with Systick->VAL, so XORing the wafer location adds no entropy.
+
+The upper 16 bits can carry only about SQRT(20000) possibilities (probably less) \~ 7.2 bits. And they aren't even evenly distributed in a round wafer.
+
+So at most we're looking at \~23 bits of entropy. Not 32 bits.
+
+This isn't 100% exact because SQRT assumes a square while a wafer is round, but too lazy to work it out further. Point is: entropy is way worse than 32 bits.
+
+comment: p218c9t
+parent: t3_1vh0lm7
+author: frugaleringenieur
+created_utc: 1786012836
+edited: false
+body:
+Makes little sense, yet.
+
+comment: p2197hk
+parent: t3_1vh0lm7
+author: Javanaut018
+created_utc: 1786013204
+edited: false
+body:
+That explains why attackers were able to even scan for multiple derivations and simple extra passphrases ...
+
+comment: p219g6c
+parent: t3_1vh0lm7
+author: bitchnight
+created_utc: 1786013305
+edited: false
+body:
+Does that mean that the space of possible generated addresses was only 2\^23?
+
+comment: p219r7b
+parent: t3_1vh0lm7
+author: northmariner
+created_utc: 1786013432
+edited: false
+body:
+For the wallets with passphrases, were any of them hacked?
+
+comment: p21a9pg
+parent: t1_p219g6c
+author: ineedanamegenerator
+created_utc: 1786013644
+edited: false
+body:
+That is an estimate, but yes, significantly less than 2\^32.
+
+comment: p21afxv
+parent: t1_p21a9pg
+author: bitchnight
+created_utc: 1786013717
+edited: false
+body:
+I feel like that can’t be possible. Wouldn’t there have been organic collisions at that number? Something reported by customers? Or found in testing?
+
+comment: p21ar01
+parent: t1_p219r7b
+author: read_more_comments
+created_utc: 1786013843
+edited: false
+body:
+yes. Your passphrase is only as good as its complexity. If you use admin123 you are toast.
+
+comment: p21at1j
+parent: t1_p21afxv
+author: ineedanamegenerator
+created_utc: 1786013866
+edited: false
+body:
+I think there were. There was a post yesterday that tracked "unexplained stolen coins" in the last few years.
+
+I think we can both agree there was not a lot of testing done (apparently).
+
+comment: p21b2m6
+parent: t1_p219r7b
+author: ineedanamegenerator
+created_utc: 1786013975
+edited: false
+body:
+Yes, but afaik only for wallets who also used the seed without passphrase (which was a recommended honey pot concept). Because then they knew that specific seed was used and they can narrow searching passphrases on top that known existing seed.
+
+comment: p21b3ee
+parent: t1_p21at1j
+author: bitchnight
+created_utc: 1786013983
+edited: false
+body:
+Oh trueeee. I guess a regular person is more likely to just pocket the money than report the fact that they generated a wallet w cold card and there was already btc in it. Sad
+
+comment: p21cu31
+parent: t3_1vh0lm7
+author: infinitychroma
+created_utc: 1786014678
+edited: false
+body:
+The biggest takeaway from this fiasco is "Don't trust the influencers, do your due diligience". It is harsh but I cannot begin to fathom the number of people recommending it and even calling it the best. It just goes to tell you they rarely know what they are talking about.
+
+comment: p21d4qf
+parent: t1_p21b3ee
+author: Javanaut018
+created_utc: 1786014794
+edited: false
+body:
+Their keys, their coins if you will ....
+
+comment: p21ddxj
+parent: t1_p218c9t
+author: Javanaut018
+created_utc: 1786014893
+edited: false
+body:
+Makes a lot of sense for me (and others probably) ...
+
+comment: p21e5fm
+parent: t1_p21cu31
+author: Javanaut018
+created_utc: 1786015186
+edited: false
+body:
+Influencers have their own dynamics. Probably powered by coupons and discount codes a lot.
+
+But you cannot know how much technical insight these guys really have. In many companies marketing has ruined good engineering in history.
+
+comment: p21eden
+parent: t3_1vh0lm7
+author: Plus_Process_5749
+created_utc: 1786015272
+edited: 1786015589
+body:
+It has a lot of sense. X and Y are coordinates, so if you think to the wafer as a grid you will never have a chip on the boundaries right? If you apply this idea, you can eventually start from the center of the wafer and bruteforce coords X/Y by "drawing" squares increasingly til you cover a certain area and leave out the space where chips have a low probability to exist
+
+comment: p21f33n
+parent: t1_p21d4qf
+author: the-supreme-mugwump
+created_utc: 1786015538
+edited: false
+body:
+For a few years. I wonder how many people think it was karma. Generate a seed, open the wallet to find BTC think your lucky and have it scrubbed out years later 
+
+comment: p21flzc
+parent: t1_p21b3ee
+author: satsugene
+created_utc: 1786015733
+edited: false
+body:
+They wouldn't really know who to report it to even if they did.
+
+comment: p21gl0m
+parent: t3_1vh0lm7
+author: birktorsten2
+created_utc: 1786016094
+edited: false
+body:
+This is just insane lol
+
+And I have so many questions now... Like how did they not figure out it will only be 10M possibilities? How come this was a dormant exploit for so long?
+
+I feel really bad for the people who lost money on this nonsense
+
+comment: p21guy2
+parent: t3_1vh0lm7
+author: [deleted]
+created_utc: 1786016196
+edited: false
+body:
+[deleted]
+
+comment: p21hjd5
+parent: t1_p21cu31
+author: Strong_Judge_3730
+created_utc: 1786016447
+edited: false
+body:
+Now we have influencers saying not to trust any hardware wallet and to trust only yourself to roll dice and generate a seed 😨
+
+comment: p21hwdg
+parent: t1_p21flzc
+author: Electrical-Role-4210
+created_utc: 1786016580
+edited: false
+body:
+They tried reporting it to ColdCard and were blocked and ignored. 
+
+comment: p21im12
+parent: t1_p21flzc
+author: Gmcgator
+created_utc: 1786016837
+edited: false
+body:
+They definitely wouldn’t put it in a Reddit post.
+
+comment: p21j98u
+parent: t1_p21guy2
+author: Gmcgator
+created_utc: 1786017064
+edited: false
+body:
+And then even if a newbie figures it out and does the work, now all they hear about is how AI and quantum can hack anything anyway.  
+
+comment: p21jc3h
+parent: t1_p21afxv
+author: thats_gotta_be_AI
+created_utc: 1786017091
+edited: false
+body:
+Probably a stupid question, but if a wallet creates a collision, and the wallet contains a balance greater than zero, it would know right? Because it could check a balance and if it’s greater than zero, then…collision? So restart the process of generating a wallet?
+
+comment: p21jfhy
+parent: t3_1vh0lm7
+author: [deleted]
+created_utc: 1786017124
+edited: false
+body:
+[deleted]
+
+comment: p21jna7
+parent: t1_p21d4qf
+author: thats_gotta_be_AI
+created_utc: 1786017200
+edited: false
+body:
+“Oh nice of them to provide me a starting balance of 0.5BTC. It’s the little things that you remember!”
+
+comment: p21jncu
+parent: t3_1vh0lm7
+author: orbag
+created_utc: 1786017200
+edited: false
+body:
+If the entropy was this low, I dont understand why not ALL addresses were swiped in the first wave? I had some btc sitting on the default address and moved it on time, but kept a small amount to see when it would get swiped, and only on Sunday night it got taken, meaning 3 full days after the initial attack
+
+comment: p21judk
+parent: t1_p21a9pg
+author: boredwithlyf
+created_utc: 1786017267
+edited: false
+body:
+2^32 is so small that a macbook could generate every possibility in less than a day, narrowing the search space has no impact on attackability
+
+comment: p21k1wc
+parent: t1_p21cu31
+author: EarningsPal
+created_utc: 1786017341
+edited: false
+body:
+Time machine, back 6 years, ColdCard is mentioned by an influencer, you do your due diligence. 
+
+What due diligence would have prevented someone diligent from choosing a ColdCard?
+
+comment: p21kc4h
+parent: t1_p21guy2
+author: EarningsPal
+created_utc: 1786017440
+edited: false
+body:
+Being geniuses would not have helped the ColdCard seed failure victims.
+
+comment: p21kfh0
+parent: t1_p21gl0m
+author: EarningsPal
+created_utc: 1786017472
+edited: false
+body:
+I’m also shocked it was dormant so long. 
+
+comment: p21km80
+parent: t3_1vh0lm7
+author: Maleficent_Pool_4456
+created_utc: 1786017535
+edited: false
+body:
+bruh, I've been learning about crypto and this stuff for a long time, reading up on it, taking notes, and I still have trouble understanding this stuff. how does it seem like everyone gets these explanations so easily. 
+
+comment: p21kt88
+parent: t1_p219r7b
+author: orbag
+created_utc: 1786017601
+edited: false
+body:
+I can confirm, when migrating to a new seed from dice throws, I left a trivial amount of btc on a wallet with passphrase GOLUM, it got swiped this morning.
+
+comment: p21l3tv
+parent: t1_p21a9pg
+author: Maleficent_Pool_4456
+created_utc: 1786017702
+edited: false
+body:
+If it's 2\^23 that's only about 4 million addresses private keys, since hackers would need to hash each seed 2048 times to check if funds exist, that's still incredibly low, why is it taking days for hacker's to empty all these addresses? At such a low number as 4 million, wouldn't they be able to drain all non-multi sig and non-passphrase seeds within a day? 
+
+Thanks for your post by the way very interesting!
+
+comment: p21leho
+parent: t1_p21jncu
+author: Maleficent_Pool_4456
+created_utc: 1786017804
+edited: false
+body:
+Ya I dont know, I know for each seed it needs to go through 2048 hash cycles to be able to see if funds exist or empty it, but still that seems low and I haven't done the math but could be done within a day I'm guessing. 
+
+comment: p21lnd6
+parent: t3_1vh0lm7
+author: fonzdm
+created_utc: 1786017887
+edited: false
+body:
+The fact that 32 bits of UID where taken in input does not make any sense. If those are coordinates from the wafer, it means that different chips in different wafers but in the same spot, get the same coordinates, hence the same 32 bits. The original UID should contain also other information like wafer id, lot number and so on, so each chip gets a unique identifier globally.
+XORing with the value of SysTick maybe was meant to "randomize" this case, but again you are not adding entropy, the number of bits stays the same.
+
+comment: p21lr4h
+parent: t1_p21guy2
+author: Maleficent_Pool_4456
+created_utc: 1786017922
+edited: false
+body:
+I think it's just a trust thing, maybe if hardware wallets were federally insured idk. Because if I understand correctly, the code to produce a truly randomized seed isn't all that complicated. That's why I wonder if the ColdCard thing was intentional. 
+
+comment: p21m55t
+parent: t1_p21hjd5
+author: Maleficent_Pool_4456
+created_utc: 1786018051
+edited: false
+body:
+when they say roll a dice, are they saying to use that one program that you can do offline? I forget the name.
+
+also even if u did that, so u'd get ur receive address from that program, and just send ur coins there and it'd be air gapped as long as u used a computer that was offline and used a usb to put the program in?
+
+comment: p21m57e
+parent: t1_p21cu31
+author: WhenIntegralsAttack2
+created_utc: 1786018052
+edited: false
+body:
+“Do your own due diligence” is the ultimate cop-out.
+
+99% of people are not capable of doing their own due diligence. They don’t have the understanding or technical capability to do so. Are you advising everyone to go read the code for possible security breaches and make a guess as to whether or not they think it’s safe? Give me a break.
+
+comment: p21mhxz
+parent: t1_p21l3tv
+author: ineedanamegenerator
+created_utc: 1786018172
+edited: false
+body:
+I think all non-passphrase seeds are drained, no? Or about all. I assume they started with the bigger wallets and then moved to the smaller ones.
+
+comment: p21mxwf
+parent: t1_p21eden
+author: ineedanamegenerator
+created_utc: 1786018318
+edited: false
+body:
+I assumed the grid was a square but a wafer is round. So the corners are never possible and the numbers in the middle appear more often than the ones near the edges.
+
+If you buy a few STM32s you can start guessing the wafer size to narrow it down further.
+
+comment: p21nfjo
+parent: t1_p21jncu
+author: ineedanamegenerator
+created_utc: 1786018480
+edited: false
+body:
+I assume they wiped big wallets first. I also assume there's multiple teams applying the hack now that it's in the open.
+
+They were incredibly stupid in their execution anyway. The stolen funds are tainted now and they could have easily avoided it by generating new wallets for each transaction.
+
+comment: p21nmaz
+parent: t1_p21cu31
+author: jlonso
+created_utc: 1786018542
+edited: false
+body:
+Do your due diligence is crazy work, in order to buy a trezor, i need to hack one?
+
+comment: p21nmmy
+parent: t3_1vh0lm7
+author: beatthebook2x
+created_utc: 1786018545
+edited: false
+body:
+the fact all the stolen funds are going to the same wallet(s) says alot, its not multiple hackers attacking this retirement plan
+
+comment: p21nnox
+parent: t1_p21gl0m
+author: ineedanamegenerator
+created_utc: 1786018555
+edited: false
+body:
+I wrote my 2 cents here. Pure incompetence.
+
+https://www.reddit.com/r/Bitcoin/s/hjPktZQV75
+
+comment: p21ntbt
+parent: t1_p21jfhy
+author: ineedanamegenerator
+created_utc: 1786018606
+edited: false
+body:
+Sauce: my brain and the STM32 Reference Manual.
+
+What are you looking for exactly?
+
+comment: p21nzes
+parent: t1_p21km80
+author: ineedanamegenerator
+created_utc: 1786018661
+edited: false
+body:
+20+ years experience in developing embedded devices and I use the same microcontroller they used. Don't feel bad. This is complex.
+
+comment: p21o1gr
+parent: t1_p21mhxz
+author: Maleficent_Pool_4456
+created_utc: 1786018680
+edited: false
+body:
+Oh I was unaware of that, for some reason I thought they weren't. 
+
+So now I guess hackers are trying multi sig ones by taking each of the seeds and then using another seed together with it, which would take quadratic time (n\^2) for 2 multi sigs, etc. Then maybe passphrases where (I'm no expert but) I think this would be incredibly slow because they'd need to go through each seed with a password list and each password they try needs to be hashed 2048 times. 
+
+Is that right? 
+
+comment: p21ocb3
+parent: t1_p21guy2
+author: ineedanamegenerator
+created_utc: 1786018779
+edited: false
+body:
+I disagree. You just need to not trust others. I would always make external entropy mandatory (dice rolls for example). It's not user friendly, but that's a one time cost worth the trouble.
+
+comment: p21onen
+parent: t1_p21jc3h
+author: ineedanamegenerator
+created_utc: 1786018878
+edited: false
+body:
+That's what an honest person would do.
+And hopefully also seriously question the entropy source they used because that is not supposed to happen ever.
+
+comment: p21ow8o
+parent: t1_p21o1gr
+author: ineedanamegenerator
+created_utc: 1786018956
+edited: false
+body:
+Yes, the next step is a lot harder but been applied at least a few times now. A simple password on top buys you only a little bit time.
+
+comment: p21p329
+parent: t1_p21nmmy
+author: ineedanamegenerator
+created_utc: 1786019016
+edited: false
+body:
+I'm sure by now there are multiple teams clearing out what is left and fishing for the simple passphrase wallets.
+
+comment: p21pagk
+parent: t1_p21cu31
+author: Not-the-best-name
+created_utc: 1786019082
+edited: false
+body:
+How would any reasonable user have found this out via die diligence? And also, sometimes you need to trust popular products since they are probably better than unpopular ones?
+
+comment: p21qimu
+parent: t1_p21ow8o
+author: Maleficent_Pool_4456
+created_utc: 1786019470
+edited: false
+body:
+Thanks. My understand is if you make a good enough password on top it's pretty unbreakable, for example a 10 character one (I think the number of possible characters is like 91 iirc?) and because of the 2048 rounds needed to be hashed for one, isn't it like millions of years? 
+
+Like passwords that are truly random and more than like 8/9 characters long would be safe do you think? 
+
+comment: p21qx0f
+parent: t1_p21k1wc
+author: This_Maintenance_834
+created_utc: 1786019595
+edited: false
+body:
+only use bitcoin core on major linux distro. 
+
+comment: p21r26y
+parent: t1_p21onen
+author: thats_gotta_be_AI
+created_utc: 1786019640
+edited: false
+body:
+Yes it’s not meant to happen but I wonder if developers coded in a check, and if a collision occurred, then restart the process (and obviously don’t divulge the seed phrase of the collided wallet). 
+
+comment: p21r3af
+parent: t1_p21k1wc
+author: BaloneyCommercial
+created_utc: 1786019649
+edited: false
+body:
+I think the due diligence part is using 100+ dice roles and passphrase because you don't trust anyone and always want max entropy.
+
+comment: p21rofb
+parent: t1_p21r26y
+author: ineedanamegenerator
+created_utc: 1786019831
+edited: false
+body:
+Offline wallet can't check out course.
+
+comment: p21t6he
+parent: t1_p21rofb
+author: thats_gotta_be_AI
+created_utc: 1786020296
+edited: false
+body:
+Not from the secure chip, but the resolved wallet address (the public address) can be sent online to check, right? 
+
+comment: p21upfp
+parent: t3_1vh0lm7
+author: NakedNick_ballin
+created_utc: 1786020762
+edited: false
+body:
+Too bad Bitcoin doesn't have 2FA
+
+comment: p21v4pc
+parent: t1_p21r26y
+author: Javanaut018
+created_utc: 1786020891
+edited: false
+body:
+In case of a collision something is horribly wrong without your entropy source. And you know that at the first emerged event if you have basic understanding of bitcoin math. And you should have that as wallet developer.
+
+The last thing you should consider as dev is to implement such a stupid check but instead to tear your whole code base apart to find the underlying issue.
+
+comment: p21vh2q
+parent: t1_p21b3ee
+author: frankster
+created_utc: 1786020993
+edited: false
+body:
+If this has happened to even 10 people I:f expect more than 1 to mention it and not keep quiet
+ So I'd expect there are forum posts or possibly discord chat history to be found where people describe this.
+
+comment: p21vin5
+parent: t1_p21r26y
+author: Javanaut018
+created_utc: 1786021007
+edited: false
+body:
+In case of a collision something is horribly wrong without your entropy source. And you know that at the first emerged event if you have basic understanding of bitcoin math. And you should have that as wallet developer.
+
+The last thing you should consider as dev is to implement such a stupid check but instead to tear your whole code base apart to find the underlying issue.
+
+comment: p21x5ae
+parent: t1_p21v4pc
+author: thats_gotta_be_AI
+created_utc: 1786021494
+edited: false
+body:
+Of course. A collision should never occur. I just wonder how hard it is to detect it after the fact, prevent the seed being shared if a collision occurred, restart the process? Like if it’s a few lines of code for an event in theory “could” happen, in practice won’t, it’s hardly a cost to implement. 
+
+comment: p21ya5a
+parent: t1_p21m55t
+author: Kweefyy
+created_utc: 1786021830
+edited: false
+body:
+The offline program you're thinking of is Yahtzee 
+
+comment: p21yi1v
+parent: t1_p21m55t
+author: ZICRON_ULTRA
+created_utc: 1786021893
+edited: false
+body:
+I don't think so, I think it means get out all your boardgames and use their dice
+
+comment: p21yp2i
+parent: t1_p21r3af
+author: spongeboy-me-bob1
+created_utc: 1786021951
+edited: false
+body:
+Let's say instead of a bug that only affected trng generation, there was a bug that used the weaker software rng no matter what you did. In the end the only way to do due diligence is to read the source code completely. But wait, what if there is a bug in the hardware itself? Then you're cooked and you can't even know it.
+
+The only truly safe way to generate a wallet is roll the dice and calculate the hash with pencil and paper. Everything else is a risk to convenience trade off, and sometimes you get unlucky.
+
+comment: p21ytkj
+parent: t3_1vh0lm7
+author: Wglinki
+created_utc: 1786021988
+edited: false
+body:
+I wonder if two MK3s generated the same secret over the past 5 years.   This could have had a less horrendous end if this happened and the person made it public knowledge that they generated a secret and it already was being used.   People would have dove into the code then and could have saved a lot of people over the years.   
+
+comment: p21zrjw
+parent: t1_p21upfp
+author: Kweefyy
+created_utc: 1786022262
+edited: false
+body:
+It would require every Bitcoin node to know what your "second factor" is and how to verify it.
+
+comment: p21zzga
+parent: t1_p21ytkj
+author: ineedanamegenerator
+created_utc: 1786022325
+edited: false
+body:
+The stories are there, from the other side (original wallet owners who got their funds drained inexplicably).
+
+Last year the CTO of Coinkite was warned (alledgedly).
+
+In both cased it was waved off.
+
+https://www.cryptopolitan.com/coinkite-cto-peter-gray-linked-coldcard-hack/
+
+comment: p2200n2
+parent: t1_p21t6he
+author: na3than
+created_utc: 1786022334
+edited: false
+body:
+No part of an offline wallet is online.
+
+comment: p22068k
+parent: t1_p21m55t
+author: pwnedgiraffe
+created_utc: 1786022379
+edited: false
+body:
+I think this should work:  
+[https://github.com/taelfrinn/Bip39-diceware](https://github.com/taelfrinn/Bip39-diceware)
+
+I would not trust any computer with my cold wallet private key, air-gapped or not.
+
+The last checksum word can be found by trial and error. It should be possible to do this on the cold wallet device itself, ie ledger/trezor.
+
+From the author:  
+"After you are finished all 12 words, the last word may need adjustment in order to meet the checksum requirements. Using a bip39 wallet try each of the words in the block of 16 that the last word is found inside; one and only one word will work from the group."
+
+I see no point in trusting the random seed generator from Ledger or Trezor if one can generate their own instead.
+
+comment: p220eu1
+parent: t3_1vh0lm7
+author: hominidnumber9
+created_utc: 1786022447
+edited: false
+body:
+Oooof
+
+comment: p220iyg
+parent: t1_p21afxv
+author: charcoalVidrio
+created_utc: 1786022479
+edited: false
+body:
+There were reports from customers, even here on Reddit. They were ignored.
+
+comment: p221avy
+parent: t1_p21k1wc
+author: Dry_Original8886
+created_utc: 1786022700
+edited: 1786038019
+body:
+I think wallet quality, company size are also big ones.  Those two would have immediately not passed my test.   5 people working there is already fishy.  And the wallet looking cheaper than a 1990s calculator is the 2nd strike.
+
+comment: p221w9f
+parent: t1_p21at1j
+author: genius_retard
+created_utc: 1786022867
+edited: false
+body:
+> there was not a lot of testing done (apparently)
+
+Maybe there was and everything worked as intended... ie. retirement attack.
+
+comment: p222bje
+parent: t1_p221avy
+author: WYTW0LF
+created_utc: 1786022985
+edited: false
+body:
+That’s the biggest reason I never even looked twice despite every maxi influencer recommending CC
+
+comment: p222ly2
+parent: t1_p221w9f
+author: ineedanamegenerator
+created_utc: 1786023067
+edited: false
+body:
+I can't rule it out, but I've been in the industry long enough to totally understand that these things happen. They shouldn't and it remains complete incompetence, but I've seen worse security risks implemented in millions of devices.
+
+comment: p222t7y
+parent: t1_p21cu31
+author: Dashizz6357
+created_utc: 1786023124
+edited: false
+body:
+I do still think the device itself is the best, IMO. The software was just absolute garbage. Those 2 things can both be true.
+
+comment: p222tzb
+parent: t3_1vh0lm7
+author: spongeboy-me-bob1
+created_utc: 1786023130
+edited: false
+body:
+If it really is only 23 bits then this is beyond inexcusable. The average number of samples before a collision would be 3631, and you have a 99% chance of collision after 8789 samples. A step in their CI/CD that ran 1 billion samples would cost next to nothing and can reliably catch regressions that result in algorithms as strong as 56 bits.
+
+comment: p222ziq
+parent: t1_p21ya5a
+author: Dashizz6357
+created_utc: 1786023173
+edited: false
+body:
+I used farkle. 
+
+comment: p2239jz
+parent: t1_p2200n2
+author: thats_gotta_be_AI
+created_utc: 1786023252
+edited: false
+body:
+From GPT Sol, tell me if any of this is wrong: 
+
+a Coldcard could check for an observable collision without exposing the seed or private keys. After generating the seed offline, it could derive and export its public addresses or XPUB to an internet-connected wallet via USB, MicroSD, NFC or QR. That wallet could then scan the Bitcoin blockchain and warn if any of those addresses already had transaction history. It wouldn’t detect a collision where the other holder had never used the address, since unused private keys aren’t publicly registered anywhere, but it could detect one that had already left an on-chain trace.
+
+comment: p223dxb
+parent: t1_p21nmmy
+author: JayGatsby1881
+created_utc: 1786023286
+edited: false
+body:
+Would be funny is Satoshi kept his millions of btc in Cold Wallet lmao, and it got 'hacked'.
+
+comment: p223fe0
+parent: t1_p21nmmy
+author: JayGatsby1881
+created_utc: 1786023298
+edited: false
+body:
+Would be funny is Satoshi kept his millions of btc in Cold Wallet lmao, and it got 'hacked'.
+
+comment: p223rai
+parent: t1_p21m57e
+author: BDCRA
+created_utc: 1786023391
+edited: false
+body:
+Yeah Bitcoin is never going to be adopted if something like this was required. People aren't going around and inspecting bank employees before they make a deposit. We don't walk around and make sure the vault is secure and enough cameras are in place. The average person takes a long time to wrap their head around what btc is 
+
+comment: p227ar7
+parent: t1_p21kt88
+author: Head_Performance2432
+created_utc: 1786024356
+edited: false
+body:
+GOLUM123 might have helped. Could be wrong though !
+
+comment: p227ypo
+parent: t1_p21jc3h
+author: Logical_driver_42
+created_utc: 1786024536
+edited: false
+body:
+The cold card is an offline device it doesn’t know it’s bitcoin balance it knows it’s seed phrase and can sign transactions but it can’t view the blockchain. So no it wouldn’t know the balance. 
+
+comment: p2288y1
+parent: t1_p21x5ae
+author: Logical_driver_42
+created_utc: 1786024614
+edited: false
+body:
+It’s an offline wallet it can’t check if a collision occurs. 
+
+comment: p228lus
+parent: t1_p227ypo
+author: thats_gotta_be_AI
+created_utc: 1786024713
+edited: false
+body:
+I understand that, but why can’t it send a public address derived from the private key?  Here is a GPT Sol take on this - I’m not endorsing it, because I don’t have the technical knowledge…
+
+In theory, a Coldcard could check for an observable collision without exposing the seed or private keys. After generating the seed offline, it could derive and export its public addresses or XPUB to an internet-connected wallet via USB, MicroSD, NFC or QR. That wallet could then scan the Bitcoin blockchain and warn if any of those addresses already had transaction history. It wouldn’t detect a collision where the other holder had never used the address, since unused private keys aren’t publicly registered anywhere, but it could detect one that had already left an on-chain trace.
+
+comment: p22972h
+parent: t1_p21x5ae
+author: Javanaut018
+created_utc: 1786024872
+edited: false
+body:
+You do all sorts of such tests in code it's called exceptions. Any normal software has hundreds or millions of these. But you should not let a single seed collision remain uninvestigated.
+
+comment: p22b1i9
+parent: t1_p21f33n
+author: SatisfactionFinal287
+created_utc: 1786025370
+edited: false
+body:
+I imagine if your device steals other people's Bitcoin, you wouldn't keep it on the same device.
+
+comment: p22ebmp
+parent: t1_p21hwdg
+author: aaj094
+created_utc: 1786026245
+edited: false
+body:
+Source?
+
+comment: p22elfy
+parent: t1_p21mhxz
+author: Charming-Designer944
+created_utc: 1786026318
+edited: false
+body:
+The attack is indiscriminate,  attacking all  wallets in parallell. It can not target individual wallets before others.
+
+comment: p22eqfq
+parent: t3_1vh0lm7
+author: aaj094
+created_utc: 1786026355
+edited: false
+body:
+One has to ask - how is it possible for a hardware wallet manufacturer to be this incompetent?
+
+comment: p22f5y7
+parent: t1_p22elfy
+author: ineedanamegenerator
+created_utc: 1786026468
+edited: false
+body:
+What? Of course it can. Why couldn't they?
+Pre-compute all possible wallets first and rank them.
+
+comment: p22fj2c
+parent: t1_p22eqfq
+author: ineedanamegenerator
+created_utc: 1786026563
+edited: false
+body:
+20+ years in the industry. Not surprised at all. Seen worse things.
+
+My 2 cents here: https://www.reddit.com/r/Bitcoin/s/DBCQhWAwqS
+
+comment: p22fw41
+parent: t1_p21afxv
+author: loopala
+created_utc: 1786026659
+edited: false
+body:
+Based on the birthday paradox for 2^23 addresses it would only take 4096 wallets (sqrt( 2*2^23 )), to get a probability of collision > 50%.
+
+comment: p22hfju
+parent: t1_p21r3af
+author: loopala
+created_utc: 1786027066
+edited: false
+body:
+> you don't trust anyone
+
+Who is converting these dice rolls into a private key?
+
+comment: p22izl9
+parent: t1_p21yp2i
+author: bruce_cockburn
+created_utc: 1786027477
+edited: false
+body:
+This seems to present a hardware implementation bug as a risk inherent to the code. If you download a wallet creator script and transfer it to an offline system to execute, the risk you're mitigating is some process exfiltration by an online service. Calculation by pencil and paper is far more likely to result in an error than a deterministic process execution and the bits of complexity are baked into the script.
+
+Once you have a wallet with a private key or seed phrase generated, if the flawed hardware device is offline/air-gapped, restoring your wallet on that flawed hardware device is perfectly safe.
+
+comment: p22khf5
+parent: t1_p222t7y
+author: scottonfire
+created_utc: 1786027866
+edited: false
+body:
+Yeah, just like I'm with the hottest girl ever, only she's a fucking whore
+
+comment: p22l46k
+parent: t1_p222tzb
+author: Pirulax
+created_utc: 1786028032
+edited: false
+body:
+Don't try to bring logic into all this, god damn
+
+comment: p22lsr8
+parent: t1_p21k1wc
+author: Kitchen_Catch3183
+created_utc: 1786028208
+edited: false
+body:
+Get a PhD in computer science and become a subject matter expert in cryptography. Then post here with your findings and get banned for FUD before becoming ostracized by the community as a whole. 
+
+comment: p22m34g
+parent: t1_p22izl9
+author: spongeboy-me-bob1
+created_utc: 1786028283
+edited: false
+body:
+I was being facetious with the paper and pencil alternative because it would require millions of operations. But if someone did try it, mistakes in individual bitwise operations don't decrease the entropy since the location and type of mistakes they make are random and most likely unique. The real risk is when a flawed algorithm is shared with others, because that allows attackers to know exactly which step would have been messed up by multiple people, and in what manner.
+
+comment: p22mvk0
+parent: t1_p21m57e
+author: striata
+created_utc: 1786028486
+edited: false
+body:
+Even the people typing that shit likely have no clue where to even start vetting the code.
+
+This bug existed for five years. It was *not* an easy thing to discover.
+
+comment: p22o563
+parent: t1_p21b3ee
+author: MiceAreTiny
+created_utc: 1786028817
+edited: false
+body:
+If you find money on the blockchain,... Who would you honestly go to report it to? I would move it. 
+
+comment: p22oh4y
+parent: t1_p220iyg
+author: MiceAreTiny
+created_utc: 1786028902
+edited: false
+body:
+Tbf, it is more likely that Jeremy fuck face actually leaked his keys by using some online scam artist instead of cold card being actually the scam. I would also not believe it. 
+
+comment: p22okj7
+parent: t1_p21jc3h
+author: MiceAreTiny
+created_utc: 1786028927
+edited: false
+body:
+Why restart? 
+
+comment: p22ot3b
+parent: t1_p21t6he
+author: MiceAreTiny
+created_utc: 1786028988
+edited: false
+body:
+By then,... It is generated and online. 
+
+comment: p22oxgx
+parent: t1_p22b1i9
+author: NotASpanishSpeaker
+created_utc: 1786029020
+edited: false
+body:
+You would if you don't understand a lot of the technical background. So...
+
+comment: p22qlrk
+parent: t1_p22f5y7
+author: NotASpanishSpeaker
+created_utc: 1786029447
+edited: false
+body:
+Correct, that's what they did. It's been widely reported.
+
+comment: p22qok9
+parent: t1_p22elfy
+author: NotASpanishSpeaker
+created_utc: 1786029468
+edited: false
+body:
+Uhm, that's what they did. It's been widely reported.
+
+comment: p22rfoz
+parent: t3_1vh0lm7
+author: Affectionate-Cod-470
+created_utc: 1786029659
+edited: false
+body:
+People who aren't of reddit, forums, x, Facebook etc have been having "random" wallet drains for years. The collisions have been happening, then if someone did post about it they got bombarded with blame and being told they "had" to have clicked a bad link or done something that was there fault because no one thought collisions this early was even possible. 
+
+comment: p22rfqp
+parent: t1_p223rai
+author: NotASpanishSpeaker
+created_utc: 1786029659
+edited: false
+body:
+It's like some things gotta be regulated...
+
+comment: p22sdkk
+parent: t1_p22rfoz
+author: ineedanamegenerator
+created_utc: 1786029895
+edited: false
+body:
+Exactly. Feel bad for those people. They did the right thing and still got punished and blamed.
+
+comment: p22t879
+parent: t1_p22okj7
+author: thats_gotta_be_AI
+created_utc: 1786030110
+edited: false
+body:
+Because collision?
+
+comment: p22t9bk
+parent: t1_p21gl0m
+author: NotASpanishSpeaker
+created_utc: 1786030118
+edited: false
+body:
+No testing = no bugs reported :)
+
+comment: p22ti4j
+parent: t1_p22ot3b
+author: thats_gotta_be_AI
+created_utc: 1786030180
+edited: false
+body:
+Why though? It can check before generating the wallet:
+
+In theory, a Coldcard could check for an observable collision without exposing the seed or private keys. After generating the seed offline, it could derive and export its public addresses or XPUB to an internet-connected wallet via USB, MicroSD, NFC or QR. That wallet could then scan the Bitcoin blockchain and warn if any of those addresses already had transaction history. It wouldn’t detect a collision where the other holder had never used the address, since unused private keys aren’t publicly registered anywhere, but it could detect one that had already left an on-chain trace.
+
+comment: p22uljs
+parent: t1_p22m34g
+author: bruce_cockburn
+created_utc: 1786030460
+edited: false
+body:
+The flawed algorithm, in the case you described, is the hardware implementation of entropy used in creation of the wallet, though. The hardware either complies with the standard to restore a wallet from seed or private key or it doesn't and that has no correlation to the creation step. This is why dice rolling or other validated means of generating a wallet with verifiable entropy remain secure until a user shares their seed or private key with an untrusted party.
+
+Most of us are not polymaths. It's not that complicated as a high level concept. Conflating the wallet creation with air-gapped signing to submit transactions is the thing I am clarifying. Even if ColdCard is not a trusted party, the reason their hardware was recommended in the past had nothing to do with their wallet creation implementation, which only happens once per wallet.
+
+comment: p22uter
+parent: t1_p219g6c
+author: rockorangebear
+created_utc: 1786030516
+edited: false
+body:
+So 8,388,608
+
+Instead of 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,936
+
+Cool
+
+comment: p22uu6m
+parent: t1_p21yp2i
+author: 1n5aN1aC
+created_utc: 1786030521
+edited: false
+body:
+With Coldcard, you could use dicerolls, and a python script on a computer to verify the hash matches the generated.
+
+And since the python script is very very simple, it wouldn't be too hard to audit that, then generate 1-2 keys on your card, verifying it matches, then generate the real one, now confident the key is secure and not leaked.
+
+That does solve pretty much all possible vulnerabilities related to key generation, but it is harder for a non-technical user.
+
+comment: p22v0fg
+parent: t1_p22mvk0
+author: WhenIntegralsAttack2
+created_utc: 1786030566
+edited: 1786030916
+body:
+One problem today is people not having a proper understanding of what research entails. To most people, research means consuming others’ opinions, work, and studies and then deciding if it makes sense to them. This is what research means when writing a high school paper.
+
+But genuine research is much harder. Get into the lab, run experiments, come up with a mathematical proof, etc. Engage with the material itself- create original knowledge. It is much more challenging, and it requires years of education and expertise to get to the forefront of knowledge to where you can reasonable be said to be doing proper research. Obviously most people are not at this level on any subject, and we have no other option but to trust the expert consensus. Before doing your own research or dismissing expert consensus, we must first judge whether we’re capable of doing so. This goes for everything from cyber security to vaccines.
+
+Even in the case of cold wallets, you would need someone to know enough about programming languages and cryptography to even understand the source code and make an intelligent judgment of its security- or you blindly test an AI review. This is well outside of the scope of what the vast majority of people are capable of.
+
+Research does not mean watching your favorite YouTubers spoon feeding you propaganda.
+
+comment: p22wv5v
+parent: t1_p22oxgx
+author: SatisfactionFinal287
+created_utc: 1786031039
+edited: false
+body:
+True that
+
+comment: p22xlm5
+parent: t1_p21qimu
+author: rockorangebear
+created_utc: 1786031225
+edited: false
+body:
+8 character passwords can be brute forced in a couple of hours at most, 9 character maybe a few days, 10 maybe a few weeks
+
+If you use dictionary words in your password though, can be cracked much, much quicker
+
+comment: p22xofq
+parent: t1_p21e5fm
+author: WhenIntegralsAttack2
+created_utc: 1786031244
+edited: false
+body:
+It’s almost like there’s a higher threshold for security for products and services that are used across global commerce. Who would have thought?
+
+comment: p22z93r
+parent: t1_p22khf5
+author: Dashizz6357
+created_utc: 1786031637
+edited: false
+body:
+Sounds like a good time.  
+
+comment: p231qjz
+parent: t1_p21k1wc
+author: rockorangebear
+created_utc: 1786032260
+edited: 1786032498
+body:
+Maybe don't trust a company with 5 employees and $115k raised...
+
+Especially when there are these alternatives.
+
+Ledger: 800 employees, $575 million raised and $4B valuation
+
+Trezor: 200 employees, $50M recurring revenue
+
+comment: p235rys
+parent: t1_p21km80
+author: eatatacoandchill
+created_utc: 1786033270
+edited: false
+body:
+Tldr
+Coldcard should have rolled a billion dice to ensure randomness.  They rolled only a million.  Or something like that.
+
+comment: p2363fv
+parent: t1_p22t879
+author: MiceAreTiny
+created_utc: 1786033349
+edited: false
+body:
+But why would you restart? If you find a private key, it is unsecured. So moving it to a secure address is the ethical right thing to do. Why would you discard an active wallet? 
+
+comment: p239ytx
+parent: t1_p21kt88
+author: moxygon
+created_utc: 1786034305
+edited: false
+body:
+Sneaky little hobbitses!
+
+comment: p23e9td
+parent: t1_p2363fv
+author: thats_gotta_be_AI
+created_utc: 1786035358
+edited: 1786036057
+body:
+I don’t follow.  Hear me out:
+
+\- ColdCard generates a private key
+
+\- it checks to see if it exists anyway via a public key lookup
+
+\- if it finds an active balance, it restarts a brand new private key generation process (starts the process all over again)
+
+Tell me why that cannot happen?
+
+comment: p23eag1
+parent: t1_p21nnox
+author: birktorsten2
+created_utc: 1786035362
+edited: false
+body:
+Awesome. That explains a lot. Thanks!
+
+comment: p23hjak
+parent: t3_1vh0lm7
+author: LeatherMine
+created_utc: 1786036157
+edited: false
+body:
+> UID encodes the X and Y coordinates of wafer position of the STM32 in the 32 bits that are used by the code. This is encoded in BCD, which means only 10 out of 16 possible values of each nibble are used
+
+The reference manual was incorrect and the coordinates are in hex. The first value is probably the sign (for negative). Do a google search for "STM32F303CB Unique Device ID - false values?"
+
+comment: p23jenx
+parent: t1_p21jna7
+author: dj_destroyer
+created_utc: 1786036615
+edited: false
+body:
+That's actually a really interesting implication...
+
+If the effective entropy really was around \~23 bits then collisions wouldn't just be possible, they'd become statistically likely. And only after only a few thousand wallet generations (birthday paradox).
+
+What I find fascinating is the reporting bias created from this whole fiasco. Because we only ever hear from people who **lost** coins because they naturally assume they've been hacked but what about the person who generated the same seed years later and suddenly found an existing balance?
+
+Would they post about it? Probably not. Most people would either think they got impossibly lucky and/or just quietly move the coins. And even if they did post, I suspect the community would dismiss it as fake because "hardware wallets don't come preloaded with bitcoin". That being said, I don't think there's one single instance of someone mentioning this -- at least not that I've seen. 
+
+Ironically, a credible report of someone generating a brand new wallet that already contained transaction history would have been a much stronger early indicator of a broken RNG over isolated reports of stolen coins. The latter are easy to write off as user error, phishing, poor seed handling, etc.. The former is much harder to explain away.
+
+**If collisions were occurring, the first public "I unexpectedly gained bitcoin" post might have changed the entire narrative years before people started connecting the dots.**
+
+Not sure if it would have changed anything because the writing was basically on the wall -- and any attempts to contact people to tell them to regenerate their seeds would have been futile, as they would have also tipped off hackers. 
+
+Truly fascinating stuff, and we're all here just witnessing history unfold. They'll talk about this for decades, maybe centuries. People might come back to OP's post in a college class. Wild wild times. 
+
+comment: p23jzc1
+parent: t1_p23hjak
+author: ineedanamegenerator
+created_utc: 1786036755
+edited: 1786037001
+body:
+Yes, I read that too afterwards. Doesn't change the math because the limiting factor is the number of possible values for the upper 16 bits which remains hundreths at best, no matter how it's encoded.
+
+Edited the post anyway to make it clear.
+
+comment: p23lfpv
+parent: t1_p23e9td
+author: CaptaincCodeman
+created_utc: 1786037106
+edited: false
+body:
+It would need to be online.
+
+comment: p23rh3t
+parent: t1_p23e9td
+author: MiceAreTiny
+created_utc: 1786038577
+edited: false
+body:
+It can, theoretically, happen. However,... I am more wondering why you would have it discard identified working keys. 
+
+comment: p23thyp
+parent: t1_p23jzc1
+author: LeatherMine
+created_utc: 1786039072
+edited: false
+body:
+Is it confirmed the CC was grabbing the 32 bit end with the wafer x,y from the 96 bit UID? Hopefully it wasn’t the other 32 bit side: lot number…
+
+comment: p240ksc
+parent: t3_1vh0lm7
+author: [deleted]
+created_utc: 1786040838
+edited: false
+body:
+[removed]
+
+comment: p241rce
+parent: t1_p23thyp
+author: ineedanamegenerator
+created_utc: 1786041135
+edited: false
+body:
+That would indeed be even worse. But is was the XY part at least.
+
+comment: p2420ku
+parent: t1_p21upfp
+author: [deleted]
+created_utc: 1786041201
+edited: false
+body:
+[deleted]
+
+comment: p2421nk
+parent: t1_p21nnox
+author: neoguri808
+created_utc: 1786041208
+edited: false
+body:
+Interesting theories!  Good read. Thanks 
+
+comment: p2431bl
+parent: t1_p231qjz
+author: ubermensch1001
+created_utc: 1786041459
+edited: false
+body:
+I made a thread on cryptocurrency reddit saying this very same thing and a troll that admitted to recommending cold card came on there to argue with me. 
+
+comment: p2433y6
+parent: t1_p221avy
+author: ubermensch1001
+created_utc: 1786041477
+edited: false
+body:
+Exactly what I've been saying 
+
+comment: p24362e
+parent: t1_p222bje
+author: ubermensch1001
+created_utc: 1786041491
+edited: false
+body:
+Exactly 
+
+comment: p243ftx
+parent: t3_1vh0lm7
+author: nullc
+created_utc: 1786041560
+edited: false
+body:
+It would be prudent to remind people here that there are still a lot of vulnerable funds that could be saved and that it would be anti-social to explain how to reduce the search space of coldcard devices just to brag about how smart you are, or show that some rando was wrong on the internet.
+
+Plenty of other people could be posting about the exact search space needed to enumerate vulnerable seeds and are kindly refraining from doing so. Just because you could figure out that doesn't mean that every would be coin-thief is going to figure it out before the owners sweep their coins.
+
+comment: p243qso
+parent: t1_p2420ku
+author: NakedNick_ballin
+created_utc: 1786041636
+edited: false
+body:
+That isn't 2fa, that's an alternative auth right? Also that's the thing that got hacked here
+
+comment: p243tuk
+parent: t1_p21zrjw
+author: NakedNick_ballin
+created_utc: 1786041657
+edited: false
+body:
+Agree that's a hard problem 
+
+comment: p2447sm
+parent: t1_p240ksc
+author: ineedanamegenerator
+created_utc: 1786041755
+edited: false
+body:
+It's amateur hour engineering. They should have never used the bad entropy sources because it made it look like it was almost good. You want this to fail fast and hard, so don't seed the pseudo RNG and make it completely predictable (they never intended to use it anyway). Then it would have been caught very early on.
+
+Now the problem remained hidden for years with only spurious issues popping up that could be easily explained away.
+
+comment: p244jxf
+parent: t1_p2447sm
+author: [deleted]
+created_utc: 1786041838
+edited: false
+body:
+[removed]
+
+comment: p246gwx
+parent: t1_p243ftx
+author: ineedanamegenerator
+created_utc: 1786042322
+edited: false
+body:
+Fair point. Didn't consider this.
+
+comment: p246o8q
+parent: t1_p244jxf
+author: ineedanamegenerator
+created_utc: 1786042374
+edited: false
+body:
+Not sure what you mean.
+
+comment: p248d39
+parent: t1_p246o8q
+author: [deleted]
+created_utc: 1786042806
+edited: false
+body:
+[removed]
+
+comment: p248mvb
+parent: t3_1vh0lm7
+author: the-software-man
+created_utc: 1786042875
+edited: false
+body:
+Why don’t they use 2x UUIDs
+
+comment: p24abxx
+parent: t3_1vh0lm7
+author: forgotpw3
+created_utc: 1786043310
+edited: false
+body:
+X \* V\_low doesn't add zero entropy (it smears V over 2\^17 values, adding maybe half a bit), and for a round wafer the per-axis max is \~2•sqrt(A/п) =  
+160 for 20k chips, slightly larger than sqrt(A) = 141, so use Ymax = 160-256 as the safe cap.
+
+comment: p24aezd
+parent: t1_p248d39
+author: ineedanamegenerator
+created_utc: 1786043331
+edited: false
+body:
+That is a shitty situation. So you'll need to race the potential hacker when they are unlocked?
+
+comment: p24bfqi
+parent: t1_p248mvb
+author: ineedanamegenerator
+created_utc: 1786043594
+edited: false
+body:
+Because you need a way to generate those first. Just moves the problem.
+
+Even if they were factory generated you'd still need a real source of entropy or the device would generate the same keys each boot.
+
+But honestly, that would still be a much better situation than today. If they had added just one factory generated UUID in the mix they'd be protected against a hack like this.
+
+This is common design choice: if you get hacked or a flaw is exposed, try to make it impact only one device at a time. In this case all devices are exposed to the single flaw.
+
+comment: p24d62o
+parent: t1_p24abxx
+author: ineedanamegenerator
+created_utc: 1786044038
+edited: false
+body:
+X still adds no entropy because they XOR. The 16 lowest bits still have only 16 bits of entropy.
+
+You're right about the rows/columns. Might give a little bit extra, but 20k might also be overestimated and could be as low as a few k.
+
+Doesn't matter that much to be honest. It's significantly worse than 32bit.
+
+comment: p24ghy2
+parent: t1_p24d62o
+author: forgotpw3
+created_utc: 1786044893
+edited: false
+body:
+Agreed. Still nowhere near 32!!
+
+comment: p24pxt5
+parent: t1_p21lnd6
+author: [deleted]
+created_utc: 1786047360
+edited: false
+body:
+[deleted]
+
+comment: p24r2gi
+parent: t1_p23jenx
+author: LeatherMine
+created_utc: 1786047656
+edited: false
+body:
+> Because we only ever hear from people who lost coins because they naturally assume they've been hacked
+
+If they posted transaction records, we may now be able to show their seed came from the weak set. Unfortunately, a lot of those posts tend to get deleted by their poster as they end up being a heavily downvoted pile-on of name-calling.
+
+comment: p24tzsl
+parent: t1_p23lfpv
+author: LeatherMine
+created_utc: 1786048417
+edited: false
+body:
+Or hold an offline blob of addresses that contained a balance at some snapshot in time. I see estimates of 60m addresses being non-zero, 256 bits per address = 15gigabytes. A bit less to account for the older address schemes. And probably a lot less if you exclude dusty addresses that hasn’t moved for a while. 
+
+But that’s all unnecessary… if your key generation is good.
+
+comment: p24zxdu
+parent: t1_p21mxwf
+author: LeatherMine
+created_utc: 1786049969
+edited: false
+body:
+Depends… doing some quick research: the wafer yield might be a bit lower at the dead center, then get better and then get worse as you get to the edge. Parts from a “good area” might get binned at a grade higher than what CC used. Or lower, Iunno.
+
+Also makes us wonder how random or clustered the die—>reel is. But I guess that doesn’t matter if wafer ID wasn’t included in the seed generation. It could have provided some insight into ST’s packaging practices, binning and process yield.
+
+comment: p251gji
+parent: t1_p22rfoz
+author: LeatherMine
+created_utc: 1786050381
+edited: false
+body:
+> because no one thought collisions this early was even possible.
+
+It’s happened a few times before. Uncovered some android issues and other bad wallet design. See cakewallet, libbitcoin and Java’s SecureRandom vulnerabilities.
+
+comment: p2558dy
+parent: t1_p21b3ee
+author: ZedZeroth
+created_utc: 1786051402
+edited: false
+body:
+And then sadly the victim would have posted on here and everyone would have told them that they must have screwed up because a collision / bruteforce attack is impossible...
+
+comment: p255ad4
+parent: t1_p21k1wc
+author: Quantris
+created_utc: 1786051417
+edited: false
+body:
+I use my coldcard as a calculator. If I wanted someone else to generate my seed I'd just use an online wallet
+
+comment: p255u0x
+parent: t1_p21jc3h
+author: ZedZeroth
+created_utc: 1786051565
+edited: false
+body:
+You mean design it to "try again" if it hits a collision? Then you couldn't recover existing wallets. Also this would never happen with a wallet with proper entropy.
+
+comment: p256hx9
+parent: t1_p21x5ae
+author: ZedZeroth
+created_utc: 1786051747
+edited: false
+body:
+(1) It can't happen with proper entropy.
+
+(2) Such a function would prevent you from recovering existing wallets.
+
+(3) Why would anyone implement a system that prevents you from finding coins. It's not the dev's job to make ethical decisions for the user.
+
+comment: p25778j
+parent: t1_p21upfp
+author: Quantris
+created_utc: 1786051940
+edited: false
+body:
+I guess you could consider multisig a form of 2fa
+
+comment: p258cgv
+parent: t3_1vh0lm7
+author: LionRivr
+created_utc: 1786052257
+edited: false
+body:
+Well shoot.
+
+I mean how could you ***not*** attempt to steal those coins? Lol.
+
+Anyone without morals at least…
+
+Couldn’t be me…
+
+comment: p25cl3r
+parent: t1_p221w9f
+author: OldWolf3
+created_utc: 1786053446
+edited: false
+body:
+It's not a very good retirement attack if someone else figures it out first
+
+comment: p25g9el
+parent: t1_p22oh4y
+author: Secret_Operative
+created_utc: 1786054510
+edited: false
+body:
+That's the problem. Even when people here were reporting theft, the reddit responses were truly awful.
+
+comment: p25gpnb
+parent: t1_p222tzb
+author: Secret_Operative
+created_utc: 1786054642
+edited: false
+body:
+That assumes testing. For their block-clock I posted publicly that the font was hard to read and got a good clean 'go fuck yourself' which is why I never bought a coldcard. It's been clear for years they don't care about their customers or products.
+
+comment: p25iobf
+parent: t1_p24pxt5
+author: fonzdm
+created_utc: 1786055221
+edited: false
+body:
+Are you sure? [this ST microelectronics page](https://community.st.com/stm32-mcus-60/how-to-obtain-and-use-the-stm32-96-bit-uid-125456) says it's 96bit. 32 bit of that are the coordiates used by coldcald for the seed generation.
+12 bit is not enough for unique ids anyway, there are only 4096 combinations, so...
+
+comment: p26ecoa
+parent: t1_p23rh3t
+author: thats_gotta_be_AI
+created_utc: 1786065249
+edited: false
+body:
+As the hardware developer, out of a ridiculous abundance of caution to avoid collisions and protect current wallet owners from others accessing their wallets. And probably “coz I could” if it took only a few extra lines of code. 
+
+comment: p26f7kd
+parent: t1_p219g6c
+author: scottmsul
+created_utc: 1786065531
+edited: false
+body:
+That's basically a seed phrase with two words!
+
+comment: p26feyp
+parent: t1_p21cu31
+author: scottmsul
+created_utc: 1786065599
+edited: false
+body:
+IMO the biggest takeaway is don't trust *any* HWW's. It's still ok to use them but only in trustless ways. Airgap + roll your own dice.
+
+comment: p26gf2e
+parent: t1_p256hx9
+author: thats_gotta_be_AI
+created_utc: 1786065932
+edited: 1786086660
+body:
+Dude I know (1), my question is theoretical, that’s all.
+
+Why would (2) occur? Cold wallets of course retain private key data and sign transactions offline, but they still interact with a connected device to ultimately have that transaction request transmitted to the blockchain - so I believe in theory such a lookup would be perfectly safe and possible.
+
+On (3), who is “finding coins”? The main purpose of a hardware wallet is to create a unique wallet that is secure.
+
+comment: p26h9h5
+parent: t1_p255u0x
+author: thats_gotta_be_AI
+created_utc: 1786066213
+edited: false
+body:
+Of course you could recover existing wallets. Recovering a wallet and generating a random private key (essentially claiming a brand new wallet) are two very different tasks. The hardware wallet would be instructed to avoid collisions on the latter task (again, a theoretically unnecessary check but I’m just wondering if it’s possible in the first place to implement). 
+
+comment: p26jluw
+parent: t3_1vh0lm7
+author: NiagaraBTC
+created_utc: 1786066986
+edited: false
+body:
+Doesn't much matter, the 32 (or less, if you're right) bit bare singlesig Mk3 wallets are basically all drained now.
+
+ Mk4+ clearly have more than 32 bits or there would be way more issues than we've seen. 
+
+comment: p26p2jw
+parent: t1_p2197hk
+author: tridentgum
+created_utc: 1786068800
+edited: false
+body:
+What? No. Once you hit one, you just scan the derivs
+
+comment: p279vs9
+parent: t1_p26p2jw
+author: Javanaut018
+created_utc: 1786076439
+edited: 1786085821
+body:
+Smaller effective key space to scan = more time to scan derivations
+
+comment: p27vgf5
+parent: t1_p26h9h5
+author: ZedZeroth
+created_utc: 1786085972
+edited: false
+body:
+Understood. It could check if it was connected to the internet.
+
+comment: p282iow
+parent: t1_p21ya5a
+author: Maleficent_Pool_4456
+created_utc: 1786089387
+edited: false
+body:
+Thanks but actually I was thinking of Ian Coleman. I hadn't heard of Yahtzee. 
+
+comment: p283e9q
+parent: t1_p21gl0m
+author: Prestigious_Long777
+created_utc: 1786089823
+edited: false
+body:
+They did figure it out, they knew.
+
+They called it “the retirement attack”
+
+comment: p283hbf
+parent: t1_p22t9bk
+author: Prestigious_Long777
+created_utc: 1786089865
+edited: false
+body:
+Bug was reported twice by individual devs reviewing the source code and publicly raised as an issue.
+
+The CEO dismissed it.
+
+comment: p29ax2e
+parent: t1_p219g6c
+author: Psychological_Mode98
+created_utc: 1786107689
+edited: false
+body:
+This is gold. Understanding that different entropy sources „added up“ can only increase the entropy or keep it equal to the best factor‘s entropy and can never result in worse.
+
+This knowledge would have been so easy to put in one sentence in all that cc setup edu that it could have saved so many more people because it would have reduced their fear of messing something up.
+
+Don‘t say „by adding dice rolls you can optionally add your own entropy which is cool because you don‘t have to trust the device‘s“ say „by adding dice rolls you can never mess up the devices security you can not make anything worse. Even if you mess it up completely and make the rolls up yourself, only use one roll or post your rolls online: It doesn‘t decrease the safety of your coins. So roll the damn dice!“
+
+comment: p2ca3z4
+parent: t1_p279vs9
+author: tridentgum
+created_utc: 1786136099
+edited: false
+body:
+you wouldn't need to tho.
+
+comment: p2ew12a
+parent: t1_p21nfjo
+author: LJass
+created_utc: 1786169433
+edited: false
+body:
+Why do you need new wallets? New adress would be sufficient, no?
+
+comment: p2fz73e
+parent: t1_p21r3af
+author: ItsMeMulbear
+created_utc: 1786188909
+edited: false
+body:
+Both things that were considered advanced schizo stuff at the time. Entering a passphrase on an MK3 would also be a royal pain in the ass. 
+
+comment: p2kcuhh
+parent: t3_1vh0lm7
+author: Tahueisin
+created_utc: 1786238191
+edited: false
+body:
+Fewer and fewer will understand...
+
+comment: p2ppo8e
+parent: t1_p21kt88
+author: flutecop
+created_utc: 1786308736
+edited: false
+body:
+Mk3 or 4/5/q?
+
+comment: p2tg535
+parent: t1_p2ppo8e
+author: orbag
+created_utc: 1786362294
+edited: false
+body:
+mk3
+
+more-stub: parent t1_p22wv5v count 0
+
+more-stub: parent t1_p22ti4j count 0
+
+more-stub: parent t1_p26gf2e count 0

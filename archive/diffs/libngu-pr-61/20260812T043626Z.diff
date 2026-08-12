@@ -1,0 +1,19 @@
+--- libngu-pr-61@20260807T192151Z
++++ libngu-pr-61@20260812T043626Z
+@@ -224,6 +224,7 @@
+ Aug 1, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Nice! I hadn't noticed cifra already ships a Hash-DRBG; that's a simpler core than the one I wrote in #62.
+ One heads-up from working on the same problem (#62/#63/#64): the backend-selection trap that caused the advisory looks untouched here, with MICROPY_HW_ENABLE_RNG (0), the #ifndef still passes and upstream links its pseudo-random rng_get(), which would then seed this DRBG. That part is what #64 fixes, and it's independent of which DRBG core is used.
+ No attachment to my DRBG core, if this one is preferred, I'm happy to rebase the attestation/gates work on top of it.
+@@ -274,7 +275,7 @@
+ Closed
+ random: harden entropy backends and state handling
+ #64
+-Open
++Merged
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

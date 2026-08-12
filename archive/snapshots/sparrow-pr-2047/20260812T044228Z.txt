@@ -1,0 +1,269 @@
+Skip to content
+Navigation Menu
+Sign inAppearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Type / to search
+Sign in
+Sign upAppearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+sparrowwallet
+/
+sparrow
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+312
+Star
+2.1k
+Code
+Issues
+224
+Pull requests
+24
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+Warn users about Coldcard Mk3 seed-entropy advisory at device selection - #2047
+#2047
+Open
+nrobi144 wants to merge 2 commits into
+sparrowwallet:mastersparrowwallet/sparrow:masterfrom
+nrobi144:coldcard-mk3-seed-warningnrobi144/sparrow:coldcard-mk3-seed-warningCopy head branch name to clipboard
+ConversationCommits2 (2)ChecksFiles changed
+Open
+Warn users about Coldcard Mk3 seed-entropy advisory at device selection#2047
+nrobi144 wants to merge 2 commits into
+sparrowwallet:mastersparrowwallet/sparrow:masterfrom
+nrobi144:coldcard-mk3-seed-warningnrobi144/sparrow:coldcard-mk3-seed-warningCopy head branch name to clipboard
+Conversation
+nrobi144
+commented
+Aug 6, 2026
+Copy link
+Copy Markdown
+Summary
+Adds a visible security warning, linking Coinkite's advisory, whenever a Coldcard is selected as a device in Sparrow.
+On 30–31 Jul 2026 Coinkite disclosed that a firmware build error caused Coldcard seed generation to fall back to a software RNG, reducing generated-seed entropy on Mk3 (fw 4.0.1–5.0.3) to well below the intended 128 bits (and to ~72 bits on pre-fix Mk4/Q). Sparrow doesn't generate the Coldcard seed, so this isn't a Sparrow flaw — but users who set up a Coldcard via Sparrow may hold funds on an affected seed, and Sparrow's setup flows currently give no indication.
+Change
+One guarded block in the shared TitledDescriptionPane.getTitle() renders a warning row + advisory link in the pane header. Because every device pane (FileImportPane, DevicePane, FileWalletExportPane) extends TitledDescriptionPane and passes a WalletModel, this single point covers all selection surfaces at once:
+New wallet import (file/QR), single & multisig
+Add keystore to existing wallet (airgapped)
+USB hardware wallet
+Wallet export to Coldcard multisig
+The warning is always visible (not hidden behind Details…) and independent of expand state.
+Safety of detection
+Detection is walletModel == WalletModel.COLDCARD, not instanceof. Several devices subclass the Coldcard importer classes but override getWalletModel() — PassportSinglesig, KeystoneMultisig, JadeMultisig, CoboVaultMultisig, PassportMultisig, BlueWalletMultisig, KeycardShellMultisig. These correctly do not trigger the warning.
+Testing
+Diff is additive and uses only already-imported types (WalletModel, Label, Hyperlink, VBox) and existing in-class helpers (createWrappedLabel, createHyperlink); brace/paren balanced.
+Note: I was not able to run a full local Gradle build in my environment (submodule + toolchain setup), so I'd appreciate a maintainer build/verify. Manual check: open New Wallet → Import, expand any Coldcard entry (single & multisig) — the warning + link should appear; confirm Passport/Keystone/Jade do not show it.
+Notes
+References a public Coinkite advisory (not an undisclosed Sparrow vulnerability), hence a regular PR rather than the SECURITY.md process. Happy to adjust wording, styling, or scope (e.g. limit to import panes only) per your preference.
+🤖 Drafted with Claude Code
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+feat(control): warn on Coldcard seed-entropy advisory at device selec…
+…
+48b3f51
+…tion
+Coinkite disclosed (Jul 2026) that a firmware build error reduced Coldcard
+Mk3 (fw 4.0.1-5.0.3) and pre-fix Mk4/Q generated-seed entropy well below the
+intended 128 bits. Add a visible warning, linking the advisory, whenever a
+Coldcard is selected. It is rendered in the shared TitledDescriptionPane
+header so it covers every selection surface (file/QR import, airgapped
+keystore import, USB, export) in one place, independent of expand state.
+Detection is on WalletModel.COLDCARD, so devices that subclass the Coldcard
+importers (Passport, Keystone, Jade, Cobo Vault, BlueWallet, Keycard/Shell)
+are correctly unaffected.
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+skwp
+approved these changes
+Aug 6, 2026
+View reviewed changes
+PrinceOfEgypt
+commented
+Aug 6, 2026
+Copy link
+Copy Markdown
+Contributor
+would this also warn users that have an existing wallet (not creating a new seed / importing / etc)? can there be a warning message when an "Airgapped Walled (Coldcard)" wallet is loaded with something along the lines of "I acknowledge that I have regenerated a secure seed om firmware version > x or with at least 50 verified dice rolls"?
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+Correct firmware/model details per Coinkite advisory (Mk2/Mk3 4.0.1-4…
+…
+7df4cea
+….1.9, add Mk5)
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+nrobi144
+commented
+Aug 10, 2026
+Copy link
+Copy Markdown
+Author
+Good question @PrinceOfEgypt. This PR hooks TitledDescriptionPane, so the warning shows across every Coldcard selection/import surface (file/QR import, airgapped keystore, USB, export) — but you're right that it does not fire when an already-created Coldcard wallet is simply opened/loaded.
+A load-time acknowledgment (e.g. "I confirm I regenerated a secure seed on fixed firmware or with ≥50 verified dice rolls") is a good idea, but it's a meaningfully larger change — persisted per-wallet acknowledgment state + a dialog/banner in the wallet-open path — and I'd want it built and tested locally before proposing it (I flagged in the PR that I couldn't run a full Gradle build here). Happy to open it as a separate follow-up if @craigraw thinks the load-time prompt is worth adding; this PR keeps the scope to the additive, low-risk selection-time warning.
+👍
+1
+PrinceOfEgypt reacted with thumbs up emoji
+All reactions
+👍
+1 reaction
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+PrinceOfEgypt
+commented
+Aug 10, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Contributor
+I agree, it's a larger change, but given the real risk of fund loss I think it's valuable (and probably the "right thing" to do). I unfortunately can't work on a PR myself at the moment because of some work deadlines.. we'll see what @craigraw thinks. Another idea I had was something like a "MOTD" type feature where urgent messages could be shown to users when they launch sparrow.. but that would require backend infrastructure and other changes
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+1 more reviewer
+skwp
+skwp approved these changes
+Reviewers whose approvals may not affect merge requirements
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+3 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

@@ -1,0 +1,196 @@
+Skip to content
+Search Gists
+Search Gists
+All gists
+Back to GitHub
+Sign in
+Sign up
+Sign in
+Sign up
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Instantly share code, notes, and snippets.
+afilini/report.md
+Secret
+Last active
+August 10, 2026 23:42
+Show Gist options
+Download ZIP
+Star
+1
+(1)
+You must be signed in to star a gist
+Fork
+0
+(0)
+You must be signed in to fork a gist
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/afilini/b7d13bd2d7deaf8f23d30213a801e3c5.js&quot;&gt;&lt;/script&gt;
+Save afilini/b7d13bd2d7deaf8f23d30213a801e3c5 to your computer and use it in GitHub Desktop.
+Code
+Revisions
+4
+Stars
+1
+Embed
+Select an option
+Embed
+Embed this gist in your website.
+Share
+Copy sharable link for this gist.
+Clone via HTTPS
+Clone using the web URL.
+No results found
+Learn more about clone URLs
+Clone this repository at &lt;script src=&quot;https://gist.github.com/afilini/b7d13bd2d7deaf8f23d30213a801e3c5.js&quot;&gt;&lt;/script&gt;
+Save afilini/b7d13bd2d7deaf8f23d30213a801e3c5 to your computer and use it in GitHub Desktop.
+Download ZIP
+One Commit, Two Random Sources: How Coldcard's Seed Generation Was Moved Off the Hardware RNG
+Raw
+report.md
+One Commit, Two Random Sources: How Coldcard's Seed Generation Was Moved Off the Hardware RNG
+A technical report on the libNgU migration commit (b18723dd) and what the git history shows.
+This report walks through a single commit in the Coldcard firmware repository — dated March 1, 2021 — and shows, line by line, what it did to the random-number generation behind wallet seed generation. Every claim can be reproduced with the git commands included.
+Disclaimer: In the interest of saving time this report has been written by AI (Kimi K3) based on my findings. Other people (and different AI models) have reviewed the claims before it's been published.
+It includes some background on the vulnerability itself, to help people who might be less technical understand the document. My goal is to purely present facts and NOT make any conclusions. The more people understand this, the more can form their own opinion rather than relying on that of a few very vocal "experts" in the community.
+Enjoy.
+1. Why randomness is the whole ballgame
+A hardware wallet like Coldcard is, at its core, a machine for keeping a 256-bit secret safe. That secret — the "seed" — is created from random numbers. If an attacker can predict the random numbers used to generate a seed, they can regenerate the same seed and steal every coin in the wallet. Everything else Coldcard does — the secure elements, the PIN entry, the anti-tamper mesh — is downstream of that one requirement: the seed must be unpredictable.
+Devices like the Coldcard have a dedicated piece of silicon for this: a hardware "true random number generator" (TRNG) built into the STM32 microcontroller. Good embedded code treats this carefully: read from it, check for failures, and fail hard if it misbehaves.
+There is a second, very different kind of random number generator: a deterministic pseudo-random generator (PRNG). A PRNG is a mathematical function that, once seeded, produces a stream of numbers that look random but are actually 100% predictable if you know the starting state. PRNGs can still be used for safe key generation, provided they are seeded with enough entropy to make the starting state unpredictable.
+The vulnerability disclosed in July 2026 is, in essence, that Coldcard wallet seeds were generated from the second kind instead of the first, with a very small number of possible initial states. This report is not about the issue itself, rather about how the issue came to be, looking at the commit history.
+2. Before the migration: two doors to the same good hardware RNG
+Before the change (firmware v3.2.2, January 2021), the firmware's Python code could get random numbers through two different module names. Both of them ultimately read the STM32's hardware TRNG, through a careful wrapper called rng_get_or_fault() — a function that waits for the hardware, and raises a hard error rather than ever returning a bad value:
+ckcc.rng / ckcc.rng_bytes — Coldcard's own board-level API, registered in the ckcc module.
+tcc.random.* — the old "trezor-crypto" library the firmware was built around.
+Different front doors, same hardware back end. Both were safe.
+And critically, the seed-generation code itself used the first one. In shared/seed.py, the wallet seed came from:
+from ckcc import rng_bytes
+...
+seed = bytearray(32)
+rng_bytes(seed) # hardware randomness
+The same ckcc.rng_bytes call also appeared, and was kept, in a handful of other places: backups, file erasure, user data, the 7z backup container, display jitter. All hardware. All safe.
+3. Enter libNgU: a new crypto library, and a subtle defect inside it
+In late 2020, a library called libngu ("Number Go Up") appeared, hosted under a GitHub account named switck. It was positioned as a unified crypto toolkit — hashes, elliptic curve operations, key handling, and a random module. The firmware eventually replaced its old trezor-crypto stack with libNgU in one sweeping commit on March 1, 2021: b18723dd, "First pass w/ libNgU", authored by Peter D. Gray.
+It was later discovered by @DylanLeClair / @jamesob that switck is actually Peter D. Gray, Coinkite's CTO.
+One month earlier, on January 28, 2021, the same operator had written libNgU's STM32 random-number glue in ngu/random.c. It contains this:
+extern uint32_t rng_get(void);
+#define CHIP_TRNG_32() rng_get()
+#ifndef MICROPY_HW_ENABLE_RNG
+#error "get a HW TRNG plz"
+#endif
+The intent was clearly to demand a hardware RNG. But the guard is wrong. In C, #ifndef MACRO asks "is this macro defined?" — not "is this macro true?". Coldcard's board configuration defines MICROPY_HW_ENABLE_RNG as 0 ("off"), because the board provides its own RNG wrapper. Since the macro is defined, the #error never fires; the build sails through. And because the board's real hardware function is a static function named rng_get_or_fault (not rng_get), the linker resolves libNgU's rng_get() to a function MicroPython always exports — which, when the macro is 0, is a deterministic Yasmarang software PRNG seeded from device metadata and timers.
+The result: ngu.random on a real Coldcard quietly returned output from a predictable software generator, with no compile error, no link error, and no runtime warning.
+A detail worth noting: in the firmware's own rng.c, the same author used the correct form — #if MICROPY_HW_ENABLE_RNG, with an #error if it's enabled. Same macro, same author, same era; correct in one repository, wrong in the other.
+4. What the migration commit actually did, file by file
+The migration commit touched 120 files. Most of it is exactly what you'd expect: replacing old tcc.* calls with the new ngu.* equivalents, deleting the old library, updating build files. Routine.
+But if you pull out just the calls that consume randomness, a very specific pattern appears. There are three groups.
+Group A — the mechanical, honest part. Every file that had been using the old tcc.random was moved to ngu.random:
+File
+Before
+After
+shared/hsm.py
+tcc.random.bytes(15)
+ngu.random.bytes(15)
+shared/hsm_ux.py
+tcc.random.uniform(5)
+ngu.random.uint32() % 5
+shared/nvstore.py
+tcc.random.bytes(256), .shuffle
+ngu.random.bytes(256)
+shared/usb.py
+tcc.random.uniform(1000)
+ngu.random.uniform(100)
+This is the unremarkable part: swap old namespace for new namespace.
+Group B — the files left alone. Every file that had been using ckcc.rng_bytes — the hardware API — stayed exactly as it was:
+File
+Function
+Before → After
+shared/backups.py
+backup encryption material
+ckcc.rng_bytes → unchanged
+shared/files.py (3×)
+secure file erasure
+ckcc.rng_bytes → unchanged
+shared/compat7z.py
+backup container IV
+ckcc.rng_bytes → unchanged
+shared/users.py
+user data
+ckcc.rng_bytes → unchanged
+shared/display.py
+display jitter
+ckcc.rng() → unchanged
+These consumers stayed on the hardware TRNG. Nothing wrong with that — but note it: the author was perfectly willing to leave working hardware-RNG code in place, in the same commit.
+Group C — the anomaly: just two files. Two files were moved off the hardware ckcc RNG and onto ngu.random:
+File
+Before (hardware)
+After (libNgU)
+shared/seed.py — the wallet seed
+from ckcc import rng_bytes … rng_bytes(seed)
+seed = random.bytes(32)
+shared/random.py — the shared random module used by seed.py and others
+from ckcc import rng
+ngu.random.uniform, ngu.random.bytes
+Here's why this matters so much. These two files were ckcc users — exactly like the files in Group B. They did not import tcc.random at all. Under the migration's own logic, they belonged in Group B: leave them alone, keep them on hardware. Instead, they were the only ckcc consumers moved to libNgU.
+And they are the two most security-sensitive pieces of randomness in the entire product: the function that generates wallet seeds, and the shared random module that feeds it (seed.py's word-selection randomness also flowed through random.py).
+5. Why nobody noticed: a bug that passes every gate
+It is fair to ask: if the seed path was switched to a broken source, wouldn't something have flagged it? In this case, no — and that silence is itself instructive.
+It compiles cleanly. The #ifndef guard passes because the macro is defined (just as 0). The wrong-but-present rng_get() symbol means no link error. The board's real rng_get_or_fault() remains referenced by the still-live ckcc.rng/ckcc.rng_bytes API, so there's not even an "unused function" warning to catch an eye.
+The tests pass. libNgU's test_random.py checks distribution — are outputs spread out, do they repeat — not unpredictability. A deterministic PRNG passes easily. The firmware even ran the dieharder statistical test suite (added March 16, 2021) directly on ngu.random.bytes — the vulnerable path — and dieharder only measures statistical uniformity. It cannot tell "looks random" from "is unpredictable." The test suite greenlit the exact path that was broken.
+The code review culture around it was thin. The libNgU repo is full of single-letter commit messages ("x", "w", "m"). The very commit that introduced the RNG guard was a large half-finished refactor containing a broken macro name (NGU_NEED_CIFRA in one file vs NGU_NEEDS_CIFRA checked in another — so that optional crypto code never even built) and an empty #else // XXX add code here branch in the HMAC code. This was work committed without being built or reviewed.
+So the flawed seed path shipped in firmware v4.0.0 on March 17, 2021 — sixteen days after the migration — on a wave of statistically-random-looking, quietly deterministic output.
+6. What the evidence supports
+Here is what is established fact from the repository, verified line by line:
+In one commit, the two most security-critical randomness consumers — wallet seed generation and the shared random module — were moved off a working, fail-closed hardware RNG and onto a software fallback that was broken.
+Those two files were ckcc consumers; they were the only ckcc consumers moved. Every other ckcc consumer — file erasure, backups, user data, display — stayed on hardware, and stays there today.
+The working hardware path was never removed, and the author continued to use it in the same commit and for years afterward.
+This selective split persisted, uncorrected at the source level, for the entire five-plus-year lifetime of the vulnerability.
+It was not a blanket migration (only two consumers moved).
+It was not a mechanical namespace swap (the two files used ckcc, not tcc).
+It was not a half-finished migration that later got completed (the split persisted to the end).
+7. Reproducing the key claims
+# Show that seed.py used the hardware API before, and that the switch happened
+# only in the migration commit:
+git log -S 'rng_bytes' -- shared/seed.py # appears only at b18723dd (and 2018 originals)
+git log -S 'random.bytes' -- shared/seed.py # introduced only at b18723dd
+# Show that random.py was a ckcc user, switched in the same commit:
+git log -S 'from ckcc import rng' -- shared/random.py # only b18723dd (and 2018 originals)
+# Show the untouched ckcc consumers were never migrated afterwards:
+git log -S 'ckcc.rng_bytes' -- shared/backups.py # only 2018-07-24 public-release commits
+git log -S 'ckcc.rng_bytes' -- shared/compat7z.py # only 2018-07-24
+git log -S 'ckcc.rng_bytes' -- shared/files.py # 2018 + one 2024 deletion; never ngu.random
+git log -S 'ckcc.rng_bytes' -- shared/users.py # never migrated to ngu.random
+# Show seed generation never came back to hardware:
+git show master:shared/seed.py | grep 'ngu.random.bytes(32)' # still there
+# Show the migration commit itself:
+git show b18723dd --stat
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

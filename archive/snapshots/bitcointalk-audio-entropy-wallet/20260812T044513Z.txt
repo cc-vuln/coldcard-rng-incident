@@ -1,0 +1,156 @@
+Bitcoin Forum
+Bitcoin => Bitcoin Discussion => Topic started by: barrysty1e on August 07, 2026, 09:02:27 AM
+Title: Audio-based entropy wallet
+Post by: barrysty1e on August 07, 2026, 09:02:27 AM
+After the recent entropy flaws with a number of hardware wallets, this is a new idea as to how to gather entropy.
+Once the wallet detects audio, it chooses 32 separate frames (based on amplitude), uses the raw audio data captured, performs sha256 on each frame, appends the result to a big buffer (approx 1024 bytes) and then finally performs sha256 on this buffer to obtain the entropy.
+Simply put, even the same audio, with the same timing, volume, hardware - is going to yield a different result each time. Approximately 85kb of C++ (including derivation, mnemonic and crypto code) linked against SDL2 and libsecp256k1.
+So far it works with 128 bit (12 words), 192 bit (18 words) and 256 bit (24 words).
+Derives P2PKH, P2SH and P2WPKH for Satoshi-based currencies; would be very easy to extend to Web3 currencies etc.
+Relying on hardware RNG/CSPRNG doesn't always bode well (the hardware itself could be flawed/backdoored, not to mention the firmware being buggy), so this is an innovative new take on the solution.
+Shrinking this down to work on something like an STM32 microcontroller wouldn't be difficult.
+Thoughts?
+https://www.youtube.com/watch?v=BmQPF9dN55Q (https://www.youtube.com/watch?v=BmQPF9dN55Q)
+Title: Re: Audio-based entropy wallet
+Post by: free-bit.co.in on August 07, 2026, 05:13:34 PM
+I find this idea quite interesting.
+Actually, just saying that we have TRNG is not enough today.
+We also need to see if that entropy is finally reaching to key generation correctly.
+Even a small mistake in firmware can ruin our entire security.
+Well, you said that 32 audio frame are being selected based on amplitude. Is this frame selection deterministic?
+If the rule for selecting frames from same audio is predictable then how do you actually verify how much min-entropy is available?
+You may know that SHA-256 in Cryptography does not create entropy. Rather it compresses & conditions the existing entropy. If the entropy in input is low, it will not automatically increase even if hashed.
+Title: Re: Audio-based entropy wallet
+Post by: Findingnemo on August 07, 2026, 08:58:11 PM
+Audio for the encryption? Looks like we are progressing in backwards because it is proven that even biometrics can be mimicked and once we thought it is impossible thing can be breached in matter of minutes, so imagine an AI just steals your wallet because it can imitate your voice or something.
+I am not an expert so eager to read how this entropy works.
+Title: Re: Audio-based entropy wallet
+Post by: free-bit.co.in on August 07, 2026, 09:47:50 PM
+Quote from: Findingnemo on August 07, 2026, 08:58:11 PM
+Audio for the encryption? Looks like we are progressing in backwards because it is proven that even biometrics can be mimicked and once we thought it is impossible thing can be breached in matter of minutes, so imagine an AI just steals your wallet because it can imitate your voice or something.
+I am not an expert so eager to read how this entropy works.
+But there is one good thing about this idea, though.
+In here you don't have to blindly trust any hardware RNG. Instead, an independent physical entropy source is used.
+In my opinion it would be even better if audio entropy could be mixed with dice roll or other independent entropy sources. Then even if one source is compromised, the other source would help you to keep the whole system unpredictable.
+really interesting idea, tbh.
+Title: Re: Audio-based entropy wallet
+Post by: Findingnemo on August 08, 2026, 09:07:35 AM
+Quote from: free-bit.co.in on August 07, 2026, 09:47:50 PM
+Quote from: Findingnemo on August 07, 2026, 08:58:11 PM
+Audio for the encryption? Looks like we are progressing in backwards because it is proven that even biometrics can be mimicked and once we thought it is impossible thing can be breached in matter of minutes, so imagine an AI just steals your wallet because it can imitate your voice or something.
+I am not an expert so eager to read how this entropy works.
+But there is one good thing about this idea, though.
+In here you don't have to blindly trust any hardware RNG. Instead, an independent physical entropy source is used.
+In my opinion it would be even better if audio entropy could be mixed with dice roll or other independent entropy sources. Then even if one source is compromised, the other source would help you to keep the whole system unpredictable.
+really interesting idea, tbh.
+Manual entropy methods are poor compared to a system-produced RNG, I wouldn't trust my voice over a simple combination number created as very basic security method, but everyone have their own preferences and if you feel secured when they can access the wallet only with their voice or along with other existing methods then it is good.
+Title: Re: Audio-based entropy wallet
+Post by: CryptAlex-70 on August 08, 2026, 09:16:00 AM
+The same can be done with video. The main thing is that the raw data shouldn't remain in memory.
+Title: Re: Audio-based entropy wallet
+Post by: Tony116 on August 08, 2026, 02:56:49 PM
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+Simply put, even the same audio, with the same timing, volume, hardware - is going to yield a different result each time. Approximately 85kb of C++ (including derivation, mnemonic and crypto code) linked against SDL2 and libsecp256k1.
+Thoughts?
+So can you say that the microphone itself is a trusted source?
+As you probably know, most embedded devices these days have microphone noise suppression, AGC, filtering, or driver-level preprocessing.
+In that case, how "raw" are those raw sample actually?
+Is SDL2 getting processed audio from the OS, or truly unprocessed PCM, that's also a matter of consideration.
+Title: Re: Audio-based entropy wallet
+Post by: X-ray on August 09, 2026, 01:44:21 AM
+Quote from: Findingnemo on August 08, 2026, 09:07:35 AM
+Quote from: free-bit.co.in on August 07, 2026, 09:47:50 PM
+But there is one good thing about this idea, though.
+In here you don't have to blindly trust any hardware RNG. Instead, an independent physical entropy source is used.
+In my opinion it would be even better if audio entropy could be mixed with dice roll or other independent entropy sources. Then even if one source is compromised, the other source would help you to keep the whole system unpredictable.
+really interesting idea, tbh.
+Manual entropy methods are poor compared to a system-produced RNG, I wouldn't trust my voice over a simple combination number created as very basic security method, but everyone have their own preferences and if you feel secured when they can access the wallet only with their voice or along with other existing methods then it is good.
+System produced RNG is great until it doesn't work or even worse backdoored.
+I liked the idea of not trusting the manufacturer RNG too much, manual entropy method is great if done right and mixed with other independent entropy sources. Even better, system produced RNG mixed with manual entropy.
+I'm sure that somebody out there already thought about audio-based entropy but might pass on the idea because the environment where audio signal shaped itself can be a bias, but I'm also by no means an expert so I might be wrong.
+Title: Re: Audio-based entropy wallet
+Post by: ABCbits on August 09, 2026, 07:59:30 AM
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+After the recent entropy flaws with a number of hardware wallets, this is a new idea as to how to gather entropy.
+It's not new idea. You can easily find past similar discussion[1] or even find such implementation[2].
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+Thoughts?
+I would rather follow good guide about getting random seed from a dice. I'm not expert, but there are things that could less secure than expected. For example,
+1. How "detects audio" is determined? Is near quiet environment enough to trigger it?
+2. "is going to yield a different result each time.", but how different is it and what are the entropy bits or possible value range?
+The multiple hashing doesn't really matter when the attacker know step-by-step to generate the random number from audio.
+[1] https://dsp.stackexchange.com/questions/42016/how-can-i-calculate-the-entropy-of-a-signal-thats-not-independent-from-itself (https://dsp.stackexchange.com/questions/42016/how-can-i-calculate-the-entropy-of-a-signal-thats-not-independent-from-itself)
+[2] https://github.com/gianlucamazza/audio-entropy-bip39 (https://github.com/gianlucamazza/audio-entropy-bip39) (i don't vouch this code at all, proceed with caution)
+Title: Re: Audio-based entropy wallet
+Post by: pawanjain on August 09, 2026, 08:42:50 AM
+Personally, I wouldn't trust any type of audio source to be used with cryptocurrency whether it be for encryption or for entropy selection.
+The simple reason is because our audio is present almost everywhere. Instagram, whatsapp, 3rd party apps., games etc...
+We never know when and how our audio data is getting leaked from our phone. A simple phone call reveals our audio to them.
+So why should we consider using audio for encryption and entropy.
+Title: Re: Audio-based entropy wallet
+Post by: Pumpsta on August 09, 2026, 09:39:20 AM
+But won't these mics kinda screw up the final result if there's background static noise? Like, I've had mics before that had a manufacturing defect & they kept looping the same background static frequency ???
+Title: Re: Audio-based entropy wallet
+Post by: hmbdofficial on August 09, 2026, 10:57:54 AM
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+Thoughts?
+After seeing some of the problems caused by weak or faulty hardware RNGs, I now understand why people are actually looking for other way that they can generate entropy. But in doing so so we need to be careful about what we think about the possible ways. Just like assuming that because the audio you�re suggesting is different everytime, it will automatically have 128 or 256bit of entropy. The SHA256 can mix the data very well, but it cannot create the randomness that was not there already. And that Made me doubt about how unpredictable the audio is to a potential attacker?.
+Personally I would even use the microphone as an additional entropy source rather than completely replacing the CSPRNG. This is because combining multiple sources should result to better protection is one of the sources turns out weak or even compromised.
+The concept would still be nicer if you can actually measure how much unpredictable entropy the audio contributes, rather than just showing that the hashes are different  each time. This way it could even be a useful extra layer of protection for hardware wallets.
+Title: Re: Audio-based entropy wallet
+Post by: KiaKia on August 09, 2026, 11:17:35 AM
+Sounds interesting and unsafe at the same time, look around you my friend, we have an human enemy today called AI, these bastards can generate voices that's close to original.
+I am not saying that this is all it will take to make this audio generating entropy irrelevant, I'm just saying that AI is capable of things that many people don't know too, but anyway this still sounds interesting.
+If I have to choose this or what we already have right now I would go generating my recovery seed the old way and using Passphrase, if something new is going to work now then I will wait on the side ways to watch how it goes.
+Title: Re: Audio-based entropy wallet
+Post by: barrysty1e on August 09, 2026, 12:03:39 PM
+Quote from: free-bit.co.in on August 07, 2026, 05:13:34 PM
+I find this idea quite interesting.
+Actually, just saying that we have TRNG is not enough today.
+We also need to see if that entropy is finally reaching to key generation correctly.
+Even a small mistake in firmware can ruin our entire security.
+Well, you said that 32 audio frame are being selected based on amplitude. Is this frame selection deterministic?
+If the rule for selecting frames from same audio is predictable then how do you actually verify how much min-entropy is available?
+I might have given the wrong meaning when i said based on amplitude.
+When launched the program will monitor the audio channel before it begins sampling frames for use.
+Each frame gets passed off to a function which checks for minimum amplitude before it is even considered.
+If the program operated by loading an audio file in, I could understand deterministic choice being an issue - however listening to an active audio channel, the chances of obtaining an identical recording would be slim to none.
+However 'just in case', i added another routine to pluck 16 bytes from '/dev/urandom' and see if the first 4 bytes were lower than 0x1000 (you could call this a random PoW of sorts). If this condition is met and the amplitude rule is met - then the frame is used.
+Quote from: free-bit.co.in on August 07, 2026, 05:13:34 PM
+You may know that SHA-256 in Cryptography does not create entropy. Rather it compresses & conditions the existing entropy. If the entropy in input is low, it will not automatically increase even if hashed.
+Understood.. i'm simply using it as a means to compress a frame (2048 bytes) to 32 bytes (the frame result), then 32 frames (32*32=1024) down to a single 32 byte result.
+Title: Re: Audio-based entropy wallet
+Post by: barrysty1e on August 09, 2026, 12:05:34 PM
+Quote from: Tony116 on August 08, 2026, 02:56:49 PM
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+Simply put, even the same audio, with the same timing, volume, hardware - is going to yield a different result each time. Approximately 85kb of C++ (including derivation, mnemonic and crypto code) linked against SDL2 and libsecp256k1.
+Thoughts?
+So can you say that the microphone itself is a trusted source?
+As you probably know, most embedded devices these days have microphone noise suppression, AGC, filtering, or driver-level preprocessing.
+In that case, how "raw" are those raw sample actually?
+Is SDL2 getting processed audio from the OS, or truly unprocessed PCM, that's also a matter of consideration.
+SDL2 is sampling from whatever the OS provides.
+I can understand this though and have been considering adding something to pass the data through a FFT (https://en.wikipedia.org/wiki/Fast_Fourier_transform) to ensure it contains enough entropy.
+Title: Re: Audio-based entropy wallet
+Post by: barrysty1e on August 09, 2026, 12:12:59 PM
+Quote from: hmbdofficial on August 09, 2026, 10:57:54 AM
+Personally I would even use the microphone as an additional entropy source rather than completely replacing the CSPRNG. This is because combining multiple sources should result to better protection is one of the sources turns out weak or even compromised.
+The concept would still be nicer if you can actually measure how much unpredictable entropy the audio contributes, rather than just showing that the hashes are different  each time. This way it could even be a useful extra layer of protection for hardware wallets.
+After showing my code to a friend, he told me about a firewall he had setup using some multimedia hardware (think small form factor motherboard). When the client asked him as to the suitability of the hardware, he mentioned that it randomly samples audio to add entropy for the encryption (it didnt, but this removed any doubt from the client).
+Title: Re: Audio-based entropy wallet
+Post by: barrysty1e on August 09, 2026, 12:14:59 PM
+A better way to describe the argument of a third party observing the recording, or entropy being limited, would be the following:
+Use a flatbed scanner to scan a picture of your thumb, in whatever resolution you like.
+Do it again and compare the result.
+There is just simply no way the results would even be remotely similar.
+Title: Re: Audio-based entropy wallet
+Post by: BlackHatCoiner on August 09, 2026, 12:17:12 PM
+I think people haven't understood what exactly happened with Coldcard. The hardware RNG was not the reason Coldcard wallets lacked sufficient entropy. It was the firmware that had a bug; it was a specific line of code that reduced the entropy to ~40 bits.
+There is no reason to play with matches at times like this. If you don't trust your hardware's RNG, better just roll a dice a hundred times. Fully verifiable.
+Title: Re: Audio-based entropy wallet
+Post by: Stalker22 on August 09, 2026, 01:34:26 PM
+Quote from: barrysty1e on August 07, 2026, 09:02:27 AM
+Thoughts?
+You want to add a microphone on a hardware wallet?  But you said yourself: "hardware itself could be flawed/backdoored", so adding a microphone just adds another attack vector.  Besides, Im not really sure that this method would be a good source of entropy since a potential attacker could for example manipulate the environmental acoustic noise.  He wouldnt even have to be in close proximity.
+Powered by SMF 1.1.19 |
+SMF © 2006-2009, Simple Machines

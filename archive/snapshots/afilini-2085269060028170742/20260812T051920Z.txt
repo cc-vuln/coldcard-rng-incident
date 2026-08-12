@@ -1,0 +1,205 @@
+thread: 2085269060028170742
+url: https://x.com/afilini/status/2085269060028170742
+author: afilini
+
+post: 2085269060028170742
+role: focal
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:40Z
+media: 0
+body:
+Seeing lots of people say coinkite should have tested entropy better. I don’t think they could’ve done much there.
+
+What I think they could’ve done was to build a proper emulator. That might have caught the issue 
+
+post: 2085269063517839714
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:41Z
+media: 0
+body:
+The existing coldcard emulator runs micropython on Unix (Linux / macOS) systems. It’s not emulating the hardware at all. For entropy, it just reads it from /dev/urandom
+
+post: 2085269067099701267
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:42Z
+media: 0
+body:
+For Portal, which compared to the scale of coldcard is effectively a garage toy project, I took the time to fork QEMU and implement a few missing STM32 peripherals I needed
+
+post: 2085269070350328032
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:43Z
+media: 0
+body:
+This was before AI, it was a pain in the ass but that allowed me to run the exact same binary on device and in the emulator. Not cycle perfect, but still same exact instructions
+
+post: 2085269073793880517
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:44Z
+media: 0
+body:
+Why I think that could have caught the bug? The UID would have likely been fixed to some constant like 0xB00B5 (yeah engineers do that all the time) and while developing there’s a good chance they might have started getting collisions and seeing the same mnemonic multiple times
+
+post: 2085269077052764499
+role: self-thread
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T07:37:45Z
+media: 0
+body:
+I’m not the first to point out the sloppy work (I consider the one-letter commit messages in libngu also sloppy work) and this just adds to that
+
+post: 2085311458879971338
+role: reply
+author: peterktodd
+name: Peter Todd
+created: 2026-08-06T10:26:09Z
+media: 0
+body:
+No need to write an emulator. Just design a TRNG that you can actually test and independently verify on real hardware: 
+https://
+petertodd.org/2014/push-butt
+on-rng
+…
+
+Everything else can be done deterministically.
+
+post: 2085315585479483716
+role: reply
+author: bigshiny0
+name: Shiny
+created: 2026-08-06T10:42:33Z
+media: 0
+body:
+Yes they could have. I took an afternoon after the new firmware was released to test the old and new firmware - specifically to test that the hardware rang was being used, by testing the firmware on a real device (I just added some debug functions that allowed me to query what the hardware was doing).took me a few hours to do.  No emulator needed.
+
+post: 2085316907658330372
+role: reply
+author: afilini
+name: Alekos Filini
+created: 2026-08-06T10:47:48Z
+media: 0
+body:
+Yes but that is very specific instrumentation added for one single feature. And presumably you removed them after confirming it worked. An emulator allows ongoing checks as the codebase progresses
+
+post: 2085320165265211513
+role: reply
+author: portolan0f
+name: V
+created: 2026-08-06T11:00:45Z
+media: 0
+body:
+Having a proper emulator would have been great but the issue could have been caught in several other ways. For starter better development flow, including PR reviews and generally more eyes on the code. They could have hired a security firm to do an audit or at least use an LLM.
+
+post: 2085348260122677395
+role: reply
+author: FreedomIsntSafe
+name: LazyNinja
+created: 2026-08-06T12:52:23Z
+media: 0
+body:
+1000%
+
+post: 2085530373337804976
+role: reply
+author: LucasBean91
+name: Adiney  BIP-110
+created: 2026-08-07T00:56:02Z
+media: 0
+body:
+Thanks to coinkite, some people lost decades of hardwork money. Your defense is meaningless.
+
+post: 2085618516112097433
+role: reply
+author: afilini
+name: Alekos Filini
+created: 2026-08-07T06:46:17Z
+media: 0
+body:
+Does my tweet sound like I’m defending them?
+
+post: 2087102876371841435
+role: reply
+author: callebtc
+name: calle
+created: 2026-08-11T09:04:36Z
+media: 1
+body:
+The sacrifice to end the bear market has been offered to the Bitcoin gods.
+
+post: 2087179372247576800
+role: reply
+author: bitschmidty
+name: Mike Schmidt
+created: 2026-08-11T14:08:34Z
+media: 0
+body:
+Bitcoin Core v32.0 is targeted for release in October:
+
+- Up to 3x faster initial sync. Block validation now fetches transaction inputs from disk in parallel instead of one at a time
+
+- The libevent external dependency is fully removed, continuing Core's push to cut third-party dependencies
+
+- Max peer connections raised from 125 to 200 to have more open slots for new nodes to sync from, faster block propagation, and a harder network to eclipse or partition
+
+- Mempool-based fee estimation to cut fee overestimation (in progress)
+
+- Transaction relay rate limiting is now global instead of per-peer, keeping a node's CPU and memory usage steady when transaction volume spikes
+
+- Ships with features from libsecp256k1 0.8.0 with verification up to 11% faster, plus the new Silent Payments module (BIP 352)
+
+- PSBTv2 (BIP 370) support, now the default for PSBT-creating RPCs for better coordination of unsigned transactions for multisig and hardware wallet setups
+
+- New exportwatchonlywallet command to export a wallet as a watch-only file, no private keys, and restore it on your online node
+
+- Core now enables Tor's proof-of-work DDoS defense on the onion service it creates for your node, where the Tor daemon supports it
+
+Additional tests, bugfixes, and features included as well.
+
+Feature freeze is ~August 20, rc1 ~September 10, final release targeted for ~October 10. (Test the release candidates when they ship!)
+
+post: 2087194653019746734
+role: reply
+author: peterktodd
+name: Peter Todd
+created: 2026-08-11T15:09:18Z
+media: 3
+body:
+tl;dr: 
+@lukedashjr
+ decided to use a testnet4 block hash as the random beacon to pick BIP-110-chain's new PoW function.
+
+An absolutely batshit decision. It's clearly possible to manipulate that by just mining blocks with the right hash. Mining a testnet4 block has a trivial cost. So mining one with a specific last byte in the block hash – thus forcing a particular PoW choice – also has a trivial cost.
+
+When Zcash did something similar for a trusted setup, they picked a Bitcoin block in the future, and they specified that the block hash would in turn be re-hashed 2⁴² times¹ to ensure that absolutely no-one could possibly pick the value in advance (that's a 2-3 weeks of sequential computation).
+
+There's two possibilities here:
+
+1) Luke is incompetent.
+2) Luke is malicious, and is trying to pick a specific PoW.
+
+The possibilities are not exclusive.
+
+1) 
+https://
+zips.z.cash/protocol/proto
+col.pdf
+…
+
+post: 2087233919070429349
+role: reply
+author: afilini
+name: Alekos Filini
+created: 2026-08-11T17:45:19Z
+media: 1
+body:
+

@@ -1,0 +1,37 @@
+--- sparrow-pr-2047@20260807T113513Z
++++ sparrow-pr-2047@20260812T044228Z
+@@ -195,6 +195,34 @@
+ 7df4cea
+ ….1.9, add Mk5)
+ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
++nrobi144
++commented
++Aug 10, 2026
++Copy link
++Copy Markdown
++Author
++Good question @PrinceOfEgypt. This PR hooks TitledDescriptionPane, so the warning shows across every Coldcard selection/import surface (file/QR import, airgapped keystore, USB, export) — but you're right that it does not fire when an already-created Coldcard wallet is simply opened/loaded.
++A load-time acknowledgment (e.g. "I confirm I regenerated a secure seed on fixed firmware or with ≥50 verified dice rolls") is a good idea, but it's a meaningfully larger change — persisted per-wallet acknowledgment state + a dialog/banner in the wallet-open path — and I'd want it built and tested locally before proposing it (I flagged in the PR that I couldn't run a full Gradle build here). Happy to open it as a separate follow-up if @craigraw thinks the load-time prompt is worth adding; this PR keeps the scope to the additive, low-risk selection-time warning.
++<github-reactions>
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++PrinceOfEgypt
++commented
++Aug 10, 2026
++•
++edited
++Loading
++Uh oh!
++There was an error while loading. Please reload this page.
++Copy link
++Copy Markdown
++Contributor
++I agree, it's a larger change, but given the real risk of fund loss I think it's valuable (and probably the "right thing" to do). I unfortunately can't work on a PR myself at the moment because of some work deadlines.. we'll see what @craigraw thinks. Another idea I had was something like a "MOTD" type feature where urgent messages could be shown to users when they launch sparrow.. but that would require backend infrastructure and other changes
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

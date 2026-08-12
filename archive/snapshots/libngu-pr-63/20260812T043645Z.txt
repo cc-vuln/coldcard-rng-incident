@@ -1,0 +1,285 @@
+Skip to content
+Navigation Menu
+Sign inAppearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Type / to search
+Sign in
+Sign upAppearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+switck
+/
+libngu
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+17
+Star
+7
+Code
+Issues
+2
+Pull requests
+2
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+random: reject two-word entropy cycles - #63
+#63
+Closed
+jgmontoya wants to merge 1 commit into
+switck:masterswitck/libngu:masterfrom
+jgmontoya:rng-2-entropy-healthjgmontoya/libngu:rng-2-entropy-healthCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Closed
+random: reject two-word entropy cycles#63
+jgmontoya wants to merge 1 commit into
+switck:masterswitck/libngu:masterfrom
+jgmontoya:rng-2-entropy-healthjgmontoya/libngu:rng-2-entropy-healthCopy head branch name to clipboard
+Conversation
+jgmontoya
+commented
+Aug 1, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Contributor
+Summary
+Adds a small entropy-source health check to ngu.random.
+Each source word is rejected when it is zero or matches either of the two most recently accepted words. Zero rejection stays in random.c, where the platform policy belongs. The helper tracks initialization explicitly, so zero is treated as real history when the helper is tested on its own.
+This catches a stuck source and an exact two-word cycle such as A, B, A. A rejected word does not advance history, so it cannot hide a repeated value.
+Scope
+This builds on the Cifra Hash_DRBG merged in #61. It changes the entropy health rule and wires that rule into the existing random path. #64 is stacked on this PR and adds backend and state hardening.
+The check is a narrow online failure detector. It does not validate source entropy or detect cycles longer than two words. With independent uniform 32-bit words, its steady-state false-rejection probability is 2^-31 per word.
+Verification
+make -C ngu/ngu_tests entropy-health
+Deterministic cases for startup, immediate repetition, two-word cycles,
+recovery after rejection, rejected-history behavior, and the documented
+period-three limit
+git diff --check origin/master...HEAD
+Disclosure
+This PR was developed with substantial LLM assistance and reviewed in several adversarial passes. The rule is isolated and covered by deterministic tests so reviewers can check each claimed behavior directly. Maintainer review is still required because this changes the production entropy path.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+jgmontoya
+changed the title
+Rng 2 entropy health
+add entropy health rule as a pure, deterministically tested module
+Aug 1, 2026
+This was referenced Aug 1, 2026
+random: harden entropy backends and state handling
+#64
+Merged
+random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG
+#59
+Closed
+add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAVP vectors
+#62
+Closed
+Replace Yasmarang with SHA-256 Hash-DRBG
+#61
+Merged
+random: reject two-word entropy cycles
+c09eff6
+jgmontoya
+force-pushed
+the
+rng-2-entropy-health
+branch
+from
+88f7b5a to
+c09eff6
+Compare
+August 7, 2026 04:17
+jgmontoya
+changed the title
+add entropy health rule as a pure, deterministically tested module
+random: reject two-word entropy cycles
+Aug 7, 2026
+scgbckbone
+reviewed
+Aug 7, 2026
+View reviewed changes
+scgbckbone
+left a comment
+Copy link
+Copy Markdown
+Contributor
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others. Learn more.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide comment
+i dont think this is necessary i couldnt find anything in NIST SP 800 90b or stm32 guidance that recommends rejecting a single A B A sequence.
+healthy 32 bit RNG will naturally produce this once in roughly 4 billion words so this just adds an eventual false failure unless there is a documented two word cycle failure mode this detects the check seems arbitrary
+Or am I missing something @jgmontoya ?
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+jgmontoya
+commented
+Aug 7, 2026
+Copy link
+Copy Markdown
+Contributor
+Author
+You’re right. I rechecked SP 800-90B and the STM32L4 documentation.
+SP 800-90B defines the repetition-count test for consecutive equal samples and the adaptive-proportion test. It permits extra tests when they address a documented source-specific failure mode with a stated false-alarm policy.
+STM32L4 detects long constant or alternating sequences in the raw seed bits internally. I found no documented failure where one valid 32-bit A, B, A sequence indicates a failing RNG. This software check also runs on conditioned outputs such as getrandom() and arc4random(), so the STM32 raw-bit detector does not justify it.
+Your probability estimate is correct for the new condition. Under uniform independent 32-bit output, the extra A, B, A rejection occurs about once per 2^32 checked words. I don’t have evidence that this false-alarm cost catches a real source fault.
+I’ll close #63 and rebase #64 without this check, preserving the existing zero and adjacent-repeat behavior. Thanks for catching it.
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+jgmontoya
+closed this
+Aug 7, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+1 more reviewer
+scgbckbone
+scgbckbone left review comments
+Reviewers whose approvals may not affect merge requirements
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+2 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

@@ -1,0 +1,26 @@
+--- reddit-dice-entropy-explainer@20260808T213734Z
++++ reddit-dice-entropy-explainer@20260812T044150Z
+@@ -171,3 +171,23 @@
+ I mean I'm telling the blockchain 'put my bitcoin from this address (public) into this address (also public)'. 
+ 
+ No? 
++
++comment: p2sygto
++parent: t1_p2h7hth
++author: AdEuphoric5133
++created_utc: 1786354563
++edited: false
++body:
++You are confusing address and public key. What you see on the blockchain are addresses. They are obtained by hashing the public key. But cryptographic hash function cannot be reversed (actually, they can, but it costs 2\^256 operation to a classical computer and 2\^128 operations to a quantum computer to do so, so it is unfeasible), so the public key cannot be obtained from the addresses.
++
++Basically, when you create a wallet, you choose at random a private key in the key space of size 2\^256. Then your wallet obtains the associated public key. Then the associated address by hashing. That is what you give to people to receive payment.
++
++Then, when you spend bitcoin from your address, you sign the transaction using your private key. But the network needs your public key to verify the validity of the signature, and so you reveal inside the transaction data both the signature and the public key. Your address now has an exposed public key.
++
++comment: p2wcu47
++parent: t1_p2sygto
++author: ZICRON_ULTRA
++created_utc: 1786390915
++edited: false
++body:
++Ahh, okay, thank you for the clarification 👍 

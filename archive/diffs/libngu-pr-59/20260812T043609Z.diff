@@ -1,0 +1,26 @@
+--- libngu-pr-59@20260807T060947Z
++++ libngu-pr-59@20260812T043609Z
+@@ -137,6 +137,7 @@
+ Jul 31, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Fixes the root cause of the 2026-07-31 Coldcard "limited entropy" advisory inside libngu itself: random.c tested #ifndef MICROPY_HW_ENABLE_RNG, so boards defining it as (0) passed the guard and silently linked upstream MicroPython's pseudo-random fallback rng_get(). The firmware hotfix worked around this at the integrator level; this PR removes the trap at the source.
+ Changes
+ Fail-closed backends. STM32 builds stop unless the integrator attests -DNGU_STM32_RNG_GET_IS_HARDWARE=1 (checked by value — absent, 0, and wrong all fail). ESP32 likewise requires an entropy-lifecycle attestation and is intentionally unavailable until someone with hardware validates it. Linux moves random() → getentropy(); unknown targets don't build; the 0x5a5a5a5a fallback is gone.
+@@ -285,6 +286,7 @@
+ Aug 1, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Author
+ diff too big
+ I'd be happy to split into a 3-PR stack: two independent, self-verifying additions (DRBG+CAVP, health rule) and then the random.c rework as a much smaller final diff.
+@@ -297,6 +299,7 @@
+ Aug 1, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Author
+ Per your feedback that the diff was too big, I've split this into a stack of three PRs that sum to exactly this branch (byte-identical tree):
+ add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAVP vectors #62 — the HMAC_DRBG core + NIST CAVP test harness (pure addition, self-verifying, no behavior change to any build)

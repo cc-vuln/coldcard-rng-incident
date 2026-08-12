@@ -1,0 +1,114 @@
+--- coldcard-firmware-pr-713@20260807T180342Z
++++ coldcard-firmware-pr-713@20260812T043737Z
+@@ -147,26 +147,12 @@
+ There was an error while loading. Please reload this page.
+ All reactions
+ scgbckbone
+-added 7 commits
++added 2 commits
+ August 5, 2026 15:35
+ Mix secure element entropy into seed generation
+ f460ce3
+ reseed with full 32 bytes of digest from SE1/SE2 entropy sources
+ d16d47b
+-Require external entropy for all new master seed wallets - with new o…
+-…
+-9cf5e44
+-…ptions dice/coin/mash
+-Warn before dice-only seed generation
+-28fcd74
+-external entropy required for CCC key and temporary seeds
+-41aace3
+-Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+-b0996f6
+-exclude schnorr/musig from libngu to save flash space; add adition ma…
+-…
+-e9ca0db
+-…cro NGU_STM32_EXTERNAL_RNG_GET
+ scgbckbone
+ commented
+ Aug 7, 2026
+@@ -185,6 +171,83 @@
+ Improve seed gen & require external entropy for each new wallet
+ #707
+ Closed
++scgbckbone
++force-pushed
++the
++improve_seed_gen-mash-timing
++branch
++3 times, most recently
++from
++4a793cd to
++401ad72
++Compare
++August 11, 2026 12:24
++scgbckbone
++mentioned this pull request
++Aug 11, 2026
++fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
++#691
++Draft
++scgbckbone
++added 5 commits
++August 11, 2026 15:42
++Require external entropy for all new master seed wallets - with new o…
++…
++4f58482
++…ptions dice/coin/mash
++Warn before dice-only seed generation
++d8f73c1
++external entropy required for CCC key and temporary seeds
++62a5028
++Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
++6a55baf
++exclude schnorr/musig from libngu to save flash space; add adition ma…
++…
++11d8130
++…cro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
++scgbckbone
++force-pushed
++the
++improve_seed_gen-mash-timing
++branch
++from
++401ad72 to
++11d8130
++Compare
++August 11, 2026 13:43
++scgbckbone
++commented
++Aug 11, 2026
++View reviewed changes
++scgbckbone
++left a comment
++Copy link
++Copy Markdown
++Collaborator
++Author
++There was a problem hiding this comment.
++Choose a reason for hiding this comment
++The reason will be displayed to describe this comment to others. Learn more.
++Choose a reason
++Spam
++Abuse
++Off Topic
++Outdated
++Duplicate
++Resolved
++Low Quality
++Hide comment
++OK by KIMI3
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++All reactions
++scgbckbone
++mentioned this pull request
++Aug 11, 2026
++rng: verify libngu bytes path reaches hardware driver
++#700
++Open
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters

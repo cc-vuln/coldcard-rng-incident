@@ -1,0 +1,384 @@
+post: 1vj3xxb
+author: labago
+created_utc: 1786215207
+title: What are the possible failures of this multi-sig setup?
+body:
+Setup:
+
+1. Sparrow as the wallet organizer (unsure of technical term)
+1. ColdCard as signer 1 (using updated firmware and software generated seed)
+1. BitBox signing device as signer 2 with software generated seed
+1. Both keys use a 13th word (passphrase)
+1. Descriptor string stored securely separate from keys
+1. Backup seed phrases stored securely separately
+1. Both devices require a password (separete from passphrase) to unlock
+
+What I am mostly conerned with is if 1 device gets comprimised in the same way the bugged ColdCards did, I would still be able to spend from the multi-sig wallet correct?
+
+Even if BOTH devices were compromized but my passphrase was unknown to the atacker, i would STILL be able to spend from the multi-sig correct? 
+
+This feels like a pretty solid set up, I have gotten here since barely avoiding the Coldcard attack recently. I still think the Colcard device is a good device so I don't really want to get rid of it, but adding an additional device to the mix seems like a good solution.
+
+Thoughts?
+
+comment: p2idx0s
+parent: t3_1vj3xxb
+author: FunWithSkooma
+created_utc: 1786215581
+edited: false
+body:
+I only use an old android phone with no internet as a signer using either cupcake from cake wallet or electrum wallet and my phone with either electrum wallet or Cake Wallet as watch only and online broadcast, and a passphrase.
+
+does not need to overcomplicate stuff really.
+
+comment: p2iebnp
+parent: t3_1vj3xxb
+author: Just_Bluebird_5268
+created_utc: 1786215700
+edited: false
+body:
+this right here.....this is the future of money
+
+comment: p2igbd0
+parent: t1_p2iebnp
+author: mnkbstard
+created_utc: 1786216282
+edited: false
+body:
+entries in a proprietary database relying on full trust are better?      
+or maybe paper notes?     
+
+
+comment: p2ihijk
+parent: t3_1vj3xxb
+author: Present_Raisin_2907
+created_utc: 1786216633
+edited: false
+body:
+You are close, though for multi-sig you need 3 total wallets. Right now with 2, You need both devices to spend, which if one is compromised or lost, you are locked out of your funds forever. 
+
+Coldcard  
+Bixbox02  
+SeedSigner
+
+You would want to store each key geographically separate. This way if one key or HW wallet was lost/compromised, you would use the other two to access your funds.
+
+13th word (or 25) Passwords are good, though my only issue is that they are in your memory only, that's a fairly easy way to lock yourself out. Those 13th-word passphrases cannot be recovered if forgotten. Keeping passphrases purely in your memory is incredibly risky. Instead of memorizing them, write them down and store them in a separate geographic location from the seeds.
+
+You would want the descriptor file at each location. It is like the map of where you have your keys on the block chain. It does not allow one to access funds, even with one seed, though your privacy and balance will be compromised. If you lose this file completely, you would not be able to access funds. Print it or save it on encrypted USB drives kept alongside your physical key backups.
+
+
+
+comment: p2ihwdc
+parent: t1_p2ihijk
+author: labago
+created_utc: 1786216747
+edited: false
+body:
+I don't get why if one device is compromised I can't still spend? Just because another person knows the seed, I can't still use that seed + passphrase to sign a transaction?
+
+comment: p2iiiq2
+parent: t3_1vj3xxb
+author: Serbithar
+created_utc: 1786216930
+edited: false
+body:
+Think people are going paranoid because of the recent disaster. A single signature with a passphrase is perfectly safe. Bah even without a passphrase, a single signature is perfectly safe, as long as entropy is correct. Multisig is useful for co-managing shared resources rather than for upgrading security.
+
+comment: p2ij0fi
+parent: t1_p2iiiq2
+author: labago
+created_utc: 1786217074
+edited: false
+body:
+Is there a way to safely check if software generated seeds have enough entropy?
+
+comment: p2ijve8
+parent: t1_p2ihwdc
+author: Present_Raisin_2907
+created_utc: 1786217326
+edited: false
+body:
+You can physically still use it to sign. If an attacker steals or extracts a seed, they now hold 50% of the control over your money. Because it's a 2-of-2 setup:
+
+They can't steal your Bitcoin yet (because they don't have your second key).
+
+But you can't move your Bitcoin either without racing them.
+
+The moment you try to spend or migrate your funds to a safe wallet, the attacker will see your transaction broadcasting. Because they have your private key, they can attempt to front-run you, modify the destination, or simply refuse to sign your recovery transaction.
+
+In a 2-of-3 setup, if one seed is compromised, it doesn't matter. You ignore the compromised key entirely, use your other two safe devices, and move your funds to a new wallet cleanly and safely without a race.
+
+comment: p2iknmv
+parent: t3_1vj3xxb
+author: 10kpizza
+created_utc: 1786217556
+edited: 1786217821
+body:
+Why do people keep saying you need the different multisig seeds to be geographically separated?
+
+If your point is to improve security (eg avoid a coldcold situation) then you can have all multisig keys in one place. Maybe even on the same piece of paper.
+
+I still think the biggest thing people can do for security is multi-wallet multisig. Multisig security is additive. It removes a single point of failure. If coldcard users had made a 2-of-2 multisig with the coldcold and the most malware-ridden online desktop computer you've ever seen, then it will still be better security than coldcard alone, and they would still have their bitcoins today. They dont need to geographically separate their seed phrases for that to work.
+
+If you're using a threshold multisig (i.e n-of-m where n < m, for example 2-of-3) then you also need all three xpubs to spend. Without that you also lose the bitcoins. People often store the descriptor which includes that information. That's one reason I prefer 2-of-2 since then you only need the seed phrases+passphrase and nothing else.
+
+comment: p2ikrm7
+parent: t1_p2ij0fi
+author: Serbithar
+created_utc: 1786217589
+edited: 1786217855
+body:
+Dunno, probably not auditable with a proprietary Ledger chip; most likely auditable with Trezor or Jade or other OS. Delivering one's own entropy with coin tosses, dice, or cards is like an extra minute of work. Seed entropy can be check with Coleman offline html tool (https://github.com/iancoleman/bip39/releases)
+
+The point is: adding paranoid, unnecessary extra complication to one's setup probably does more wrong than good.
+
+comment: p2ilcyw
+parent: t1_p2ijve8
+author: 10kpizza
+created_utc: 1786217764
+edited: false
+body:
+> The moment you try to spend or migrate your funds to a safe wallet, the attacker will see your transaction broadcasting. Because they have your private key, they can attempt to front-run you, modify the destination, or simply refuse to sign your recovery transaction.
+
+This is not possible in 2-of-2 multisig. To create a transaction you need both keys. Having just one key isnt enough. Even if it were true moving to 2-of-3 wouldnt solve the problem since the attacker still only needs 2 keys.
+
+comment: p2ilh5h
+parent: t1_p2iknmv
+author: Present_Raisin_2907
+created_utc: 1786217798
+edited: false
+body:
+Main reason for geographical distribution is a wrench attack. If you were ever coerced, all your keys would be in the same place, therefore the attacker could gain access to all your funds. 
+
+comment: p2ime2h
+parent: t1_p2ijve8
+author: labago
+created_utc: 1786218068
+edited: false
+body:
+Ok I was not at all aware a race condition could occur like that. In that case it almost seems safer to only manage one seed on one signing device, with a passphrase. Not sure what the real benefit would be of setting up a 2 of 3. It's just a lot of added complexity 
+
+comment: p2imeg7
+parent: t1_p2ilcyw
+author: Present_Raisin_2907
+created_utc: 1786218071
+edited: false
+body:
+My mistake, I got tripped up. It's more like neither party could send the funds. I guess they could ransom you?
+
+comment: p2imx4y
+parent: t1_p2iknmv
+author: labago
+created_utc: 1786218225
+edited: false
+body:
+According to another commenter, in a 2-2 setup a user who's Coldcard was compromised may still be locked out of their coins
+
+comment: p2inf5e
+parent: t1_p2ime2h
+author: Present_Raisin_2907
+created_utc: 1786218370
+edited: false
+body:
+Sorry, I was mistaken about the race part. You would still need to convince them, or they you, to send the funds. A hostage situation vs a race.
+
+It is complex and risky to use a 2-3 if you are not extremely accurate setting it up. My problem with the 1-1 is exactly like what happened with the Coldcard. I was using a Coldcard 1-1, and only because I dice rolled was I safe. 
+
+With 2-3 mutig-sig, if one Coldcard fiasco happens, your other two cold wallets will not allow your funds to be drained.
+
+comment: p2iojtx
+parent: t1_p2ij0fi
+author: so7ow
+created_utc: 1786218703
+edited: false
+body:
+You can't generally audit a single result after-the-fact, no. You can audit the process or if you have a statistically significant amount of results, you could potentially audit those results. 
+
+comment: p2iswed
+parent: t1_p2igbd0
+author: [deleted]
+created_utc: 1786219994
+edited: false
+body:
+[removed]
+
+comment: p2it3tg
+parent: t1_p2iswed
+author: mnkbstard
+created_utc: 1786220055
+edited: false
+body:
+> it's irresistable
+
+yes it is
+
+comment: p2iubzb
+parent: t3_1vj3xxb
+author: EdddyBBgun
+created_utc: 1786220419
+edited: false
+body:
+If you are going multisig anyway. I would make 3 wallets and make it a 2 out of 3. 
+
+2 out of 2 setup with 2 passphrases as well leaves zero room for human error, physical damage, or forgotten passphrases. Is just one of these four parts lost, your crypto is locked for ever. Unlike a 2 out of 3 multisig where you can lose a seed or a passphrase and still access your crypto. 
+
+I would just buy a Trezor Safe 3 at $47 and get all that extra security if you are going through the extra work of making a multisig anyway. 
+
+comment: p2ivkyq
+parent: t1_p2imeg7
+author: HedgehogGlad9505
+created_utc: 1786220790
+edited: false
+body:
+No. If OP's cold card is broken or lost, the backup seed plate is just for that case. You can't lose both the device and the backup sheet/ card, just like single sig.
+
+comment: p2j0p50
+parent: t1_p2imeg7
+author: labago
+created_utc: 1786222306
+edited: false
+body:
+I really need a concrete answer to if an attacker has a seed + passphrase can a transaction be sent by ME still since I have all the information needed
+
+comment: p2j36aj
+parent: t1_p2ivkyq
+author: Present_Raisin_2907
+created_utc: 1786223047
+edited: false
+body:
+So then you are saying you would hold the second backup/seed at a third location, no? If it was in the same location as the first, then in a wrench attack it would essentially be a 1-1, since both seeds would be present. 
+
+comment: p2j3h6x
+parent: t1_p2j0p50
+author: Present_Raisin_2907
+created_utc: 1786223138
+edited: false
+body:
+No one wallet could move the funds if it was a 2-2 multi-sig - you would need both wallets to sign the transaction. 
+
+comment: p2j3o13
+parent: t1_p2j3h6x
+author: labago
+created_utc: 1786223194
+edited: false
+body:
+Yes I understand that and have done it as a test. I'm saying if an attacker had access to one wallet and I had access to both, would I be able to move the coins?
+
+comment: p2j4q0j
+parent: t1_p2j3o13
+author: Present_Raisin_2907
+created_utc: 1786223511
+edited: 1786223704
+body:
+Yes, you could move the funds then as you would have 2 of 2. They would only have 1. Problem is if you have 2 of 2, that is essentially 1-1 if they are accessible by any single person.
+
+HW Wallet (Seed A) is in another location. Attacker finds this, they cannot move funds unless they somehow get your Seed B.
+
+You have both Seed A backup and HW B at the other location. If an attacker gets both, they can move the funds.
+
+comment: p2j5cd1
+parent: t1_p2j4q0j
+author: labago
+created_utc: 1786223699
+edited: false
+body:
+I get that but the intention here is to avoid another cold card type issue where if I'm using 2 different branded keys (Coldcard and bitbox) and one is _remotely_ discovered and compromised, I still have the other key that isn't and can move the funds still. I just want to ensure that is true
+
+comment: p2jfzhy
+parent: t1_p2ihwdc
+author: No_Position_8581
+created_utc: 1786226986
+edited: false
+body:
+dont listen to that guy he has no idea what he's talking about. Even if both seeds were compromised but by two different entities you would still be able to send bitcoin.
+
+comment: p2jjq6r
+parent: t3_1vj3xxb
+author: 77sleeper
+created_utc: 1786228191
+edited: false
+body:
+The problem i have is now, instead of relying on one entity you are relying on four? (3 signers and the "coordinator") I know it is more secure, but 300 dice rolls and 4 separate companies seems to add ALOT more failure vectors.
+
+comment: p2jjvit
+parent: t1_p2jjq6r
+author: labago
+created_utc: 1786228238
+edited: false
+body:
+It would be 3 companies (Sparrow, CC and BB), 2 seeds, probably a shared passphrase for the seeds as it's less failure prone. Also the descriptor file
+
+comment: p2juj0o
+parent: t1_p2j36aj
+author: HedgehogGlad9505
+created_utc: 1786231764
+edited: false
+body:
+I'm saying OP's setup is as secure as a single sig setup, plus the protection of a potential firmware bug in one of the devices.
+
+comment: p2lemsq
+parent: t1_p2inf5e
+author: user_name_checks_out
+created_utc: 1786253392
+edited: false
+body:
+> Sorry, I was mistaken about the race part. You would still need to convince them, or they you, to send the funds. A hostage situation vs a race.
+
+You are still mistaken, you have no idea what you're talking about. @OP u/labago, ignore this person.
+
+comment: p2pwgc6
+parent: t1_p2lemsq
+author: Present_Raisin_2907
+created_utc: 1786310728
+edited: false
+body:
+Care for an explanation? 
+
+comment: p2q566f
+parent: t1_p2pwgc6
+author: user_name_checks_out
+created_utc: 1786313386
+edited: false
+body:
+> Care for an explanation? 
+
+Yes I would, thank you. This "hostage situation", please explain how that would work.
+
+comment: p2qygm7
+parent: t1_p2q566f
+author: Present_Raisin_2907
+created_utc: 1786323173
+edited: false
+body:
+2-2 multi-sig. Attacker gains 1 key, therefore 50% custody. They ransom you for the other half, assuming they had enough info on you to find it in the first place. Your Xpub file (if stored with this key) would point them to the address you do control. This is the physical side of it. 
+
+If it was in the Coldcard scenario and purely digital, OP would likely still be able to access their funds. 
+
+comment: p2rjrlb
+parent: t1_p2jfzhy
+author: Present_Raisin_2907
+created_utc: 1786330789
+edited: false
+body:
+True, though if they did not have your Xpub info they still could not - this is in the digital sense. In a physical manner, such as storing 2-2 in the same location, you could then be susceptible to a wrench attack. 
+
+comment: p2spnwi
+parent: t1_p2qygm7
+author: user_name_checks_out
+created_utc: 1786350025
+edited: false
+body:
+> 2-2 multi-sig. Attacker gains 1 key, therefore 50% custody. They ransom you for the other half, assuming they had enough info on you to find it in the first place. Your Xpub file (if stored with this key) would point them to the address you do control. This is the physical side of it. 
+
+In this scenario the original wallet holder could simply transfer the funds to a new wallet.
+
+comment: p2toom8
+parent: t1_p2rjrlb
+author: No_Position_8581
+created_utc: 1786365283
+edited: false
+body:
+maybe its a recency bias but i feel like remote attacks and over complex setups will result in more loss of bitcoin than wrench attacks. Your better off storing a 3 of 5 setup in your home safe than using a single sig wallet or spitting seeds in a million locations.
+
+more-stub: parent t1_p2j5cd1 count 0

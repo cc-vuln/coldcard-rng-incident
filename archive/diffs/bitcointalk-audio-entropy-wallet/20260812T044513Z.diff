@@ -1,0 +1,11 @@
+--- bitcointalk-audio-entropy-wallet@20260809T170008Z
++++ bitcointalk-audio-entropy-wallet@20260812T044513Z
+@@ -133,7 +133,7 @@
+ I can understand this though and have been considering adding something to pass the data through a FFT (https://en.wikipedia.org/wiki/Fast_Fourier_transform) to ensure it contains enough entropy.
+ Title: Re: Audio-based entropy wallet
+ Post by: barrysty1e on August 09, 2026, 12:12:59 PM
+-Quote from: hmbdofficial on Today at 10:57:54 AM
++Quote from: hmbdofficial on August 09, 2026, 10:57:54 AM
+ Personally I would even use the microphone as an additional entropy source rather than completely replacing the CSPRNG. This is because combining multiple sources should result to better protection is one of the sources turns out weak or even compromised.
+ The concept would still be nicer if you can actually measure how much unpredictable entropy the audio contributes, rather than just showing that the hashes are different  each time. This way it could even be a useful extra layer of protection for hardware wallets.
+ After showing my code to a friend, he told me about a firewall he had setup using some multimedia hardware (think small form factor motherboard). When the client asked him as to the suitability of the hardware, he mentioned that it randomly samples audio to add entropy for the encryption (it didnt, but this removed any doubt from the client).

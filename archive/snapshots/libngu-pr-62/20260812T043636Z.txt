@@ -1,0 +1,239 @@
+Skip to content
+Navigation Menu
+Sign inAppearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Type / to search
+Sign in
+Sign upAppearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+switck
+/
+libngu
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+17
+Star
+7
+Code
+Issues
+2
+Pull requests
+2
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAVP vectors - #62
+#62
+Closed
+jgmontoya wants to merge 1 commit into
+switck:masterswitck/libngu:masterfrom
+jgmontoya:rng-1-hmac-drbgjgmontoya/libngu:rng-1-hmac-drbgCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Closed
+add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAVP vectors#62
+jgmontoya wants to merge 1 commit into
+switck:masterswitck/libngu:masterfrom
+jgmontoya:rng-1-hmac-drbgjgmontoya/libngu:rng-1-hmac-drbgCopy head branch name to clipboard
+Conversation
+jgmontoya
+commented
+Aug 1, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Contributor
+Part 1 of 3 — see #63 and #64; this core is inert until #64 wires it into random.c.
+Self-contained core for the RNG rework that follows: K/V state machine with instantiate, mixing reseed, and backtracking-resistant generate. No heap allocation and no failure paths -- HMAC is built directly on the SHA-256 backend the rest of libngu already uses (mbedtls or cifra, as in hash.c), because mbedtls' HMAC layer allocates and hardware SHA (MBEDTLS_SHA256_ALT) can fail at runtime; the latter is refused at compile time until a target proves its no-fail contract. Reseed interval and prediction resistance are deliberately omitted and documented: the consumer (random.c, next commits) mixes fresh entropy into every output instead. Secret-bearing temporaries are wiped via a volatile-store helper the optimizer cannot elide.
+Verified by a host-compiled harness (ngu_tests: make cavp, part of 'make tests') against official NIST CAVP vectors -- 12 vectors plus 2 derived partial-block KATs, run through BOTH SHA-256 backends. The vector extractor cross-checks every vector against an independent pure-python reference before emitting; vectors are checked in with provenance.
+Disclaimer
+This PR was developed with substantial LLM assistance, then adversarially reviewed over multiple rounds. It is deliberately structured so correctness doesn't depend on trusting the author: the DRBG is verified against official NIST CAVP vectors (12 official + 2 derived partial-block KATs) on both SHA-256 backends (make cavp), and the vector extractor cross-checks every vector against an independent pure-Python reference before emitting. Nevertheless, thorough maintainer review is expected.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+add HMAC_DRBG (SP 800-90A 10.1.2, SHA-256), verified against NIST CAV…
+…
+4c0ea35
+…P vectors
+Self-contained core for the RNG rework that follows: K/V state machine
+with instantiate, mixing reseed, and backtracking-resistant generate.
+No heap allocation and no failure paths -- HMAC is built directly on
+the SHA-256 backend the rest of libngu already uses (mbedtls or cifra,
+as in hash.c), because mbedtls' HMAC layer allocates and hardware SHA
+(MBEDTLS_SHA256_ALT) can fail at runtime; the latter is refused at
+compile time until a target proves its no-fail contract. Reseed
+interval and prediction resistance are deliberately omitted and
+documented: the consumer (random.c, next commits) mixes fresh entropy
+into every output instead. Secret-bearing temporaries are wiped via a
+volatile-store helper the optimizer cannot elide.
+Verified by a host-compiled harness (ngu_tests: make cavp, part of
+'make tests') against official NIST CAVP vectors -- 12 vectors plus 2
+derived partial-block KATs, run through BOTH SHA-256 backends. The
+vector extractor cross-checks every vector against an independent
+pure-python reference before emitting; vectors are checked in with
+provenance.
+This was referenced Aug 1, 2026
+random: reject two-word entropy cycles
+#63
+Closed
+random: harden entropy backends and state handling
+#64
+Merged
+random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG
+#59
+Closed
+Replace Yasmarang with SHA-256 Hash-DRBG
+#61
+Merged
+jgmontoya
+commented
+Aug 7, 2026
+Copy link
+Copy Markdown
+Contributor
+Author
+No longer relevant given #61
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+jgmontoya
+closed this
+Aug 7, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+1 participant
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

@@ -1,0 +1,325 @@
+--- coldcard-firmware-pr-713-patch@20260807T180344Z
++++ coldcard-firmware-pr-713-patch@20260812T043741Z
+@@ -71,7 +71,7 @@
+      n = ngu.hash.sha256d(a+b)
+ -    n, = ustruct.unpack('I', n[0:4])
+      ngu.random.reseed(n)
+-From 9cf5e44ecf3b2178a0c67b5f54d6957408d04702 Mon Sep 17 00:00:00 2001
++From 4f58482b4ab047377882fbd13c8011c09bf7ed43 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Tue, 4 Aug 2026 18:44:33 +0200
+ Subject: [PATCH 3/7] Require external entropy for all new master seed wallets
+@@ -83,10 +83,11 @@
+  shared/mempad.py           |  80 +++++++--
+  shared/mk4.py              |   2 +-
+  shared/numpad.py           |  42 ++++-
+- shared/seed.py             | 268 ++++++++++++++++++++++++---
++ shared/seed.py             | 266 ++++++++++++++++++++++++---
++ testing/conftest.py        |  15 ++
+  testing/test_ux.py         | 360 ++++++++++++++++++++++++++++++++++++-
+  unix/variant/touch.py      |   6 +
+- 9 files changed, 753 insertions(+), 54 deletions(-)
++ 10 files changed, 766 insertions(+), 54 deletions(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+ index d386adc7..0abe1d4c 100644
+ --- a/releases/Next-ChangeLog.md
+@@ -397,7 +398,7 @@
+ +        self._changes.put_nowait((key, now))
+          self.last_event_time = utime.ticks_ms()
+ diff --git a/shared/seed.py b/shared/seed.py
+-index 4350cc0d..b80e39bb 100644
++index 4350cc0d..3169004f 100644
+ --- a/shared/seed.py
+ +++ b/shared/seed.py
+ @@ -17,9 +17,9 @@
+@@ -498,7 +499,7 @@
+                          if not ok:
+                              redraw = True
+                              continue
+-@@ -614,10 +652,201 @@ def generate_seed():
++@@ -614,10 +652,199 @@ def generate_seed():
+      # hash to combine the sources and mitigate any possible bias
+      return ngu.hash.sha256d(seed + a + b)
+ +def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=None):
+@@ -532,6 +533,8 @@
+ +    try:
+ +        numpad.start_mash()
+ +        while True:
+++            while numpad.empty():
+++                await sleep_ms(2)
+ +            ch, now = await numpad.get_with_timestamp()
+ +            if ch == numpad.ABORT_KEY: raise AbortInteraction()
+ +            if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+@@ -571,21 +574,19 @@
+ +
+ +async def collect_dice_entropy():
+ +    # Collect 128 bits of supplemental entropy from physical D6 rolls.
+-+    from glob import numpad
+-+
+ +    md = sha256(DOMAIN_DICE)
+ +    count = 0
+ +    counter = {}
+++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
+++    press = PressRelease('123456' + done_keys)
+ +
+ +    update_entropy_screen('Dice Rolls', count, MIN_DICE_ROLLS,
+ +                          'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
+ +    ux_clear_keys()
+ +
+ +    while True:
+-+        ch, _ = await numpad.get_with_timestamp()
+-+        if ch == numpad.ABORT_KEY: raise AbortInteraction()
+++        ch = await press.wait()
+ +        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+-+        if not ch: continue
+ +
+ +        if count >= MIN_DICE_ROLLS and ch == (KEY_ENTER if version.has_qwerty else "y"):
+ +            break
+@@ -610,20 +611,18 @@
+ +
+ +async def collect_coin_entropy():
+ +    # A coin contributes ~1 bit per flip.
+-+    from glob import numpad
+-+
+ +    md = sha256(DOMAIN_COIN)
+ +    count = heads = 0
+++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
+++    press = PressRelease('10' + done_keys)
+ +
+ +    update_entropy_screen('Coin Flips', count, MIN_COIN_FLIPS,
+ +                          'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
+ +    ux_clear_keys()
+ +
+ +    while True:
+-+        ch, _ = await numpad.get_with_timestamp()
+-+        if ch == numpad.ABORT_KEY: raise AbortInteraction()
+++        ch = await press.wait()
+ +        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+-+        if not ch: continue
+ +
+ +        if count >= MIN_COIN_FLIPS and ch == (KEY_ENTER if version.has_qwerty else "y"):
+ +            break
+@@ -701,7 +700,7 @@
+      words = await approve_word_list(seed, nwords)
+      if words:
+          await commit_new_words(words)
+-@@ -665,14 +894,14 @@ async def approve_word_list(seed, nwords, ephemeral=False):
++@@ -665,14 +892,14 @@ async def approve_word_list(seed, nwords, ephemeral=False):
+      words = bip39.b2a_words(seed).split(' ')
+      assert len(words) == nwords
+ -    extra_msg = 'Press (4) to add some dice rolls into the mix. '
+@@ -717,7 +716,7 @@
+          if ch == 'x':
+              # user abort, but confirm it!
+              if await ux_confirm("Throw away those words and stop this process?"):
+-@@ -680,15 +909,6 @@ async def approve_word_list(seed, nwords, ephemeral=False):
++@@ -680,15 +907,6 @@ async def approve_word_list(seed, nwords, ephemeral=False):
+              else:
+                  continue
+ -        if ch == '4':
+@@ -732,6 +731,31 @@
+          if ch == '6':
+              # wants to skip the quiz (undocumented)
+              if await ux_confirm("Skipping the quiz means you might have "
++diff --git a/testing/conftest.py b/testing/conftest.py
++index 1f06595e..79e0d929 100644
++--- a/testing/conftest.py
+++++ b/testing/conftest.py
++@@ -698,6 +698,21 @@ def press_select(dev, has_qwerty):
++     f = functools.partial(_press_select, dev, has_qwerty)
++     return f
+++@pytest.fixture
+++def enter_mash_entropy(pick_menu_item, press_select, need_keypress):
+++    def doit():
+++        pick_menu_item('Mash Keys')
+++        time.sleep(.1)
+++        press_select()
+++        time.sleep(.1)
+++        for i in range(128):
+++            need_keypress(str(i % 10))
+++
+++        time.sleep(.2)
+++        press_select()  # done
+++
+++    return doit
+++
++ @pytest.fixture
++ def press_cancel(need_keypress, has_qwerty):
++     def doit(**kws):
+ diff --git a/testing/test_ux.py b/testing/test_ux.py
+ index f8b96977..d122302e 100644
+ --- a/testing/test_ux.py
+@@ -1154,7 +1178,7 @@
+                  # Q1 simulator sends keynumbers, from shared/charcodes.py
+                  numpad.process_chg_state(new_presses)
+              else:
+-From 28fcd74f6e65d329d4ff3775658027153360ed5c Mon Sep 17 00:00:00 2001
++From d8f73c10ad928230541a6a7642fb1ca1e623824e Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 11:43:52 +0200
+ Subject: [PATCH 4/7] Warn before dice-only seed generation
+@@ -1176,7 +1200,7 @@
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+  # Mk Specific Changes
+ diff --git a/shared/seed.py b/shared/seed.py
+-index b80e39bb..19063881 100644
++index 3169004f..24b897c0 100644
+ --- a/shared/seed.py
+ +++ b/shared/seed.py
+ @@ -75,6 +75,13 @@
+@@ -1214,7 +1238,7 @@
+ +    time.sleep(0.1)
+      gave = ''
+      for i in range(count):
+-From 41aace3deb79a1080a6404f0829fd5dd44cc8d78 Mon Sep 17 00:00:00 2001
++From 62a502879c484e2d9d5b7ff7ed2ae1bbea30c464 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 12:20:43 +0200
+ Subject: [PATCH 5/7] external entropy required for CCC key and temporary seeds
+@@ -1222,10 +1246,9 @@
+  releases/Next-ChangeLog.md |  2 ++
+  shared/ccc.py              | 11 +++++++----
+  shared/seed.py             | 27 +++++++++++++++++++--------
+- testing/conftest.py        | 11 +++++++++++
+  testing/test_ccc.py        |  3 ++-
+  testing/test_ephemeral.py  | 11 ++++++++---
+- 6 files changed, 49 insertions(+), 16 deletions(-)
++ 5 files changed, 38 insertions(+), 16 deletions(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+ index 4ec72611..0fcb6b62 100644
+ --- a/releases/Next-ChangeLog.md
+@@ -1272,7 +1295,7 @@
+      else:
+          return None
+ diff --git a/shared/seed.py b/shared/seed.py
+-index 19063881..a8f29106 100644
++index 24b897c0..c53f1c36 100644
+ --- a/shared/seed.py
+ +++ b/shared/seed.py
+ @@ -50,6 +50,9 @@
+@@ -1284,7 +1307,7 @@
+ +PURPOSE_CCC = b'C'
+  BAD_DICE_MSG = ('Distribution of dice rolls is not random. '
+                  'Some numbers occurred more than 30% of the time.')
+-@@ -814,9 +817,8 @@ async def collect_coin_entropy():
++@@ -812,9 +815,8 @@ async def collect_coin_entropy():
+      return md.digest()
+ -async def make_new_wallet(nwords):
+ -    # Generate the primary seed first, then require one human entropy source.
+@@ -1294,14 +1317,14 @@
+      base_seed = None
+      extra_entropy = None
+      mix = None
+-@@ -831,6 +833,7 @@ async def make_new_wallet(nwords):
++@@ -829,6 +831,7 @@ async def make_new_wallet(nwords):
+      ])
+      try:
+          base_seed = generate_seed()
+ +        await ux_dramatic_pause('Generating...', 3)
+          while extra_entropy is None:
+              the_ux.push(choices)
+-@@ -850,14 +853,20 @@ async def make_new_wallet(nwords):
++@@ -848,14 +851,20 @@ async def make_new_wallet(nwords):
+              extra_entropy = await collector()
+ -        mix = DOMAIN_SEED + method + base_seed + extra_entropy
+ -        seed = ngu.hash.sha256d(mix)
+@@ -1320,7 +1343,7 @@
+      words = await approve_word_list(seed, nwords)
+      if words:
+          await commit_new_words(words)
+-@@ -875,12 +884,14 @@ async def import_done_cb(words):
++@@ -873,12 +882,14 @@ async def import_done_cb(words):
+          return WordNestMenu(nwords, done_cb=import_done_cb)
+  async def ephemeral_seed_generate(nwords):
+ -    await ux_dramatic_pause('Generating...', 3)
+@@ -1336,27 +1359,6 @@
+ +        await set_ephemeral_seed_words(words, origin="Generated Words")
+  async def set_seed_extended_key(extended_key):
+      encoded, chain = xprv_to_encoded_secret(extended_key)
+-diff --git a/testing/conftest.py b/testing/conftest.py
+-index 1f06595e..f5adfe83 100644
+---- a/testing/conftest.py
+-+++ b/testing/conftest.py
+-@@ -698,6 +698,17 @@ def press_select(dev, has_qwerty):
+-     f = functools.partial(_press_select, dev, has_qwerty)
+-     return f
+-+@pytest.fixture
+-+def enter_mash_entropy(pick_menu_item, press_select, need_keypress):
+-+    def doit():
+-+        pick_menu_item('Mash Keys')
+-+        press_select()
+-+        for i in range(128):
+-+            need_keypress(str(i % 10))
+-+        press_select()
+-+
+-+    return doit
+-+
+- @pytest.fixture
+- def press_cancel(need_keypress, has_qwerty):
+-     def doit(**kws):
+ diff --git a/testing/test_ccc.py b/testing/test_ccc.py
+ index e3a88b74..623f5f12 100644
+ --- a/testing/test_ccc.py
+@@ -1431,7 +1433,7 @@
+      time.sleep(0.1)
+      need_keypress("6")  # skip quiz
+      press_select()
+-From b0996f626906f2882466f30f648af00c21f416f9 Mon Sep 17 00:00:00 2001
++From 6a55baf02ead10b2c26ec7a4f399e25b8e701fdc Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 14:48:30 +0200
+ Subject: [PATCH 6/7] Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+@@ -1440,12 +1442,12 @@
+  releases/Next-ChangeLog.md | 2 ++
+  2 files changed, 3 insertions(+), 1 deletion(-)
+ diff --git a/external/libngu b/external/libngu
+-index 537519a8..e18669ba 160000
++index 537519a8..5d04106a 160000
+ --- a/external/libngu
+ +++ b/external/libngu
+ @@ -1 +1 @@
+ -Subproject commit 537519a829259622ea6b0334fbafd6cae852852f
+-+Subproject commit e18669baf9e331f86cacb033ecee6858abbea2dd
+++Subproject commit 5d04106a16afea6c3aa7802366e1687e55331cf8
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+ index 0fcb6b62..28d48077 100644
+ --- a/releases/Next-ChangeLog.md
+@@ -1459,17 +1461,18 @@
+  - Change: New master seeds now require extra user supplied entropy.
+      - Choose key mashing (based on [Peter Todd's Push-Button RNG](https://petertodd.org/2014/push-button-rng)),
+        physical dice rolls or physical coin flips.
+-From e9ca0db525cae27ca888c8fc658d195888ffeb7d Mon Sep 17 00:00:00 2001
++From 11d813022ee482d1debcd64c0e8d96ada18cca9d Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Fri, 7 Aug 2026 09:57:58 +0200
+ Subject: [PATCH 7/7] exclude schnorr/musig from libngu to save flash space;
+- add adition macro NGU_STM32_EXTERNAL_RNG_GET
++ add adition macro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
+ ---
+  stm32/COLDCARD_MK4/mpconfigboard.h  | 4 +++-
+  stm32/COLDCARD_MK4/mpconfigboard.mk | 5 ++++-
+  stm32/COLDCARD_Q1/mpconfigboard.h   | 5 ++++-
+  stm32/COLDCARD_Q1/mpconfigboard.mk  | 5 ++++-
+- 4 files changed, 15 insertions(+), 4 deletions(-)
++ unix/variant/mpconfigvariant.mk     | 4 ++--
++ 5 files changed, 17 insertions(+), 6 deletions(-)
+ diff --git a/stm32/COLDCARD_MK4/mpconfigboard.h b/stm32/COLDCARD_MK4/mpconfigboard.h
+ index b3ccb7c7..0484ef94 100644
+ --- a/stm32/COLDCARD_MK4/mpconfigboard.h
+@@ -1524,3 +1527,16 @@
+ +NGU_INCL_MUSIG   = 0
+  USER_C_MODULES = boards/$(BOARD)/c-modules
+  # the bulk of the COLDCARD-specific code
++diff --git a/unix/variant/mpconfigvariant.mk b/unix/variant/mpconfigvariant.mk
++index 615858a4..19e547ff 100644
++--- a/unix/variant/mpconfigvariant.mk
+++++ b/unix/variant/mpconfigvariant.mk
++@@ -17,8 +17,8 @@ MICROPY_USE_READLINE = 1
++ # btree module using Berkeley DB 1.xx
++ MICROPY_PY_BTREE = 1
++-# _thread module using pthreads
++-MICROPY_PY_THREAD = 1
+++# ngu.random holds mutable DRBG and source-check state.
+++MICROPY_PY_THREAD = 0
++ # Subset of CPython termios module
++ MICROPY_PY_TERMIOS = 1

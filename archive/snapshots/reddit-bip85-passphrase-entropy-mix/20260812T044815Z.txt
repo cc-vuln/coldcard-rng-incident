@@ -1,0 +1,88 @@
+post: 1vizful
+author: randbtcacct
+created_utc: 1786204321
+title: You can mix human entropy with hardware wallet entropy using a one time passphrase and BIP85
+body:
+First let your hardware create a new seed normally. Enable passphrase. Use the passphrase field to enter over 100 dice rolls or any other equivalent entropy and apply. Do not worry about remembering the passphrase. After passphrase is active select BIP85 seed and copy the new BIP85 seed. 
+
+Only keep the final seed and throw out the dice rolls or passphrase info and original seed (only if empty). Your final seed will be created using hardware entropy in original seed and human entropy from the passphrase. If either make a mistake in entropy the entropy is still good and requires failures of both to fail. 
+
+Works on hardware wallets that will support BIP85 after passphrase
+
+comment: p2hoso7
+parent: t3_1vizful
+author: creative_usr_name
+created_utc: 1786208485
+edited: false
+body:
+Assumes the hardware wallet works correctly, which we recently found out is not always the case. 
+
+comment: p2hy57v
+parent: t1_p2hoso7
+author: randbtcacct
+created_utc: 1786211102
+edited: false
+body:
+Correct. This just eliminates any entropy risk.
+
+comment: p2i5ulw
+parent: t3_1vizful
+author: flutecop
+created_utc: 1786213275
+edited: false
+body:
+Would XORing two seeds together accomplish the same thing?
+
+I was thinking of XORing three seeds together. A coldcard seed with added dice rolls on updated firmware; a pen and paper dice rolled seed; and a seedsigner seed with image based entropy.
+
+comment: p2ia8ef
+parent: t3_1vizful
+author: slvbtc
+created_utc: 1786214522
+edited: false
+body:
+I find it so fascinating how flexible bitcoin is. It blows my mind how many different ways there are to generate seeds.
+
+In your example does the bip 85 child seed become the new master seed? And which hardware wallets support bip 85?
+
+comment: p2ikb5y
+parent: t1_p2i5ulw
+author: genius_retard
+created_utc: 1786217455
+edited: false
+body:
+Trezor XORs the output of the TRNGs from the PC it is connected to plus the one in its main CPU and the one(s) from its secure element(s).
+
+comment: p2klqw4
+parent: t1_p2ia8ef
+author: randbtcacct
+created_utc: 1786241429
+edited: false
+body:
+Yes the child seed becomes the master seed discarding the rest. Jade and bitbox that I know of.
+
+comment: p2lgwqt
+parent: t1_p2hy57v
+author: na3than
+created_utc: 1786254473
+edited: false
+body:
+It doesn't eliminate entropy risk if the implementation is flawed ... as it was in the recent incident everyone is still talking about.
+
+comment: p2ln3k4
+parent: t1_p2klqw4
+author: TooSweetForLife
+created_utc: 1786257485
+edited: false
+body:
+In regards to Jade, I see on the Jade website they show a dice chart using 3 dice, 16 sided, 16 sided and an 8 sided die and the outcomes to the 2048 wordlist.. Do you think it's better than using 6 sided dice method?
+
+https://storage.googleapis.com/dxp-production-assets/content/blockstream-jade/add-more-security-functionality/create-a-recovery-phrase-using-dice/JadeDiceRollsGuide.pdf
+
+comment: p2yswmh
+parent: t1_p2lgwqt
+author: worldresident2021
+created_utc: 1786417736
+edited: false
+body:
+It does eliminate entropy risk, what it does not eliminate is flawed hardware not utilising the added entropy which is another story 

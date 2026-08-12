@@ -1,0 +1,27 @@
+--- libngu-pr-62@20260807T192157Z
++++ libngu-pr-62@20260812T043636Z
+@@ -142,6 +142,7 @@
+ There was an error while loading. Please reload this page.
+ Copy link
+ Copy Markdown
++Contributor
+ Part 1 of 3 — see #63 and #64; this core is inert until #64 wires it into random.c.
+ Self-contained core for the RNG rework that follows: K/V state machine with instantiate, mixing reseed, and backtracking-resistant generate. No heap allocation and no failure paths -- HMAC is built directly on the SHA-256 backend the rest of libngu already uses (mbedtls or cifra, as in hash.c), because mbedtls' HMAC layer allocates and hardware SHA (MBEDTLS_SHA256_ALT) can fail at runtime; the latter is refused at compile time until a target proves its no-fail contract. Reseed interval and prediction resistance are deliberately omitted and documented: the consumer (random.c, next commits) mixes fresh entropy into every output instead. Secret-bearing temporaries are wiped via a volatile-store helper the optimizer cannot elide.
+ Verified by a host-compiled harness (ngu_tests: make cavp, part of 'make tests') against official NIST CAVP vectors -- 12 vectors plus 2 derived partial-block KATs, run through BOTH SHA-256 backends. The vector extractor cross-checks every vector against an independent pure-python reference before emitting; vectors are checked in with provenance.
+@@ -178,7 +179,7 @@
+ Closed
+ random: harden entropy backends and state handling
+ #64
+-Open
++Merged
+ random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG
+ #59
+ Closed
+@@ -190,6 +191,7 @@
+ Aug 7, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Author
+ No longer relevant given #61
+ All reactions

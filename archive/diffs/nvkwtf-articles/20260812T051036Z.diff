@@ -1,0 +1,22 @@
+--- nvkwtf-articles@20260804T232739Z
++++ nvkwtf-articles@20260812T051036Z
+@@ -8,7 +8,18 @@
+ 2026
+ 2024
+ 
+-6 articles
++7 articles
++
++Coldcard: the technical autopsy of an entropy failure
++(opens in a new tab)
++
++Wizardsardine
++·
++Loïc Morel
++·
++11 Aug 2026
++
++The technical companion to the same publication's 1 August writeup, which was written for users. It reconstructs the code path down to the missing symbol export that left seed generation bound to MicroPython's software generator, and recounts the entropy figures that had circulated the week before, arguing the real candidate space is closer to 2^22 on the Mk3 and 2^52 on the Mk4, Mk5 and Q. Also puts numbers on the chance of two Coldcards starting from the same state, prices an exhaustive sweep in rented GPU time, separates what broke (cloning, paper wallets, Key Teleport) from what held (the RFC 6979 nonces, backup encryption, the dice-only path), and reads the 31 July patch closely enough to note the faulty guard is still there.
+ 
+ Coldcard and the limits of “don't trust, verify”
+ (opens in a new tab)

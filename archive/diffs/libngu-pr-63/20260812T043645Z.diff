@@ -1,0 +1,27 @@
+--- libngu-pr-63@20260807T192203Z
++++ libngu-pr-63@20260812T043645Z
+@@ -142,6 +142,7 @@
+ There was an error while loading. Please reload this page.
+ Copy link
+ Copy Markdown
++Contributor
+ Summary
+ Adds a small entropy-source health check to ngu.random.
+ Each source word is rejected when it is zero or matches either of the two most recently accepted words. Zero rejection stays in random.c, where the platform policy belongs. The helper tracks initialization explicitly, so zero is treated as real history when the helper is tested on its own.
+@@ -169,7 +170,7 @@
+ This was referenced Aug 1, 2026
+ random: harden entropy backends and state handling
+ #64
+-Open
++Merged
+ random: fail-closed entropy backends; replace Yasmarang with CAVP-verified HMAC_DRBG
+ #59
+ Closed
+@@ -229,6 +230,7 @@
+ Aug 7, 2026
+ Copy link
+ Copy Markdown
++Contributor
+ Author
+ You’re right. I rechecked SP 800-90B and the STM32L4 documentation.
+ SP 800-90B defines the repetition-count test for consecutive equal samples and the adaptive-proportion test. It permits extra tests when they address a documented source-specific failure mode with a stated false-alarm policy.
