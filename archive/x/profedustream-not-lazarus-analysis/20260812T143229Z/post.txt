@@ -1,0 +1,93 @@
+url:      https://x.com/profedustream/status/2085367401336525284
+author:   ProfEduStream
+handle:   @ProfEduStream
+posted:   2026-08-06T14:08:27.000Z (from the page's <time> element)
+captured: 20260812T143229Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    2 attached image(s)
+media-1: https://pbs.twimg.com/media/HO6CbyPWEAAN6J4?format=png&name=medium (1010 x 307 pixels)
+media-2: https://pbs.twimg.com/media/HO6G3_BXYAASlXR?format=png&name=small (680 x 543 pixels)
+
+--- post text (verbatim) ---
+
+ The hacker who mixed stolen bitcoins yesterday is most likely not the Lazarus Group!
+
+Analysis 
+
+To start with, one on-chain element strikes me as particularly revealing:
+
+ The thief initially had about 65 BTC, stolen on Sunday, August 2 at 6 a.m. from 465 transactions.
+
+Yet, instead of breaking this sum into dozens of small UTXOs before gradually sending them into the Wasabi coinjoin, he did something much more direct:
+
+ He injected the 65 BTC all at once into this coinjoin.
+
+Then he did it again.
+
+At the output of the first Wasabi round, he still held a UTXO of about 54 BTC. And once again:
+
+ He directly reused this huge UTXO as input for a new coinjoin.
+
+And so on.
+In other words, this attacker isn't really trying to hide the size of his position.
+He moves a massive amount of bitcoins from one round to the next, with relatively simple and repetitive behavior, probably even automated.
+
+Yet, this is generally not how Lazarus operates 
+
+In fact, the pattern usually associated with Lazarus looks more like this:
+
+ Prior fragmentation
+
+The funds are split into hundreds, or even thousands, of smaller UTXOs.
+Often amounts in the range of 1 to 2 BTC.
+
+The goal is twofold:
+1) multiply the branches to analyze for analysts, and make them lose time;
+2) avoid a single UTXO compromising too large a portion of the funds.
+
+ Progressive injection into mixing tools
+
+The Lazarus Group typically doesn't take a batch of several tens of BTC and shove it brutally into a coinjoin.
+
+Their pre-fragmented funds are indeed injected progressively:
+- in small batches;
+- over multiple rounds;
+- sometimes over several days or weeks;
+- with periods of dormancy.
+
+ Remixing and dispersion
+
+Their UTXOs then pass through several coinjoins to increase their "anonymity set" and complicate tracking.
+It's only after this phase that they are reconsolidated, bridged to other chains (notably the THOR chain, which often comes up in hacks), then converted to stablecoins; before finally being directed to OTC networks.
+
+The classic Lazarus Group pattern is therefore more like:
+ Fragment
+ Mix progressively
+ Remix
+ Reconsolidate
+ Bridge
+ Liquidate
+
+Yet, here, we observe almost the opposite:
+ a huge UTXO enters Wasabi;
+ a huge UTXO comes out;
+ then this same huge UTXO heads back into a new CoinJoin to be fragmented bit by bit.
+
+This doesn't mean Wasabi is ineffective, nor that the perpetrator isn't trying to cover his tracks 
+
+But from a behavioral standpoint, this strategy seems much cruder and far less thoughtful / compartmentalized than the operations typically attributed to Lazarus.
+
+In other words: the hacker we're talking about doesn't seem as skilled as the Lazarus Group.
+
+ Of course, an on-chain pattern never constitutes absolute proof of identity: a group can indeed change methods, test a new strategy, or deliberately imitate another actor.
+
+But here, the gap is significant.
+
+ Because sending 65 BTC, then 54 BTC, in bulk into successive CoinJoins is hard to reconcile with the fragmentation logic, risk dilution, privacy optimization, and spreading observed in Lazarus hacks.
+
+My conclusion:
+ This flow is linked to the ColdCard vulnerability, but its operator does not, at this stage, exhibit the typical operational pattern of the Lazarus Group 
+
+The question now remains open regarding wave #1 (1157 BTC), which hasn't moved for several days! 
+
+Find my other analyses of the ColdCard hack in this tweet 

@@ -29,21 +29,6 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
-- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087467596098556048) (X @coletu)
-- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087472903256203544) (X @coletu)
-- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2087466637964288234) (X @profedustream)
-- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2085367401336525284) (X @profedustream)
-- 2026-08-12 [@hardblockbtc post (text available during approved intake)](https://x.com/hardblockbtc/status/2085306134815265260) (X @hardblockbtc)
-- 2026-08-12 [@kloaec post (text available during approved intake)](https://x.com/kloaec/status/2087240258203070640) (X @kloaec)
-- 2026-08-12 [@rob1ham post (text available during approved intake)](https://x.com/rob1ham/status/2087259969913557007) (X @rob1ham)
-- 2026-08-12 [@cointelegraph post (text available during approved intake)](https://x.com/cointelegraph/status/2087056701031620854) (X @cointelegraph)
-- 2026-08-12 [@katakoto post (text available during approved intake)](https://x.com/katakoto/status/2087324167851127151) (X @katakoto)
-- 2026-08-12 [@pastorcoin post (text available during approved intake)](https://x.com/pastorcoin/status/2087175264119779659) (X @pastorcoin)
-- 2026-08-12 [@w_s_bitcoin post (text available during approved intake)](https://x.com/w_s_bitcoin/status/2086971108071285190) (X @w_s_bitcoin)
-- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087279253251305910) (X @sesi_the_man)
-- 2026-08-12 [@alexesnakamoto post (text available during approved intake)](https://x.com/alexesnakamoto/status/2087428725675635068) (X @alexesnakamoto)
-- 2026-08-12 [@nunchuk_io post (text available during approved intake)](https://x.com/nunchuk_io/status/2087197360162226251) (X @nunchuk_io)
-- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087204035969467442) (X @sesi_the_man)
 - 2026-08-12 [@slowmist_team post (text available during approved intake)](https://x.com/slowmist_team/status/2087438490518892592) (X @slowmist_team)
 - 2026-08-12 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2087147003285246175) (X @mandrik)
 - 2026-08-12 [@mandrik post (text available during approved intake)](https://x.com/mandrik/status/2086977400538022122) (X @mandrik)
@@ -799,21 +784,6 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-09 [@peterktodd post (text available during approved intake)](https://x.com/peterktodd/status/2086441151922384966) (X @peterktodd)
 - 2026-08-08 [@BenHart_Freedom post (text available during approved intake)](https://x.com/BenHart_Freedom/status/2086168786898386961) (X @BenHart_Freedom)
 - 2026-08-08 [@KuptoKosmos post (text available during approved intake)](https://x.com/KuptoKosmos/status/2086166930033913909) (X @KuptoKosmos)
-- 2026-08-09 [Rodolfo Novak, Coldcard scammer: "I will take it".](https://www.reddit.com/r/Bitcoin/comments/1vji2nz/rodolfo_novak_coldcard_scammer_i_will_take_it/) by Fearless-Second-7230, 15 comments (r/Bitcoin) -> Pending: body fetch failed (20260809T165800Z)
-- 2026-08-11 [Coldcard: the technical autopsy of an entropy failure](https://stacker.news/items/1546011) by k00b, 4 comments (~bitcoin)
-- 2026-08-11 [Seedsigner + Dice (and how to verify) New Tutorial](https://stacker.news/items/1545657) by BTCsessions, 3 comments (~bitcoin) [topical]
-- 2026-08-12 [Why did Coinkite destroy its inventory?](https://www.reddit.com/r/coldcard/comments/1vlzxtx/why_did_coinkite_destroy_its_inventory/) by Ok-Photograph-3585, 2 comments (r/coldcard)
-- 2026-08-11 [The Coldcard hack was due to Trump’s “White Male DEI” policy](https://www.reddit.com/r/coldcard/comments/1vlweas/the_coldcard_hack_was_due_to_trumps_white_male/) by ImaginaryRea1ity, 6 comments (r/coldcard)
-- 2026-08-10 [Steel Plates $100+ waste](https://www.reddit.com/r/coldcard/comments/1vkqgos/steel_plates_100_waste/) by lysergicpoptarts, 30 comments (r/coldcard) [body]
-- 2026-08-11 [Randomness in Bitcoin and Other Wallets](https://www.reddit.com/r/coldcard/comments/1vlbpxf/randomness_in_bitcoin_and_other_wallets/) by Few_Tea_8183, 9 comments (r/coldcard) [body]
-- 2026-08-11 [Steelplate refund/replacement](https://www.reddit.com/r/coldcard/comments/1vl6asz/steelplate_refundreplacement/) by stargate425, 14 comments (r/coldcard) [body]
-- 2026-08-10 [Coldcard Mk4 RNG Weakness: Full Reverse Engineering & Recovery Framework](https://www.reddit.com/r/coldcard/comments/1vkogy3/coldcard_mk4_rng_weakness_full_reverse/) by pingbtcio, 3 comments (r/coldcard)
-- 2026-08-10 [Coldcard: The Gold Standard in Bitcoin Security](https://www.reddit.com/r/coldcard/comments/1vk5f4p/coldcard_the_gold_standard_in_bitcoin_security/) by reeferqueefer, 31 comments (r/coldcard)
-- 2026-08-10 [Sometimes in life, you can do nothing wrong and still end up losing](https://www.reddit.com/r/coldcard/comments/1vk5tkf/sometimes_in_life_you_can_do_nothing_wrong_and/) by birth_of_bitcoin, 8 comments (r/coldcard)
-- 2026-08-10 [Any hope for stolen funds?](https://www.reddit.com/r/coldcard/comments/1vk6ylb/any_hope_for_stolen_funds/) by No_Ad7990, 21 comments (r/coldcard) [topical]
-- 2026-08-10 [Even after so many lives were destroyed, BTC still carries on. More and more people will need to be hurt before the world realizes this technology is useless](https://www.reddit.com/r/coldcard/comments/1vkqcux/even_after_so_many_lives_were_destroyed_btc_still/) by consultinglove, 33 comments (r/coldcard)
-- 2026-08-09 [what made you move to self-custody?](https://www.reddit.com/r/coldcard/comments/1vk206a/what_made_you_move_to_selfcustody/) by uniicorn77, 4 comments (r/coldcard) [topical]
-- 2026-08-10 [How we handle RNG at Coinomi](https://www.reddit.com/r/coldcard/comments/1vke7kg/how_we_handle_rng_at_coinomi/) by Coinomi, 9 comments (r/coldcard)
 - 2026-08-11 [How corporations like McDonalds benefit from our rigged theft-based monetary system](https://www.reddit.com/r/Bitcoin/comments/1vlv7pk/how_corporations_like_mcdonalds_benefit_from_our/) by suuperfli, 39 comments (r/Bitcoin) [topical]
 - 2026-08-11 [Could something like Coldcard happen to Ledger?](https://www.reddit.com/r/Bitcoin/comments/1vlfrec/could_something_like_coldcard_happen_to_ledger/) by joboko1985, 120 comments (r/Bitcoin)
 - 2026-08-11 [Why did Coinkite destroy its inventory?](https://www.reddit.com/r/Bitcoin/comments/1vld3rt/why_did_coinkite_destroy_its_inventory/) by Main-Massive, 75 comments (r/Bitcoin)
@@ -852,6 +822,32 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-09 [change btc addres inside trezor/ risks.](https://www.reddit.com/r/Bitcoin/comments/1vk4go4/change_btc_addres_inside_trezor_risks/) by AFBB_, 8 comments (r/Bitcoin) [body]
 - 2026-08-10 [AI vs Coldcard: Overhyped 'Exploit' Explained [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vkklaa/ai_vs_coldcard_overhyped_exploit_explained_clip/) by Cryptoconomy, 0 comments (r/Bitcoin)
 - 2026-08-11 [[Warning] Wasabi wallet drainer on App store](https://bitcointalk.org/index.php?topic=5590801.0) by Cookdata, 17 comments (bct/37) [topical]
+- 2026-08-12 [Unprofessional](https://www.reddit.com/r/coldcard/comments/1vm708g/unprofessional/) by Intelligent_Map_246, 6 comments (r/coldcard) [body]
+- 2026-08-12 [24.46 BTC was stolen from my Trezor in 2021. Years later, I won a UK High Court judgment. I am still trying to recover it.](https://www.reddit.com/r/Bitcoin/comments/1vm6baq/2446_btc_was_stolen_from_my_trezor_in_2021_years/) by Capital_Situation961, 276 comments (r/Bitcoin) [topical]
+- 2026-08-12 [9 months ago a video from Forrest could've possibly helped ColdCard users.](https://www.reddit.com/r/Bitcoin/comments/1vm15sk/9_months_ago_a_video_from_forrest_couldve/) by bitcoinphilosophy, 16 comments (r/Bitcoin)
+- 2026-08-12 [Unplug the Blockclock?](https://www.reddit.com/r/Bitcoin/comments/1vm1gve/unplug_the_blockclock/) by Viking_13v, 3 comments (r/Bitcoin) [body]
+- 2026-08-12 [Bitcoin security question](https://www.reddit.com/r/Bitcoin/comments/1vlzoao/bitcoin_security_question/) by Futurebeachbumz, 12 comments (r/Bitcoin) [body]
+- 2026-08-11 [Hardware wallet vendor redundancy](https://www.reddit.com/r/Bitcoin/comments/1vluig1/hardware_wallet_vendor_redundancy/) by Similar_Scar7089, 6 comments (r/Bitcoin) [topical]
+- 2026-08-12 [The case AGAINST passphrases](https://www.reddit.com/r/Bitcoin/comments/1vm56ou/the_case_against_passphrases/) by PoeCollector, 46 comments (r/Bitcoin) [topical]
+- 2026-08-12 [@ColeTU post (text available during approved intake)](https://x.com/ColeTU/status/2087513575703134286) (X @ColeTU)
+- 2026-08-12 [@darosior post (text available during approved intake)](https://x.com/darosior/status/2087525538223071546) (X @darosior)
+- 2026-08-11 [@ozsats256 post (text available during approved intake)](https://x.com/ozsats256/status/2087281173798248576) (X @ozsats256)
+- 2026-08-12 [@asanoha_gold post (text available during approved intake)](https://x.com/asanoha_gold/status/2087434216057520451) (X @asanoha_gold)
+- 2026-08-12 [@zherbert post (text available during approved intake)](https://x.com/zherbert/status/2087514436210716980) (X @zherbert)
+- 2026-08-11 [@nunchuk_io post (text available during approved intake)](https://x.com/nunchuk_io/status/2087162119552987288) (X @nunchuk_io)
+- 2026-08-11 [@w_s_bitcoin post (text available during approved intake)](https://x.com/w_s_bitcoin/status/2087296422974570942) (X @w_s_bitcoin)
+- 2026-08-12 [@clay_garrett post (text available during approved intake)](https://x.com/clay_garrett/status/2087382477513932807) (X @clay_garrett)
+- 2026-08-12 [@glxyresearch post (text available during approved intake)](https://x.com/glxyresearch/status/2087467772540293380) (X @glxyresearch)
+- 2026-08-12 [@fartface2000 post (text available during approved intake)](https://x.com/fartface2000/status/2087477189075722327) (X @fartface2000)
+- 2026-08-11 [@theinstagibbs repost (text available during approved intake)](https://x.com/stutxo/status/2087300136934264992) (X @theinstagibbs)
+- 2026-08-11 [@theinstagibbs repost (text available during approved intake)](https://x.com/dergoegge/status/2087192261683539986) (X @theinstagibbs)
+- 2026-08-10 [@theinstagibbs repost (text available during approved intake)](https://x.com/bitcoinpolicy/status/2086872430639771675) (X @theinstagibbs)
+- 2026-08-10 [@theinstagibbs repost (text available during approved intake)](https://x.com/moneyball/status/2086881361244344754) (X @theinstagibbs)
+- 2026-08-10 [@unchained repost (text available during approved intake)](https://x.com/josephkelly/status/2086913927821099385) (X @unchained)
+- 2026-08-10 [@unchained repost (text available during approved intake)](https://x.com/bitcoinpolicy/status/2086872430639771675) (X @unchained)
+- 2026-08-11 [@BEN0WHERE repost (text available during approved intake)](https://x.com/scottmelker/status/2087180019332178133) (X @BEN0WHERE)
+- 2026-08-10 [@BEN0WHERE repost (text available during approved intake)](https://x.com/natbrunell/status/2086789544288915717) (X @BEN0WHERE)
+- 2026-08-09 [@BEN0WHERE repost (text available during approved intake)](https://x.com/Rob1Ham/status/2086464831360549034) (X @BEN0WHERE)
 
 ## Assessed
 
@@ -1570,6 +1566,38 @@ and all stand. Fetch evidence is under .work/recheck/ (not committed).
 - 2026-08-09 [P2TR vs P2WSH-P2MS multisig](https://www.reddit.com/r/coldcard/comments/1vjf9ie/p2tr_vs_p2wshp2ms_multisig/) by Either_Display_6624, 3 comments (r/coldcard) -> Pending: body fetch failed (20260809T165800Z) -> dismissed: generic multisig technical question, tangential to the incident (20260812T012443Z)
 - 2026-08-07 [Long-term hodlers moved ~210,000 BTC amid Coldcard fallout. -> dismissed: misplaced social-post candidate with no community platform URL; the item is already covered by the registered X post bitcoinnewscom-2085700535772934469 (20260809T045937Z)
 
+- 2026-08-09 [Rodolfo Novak, Coldcard scammer: "I will take it".](https://www.reddit.com/r/Bitcoin/comments/1vji2nz/rodolfo_novak_coldcard_scammer_i_will_take_it/) by Fearless-Second-7230, 15 comments (r/Bitcoin) -> Pending: body fetch failed (20260809T165800Z) -> registered as reddit-nvk-scammer-regulation-call (20260812T132500Z)
+- 2026-08-11 [Coldcard: the technical autopsy of an entropy failure](https://stacker.news/items/1546011) by k00b, 4 comments (~bitcoin) -> registered as stackernews-technical-autopsy-entropy-failure (20260812T132500Z)
+- 2026-08-11 [Seedsigner + Dice (and how to verify) New Tutorial](https://stacker.news/items/1545657) by BTCsessions, 3 comments (~bitcoin) [topical] -> dismissed: link post with empty body, minor tutorial content tangential to the incident (20260812T132500Z)
+- 2026-08-12 [Why did Coinkite destroy its inventory?](https://www.reddit.com/r/coldcard/comments/1vlzxtx/why_did_coinkite_destroy_its_inventory/) by Ok-Photograph-3585, 2 comments (r/coldcard) -> dismissed: empty body; the same question is pending in a larger r/Bitcoin thread (20260812T132500Z)
+- 2026-08-11 [The Coldcard hack was due to Trump's "White Male DEI" policy](https://www.reddit.com/r/coldcard/comments/1vlweas/the_coldcard_hack_was_due_to_trumps_white_male/) by ImaginaryRea1ity, 6 comments (r/coldcard) -> dismissed: content-free title with no incident substance (20260812T132500Z)
+- 2026-08-10 [Steel Plates $100+ waste](https://www.reddit.com/r/coldcard/comments/1vkqgos/steel_plates_100_waste/) by lysergicpoptarts, 30 comments (r/coldcard) [body] -> registered as reddit-steel-plates-wasted (20260812T132500Z)
+- 2026-08-11 [Randomness in Bitcoin and Other Wallets](https://www.reddit.com/r/coldcard/comments/1vlbpxf/randomness_in_bitcoin_and_other_wallets/) by Few_Tea_8183, 9 comments (r/coldcard) [body] -> registered as reddit-randomness-collision-question (20260812T132500Z)
+- 2026-08-11 [Steelplate refund/replacement](https://www.reddit.com/r/coldcard/comments/1vl6asz/steelplate_refundreplacement/) by stargate425, 14 comments (r/coldcard) [body] -> registered as reddit-steelplate-refund-demand (20260812T132500Z)
+- 2026-08-10 [Coldcard Mk4 RNG Weakness: Full Reverse Engineering & Recovery Framework](https://www.reddit.com/r/coldcard/comments/1vkogy3/coldcard_mk4_rng_weakness_full_reverse/) by pingbtcio, 3 comments (r/coldcard) -> registered as reddit-mk4-reverse-engineering-question (20260812T132500Z)
+- 2026-08-10 [Coldcard: The Gold Standard in Bitcoin Security](https://www.reddit.com/r/coldcard/comments/1vk5f4p/coldcard_the_gold_standard_in_bitcoin_security/) by reeferqueefer, 31 comments (r/coldcard) -> registered as reddit-gold-standard-banner (20260812T132500Z)
+- 2026-08-10 [Sometimes in life, you can do nothing wrong and still end up losing](https://www.reddit.com/r/coldcard/comments/1vk5tkf/sometimes_in_life_you_can_do_nothing_wrong_and/) by birth_of_bitcoin, 8 comments (r/coldcard) -> dismissed: content-free victim-support sentiment already represented by reddit-victim-support-psa (20260812T132500Z)
+- 2026-08-10 [Any hope for stolen funds?](https://www.reddit.com/r/coldcard/comments/1vk6ylb/any_hope_for_stolen_funds/) by No_Ad7990, 21 comments (r/coldcard) [topical] -> registered as reddit-stolen-funds-recovery-hope (20260812T132500Z)
+- 2026-08-10 [Even after so many lives were destroyed, BTC still carries on. More and more people will need to be hurt before the world realizes this technology is useless](https://www.reddit.com/r/coldcard/comments/1vkqcux/even_after_so_many_lives_were_destroyed_btc_still/) by consultinglove, 33 comments (r/coldcard) -> dismissed: repetitive anti-Bitcoin sentiment already represented by reddit-future-of-bitcoin-debate (20260812T132500Z)
+- 2026-08-09 [what made you move to self-custody?](https://www.reddit.com/r/coldcard/comments/1vk206a/what_made_you_move_to_selfcustody/) by uniicorn77, 4 comments (r/coldcard) [topical] -> dismissed: general self-custody discussion already represented by reddit-self-custody-custodian-debate and reddit-not-your-keys-not-your-coins (20260812T132500Z)
+- 2026-08-10 [How we handle RNG at Coinomi](https://www.reddit.com/r/coldcard/comments/1vke7kg/how_we_handle_rng_at_coinomi/) by Coinomi, 9 comments (r/coldcard) -> registered as reddit-coinomi-rng-approach (20260812T132500Z)
+
+- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087467596098556048) (X @coletu) -> registered as coletu-passphrase-wallets-swept (20260812T141311Z)
+- 2026-08-12 [@coletu post (text available during approved intake)](https://x.com/coletu/status/2087472903256203544) (X @coletu) -> registered as coletu-passphrase-structure-timing (20260812T141311Z)
+- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2087466637964288234) (X @profedustream) -> registered as profedustream-negotiation-hypothesis (20260812T141311Z)
+- 2026-08-12 [@profedustream post (text available during approved intake)](https://x.com/profedustream/status/2085367401336525284) (X @profedustream) -> registered as profedustream-not-lazarus-analysis (20260812T141311Z)
+- 2026-08-12 [@hardblockbtc post (text available during approved intake)](https://x.com/hardblockbtc/status/2085306134815265260) (X @hardblockbtc) -> registered as hardblockbtc-coldcard-explainer (20260812T141311Z)
+- 2026-08-12 [@kloaec post (text available during approved intake)](https://x.com/kloaec/status/2087240258203070640) (X @kloaec) -> dismissed: promotes the already registered Wizardsardine deep dive at wizardsardine-entropy-autopsy (20260812T141311Z)
+- 2026-08-12 [@rob1ham post (text available during approved intake)](https://x.com/rob1ham/status/2087259969913557007) (X @rob1ham) -> dismissed: repetitive donation appeal already represented by rob1ham-2085196583927218345 (20260812T141311Z)
+- 2026-08-12 [@cointelegraph post (text available during approved intake)](https://x.com/cointelegraph/status/2087056701031620854) (X @cointelegraph) -> registered as cointelegraph-top-five-addresses-concentration (20260812T141311Z)
+- 2026-08-12 [@katakoto post (text available during approved intake)](https://x.com/katakoto/status/2087324167851127151) (X @katakoto) -> registered as katakoto-wizardsardine-entropy-revision (20260812T141311Z)
+- 2026-08-12 [@pastorcoin post (text available during approved intake)](https://x.com/pastorcoin/status/2087175264119779659) (X @pastorcoin) -> dismissed: repetitive vendor-survival sentiment already represented by pastorcoin-2084438312803090648 and reddit-still-using-coldcard (20260812T141311Z)
+- 2026-08-12 [@w_s_bitcoin post (text available during approved intake)](https://x.com/w_s_bitcoin/status/2086971108071285190) (X @w_s_bitcoin) -> registered as w_s_bitcoin-undisclosed-exploit-tail-risk (20260812T141311Z)
+- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087279253251305910) (X @sesi_the_man) -> registered as sesi_the_man-cottage-scale-signers (20260812T141311Z)
+- 2026-08-12 [@alexesnakamoto post (text available during approved intake)](https://x.com/alexesnakamoto/status/2087428725675635068) (X @alexesnakamoto) -> registered as alexesnakamoto-nvk-2022-entropy-interview (20260812T141311Z)
+- 2026-08-12 [@nunchuk_io post (text available during approved intake)](https://x.com/nunchuk_io/status/2087197360162226251) (X @nunchuk_io) -> registered as nunchuk-incident-lessons (20260812T141311Z)
+- 2026-08-12 [@sesi_the_man post (text available during approved intake)](https://x.com/sesi_the_man/status/2087204035969467442) (X @sesi_the_man) -> Pending: body fetch failed (20260812T141311Z)
+
 ## Link review, held for a human decision
 
 Empty as of 8 Aug 2026. The three candidates this section was holding (the
@@ -1609,7 +1637,7 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-05-18 [Hackers have breached tank readers at US gas stations; suspect Iran](https://stacker.news/items/1492321) by i_am_a_seeker, 2 comments (~security) [topical]
 - 2026-05-12 [Hackers Use Weaponized JPEG File to Deploy Trojanized ScreenConnect Malware](https://stacker.news/items/1488547) by ch0k1, 1 comments (~security) [topical]
 - 2026-05-03 [The agent harness belongs outside the sandbox | Hacker News](https://stacker.news/items/1483613) by beyond_turbulence, 1 comments (~security) [topical]
-- 2026-08-11 [Hardware wallet vendor redundancy](https://www.reddit.com/r/Bitcoin/comments/1vluig1/hardware_wallet_vendor_redundancy/) by Similar_Scar7089, 2 comments (r/Bitcoin) [topical]
-- 2026-08-12 [Bitcoin security question](https://www.reddit.com/r/Bitcoin/comments/1vlzoao/bitcoin_security_question/) by Futurebeachbumz, 1 comments (r/Bitcoin) [body]
+- 2026-08-12 [Anti-Klepto or Anti-Exfil?](https://www.reddit.com/r/coldcard/comments/1vm6iv4/antiklepto_or_antiexfil/) by AutoIndepth, 1 comments (r/coldcard) [body]
+- 2026-08-12 [ERA Wallet + dice generated seed: is there any way to verify protection against Dark Skippy?](https://www.reddit.com/r/Bitcoin/comments/1vmdanl/era_wallet_dice_generated_seed_is_there_any_way/) by lockduck1, 2 comments (r/Bitcoin) [topical]
 - 2026-08-10 [Crypto.com Users Targeted by Phishing Campaign Abusing Company's Email Domain](https://www.reddit.com/r/Bitcoin/comments/1vk8z95/cryptocom_users_targeted_by_phishing_campaign/) by _clickfix_, 1 comments (r/Bitcoin) [topical]
 - 2026-08-11 [MOVED: Bitcoin wallet seed phrase with an optional (extended) passphrase](https://bitcointalk.org/index.php?topic=5590957.0) by UchihaSarada, 0 comments (bct/1) [topical]

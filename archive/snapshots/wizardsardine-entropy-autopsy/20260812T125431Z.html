@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="a team of bitcoiners with a passion for security" />
+    <meta name="keywords" content="WIZARD SARDINE REVAULT CUSTODY BITCOIN INHERITANCE PROTOCOL SECURE" />
+    
+    <meta property="og:url" content="https://wizardsardine.com" />
+
+    
+    <meta property="og:title" content="Coldcard: the technical autopsy of an entropy failure" />
+    
+    
+    <meta property="og:description" content="For 1,978 days, Coldcard shipped a regression that cut the real space of some Mk3 seeds down to just 2^22 states, sweepable in under an hour on a single GPU. A walk through the exact code path, the entropy actually available, the seed collision risk, the functions affected, and what the 31 July patch really fixes." />
+    
+    
+    <meta property="og:image" content="https://wizardsardine.com/assets/images/og_image.jpg" />
+    <meta property="og:site_name" content="Wizardsardine - a team of bitcoiners with a passion for security" />
+    <meta property="og:type" content="website" />
+    
+    <meta property="og:author" content="Loïc Morel" />
+    
+    
+    <meta name="twitter:title" content="Coldcard: the technical autopsy of an entropy failure" />
+    
+    <meta name="twitter:site" content="https://twitter.com/wizardsardine" />
+    
+    <meta name="twitter:description" content="For 1,978 days, Coldcard shipped a regression that cut the real space of some Mk3 seeds down to just 2^22 states, sweepable in under an hour on a single GPU. A walk through the exact code path, the entropy actually available, the seed collision risk, the functions affected, and what the 31 July patch really fixes." />
+    
+    <meta name="twitter:card" content="summary" />
+    
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/favicon_wizardsardine/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon_wizardsardine/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon_wizardsardine/favicon-16x16.png">
+    <link rel="manifest" href="/assets/favicon/favicon_wizardsardine/site.webmanifest">
+    <link rel="mask-icon" href="/assets/favicon/favicon_wizardsardine/safari-pinned-tab.svg" color="#853cff">
+    <link rel="shortcut icon" href="/assets/favicon/favicon_wizardsardine/favicon.ico">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-config" content="/assets/favicon/favicon_wizardsardine/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    
+    <link rel="stylesheet" href="/css/style.css">
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        <link rel="preconnect" href="https://plausible.io">
+    
+        
+            
+            <script defer  data-domain="wizardsardine.com" src="https://plausible.io/js/script.file-downloads.outbound-links.js" ></script>
+
+<!-- If you are using Content-Security-Policy, do not forget to add this code to your CSP : 
+  script-src 'unsafe-inline' https://plausible.io
+  connect-src 'unsafe-inline' https://plausible.io
+  or just add the partial 'plausible_csp.html' to those 2 csp directives in your 'index.headers' file
+-->
+
+
+
+    
+    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    <script>
+         
+function ClickOnLianaDownloadLinux() {
+plausible('ClickOnLianaDownloadLinux');
+};
+function ClickOnLianaDownloadMac() {
+plausible('ClickOnLianaDownloadMac');
+};
+function ClickOnLianaDownloadWindows() {
+plausible('ClickOnLianaDownloadWindows');
+};
+function ClickOnLianaDownloadOtherVersions() {
+plausible('ClickOnLianaDownloadOtherVersions');
+};
+         
+         
+    </script>
+
+    
+
+
+    <title>Coldcard: the technical autopsy of an entropy failure | Wizardsardine</title>
+</head>
+
+<body>
+
+<link rel="stylesheet" href="/css/article.css">
+<header>
+  <div class="top-header">
+    <nav id="products-menu">
+      <ul>
+        <li class="product-menu-item ws active"><a title="Wizardsardine" href="/">
+            <svg xmlns="http://www.w3.org/2000/svg" class="ws-icon" fill="none" viewBox="0 0 14 16">
+              <path fill="#B0DEF0"
+                d="M6.832 7.066h-.746l-.003.003v.33a.249.249 0 0 1-.28.247.256.256 0 0 1-.217-.258v-.32l-.003-.002h-.747s-.002 0-.002.002v.303c0 .59.483 1.066 1.07 1.024.52-.036.93-.47.93-.997v-.33l-.002-.003v.001ZM2.03 7.066H.001S0 7.067 0 7.07v1.423l.002.002h.635l.002-.002v-.784l.002-.003h.59s.004.002.003.003l-.702 3.15.001.002.78.524V14.33l.003.002h.635s.002 0 .002-.002v-3.286l-.001-.002-.7-.47-.001-.002.78-3.501s0-.003-.002-.003ZM.806 5.837l.173.615h.073l.174-.615s0-.002.002-.002l.615-.174v-.074l-.615-.173s-.002 0-.002-.002l-.174-.616H.98l-.173.616-.002.002-.617.173v.074l.617.174.002.002Z" />
+              <path fill="#B0DEF0"
+                d="m4.386 1.52-.454 2.554-.002.002h-.797s-.002.001-.002.003v.64l.002.003h1.37l-.08.045c-.2.117-.517.389-.68.571a3.014 3.014 0 0 0-.827 2.174 2.937 2.937 0 0 0 2.957 2.785c.699 0 1.35.285 1.831.791a2.51 2.51 0 0 1 .695 1.87A2.546 2.546 0 0 1 6 15.359a2.51 2.51 0 0 1-1.87-.695 2.504 2.504 0 0 1-.765-1.509l.002-.003H6.72l.002.003v1.176l.002.002h.635s.002 0 .002-.002v-1.815s0-.003-.002-.003h-4.65s-.003.001-.003.003v.292c0 .84.322 1.653.914 2.25a3.142 3.142 0 0 0 2.412.939 3.147 3.147 0 0 0 1.258-.33c.001-.001.003 0 .003.002v.287s.001.002.003.002a5.947 5.947 0 0 0 5.931-5.75h.003V5.35s0-.002-.002-.002H10.918A6.026 6.026 0 0 0 7.512 4.09h-.259l-.143-.778-.069-.382.466.388.81-.785L6.516 0v.003L6.512 0 4.386 1.52Zm3.03.878-.822-.688H6.59l-.66.804s0 .004.002.003l.367-.065.06.335.017.101H4.801l.184-1.002L6.36.902l.058.076L7.42 2.394s0 .005-.003.003v.001ZM6.59 4.076H4.598s-.002 0-.002-.003l.086-.538h1.81l.098.541Zm1.29 11.21s-.003-.003-.002-.004a3.155 3.155 0 0 0 1.158-2.292 3.145 3.145 0 0 0-.87-2.342 3.16 3.16 0 0 0-.959-.69c-.002 0-.002-.003 0-.004.23-.123.444-.278.638-.463A2.891 2.891 0 0 0 8.734 7.7h.161c.64 0 1.157.518 1.157 1.157v.786l.003.003h.634l.002-.003v-.786c0-.993-.804-1.796-1.796-1.796h-.783s-.002 0-.002.002v.284c0 .593-.215 1.171-.624 1.6a2.264 2.264 0 0 1-1.764.71 2.292 2.292 0 0 1-2.167-2.172c-.028-.622.235-1.25.655-1.709l.005-.005-.005.005a3.084 3.084 0 0 1 .537-.458c.699-.41 1.42-.588 2.414-.595H7.2a5.4 5.4 0 0 1 3.837 1.58 5.215 5.215 0 0 1 1.553 3.729 5.308 5.308 0 0 1-4.71 5.254Zm4.71-7.94s-.004.003-.005 0a5.904 5.904 0 0 0-.96-1.355c-.002-.002 0-.004.001-.004h.96s.003 0 .003.002v1.357Z" />
+            </svg>
+            Wizardsardine
+          </a></li>
+        <li class="product-menu-item"><a title="Revault" href="/revault">Revault</a></li>
+        <li class="product-menu-item"><a title="Liana" href="https://lianawallet.com/">Liana</a></li>
+      </ul>
+
+    </nav>
+  </div>
+  <div class="bottom-header">
+    <a href="/">
+      <div class="logo-and-text">
+        <img src="/assets/images/logos/logo_ws_lettering.svg" id="main-logo" alt="Wizardsardine Logo">
+      </div>
+    </a>
+    <nav id="desktop-menu">
+      <ul>
+        <li class="menu-item"><a title="About" href="/about">About</a></li>
+        <li class="menu-item"><a title="Blog" href="/blog">Blog</a></li>
+        <li class="menu-item menu-git">
+          <a title="Github" href="https://github.com/wizardsardine" target="_blank" class="a-icon">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 23">
+              <path fill="#E6E6E6"
+                d="M12 0C5.37 0 0 5.28 0 11.792c0 5.211 3.438 9.63 8.205 11.188.6.111.82-.254.82-.567 0-.28-.01-1.022-.015-2.005-3.338.711-4.042-1.582-4.042-1.582-.546-1.361-1.335-1.725-1.335-1.725-1.087-.731.084-.716.084-.716 1.205.082 1.838 1.215 1.838 1.215 1.07 1.803 2.809 1.282 3.495.981.108-.763.417-1.282.76-1.577-2.665-.295-5.466-1.309-5.466-5.827 0-1.287.465-2.339 1.235-3.164-.135-.298-.54-1.497.105-3.121 0 0 1.005-.316 3.3 1.209.96-.262 1.98-.392 3-.398 1.02.006 2.04.136 3 .398 2.28-1.525 3.285-1.209 3.285-1.209.645 1.624.24 2.823.12 3.121.765.825 1.23 1.877 1.23 3.164 0 4.53-2.805 5.527-5.475 5.817.42.354.81 1.077.81 2.182 0 1.578-.015 2.846-.015 3.229 0 .309.21.678.825.56C20.565 21.417 24 16.995 24 11.792 24 5.28 18.627 0 12 0Z" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="article-page">
+    <div class="article-actions">
+      <a class="btn-primary btn-icon" href="/blog">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 9 13">
+          <path fill="#fff"
+            d="M7.115 12.498.71 6.846a.585.585 0 0 1-.21-.471.585.585 0 0 1 .21-.471L7.114.235A.967.967 0 0 1 7.781 0c.266 0 .494.084.684.252.19.169.285.365.285.589 0 .224-.095.42-.285.589L2.876 6.375l5.589 4.945c.177.157.266.35.266.58 0 .23-.095.43-.285.598a.973.973 0 0 1-.665.252.973.973 0 0 1-.666-.252Z" />
+        </svg>
+        Back to blog list</a>
+    </div>
+    
+    <div class="article">
+      
+      <div class="article-header">
+        <div class="chips-wrapper">
+          
+          <div class="chip">Coldcard</div>
+          
+          <div class="chip">Security</div>
+          
+          <div class="chip">Entropy</div>
+          
+          <div class="chip">Bitcoin</div>
+          
+        </div>
+        <p class="date">Published on Tue, Aug 11, 2026<span> by Loïc Morel</span></span>
+        </p>
+        <h1 class="article-title">Coldcard: the technical autopsy of an entropy failure</h1>
+        <h3 class="article-description">For 1,978 days, Coldcard shipped a regression that cut the real space of some Mk3 seeds down to just 2^22 states, sweepable in under an hour on a single GPU. A walk through the exact code path, the entropy actually available, the seed collision risk, the functions affected, and what the 31 July patch really fixes.</h3>
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+
+      
+      <section class="article-content" id="#articleContent">
+        
+        <div class="cover-img">
+          <div class="cover-img-wrapper">
+            <img class="img-cover" src="cover.webp" alt="Blog image cover">
+          </div>
+          <div class="image-description">
+            
+          </div>
+        </div>
+        
+        <p>On 1 August 2026, <a href="https://wizardsardine.com/blog/coldcard-rng-vulnerability/">we published a first analysis of the vulnerability</a> that has affected Coldcards since 2021. It was written for users, and it explained who was at risk and what to do right away.</p>
+<p>What follows is the technical incident report: the exact code path reconstructed, a recount of the entropy budgets that have been circulating for a week, the seed collision risk, the dice roll path verified, the real cost of an exhaustive sweep priced in rented GPU time, and a close look at the 31 July fix.</p>
+<p>A large part of this article is about the microcontroller&rsquo;s unique identifier (UID). It sits at the heart of the flaw, and it raises a question that goes beyond the attack that actually happened: seed collisions between 2 different Coldcards. I will try to put numbers on it.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li>TL;DR</li>
+<li>1 - Reconstructing the code path
+<ul>
+<li>1.1 - The root cause</li>
+<li>1.2 - The guard that guarded the wrong side</li>
+</ul>
+</li>
+<li>2 - Yasmarang, the generator that took the TRNG&rsquo;s place</li>
+<li>3 - The chip&rsquo;s unique identifier
+<ul>
+<li>3.1 - One word out of 3, and it is the worst one</li>
+<li>3.2 - How many bits is that word really worth?</li>
+<li>3.3 - That word is not a secret</li>
+</ul>
+</li>
+<li>4 - The 2 thirds of the seed that were worth zero</li>
+<li>5 - Where do the 40.7 and 73.3 bits come from?
+<ul>
+<li>5.1 - What the RTC registers are really worth</li>
+<li>5.2 - 2 sources in a single word</li>
+<li>5.3 - The corrected table</li>
+</ul>
+</li>
+<li>6 - The collision risk between 2 Coldcards
+<ul>
+<li>6.1 - 2 devices, one single value</li>
+<li>6.2 - The birthday paradox</li>
+<li>6.3 - 3 levels of collision not to be confused</li>
+<li>6.4 - The Mk3 case, where the 3 levels meet</li>
+<li>6.5 - The wafer geometry shows through in the output</li>
+</ul>
+</li>
+<li>7 - The user&rsquo;s finger, the last source of randomness on the Mk3</li>
+<li>8 - The 32-bit reseed on the Mk4, Mk5 and Q</li>
+<li>9 - What is broken and what is not</li>
+<li>10 - What about dice rolls?</li>
+<li>11 - 5 safeguards, 5 failures</li>
+<li>12 - What the fix actually changes</li>
+<li>13 - What a sweep would cost</li>
+<li>14 - The limits of this analysis</li>
+<li>15 - What this incident says about engineering generators</li>
+<li>Sources</li>
+</ul>
+<hr>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li>
+<p>The cause sits at link time: the board&rsquo;s <code>rng.c</code> exported no <code>rng_get</code>, so the linker bound the seed path to MicroPython&rsquo;s software generator. The faulty <code>#ifndef</code> guard is still in place after the fix. The regression spent 1,978 days in the source tree, from 1 March 2021 to 31 July 2026.</p>
+</li>
+<li>
+<p>The word that seeds that generator has 2 inputs: 32 bits of the chip identifier, and the <code>SysTick</code>, a counter that wraps every millisecond. The identifier bits hold the die&rsquo;s coordinates on the wafer, so under the encoding model used here 14 bits carry information at most, and 12 of those are reachable: about 3,300 positions per wafer on an Mk3, 2,300 on a recent model.</p>
+</li>
+<li>
+<p>A XOR lands both inputs in the same 32-bit word, so their bits do not add up. Enumeration gives 4,456,448 starting states on an Mk3, or 2^22.09.</p>
+</li>
+<li>
+<p>The 24.4 bits credited to the RTC are worth zero on the Mk2 and Mk3, where the RTC points at an oscillator the firmware never starts. On recent models it runs at 250 kHz and measures the time since power-on.</p>
+</li>
+<li>
+<p>The candidate space falls from 2^40 to 2^22 on the Mk3, and from 2^72 to about 2^52 on the Mk4, Mk5 and Q, RTC and draw rank excluded. These are spaces to walk through, not entropy measurements. Reading the USB serial number buys less than one bit in 70% to 75% of the modelled cases.</p>
+</li>
+<li>
+<p>On the Mk2 and Mk3, that word is the whole initial state, and the only variable left is the instant of the first key press, capped at 16.3 bits. The <code>SysTick</code> caps at 13.9 bits on recent models.</p>
+</li>
+<li>
+<p>68 Coldcards give a 1 in 2 chance that 2 of them read the same identifier word, on the grid used here. Across an assumed Mk3 fleet of 30,000 (which nobody outside Coinkite can check) about 120 pairs share the same starting state, and a toy model of the draw rank leaves 13 to 40 pairs on the same 24 words.</p>
+</li>
+<li>
+<p>Sweeping an Mk3&rsquo;s 2^22 candidates takes 3 seconds on a single graphics card, and 50 minutes if the attacker sweeps 1,000 draw ranks with it. PBKDF2 is the bottleneck.</p>
+</li>
+<li>
+<p>Still sound: the ECDSA nonces, which follow RFC 6979, backup encryption, and the dice-only path. Broken: cloning, paper wallets, Key Teleport, the USB session key, the side-channel masking. BIP-85 derives deterministically and is worth exactly what the parent seed is worth.</p>
+</li>
+<li>
+<p>On the Mk4, Mk5 and Q, the reseed is capped at 32 bits and overwrites 1 state variable out of 4. The hardware generator worked, and other functions reached it correctly. Only the seed path missed it.</p>
+</li>
+<li>
+<p>5 safeguards existed and none of them worked, including a Dieharder test that runs by default on Coinkite&rsquo;s desktop simulator, where the bytes come from the PC and not from the chip.</p>
+</li>
+</ul>
+<hr>
+<h2 id="1---reconstructing-the-code-path">1 - Reconstructing the code path</h2>
+<p>It all starts in <code>shared/seed.py</code>, in the function that builds a new seed:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_seed</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Generate 32 bytes of best-quality high entropy TRNG bytes.</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    seed <span style="color:#f92672">=</span> ngu<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>bytes(<span style="color:#ae81ff">32</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> len(set(seed)) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">4</span>       <span style="color:#75715e"># TRNG failure</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># hash to mitigate any possible bias in TRNG</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ngu<span style="color:#f92672">.</span>hash<span style="color:#f92672">.</span>sha256d(seed)
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/shared/seed.py#L602">shared/seed.py:602</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>The comment promises bytes from the TRNG. This function is called from 6 different functions: <code>seed.py:614</code> for the main seed, <code>seed.py:633</code> for ephemeral seeds, <code>ccc.py:899</code> for the co-signer&rsquo;s key C, and 3 times in <code>notes.py</code> for the password manager. The blast radius of the flaw goes well beyond wallet creation.</p>
+<p><code>ngu.random.bytes</code> is implemented in C inside libngu, Coinkite&rsquo;s in-house cryptographic library. Coldcards have not always relied on it: up to version 3.2.2, released on 14 January 2021, they used 2 external submodules, <code>crypto</code> and <code>modcryptocurrency</code>, the first pointing at a fork of <code>trezor-crypto</code>. Commit <code>b18723dd</code> of 1 March 2021, &ldquo;First pass w/ libNgU&rdquo;, drops both in favour of libngu and bumps the version to 4.0.0.</p>
+<p>The defect entered the code on 1 March 2021, 1,978 days before the fix of 31 July 2026. It reached users 16 days later, with version 4.0.0 of 17 March 2021, which leaves 1,962 days between the first vulnerable release and the fix.</p>
+<p><img src="001.webp" alt="A single time axis drawn to scale from 2021 to 2026, with a band covering the 1,978 days the Coldcard RNG regression spent in the source tree"></p>
+<p>Here is the heart of the function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">my_random_bytes</span>(<span style="color:#66d9ef">uint8_t</span> <span style="color:#f92672">*</span>dest, <span style="color:#66d9ef">uint32_t</span> count)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">uint32_t</span> last <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(count) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">uint32_t</span> chip <span style="color:#f92672">=</span> <span style="color:#a6e22e">CHIP_TRNG_32</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(chip <span style="color:#f92672">==</span> last) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// maybe TRNG is not clocked? Fail hard
+</span></span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">mp_raise_OSError</span>(MP_EFAULT);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        last <span style="color:#f92672">=</span> chip;
+</span></span><span style="display:flex;"><span>        chip <span style="color:#f92672">^=</span> <span style="color:#a6e22e">my_yasmarang</span>();
+</span></span><span style="display:flex;"><span>        ...
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/switck/libngu/blob/537519a8/ngu/random.c#L68">ngu/random.c:68</a> - switck/libngu @ 537519a8</em></p>
+<p>Each pass through the loop chains 4 operations:</p>
+<ul>
+<li>read 32 bits from the hardware generator through <code>CHIP_TRNG_32()</code>,</li>
+<li>compare that value with the previous pass, <code>last</code> holding 0 on the first one, and raise an error if the 2 are identical,</li>
+<li>XOR the result with 32 bits drawn from <code>my_yasmarang()</code>,</li>
+<li>copy up to 4 bytes into the output buffer.</li>
+</ul>
+<p>Mixing a hardware source with a software generator through XOR is standard hardening practice. And since the loop advances 4 bytes at a time, building the 32 bytes of a seed takes exactly 8 passes, so 8 calls to each of the 2 generators.</p>
+<p>Keep an eye on that <code>my_yasmarang()</code>, because it comes back later. It is a pseudo-random generator whose starting state is hard-coded in libngu: <code>pad = 0x0a8ce26f</code>, <code>n = 69</code>, <code>d = 233</code> and <code>dat = 0</code>. The same algorithm exists a second time inside MicroPython, with its own starting state, and a 3rd copy sleeps in MicroPython&rsquo;s <code>urandom</code> module, which never runs, as we will see in section 7.</p>
+<p>Which brings us to what <code>CHIP_TRNG_32()</code> actually does.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#ifdef MICROPY_PY_STM
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ports/stm32/rng.c
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">uint32_t</span> <span style="color:#a6e22e">rng_get</span>(<span style="color:#66d9ef">void</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#define CHIP_TRNG_SETUP()
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">#define CHIP_TRNG_32()      rng_get()
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#ifndef MICROPY_HW_ENABLE_RNG
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">#  error &#34;get a HW TRNG plz&#34;
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p><em><a href="https://github.com/switck/libngu/blob/537519a8/ngu/random.c#L22-L30">ngu/random.c:22-30</a> - switck/libngu @ 537519a8</em></p>
+<p>This block does 2 things. The first is the <code>#ifndef</code> guard, which I will come back to. The second is the line <code>extern uint32_t rng_get(void);</code>, which tells the compiler that a function called <code>rng_get</code> exists somewhere, without saying where or what it does, and the macro just below wires <code>CHIP_TRNG_32()</code> to it.</p>
+<p>So libngu compiles without ever knowing where its randomness will come from. The linker settles it when the firmware is assembled, by looking for a global symbol named <code>rng_get</code> among all the object files. Put another way, libngu orders randomness without saying from whom, and leaves it to the build to fill the blank with whichever supplier happens to carry the right name.</p>
+<h3 id="11---the-root-cause">1.1 - The root cause</h3>
+<p>The Coldcard does have its own board-specific <code>rng.c</code>, and that file really does read the hardware register. Before the fix, though, it exported no global <code>rng_get</code> symbol: its read function, <code>rng_get_or_fault()</code>, was declared <code>static</code>, and so invisible from other translation units. The STM32 port&rsquo;s Makefile compiles both <code>rng.c</code> files, and only one of the 2 units defined a global <code>rng_get</code>: MicroPython&rsquo;s.</p>
+<p>But the linker did not pick between 2 candidates here, there was only one. Had Coinkite exported its <code>rng_get</code>, there would have been 2 global definitions of the same symbol, and the build would have failed with a duplicate symbol error. The failure comes precisely from the absence of that conflict.</p>
+<p><img src="002.webp" alt="A socket left empty by libngu, two candidate plugs, and only one with bare pins that actually fits, ending on pyb_rng_yasmarang()"></p>
+<p>And here is that definition, in <code>micropython/ports/stm32/rng.c</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#else </span><span style="color:#75715e">// MICROPY_HW_ENABLE_RNG
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// For MCUs that don&#39;t have an RNG we still need to provide a rng_get() function,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// eg for lwIP and random.seed().  A pseudo-RNG is not really ideal but we go with
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// it for now, seeding with numbers which will be somewhat different each time.
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Yasmarang random number generator by Ilya Levin
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// http://www.literatecode.com/yasmarang
+</span></span></span><span style="display:flex;"><span>STATIC <span style="color:#66d9ef">uint32_t</span> <span style="color:#a6e22e">pyb_rng_yasmarang</span>(<span style="color:#66d9ef">void</span>) { ... }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">uint32_t</span> <span style="color:#a6e22e">rng_get</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">pyb_rng_yasmarang</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/rng.c#L64-L99">ports/stm32/rng.c:64-99</a> - Coldcard/micropython @ 4107246f</em></p>
+<p>This fallback exists for microcontrollers with no hardware generator. The Coldcard&rsquo;s STM32 has one, in all likelihood perfectly functional, and it simply inherited a crutch designed for hardware it is not.</p>
+<p>So the operation meant to mix physical noise with a software generator was mixing 2 software generators. And XOR creates no extra entropy, because it is reversible: knowing the result and either input gives you the other, and the entropy of the output is bounded by that of the inputs combined, <code>H(A ⊕ B) ≤ H(A) + H(B)</code>. XOR can redistribute randomness, it cannot manufacture it, and when both inputs are sequences computable from a fixed starting state, that sum is zero.</p>
+<p><img src="003.webp" alt="The Coldcard seed call chain crossing three repositories, where the linker binds the hardware TRNG macro to a MicroPython software generator"></p>
+<p>The component itself was not faulty. Other firmware functions were querying it correctly, through a second path going via <code>ckcc.rng_bytes()</code>. It is the <code>ngu.random</code> route, the seed&rsquo;s route, that was diverted. For 5 years it mixed 2 deterministic computations while believing it was mixing physical randomness with a deterministic computation.</p>
+<h3 id="12---the-guard-that-guarded-the-wrong-side">1.2 - The guard that guarded the wrong side</h3>
+<p>The guard quoted above was meant to prevent exactly this scenario, and our first analysis showed why the <code>#ifndef</code> was not testing what it thought it was testing. What we had not said is that the problem was worse than an oversight:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#ifndef MICROPY_HW_ENABLE_RNG
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#  error &#34;get a HW TRNG plz&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p><em><a href="https://github.com/switck/libngu/blob/537519a8/ngu/random.c#L28-L30">ngu/random.c:28-30</a> - switck/libngu @ 537519a8</em></p>
+<p>On the STM32 port, <code>mpconfigboard_common.h:56-58</code> always defines that symbol, defaulting to 0:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">// Whether to enable the hardware RNG peripheral, exposed as pyb.rng()
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef MICROPY_HW_ENABLE_RNG
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define MICROPY_HW_ENABLE_RNG (0)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/mpconfigboard_common.h#L56-L58">ports/stm32/mpconfigboard_common.h:56-58</a> - Coldcard/micropython @ 4107246f</em></p>
+<p>That guard was therefore structurally unable to fire on this platform, whatever the project configuration. It should have read <code>#if !MICROPY_HW_ENABLE_RNG</code>. The most troubling part is that the correct form already existed in the same source tree, in the Coldcard&rsquo;s own <code>rng.c</code>, the very file whose symbol was not exported:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#if MICROPY_HW_ENABLE_RNG
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#error &#34;this code replaces normal RNG module&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/COLDCARD/rng.c#L40-L42">stm32/COLDCARD/rng.c:40-42</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p><code>#if</code>, not <code>#ifndef</code>.</p>
+<p>So the right construct was known and in use a few directories away from the one that failed.</p>
+<p>That faulty guard is still in the repository today, incidentally. The firmware does not pin libngu&rsquo;s main branch but a specific commit, <code>537519a8</code>, and that pointer did not move with the July 2026 fixes. Coldcards built today still ship a libngu whose guard cannot fire, even though the underlying bug has indeed been fixed.</p>
+<p><img src="004.webp" alt="Two-by-two matrix of the macro MICROPY_HW_ENABLE_RNG on the STM32 port: the whole not-defined column is struck out, and the guard as written only fires there"></p>
+<hr>
+<h2 id="2---yasmarang-the-generator-that-took-the-trngs-place">2 - Yasmarang, the generator that took the TRNG&rsquo;s place</h2>
+<p>Since everything rested on this generator, it is worth a closer look.</p>
+<p>One clarification first, because the firmware ships 2 copies of it. The one that matters here is MicroPython&rsquo;s: that is the one that took the TRNG&rsquo;s place, and the one the unique identifier seeds. libngu&rsquo;s, met earlier, is a separate copy of the same algorithm with its own constants. In the shipped firmware, then, the same algorithm runs in 2 places at once, in 2 libraries that know nothing of each other, and their 2 outputs end up mixed by the XOR.</p>
+<p>libngu&rsquo;s copy, <code>my_yasmarang()</code>, has its starting state hard-coded. On the Mk2 and Mk3 it produces the same byte sequence on every device on the planet. On the Mk4, Mk5 and Q a reseed at boot modifies it, which is, in all likelihood, what saved the funds of those models&rsquo; owners.</p>
+<p>MicroPython&rsquo;s copy, <code>pyb_rng_yasmarang()</code>, is the one the linker wired behind <code>rng_get()</code>: it is the one that answers when libngu believes it is querying the hardware generator, and its starting state changes from one device to the next, since its seeding reads the chip&rsquo;s unique identifier and the <code>SysTick</code>.</p>
+<p><img src="005.webp" alt="One firmware image running the same Yasmarang generator in two active instances, held in two sealed libraries, their outputs meeting in a XOR"></p>
+<p>On the Mk2 and Mk3, then, the seed depends on nothing but this second copy, the first only adding a mask that is identical on every device at a given draw rank, and that anyone can recompute, since its input is hard-coded.</p>
+<p>Everything that tells your Coldcard apart from your neighbour&rsquo;s is locked inside the starting state of the function below.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>STATIC <span style="color:#66d9ef">uint32_t</span> <span style="color:#a6e22e">pyb_rng_yasmarang</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">bool</span> seeded <span style="color:#f92672">=</span> false;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">uint32_t</span> pad <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, d <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">uint8_t</span> dat <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>seeded) {
+</span></span><span style="display:flex;"><span>        seeded <span style="color:#f92672">=</span> true;
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">rtc_init_finalise</span>();
+</span></span><span style="display:flex;"><span>        pad <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">uint32_t</span> <span style="color:#f92672">*</span>)MP_HAL_UNIQUE_ID_ADDRESS <span style="color:#f92672">^</span> SysTick<span style="color:#f92672">-&gt;</span>VAL;
+</span></span><span style="display:flex;"><span>        n <span style="color:#f92672">=</span> RTC<span style="color:#f92672">-&gt;</span>TR;
+</span></span><span style="display:flex;"><span>        d <span style="color:#f92672">=</span> RTC<span style="color:#f92672">-&gt;</span>SSR;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    pad <span style="color:#f92672">+=</span> dat <span style="color:#f92672">+</span> d <span style="color:#f92672">*</span> n;
+</span></span><span style="display:flex;"><span>    pad <span style="color:#f92672">=</span> (pad <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">3</span>) <span style="color:#f92672">+</span> (pad <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">29</span>);
+</span></span><span style="display:flex;"><span>    n <span style="color:#f92672">=</span> pad <span style="color:#f92672">|</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    d <span style="color:#f92672">^=</span> (pad <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">31</span>) <span style="color:#f92672">+</span> (pad <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    dat <span style="color:#f92672">^=</span> (<span style="color:#66d9ef">char</span>)pad <span style="color:#f92672">^</span> (d <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">8</span>) <span style="color:#f92672">^</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> pad <span style="color:#f92672">^</span> (d <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">5</span>) <span style="color:#f92672">^</span> (pad <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">18</span>) <span style="color:#f92672">^</span> (dat <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/rng.c#L74-L94">ports/stm32/rng.c:74-94</a> - Coldcard/micropython @ 4107246f</em></p>
+<p>Yasmarang is a generator written by Ilya Levin. It is designed for uses where statistical quality is enough, it never claimed to be cryptographic, and it is not: its output function is a linear combination of its state through shifts and XORs, with no one-way function anywhere.</p>
+<p>How much can that state hold? <code>pad</code> is 32 bits, <code>n</code> 32 bits, <code>d</code> 32 bits and <code>dat</code> 8 bits, which makes 104 raw bits. Look at the 3rd line of the function body, though: <code>n = pad | 2</code>. On every pass, <code>n</code> is entirely recomputed from <code>pad</code>, so it is not an independent state variable but a derived value, and from the very first iteration it stops carrying any information of its own. The effective state comes down to <code>pad</code> + <code>d</code> + <code>dat</code>, which makes 72 bits.</p>
+<hr>
+<h2 id="3---the-chips-unique-identifier">3 - The chip&rsquo;s unique identifier</h2>
+<p>3 sources seed this generator, once only, on the very first call. Let us take them one at a time, starting with the one that gives this section its title.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pad <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">uint32_t</span> <span style="color:#f92672">*</span>)MP_HAL_UNIQUE_ID_ADDRESS <span style="color:#f92672">^</span> SysTick<span style="color:#f92672">-&gt;</span>VAL;
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/rng.c#L82">ports/stm32/rng.c:82</a> - Coldcard/micropython @ 4107246f</em></p>
+<h3 id="31---one-word-out-of-3-and-it-is-the-worst-one">3.1 - One word out of 3, and it is the worst one</h3>
+<p>Every STM32 carries a 96-bit unique identifier burned in at the factory. On the STM32L4 and L4+ fitted in every Coldcard, it sits at address <code>0x1FFF7590</code>, defined in <code>mpconfigboard_common.h:239</code>.</p>
+<p>The code does not read the 96 bits. It writes <code>*(uint32_t *)</code>, so a single 32-bit word, the one at offset 0. Elsewhere in the same source tree, when MicroPython really wants the full identifier, it writes <code>memcpy(buf, (uint8_t*)MP_HAL_UNIQUE_ID_ADDRESS, 12)</code>, in <code>mboot/main.c:736</code> for instance.</p>
+<p>Those 96 bits are not homogeneous, however. ST&rsquo;s reference manual breaks them down like this:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Offset</th>
+					<th>Contents</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>0x00</code></td>
+					<td>X and Y coordinates of the chip on the silicon wafer</td>
+			</tr>
+			<tr>
+					<td><code>0x04</code></td>
+					<td>Wafer number, plus the start of the lot number in ASCII</td>
+			</tr>
+			<tr>
+					<td><code>0x08</code></td>
+					<td>Rest of the lot number, in ASCII</td>
+			</tr>
+	</tbody>
+</table>
+<p>The word the generator reads is the one at offset <code>0x00</code>, the only one of the 3 that tells neither one wafer from another nor one lot from another. Uniqueness comes from the 3 words together: the 2 the code ignores identify the lot and the wafer, and the word it reads identifies the die inside that wafer. Reading that word alone collapses the whole of production onto the positions of a single wafer.</p>
+<p>On what that word contains, RM0351, the manual covering the Mk3&rsquo;s chip, gives one line:</p>
+<blockquote>
+<p><em>X and Y coordinates on the wafer</em></p>
+</blockquote>
+<p>ST&rsquo;s manual for the STM32F0, RM0091, adds &ldquo;<em>expressed in BCD format</em>&rdquo;. Neither version says which bits carry X and which carry Y. An ST employee gives the split on the manufacturer&rsquo;s official forum:</p>
+<blockquote>
+<p><em>X = bits [15:0] and Y = bits [31:16]</em></p>
+</blockquote>
+<p>Source: an answer from technical moderator &ldquo;mƎALLEm&rdquo; in July 2025, in the thread <a href="https://community.st.com/t5/stm32-mcus-products/parsing-uid-fields-on-stm32l476-wafer-x-y-coordinates-and-bcd/td-p/820338">Parsing UID Fields on STM32L476</a>.</p>
+<p>Now we need a real identifier, because what we are trying to measure are the regularities of real silicon, and nobody publishes a survey of STM32 identifiers. That same thread supplies one, posted by a developer decoding his chip, an STM32L476 covered by the same reference manual and the same identifier format as the Coldcards':</p>
+<p><code>0x004A0029 / 0x58335011 / 0x2031374B</code></p>
+<p>It decodes to X = 41, Y = 74, wafer 17, lot <code>P3XK71</code>, and it will be our running example to the end of this section. But this is a very small sample. I add 2 more a little further down, but that will still not make it a statistically meaningful sample.</p>
+<p>The BCD wording fails on this sample: <code>0x4A</code> holds a nibble of 10, which BCD does not allow. ST addressed it in <a href="https://community.st.com/t5/stm32-mcus-products/stm32c071-unique-id-what-are-the-first-4-bytes-really/td-p/845630">a thread about the STM32C0</a>, moderator &ldquo;STOne-32&rdquo; announces a correction to the manual:</p>
+<blockquote>
+<p><em>X and Y coordinates are coded on 16 bits, most significant bit being the sign bit. So this means that the bit 15 is the sign bit and the 15 others are the coordinate number in hex format.</em></p>
+</blockquote>
+<p>This is sign-magnitude coding, not two&rsquo;s complement, so the unused bits do not copy the sign, they stay at zero.</p>
+<p>Applied to our first word, <code>0x004A0029</code>, half-word by half-word:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Half-word</th>
+					<th>Bit 15, the sign</th>
+					<th>Bits 14 to 7</th>
+					<th>Bits 6 to 0, the magnitude</th>
+					<th>Value</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>X = <code>0x0029</code></td>
+					<td>0</td>
+					<td>all 0</td>
+					<td><code>0101001</code></td>
+					<td>+41</td>
+			</tr>
+			<tr>
+					<td>Y = <code>0x004A</code></td>
+					<td>0</td>
+					<td>all 0</td>
+					<td><code>1001010</code></td>
+					<td>+74</td>
+			</tr>
+	</tbody>
+</table>
+<p>The 8 middle bits are empty on the chips we care about: with the die sizes seen below on a 300 mm wafer, the grid never exceeds 70 columns or 80 rows, so 7 magnitude bits are enough. On smaller chips the grid is wider and those bits do get used.</p>
+<p>The sign bit, meanwhile, is 0 on both our coordinates, and 2 outside data points point the same way. The developer in the STM32C0 thread, who handles these chips all year round, observes that the sign-carrying bytes are &ldquo;<em>always 0</em>&rdquo; across everything he has seen. And dicing map formats count cells from a corner of the wafer, the lower-left corner being the default in the SEMI E142 standard. A negative coordinate on an STM32L4 would prove me wrong, but I have not found one.</p>
+<p>2 more real identifiers point the same way. An issue in the Zephyr project, opened because the USB serial number of STM32 devices is not unique, publishes the full identifier of 2 STM32L433 chips: <code>20323742324B500A003B0023</code> and <code>20323742324B500A003C0027</code>. They decode to X = 35, Y = 59 and X = 39, Y = 60, both on wafer 10 of lot <code>PK2B72</code>. Sign bit at 0, leading bytes at 0, magnitudes well under 128: every reading I have found points to the same format. And since these 2 chips come off the same wafer, they occupy 2 different positions, which illustrates in advance a caveat from section 6.2.</p>
+<p>The count per coordinate comes to: 7 magnitude bits that carry information, 1 sign bit that carries none, and 8 leading bits at zero. Of the 32 bits on offer, then, at most 14 carry information.</p>
+<p><img src="009.webp" alt="The 96-bit STM32 unique device ID as a 12-byte ribbon, with only its first 4-byte word read by the entropy code, then that word expanded bit by bit"></p>
+<p>ST raises 2 caveats of its own in that thread:</p>
+<ul>
+<li>The coding &ldquo;<em>may be impacted by our Different diffusion factories, so either in BCD or Integer, HEX</em>&rdquo;: in BCD, a coordinate would take 8 bits instead of 7, which moves the useful bits around without changing how many there are.</li>
+<li>The wafer &ldquo;<em>may be an 8 inch or 12 inch diameter</em>&rdquo;: a 200 mm disc holds 2.3 times fewer positions, so more collisions.</li>
+</ul>
+<p>Add to that the fact that the X/Y split is confirmed only for the STM32L476, and the sign-magnitude format only for the STM32C0. Which of the 2 half-words carries X is therefore guaranteed on no other part number, and in 5.2 I put a number on what swapping them would cost.</p>
+<p>In practice, none of these caveats pushes the count outside the 10 to 13 bit range computed later in the article. The diameter one points to a smaller space than the one I use, and so to more frequent collisions, and the coding one is neutral. The only one pulling the other way is the variation in convention between factories: 2 different numbering schemes produce more values in total than a single wafer does. Finally, the only guarantee ST makes, &ldquo;<em>the coding is unique for the 96-bits</em>&rdquo;, is about the 96 bits and not about the first 32, which is exactly what this article is about.</p>
+<p>A quick word on terminology before we go on, so nobody gets lost. The wafer is the silicon disc on which hundreds of chips are made in one piece, and the die is an individual chip once the disc has been cut. The scribe line is the strip the blade consumes between 2 neighbouring dies, lost but counted in the grid pitch.</p>
+<h3 id="32---how-many-bits-is-that-word-really-worth">3.2 - How many bits is that word really worth?</h3>
+<p>How many different chips can be cut from a wafer, and therefore how many distinct (X, Y) pairs exist? Counting those positions comes down to laying a grid over a disc and counting the cells fully inside it, which takes 3 numbers: the size of a die, the diameter of the disc, and the width of the scribe line.</p>
+<p>First number, the die size. The firmware&rsquo;s <code>mpconfigboard.mk</code> files give a build target, <code>STM32L475xx</code> for the Mk2 and Mk3 and <code>STM32L4S5xx</code> for recent models, but a build target is not a part number. Coinkite publishes the real ones in the <code>hardware/</code> folder of its own repository, as manufacturing bills of materials:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Model</th>
+					<th>Part at reference U1 in the BOM</th>
+					<th>Package</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Mk3 (<code>bom-mark3b.xlsx</code>)</td>
+					<td>STM32L496RGT6</td>
+					<td>LQFP64</td>
+			</tr>
+			<tr>
+					<td>Mk4 (<code>bom-mark4b.xlsx</code>)</td>
+					<td>STM32L4S5VIT6</td>
+					<td>LQFP100</td>
+			</tr>
+			<tr>
+					<td>Mk5 (<code>bom-mark5f.xlsx</code>)</td>
+					<td>STM32L4S5VIT6</td>
+					<td>LQFP100</td>
+			</tr>
+			<tr>
+					<td>Q (<code>bom-q1d.xlsx</code>)</td>
+					<td>STM32L4S5VIT6</td>
+					<td>LQFP100</td>
+			</tr>
+	</tbody>
+</table>
+<p>So the Mk3 is fitted not with an STM32L475 but with an STM32L496. Coinkite publishes no BOM for the Mk2, about which I can say nothing.</p>
+<p>Both parts come in LQFP packages, and an LQFP drawing measures moulded plastic, not silicon. The die size has to come from somewhere else. ST sells the same silicon in several packages, and one of them has no shell at all. In a WLCSP the balls sit straight on the die, so the outline printed in the datasheet is the outline of the chip itself.</p>
+<p>So we can look each part up in its WLCSP variant and read the mechanical drawing. DS12024 gives a WLCSP144 for the STM32L4S5xx and DS11585 gives a WLCSP100 for the STM32L496.</p>
+<table>
+	<thead>
+			<tr>
+					<th>Models</th>
+					<th>Chip mounted</th>
+					<th>The same chip, in WLCSP</th>
+					<th>Dimensions published by ST</th>
+					<th>Die area</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Mk3</td>
+					<td>STM32L496</td>
+					<td>WLCSP100</td>
+					<td>4.618 × 4.142 mm</td>
+					<td>19.13 mm²</td>
+			</tr>
+			<tr>
+					<td>Mk4, Mk5 and Q</td>
+					<td>STM32L4S5</td>
+					<td>WLCSP144</td>
+					<td>5.24 × 5.24 mm</td>
+					<td>27.46 mm²</td>
+			</tr>
+	</tbody>
+</table>
+<p>The first number can be cross-checked. The STM32L496 datasheet, DS11585, publishes 2 WLCSP packages, a 100-ball and a 115-ball, measuring 4.618 × 4.142 and 4.63 × 4.15 mm. 2 different pin counts, 0.3% apart: the pin count does not change the die, and the Mk3&rsquo;s STM32L496RGT6, in its 64-pin package, shares it. ST also publishes die sizes in plain text in the reliability reports attached to its process change notifications, with 3,176.4 × 3,162.4 µm for die 435, the STM32L431&rsquo;s, or 10.0 mm². The dies in this family do sit between ten and thirty square millimetres.</p>
+<p>The next 2 numbers come from ST&rsquo;s production documents, but from 2 separate documents. The process change notifications place STM32L4 diffusion at TSMC, in the Fab 14 plant in Tainan, Taiwan, with the Crolles 300 site as a second source: notification <code>MDG/19/10333</code> states in plain words that &ldquo;<em>Fab 14 TSMC is a fab already diffusing 90nm used for STM32L4 products</em>&rdquo;. The 12-inch wafer diameter and the 80 µm scribe line, on the other hand, come from reliability report MDG-MCD-RER1810, which is an assembly qualification report attached to other notifications: the ones adding subcontractor ASE Kaohsiung for the LQFP packages.</p>
+<p>Note how far these documents actually go: they cover STM32L4 parts and test vehicles, not the Coldcards&rsquo; STM32L496 and L4S5 by name, and the report itself lists several diameters and several scribe lines depending on the die. These are values representative of the family, not certified dimensions for our 2 chips.</p>
+<p>Last comes the counting convention, so this can be reproduced. We lay down the grid, whose pitch is the die dimension plus the scribe line, we take off a 3 mm edge margin (my choice, not an ST figure) and we keep only the dies entirely inside the disc once reduced. Where the grid sits on the disc is not documented either, and shifting it by a fraction of a pitch makes the count swing between 3,281 and 3,306 for the Mk3, or 0.011 bit: that is why the tables below round.</p>
+<table>
+	<thead>
+			<tr>
+					<th>Models</th>
+					<th>Positions per wafer</th>
+					<th>In bits</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Mk3</td>
+					<td>about 3,300</td>
+					<td>11.7</td>
+			</tr>
+			<tr>
+					<td>Mk4, Mk5 and Q</td>
+					<td>about 2,300</td>
+					<td>11.2</td>
+			</tr>
+	</tbody>
+</table>
+<p><img src="006.webp" alt="A die grid laid over a 300 mm wafer, where only the dies entirely inside the disc reduced by a 3 mm edge margin are counted: about 3,300 positions, or 11.7 bits, for the Mk3"></p>
+<p>The funnel has 3 stages. First, the 32 bits on offer, the size of the word the code reads. Then at most 14 bits carrying information, once you remove the unused sign bit and the magnitude bits the wafer size never reaches. And finally about a dozen genuinely reachable, because a wafer is round and the grid has only a finite number of cells.</p>
+<p>Some twenty bits have therefore evaporated along the way, dividing the search space by a factor close to a million. We also correct our previous article here, which credited these coordinates with about 16 bits: that was an upper bound taken from the orders of magnitude circulating at the time, but the detailed computation brings it down to 12.</p>
+<p><img src="007.webp" alt="A drawn funnel narrowing a 32-bit word down to 12 useful bits, with the width lost at each step"></p>
+<h3 id="33---that-word-is-not-a-secret">3.3 - That word is not a secret</h3>
+<p>We have just measured the size of this word, but is it secret? Because 12 bits the attacker has to guess and 12 bits he can read are not the same thing at all.</p>
+<p>First we need to connect 2 ways of writing the same identifier. So far we have read it as 3 words of 32 bits, whereas Python code receives it through <code>machine.unique_id()</code> as 12 bytes numbered <code>i[0]</code> to <code>i[11]</code>.</p>
+<table>
+	<thead>
+			<tr>
+					<th>Bytes</th>
+					<th>Contents</th>
+					<th>On our sample</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>i[0]</code> and <code>i[1]</code></td>
+					<td>X coordinate</td>
+					<td>41</td>
+			</tr>
+			<tr>
+					<td><code>i[2]</code> and <code>i[3]</code></td>
+					<td>Y coordinate</td>
+					<td>74</td>
+			</tr>
+			<tr>
+					<td><code>i[4]</code></td>
+					<td>wafer number</td>
+					<td>17</td>
+			</tr>
+			<tr>
+					<td><code>i[5]</code> to <code>i[11]</code></td>
+					<td>lot number, in ASCII</td>
+					<td><code>P3XK71</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>The first 4 bytes form exactly the word the generator reads. And the Coldcard publishes a serial number over the USB bus, built in <code>shared/version.py</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">serial_number</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># - this is **probably** public info, since shared freely over USB during enumeration</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> machine
+</span></span><span style="display:flex;"><span>    i <span style="color:#f92672">=</span> machine<span style="color:#f92672">.</span>unique_id()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%02X%02X%02X%02X%02X%02X</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> (i[<span style="color:#ae81ff">11</span>], i[<span style="color:#ae81ff">10</span>] <span style="color:#f92672">+</span> i[<span style="color:#ae81ff">2</span>], i[<span style="color:#ae81ff">9</span>], i[<span style="color:#ae81ff">8</span>] <span style="color:#f92672">+</span> i[<span style="color:#ae81ff">0</span>], i[<span style="color:#ae81ff">7</span>], i[<span style="color:#ae81ff">6</span>])
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/shared/version.py#L66">shared/version.py:66</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>This line publishes <code>i[11]</code>, <code>i[9]</code>, <code>i[7]</code> and <code>i[6]</code> as they are, all of which belong to the lot number. It publishes 2 sums, <code>i[10] + i[2]</code> and <code>i[8] + i[0]</code>, where a lot byte is added to a coordinate byte. And it does not publish <code>i[1]</code>, <code>i[3]</code>, <code>i[4]</code> and <code>i[5]</code> at all.</p>
+<p>A clarification is needed about how reachable this value is, because it is often described as readable by anyone who plugs the device in. That is wrong on a locked Coldcard: in <code>shared/actions.py</code>, the call to <code>enable_usb()</code> happens only after authentication, and it is further gated on the <code>du</code> setting that lets you disable USB for good. Before the PIN, the device does not enumerate at all. The value is still widely exposed: it shows up in the information menu, it travels over the bus as soon as the owner uses the device, and MicroPython computes it with the same formula in its USB descriptor, noting that the STM32&rsquo;s ROM DFU loader produces the same result. So it is not a secret, but it is not something you read in 3 seconds off a locked device found in a drawer either.</p>
+<p>I have seen it written elsewhere that this serial number directly reveals the word the generator uses. That is inaccurate: the 2 coordinate bytes that matter, <code>i[0]</code> and <code>i[2]</code>, never appear on their own, they are buried in a sum with a lot byte that the serial number does not give. The practical conclusion holds anyway, by another route. ST documents the lot number as ASCII, which says nothing about the alphabet actually used, since ASCII also contains punctuation, lowercase letters and control characters. But if we assume, based on the readings I have, that this alphabet is limited to the 59 codes running from space to the letter Z, then that byte is worth a few dozen values, not 256.</p>
+<p>I redid the computation on the real dump: identifier <code>0x004A0029 / 0x58335011 / 0x2031374B</code> does produce serial number <code>207B37745833</code>, and from that number alone, bounding the lot alphabet to the 59 ASCII codes running from space to the letter Z, the coordinate word narrows to 59², so 3,481 candidates and 11.8 bits. Be clear about what that figure is: these are candidates for the coordinate word, not for the <code>pad</code>, which is born of the XOR with the <code>SysTick</code>. This result converges with the geometric estimate obtained independently: about 12 bits from the dicing grid, about 11.8 bits from partially inverting the serial number.</p>
+<p>ST documents this alphabet nowhere, but I checked it on a real Coldcard Mk5, reading its serial number off the screen. The 4 lot bytes it publishes in the clear are <code>3</code>, <code>H</code>, <code>9</code> and a trailing space, all within the range assumed, as are the 4 from the forum sample. The 2 STM32L433 chips from the Zephyr issue point the same way: their full lot number, <code>PK2B72</code>, fits in it too. And all 3 readings end in a space, consistent with an ASCII lot number padded on the right.</p>
+<p><img src="008.webp" alt="The 12 bytes of a Coldcard chip ID entering serial_number(), where four lot bytes pass through as-is, two are folded into sums with a coordinate byte and four are never published, leaving 3,481 candidates once the serial number is inverted"></p>
+<p>Under this alphabet assumption, an attacker who has plugged in the unlocked device once has 3,481 combinations to try, and one who has never touched it has to sweep the 3,300 positions available on a wafer. Either way, about a dozen bits, which is to say a fraction of a second of computation. This word therefore protects nobody, and the comment the developers themselves left in the code, &ldquo;<em>this is probably public info</em>&rdquo;, already said as much.</p>
+<hr>
+<h2 id="4---the-2-thirds-of-the-seed-that-were-worth-zero">4 - The 2 thirds of the seed that were worth zero</h2>
+<p>On to the 2 other seeding sources, <code>RTC-&gt;TR</code> and <code>RTC-&gt;SSR</code>, the time and sub-second registers of the real-time clock.</p>
+<p>Step one: on the Mk2 and Mk3, the low-speed oscillator that the RTC needs is never started. The bootloader configures exactly one oscillator:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>RCC_OscInitStruct.OscillatorType <span style="color:#f92672">=</span> RCC_OSCILLATORTYPE_HSE;
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/bootloader/clocks.c#L71">stm32/bootloader/clocks.c:71</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p><code>HAL_RCC_OscConfig</code> guards each oscillator block with a test on that mask:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(((RCC_OscInitStruct<span style="color:#f92672">-&gt;</span>OscillatorType) <span style="color:#f92672">&amp;</span> RCC_OSCILLATORTYPE_LSE) <span style="color:#f92672">==</span> RCC_OSCILLATORTYPE_LSE)
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/bootloader/stm32l4xx_hal_rcc.c#L601">stm32/bootloader/stm32l4xx_hal_rcc.c:601</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>The mask holds <code>RCC_OSCILLATORTYPE_HSE</code> alone, so the test is false and the LSE block is skipped entirely. The <code>RCC_LSE_OFF</code> written 3 lines below it never runs. Nothing switches the 32.768 kHz oscillator off, because nothing ever switches it on. On the Mk3 there is nothing to start anyway. Across the 25 line items of the bill of materials there is one single oscillator, <code>Y1</code>, an 8 MHz ceramic resonator. No 32.768 kHz part appears at all.</p>
+<p>Back in <code>clocks.c</code>, 44 lines below that mask, the absent oscillator is named as the RTC&rsquo;s clock source:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PeriphClkInitStruct.RTCClockSelection <span style="color:#f92672">=</span> RCC_RTCCLKSOURCE_LSE;
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/bootloader/clocks.c#L115">stm32/bootloader/clocks.c:115</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p><code>RTCSEL</code> selects one source among 3: the LSE, the internal LSI, or the HSE divided by 32. Here it selects the LSE. The LSI is never started, and neither <code>RCC_OSCILLATORTYPE_LSI</code> nor <code>LSIState</code> appears in any <code>clocks.c</code> of the tree. The bootloader calls <code>__HAL_RCC_RTC_ENABLE()</code> 15 lines later, which sets the enable bit in <code>RCC-&gt;BDCR</code> and nothing else. The counter has no clock and never increments.</p>
+<p>Step two: MicroPython never initialises the RTC on these boards. The 3 <code>mpconfigboard.h</code> files of the Coldcard boards all carry the same line 17:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define MICROPY_HW_ENABLE_RTC       (0)
+</span></span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/COLDCARD/mpconfigboard.h#L17">stm32/COLDCARD/mpconfigboard.h:17</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>And in <code>ports/stm32/main.c:418-420</code>, initialisation is gated on that flag:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#if MICROPY_HW_ENABLE_RTC
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">rtc_init_start</span>(false);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/main.c#L418-L420">ports/stm32/main.c:418-420</a> - Coldcard/micropython @ 4107246f</em></p>
+<p>Step three: the call to <code>rtc_init_finalise()</code> visible in the seeding block does nothing at all. Its first statement is an early return on a flag that is never raised, since it is only set on the <code>rtc_init_start()</code> path we have just seen disabled:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>STATIC <span style="color:#66d9ef">bool</span> rtc_need_init_finalise <span style="color:#f92672">=</span> false;   <span style="color:#75715e">// rtc.c:83
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rtc_init_finalise</span>() {                    <span style="color:#75715e">// rtc.c:182
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>rtc_need_init_finalise) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/rtc.c#L182">ports/stm32/rtc.c:83 and 182</a> - Coldcard/micropython @ 4107246f</em></p>
+<p><img src="010.webp" alt="On a Coldcard Mk2/Mk3 cold boot, RTC-&gt;TR and RTC-&gt;SSR both read 0, held by three independent code proofs joined by an AND"></p>
+<p>On the Mk4, Mk5 and Q, the bootloader picks a clock that is very much alive:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>PeriphClkInitStruct.RTCClockSelection <span style="color:#f92672">=</span> RCC_RTCCLKSOURCE_HSE_DIV32; <span style="color:#75715e">// but unused
+</span></span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/mk4-bootloader/clocks.c#L171">stm32/mk4-bootloader/clocks.c:171</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>On these models, then, the RTC really is clocked. One objection remains: its registers would still be unreadable, because their bus clock, <code>RTCAPB</code>, is never switched on anywhere in the shipped code. The <code>__HAL_RCC_RTCAPB_CLK_ENABLE()</code> macro does exist in upstream MicroPython, but it is absent from commit <code>4107246f</code>, the one the firmware pins. The answer depends on the chip fitted, not on the build target.</p>
+<p>On the <code>STM32L475xx</code> target, that bit does not exist; ST&rsquo;s <code>stm32l475xx.h</code> header defines it nowhere. But the Mk3 is fitted with an STM32L496, where it does exist, and RM0351 section 6.4.19 gives <code>RCC_APB1ENR1</code> a reset value of <code>0x0000 0400</code> on the STM32L496xx and L4A6xx, against <code>0x0000 0000</code> on the L475xx, L476xx and L486xx. RM0432 gives the same value in the same section for the STM32L4S5 in the Mk4, Mk5 and Q. On the chips actually fitted, that bit is 1 from power-on, and the RTC registers are readable without any code lifting a finger.</p>
+<p>Put another way, on the Mk4, Mk5 and Q, <code>RTC-&gt;TR</code> and <code>RTC-&gt;SSR</code> do return something alive. That something is simply not what the published budgets describe: the counter restarts from zero on every power-up, so it measures not a time of day but the time elapsed since the device was switched on.</p>
+<p>On the Mk2 and Mk3, by contrast, the three-step demonstration is complete. The selected source is never started, the counter never increments, and the ghost calendar registers keep their reset value, which is zero. The generator&rsquo;s full state on these 2 models becomes:</p>
+<pre tabindex="0"><code>pad = UID[31:0] ^ SysTick-&gt;VAL
+n   = 0
+d   = 0
+dat = 0
+</code></pre><p>2 of the 3 advertised entropy sources are worth zero, and the 4th variable, <code>dat</code>, never appeared in the seeding block at all. On the Mk2 and Mk3, this generator&rsquo;s entire initial state therefore fits in a single 32-bit word.</p>
+<p>Take the function body again with <code>n = d = dat = 0</code>: the first line, <code>pad += dat + d * n</code>, becomes <code>pad += 0</code> and leaves <code>pad</code> untouched, and the 3 following lines recompute <code>n</code>, <code>d</code> and <code>dat</code> from <code>pad</code> alone. From the very first iteration, the whole internal state, and therefore the whole stream produced until power-off, is a deterministic function of a single 32-bit value.</p>
+<p>These variables are <code>static</code>, so they live for the duration of one run and go back to zero on the next reboot. Every power-up draws a new <code>pad</code>. This is not a stream frozen for the life of the device, then, it is a stream frozen for the length of one power-up.</p>
+<hr>
+<h2 id="5---where-do-the-407-and-733-bits-come-from">5 - Where do the 40.7 and 73.3 bits come from?</h2>
+<p>2 figures have been circulating since the attack: a space of 2^40.7 for the Mk2 and Mk3, and 2^73.3 for the Mk4, Mk5 and Q. They come from Block&rsquo;s analysis, which gives them as strict upper bounds, the second one on condition that the reseed worked.</p>
+<p>They can be reconstructed, which shows exactly what they count: they add up the 3 seeding sources we have just walked through. The 80,000 possible <code>SysTick</code> values are worth 16.29 bits, the 86,400 seconds in a day of <code>RTC-&gt;TR</code> another 16.40, and the 256 positions of <code>RTC-&gt;SSR</code> 8 more, so 40.69 in total. On recent models that count raises the <code>SysTick</code> to 120,000 values and adds the 32 bits of the secure-element reseed, which gives 73.27. Those 120,000 values are themselves wrong, as section 7 shows.</p>
+<p>But there are 2 problems here.</p>
+<h3 id="51---what-the-rtc-registers-are-really-worth">5.1 - What the RTC registers are really worth</h3>
+<p>The 24.4 bits credited to the RTC count a time of day, with its 86,400 seconds and its 256 sub-second positions. Yet none of the 3 repositories ever sets that calendar. On the Mk2 and Mk3, those bits are worth exactly zero, the previous section&rsquo;s demonstration being complete.</p>
+<p>On the Mk4, Mk5 and Q it is different. The bootloader does put the RTC on a clock, on <code>HSE</code> divided by 32. With these boards&rsquo; 8 MHz oscillator, that gives 250 kHz, and with the prescalers left at their reset values, <code>RTC-&gt;SSR</code> moves one step every 512 microseconds and <code>RTC-&gt;TR</code> by one &ldquo;second&rdquo; every 131 milliseconds. These 2 registers do not give a time of day, they give the time elapsed since power-on. What they capture is the delay until the first key press, which is when the seeding happens on these models.</p>
+<p>That delay is not contained in the <code>SysTick</code>, which only gives the position inside the current millisecond. Sharing an oscillator does not make 2 quantities redundant, it makes them correlated, and that is not the same thing: a source correlated with another can still carry information the other does not. The RTC is therefore not worth the 24.4 bits the count above lends it, but it is not worth zero either.</p>
+<h3 id="52---2-sources-in-a-single-word">5.2 - 2 sources in a single word</h3>
+<p>Next, neither Coinkite nor Block counts a single bit for the unique identifier. Block says so explicitly: its bounds assume the UID is known. So it is tempting to add the identifier&rsquo;s 11 to 12 bits to the <code>SysTick</code>&rsquo;s 16.3, which would give 28 bits for an Mk3. That is wrong, and you only have to reread the seeding line to see why:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pad <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>(<span style="color:#66d9ef">uint32_t</span> <span style="color:#f92672">*</span>)MP_HAL_UNIQUE_ID_ADDRESS <span style="color:#f92672">^</span> SysTick<span style="color:#f92672">-&gt;</span>VAL;
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/rng.c#L82">ports/stm32/rng.c:82</a> - Coldcard/micropython @ 4107246f</em></p>
+<p>The 2 sources do not occupy 2 separate slots, they are XORed into the same 32-bit word. Adding bits up assumes each source has a place of its own, and here they overlap. Here is where each one sits, on an Mk3:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Field</th>
+					<th>Bits occupied</th>
+					<th>Possible values</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>X, the column on the wafer</td>
+					<td>0 to 6</td>
+					<td>62</td>
+			</tr>
+			<tr>
+					<td>Y, the row on the wafer</td>
+					<td>16 to 22</td>
+					<td>68</td>
+			</tr>
+			<tr>
+					<td><code>SysTick-&gt;VAL</code></td>
+					<td>0 to 16</td>
+					<td>80,000</td>
+			</tr>
+	</tbody>
+</table>
+<p>The 62 columns and 68 rows are the populated dimensions of the grid built in 3.2, 3 mm edge margin included. ST does not document which of the 2 axes carries X, and swapping them moves the result from 2^22.09 to 2^21.95.</p>
+<p>The 80,000 is not a power of 2 because the firmware (not the hardware) sets the counter&rsquo;s range. It reloads the <code>SysTick</code> every millisecond, which at the Mk3&rsquo;s 80 MHz comes to 80,000 cycles. See section 7 for more details.</p>
+<p>X lives entirely inside the range the <code>SysTick</code> already sweeps, so mixing it in changes which value you get, not how many values are reachable. Y&rsquo;s low bit, at position 16, also falls in that range. Only bits 17 to 22, that is Y&rsquo;s 6 high bits, land where the <code>SysTick</code> never goes.</p>
+<p>For the Mk3 die&rsquo;s 3,284 positions and the <code>SysTick</code>&rsquo;s 80,000 values, we do get 262,720,000 starting pairs, or 2^28.0, but those pairs produce only 4,456,448 distinct <code>pad</code> values, or 2^22.09.</p>
+<p>Example: take the real identifier from 3.1, <code>0x004A0029</code>, and the chip one column over on the same row. The 2 words then differ only in the lowest bit. Seed the first at <code>SysTick-&gt;VAL</code> 0 and the second at 1, and the XOR lands on the same value:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Chip</th>
+					<th>Identifier</th>
+					<th><code>SysTick-&gt;VAL</code></th>
+					<th>Resulting <code>pad</code> (XOR)</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>A</td>
+					<td><code>0x004A0029</code></td>
+					<td><code>0x00000000</code></td>
+					<td><code>0x004A0029</code></td>
+			</tr>
+			<tr>
+					<td>B</td>
+					<td><code>0x004A0028</code></td>
+					<td><code>0x00000001</code></td>
+					<td><code>0x004A0029</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>Neither the identifier nor the counter matches, only the result does. Across the whole space, an average of 59 of the 262,720,000 pairs land on each of the 4,456,448 reachable values.</p>
+<p>The low 16 bits of <code>pad</code> take all 65,536 of their values, its high half takes only 68, and 65,536 × 68 = 4,456,448. This count assumes the grid indices start at 0, a convention ST does not document: starting them at 1, the set of rows stops being stable under <code>Y xor 1</code> and the total rises to 4,485,376, or 0.009 bit more. On the recent models&rsquo; die, the same shift takes it from 812,048 to 812,112. The order of magnitude does not move, but the exact figure hangs on that convention.</p>
+<p>That factor of 59 is worth almost 6 bits, and it is the second time the count drops. The 2 drops have different causes. In 3.2 the bits were gone because the word can never take those values. Here all 4,456,448 values are reachable, and what never existed is the 2^28, since adding the sources counts 2 slots where the code writes into 1. On the recent models&rsquo; die, the same count gives 812,048 values, or 2^19.63. The drop is sharper still there, for a reason that owes nothing to geometry: the <code>SysTick</code> only takes 15,000 values on those models, as section 7 demonstrates, so it no longer covers the whole lower half of the word.</p>
+<p>Careful, though: these figures are candidate space sizes, not entropy measurements. An attacker has that many states to walk through, but nothing says they are equiprobable, and if the <code>SysTick</code> distribution is peaked, the real entropy is lower still.</p>
+<p><img src="011.webp" alt="Cross-section of the 32-bit word pad, showing the X, Y and SysTick-&gt;VAL layers on a single bit axis and the range where they overlap"></p>
+<h3 id="53---the-corrected-table">5.3 - The corrected table</h3>
+<table>
+	<thead>
+			<tr>
+					<th>Model</th>
+					<th>Published figure</th>
+					<th>After correction</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Mk3</td>
+					<td>about 40 bits</td>
+					<td>about 2^22 candidates</td>
+			</tr>
+			<tr>
+					<td>Mk4, Mk5 and Q</td>
+					<td>about 72 bits</td>
+					<td>on the order of 2^52 candidates</td>
+			</tr>
+	</tbody>
+</table>
+<p>On the Mk3, the generator&rsquo;s full state reduces to <code>pad</code> alone, which takes 2^22.09 values. On the Mk4, Mk5 and Q, the 2^19.63 values of <code>pad</code> combine with the 32 bits of the secure-element reseed, because these 2 quantities live in 2 different generators, each with its own state word. That gives an order of magnitude of 2^52, and not a floor: the reseed&rsquo;s 32 bits are themselves a ceiling, as section 8 of this article shows, and the RTC&rsquo;s contribution, non-zero but unmeasured, pulls the other way. The figure should therefore be read as a scale, not as a minimum guarantee, and it counts neither the RTC nor the draw rank.</p>
+<p>Some published analyses distinguish the case where the attacker has been able to see the device. Across both families, that distinction changes almost nothing. On an Mk3, for instance: the <code>SysTick</code> there already sweeps the whole X coordinate and Y&rsquo;s low bit, so the serial number can only narrow Y&rsquo;s 6 high bits. On the forum sample, it brings the coordinate word down to 3,481 candidates and the <code>pad</code> space to 3,881,088 values, or 2^21.89 against 2^22.09: 0.2 bit gained.</p>
+<p>That 0.2 bit is a floor, obtained from the serial number alone and under the same alphabet assumption. Cross it with the dicing grid&rsquo;s 68 rows and the gain depends on the device, because the published sum places the window of possible Y values more or less deep in the grid. That works out at 0.6 bit in the median case and 5.8 bits in the worst one. The gain stays under one bit in 70% of cases with every row weighted equally, and in 75% with each row weighted by the number of dies it holds. On recent models, where the <code>SysTick</code> only sweeps 15,000 values, the same computation gives 0.4 bit at the median.</p>
+<p>Dropping to the 16.3 bits of the <code>SysTick</code> alone would require the exact coordinate word, so <code>i[0]</code> and <code>i[2]</code>. Pulling them out of the published sums means resolving the 2 lot bytes those sums hide, <code>i[8]</code> and <code>i[10]</code>. The third hidden lot byte, <code>i[5]</code>, enters no sum.</p>
+<p><img src="012.webp" alt="The same pad search space before and after the attacker reads the USB serial number: two almost identical fields of values, with a thin sliver carved off the second one, worth 0.2 bit on the device where the gain is smallest and 5.8 bits at the other end"></p>
+<hr>
+<h2 id="6---the-collision-risk-between-2-coldcards">6 - The collision risk between 2 Coldcards</h2>
+<p>A question has been going round on Twitter these past few days: could this flaw have produced seed collisions across different affected users? Let us try to put numbers on it.</p>
+<h3 id="61---2-devices-one-single-value">6.1 - 2 devices, one single value</h3>
+<p>The word being read contains nothing but the chip&rsquo;s coordinates on the wafer, and everything that tells 2 wafers apart, wafer number and lot number, lives in the 2 words the code does not read. As a result, 2 STM32L4 chips from 2 different wafers, from 2 different lots, made years apart, but carrying the same encoded (X, Y) pair, hold the same value at <code>*(uint32_t *)0x1FFF7590</code>, bit for bit.</p>
+<p>The phrase here has to be &ldquo;the same encoded pair&rdquo; and not &ldquo;the same physical position&rdquo;, because ST nowhere guarantees that the origin, the scale and the encoding convention are identical from one factory, one revision or one process to the next.</p>
+<h3 id="62---the-birthday-paradox">6.2 - The birthday paradox</h3>
+<p>We now know how many different values this word can take: as many as there are positions on the grid, so about 3,300 for an Mk3 and 2,300 for a recent model. Call that number K.</p>
+<p>How many devices does it take for 2 of them to land on the same value? This is the birthday problem, the one where a room of 23 people already gives a 1 in 2 chance that 2 of them share a birthday, even though a year has 365 days. The result surprises people because the question is not whether someone shares <em>your</em> birthday, which would take hundreds of people, but whether any pair at all exists in the room, and the number of pairs grows far faster than the number of people.</p>
+<p>The 50% threshold is approximated by the following formula, where N is the number of devices and K the number of possible values, and where the factor 1.1774 is the square root of twice the natural logarithm of 2:</p>
+<pre tabindex="0"><code>N ≈ 1.1774 × √K
+</code></pre><p>Applied to our grid, computing the exact thresholds rather than using this approximation, which underestimates some of them by one:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Distinct positions K</th>
+					<th>Entropy</th>
+					<th>Devices for a 50% collision</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>2,048</td>
+					<td>11.0 bits</td>
+					<td>54</td>
+			</tr>
+			<tr>
+					<td>4,096</td>
+					<td>12.0 bits</td>
+					<td>76</td>
+			</tr>
+			<tr>
+					<td>8,192</td>
+					<td>13.0 bits</td>
+					<td>107</td>
+			</tr>
+	</tbody>
+</table>
+<p>So it takes fifty to a hundred Coldcards for there to be a 1 in 2 chance that 2 of them read the same word, and with the 3,284 positions counted for the Mk3 die, the exact threshold works out at 68 devices. Across a fleet of a few tens of thousands of devices, the collision then becomes hard to avoid, with each identifier value shared on average by about ten Coldcards.</p>
+<p><img src="013.webp" alt="The 3,284 UID value slots of a Coldcard Mk3 die, drawn twice as the same field of cells: almost empty at 68 devices, with one slot already doubled, and fully saturated at an assumed fleet of 30,000"></p>
+<p>There is a fair objection to this model. The birthday formula assumes independent, uniform draws with replacement, and that is not quite what happens in a factory. 2 effects depart from it, in opposite directions:</p>
+<ul>
+<li>2 chips cut from the same wafer necessarily occupy 2 different positions, so between them a collision is not unlikely, it is impossible. It only appears between wafers, which pushes the threshold up.</li>
+<li>Manufacturing yield is not uniform across the disc, since edge dies fail testing more often. The surviving chips cluster, and a clustered distribution produces more collisions than a uniform one, which pulls the threshold back down.</li>
+</ul>
+<p>The figure of 68 therefore assumes Coldcards sampled in the field, from many wafers and many lots, but sharing the encoding convention, the grid and the wafer diameter used in 3.2. And ST itself says the coding can change from one factory to another and the disc can go from 12 to 8 inches. This threshold holds for a homogeneous sub-population, not for worldwide production, whose number of distinct values remains unknown for lack of samples. And for a batch of devices off a single wafer, it means nothing at all.</p>
+<p>That leaves the question of how many devices we are talking about, and this is the weakest link in my whole argument, because no reliable figure exists. Coinkite has never published its volumes, and since the company publishes no GitHub release of its firmware, we cannot even get an estimate that way. 3 routes do converge on an estimate, though:</p>
+<ul>
+<li>By the market: Foundation Devices announced in late 2022 that it had sold &ldquo;thousands&rdquo; of Passports, and that device&rsquo;s firmware now totals 108,000 downloads across 26 versions, nearly 18,000 of them on the latest one alone, which puts a device in this niche in the thousands or tens of thousands of units.</li>
+<li>By the company: a profile published by Bitcoin Magazine in April 2025 describes Coinkite as employing fewer than 20 people, and the GitHub repository backs that up, with 2 developers writing 96% of the 324 commits of the past 12 months.</li>
+<li>By the theft itself: in its 1 August tally, Galaxy Research counted 4,585 addresses and 1,367 bitcoin, a total that has grown since, which probably corresponds to a few hundred to a few thousand distinct seeds.</li>
+</ul>
+<p>None of these 3 routes measures the installed base. Each brackets the volume without counting a single device, and together they put the Mk3 somewhere between thousands and tens of thousands. I use 30,000 from here on. It is a working assumption and not a measurement. Everything downstream that scales with the fleet inherits that weakness.</p>
+<p><img src="016.webp" alt="Two silicon wafers from different lots, both marked at the same encoded (X, Y) cell, whose dies read the same 32-bit word 0x004A0029"></p>
+<h3 id="63---3-levels-of-collision-not-to-be-confused">6.3 - 3 levels of collision not to be confused</h3>
+<p>The first level is a collision of the identifier word. It reaches a 1 in 2 chance from 68 devices onwards and becomes near certain in the low hundreds, but on its own it has no consequence.</p>
+<p>The second level is a collision of the generator&rsquo;s full state, that is, of <code>pad</code> alone. Note that it does not require 2 devices to have both the same identifier word and the same <code>SysTick-&gt;VAL</code>. Since the 2 are XORed together, it is enough for the result of the mix to be the same, which also happens between 2 devices whose identifier and <code>SysTick</code> both differ. The 2 devices then produce the same byte stream.</p>
+<p>The third level is a collision of the BIP39 entropy itself, the entropy that produces the 24 words. Getting all the way to the wallet takes more, though: in <code>shared/stash.py:123</code>, the firmware calls <code>bip39.master_secret(words, _bip39pw)</code>, and the passphrase goes into the PBKDF2 salt as BIP39 requires. 2 devices producing the same 24 words share the same wallet only if their passphrases match too, which is the common case since the empty passphrase is the default. When that happens, either owner can spend the other&rsquo;s funds.</p>
+<p><img src="014.webp" alt="Two side-by-side collision levels that imply neither one nor the other, the UID word and the generator state, with the BIP39 entropy collision nested inside the second one"></p>
+<h3 id="64---the-mk3-case-where-the-3-levels-meet">6.4 - The Mk3 case, where the 3 levels meet</h3>
+<p>On the Mk4, Mk5 and Q, libngu&rsquo;s generator is reseeded at boot with 32 bits from the secure elements, so a seed collision would require both seedings to coincide at once, which makes it negligible in practice.</p>
+<p>On the Mk3 there is no reseed: the mechanism is absent from the <code>v4-legacy</code> branch, where the <code>shared/mk4.py</code> file that carries <code>rng_seeding()</code> simply does not exist, and the second generator starts from its hard-coded constants, identical on every device on the planet.</p>
+<p>A collision of the 24 words then takes 2 conditions:</p>
+<ul>
+<li>
+<p>that both devices share the same initial <code>pad</code>, that is, the same XOR result (not necessarily both inputs separately),</p>
+</li>
+<li>
+<p>and that they made the same number of draws between that seeding and generation.</p>
+</li>
+</ul>
+<p>The first factor can be computed directly. The 4,456,448 <code>pad</code> values are not equiprobable, and what governs a collision is not how many there are but the probability that 2 devices land on the same one, which is the sum of the squared probabilities. It works out to 1 in 3.7 million, slightly more than the 1 in 4.46 million you would get by assuming uniformity. Across the assumed fleet of 30,000 devices, that makes 450 million pairs to examine, so about 120 pairs of devices producing the same byte stream.</p>
+<p>For the second factor, the generator is seeded on the very first draw, which is the first key press, as section 7 details. Each burst then consumes 3 calls to <code>rng_get()</code>, one per draw of the Fisher-Yates shuffle over the keypad&rsquo;s 4 rows, and libngu&rsquo;s copy advances at least as much, once more for every rejected draw, at <code>random.c:133</code>. What counts is not how many keys were pressed but how many bursts there were, since a burst only closes 250 milliseconds after the last release. 2 devices sharing the same starting <code>pad</code> but whose owners triggered 10 and 12 bursts are not at the same point in the same sequence, and produce 2 different entropies.</p>
+<p>How many values can that count take? Let us set up a toy model, the simplest possible one. The path through a new device is signposted and menu navigation is the same for everyone, so only one choice really varies from user to user: the length of the PIN. In <code>login.py:14-15</code>, that code is made of 2 parts of 2 to 6 digits each, so a total between 4 and 12 digits, entered twice at creation. That makes 9 possible lengths, so 9 classes of user.</p>
+<p>This model does not describe the real firmware, and it is worth saying so straight away. <code>_start_scan()</code> is only called at the beginning of a burst, and a burst only closes 250 milliseconds after the last release, at <code>mempad.py:159</code>. 2 people entering a PIN of the same length do not, then, consume the same number of draws: the fast typist chains several keys into a single burst, the hesitant one triggers a burst per key. Add to that backtracking, abandoned attempts, mistyped entries, and the <code>_rand_below()</code> loop that redraws when a draw is rejected. The generator&rsquo;s real rank at creation time depends on typing cadence, not on PIN length.</p>
+<p>Within the toy model, the 2 bounds can be computed: if every user picks the same length, the factor is 1 and takes nothing away, and if they spread evenly across the 9 classes, it drops to 1/9. Still within this model, we can assume the distribution leans towards the top of the range, because people generally pick round lengths, 4+4 or 6+6 rather than 3+5, and if 3 lengths hold most of the fleet, the factor lands around 1/3.</p>
+<p>Take the 120 pairs from the first factor again, the ones sharing the same starting <code>pad</code>. The second factor can only eliminate them one by one: the 2 devices that reached generation at the same rank stay in, the others drop out. From that side, 120 is a ceiling. It is not one in absolute terms, because the 120 itself assumes a uniform <code>SysTick</code>: if it is peaked, more devices share the same <code>pad</code> and it is the starting count that rises. With the 1/3 factor, the toy model leaves 40 pairs sharing the same BIP39 entropy across the whole Mk3 fleet, and 13 with a 1/9 factor, still on the assumed basis of 30,000 devices sold.</p>
+<p><img src="015.webp" alt="Four-step computation chain narrowing 4,456,448 pad states and an assumed 30,000-unit Mk3 fleet down to 13 to 40 pairs sharing the same BIP39 entropy, under an explicit toy model of the draw rank"></p>
+<p>That range of 13 to 40 has to be read for what it is: the output of a toy model, not a measurement. The 9 classes exist only in the model. In the real firmware, the rank depends on bursts, typing cadence, re-entries and rejected draws, so it can form far more than 9 classes, and nothing puts a 1/9 floor under it. What holds without this model is the first factor: about 120 pairs of devices share the same starting <code>pad</code> across the assumed fleet of 30,000, and therefore produce the same byte stream. How many of them reach generation at the same rank, nobody can say without measuring the distribution of real ranks.</p>
+<p>This is where the difference between the levels really counts. A collision of the identifier word alone is near certain, and harmless. A collision of the 24 words would touch a few dozen devices in the assumed fleet of 30,000 under the toy model, so on the order of 1 in 1,000, and both owners still have to have left the passphrase empty for them to share a wallet. Rare for any given person, then, but not ruled out.</p>
+<h3 id="65---the-wafer-geometry-shows-through-in-the-output">6.5 - The wafer geometry shows through in the output</h3>
+<p>Since the generator&rsquo;s first output is essentially a rotation of <code>pad</code>, 2 devices whose starting <code>pad</code> values are close produce correlated first outputs. Here is the simulation, with 2 values one apart, which corresponds to 2 neighbouring columns on the wafer:</p>
+<pre tabindex="0"><code>pad = 0x0012000a  -&gt;  099005d6 6806cb91 0757cd65 84f9d609
+pad = 0x0012000b  -&gt;  0990054e cc08b5ab 3f8f3f45 614fe347
+</code></pre><p>To measure this we count how many bits differ between 2 outputs, which is the Hamming distance. The reference point is simple: 2 unrelated values share half their bits on average, so 16 out of 32, and the lower you go below that figure, the more alike the 2 outputs are. Sweeping the roughly 3,200 neighbouring pairs on each axis of the Mk3 grid gives this, in bits of difference out of 32:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Neighbouring dies</th>
+					<th>1st output</th>
+					<th>2nd output</th>
+					<th>3rd output</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Same row, next column</td>
+					<td>3.7</td>
+					<td>13.9</td>
+					<td>16.1</td>
+			</tr>
+			<tr>
+					<td>Same column, next row</td>
+					<td>5.7</td>
+					<td>9.0</td>
+					<td>13.8</td>
+			</tr>
+	</tbody>
+</table>
+<p>2 details sit under those averages. On the column axis the first output shares 23 high bits, 24 on the pair above. On the row axis, every step from an even row to the odd row after it gives exactly 3 bits of difference and 8 shared high bits, with no exception across the grid.</p>
+<p>The correlation is real on both axes and takes a different shape on each. On the column axis it is gone by the third output, at 16.1 bits. On the row axis it is still there, at 13.8. A distance of 16 bits means the Hamming metric detects nothing, not that the 2 streams are independent. What holds, and this is the point that matters, is that the geometry of the dicing grid shows through in the first output.</p>
+<p>One special case is worth pausing on, because it shows how ineffective the firmware&rsquo;s safeguard was. What happens if <code>pad</code> is exactly zero, in other words if the identifier word and the <code>SysTick</code> value cancel each other out in the XOR? The generator then starts from an all-zero state, and the first 3 words it produces are <code>00000002</code>, <code>00000098</code> and <code>00001cd2</code>. Tiny values, growing steadily, that nobody would mistake for randomness.</p>
+<p>Yet the firmware contains a check for exactly this kind of situation. Before returning the seed, <code>generate_seed</code> verifies that the 32 bytes drawn contain more than 4 different values, with <code>assert len(set(seed)) &gt; 4</code>, the idea being that a dead generator returns bytes that are all identical. You would expect the stream above to trip the alarm, and it does not. The reason is the XOR: Python never sees MicroPython&rsquo;s output, it sees that output already mixed with libngu&rsquo;s, which looks perfectly ordinary. Of the 32 bytes obtained, 31 are different, and the check passes without blinking. libngu&rsquo;s mask therefore disguises the worst case imaginable and gives it the appearance of diversity.</p>
+<hr>
+<h2 id="7---the-users-finger-the-last-source-of-randomness-on-the-mk3">7 - The user&rsquo;s finger, the last source of randomness on the Mk3</h2>
+<p>On the Mk2 and Mk3, where the RTC is dead and the identifier drowns in the XOR, only one variable source is left: <code>SysTick-&gt;VAL</code>. On recent models it is no longer alone in its own seeding block, since the next 2 lines there read <code>RTC-&gt;TR</code> and <code>RTC-&gt;SSR</code>, and the secure-element reseed adds to that in the other generator. What follows measures its own contribution, not what is left in total.</p>
+<p><code>SysTick-&gt;VAL</code> is a 24-bit register, which invites the guess that it sweeps 2^24 values. It does not. The counter never runs free but it decrements from a reload value the firmware writes into <code>SysTick-&gt;LOAD</code> and the hardware puts it back there on every pass through 0. Its range is <code>LOAD + 1</code>, a number set in software. MicroPython chooses the one that makes the counter wrap in exactly 1 millisecond, so the bound lands on a round decimal number and never on a power of 2.</p>
+<p>Which decimal number depends on what clocks the counter, and the core clock reaches it either directly or through a divide-by-8. On the Mk2 and Mk3, which share one board file, it arrives undivided:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a6e22e">HAL_SYSTICK_Config</span>(<span style="color:#a6e22e">HAL_RCC_GetHCLKFreq</span>()<span style="color:#f92672">/</span><span style="color:#ae81ff">1000</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">HAL_SYSTICK_CLKSourceConfig</span>(SYSTICK_CLKSOURCE_HCLK);
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/COLDCARD/clocks.c#L120">stm32/COLDCARD/clocks.c:120</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p><code>HAL_SYSTICK_Config</code> passes its argument to the CMSIS routine <code>SysTick_Config</code>, which writes <code>LOAD = ticks - 1</code>. The PLL takes the 8 MHz resonator, divides by PLLM 2, multiplies by PLLN 40 and divides by PLLR 2, at <code>stm32/COLDCARD/mpconfigboard.h:28-30</code>, so <code>HAL_RCC_GetHCLKFreq()</code> returns 80 MHz. The argument is 80,000 and <code>LOAD</code> is 79,999. <code>SysTick-&gt;VAL</code> then walks from 79,999 down to 0 in steps of 12.5 nanoseconds: 80,000 positions, so the 16.3 bits of section 5.</p>
+<p>On the Mk4, Mk5 and Q you would expect 120,000 positions, since the core runs at 120 MHz according to <code>stm32/mk4-bootloader/clocks.h:6</code>. That is what the reconstructed count above assumes, and it is wrong:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a6e22e">HAL_SYSTICK_Config</span>(<span style="color:#a6e22e">HAL_RCC_GetHCLKFreq</span>()<span style="color:#f92672">/</span>(<span style="color:#ae81ff">1000</span><span style="color:#f92672">*</span><span style="color:#ae81ff">8</span>));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">HAL_SYSTICK_CLKSourceConfig</span>(SYSTICK_CLKSOURCE_HCLK_DIV8);
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/COLDCARD_MK4/clocks.c#L72">stm32/COLDCARD_MK4/clocks.c:72</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>The counter is wired to <code>HCLK/8</code>, so 15 MHz, with a period of 15,000 cycles, which CMSIS writes into the register as <code>LOAD = 14,999</code>. On these models, <code>SysTick-&gt;VAL</code> therefore takes only 15,000 values, from 0 to 14,999, in steps of 66.7 nanoseconds: 13.9 bits, not 16.9. The Q1&rsquo;s <code>clocks.c</code> is a symbolic link to the Mk4&rsquo;s, so the Q inherits the same divider. The paradox is that the fastest chip is the one that measures time least finely.</p>
+<p>The bootloader does arm this counter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>SysTick<span style="color:#f92672">-&gt;</span>VAL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>SysTick<span style="color:#f92672">-&gt;</span>CTRL <span style="color:#f92672">=</span> SYSTICK_CLKSOURCE_HCLK <span style="color:#f92672">|</span> SysTick_CTRL_ENABLE_Msk;
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/stm32/bootloader/clocks.c#L55">stm32/bootloader/clocks.c:55</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>But that is not the starting point MicroPython inherits. In <a href="https://github.com/Coldcard/micropython/blob/4107246f/ports/stm32/main.c#L366"><code>ports/stm32/main.c:366</code></a> it calls <code>HAL_InitTick()</code>, which reconfigures the counter and zeroes <code>SysTick-&gt;VAL</code> for its own purposes, then at <code>:369</code> <code>SystemClock_Config()</code>, which rewrites it a second time, with the divide-by-8 on recent models. The board file owns up to this in its comment: &ldquo;<em>redundant/override HAL_InitTick called from stm32_main just before this</em>&rdquo;. All of this happens before a single line of Python runs: the stopwatch&rsquo;s origin is MicroPython&rsquo;s initialisation, not the bootloader&rsquo;s.</p>
+<p>When does that capture happen? The answer depends on the state of the device. The seeding of <code>pyb_rng_yasmarang</code> is lazy: it happens on the first call to <code>rng_get()</code>, wherever that call lands.</p>
+<p>On a device already in use, that first call comes from the keypad. In <code>shared/mempad.py</code>, every keypad interrupt, declared at <code>:61-65</code>, calls <code>_start_scan()</code>, which shuffles the key scan order at <code>:84</code>, with a comment justifying it at <code>:35</code>: &ldquo;<em>We scan in random order, because Tempest</em>&rdquo;. This Fisher-Yates shuffle consumes 3 draws over the membrane keypad&rsquo;s 4 rows, and 5 over the 6 rows of the Q1&rsquo;s keyboard, which gets the same treatment at <code>keyboard.py:100</code>. Nothing else draws before it: <code>rng_seeding()</code> rewrites libngu&rsquo;s state without ever calling <code>rng_get()</code>.</p>
+<p>The route those draws take decides everything. The firmware freezes its own <code>shared/random.py</code> into the image, declared at <code>shared/manifest.py:45</code>, and that file wins the <code>random</code> import and delegates everything to libngu, with <code>randbelow = ngu.random.uniform</code>. Every draw calls <code>_rand_below()</code> in libngu, which pulls exactly one word from <code>CHIP_TRNG_32()</code>, that is from <code>rng_get()</code>, including when the draw is rejected and retried, since only the libngu copy advances again in that case. On a device already in use, the generator is therefore seeded on the very first key press, and the <code>SysTick</code> value captures the instant the user&rsquo;s finger touched the device, modulo one millisecond.</p>
+<p>One case escapes the keypad. When every settings slot reads as erased, <code>settings.load()</code> takes another branch: <code>nvstore.py</code> shuffles the slots and writes 3 sectors of noise. That is 48 calls to <code>ngu.random.bytes(256)</code> at <code>nvstore.py:212-222</code> on <code>v4-legacy</code>, before any interaction. The <code>SysTick</code> then captures a boot instant, far more deterministic than a human finger, and the real space is smaller than the figures given here.</p>
+<p>That state is not the one a buyer meets. <code>load()</code> counts a slot as empty when its first 4 bytes read <code>0xff</code>, so a single written slot shuts the branch. The factory writes one: <code>main.py:81-89</code> runs the selftest while the chip is still in factory mode, readout protection below level 2, and <code>selftest.py:256</code> sets <code>tested</code> to true, which <code>write_out()</code> commits to flash. The boot that fires those 48 draws is the one at Coinkite.</p>
+<p>The Mk4, Mk5 and Q carried the same branch until 14 September 2023, when commit <code>5782dafe</code> removed it as &ldquo;<em>obsolete plausible deniability</em>&rdquo;. Their version wrote 4 slots rather than 3, so 64 calls, under the same all-erased condition. Since that date an erased store takes a free slot and writes nothing, and <code>find_spot()</code> only draws when the store is full. The reseed does not draw either: <code>ngu.random.reseed()</code> writes libngu&rsquo;s state word directly, without going through <code>rng_get()</code>, as section 8 details. So on a recent model the first <code>rng_get()</code> is the keypad shuffle whatever the state of the store.</p>
+<p>That is what the <code>SysTick</code> was worth in this architecture. Its contribution is not zero, but it caps out at 16.3 bits on an Mk3, where it is the only variable source, and at 13.9 bits on recent models, where the RTC and the reseed add to it without being measured. It falls below that on an Mk3 whose settings slots are all erased. One last point: MicroPython&rsquo;s C module carries its own copy of Yasmarang, set to seed itself from <code>rng_get()</code> on import via <code>MICROPY_PY_URANDOM_SEED_INIT_FUNC</code>. It registers under the name <code>urandom</code>, and <code>random</code> reaches it only through the u-prefix weak link, which <code>py/builtinimport.c</code> consults after the file lookup fails. That lookup finds the frozen <code>random.py</code>, so the C module never loads.</p>
+<p>That same mechanism has a second consequence, this time on the attacker&rsquo;s side. The number of bursts before generation varies from user to user, and each one consumes 3 calls to <code>rng_get()</code>. The firmware puts no bound on that count: re-entries, cancellations and fresh attempts can repeat without limit. For the attacker this is not an obstacle but a list to walk through, and covering an arbitrary range of 0 to 1,000 positions costs him about ten extra bits of work. These are not entropy bits; this is an enumerable index with a peaked distribution, which he walks through at negligible marginal cost.</p>
+<hr>
+<h2 id="8---the-32-bit-reseed-on-the-mk4-mk5-and-q">8 - The 32-bit reseed on the Mk4, Mk5 and Q</h2>
+<p>Everything above applies to the 2 generators taken at their initial state. On the Mk4, Mk5 and Q, a mechanism added a year after the regression changes that picture. On 11 March 2022, commit <code>01cb43f7</code> adds a function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">rng_seeding</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># seed our RNG with entropy from secure elements</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> callgate<span style="color:#f92672">,</span> ngu<span style="color:#f92672">,</span> ustruct
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    a <span style="color:#f92672">=</span> callgate<span style="color:#f92672">.</span>read_rng(<span style="color:#ae81ff">1</span>)        <span style="color:#75715e"># SE1</span>
+</span></span><span style="display:flex;"><span>    b <span style="color:#f92672">=</span> callgate<span style="color:#f92672">.</span>read_rng(<span style="color:#ae81ff">2</span>)        <span style="color:#75715e"># SE2</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    n <span style="color:#f92672">=</span> ngu<span style="color:#f92672">.</span>hash<span style="color:#f92672">.</span>sha256d(a<span style="color:#f92672">+</span>b)
+</span></span><span style="display:flex;"><span>    n, <span style="color:#f92672">=</span> ustruct<span style="color:#f92672">.</span>unpack(<span style="color:#e6db74">&#39;I&#39;</span>, n[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">4</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ngu<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>reseed(n)
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/bcc2c382/shared/mk4.py#L39-L49">shared/mk4.py:39-49</a> - Coldcard/firmware @ bcc2c382</em></p>
+<p>The device queries its 2 secure elements at boot, a Microchip ATECC608 and a Maxim DS28C36B, hashes their outputs, and injects the result back in. For SE1 this really is hardware randomness, and it sets these models apart from the Mk3. For SE2, we will see below that the code does not issue the part&rsquo;s random command, so the value read cannot be quantified.</p>
+<p>4 caveats apply here.</p>
+<p>First, <code>ustruct.unpack('I', n[0:4])</code> keeps only 4 bytes: the function receives 40 bytes, computes a 32-byte digest, and throws 28 away. The injection is therefore capped at 32 bits. Capped, not equal to, because the code produces a 32-bit value without guaranteeing it carries 32 bits of entropy.</p>
+<p>Second, on the C side, the reseed overwrites only one state variable out of 4:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>STATIC <span style="color:#66d9ef">mp_obj_t</span> <span style="color:#a6e22e">random_reseed</span>(<span style="color:#66d9ef">mp_obj_t</span> arg)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    yasmarang_pad <span style="color:#f92672">=</span> <span style="color:#a6e22e">mp_obj_get_int_truncated</span>(arg);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> mp_const_none;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/switck/libngu/blob/537519a8/ngu/random.c#L162-L167">ngu/random.c:162-167</a> - switck/libngu @ 537519a8</em></p>
+<p><code>n = 69</code>, <code>d = 233</code> and <code>dat = 0</code> keep their hard-coded values. And above all, MicroPython&rsquo;s generator, the one seeded by the identifier, is never reseeded at all. That is why the unique identifier still matters even on recent models.</p>
+<p>Third caveat, this call runs inside a <code>try</code> block with a bare except clause, in <a href="https://github.com/Coldcard/firmware/blob/bcc2c382/shared/main.py#L53-L64"><code>shared/main.py:53-64</code></a>. There is a path on which the reseed fails silently, leaving the generator on its public constants. But <code>rng_seeding()</code> is the last statement in <code>init0()</code>, and it is the call to <code>mk4.init0()</code> that this <code>try</code> covers, swallowing every exception crossing <code>init0()</code> without being caught locally. Inside that function, mounting the PSRAM does have its own <code>try</code>, which isolates its failure. Creating the flash filesystem runs inside the error handler of <code>os.statvfs()</code> with no protection of its own. A failure there travels up to the bare <code>except</code> and skips the reseed without anything appearing on screen.</p>
+<p>A genuine secure-element failure, on the other hand, does not take that path. In the bootloader, <code>se2_read_rng()</code> opens on <code>if(setjmp(error_env)) fatal_mitm();</code>, and on the SE1 side, <code>ae_secure_random()</code> calls <code>fatal_mitm()</code> as soon as the authentication digest fails to match. That function is declared <code>noreturn</code>: it shows the alert screen, wipes SRAM on production builds, and locks the device. No exception travels up to Python, so the silent failure is real but conditional.</p>
+<p>Fourth caveat, the SE2 path does not call the part&rsquo;s random command. The DS28C36B does have one, opcode <code>0xD2</code>, and Coinkite knows it: its own driver, since filed away in <code>misc/obsolete-code/ds28c36b.py</code>, implements it and marks it &ldquo;<em>do not use for any purpose</em>&rdquo;. The reason is that its output travels in the clear over the I2C bus, where an interceptor can substitute it in flight. Instead, <code>se2_read_rng()</code> performs an authenticated read of page 28, the &ldquo;ROM options&rdquo; page, and returns bytes 4 to 11 of it. This detour is still fed by the chip, since Maxim application note AN6435 states that the contents of pages 28 and 29 &ldquo;<em>can change on each read with the inclusion of a random page seed</em>&rdquo;, which is precisely what the code comment calls the &ldquo;RPS&rdquo; bytes.</p>
+<p>Be careful what you conclude from that, though. The code proves that a variable, authenticated value is read at every boot, but not how many bits of entropy it carries, since it does not come from the part&rsquo;s random command but from a side field of an options page. Since the full DS28C36 datasheet is not public, nobody outside Maxim and Coinkite can settle it.</p>
+<p>The upshot: both secure elements are indeed queried, but only once, at boot, and everything they contribute ends up crushed into 32 bits. The microcontroller&rsquo;s generator, meanwhile, was supposed to be queried for every word produced, for the whole life of the device. That is the one that was never reached.</p>
+<p><img src="018.webp" alt="Two secure elements feed 40 bytes into rng_seeding(), which hashes them and keeps only 4 bytes: the reseed is capped at 32 bits, writes one state variable of four, and never reaches the MicroPython generator"></p>
+<hr>
+<h2 id="9---what-is-broken-and-what-is-not">9 - What is broken and what is not</h2>
+<p>We have measured what this randomness was worth. That leaves where it flowed. There are 2 distinct routes to randomness in the firmware: the one through <code>ngu.random.*</code> was broken, and the one through <code>ckcc.rng_bytes()</code>, which reaches the hardware register directly, always worked correctly.</p>
+<table>
+	<thead>
+			<tr>
+					<th>Function</th>
+					<th>Route</th>
+					<th>State</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Wallet seed, ephemeral seeds</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Paper wallets</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken, the private key is the generator&rsquo;s raw output</td>
+			</tr>
+			<tr>
+					<td>Cloning to another device</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Encrypted USB session key</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Co-signer key C</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Password generator</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Key Teleport, Web2FA</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>HSM local approval codes</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Seed XOR in random mode</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>secp256k1 side-channel masking</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>Keypad scan order</td>
+					<td><code>ngu.random</code></td>
+					<td>Broken</td>
+			</tr>
+			<tr>
+					<td>ECDSA signing nonces</td>
+					<td>RFC 6979</td>
+					<td>Sound</td>
+			</tr>
+			<tr>
+					<td>Encrypted backup files</td>
+					<td><code>ckcc.rng_bytes</code></td>
+					<td>Sound</td>
+			</tr>
+			<tr>
+					<td>HSM user TOTP secrets</td>
+					<td><code>ckcc.rng_bytes</code></td>
+					<td>Sound</td>
+			</tr>
+			<tr>
+					<td>BIP-85 derivation</td>
+					<td>derived from the seed</td>
+					<td>Sound, but inherits the seed&rsquo;s quality entirely</td>
+			</tr>
+	</tbody>
+</table>
+<p><img src="019.webp" alt="The Coldcard firmware randomness need forks into three paths: a broken software PRNG feeding eleven features, a sound hardware register feeding two features, and a deterministic path that draws nothing"></p>
+<p>3 points deserve a closer look.</p>
+<p>The most important one is signing nonces, because if the ECDSA nonces had come from the broken generator, the private key would have leaked on every signature, even for a perfectly sound seed. The answer is reassuring: <code>libngu/ngu/k1.c:336</code> calls <code>secp256k1_ecdsa_sign_recoverable</code> with <code>secp256k1_nonce_function_default</code>, that is the deterministic generation of RFC 6979, and the extra parameter is only a grinding counter used to obtain short signatures, itself deterministic. In practice, a seed imported from another device or built with dice leaked nothing through its signatures, even after thousands of them on vulnerable firmware.</p>
+<p>Encrypted backup files are sound: their 12 protection words come from <code>ckcc.rng_bytes</code>, as do the salt and the initialisation vector. Cloning to another device is broken, even though it lives in the same file and produces the same archive format. For a backup, the encryption key is the 12-word password drawn from hardware. For a clone, the 2 devices exchange an ephemeral key over the SD card, and that key comes out of <code>ngu.secp256k1.keypair()</code>, so out of the broken generator. The same call feeds the ephemeral pair of the encrypted USB session, at <code>usb.py:715</code>, and <code>ngu.random.bytes(15)</code> supplies the HMAC key for HSM local approval codes, at <code>hsm.py:857</code>. Be careful, though: saying the backup is sound does not mean its contents are. If the seed it holds was built on a vulnerable device, it stays vulnerable once restored.</p>
+<p>The third point we flagged in a single sentence in our first analysis, without locating it in the code. The masking libngu uses as a side-channel countermeasure, <code>ctx_randomize()</code> at <code>k1.c:72-79</code>, called once before every signing session from <code>psbt.py:2175</code>, was fed by the broken generator too. This masking is a layer added on top of libsecp256k1, it does not replace it: the library keeps its constant-time implementations, which are its main defence. The mask still varies from one session to the next, and it comes out of the same enumerable space as everything else on this path, so it falls with that space. The keypad scan order is in the same position.</p>
+<hr>
+<h2 id="10---what-about-dice-rolls">10 - What about dice rolls?</h2>
+<p>One exception remains, and it saved a lot of users: dice rolls. I verified it on Coinkite&rsquo;s desktop simulator, which runs the firmware&rsquo;s own Python code on a PC. Instrumenting the fixed build function by function, I recorded every call and every write to the accumulator.</p>
+<p>On this path, the SHA-256 accumulator starts on an empty string, at <code>seed.py:476</code>, and takes only the rolls. The keypad draws from the generator on every burst, as section 7 describes, and those bytes go to the scan order. The seed is exactly <code>BIP39(sha256(string of rolls))</code>. On a trace of 100 rolls, the opening digest is <code>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>, the canonical hash of the empty string, so the accumulator holds nothing before the first roll.</p>
+<p>2 caveats though, for anyone using the mixed mode. The distribution check that rejects a set of rolls where one face exceeds 30% sits at <code>seed.py:452</code>, but it is only active if the <code>judge_them</code> parameter is true. And the mixed mode reachable with key 4 from the words screen calls <code>add_dice_rolls(0, seed, False)</code>, which disables both that check and the minimum roll count. Coinkite&rsquo;s advisory sets the thresholds out plainly, incidentally: from 50 to 98 private, fair and independent rolls, the seed holds at least 128 bits; from 99 onwards it holds about 256; and below 50, or if the count is unknown, you have to migrate.</p>
+<hr>
+<h2 id="11---5-safeguards-5-failures">11 - 5 safeguards, 5 failures</h2>
+<p>What stands out on rereading this code is not the absence of protections. It is that there were 5 of them, and that none of them worked.</p>
+<p>libngu&rsquo;s build-time guard tested whether the macro was defined instead of what it was set to, and could not fire on this platform.</p>
+<p>The <code>if (chip == last)</code> test in <code>my_random_bytes</code> was meant to catch an unclocked generator, but it compares 2 consecutive output words and nothing more. It does not test the period of the transition function, since 2 different internal states can produce the same output word, Yasmarang&rsquo;s output function compressing 72 bits of state into 32. What it catches is a peripheral always returning the same value, and a first draw of zero, since <code>last</code> is initialised to zero. A software generator advancing normally passes it trivially.</p>
+<p>The <code>assert len(set(seed)) &gt; 4</code> assertion measures how many distinct values appear in 32 bytes. For uniform bytes you expect around thirty distinct ones, and dropping to 4 or fewer has a probability on the order of 2^-165. This assertion never measures predictability, only variety.</p>
+<p>MicroPython&rsquo;s <code>#if MICROPY_HW_ENABLE_RNG</code> block did exactly what it said, but it guarded the hardware implementation, not the software one.</p>
+<p>Finally a statistical test existed. <code>testing/test_rng.py</code> was added on 16 March 2021, 15 days after the regression went in, and it runs Dieharder on <code>ngu.random.bytes()</code>. Without <code>--dev</code> it draws from the simulator, where <code>CHIP_TRNG_32()</code> is wired to the host&rsquo;s libc, so the bytes under test never come from MicroPython&rsquo;s copy.</p>
+<p><img src="020.webp" alt="Five stacked sieves with an increasingly fine mesh, and one blade falling straight through all five without touching a wire"></p>
+<hr>
+<h2 id="12---what-the-fix-actually-changes">12 - What the fix actually changes</h2>
+<p>The fix of 31 July 2026 is worth examining, because it is not where you would expect it. Neither libngu nor MicroPython is modified, and the submodule pointers are identical before and after. <code>MICROPY_HW_ENABLE_RNG</code> stays at 0, and the faulty <code>#ifndef</code> guard stays in place.</p>
+<p>The workaround happens entirely at build time. In commit <code>ca724637</code>, the board exports its own global symbol:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">uint32_t</span> <span style="color:#a6e22e">rng_get</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">rng_get_or_fault</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><em><a href="https://github.com/Coldcard/firmware/blob/ca724637/stm32/COLDCARD/rng.c#L82">stm32/COLDCARD/rng.c:82</a> - Coldcard/firmware @ ca724637</em></p>
+<p>MicroPython&rsquo;s object file is neutralised by compiling it from <code>/dev/null</code>, and a verification target runs <code>arm-none-eabi-nm</code> over the resulting objects to fail the build if the upstream symbol reappears.</p>
+<p>That is a build-time guarantee, not a runtime one. <code>stm32/COLDCARD/rng.c</code> enforces a 10 millisecond ceiling on the arrival of a word from the hardware generator, and raises an error beyond it. In the same file, <code>random_buffer()</code> refuses 2 identical consecutive words, as does <code>my_random_bytes()</code> in libngu. These detect hard failure, a peripheral gone silent or stuck on one value. None of them tests where the bytes come from, which is what failed here.</p>
+<p>Runtime checks came later, in 2 commits. On 1 August, commit <code>82ced47a</code> reads <code>RNG_SR_SEIS</code> and <code>RNG_SR_SECS</code>, rejects a zero word, retries at most 3 times and raises <code>MP_EFAULT</code> once all 3 fail. On 4 August, <code>43b21392</code> discards 12 words after clearing <code>SEIS</code>, per RM0432 section 32.3.7. Both sit inside <code>rng_get_or_fault()</code>, the function the linker was bypassing, so they harden the hardware path without testing whether that path is the one taken. <code>43b21392</code> touches those 2 files only. <code>82ced47a</code> touches 5, adding the changelog plus <code>shared/keyboard.py</code> and <code>shared/mempad.py</code>. There, <code>shuffle(self.scan_order)</code> moves inside a <code>try</code>/<code>except OSError</code>, so an RNG fault can no longer leave the keypad dead before login. <code>stm32/COLDCARD/rng.c</code> has not changed since the fix, so the Mk3 still runs without any of it.</p>
+<p><img src="021.webp" alt="Symbol resolution of rng_get at link time, before and after the 31 Jul 2026 build-time fix"></p>
+<hr>
+<h2 id="13---what-a-sweep-would-cost">13 - What a sweep would cost</h2>
+<p>Testing one candidate runs a chain: PBKDF2-HMAC-SHA512 and its 2,048 iterations to stretch the mnemonic into a seed, the BIP32 derivations, an elliptic curve multiplication per address, then a lookup in the set of funded addresses. PBKDF2 dominates that chain. The curve multiplication is worth a few percent of the cost of one candidate, and the lookup runs in constant time with a Bloom filter.</p>
+<p>Taking about 1.5 million candidates per second on an RTX 4090, an order of magnitude taken from the literature, and 0.30 dollars per hour of rented GPU:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Space</th>
+					<th>A single RTX 4090</th>
+					<th>Rental cost</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>2^22, an Mk3 whose draw rank is known</td>
+					<td>3 seconds</td>
+					<td>negligible</td>
+			</tr>
+			<tr>
+					<td>2^28</td>
+					<td>3 minutes</td>
+					<td>0.01 dollars</td>
+			</tr>
+			<tr>
+					<td>2^32.05, the same Mk3, rank assumed between 0 and 1,000</td>
+					<td>50 minutes</td>
+					<td>0.25 dollars</td>
+			</tr>
+			<tr>
+					<td>2^40</td>
+					<td>8.5 days</td>
+					<td>61 dollars</td>
+			</tr>
+			<tr>
+					<td>2^46, an Mk4 whose full identifier is known</td>
+					<td>1.5 years</td>
+					<td>3,900 dollars</td>
+			</tr>
+			<tr>
+					<td>2^52, the modelled slice of an Mk4</td>
+					<td>95 years</td>
+					<td>250,000 dollars</td>
+			</tr>
+			<tr>
+					<td>2^60</td>
+					<td>24,400 years</td>
+					<td>64 million dollars</td>
+			</tr>
+	</tbody>
+</table>
+<p>2 rows need explaining. The Mk3 one at 2^32 adds the 1,001 draw ranks of a chosen range from 0 to 1,000 on top of the 4,456,448 starting states, since there is no way of knowing how many keys the owner pressed before creating the seed. That makes 2^32.05 candidates in total, and 50 minutes instead of 3 seconds. This is not an exhaustive sweep, since the firmware puts no cap on that count. The Mk4 one at 2^46 assumes the identifier is known exactly, which the serial number does not give, as we saw in 5.3: with the serial number alone, you come down to 2^51.2 at the median, barely below the 2^52 row.</p>
+<p>These times are extrapolations under the assumption of 1.5 million complete candidates per second, BIP32 derivations and address lookup included, which I have not measured end to end. They also assume the passphrase is known, in practice the empty one: a strong, unknown passphrase adds its own search space on top of this whole table. And on recent models, the 2^52 row prices the modelled slice, RTC and draw rank excluded, not a complete attack.</p>
+<p>What these times show is a difference in kind and not merely in degree between the Mk2/Mk3 and the Mk4, Mk5 and Q: 3 seconds of compute on one side, about 74 years on the other. The gap between the 2 modelled slices is worth 29.5 bits, and it comes entirely from the secure-element reseed: its 32 bits, minus the 2.5 bits <code>pad</code> loses along the way on these models. It is the only mechanism in this chain that genuinely worked.</p>
+<p><img src="022.webp" alt="A logarithmic time axis carrying seven search spaces, from 2^22 exhausted in 3 seconds to 2^60 exhausted in 24,400 years, with the 29.5 bits of net gap between the two modelled slices measured across the span between a Mk3 and a Mk4"></p>
+<p>This table also explains why BIP39 stretching does not save the day. Its 2,048 iterations do their job, and they are where the times in the table above go, but a multiplicative cost per candidate does not make up for the loss of several dozen bits of entropy. The attack does not walk through 2^128 mnemonics, it walks through the generator&rsquo;s state space, and at that scale PBKDF2 only turns seconds into minutes.</p>
+<hr>
+<h2 id="14---the-limits-of-this-analysis">14 - The limits of this analysis</h2>
+<p>For the sake of honesty, here is what cannot be verified or remains approximate.</p>
+<p>The entropy estimate for the identifier is a derivation, not a measurement. The 3 sets of real coordinates I have are from a forum post and a GitHub issue, and the 3 mm edge margin is a convention of mine. The reliability report that gives the wafer diameter and the scribe line covers the STM32L4 family without naming the Coldcards&rsquo; L496 and L4S5. The sign-magnitude format is documented for the STM32C0, not for the L4, and the sample I decode is an L476 rather than one of the Coldcards&rsquo; 2 parts. ST itself admits the coding can vary from one factory to another. That rules out treating the number of positions on a wafer as the number of possible values across all production. The robustness sweep limits how far these weaknesses reach, since the result stays between 10.8 and 12.6 bits across the whole plausible range, but nobody has yet read the coordinates off a batch of real Coldcards to settle it.</p>
+<p>The RTC registers&rsquo; contribution on the Mk4, Mk5 and Q is not measured: the reasoning establishes that they are not worth the 24.4 bits advertised, but not what they are actually worth. The computation also assumes <code>SysTick-&gt;VAL</code> is uniformly distributed at seeding time, which is already doubtful for a human finger. On the Mk2 and Mk3, where the RTC is worth zero, the space figures given here are therefore upper bounds. On recent models they are not: the 2^52 leaves out the RTC and the draw rank, which enlarge it, and it credits the reseed with its full 32 bits, which are only a ceiling. It is a conditional slice, neither an upper nor a lower bound.</p>
+<p>The size of the Mk3 fleet is unknown. The 30,000 units carried from 6.2 onwards is a working assumption and not a measurement. Coinkite has never published its volumes and it ships no GitHub release whose download counts could stand in for them. Taken one by one the 3 routes behind that figure are all weak, and together the tightest bracket they give is thousands to tens of thousands. Anything computed from the fleet moves with its square, since collisions are counted over pairs, and a fleet of N gives about N^2/2 of them. Divide the fleet by 3 and the 120 pairs sharing a starting state fall by a factor of 9. Triple it and they climb by the same factor. The 68-device threshold is the one figure that does not move, because it never depended on the fleet at all.</p>
+<p>The position counts on the wafer and the enumerations of the <code>pad</code> space are reproducible from the dimensions and ranges cited. The dice path trace, on the other hand, was taken on the simulator, and the throughput of 1.5 million candidates per second on an RTX 4090 is an order of magnitude taken from the literature, not a measurement made end to end.</p>
+<hr>
+<h2 id="15---what-this-incident-says-about-engineering-generators">15 - What this incident says about engineering generators</h2>
+<p>I want to close on what strikes me as transferable, beyond this one manufacturer.</p>
+<p>The first lesson is about the nature of testing. A statistical battery applied to a single output stream could not detect this failure, because a pseudo-random generator is designed precisely to pass it: these tests measure how the output looks, never how unpredictable it is. The checks present in the code could do no better, because they look for a peripheral that has gone silent or is stuck, not for a peripheral that is never queried. Comparing 2 devices, or one device across reboots, would not have caught it either. The broken generator takes its seed from the identifier and the <code>SysTick</code>, so its stream already differs from one unit and one boot to the next, exactly as a working generator&rsquo;s would. What discriminates is the path, not the output: which <code>rng_get</code> the seed code binds to in the link map, whether <code>RNG_DR</code> is ever read, whether a seed still comes out with the hardware generator switched off. The firmware tested none of that.</p>
+<p>The second lesson is about what a code review actually verifies. Coinkite puts it with an honesty that deserves credit:</p>
+<blockquote class="a-caption">
+  <p class="a-caption-text">
+  Existing review confirmed that the intended TRNG implementation was present in the firmware binary, but did not verify which rng_get() implementation the wallet seed-generation path actually reached across the two submodules.
+  </p>
+  
+  <div class="a-caption-author">
+    <cite title="-- Coinkite">
+      
+      <a href="https://blog.coinkite.com/entropy-technical-backgrounder/" target="_blank" rel="noopener noreferrer">
+        
+        Coinkite
+        
+      </a>
+      
+    </cite>
+  </div>
+  
+</blockquote>
+
+<p>Verifying that a symbol is present in the binary is not verifying that it is reached. The whole flaw sits in that gap, and it runs across a submodule boundary, which is precisely where reviewers stop looking.</p>
+<p>The third lesson concerns specifications. The intent was public and written down: <code>shared/seed.py:603</code> opens <code>generate_seed()</code> on &ldquo;<em>Generate 32 bytes of best-quality high entropy TRNG bytes</em>&rdquo;. The Python line under that comment is faithful to it. The contradiction appears a layer down, in the symbol the linker binds, and no public document from the time says which symbol that call has to reach across which submodule boundary. That missing piece is what the <code>nm</code> check added in July now enforces.</p>
+<p>The fourth lesson, finally, is the one we keep repeating and that this incident illustrates: a single entropy source is a single point of failure. The architectures that held up are the ones that funnel several independent sources into one digest, so that a failing source cannot bring the result down. This is the principle of dissimilar redundancy, and it applies inside a device just as much as it does across the devices of a multi-vendor multisig setup.</p>
+<hr>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>The code, which is the primary source for everything above: <a href="https://github.com/Coldcard/firmware">Coldcard/firmware</a> (commit <code>bcc2c382</code> for the pre-fix state, <code>ca724637</code> for the fix itself, <code>82ced47a</code> and <code>43b21392</code> for what followed, branch <code>v4-legacy</code> for the Mk2 and Mk3), <a href="https://github.com/switck/libngu">switck/libngu</a> at commit <code>537519a8</code> pinned by the firmware, and <a href="https://github.com/Coldcard/micropython">Coldcard/micropython</a> at commit <code>4107246f</code></li>
+<li>Coinkite, <a href="https://blog.coinkite.com/entropy-technical-backgrounder/">Technical Deep Dive into the Entropy Issue</a> and <a href="https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/">Coldcard Security Advisory</a></li>
+<li>Block Bitcoin Engineering and Security, <a href="https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware">Predictable RNG Fallback and 32-Bit Reseed in COLDCARD Firmware</a></li>
+<li>Dusty Daemon, <a href="https://insider.btcpp.dev/p/when-randombytes-runs-but-doesnt">When random.bytes() runs but doesn&rsquo;t work</a></li>
+<li>Fabio Akita, <a href="https://akitaonrails.com/en/2026/08/01/exploiting-coinkites-rng-egregious-problem/">Exploiting Coinkite&rsquo;s RNG Egregious Problem</a></li>
+<li>Charles Guillemet, <a href="https://www.ledger.com/blog-coldcard-incident">The Coldcard Incident</a></li>
+<li>Bitcoin Optech, <a href="https://bitcoinops.org/en/newsletters/2026/07/31/">Newsletter #416</a></li>
+<li>Coinkite, manufacturing bills of materials published in the <a href="https://github.com/Coldcard/firmware/tree/master/hardware"><code>hardware/</code></a> folder of the firmware repository, for the microcontroller part numbers fitted on each model</li>
+<li>STMicroelectronics, datasheet <a href="https://www.st.com/resource/en/datasheet/stm32l496ag.pdf">STM32L496xx, DS11585</a>, WLCSP100 and WLCSP115 sections, for the Mk3&rsquo;s die size</li>
+<li>STMicroelectronics, datasheet <a href="https://www.st.com/resource/en/datasheet/stm32l4s5vi.pdf">STM32L4S5xx, DS12024</a>, WLCSP144 section, for the Mk4, Mk5 and Q&rsquo;s</li>
+<li>STMicroelectronics, RM0351 section 49.1 (unique device ID register) and section 6.4.19 (<code>RCC_APB1ENR1</code> reset values by part number), RM0432 sections 58.1 and 6.4.19 for the L4+ equivalents, and RM0091 section 33.1 for the STM32F0 wording on the same register</li>
+<li>STMicroelectronics forum, <a href="https://community.st.com/t5/stm32-mcus-products/parsing-uid-fields-on-stm32l476-wafer-x-y-coordinates-and-bcd/td-p/820338">Parsing UID Fields on STM32L476</a> for the bit split and the real reading, and <a href="https://community.st.com/t5/stm32-mcus-products/stm32c071-unique-id-what-are-the-first-4-bytes-really/td-p/845630">STM32C071 unique ID</a> for the sign-magnitude coding, the announced correction to the manual, and the admission that the coding varies with the diffusion factory</li>
+<li>SEMI E142 and SEMI M20, for the origin convention of dicing maps (corner) and of wafer coordinate systems (centre)</li>
+<li>Ilya Levin, <a href="http://www.literatecode.com/yasmarang">Yasmarang</a>, the algorithm itself</li>
+<li>Zephyr Project, <a href="https://github.com/zephyrproject-rtos/zephyr/issues/37153">issue #37153, &ldquo;<em>USB serial number is not unique for STM32 devices</em>&rdquo;</a>, which publishes the full identifier of 2 STM32L433 chips</li>
+<li>STMicroelectronics, change notifications MICROCONTROLLERS/25/14920 (2 January 2025) and MDG/19/10333, for the STM32L4 diffusion sources (TSMC Fab 14, Crolles 300), and reliability report MDG-MCD-RER1810, attached to the ASE Kaohsiung assembly notifications, for the wafer diameter and the scribe line</li>
+<li>PCB Artists, <a href="https://pcbartists.com/firmware/stm32-firmware/generating-32-bit-stm32-unique-id/">Generating 32-bit STM32 Unique ID</a>, 24 May 2023, for general context on this register</li>
+<li>Analog Devices (Maxim), application note AN6435, <em>How to Authenticate DS28C36 Data</em>, for the randomness field in the DS28C36&rsquo;s options page</li>
+<li>Foundation Devices, Passport volumes announced in late 2022 and firmware download counters on GitHub</li>
+<li>Juan Galt, <a href="https://bitcoinmagazine.com/business/how-coinkite-defines-cypherpunk-bitcoin-security">How Coinkite Defines Cypherpunk Bitcoin Security</a>, Bitcoin Magazine, 16 April 2025, for the size of the company</li>
+<li>Galaxy Research, tallies of the addresses and amounts drained</li>
+<li>NIST, SP 800-90A and SP 800-90B</li>
+<li>Our first analysis: <a href="https://wizardsardine.com/blog/coldcard-rng-vulnerability/">Critical Coldcard flaw: what happened, who is affected, and what to do</a></li>
+</ul>
+
+      </section>
+
+      
+
+      <div class="article-footer">
+        <a class="btn-secondary btn-icon" href="/blog">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 9 13">
+            <path fill="#000"
+              d="M7.115 12.498.71 6.846a.585.585 0 0 1-.21-.471.585.585 0 0 1 .21-.471L7.114.235A.967.967 0 0 1 7.781 0c.266 0 .494.084.684.252.19.169.285.365.285.589 0 .224-.095.42-.285.589L2.876 6.375l5.589 4.945c.177.157.266.35.266.58 0 .23-.095.43-.285.598a.973.973 0 0 1-.665.252.973.973 0 0 1-.666-.252Z" />
+          </svg>Back to blog list</a>
+      </div>
+    </div>
+  </section>
+  <footer>
+  <div class="footer-top-container">
+    <div class="logo-wrapper">
+      <img src="/assets/images/logos/logo_wizardsardine.svg" alt="Wizardsardine Logo">
+      <p id="credits"> © 2026 Wizardsardine LDA <br /> Canada de Belem, Terra-Cha, Portugal</p>
+    </div>
+    <div class="footer-menu">
+      <div class="each-col">
+        <ul>
+          <li><a title="Contact" href="/index.html#contact">Contact</a></li>
+          <li><a title="About" href="/about">About</a></li>
+          <li><a title="Blog" href="/blog">Blog</a></li>
+        </ul>
+      </div>
+      <div class="each-col">
+        <ul>
+          <li><a title="Revault" href="/revault">Revault</a></li>
+          <li><a title="Liana" href="https://lianawallet.com/">Liana</a></li>
+          <li><a title="Press Kit" href="/presskit">Press Kit</a></li>
+        </ul>
+      </div>
+
+      <div class="each-col">
+        <h6>Follow us</h6>
+        <div class="icons-holder">
+          <a title="Github" href="https://github.com/wizardsardine" target="_blank" class="a-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 23">
+              <path fill="#E6E6E6"
+                d="M12 0C5.37 0 0 5.28 0 11.792c0 5.211 3.438 9.63 8.205 11.188.6.111.82-.254.82-.567 0-.28-.01-1.022-.015-2.005-3.338.711-4.042-1.582-4.042-1.582-.546-1.361-1.335-1.725-1.335-1.725-1.087-.731.084-.716.084-.716 1.205.082 1.838 1.215 1.838 1.215 1.07 1.803 2.809 1.282 3.495.981.108-.763.417-1.282.76-1.577-2.665-.295-5.466-1.309-5.466-5.827 0-1.287.465-2.339 1.235-3.164-.135-.298-.54-1.497.105-3.121 0 0 1.005-.316 3.3 1.209.96-.262 1.98-.392 3-.398 1.02.006 2.04.136 3 .398 2.28-1.525 3.285-1.209 3.285-1.209.645 1.624.24 2.823.12 3.121.765.825 1.23 1.877 1.23 3.164 0 4.53-2.805 5.527-5.475 5.817.42.354.81 1.077.81 2.182 0 1.578-.015 2.846-.015 3.229 0 .309.21.678.825.56C20.565 21.417 24 16.995 24 11.792 24 5.28 18.627 0 12 0Z" />
+            </svg>
+          </a>
+          <a title="Twitter" href="https://twitter.com/Wizardsardine" target="_blank" class="a-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30">
+              <path fill="#e6e6e6"
+                d="M15 0C6.717 0 0 6.717 0 15c0 8.283 6.717 15 15 15 8.283 0 15-6.717 15-15 0-8.283-6.717-15-15-15Zm6.849 11.695c.006.148.01.296.01.445 0 4.55-3.463 9.796-9.796 9.796a9.746 9.746 0 0 1-5.278-1.546c.27.032.544.047.822.047 1.613 0 3.097-.55 4.276-1.474a3.447 3.447 0 0 1-3.217-2.39 3.425 3.425 0 0 0 1.555-.06 3.444 3.444 0 0 1-2.762-3.375v-.044c.465.258.995.414 1.56.43a3.44 3.44 0 0 1-1.066-4.596 9.775 9.775 0 0 0 7.097 3.598 3.444 3.444 0 0 1 5.867-3.14 6.906 6.906 0 0 0 2.186-.836 3.456 3.456 0 0 1-1.514 1.905 6.866 6.866 0 0 0 1.977-.543 6.994 6.994 0 0 1-1.717 1.783Z" />
+            </svg>
+          </a>
+          <a title="Linkedin" href="https://www.linkedin.com/company/wizardsardine/" target="_blank" class="a-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+              <defs>
+                <style>
+                  .d {
+                    fill: #e6e6e6;
+                  }
+                </style>
+              </defs>
+              <g id="a" />
+              <g id="b">
+                <g id="c">
+                  <path class="d"
+                    d="M15.05,0C6.76-.03,.03,6.67,0,14.95c-.03,8.28,6.67,15.02,14.95,15.05s15.02-6.67,15.05-14.95S23.33,.03,15.05,0ZM7.51,7.46c.31-.31,.74-.49,1.18-.48,.44,0,.87,.18,1.18,.49,.31,.31,.49,.74,.48,1.18,0,.44-.18,.87-.49,1.18-.31,.31-.74,.49-1.18,.48-.44,0-.87-.18-1.18-.49-.31-.31-.49-.74-.48-1.18s.18-.87,.49-1.18Zm2.85,14.52h-3.33l.03-10.44h3.33l-.03,10.44Zm12.5,.04h-3.29l.02-5.49c.01-3.33-3.97-3.06-3.97-.01l-.02,5.47h-3.28l.03-10.44h3.32l-.04,1.41c1.39-2.52,7.28-2.69,7.26,2.45l-.02,6.61Z" />
+                </g>
+              </g>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom-container">
+    <img class="img-apoios" src="/assets/images/wizardsardine/bar-project-funding.png" alt="Co-financed Project">
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -148,24 +148,24 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Checked 12 August 2026.
+- **MONITOR: official technical follow-up.** Rechecked 12 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
-  detailed scope, no captured source announces a post-incident independent audit
-  of the fixed firmware, and NVD/MITRE remained unreachable or inconclusive from
-  this host so the CVE question could not be re-queried directly. The firmware
-  repository did move: PR #707 was closed unmerged and replaced by PR #713,
-  which remains open as of this recheck, and the libngu changes it referenced
-  (#68 and #56) were merged on 7 and 6 August 2026. No new release tag or
-  shipped firmware has appeared. Those developments are registered and requested
-  for capture; they describe a proposal, not a shipped release, audit or
-  postmortem.
+  detailed scope; the blog index captured 8 August 2026 lists no postmortem.
+  No captured source announces a post-incident independent audit of the fixed
+  firmware, and NVD/MITRE remained unreachable or inconclusive from this host so
+  the CVE question could not be re-queried directly. The firmware repository did
+  move: PR #707 was closed unmerged and replaced by PR #713, which remains open
+  in the capture held 12 August 2026, and the libngu changes it referenced (#68
+  and #56) were merged on 7 and 6 August 2026. No new release tag or shipped
+  firmware has appeared. Those developments are registered and requested for
+  capture; they describe a proposal, not a shipped release, audit or postmortem.
 
-- **MONITOR: filings, regulator statements and compensation decisions.** Checked
-  12 August 2026. Coinkite's 7 August customer-data retention post states that
-  records are being preserved for "ongoing and anticipated legal proceedings,"
-  which is the first public vendor acknowledgement of legal activity, but it is
-  not a filing, regulator statement, insurer decision or compensation offer.
-  The legal page's absence claim still holds for those document types.
+- **MONITOR: filings, regulator statements and compensation decisions.**
+  Rechecked 12 August 2026. No public filing, regulator statement, insurer
+  decision or compensation offer has been captured since the 7 August
+  customer-data retention post, which remains the only public vendor
+  acknowledgement of legal activity. The legal page's absence claim still holds
+  for those document types.
 
 ---
 

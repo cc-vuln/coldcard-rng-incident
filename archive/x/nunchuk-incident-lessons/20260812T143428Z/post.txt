@@ -1,0 +1,24 @@
+url:      https://x.com/nunchuk_io/status/2087197360162226251
+author:   nunchuk_io
+handle:   @nunchuk_io
+posted:   2026-08-11T15:20:03.000Z (from the page's <time> element)
+captured: 20260812T143428Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Some lessons we learned from the Coldcard incident that might be useful to other Bitcoin services:
+
+1/ The importance of not reusing addresses
+Reusing addresses has always been discouraged for privacy, but this incident showed it’s also a first line of defense during a security breach, particularly for multisig. As long as even one key in your quorum remains uncracked, an attacker can’t locate your unspent addresses from on-chain data alone, because that key’s public keys never appear on-chain until you spend.
+
+2/ Multisig wallets need an end-to-end key replacement/rotation flow
+When users have to migrate under pressure, the dangerous parts are manual: hand-entering destination addresses, deciding which keys to keep, preserving coin segregation, choosing how to broadcast. A good rotation flow handles all of this for them, so a stressful, error-prone process becomes something an ordinary user can complete safely without losing privacy or making a costly mistake. This turned out to matter enormously during the incident.
+
+3/ Reliable communication in a crisis
+The sooner users learn of a security issue, the more time they have to act before it becomes a loss. Bitcoin services should have a built-in, redundant alert system ready before an emergency. The hard part is doing it without sacrificing privacy: you need a way to reach users reliably without collecting the kind of personal data that becomes a liability of its own.
+
+This matters especially for a long-term savings solution like ours. Many users keep their cold storage genuinely cold, logging in only occasionally, and a lot of them aren’t on social media or following Bitcoin news day to day. For them, a reliable alert reaching them directly can be the difference between acting in time and never hearing about the problem at all.
