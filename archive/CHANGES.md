@@ -2177,3 +2177,10 @@
 ## 20260812T060559Z
 
 - bitkey-relationship-enrollment-report  +0 -1
+
+## 20260812T105349Z
+
+- reddit-64-btc-mixing-discussion  +2 -4
+- reddit-dice-bias-1200-rolls  +1 -21
+- coindesk-70m-no-device-touch  +27 -27
+- bleepingcomputer-88m-report  +4 -4
