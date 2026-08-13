@@ -277,7 +277,6 @@ def registered_x_posts() -> list[dict]:
     before anything is written, to decide where a capture goes, and a registry
     that is mid-edit should not stop a capture from being taken.
     """
-    registered_now = False
     try:
         cfg = tomllib.loads(SOURCES.read_text())
     except Exception:
@@ -465,6 +464,10 @@ def main() -> None:
                     help="polling cadence 1-3 for --thread; required when the "
                          "post is being registered now")
     a = ap.parse_args()
+
+    # Read after the archive write to decide on a registry projection
+    # refresh; only the register branch sets it True.
+    registered_now = False
 
     handle, tweet_id = parse_tweet(a.url)
     # An explicit --id wins, then the id this status is already registered

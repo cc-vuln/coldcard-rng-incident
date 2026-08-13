@@ -14108,6 +14108,136 @@ organisational statement of incident lessons from a wallet-service provider.
 The recommendations are Nunchuk's own.
 """
 
+# ---- 13 Aug 2026 X intake ----
+
+[[x_post]]
+id = "slowmist-2087438490518892592"
+title = "SlowMist reproduction of the COLDCARD private-key vulnerability"
+url = "https://x.com/slowmist_team/status/2087438490518892592"
+author = "SlowMist_Team"
+posted = "2026-08-12T07:18:13Z"
+why = """
+SlowMist Security Team reports reproducing the COLDCARD attack chain using Mk3
+firmware 4.1.9 and estimates at least 1,719 BTC (~$111M) lost across more than
+5,200 addresses. The post traces the attack to a build configuration that
+disabled the STM32 hardware TRNG, leaving a predictable Yasmarang software PRNG
+with effective entropy of roughly 40 bits on Mk2/Mk3 and 72 bits on Mk4/Mk5/Q.
+The figures and reproduction are SlowMist's own and are not independently
+verified here.
+"""
+
+[[x_post]]
+id = "theretailbull-2087222946297266552"
+title = "UK fraud report filing by a Coldcard hack victim"
+url = "https://x.com/theretailbull/status/2087222946297266552"
+author = "theretailbull"
+posted = "2026-08-11T17:01:43Z"
+why = """
+Tim Lamb reports filing a report of his Coldcard hack losses with the UK Report
+Fraud service and encourages other affected owners to do the same. He says
+@intangiblecoins can supply accurate tracing data to support such filings. Held
+as a first-hand victim account of a law-enforcement reporting step; the loss
+details are Lamb's own and are not verified here.
+"""
+
+[[x_post]]
+id = "natbrunell-2087180531687436447"
+title = "Natalie Brunell interview with Alex Thorn on the Coldcard hack"
+url = "https://x.com/natbrunell/status/2087180531687436447"
+author = "natbrunell"
+posted = "2026-08-11T14:13:11Z"
+why = """
+Natalie Brunell publishes a long-form interview with Galaxy Research's Alex
+Thorn and @intangiblecoins covering the Coldcard attacker waves, current coin
+movements, the Red Team, BIP 110 and advice for victims. Held as media coverage
+that collates several incident threads in one place; the interview's claims are
+the speakers' own and are not verified here.
+"""
+
+[[x_post]]
+id = "kloaec-2082919510248509512"
+title = "Kevin Loaec's early incident guidance"
+url = "https://x.com/KLoaec/status/2082919510248509512"
+author = "KLoaec"
+posted = "2026-07-30T20:01:24Z"
+why = """
+Kevin Loaec warns that only single-sig wallets are known to be affected so far,
+that a passphrase or dice rolls may not protect against an unknown private-key
+exfiltration path, and urges moving to multisig or Miniscript. Dated early
+guidance from a hardware-wallet security practitioner; the uncertainty Loaec
+notes was correct at the time and the claims are his own.
+"""
+
+[[x_post]]
+id = "tftc21-2082933533329543188"
+title = "TFTC early report of Coldcard wallet drains"
+url = "https://x.com/TFTC21/status/2082933533329543188"
+author = "TFTC21"
+posted = "2026-07-30T20:57:08Z"
+why = """
+TFTC reports that multiple known Bitcoiners have confirmed losses and relays
+Kevin Loaec's working hypothesis of a low-entropy RNG issue possibly in the
+secure element, while noting the root cause is still unconfirmed. The post also
+tells single-sig owners to check balances and contact Coinkite with proof of key
+control. Held as an early amplification of the drain reports and hypotheses; the
+claims are TFTC's and Loaec's own.
+"""
+
+[[x_post]]
+id = "cobrabitcoin-2082931597804781898"
+title = "CobraBitcoin speculates on AI involvement in the Coldcard drains"
+url = "https://x.com/CobraBitcoin/status/2082931597804781898"
+author = "CobraBitcoin"
+posted = "2026-07-30T20:49:26Z"
+why = """
+CobraBitcoin says he has a bad feeling that AI was involved in the Coldcard
+drains, noting the release of Kimi K3's weights and the puzzling partial draining
+of some compromised addresses. Held as a reported early speculation from a
+long-time Bitcoin figure; the AI-involvement claim is unverified.
+"""
+
+[[x_post]]
+id = "max_guise-2083007180874379515"
+title = "Block begins investigating non-Bitkey wallet drains"
+url = "https://x.com/max_guise/status/2083007180874379515"
+author = "max_guise"
+posted = "2026-07-31T01:49:46Z"
+why = """
+Max Guise, head of Bitcoin engineering and security at Block, says Block began
+investigating reports of non-Bitkey wallets being drained and is sharing
+findings proactively. This is the first post in Block's disclosure thread. Held
+as a vendor incident-response statement; the investigation's scope and
+conclusions are Block's own.
+"""
+
+[[x_post]]
+id = "altcoindaily-2083057128244437443"
+title = "Altcoin Daily urgent Coldcard drain warning"
+url = "https://x.com/AltcoinDaily/status/2083057128244437443"
+author = "AltcoinDaily"
+posted = "2026-07-31T05:08:15Z"
+why = """
+Altcoin Daily warns that roughly 594 BTC (~$38M) has been stolen from dormant
+single-sig Coldcard Mk3 wallets generated between 2021 and 2023, identifies the
+cause as a 2021 firmware entropy bug, and excludes Ledger and Trezor. Held as a
+reported early media warning with a specific risk profile; the figures and
+attribution are not verified here.
+"""
+
+[[x_post]]
+id = "kloaec-2083180809750495710"
+title = "Kevin Loaec reports new attacker sweeps"
+url = "https://x.com/KLoaec/status/2083180809750495710"
+author = "KLoaec"
+posted = "2026-07-31T13:19:43Z"
+why = """
+Kevin Loaec raises a public alert that new sweeps are under way and that more
+attackers are currently draining wallets, urging Mk3 owners to move coins
+immediately and Mk4, Mk5 and Q owners to act soon. Held as a dated
+incident-response warning from a security practitioner; the existence of
+additional attackers at that moment is not independently verified here.
+"""
+
 # ---- 9 Aug 2026 discovery intake: bounded community-thread batch ----------
 
 [[source]]
@@ -14547,4 +14677,75 @@ min_chars = 3000
 capture = "reddit-json"
 why = """
 tomthepooper reporting that checking a metal seed backup during the Coldcard incident week revealed one was incorrect, allowing funds to be moved before the device failed. A first-hand account of a backup-verification close call triggered by the incident; the details are the poster's own, not verified here.
+"""
+
+[[x_post]]
+id = "jamesob-dice-roll-faithful"
+title = "Dice rolls are faithfully incorporated"
+url = "https://x.com/jamesob/status/2083299200674988216"
+author = "jamesob"
+posted = "2026-07-31T21:10:09Z"
+why = """
+James O'Beirne reports that dice rolls entered through the Coldcard are faithfully incorporated. Held as a dated first-hand technical observation about dice-roll seed entry, relevant to the post-incident dice-seed guidance debate. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "btcpayserver-2085755643659522240"
+title = "BTCPay Server active-exploit update instructions"
+url = "https://x.com/btcpayserver/status/2085755643659522240"
+author = "btcpayserver"
+org = "BTCPay Server"
+posted = "2026-08-07T15:51:11Z"
+why = """
+BTCPay Server warns that a critical vulnerability is being actively exploited and gives concrete update steps: update to 2.4.2 through the admin dashboard or turn the server off until able to update. Held as an organisational incident-response statement about a vulnerability disclosed during the Coldcard-response week. The claims are the poster's own and are not verified here.
+"""
+
+[[x_post]]
+id = "jamesob-cktripwire-rss"
+title = "CKTRIPWIRE RSS feed added"
+url = "https://x.com/jamesob/status/2085754937120526847"
+author = "jamesob"
+posted = "2026-08-07T15:48:23Z"
+why = """
+James O'Beirne announces that he has added an RSS feed to cktripwire.com to make monitoring easier. Held as a dated update on the CKTRIPWIRE honeypot monitor already in the record. The addition is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-drains-beyond-spain"
+title = "Drains not limited to Spain"
+url = "https://x.com/jamesob/status/2085548440763654320"
+author = "jamesob"
+posted = "2026-08-07T02:07:50Z"
+why = """
+James O'Beirne states that Spain is not the only place the incident happened. Held as a dated claim about the geographic scope of the drains. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-cktripwire-link"
+title = "CKTRIPWIRE site link"
+url = "https://x.com/jamesob/status/2084769504299487543"
+author = "jamesob"
+posted = "2026-08-04T22:32:37Z"
+why = """
+James O'Beirne posts a link to cktripwire.com. Held as the earliest visible X announcement of the CKTRIPWIRE honeypot monitoring site. The site's claims and scope are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-ai-audit-tool-comparison"
+title = "Claude and Kimi K3 compared for Coldcard audit work"
+url = "https://x.com/jamesob/status/2084726557352869899"
+author = "jamesob"
+posted = "2026-08-04T19:41:58Z"
+why = """
+James O'Beirne compares the usefulness of Claude and Kimi K3 for auditing the Coldcard firmware, saying Claude seems less useful in this domain while Kimi K3 has been the workhorse. Held as a dated first-hand observation about AI-assisted audit tooling during the incident response. The characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-may-2025-audit"
+title = "May 2025 audit of Coldcard RNG sourcing"
+url = "https://x.com/jamesob/status/2084639913060819090"
+author = "jamesob"
+posted = "2026-08-04T13:57:40Z"
+why = """
+James O'Beirne says he reached the same conclusion in May 2025 while auditing coldcard/firmware, finding that the RNG sourced to a library he describes as shady. Held as a dated first-hand account of prior audit work and an independently checkable lead about the RNG source. The May 2025 claim and the library characterization are the poster's own and are not independently verified here.
 """

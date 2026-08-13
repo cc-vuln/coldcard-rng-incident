@@ -1,0 +1,35 @@
+url:      https://x.com/slowmist_team/status/2087438490518892592
+author:   SlowMist
+handle:   @SlowMist_Team
+posted:   2026-08-12T07:18:13.000Z (from the page's <time> element)
+captured: 20260813T072140Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    4 attached image(s)
+media-1: https://pbs.twimg.com/media/HPfhWGka8AArWUx?format=jpg&name=360x360 (360 x 284 pixels)
+media-2: https://pbs.twimg.com/media/HPfhgwqbcAA_rUR?format=jpg&name=small (680 x 352 pixels)
+media-3: https://pbs.twimg.com/media/HPfhj2zbIAA9LNx?format=jpg&name=360x360 (298 x 360 pixels)
+media-4: https://pbs.twimg.com/media/HPfhmGuaQAEziDy?format=jpg&name=360x360 (321 x 360 pixels)
+
+--- post text (verbatim) ---
+
+ Recently, 
+@COLDCARDwallet
+ suffered a major private key vulnerability. Multiple waves of attacks resulted in at least 1,719 BTC (~$111M) in losses, involving over 5,200 addresses. Using Mk3 firmware 4.1.9 as an example, the SlowMist Security Team fully reproduced the attack chain and uncovered the truth behind the theft of thousands of bitcoins.
+
+ Attack flow:
+ After power-on, the remaining unpredictable state is reduced primarily to a single enumerable 32-bit pad (UID ^ SysTick), with the remaining state values either fixed or coming from very small enumerable spaces.
+ Attackers precisely model the three typical button-press consumption profiles (retail first-boot, empty-NVRAM, paper wallet) that advance the PRNG before seed generation.
+ From the weak random_bytes(32), the full deterministic pipeline (SHA-256 → BIP-39 → PBKDF2-HMAC-SHA512 → BIP-32 → address derivation) is reproduced offline.
+ GPU clusters brute-force the candidate pad space and button-count variations, then match the derived addresses against the global set of single-signature P2WPKH addresses to identify vulnerable wallets and sweep their funds.
+
+ Root Cause: A build configuration error set MICROPY_HW_ENABLE_RNG to 0, disabling the STM32 hardware TRNG. The random number generation path silently fell back to the non-cryptographic Yasmarang software PRNG, whose state was almost entirely predictable, reducing effective entropy to ~40 bits (Mk2/Mk3) or ~72 bits (Mk4/Mk5/Q).
+
+ SlowMist Insight: Affected users should immediately upgrade to the patched firmware, generate a completely new seed, transfer a small amount of funds as a test, confirm the new address works correctly, then migrate all remaining funds.
+
+Full analysis 
+https://
+medium.com/@slowmist/cold
+card-111-million-theft-a-deep-dive-into-the-private-key-vulnerability-8e51d1a969d3
+…
