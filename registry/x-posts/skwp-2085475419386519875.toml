@@ -1,0 +1,25 @@
+# registry-order: 832
+
+[[x_post]]
+id = "skwp-2085475419386519875"
+title = "Swan's code-review pipeline published as a template"
+url = "https://x.com/skwp/status/2085475419386519875"
+author = "skwp"
+posted = "2026-08-06T21:17:40Z"
+why = """
+Yan Pritzker describes the process Swan uses for every change that reaches
+production, a deterministically orchestrated LLM pipeline plus GitHub lockdowns
+and rules, with a human review required afterwards, and invites other teams to
+copy it. The attached diagram sets out the detail: five review lenses run in
+parallel with at least three required to succeed, covering architecture, semantic,
+performance, security and quality; a change-request gate requiring a ticket link;
+supply-chain and static analysis with extended security queries, a manifest CVE
+gate failing on high, third-party actions vendored through an internal mirror and
+network egress locked at install; and a final human review in which code owners
+and the security team sign off and agent-authored changes need independent human
+approval. Held because the incident turned AI code review into a live argument,
+and this is a concrete published process rather than a position on it, usable as
+a document by anyone assessing that argument. Pritzker is at Swan and the post
+promotes Swan's own engineering practice. Nothing here establishes that the
+pipeline works as described or that it would have caught this defect.
+"""

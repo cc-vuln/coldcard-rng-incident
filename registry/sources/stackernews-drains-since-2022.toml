@@ -1,0 +1,32 @@
+# registry-order: 202
+
+[[source]]
+id = "stackernews-drains-since-2022"
+title = "Claim that drains were reported as early as 2022"
+url = "https://stacker.news/items/1538415"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "reporting"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538415) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+A Stacker News thread collecting screenshots said to show COLDCARD owners
+reporting unexplained drains from 2022 onward, and asking what a vendor could
+have done about a defect of this kind without signalling it to attackers. The
+underlying claim is unverified here: the screenshots are reproduced from
+elsewhere, the thread links an X thread as its source, and this project has
+not established the provenance or dates of the original reports. Registered
+because a claim of much earlier losses would change the incident's scope if it
+held up, and because the discussion itself is part of the response record.
+
+Captured through the site's public GraphQL API since 4 Aug 2026: the browser
+route began crashing the capture tab sitewide, and the API answers POST from
+this host while the rendered page is challenge-gated. The query fixes the
+captured surface to the item's title, text and two levels of comments, each
+with author and absolute timestamp.
+"""

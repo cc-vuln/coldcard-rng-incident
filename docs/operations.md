@@ -125,7 +125,7 @@ stage consumes the previous stage's output.
 | `publish-scheduled` | 3 hours, :50 | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. It skips on `.no-publish`, non-main `HEAD`, any uncommitted state, unreviewed diffs or the build lock; the pre-deploy exactness gate refuses a build unless its `/version.json`, current `HEAD` and tracked tree agree. Only a genuine publish failure fails the unit |
 | `alert-sweep` | 30 minutes | `alert.py sweep`: turns the repo's state files — failure streaks, stale host proposals, failing units, publish-skip streaks — into alerts on the operator-UI stream |
 | `corroborate-gone` | 6 hours | `corroborate_gone.py`: re-resolves `dns-unresolved` streaks through public DNS-over-HTTPS resolvers and sets `gone = true` only when the streak and the independent resolvers agree, recording the transcript in `gone_note` and alerting |
-| `discover-x` | 12 hours | `discover_x_browser.py` then up to eight separately guarded 15-item `agent-x-intake.sh` batches: home-timeline and watched-profile discovery through the capture browser, with registering-xintake assessment and driver-side first captures. The drain stops on no progress. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |
+| `discover-x` | 12 hours | `discover_x_browser.py` then up to eight separately guarded 15-item `agent-x-intake.sh` batches: home-timeline and watched-profile discovery through the capture browser, with bounded evidence packets, validated verdict outboxes and driver-side first captures. The drain stops on no progress. Kill switch `X_BROWSER_DISCOVERY_ENABLED`, off by default |
 | `x-availability` | 12 hours | `check_x_availability.py`: re-checks that registered X posts are still observable; a single absence is info, two consecutive observations escalate. Kill switch `X_BROWSER_AVAILABILITY_ENABLED`, off by default |
 | `x-media` | weekly | `capture-x.sh --skip-unchanged`: the gallery-dl media pull for every registered `[[x_post]]`, writing nothing when nothing new downloads. `SuccessExitStatus=0 21`: exit 21 is a poll holding the writer lock, a routine skip retried next week, not an alert |
 | `corrections-watch` | Sun 06:40 UTC | `agent-corrections.sh`: the propose-only corrections role drafts corrections from the claim sweep's state-changed flags; `apply_corrections.py` applies validated proposals all-or-nothing, dry run unless `--yes`, with an alert per applied correction |
@@ -156,7 +156,9 @@ no posting, following or liking from the session. The kill switch is
 `X_BROWSER_DISCOVERY_ENABLED`; disabled is the default.
 
 The agent never reaches the browser. As with the community lanes, the driver
-hydrates first and the agent receives text; an unattended agent never reaches
+hydrates first and the agent receives one bounded packet: each candidate once,
+its mechanical native-id registry match, and only the registry rows with a
+non-zero historical saturation count. An unattended agent never reaches
 `evaluate`/`cdp` and never holds the bridge token. New permalinks land in
 `DISCOVERY.md` with a relation label, and ID-only candidate metadata stays
 under `.work/`, as before.
@@ -169,8 +171,11 @@ cooldown. `--clear-cooldown` clears only local state and performs no request.
 
 Promotion is automated (8 Aug 2026). The registering `xintake` guard role
 assesses queued X candidates under the same containment as the community
-intake, and the driver captures each approved post with `just ingest-x`
-afterwards; the agent never reaches the browser itself. The read-only xtriage
+intake. It submits one JSON verdict per packet candidate; the guard checks the
+complete outbox and its registry relationships, and a deterministic
+operator-side applier updates `DISCOVERY.md` while holding the queue lock. The
+driver then captures each approved post with `just ingest-x`; the agent never
+reaches the browser itself. The read-only xtriage
 prompt and the `--include-x` admission flag are retired. What still never
 moves unattended: withheld sources, anything identifying a private individual,
 and discovery-queue material itself.

@@ -148,20 +148,21 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Rechecked 12 August 2026.
+- **MONITOR: official technical follow-up.** Rechecked 13 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
   detailed scope; the blog index captured 8 August 2026 lists no postmortem.
   No captured source announces a post-incident independent audit of the fixed
   firmware, and NVD/MITRE remained unreachable or inconclusive from this host so
   the CVE question could not be re-queried directly. The firmware repository did
   move: PR #707 was closed unmerged and replaced by PR #713, which remains open
-  in the capture held 12 August 2026, and the libngu changes it referenced (#68
-  and #56) were merged on 7 and 6 August 2026. No new release tag or shipped
-  firmware has appeared. Those developments are registered and requested for
-  capture; they describe a proposal, not a shipped release, audit or postmortem.
+  in the capture held 12 August 2026, 17:26 UTC, and the libngu changes it
+  referenced (#68 and #56) were merged on 7 and 6 August 2026. No new release
+  tag or shipped firmware has appeared. Those developments are registered and
+  requested for capture; they describe a proposal, not a shipped release, audit
+  or postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.**
-  Rechecked 12 August 2026. No public filing, regulator statement, insurer
+  Rechecked 13 August 2026. No public filing, regulator statement, insurer
   decision or compensation offer has been captured since the 7 August
   customer-data retention post, which remains the only public vendor
   acknowledgement of legal activity. The legal page's absence claim still holds
@@ -377,20 +378,22 @@ Ordered by value, not effort.
   vetting waits for a human, and restoring a quarantined registration
   remains a human edit.
 
-- **Measure whether the coverage index actually moves the "already
-  represented" dismissals.** The index shipped on 7 Aug 2026
-  (`scripts/build_coverage_index.py`, `docs/DISCOVERY.md`), addressing the
-  largest class of dismissals: 88 of 248 read "already represented by `<id>`",
-  and the agent was re-deriving them, once naming a thread it had itself
-  dismissed weeks earlier as the precedent. It is unmeasured in use. What to
-  read after a few scheduled runs: whether dismissals now name their referent
-  more often (an unnamed "repetitive" verdict never becomes an `absorbed`
-  count, so it teaches nothing), whether the agent registers fewer duplicates
-  of saturated themes, and whether the 57KB index crowds the candidate bodies
-  in a 72KB prompt. If it does crowd them, the cut to try first is dropping
-  the 465 social posts to those with an absorbed count, since only 6 of 72
-  named referents were social posts; say so in the file rather than truncating
-  silently.
+- **MONITOR: whether scoped intake context moves the "already represented"
+  dismissals.** The crowding problem was resolved on 13 Aug 2026. The drivers
+  no longer copy the whole registry, full zero-history coverage index and
+  candidate lines twice into each prompt. `build_intake_packet.py` gives each
+  candidate one stable native-object key and mechanical exact match, retains
+  all 72 registered entries with a non-zero `absorbed` count (165 prior
+  verdicts), and explicitly counts the 972 zero-history rows it omits. On the
+  live batches this reduced the community input from 131,923 bytes to about
+  37KB and the X input from 113,496 bytes to about 30KB, both below the 48KiB
+  fail-closed packet limit.
+
+  The outcome question still needs scheduled runs: whether dismissals now name
+  their referent more often (an unnamed "repetitive" verdict never becomes an
+  `absorbed` count, so it teaches nothing), and whether the agent registers
+  fewer duplicates of saturated themes. Exact URL/native-id duplicates are no
+  longer part of that judgement; the packet resolves them mechanically.
 
   **Do not replace it with lexical near-duplicate matching, which was measured
   and does not work.** IDF-weighted cosine over titles, leave-one-out against

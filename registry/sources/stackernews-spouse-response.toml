@@ -1,0 +1,19 @@
+# registry-order: 322
+
+[[source]]
+id = "stackernews-spouse-response"
+title = "What is your spouse's response to the ColdCard entropy vulnerability?"
+url = "https://stacker.news/items/1536864"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536864) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby asking how owners' spouses responded to the vulnerability. Community colour on how the incident landed inside households; part of the response record. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

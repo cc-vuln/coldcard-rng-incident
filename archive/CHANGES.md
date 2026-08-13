@@ -2278,3 +2278,8 @@
 - clay-attribution  +47 -0
 - grassfedbitcoin-2085463112048873485  +2 -2
 - oomahq-2085717166884618584  +18 -0
+
+## 20260813T022300Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+- coldcard-hack-tracker  +11 -3

@@ -94,7 +94,9 @@ ARCHIVE_INCLUDED = (
 # no group still goes in, counted under "other", so the grouping can never
 # silently drop a file.
 GROUPS = (
-    ("registry", ("sources.toml", "revision-reviews.toml", "corrections.toml")),
+    ("registry", (
+        "sources.toml", "registry/", "revision-reviews.toml", "corrections.toml",
+    )),
     ("change record", ("archive/index.jsonl", "archive/diffs/", "archive/CHANGES.md")),
     ("capture tooling", ("scripts/", "capture-browser/", "justfile")),
     ("site", ("site/",)),

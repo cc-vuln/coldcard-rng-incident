@@ -1,0 +1,23 @@
+# registry-order: 123
+
+# The 5 August rebuild moved the tracker's evidence off the index and onto
+# routes of its own. The index now carries headline figures and one-line plate
+# summaries; everything the numbers rest on is a page below. Each is registered
+# separately so the record holds the evidence rather than a table of contents,
+# and so a later restructure fails one source instead of silently emptying all
+# of them. All serve complete HTML to a plain request; no browser is needed.
+
+[[source]]
+id = "coldcard-rip-sweep"
+title = "coldcard.rip: the sweep"
+url = "https://coldcard.rip/sweep"
+org = "community tracker"
+kind = "chain-monitor"
+tier = 3
+min_chars = 800
+required_text = ["The sweep", "UTXOs", "BTC"]
+note = """
+The swept totals behind the index headline: UTXOs, confirmed sweep
+transactions and BTC, broken down by wave. Self-described as AI-compiled and
+not independently fact-checked, like the rest of this tracker.
+"""

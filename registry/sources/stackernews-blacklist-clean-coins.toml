@@ -1,0 +1,19 @@
+# registry-order: 354
+
+[[source]]
+id = "stackernews-blacklist-clean-coins"
+title = "Coldcard exploit: Can Blockchain analysis mistakenly blacklist our “Clean”coins?"
+url = "https://stacker.news/items/1539067"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539067) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+FlorFina asking whether blockchain analysis could mistakenly blacklist clean coins after the exploit. Part of the record of feared long-term fallout for unaffected owners. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

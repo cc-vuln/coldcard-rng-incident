@@ -1,0 +1,19 @@
+# registry-order: 318
+
+[[source]]
+id = "stackernews-dice-roll-sound"
+title = "keep your f*ing coins off the exchange: dice-roll seed generation is sound"
+url = "https://stacker.news/items/1536709"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536709) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake arguing that dice-roll seed generation was safe from the RNG bug and urging owners not to retreat to exchanges. Bears on the dice and mitigations pages; the safety claim is the author's reasoning, contested in the thread's own replies, and not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

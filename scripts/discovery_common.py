@@ -18,11 +18,10 @@ lives here now and every lane imports it as a peer.
 
 Two rules survive the move and are the reason this file is worth reading:
 
-- DISCOVERY.md is shared with the intake agent, which rewrites it while a
-  discovery run may be appending. Every write goes through update_intake(),
-  which takes the agent's own lock and replaces the file atomically. Do not
-  write DISCOVERY.md any other way
-- Assessed entries are the agent's record, or a human's. update_intake()
+- DISCOVERY.md is shared by discovery lanes and the deterministic verdict
+  applier. Every write holds the intake lock and replaces the file atomically.
+  The agent submits JSONL decision data and cannot write the queue itself
+- Assessed entries are the applier's record, or a human's. update_intake()
   keeps them verbatim and only ever prunes Pending. A lane that loses its
   seen state should re-queue candidates, never re-open assessed ones
 
@@ -290,7 +289,7 @@ def _line_url(line: str) -> str | None:
 def update_intake(candidates: list[dict], known_urls: set[str]) -> None:
     """Reconcile DISCOVERY.md: prune registered threads, route new candidates
     to Pending or Deferred, and promote a deferred thread that has since drawn
-    discussion. Assessed entries are the intake agent's (or a human's) record
+    discussion. Assessed entries are the verdict applier's (or a human's) record
     and are kept verbatim.
 
     Deferral is reversible by design. A deferred candidate stays in the file
@@ -391,7 +390,16 @@ def registered_urls(canonical: Callable[[str], str | None],
     `table` is the sources.toml array to read. Every lane but nostr registers
     into [[source]]; nostr posts are their own array and are never polled.
     """
-    data = tomllib.loads(SOURCES.read_text(encoding="utf-8"))
+    # Keep the queue/atomic-write helpers importable without the optional
+    # sharded registry adapter. Tests and callers that replace SOURCES with a
+    # small explicit fixture also retain direct-file semantics (those fixtures
+    # predate the registry's [meta] validation contract).
+    if SOURCES == ROOT / "sources.toml":
+        import registry_store
+        data = registry_store.load(ROOT)
+    else:
+        with SOURCES.open("rb") as handle:
+            data = tomllib.load(handle)
     urls = set()
     for entry in data.get(table, []):
         url = entry.get("url", "")

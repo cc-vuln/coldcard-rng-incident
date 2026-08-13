@@ -1,0 +1,19 @@
+# registry-order: 336
+
+[[source]]
+id = "stackernews-larp-discussion"
+title = "Can we have a serious talk about the LARP in Bitcoin"
+url = "https://stacker.news/items/1537803"
+published = "2026-08-01"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537803) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+chungkingexpress's 'Can we have a serious talk about the LARP in Bitcoin', a long criticism of how Coinkite and NVK handled and framed the incident. One of the largest discussion threads on the site; the accusations are the author's and are contested. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

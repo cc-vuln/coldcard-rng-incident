@@ -59,6 +59,8 @@ import re
 import tomllib
 from pathlib import Path
 
+import registry_store
+
 ROOT = Path(__file__).resolve().parent.parent
 
 REGISTRY_TABLES = ("source", "x_post", "nostr_post")
@@ -137,7 +139,13 @@ def load_registry(root: Path) -> list[dict]:
     path = root / "sources.toml"
     if not path.is_file():
         return []
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    if root.resolve() == ROOT.resolve():
+        data = registry_store.load(root)
+    else:
+        # --root is also the fixture API. Preserve its historical ability to
+        # read a small, partial sources.toml without imposing live-registry
+        # validation on test and diagnostic sandboxes.
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
     items = []
     for table in REGISTRY_TABLES:
         for entry in data.get(table, []):

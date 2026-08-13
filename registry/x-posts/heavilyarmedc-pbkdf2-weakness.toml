@@ -1,0 +1,12 @@
+# registry-order: 270
+
+[[x_post]]
+id = "heavilyarmedc-pbkdf2-weakness"
+title = "BIP39 PBKDF2 weakness explainer"
+url = "https://x.com/heavilyarmedc/status/2084101978716504155"
+author = "heavilyarmedc"
+posted = "2026-08-03T02:20:07Z"
+tag = "independent-technical-analysis"
+why = """
+Explains, citing Greg Maxwell, why BIP 39 seed derivation via PBKDF2-HMAC-SHA512 with 2048 iterations gives little protection when input entropy is poor: the KDF is compute-bound rather than memory-hard and highly parallelizable on GPUs, ASICs or FPGAs, so weak-entropy seeds are cheap to grind.
+"""

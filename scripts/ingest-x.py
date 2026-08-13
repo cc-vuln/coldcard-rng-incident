@@ -54,6 +54,7 @@ from pathlib import Path
 
 from archive_lock import ArchiveLockBusy, archive_lock
 from capture import X_STATUS_URL, load_sources, wb_token
+from migrate_registry import refresh_if_installed
 from x_thread import expand_truncated
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -276,6 +277,7 @@ def registered_x_posts() -> list[dict]:
     before anything is written, to decide where a capture goes, and a registry
     that is mid-edit should not stop a capture from being taken.
     """
+    registered_now = False
     try:
         cfg = tomllib.loads(SOURCES.read_text())
     except Exception:
@@ -651,11 +653,19 @@ def main() -> None:
                 why = a.why or first_line + " (TODO: expand)"
                 register(slug, a.url, handle, posted, a.tag, why,
                          thread=a.thread, tier=tier)
+                registered_now = True
                 suffix = f", thread = true, tier = {tier}" if a.thread else ""
                 print(f"sources.toml: registered [[x_post]] id = \"{slug}\""
                       f"{suffix}")
     except ArchiveLockBusy as exc:
         sys.exit(f"archive writer lock busy: {exc}")
+
+    if registered_now:
+        try:
+            refresh_if_installed(SOURCES)
+        except (OSError, ValueError) as exc:
+            sys.exit(f"registry projection refresh failed after registering "
+                     f"{slug!r}: {exc}")
 
     if not a.keep_tab:
         bridge("close_tab", {})

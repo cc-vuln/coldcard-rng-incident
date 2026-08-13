@@ -61,10 +61,15 @@ same way.
 ### 1. It runs as a different account
 
 `scripts/run-agent.sh` drops from the operator account to `cc-agent`, which
-can read the tree, write four files and two directories, and read neither
-`.env` nor `AGENTS.local.md` nor `.capture-browser/`. The environment is built
+can read the tree, write three tracked root files and two directories, and
+read neither `.env` nor `AGENTS.local.md` nor `.capture-browser/`. The environment is built
 from an allowlist with `env -i`, so no project variable reaches the agent even
 by accident.
+
+The generated `registry/` projection is readable for one-record lookups and
+not writable. `agent-permissions.sh` enforces 0755 directories and 0644 files
+there as well as removing the queue's write bit; the manifest remains the
+independent integrity check if filesystem permissions ever drift.
 
 `scripts/agent-permissions.sh` applies and re-checks the file modes this rests
 on, because permissions drift and a boundary nobody re-checks is a boundary
@@ -133,10 +138,13 @@ The review agent never fetched anything: `render_review_packets.py` put the
 evidence in the prompt. That pattern is now the rule.
 
 `scripts/hydrate_candidates.py` fetches every intake candidate body before the
-agent starts, one request each, from the driver. The intake prompt's `curl`
-command and its four `--show` invocations are gone. The X lane gets the same
-treatment, and the gain there is larger: reading a post needs the bearer
-token, so pre-hydrating means the agent never holds a credential at all.
+agent starts, one request each, from the driver. The driver joins the bounded
+candidate batch, hydrated bodies, exact registry matches and non-zero
+saturation rows into one machine-checkable packet; the large registry and
+queue are not copied into the prompt. The intake prompt's `curl` command and
+its four `--show` invocations are gone. The X lane gets the same treatment,
+and the gain there is larger: reading a post needs the browser session, so
+pre-hydrating means the agent never holds a credential at all.
 
 First captures moved too. The agent used to run `just capture-one`, which made
 it an archive writer and, worse, made it the thing that first fetched an
@@ -154,9 +162,10 @@ run and compares afterwards. It enforces:
 - no secret value from `.env`, no key shape, no operator needle from
   `site/tools/private-tokens.json`, in anything added
 - the registry rules below
-- that every assessed `DISCOVERY.md` line still contains the candidate line it
-  came from, so a candidate cannot be relabelled or repointed on its way
-  through the queue
+- intake agents cannot write `DISCOVERY.md`; their complete JSON verdict
+  outbox is checked against the protected packet and before/after registries,
+  including exact native-object relationships, before an operator-side
+  deterministic applier changes the queue
 - that requested first captures name sources this run actually registered
 
 `scripts/check_registry.py` is the registry half, and it also runs standalone
@@ -215,7 +224,7 @@ that calls `capture.py`.
 
 ### 5. The prompts say so too
 
-`scripts/agent-prompt-rules.md` is injected into all four prompts by
+`scripts/agent-prompt-rules.md` is injected into all six agent prompts by
 `agent_render`, so there is one copy. Untrusted material is fenced with a
 per-run nonce named in the trusted preamble, and any occurrence of that marker
 inside the content, or of anything shaped like a renderer placeholder, is
@@ -287,13 +296,16 @@ had registered forty posts while it worked. That is the failure mode worth
 taking seriously, because a gate that cries wolf is a gate somebody switches
 off, and then none of this exists.
 
-So `sources.toml` and `DISCOVERY.md` are treated as shared. An out-of-remit
-change to either is reported and not fatal, and the content rules carry the
-weight instead: `check_registry.py` runs on the registry delta for every role,
-and the queue's line-integrity check runs on every role, whoever did the
-writing. A pending line that vanished is not a loss if its URL is now
-registered, because that is exactly what the discovery scripts do on their own
-timer.
+So `sources.toml` and `DISCOVERY.md` are treated as shared for roles whose
+timers can overlap their legitimate writers. An out-of-remit change is
+reported and its content rules carry the weight: `check_registry.py` runs on
+the registry delta for every role, and the queue's line-integrity check runs
+for non-intake roles. Intake is stricter. Its driver holds the discovery lock,
+the agent account has no write bit on `DISCOVERY.md`, and any direct queue
+change still fails the guard; decisions cross back only through the validated
+outbox. A pending line that vanishes during another role is not a loss if its
+URL is now registered, because that is exactly what the discovery scripts do
+on their own timer.
 
 What this gives up is narrow. An out-of-remit review agent could register a
 thread that already satisfies every registry rule: allowlisted host, pinned

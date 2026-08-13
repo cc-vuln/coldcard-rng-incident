@@ -10,7 +10,9 @@ missing, wrong, or blocked.
 ## Layout
 
 ```
-sources.toml          the single source registry. Adding a source is one block.
+sources.toml          transitional source-registry write ledger; one block per record
+registry/             discoverable one-record-per-file projection of sources.toml;
+                      manifest-checked for exact bytes, meaning, order and completeness
 revision-reviews.toml additive classification of detected differences
 corrections.toml      this project's own corrections, published at /corrections/
 CITATION.cff          how to cite the repository; /cite/ is the fuller guidance
@@ -27,6 +29,9 @@ scripts/
   corroborate_gone.py  re-resolve dns-unresolved streaks through public
                         DoH resolvers; sets gone only on agreement
   check_publishable.py, check_reviews.py   audit gates run by `just audit`
+  registry_store.py    layout-independent source-registry reader; uses shards
+                        only while their manifest exactly matches sources.toml
+  migrate_registry.py  build, refresh and verify the discoverable registry tree
   discovery_common.py   keyword sieve, seen state and the DISCOVERY.md queue,
                         shared by every discovery lane below
   rotate_discovery.py   age old verdicts out of DISCOVERY.md into
@@ -43,14 +48,16 @@ scripts/
                         observable; absence classes escalate only on two
                         consecutive observations (driver-side, read-only)
   agent-x-intake.sh     X candidate intake: registers [[x_post]] blocks and
-                        requests driver-side first captures (role xintake)
+                        submits verdict data and requests driver-side first
+                        captures (role xintake); it never edits DISCOVERY.md
   agent-x-intake-prompt.md  the registering X intake prompt
   ingest_nostr.py       capture one nostr note and its replies via nak
   discover_nostr.py     find new incident notes via NIP-50 search (manual probation)
   nostr_post.py         manual kind-1 post from the project key (--yes)
   nostr_publish_profile.py  publish the kind-0 profile and kind-10002 relay list
   agent-discovery-intake.sh  community intake agent (registers community
-                        threads; X candidates go to agent-x-intake.sh)
+                        threads and submits verdict data; X candidates go to
+                        agent-x-intake.sh; neither agent edits DISCOVERY.md)
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
   build_manifest.py   describe every held capture without reproducing any
@@ -97,6 +104,14 @@ scripts/
   hydrate_candidates.py  fetch candidate bodies so the agent needs no network
   build_coverage_index.py  what the record already covers, with a saturation
                         count per entry read out of past verdicts
+  build_intake_packet.py  bounded, machine-checkable candidate, hydration,
+                        exact-match and non-zero saturation context for intake
+  intake_verdicts.py    validate an intake verdict outbox against its protected
+                        packet and the before/after source registries
+  apply_intake_verdicts.py  deterministic operator-side DISCOVERY.md rewrite
+                        after the guard approves the complete verdict outbox
+  secure_run_input.py  bounded, no-follow snapshot of agent outboxes and
+                        capture requests into the protected guard run
   render_agent_prompt.py  join a trusted template to fenced untrusted evidence
   agent-permissions.sh   apply and re-check the agent sandbox's file modes
   *.{service,timer}.example  systemd units for recurring capture, review
@@ -176,7 +191,14 @@ is one click away.
 
 ## Conventions
 
-- `sources.toml` is the single source registry. Adding a source is one block.
+- The source registry has two equivalent presentations during the write
+  transition. `sources.toml` is the compatible write ledger: adding a source
+  is still one block. `registry/` is the discoverable one-record-per-file
+  projection. Run `just registry-refresh` after a manual ledger edit. Its
+  manifest pins every fragment and proves exact byte reconstruction, parsed
+  meaning, order and counts; readers fall back to `sources.toml` whenever the
+  projection is absent, stale, partial or altered. `just audit` requires the
+  installed projection to be current.
 - `archive/` is append-only: every poll, changed or not, appends to
   `index.jsonl`. A re-capture is a new timestamped directory; nothing is ever
   overwritten. This is a rule from 6 Aug 2026, not a description of the whole
@@ -208,6 +230,11 @@ is one click away.
   and the independent resolvers agree, records the corroboration transcript in
   `gone_note`, and raises an alert. Anything short of agreement keeps polling.
 - `DISCOVERY.md` is the tracked intake queue for community-thread discovery.
+  Intake agents receive a bounded generated packet and write verdict JSONL
+  under `.work/`; they cannot write the queue. The guard validates every
+  candidate decision and its registry relationship, then the driver applies
+  terminal verdicts deterministically while holding the intake lock. A retry
+  remains Pending.
   Verdicts older than a few weeks rotate to `discovery/assessed-YYYY-MM.md`
   via `just rotate-discovery`; the rotated files are project records, not
   captures, so they live beside the queue rather than under `archive/`.

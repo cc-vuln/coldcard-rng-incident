@@ -50,7 +50,10 @@ import tomllib
 from collections import Counter
 from pathlib import Path
 
+import registry_store
+
 ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = ROOT
 SOURCES = ROOT / "sources.toml"
 INTAKE = ROOT / "DISCOVERY.md"
 ROTATED = ROOT / "discovery"
@@ -115,7 +118,13 @@ def entries() -> list[dict]:
     holds community threads dismissed as relays of a registered X post and of
     a chain monitor's own page, not only of other threads.
     """
-    data = tomllib.loads(SOURCES.read_text(encoding="utf-8"))
+    # The live repository reads the discoverable sharded projection when its
+    # manifest is current. Tests and one-off callers that replace SOURCES with
+    # an explicit fixture path still read that file directly.
+    if ROOT == PROJECT_ROOT and SOURCES == ROOT / "sources.toml":
+        data = registry_store.load(ROOT)
+    else:
+        data = tomllib.loads(SOURCES.read_text(encoding="utf-8"))
     rows = []
     for table in ("source", "x_post", "nostr_post"):
         for entry in data.get(table, []):

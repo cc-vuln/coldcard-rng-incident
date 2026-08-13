@@ -1,0 +1,19 @@
+# registry-order: 347
+
+[[source]]
+id = "stackernews-39k-btc-moved"
+title = "39.6K BTC transferred on July 31st after the coldcard hack"
+url = "https://stacker.news/items/1538630"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538630) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+0xbitcoiner quoting a comparison that 39.6K BTC moved on 31 July, the most in a day since the FTX collapse, attributed to the incident's sweep traffic. Reported chain statistic; the underlying account is the quoted source's. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

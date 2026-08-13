@@ -14,6 +14,7 @@ that is supposed to be checking it.
 """
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import sys
@@ -138,6 +139,8 @@ class GuardCase(unittest.TestCase):
         from io import StringIO
         with redirect_stdout(StringIO()):
             self.assertEqual(0, agent_guard.do_before(self.role, self.run_dir))
+        self.write_packet()
+        self.write_verdict("retry", "fixture evidence unavailable")
 
     def write(self, rel: str, text: str) -> None:
         path = self.tmp / rel
@@ -146,6 +149,41 @@ class GuardCase(unittest.TestCase):
 
     def append(self, rel: str, text: str) -> None:
         (self.tmp / rel).write_text((self.tmp / rel).read_text() + text)
+
+    def write_packet(self) -> None:
+        if self.role == "xintake":
+            self.packet_candidate_id = "x:1234567890"
+            external_key = "x:status:1234567890"
+            pending = ("- 2026-08-05 [X candidate]"
+                       "(https://x.com/researcher/status/1234567890) "
+                       "(X @researcher)")
+        else:
+            self.packet_candidate_id = "reddit:aaa111"
+            external_key = "reddit:submission:aaa111"
+            pending = next(line for line in DISCOVERY.splitlines()
+                           if line.startswith("- 2026-08-05"))
+        packet = {
+            "schema_version": 1,
+            "lane": "x" if self.role == "xintake" else "community",
+            "candidates": [{
+                "candidate_id": self.packet_candidate_id,
+                "external_key": external_key,
+                "queue_line": pending,
+                "registry_exact_match": {"matched": False, "source_ids": []},
+            }],
+        }
+        (self.run_dir / "intake-packet.json").write_text(
+            json.dumps(packet), encoding="utf-8")
+
+    def write_verdict(self, action: str, reason: str,
+                      source_id: str | None = None) -> None:
+        row = {"schema_version": 1, "candidate_id": self.packet_candidate_id,
+               "action": action, "reason": reason,
+               "at": "20260806T120000Z"}
+        if source_id is not None:
+            row["source_id"] = source_id
+        (self.run_dir / "intake-verdicts.jsonl").write_text(
+            json.dumps(row) + "\n", encoding="utf-8")
 
     def assess_candidate(self, verdict: str = VERDICT) -> None:
         """Move the pending candidate to the end of Assessed, the way the
@@ -186,7 +224,8 @@ class HonestRun(GuardCase):
     def test_the_ordinary_registration_passes(self):
         """The shape a real intake run produces, end to end."""
         self.append("sources.toml", NEW_REDDIT_BLOCK)
-        self.assess_candidate()
+        self.write_verdict("registered", "substantive first-hand account",
+                           "reddit-a-candidate")
         (self.run_dir / "capture-requests.txt").write_text("reddit-a-candidate\n")
         self.assertAccepted()
         approved = (self.run_dir / "approved-captures.txt").read_text().split()
@@ -258,6 +297,11 @@ fetch_post = '{"query": "{ me { privates } }"}'
 
 
 class Exfiltration(GuardCase):
+    def test_a_secret_in_the_protected_verdict_reason_is_rejected(self):
+        self.write_verdict(
+            "retry", "/home/someone/coldcard-rng-incident operator path")
+        self.assertRejected("intake-verdicts.jsonl: text looks like a filesystem path")
+
     def test_a_secret_value_in_a_note_is_rejected(self):
         self.append("sources.toml", NEW_REDDIT_BLOCK.replace(
             "A first-hand account",
@@ -284,7 +328,7 @@ class QueueIntegrity(GuardCase):
             "https://elsewhere.example.invalid/")
         self.write("DISCOVERY.md", text)
         self.assess_candidate()
-        self.assertRejected("does not match any candidate that was pending")
+        self.assertRejected("edited the queue directly")
 
     def test_lines_already_settled_elsewhere_are_not_new_verdicts(self):
         """DISCOVERY.md has a third section, and both sides must see it.
@@ -295,14 +339,14 @@ class QueueIntegrity(GuardCase):
         with eleven false positives before this test existed.
         """
         self.assess_candidate()
-        self.assertAccepted()
+        self.assertRejected("edited the queue directly")
 
     def test_a_candidate_that_simply_vanishes_is_rejected(self):
         text = (self.tmp / "DISCOVERY.md").read_text()
         pending = [line for line in text.splitlines()
                    if line.startswith("- 2026-08-05")][0]
         self.write("DISCOVERY.md", text.replace(pending + "\n", ""))
-        self.assertRejected("left the queue without its text surviving")
+        self.assertRejected("edited the queue directly")
 
     def test_deferring_a_pending_candidate_is_rejected(self):
         """Deferral is the lanes' mechanism, not an exit the agent may take.
@@ -317,7 +361,7 @@ class QueueIntegrity(GuardCase):
         moved = text.replace(pending + "\n", "")
         self.write("DISCOVERY.md",
                    moved + f"\n## Deferred\n\n{pending}\n")
-        self.assertRejected("left the queue without its text surviving")
+        self.assertRejected("edited the queue directly")
 
     def test_a_lane_adding_a_deferred_candidate_is_accepted(self):
         """A discovery lane runs on its own timer and may append to Deferred
@@ -331,7 +375,7 @@ class QueueIntegrity(GuardCase):
             "- 2026-08-06 [a quiet thread](https://www.reddit.com/r/Bitcoin/"
             "comments/zzz999/a_quiet_thread/) by nobody, 1 comments "
             "(r/Bitcoin) [topical]\n"))
-        self.assertAccepted()
+        self.assertRejected("edited the queue directly")
 
     def test_a_verdict_in_a_later_section_is_rejected(self):
         """A verdict's only destination is the end of ## Assessed, before
@@ -346,7 +390,7 @@ class QueueIntegrity(GuardCase):
         moved = text.replace(pending + "\n", "")
         self.write("DISCOVERY.md",
                    moved.rstrip("\n") + f"\n{pending}{VERDICT}\n")
-        self.assertRejected("added to '## Link review, held for a human decision'")
+        self.assertRejected("edited the queue directly")
 
     def test_a_line_removed_from_a_later_section_is_rejected(self):
         """The held sections are a human parking spot; a run that empties
@@ -356,8 +400,42 @@ class QueueIntegrity(GuardCase):
                 if line.startswith("- 2026-08-02")][0]
         self.write("DISCOVERY.md", text.replace(held + "\n", ""))
         self.assess_candidate()
-        self.assertRejected(
-            "removed from '## Link review, held for a human decision'")
+        self.assertRejected("edited the queue directly")
+
+
+class VerdictOutbox(GuardCase):
+    def test_missing_candidate_verdict_is_rejected(self):
+        (self.run_dir / "intake-verdicts.jsonl").unlink()
+        self.assertRejected("intake verdict outbox was rejected")
+
+    def test_already_registered_needs_an_exact_packet_match(self):
+        self.write_verdict("already-registered", "same theme",
+                           "stackernews-example-thread")
+        self.assertRejected("not an exact packet match")
+
+    def test_impossible_timestamp_is_rejected(self):
+        value = {"schema_version": 1,
+                 "candidate_id": self.packet_candidate_id,
+                 "action": "retry", "reason": "body unavailable",
+                 "at": "20260230T120000Z"}
+        (self.run_dir / "intake-verdicts.jsonl").write_text(
+            json.dumps(value) + "\n")
+        self.assertRejected("impossible UTC stamp")
+
+
+class PermissionBoundary(unittest.TestCase):
+    def test_agent_permissions_make_discovery_read_only(self):
+        script = (REAL_ROOT / "scripts/agent-permissions.sh").read_text()
+        agent_files = script.split("AGENT_FILES=(", 1)[1].split(")", 1)[0]
+        self.assertNotIn("DISCOVERY.md", agent_files)
+        self.assertIn('"$(mode_of DISCOVERY.md)" == "640"', script)
+        self.assertIn("chmod 640 DISCOVERY.md", script)
+
+    def test_agent_permissions_make_registry_projection_read_only(self):
+        script = (REAL_ROOT / "scripts/agent-permissions.sh").read_text()
+        self.assertIn("find registry -type d -exec chmod g-s", script)
+        self.assertIn("find registry -type d -exec chmod 0755", script)
+        self.assertIn("find registry -type f -exec chmod 0644", script)
 
 
 class CaptureRequests(GuardCase):
@@ -396,6 +474,8 @@ class XIntakeCaptureRequests(GuardCase):
 
     def test_the_url_of_a_block_this_run_registered_is_approved(self):
         self.append("sources.toml", NEW_X_BLOCK)
+        self.write_verdict("registered", "new primary incident statement",
+                           "researcher-statement")
         (self.run_dir / "capture-requests.txt").write_text(X_URL + "\n")
         self.assertAccepted()
         approved = (self.run_dir / "approved-captures.txt").read_text().split()

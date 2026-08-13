@@ -1,0 +1,34 @@
+# registry-order: 122
+
+[[source]]
+id = "coldcard-rip-tracker"
+title = "coldcard.rip incident tracker"
+url = "https://coldcard.rip/"
+org = "community tracker"
+kind = "chain-monitor"
+tier = 3
+min_chars = 1000
+required_text = ["BTC swept", "Swept addresses", "tracked sweeps took"]
+note = """
+Kevin Kelbie's rebuilt tracker, successor to the railway deployment announced
+2 August 2026. Self-described as AI-compiled and not independently
+fact-checked. Reorganises the incident into ten waves: the three first-night
+waves matching Block's published totals, the 31 July 45.9 BTC cluster now
+integrated as wave 960345 (1,126 swept addresses, vault
+bc1qtfrwa4j6rmj9rsgspv6a0yjumkg39js2numu75), and six further waves through
+block 960,737, each anchored with named claimant, Chainabuse and Galaxy
+evidence. Snapshot of 3 August 2026 17:07:58Z states 1,433.13 BTC swept from
+5,477 addresses. The header snapshot clock advances with the operator's
+rebuilds and no existing normalizer matches it; if it drifts without content
+change, classify the churn rather than rewriting captures.
+
+The operator rebuilt the page again on 5 August 2026 around plates ("The
+sweep", "Flow chart", "Routes", "Address ledger", "Evidence"), which removed
+the "How the waves are evidenced" heading this capture keyed on and shortened
+"Data snapshot" to "Snapshot". Every poll from 4 August 01:45 recorded a
+blocked capture against that missing string, so the record shows no change
+across a live rebuild. The guard now keys on the two headline figure labels
+plus "tracked sweeps took", the standfirst clause carrying the swept total,
+address count and post-fee receipt: the strings the site reads are the
+strings that gate the capture.
+"""

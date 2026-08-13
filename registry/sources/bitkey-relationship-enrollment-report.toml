@@ -1,0 +1,23 @@
+# registry-order: 272
+
+[[source]]
+id = "bitkey-relationship-enrollment-report"
+title = "Relationship-enrollment bug in Bitkey"
+url = "https://bitkey.world/blog/relationship-enrollment-bug-in-bitkey"
+published = "2026-08-03"
+org = "Block"
+kind = "vendor-response"
+tier = 1
+note = """
+Block's full vendor report on the Bitkey relationship-enrollment bug reported
+by 1440000bytes: enrollment secrets and 2nd-generation action-proof nonces
+came from kotlin.random.Random, a non-cryptographic generator, so a
+compromised service observing enough related outputs could predict a later
+SPAKE2 enrollment secret. The report states no evidence of customer impact,
+scopes the practical path to 2nd-generation devices with inheritance or
+recovery enrollment, and says a mobile-app patch moving the secrets to a
+cryptographically secure RNG was submitted to the app stores the same day.
+Vendor statement about its own product; the bug is distinct from the COLDCARD
+RNG flaw, and the patch had not shipped or been independently reviewed at
+capture.
+"""

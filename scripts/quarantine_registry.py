@@ -47,6 +47,8 @@ import tomllib
 from datetime import datetime, timezone
 from pathlib import Path
 
+from migrate_registry import refresh_if_installed
+
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "sources.toml"
 CHECK = Path(__file__).resolve().parent / "check_registry.py"
@@ -249,6 +251,13 @@ def main() -> int:
         print("quarantine-registry: the registry still fails after "
               "quarantining; a person needs to look:\n" + output.strip(),
               file=sys.stderr)
+        return 1
+
+    try:
+        refresh_if_installed(args.registry)
+    except (OSError, ValueError) as exc:
+        print("quarantine-registry: live registry passes but its discoverable "
+              f"projection could not be refreshed: {exc}", file=sys.stderr)
         return 1
 
     print(f"quarantine-registry: moved {len(taken)} rejected registration(s) "

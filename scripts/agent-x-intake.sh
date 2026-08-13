@@ -51,8 +51,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if ! [[ "$MAX" =~ ^[1-9][0-9]*$ && "$BATCHES" =~ ^[1-9][0-9]*$ ]]; then
-  echo "--max and --batches must be positive integers" >&2
+if ! [[ "$MAX" =~ ^[1-9][0-9]*$ && "$BATCHES" =~ ^[1-9][0-9]*$ ]] || \
+   (( MAX > 15 )); then
+  echo "--max must be 1-15 and --batches must be a positive integer" >&2
   exit 2
 fi
 
@@ -89,7 +90,8 @@ STATE_DIR="$ROOT/.work/agent-x-intake"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
 CANDIDATE_LIST="$STATE_DIR/candidates.txt"
 HYDRATED="$STATE_DIR/hydrated.md"
-COVERAGE="$STATE_DIR/coverage.md"
+PACKET_JSON="$STATE_DIR/intake-packet.json"
+PACKET_MARKDOWN="$STATE_DIR/intake-packet.md"
 PROMPT_TEMPLATE="$ROOT/scripts/agent-x-intake-prompt.md"
 ROLE=xintake
 
@@ -167,24 +169,23 @@ echo "agent-x-intake: hydrating ${#PENDING[@]} candidate body(ies)"
 .venv/bin/python scripts/hydrate_candidates.py --nonce "$AGENT_NONCE" \
   --include-x < "$CANDIDATE_LIST" > "$HYDRATED"
 
-# What the record already holds, so "already represented by <id>" is a lookup
-# rather than recall over sources.toml. Built here, as the operator account,
-# from the registry and the assessed verdicts; the agent is handed the text.
-#
-# A run without it is worse than no run: an agent that cannot see what is
-# already covered registers duplicates of it, and duplicates in the registry
-# are far more work to undo than a skipped tick.
-if ! .venv/bin/python scripts/build_coverage_index.py --out "$COVERAGE"; then
-  echo "agent-x-intake: could not build the coverage index; not" \
+# Build one bounded evidence packet. It joins each queue line to its hydrated
+# body, resolves exact registry duplicates mechanically, and includes every
+# non-zero saturation row while counting the zero-history rows it omits.
+if ! .venv/bin/python scripts/build_intake_packet.py \
+  --root "$ROOT" --lane x \
+  --candidates "$CANDIDATE_LIST" --hydrated "$HYDRATED" \
+  --json-out "$PACKET_JSON" --markdown-out "$PACKET_MARKDOWN"; then
+  echo "agent-x-intake: could not build a bounded intake packet; not" \
        "starting the agent. Entries stay pending." >&2
   exit 1
 fi
+cp "$PACKET_JSON" "$AGENT_RUN_DIR/intake-packet.json"
 
 agent_render "$PROMPT_TEMPLATE" "$PROMPT_RENDERED" \
-  --untrusted "CANDIDATES=$CANDIDATE_LIST" \
-  --untrusted "COVERAGE=$COVERAGE" \
-  --file "HYDRATED=$HYDRATED" \
-  --value "CAPTURE_REQUESTS=.work/capture-requests.txt"
+  --untrusted "INTAKE_PACKET=$PACKET_MARKDOWN" \
+  --value "CAPTURE_REQUESTS=.work/capture-requests.txt" \
+  --value "INTAKE_VERDICTS=.work/intake-verdicts.jsonl"
 
 rc=0
 agent_invoke "$AGENT_BIN" "$PROMPT_RENDERED" || rc=$?
@@ -197,8 +198,30 @@ if [[ $grc -ne 0 ]]; then
        "capture was made and the entries stay as the agent left them" >&2
   exit 1
 fi
+# The guard has approved the legacy registry edit. Refresh the canonical
+# shards before captures or any later reader can observe the new registration.
+if ! cmp -s "$AGENT_RUN_DIR/before/sources.toml" "$ROOT/sources.toml"; then
+  if ! .venv/bin/python scripts/migrate_registry.py --refresh; then
+    echo "agent-x-intake: registry edit passed the guard but the canonical" \
+         "registry refresh failed; no first capture was made" >&2
+    exit 1
+  fi
+fi
+
+# A provider can return non-zero after producing guard-approved edits. Keep
+# registry projections coherent, but do not apply verdicts or make captures.
 if [[ $rc -ne 0 ]]; then
   echo "agent-x-intake: agent run failed; entries stay pending" >&2
+  exit 1
+fi
+
+# The only DISCOVERY.md writer in an intake run is this deterministic applier.
+# The driver still holds intake.lock, so the packet's exact Pending lines
+# cannot race another queue writer between guard validation and replacement.
+if ! .venv/bin/python scripts/apply_intake_verdicts.py \
+  --run-dir "$AGENT_RUN_DIR"; then
+  echo "agent-x-intake: guarded verdicts could not be applied; no first" \
+       "capture was made" >&2
   exit 1
 fi
 

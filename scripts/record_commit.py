@@ -95,6 +95,7 @@ STAGE_PATHS: tuple[str, ...] = (
     "archive/",
     "revision-reviews.toml",
     "sources.toml",
+    "registry/",
     "DISCOVERY.md",
     "discovery/",
     "quarantine/",
@@ -321,7 +322,7 @@ def summarize(root: Path, staged: list[tuple[str, str]],
         if social:
             social_keys.add(social.group(1))
             continue
-        if path.startswith("discovery/"):
+        if re.fullmatch(r"discovery/assessed-\d{4}-\d{2}\.md", path):
             summary.rotations += 1
         elif path.startswith("quarantine/"):
             summary.quarantines += 1
@@ -350,7 +351,7 @@ def summarize(root: Path, staged: list[tuple[str, str]],
 # presence without any archive/ change means the churn came from an agent run.
 AGENT_PATHS = (
     "sources.toml", "revision-reviews.toml", "DISCOVERY.md", "BACKLOG.md",
-    "corrections.toml", "discovery/", "quarantine/",
+    "corrections.toml", "registry/", "discovery/", "quarantine/",
 )
 
 

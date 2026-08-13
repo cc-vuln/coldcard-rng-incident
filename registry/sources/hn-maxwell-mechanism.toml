@@ -1,0 +1,38 @@
+# registry-order: 191
+
+[[source]]
+id = "hn-maxwell-mechanism"
+title = "Maxwell's correction on the defect mechanism"
+url = "https://news.ycombinator.com/item?id=49141886"
+published = "2026-08-02"  # comment timestamp 07:08:53 UTC, via the HN API
+org = "Hacker News"
+author = "nullc"
+kind = "independent-technical-analysis"
+tier = 2
+min_chars = 1200
+# HN answers this collector with a persistent 429 (verified 6 Aug 2026: still
+# 429 on single requests 20s apart, so it is the exit address rather than our
+# cadence). The item API answers normally and is the better view anyway: it
+# dates everything absolutely, so `relative-time` is no longer needed. `url`
+# stays the human permalink the site links and a reader would check.
+capture = "http"
+fetch_url = "https://hn.algolia.com/api/v1/items/49141886"
+json_thread = "hn-algolia"
+required_text = ["author: nullc"]
+note = """
+Greg Maxwell (nullc), commenting on the bitcoin++ Insider writeup, disputes the
+framing of the defect as a small build-flag change and states the mechanism
+differently: the commit added the whole RNG infrastructure, and the failure is a
+mixup between a value test and a definedness test across two repositories. The
+micropython path is gated by an #if on MICROPY_HW_ENABLE_RNG while the
+replacement path is gated by an #ifndef, so defining the macro to (0)
+deactivated one without activating the other. He adds that the Mk4-class reseed
+masked rather than corrected the problem, and questions hashing 64 bits of TRNG
+output before discarding half.
+
+Held because it is a technical correction to published reporting by a
+recognised source, and because it bears directly on how this site's own
+explainer characterises the guard. Attributed commentary on a public forum, not
+a vendor statement or a reproduction: it is graded as reported, and the code
+claims within it are checkable against the repositories the site already cites.
+"""

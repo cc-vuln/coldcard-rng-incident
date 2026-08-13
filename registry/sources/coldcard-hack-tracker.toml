@@ -1,0 +1,26 @@
+# registry-order: 121
+
+[[source]]
+id = "coldcard-hack-tracker"
+title = "COLDCARD hack tracker"
+url = "https://coldcard-hack-tracker.vercel.app/"
+org = "community tracker"
+kind = "chain-monitor"
+tier = 3
+min_chars = 1000
+capture = "browser"
+required_text = ["Watched holdings", "Holding 1", "Movement feed"]
+normalizers = ["relative-time", "fiat-values"]
+note = """
+Second, independent tracker of the same four holding addresses. States the
+accounting precision the reporting rounded: 1,082.65 BTC drained, 1,082.57 BTC
+arrived, the difference paid to miners as fees. Cites Galaxy, Coinkite and Block.
+The page is client-rendered. The empty shell from the first capture is preserved
+as a capture correction, followed by complete rendered captures.
+
+The operator rebuilt the page on 2 August 2026 around a five-wave model, which
+renamed the section heading this capture previously keyed on. The guard string
+moved from that heading to "Watched holdings"; "Holding 1" and "Movement feed"
+are retained because they appear only after the client-side data resolves, so an
+unrendered shell still fails the check rather than entering the record.
+"""

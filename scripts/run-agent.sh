@@ -15,10 +15,12 @@
 # would be steering.
 #
 # And it does not run the agent as the account that owns the tree. It drops to
-# a dedicated user that can read the repository, write the four files its role
-# is allowed to write, and read neither .env nor AGENTS.local.md nor the
+# a dedicated user that can read the repository, write only its role's narrow
+# files, and read neither .env nor AGENTS.local.md nor the
 # signed-in browser profile. That is a file-permission boundary rather than an
-# instruction, so it holds when the model stops following instructions.
+# instruction, so it holds when the model stops following instructions. The
+# intake queue is read-only: intake roles submit JSONL under .work and an
+# operator-side applier owns the queue rewrite.
 #
 # Setup is in docs/operations.md ("The agent account"). Until it is done this
 # script refuses, and the driver treats that as a failed run: the queue waits,

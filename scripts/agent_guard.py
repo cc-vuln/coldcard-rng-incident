@@ -21,7 +21,8 @@ handful the role is allowed to write. `after` recomputes and enforces:
 1. nothing outside the role's remit changed, in either direction
 2. no secret value, key shape or operator needle appears in what was added
 3. the registry changes are in shape (scripts/check_registry.py)
-4. every assessed DISCOVERY.md line still contains the candidate it came from
+4. intake verdict data covers exactly the protected packet and the agent did
+   not edit DISCOVERY.md directly
 5. requested first captures name sources this run actually registered
 6. the append-only files only gained lines: their before-text is a verbatim
    prefix of their after-text
@@ -58,14 +59,15 @@ ROLES: dict[str, tuple[str, ...]] = {
     # Classifies captured diffs. Appends classifications, drafts normalizer
     # proposals, and nothing else.
     "review": ("revision-reviews.toml", ".work/normalizer-proposals/"),
-    # Registers community threads and records verdicts.
-    "intake": ("sources.toml", "DISCOVERY.md", ".work/"),
+    # Registers community threads and writes a verdict-data outbox. The queue
+    # itself is an operator-side deterministic write after this gate.
+    "intake": ("sources.toml", ".work/"),
     # Rechecks unverified claims across the editorial pages.
     "sweep": ("site/src/pages/", "BACKLOG.md", ".work/"),
     # Registers queued X posts as [[x_post]] blocks and records verdicts.
     # Replaced the read-only xtriage role on 8 Aug 2026, when X promotion
     # was automated; its first captures are ingests, not polls.
-    "xintake": ("sources.toml", "DISCOVERY.md", ".work/"),
+    "xintake": ("sources.toml", ".work/"),
     # Drafts correction proposals from the claim sweep's state-changed
     # flags. Propose-only: corrections.toml and the site pages are
     # deliberately outside the remit, so a run that edits them fails here,
@@ -495,6 +497,50 @@ def approve_captures(role: str, run_dir: Path) -> tuple[list[str], list[str]]:
     return approved, problems
 
 
+def validate_intake_outbox(role: str, run_dir: Path) -> list[str]:
+    """Validate the protected decision data for an intake role.
+
+    Completeness is intentional: a missing body is represented by ``retry``;
+    absence is never interpreted as a decision. Registry relationships are
+    checked against both snapshots so a model cannot claim it registered an
+    old source or cite a newly invented id as already present.
+    """
+    if role not in REGISTERING_ROLES:
+        return []
+    outbox = run_dir / "intake-verdicts.jsonl"
+    try:
+        import intake_verdicts
+        verdicts = intake_verdicts.validate_paths(
+            packet_path=run_dir / "intake-packet.json",
+            outbox_path=run_dir / "intake-verdicts.jsonl",
+            before_registry_path=run_dir / "before" / "sources.toml",
+            after_registry_path=ROOT / "sources.toml")
+    except (OSError, ValueError) as exc:
+        return [f"intake verdict outbox was rejected: {exc}"]
+    text = read_text(outbox)
+    problems = []
+    secrets, _env_problem = env_secrets()  # scan_added reports missing .env
+    for name, value in secrets:
+        if value in text:
+            problems.append(
+                f"intake-verdicts.jsonl: contains the literal value of {name}")
+    for needle in private_needles():
+        if needle.lower() in text.lower():
+            problems.append(
+                "intake-verdicts.jsonl: contains an operator needle from "
+                "site/tools/private-tokens.json")
+            break
+    scan_values = [text, *(row["reason"] for row in verdicts)]
+    for pattern, what in SECRET_SHAPES:
+        match = next((found for value in scan_values
+                      if (found := pattern.search(value))), None)
+        if match:
+            problems.append(
+                f"intake-verdicts.jsonl: text looks like {what} "
+                f"({match.group(0)[:24]}...)")
+    return problems
+
+
 def do_before(role: str, run_dir: Path) -> int:
     (run_dir / "before").mkdir(parents=True, exist_ok=True)
     state = {"role": role, "files": manifest()}
@@ -531,6 +577,14 @@ def do_after(role: str, run_dir: Path) -> int:
     problems = []
     shared_notes = []
     for rel in changed:
+        # Intake roles never edit the queue directly. Even though discovery
+        # tooling can legitimately touch this shared path during other roles,
+        # the intake lock excludes such a neighbour for these two drivers.
+        if rel == "DISCOVERY.md" and role in REGISTERING_ROLES:
+            problems.append(
+                "DISCOVERY.md: an intake agent edited the queue directly; "
+                "write .work/intake-verdicts.jsonl instead")
+            continue
         if in_remit(rel, role):
             continue
         if rel in SHARED_PATHS:
@@ -560,8 +614,10 @@ def do_after(role: str, run_dir: Path) -> int:
             problems.append("the registry changes were rejected:\n    " +
                             "\n    ".join(registry.stderr.strip().splitlines()))
 
-    if "DISCOVERY.md" in changed:
+    if "DISCOVERY.md" in changed and role not in REGISTERING_ROLES:
         problems += discovery_integrity(run_dir)
+
+    problems += validate_intake_outbox(role, run_dir)
 
     approved, capture_problems = approve_captures(role, run_dir)
     problems += capture_problems

@@ -23,6 +23,8 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import urlparse
 
+import registry_store
+
 ROOT = Path(__file__).resolve().parent.parent
 
 # Same tables quarantine_registry.py knows how to move.
@@ -183,8 +185,7 @@ def uncaptured() -> None:
     # check_registry owns the rule; import it rather than restate it.
     sys.path.insert(0, str(ROOT / "scripts"))
     import check_registry
-    missing = check_registry.uncaptured_posts(check_registry.load(
-        ROOT / "sources.toml"))
+    missing = check_registry.uncaptured_posts(registry_store.load(ROOT))
     if not missing:
         print("none\n")
         return

@@ -1,0 +1,19 @@
+# registry-order: 328
+
+[[source]]
+id = "stackernews-nvk-statement"
+title = "To all Coinkite users and the entire Bitcoin community - NVK"
+url = "https://stacker.news/items/1537172"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537172) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby reposting NVK's 'To all Coinkite users and the entire Bitcoin community' statement, urging owners to move funds before reading further. The statement text is NVK's; this source captures it as circulated on Stacker News plus the community response. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

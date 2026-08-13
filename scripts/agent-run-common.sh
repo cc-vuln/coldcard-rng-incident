@@ -32,6 +32,7 @@ AGENT_PASSTHROUGH=(AGENT_SANDBOX AGENT_SANDBOX_USER AGENT_SANDBOX_GROUP)
 # itself (.work/agent-guard is the operator's), so it writes here and the
 # driver moves the request into the record before the gate reads it.
 CAPTURE_REQUESTS="$ROOT/.work/capture-requests.txt"
+INTAKE_VERDICTS="$ROOT/.work/intake-verdicts.jsonl"
 
 agent_load_env() {
   # Deliberately not `set -a`. Before this, every driver exported the whole of
@@ -74,6 +75,7 @@ agent_begin() {
   chmod 700 "$ROOT/.work/agent-guard" 2>/dev/null || true
   mkdir -p "$AGENT_RUN_DIR"
   rm -f "$CAPTURE_REQUESTS"
+  rm -f "$INTAKE_VERDICTS"
   "$ROOT/.venv/bin/python" "$ROOT/scripts/agent_guard.py" before \
     --role "$role" --run-dir "$AGENT_RUN_DIR"
 }
@@ -89,9 +91,20 @@ agent_finish() {
   # in here, as the operator account, is what makes the request evidence
   # rather than an instruction: the gate reads it, and only ids this run
   # actually registered survive.
-  if [[ -f "$CAPTURE_REQUESTS" ]]; then
-    cp "$CAPTURE_REQUESTS" "$AGENT_RUN_DIR/capture-requests.txt"
-    rm -f "$CAPTURE_REQUESTS"
+  if [[ -e "$CAPTURE_REQUESTS" || -L "$CAPTURE_REQUESTS" ]]; then
+    "$ROOT/.venv/bin/python" "$ROOT/scripts/secure_run_input.py" \
+      "$CAPTURE_REQUESTS" "$AGENT_RUN_DIR/capture-requests.txt" \
+      --max-bytes 65536 || true
+  fi
+  # Intake agents submit decisions as data. DISCOVERY.md remains unchanged
+  # until the operator-side guard has validated this protected copy against
+  # the exact packet, registry before-image and post-run registry.
+  if [[ "$role" == "intake" || "$role" == "xintake" ]]; then
+    if [[ -e "$INTAKE_VERDICTS" || -L "$INTAKE_VERDICTS" ]]; then
+      "$ROOT/.venv/bin/python" "$ROOT/scripts/secure_run_input.py" \
+        "$INTAKE_VERDICTS" "$AGENT_RUN_DIR/intake-verdicts.jsonl" \
+        --max-bytes 65536 || true
+    fi
   fi
   local rc=0
   "$ROOT/.venv/bin/python" "$ROOT/scripts/agent_guard.py" after \

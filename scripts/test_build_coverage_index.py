@@ -165,13 +165,16 @@ class CoverageIndexTests(unittest.TestCase):
         self.assertIn("## Other registered sources (2)", text)
         self.assertIn("## Registered social posts (2)", text)
 
-    def test_the_community_template_still_consumes_the_index(self):
-        # The renderer fails on an unfilled placeholder but says nothing about
-        # a substitution nobody used, so a dropped {COVERAGE} would silently
-        # take the index back out of the prompt.
-        template = (ROOT / "scripts"
-                    / "agent-discovery-intake-prompt.md").read_text()
-        self.assertIn("{COVERAGE}", template)
+    def test_intake_templates_consume_one_scoped_packet(self):
+        # The packet replaces three overlapping prompt payloads. Keeping the
+        # assertion here makes an accidental return to the full index visible.
+        for name in ("agent-discovery-intake-prompt.md",
+                     "agent-x-intake-prompt.md"):
+            template = (ROOT / "scripts" / name).read_text()
+            self.assertEqual(template.count("{INTAKE_PACKET}"), 1)
+            self.assertNotIn("{COVERAGE}", template)
+            self.assertNotIn("{CANDIDATES}", template)
+            self.assertNotIn("{HYDRATED}", template)
 
     def test_the_index_carries_no_instructions(self):
         # It is fenced as untrusted and the framing lives in the template.

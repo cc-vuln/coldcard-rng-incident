@@ -1,0 +1,20 @@
+# registry-order: 919
+
+[[source]]
+id = "stackernews-coldcard-correction-fallback"
+title = "Coldcard issues \"extremely important correction\""
+url = "https://stacker.news/items/1542079"
+published = "2026-08-07"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260814T165734Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1542079) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby relaying and critiquing Coinkite's public correction to Jack Mallers, in which the vendor says the weak PRNG was not an intentional fallback but inherited behaviour from MicroPython that became active because of a link-time error. Preserves a key moment in the vendor-response narrative; the quoted correction is Coinkite's statement and Scoresby's framing is the poster's own. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

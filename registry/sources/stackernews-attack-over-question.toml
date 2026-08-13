@@ -1,0 +1,19 @@
+# registry-order: 349
+
+[[source]]
+id = "stackernews-attack-over-question"
+title = "At what point can this attack be considered over?"
+url = "https://stacker.news/items/1538677"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538677) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+theonceler asking at what point the attack can be considered over: when remaining affected addresses have either moved or been drained. Frames the endgame question the chain monitors' numbers bear on. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

@@ -1,0 +1,28 @@
+# registry-order: 583
+
+[[source]]
+id = "cktripwire-methodology"
+title = "CKTRIPWIRE methodology"
+url = "https://cktripwire.com/methodology"
+org = "CKTRIPWIRE"
+kind = "research"
+tier = 3
+min_chars = 2000
+required_text = ["CKTRIPWIRE", "Yasmarang", "honeypot"]
+note = """
+The method behind cktripwire-honeypot-monitor, linked from the scoreboard and
+registered separately so the experiment's stated design is held as a document
+rather than inferred from its results. It describes how the operator reproduces
+the RNG defect in software (ngu.random.bytes() resolving to the XOR of two
+Yasmarang PRNGs with no hardware entropy), how that reproduction was checked
+against real hardware, and how the experiment is designed: difficulty bands set
+by the entropy added on top of the attacker-known seed, a zero-entropy mainnet
+control, and deliberately coarse public reporting with no addresses, exact
+amounts or keys. It states that the operator retains the keys to every honeypot.
+The page directs readers to @jamesob for background and updates.
+
+Kept at tier 3 rather than the chain-monitor lane: this is static prose,
+unlike the scoreboard's live state. The reproduction, the hardware
+validation and the entropy estimates are the operator's own and have not been
+independently reproduced by this archive.
+"""

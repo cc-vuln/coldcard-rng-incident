@@ -8,6 +8,8 @@ import json
 import tomllib
 from pathlib import Path
 
+import registry_store
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -17,7 +19,7 @@ def main() -> int:
     parser.add_argument("--minimum-polls", type=int, default=6)
     args = parser.parse_args()
 
-    registry = tomllib.loads((ROOT / "sources.toml").read_text())
+    registry = registry_store.load(ROOT)
     reviews = tomllib.loads((ROOT / "revision-reviews.toml").read_text())
     status: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
     for entry in reviews.get("revision", []):

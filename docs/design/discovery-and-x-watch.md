@@ -335,7 +335,7 @@ The intake queue is operational, not editorial. The public site continues to
 render only registered sources and registered posts. Since 8 Aug 2026 X
 promotion is automated under the same containment as community intake: the
 registering `xintake` guard role assesses queued X candidates with the
-coverage index in view, every registration carries a scoped `why`,
+bounded intake packet in view, every registration carries a scoped `why`,
 attribution and evidence treatment, `agent_guard.py` enforces the role's path
 allowlist and `check_registry.py` validates the result, and the driver makes
 the first capture through `ingest-x.py` afterwards. The agent never reaches

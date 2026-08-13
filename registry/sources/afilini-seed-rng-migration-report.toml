@@ -1,0 +1,29 @@
+# registry-order: 682
+
+# ------------------------------------- 5 Aug primary analyses and reporting
+
+[[source]]
+id = "afilini-seed-rng-migration-report"
+title = "One Commit, Two Random Sources: how COLDCARD's seed generation was moved off the hardware RNG"
+url = "https://gist.github.com/afilini/b7d13bd2d7deaf8f23d30213a801e3c5"
+published = "2026-08-05"  # gist created 2026-08-05T13:11:53Z
+org = "afilini"
+kind = "independent-analysis"
+tier = 2
+watch_until = "20260813T052201Z"
+min_chars = 2000
+note = """
+Commit-level reading of b18723dd (1 March 2021), the libngu integration, which
+the report says moved only seed.py and random.py from the ckcc.rng hardware API
+to ngu.random while backups and file erasure stayed on the hardware path. Its
+conclusion is that this was a selective rather than blanket migration that then
+stood for five years. Primary work rather than reporting on it: the report
+states the git commands and line-by-line diffs it rests on, so a reader can
+re-run them. The report discloses AI assistance in its own text. The selective
+migration reading and its inferences are the author's, not verified here, and
+the report does not assert intent. Its subject matter overlaps
+dylanleclair1-switck-key-attribution and reddit-switck-identity-claims, which
+preserve a separate identity claim about the same code. The gist had four
+revisions within two hours of creation, so it is watched rather than treated as
+a one-shot capture.
+"""

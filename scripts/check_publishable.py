@@ -27,9 +27,9 @@ import json
 import re
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 
+import registry_store
 from response_headers import disallowed, geo_in_body
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -44,7 +44,7 @@ def withheld_ids() -> set[str]:
     # Both registry block types, because withhold_text is honoured on both.
     # A thread-enabled [[x_post]] writes snapshot text under its own id, so
     # reading only [[source]] would let a withheld conversation reach a commit.
-    cfg = tomllib.loads((ROOT / "sources.toml").read_text())
+    cfg = registry_store.load(ROOT)
     return {
         s["id"] for s in (*cfg.get("source", []), *cfg.get("x_post", []))
         if s.get("withhold_text") is True

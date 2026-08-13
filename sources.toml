@@ -21,7 +21,10 @@
 # only when a thread remains a continuing source of distinct incident evidence.
 # `kind` records the source's evidentiary role.
 #
-# Add a source, run `just capture`, done. Removing one keeps its history.
+# This remains the compatible write ledger during the registry-layout
+# transition. Add one block, run `just registry-refresh`, then capture. The
+# discoverable one-record-per-file projection is under registry/; do not edit
+# both representations. Removing a source keeps its accumulated history.
 # `normalizers` selects documented source-specific comparison filters. The raw
 # extracted text remains in snapshots; only the change hash and diff are
 # canonicalized, so adding a filter never rewrites earlier evidence.

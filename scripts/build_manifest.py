@@ -35,6 +35,8 @@ import sys
 from pathlib import Path
 from typing import Any, Iterator
 
+import registry_store
+
 REPO = Path(__file__).resolve().parent.parent
 ARCHIVE = REPO / "archive"
 SNAPSHOTS = ARCHIVE / "snapshots"
@@ -68,13 +70,8 @@ def sha256_of(path: Path) -> str:
 
 
 def load_registry() -> dict[str, Any]:
-    """Read sources.toml with the stdlib, so this keeps working in ten years."""
-    try:
-        import tomllib
-    except ModuleNotFoundError:  # Python 3.10 and earlier
-        return {}
-    with (REPO / "sources.toml").open("rb") as handle:
-        return tomllib.load(handle)
+    """Read the layout-independent registry with the stdlib-only loader."""
+    return registry_store.load(REPO)
 
 
 def snapshot_rows(registry: dict[str, Any]) -> Iterator[dict[str, Any]]:

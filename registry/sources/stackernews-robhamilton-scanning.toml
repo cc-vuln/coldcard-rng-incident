@@ -1,0 +1,19 @@
+# registry-order: 355
+
+[[source]]
+id = "stackernews-robhamilton-scanning"
+title = "Rob Hamilton spends $10k scanning Bitcoin projects, finds multiple vulns"
+url = "https://stacker.news/items/1539074"
+published = "2026-08-03"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1539074) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby on Rob Hamilton spending $10k scanning Bitcoin projects and finding multiple vulnerabilities, with the poster noting Hamilton's AnchorWatch markets a related service. The disclosure of that conflict in the thread itself is part of the record. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

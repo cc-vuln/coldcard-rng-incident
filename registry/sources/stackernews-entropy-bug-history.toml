@@ -1,0 +1,21 @@
+# registry-order: 506
+
+# ---- 4 Aug 2026 discovery intake: Stacker News and Reddit incident threads ----
+
+[[source]]
+id = "stackernews-entropy-bug-history"
+title = "ColdCard Entropy Bug: An Investigative History"
+url = "https://stacker.news/items/1540008"
+published = "2026-08-04"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1540008) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+SimpleStacker posting an investigative history of the COLDCARD entropy bug. A substantial retrospective discussion of the vulnerability and disclosure history; the historical account and technical claims are the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

@@ -1,0 +1,50 @@
+# Tracked sources for the COLDCARD entropy incident archive.
+#
+# Each [[source]] has a recheck priority used by the recurring due-state runner.
+# Tier 1 and chain-monitor sources run every 30 minutes; tiers 2 and 3 run every
+# six hours. Captures still write a snapshot only when extracted text changes,
+# so the archive records edits rather than every poll.
+#
+# tier is recheck priority, not evidentiary role:
+# tier = 1  highly mutable, time-sensitive or deletion-prone
+# tier = 2  moderately mutable or append-only
+# tier = 3  lower recheck priority
+# `watch = "frozen"` keeps a source registered and explicitly capturable by
+# id while excluding it from broad and scheduled polls. Use it for exhausted
+# historical material, never as a substitute for `gone` when an origin removes
+# a document.
+# `watch_until = "YYYYMMDDTHHMMSSZ"` gives a newly registered mutable thread a
+# bounded monitoring window. After it elapses, scheduled polls skip the source
+# while `just capture-one <id>` remains available for a deliberate recheck.
+# Community discussions without either field default to seven days from their
+# first snapshot in Tier 2 and three days in Tier 3. Set `watch = "active"`
+# only when a thread remains a continuing source of distinct incident evidence.
+# `kind` records the source's evidentiary role.
+#
+# This remains the compatible write ledger during the registry-layout
+# transition. Add one block, run `just registry-refresh`, then capture. The
+# discoverable one-record-per-file projection is under registry/; do not edit
+# both representations. Removing a source keeps its accumulated history.
+# `normalizers` selects documented source-specific comparison filters. The raw
+# extracted text remains in snapshots; only the change hash and diff are
+# canonicalized, so adding a filter never rewrites earlier evidence.
+
+[meta]
+incident = "coldcard-entropy-2026"
+title = "COLDCARD predictable RNG fallback and 32-bit reseed"
+disclosed = "2026-07-30"
+description = """
+A compile-time guard in libngu tested macro defined-ness rather than value,
+routing the intended hardware-RNG input to MicroPython's Yasmarang fallback.
+The affected release range begins with firmware v4.0.0 (17 Mar 2021). Models
+with published hotfixes were remediated on 31 Jul 2026; the vendor downloads
+page lists 4.2.0 for Mk2 and Mk3, unchanged in every poll through 7 Aug 2026.
+This site's privacy-safe 500-transaction recheck of the 30 Jul sweep totals
+594.51 BTC gross. Wider attributed sets are larger and are other parties'
+figures: Galaxy Research's confirmed total was 1,082.65 BTC across 1,196
+addresses on 31 Jul, 1,367.05 BTC on 1 Aug and 1,596 BTC across about 7,300
+addresses on 3 Aug, and the community monitor coldcardwatch.com stated
+1,405.0671 BTC verified drained across 4,925 addresses on 7 Aug. They count
+different sets over different windows and are not alternative measurements of
+one number.
+"""

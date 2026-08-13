@@ -1,0 +1,31 @@
+# registry-order: 663
+
+# ------------------------------------------------------------------- nostr
+# nostr notes are self-authenticating signed events, captured separately via
+# scripts/ingest_nostr.py (nak) into archive/nostr/<id>/<TS>/. They are not
+# [[source]] entries and capture.py never polls them; a re-capture is a new
+# timestamped directory. Discovery is manual during probation
+# (`just discover-nostr`, NOSTR_DISCOVERY_ENABLED=true), querying NIP-50
+# search relays and queueing candidates in DISCOVERY.md.
+#
+# [[nostr_post]]
+# id = "<slug>-<first 8 hex of event id>"
+# title = "..."
+# url = "https://njump.me/note1..."
+# author = "npub1..."
+# org = "nostr"
+# posted = "YYYY-MM-DDTHH:MM:SSZ"
+# tag = "community"
+# why = "..."
+
+[[nostr_post]]
+id = "victim-rebuild-letter-912cff9b"
+title = "nostr: pseudonymous victim's post-incident letter, relayed from X"
+url = "https://njump.me/note1jyk0lxl27cf8c3c6ghtl57u8x0mmhpmjv7acvk76zmmahk0w9kdqrne45j"
+author = "npub168u2cl8m4s9htdym5yref7tpkghw96lngc0d8cxqyc400f02sdjs3q68qx"
+org = "nostr"
+posted = "2026-08-06T02:41:41Z"
+tag = "community"
+why = """
+The note's author concurs with and reproduces a letter from an anonymous X account claiming to have lost an entire bitcoin stack in the incident, presumably the largest single loss, after thirteen years of accumulation. A first-hand victim account as the intake criteria name it: the writer addresses other victims, the attacker and the Block team, and describes rebuilding. The loss claim and identity are unattributed and unverified here; the X original is not held.
+"""

@@ -1,0 +1,31 @@
+# registry-order: 217
+
+# ---- 3 Aug 2026 intake batch: 38 X posts + 2 web sources ------------------
+
+[[source]]
+id = "stackernews-prior-warning-video"
+title = "Claim that the BTCRecover maintainer warned about COLDCARD two years ago"
+url = "https://stacker.news/items/1538447"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "reporting"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538447) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+A Stacker News thread linking a YouTube video (youtu.be/oj_W3xOlt6U) said to
+show the BTCRecover maintainer warning about COLDCARD entropy two years before
+the incident, and claiming NVK had blocked him on X. The prior-warning claim
+and the block claim are the thread author's; neither is verified here, and the
+video itself is not captured by this archive.
+
+Captured through the site's public GraphQL API: the browser route crashes the
+capture tab on stacker.news pages, and the API answers POST from this host
+while the rendered page is challenge-gated. The query fixes the captured
+surface to the item's title, text and two levels of comments, each with author
+and absolute timestamp.
+"""

@@ -1,0 +1,21 @@
+# registry-order: 989
+
+[[source]]
+id = "ledger-incident-faq"
+title = "FAQs related to the COLDCARD incident, July 2026"
+url = "https://support.ledger.com/article/FAQs-Related-to-the-Coldcard-Incident-July-2026"
+published = "2026-08-07"
+org = "Ledger"
+kind = "vendor-response"
+tier = 2
+capture = "browser"  # Salesforce serves an empty shell to the plain HTTP extractor
+browser_text_selector = "c-display-article >>> lightning-formatted-rich-text"
+browser_include_hidden = true  # answers are present in DOM but CSS-collapsed
+required_text = ["Ledger is not affected", "True Random Number Generator"]
+min_chars = 1500
+note = """
+Ledger's official incident FAQ, linked from its stickied community-moderator
+statement. Held as a primary competing-vendor response and as the direct
+support document behind the moderator post. Security and product claims in it
+are Ledger's own and are not endorsed by registration.
+"""

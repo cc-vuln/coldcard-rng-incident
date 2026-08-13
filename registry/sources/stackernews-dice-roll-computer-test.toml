@@ -1,0 +1,19 @@
+# registry-order: 386
+
+[[source]]
+id = "stackernews-dice-roll-computer-test"
+title = "I wanted to test a coldcard's dice-roll generation against my computer's"
+url = "https://stacker.news/items/1537388"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537388) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake describing a personal test of a COLDCARD's dice-roll seed generation against the computer's randomness, posted the day after disclosure with the aside "DYOR, and all that." The body carries no results and the thread has no comments so far; its value is documenting an owner independently checking device entropy in the incident's wake, by the same author as stackernews-rng-analysis-by-device, stackernews-dice-roll-sound and stackernews-entropy-technical-deep-dive. Any implied claims about dice-roll safety are the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

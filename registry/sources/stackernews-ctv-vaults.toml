@@ -1,0 +1,20 @@
+# registry-order: 677
+
+[[source]]
+id = "stackernews-ctv-vaults"
+title = "How CTV Covenant Enabled Vaults Could Have Protected Cold Card Victims"
+url = "https://stacker.news/items/1541227"
+published = "2026-08-05"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260813T052201Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1541227) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+nerd2ninja arguing that a CTV-enabled vault could have given an owner time to claw funds back after a drain, and contrasting that proposed design with multi-vendor multisig and dice-generated entropy. A distinct technical mitigation argument about how the incident might have unfolded under a future covenant, rather than a claim about the vulnerable firmware. The proposed wallet behaviour and risk assessments are the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

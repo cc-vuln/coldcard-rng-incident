@@ -1,0 +1,25 @@
+# registry-order: 316
+
+# ---- 4 Aug 2026 Stacker News sweep batch: 50 incident threads ------------
+# Enumerated from the ~bitcoin and ~security recent territory feeds (item ids
+# 1536238-1539720, 30 Jul-4 Aug 2026). See scripts/discover_stackernews.py for
+# the discovery route; the capture route is the same GraphQL item query the
+# first two stackernews sources use.
+
+[[source]]
+id = "stackernews-first-drain-report"
+title = "User reports their coldcard wallet being drained on Reddit"
+url = "https://stacker.news/items/1536238"
+published = "2026-07-30"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536238) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+The earliest incident thread identified on Stacker News: Murch relaying the first Reddit drain report while the recipient address was still collecting, the evening before Coinkite's disclosure. The drain claims quoted are the Reddit posters', unverified here; the thread's value is that it fixes when the incident first surfaced publicly and how the community read it in real time. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

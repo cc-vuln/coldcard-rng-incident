@@ -1,0 +1,20 @@
+# registry-order: 917
+
+[[source]]
+id = "stackernews-trezor-cto-coldcard-hack"
+title = "Trezor's CTO on the Cold Card Hack: Randomness, Trust, and What Comes Next"
+url = "https://stacker.news/items/1542511"
+published = "2026-08-07"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260814T165734Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1542511) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+efrat interviewing Trezor CTO Tomáš Sušánka days after the Coldcard hack, covering entropy, Trezor's RNG design, open-source review limits, and multisig. A vendor competitor's perspective on the incident and what comes next, alongside trezor-coldcard-not-affected. The claims are the speakers' own, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

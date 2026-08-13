@@ -1,0 +1,23 @@
+# registry-order: 805
+
+[[x_post]]
+id = "coldcardwallet-2085541034243600805"
+title = "Vendor correction of the fallback framing"
+url = "https://x.com/COLDCARDwallet/status/2085541034243600805"
+author = "COLDCARDwallet"
+posted = "2026-08-07T01:38:24Z"
+why = """
+COLDCARD publicly correcting Jack Mallers over the description of a weak
+entropy fallback, and the clearest vendor statement held of how the defect
+arose. It says Yasmarang was not Coinkite's fallback but MicroPython's built-in
+general-purpose RNG, added upstream in May 2018, and that it did not enter
+Coldcard's seed generation until the libNgU migration in March 2021. It argues
+the design intent was the opposite of a software fallback: seed generation was
+to rely on the hardware TRNG alone, and setting MICROPY_HW_ENABLE_RNG=0 was
+meant to disable the software path, but the symbol instead resolved to the
+runtime's default, so the behaviour was inherited from the platform through a
+link-time error rather than chosen. Mallers's severity alert is held at
+mallers-coldcard-alert, and the guard and generator themselves are tracked as
+repository sources. The statement of intent is the vendor's own account of its
+own work.
+"""

@@ -60,6 +60,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from quarantine_registry import block_spans
+from migrate_registry import refresh_if_installed
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "sources.toml"
@@ -416,6 +417,13 @@ def main() -> int:
 
     if confirmed:
         args.registry.write_text(edited, encoding="utf-8")
+        try:
+            refresh_if_installed(args.registry)
+        except (OSError, ValueError) as exc:
+            print("\ncorroborate-gone: registry was updated, but its "
+                  f"discoverable projection could not be refreshed: {exc}",
+                  file=sys.stderr)
+            return 1
         print(f"\ncorroborate-gone: recorded gone: {', '.join(confirmed)}")
     elif args.yes:
         print("\ncorroborate-gone: nothing was confirmed gone; "

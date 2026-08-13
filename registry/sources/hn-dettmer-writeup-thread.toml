@@ -1,0 +1,29 @@
+# registry-order: 207
+
+[[source]]
+id = "hn-dettmer-writeup-thread"
+title = "Hacker News discussion of the bitcoin++ writeup"
+url = "https://news.ycombinator.com/item?id=49140405"
+published = "2026-08-02"  # story submitted 02:08:26 UTC, via the HN API
+org = "Hacker News"
+author = "Funes-"
+kind = "reporting"
+tier = 2
+min_chars = 1000
+# Moved to the item API on 6 Aug 2026 for the same reason as
+# hn-maxwell-mechanism: HN 429s this collector. See that entry.
+capture = "http"
+fetch_url = "https://hn.algolia.com/api/v1/items/49140405"
+json_thread = "hn-algolia"
+required_text = ["author: Funes-"]
+note = """
+The thread on Dettmer's commit-history writeup, and the place where the
+correction this archive already holds separately was published: Greg Maxwell's
+comment disputing the small-flag-change framing sits inside it, registered as
+hn-maxwell-mechanism. Held for the discussion around that correction rather
+than for the article itself, which is tracked as btcpp-dettmer-commit-history.
+
+The held text recursively flattens the item tree by stable comment id, decodes
+the API's HTML and omits point totals, so a new or edited comment stays loud
+without vote changes producing revisions.
+"""

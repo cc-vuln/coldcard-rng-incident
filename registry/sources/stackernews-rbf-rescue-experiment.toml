@@ -1,0 +1,20 @@
+# registry-order: 678
+
+[[source]]
+id = "stackernews-rbf-rescue-experiment"
+title = "Defending funds on ColdCard with RBF transactions"
+url = "https://stacker.news/items/1541190"
+published = "2026-08-05"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260813T052201Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1541190) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+ignaciob relaying an alleged Pathfinder COLDCARD Mk3 test in which WatchGuard detected a sweep and raced it with a pre-signed replace-by-fee transaction, naming a transaction and fee amounts. This is a distinct mitigation experiment and public discussion of an adversarial fee race during the rescue window. The experiment, its outcome and the claim that the later attacker transaction continued the race are the thread's and linked post's claims, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

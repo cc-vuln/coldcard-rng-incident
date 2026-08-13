@@ -1,0 +1,25 @@
+# registry-order: 875
+
+[[x_post]]
+id = "bigshiny0-2085547011743338845"
+title = "Instrumented Mk4 TRNG read count"
+url = "https://x.com/bigshiny0/status/2085547011743338845"
+author = "bigshiny0"
+posted = "2026-08-07T02:02:09Z"
+why = """
+Shiny reports instrumenting Mk4 firmware at the point where it reads the STM32
+hardware RNG and then requesting the same 32 bytes seed generation uses: on 5.6.0
+exactly eight hardware reads were observed, which the poster reads as direct
+proof that the seed request reached the true RNG, and on affected firmware the
+same test is said to show zero hardware reads with the bytes coming from
+MicroPython's software PRNG instead. The post frames this as a real-device path
+test rather than statistical inspection of whether output looks random, and asks
+why such a test was not already in COLDCARD's suite and run routinely on
+hardware. It quotes the vendor's reply to another account insisting there was no
+weak entropy fallback and that precision matters, so it is a direct
+methodological answer to COLDCARD on what a test would actually settle. No
+instrumentation code, device identifier or log is published with it, and the
+affected-firmware half is stated as what the test would have shown rather than a
+run that was performed. The result and the inference are the poster's own and are
+not reproduced here.
+"""

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import argparse
-import tomllib
 from pathlib import Path
+
+import registry_store
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -24,7 +25,7 @@ def main() -> int:
     parser.add_argument("paths", nargs="+")
     parser.add_argument("--lines-per-diff", type=int, default=120)
     args = parser.parse_args()
-    registry = tomllib.loads((ROOT / "sources.toml").read_text())
+    registry = registry_store.load(ROOT)
     sources = {source["id"]: source for source in registry.get("source", [])}
     for raw_path in args.paths:
         path = ROOT / raw_path

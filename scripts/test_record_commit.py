@@ -146,11 +146,13 @@ class TestStaging(RepoFixture):
 
     def test_allowlist_stages_and_secrets_do_not(self) -> None:
         self.append("revision-reviews.toml", "\n[[revision]]\nsource = \"x\"\n")
+        self.write("registry/sources/example.toml", "[[source]]\nid = \"example\"\n")
         self.write("site/src/data/x-thread-media.json", "{}\n")
         self.write(".env", "NOSTR_SECRET_KEY=nsec1notreal\n")
         self.write(".work/scratch.txt", "operator scratch\n")
         staged = {path: status for status, path in rc.stage(self.root)}
         self.assertIn("revision-reviews.toml", staged)
+        self.assertIn("registry/sources/example.toml", staged)
         self.assertIn("site/src/data/x-thread-media.json", staged)
         self.assertNotIn(".env", staged)
         self.assertTrue(all(not p.startswith(".work/") for p in staged))
@@ -219,10 +221,17 @@ class TestSummaryAndMessage(RepoFixture):
                          "record")
         self.assertEqual(rc.classify([("M", "sources.toml")]), "agents")
         self.assertEqual(rc.classify([("M", "DISCOVERY.md")]), "agents")
+        self.assertEqual(rc.classify([("M", "registry/manifest.json")]),
+                         "agents")
         self.assertEqual(rc.classify([("M", "site/src/pages/index.astro")]),
                          "site")
         self.assertEqual(rc.classify([("M", "scripts/capture.py"),
                                       ("M", "docs/README.md")]), "automation")
+
+    def test_structured_candidates_are_not_counted_as_legacy_rotations(self) -> None:
+        self.write("discovery/candidates/reddit/abc.json", "{}\n")
+        summary = rc.summarize(self.root, rc.stage(self.root))
+        self.assertEqual(0, summary.rotations)
 
 
 class TestMessageLint(RepoFixture):

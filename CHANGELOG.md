@@ -4,6 +4,30 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-13
+
+### Registry and intake tooling
+
+- Organised the source registry as a discoverable `registry/` tree with one
+  TOML record per stable id. `sources.toml` remains the compatible write ledger
+  during the transition. A generated manifest pins every shard, and the shared
+  reader selects the tree only after proving record counts, global order,
+  parsed meaning and an exact byte-for-byte reconstruction of the ledger. A
+  stale, partial or altered tree falls back to `sources.toml`; the audit gate
+  requires the installed projection to be current.
+- Replaced the intake agents' repeated full-registry, full-coverage and
+  duplicated-candidate prompt inputs with a bounded, machine-checkable packet.
+  Each candidate appears once beside its hydrated body and mechanical native-id
+  registry match. Every non-zero historical saturation row is retained, while
+  the much larger zero-history set is counted rather than copied into every
+  run.
+- Removed direct agent writes to `DISCOVERY.md`. Intake decisions now cross the
+  privilege boundary as a complete JSONL outbox; the guard checks every
+  candidate, source relationship and publishable reason against the protected
+  packet and before/after registries. Only then does a deterministic
+  operator-side applier rewrite the queue under its existing lock. The agent
+  account retains read access but no queue write bit.
+
 ## 2026-08-12
 
 ### Tooling

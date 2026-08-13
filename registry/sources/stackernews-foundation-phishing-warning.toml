@@ -1,0 +1,19 @@
+# registry-order: 348
+
+[[source]]
+id = "stackernews-foundation-phishing-warning"
+title = "Foundation Phishing Warning"
+url = "https://stacker.news/items/1538671"
+published = "2026-08-02"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1538671) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+siggy47 warning about Foundation-themed phishing during the incident. Part of the scam-wave record: lookalike warnings and phishing attempts proliferated while owners were frightened. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

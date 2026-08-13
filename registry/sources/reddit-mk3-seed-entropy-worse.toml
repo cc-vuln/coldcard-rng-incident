@@ -1,0 +1,16 @@
+# registry-order: 788
+
+[[source]]
+id = "reddit-mk3-seed-entropy-worse"
+title = "r/Bitcoin: claim that Mk3 PRNG seed entropy is nearer 23 bits than 32"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vh0lm7/coldcard_entropy_even_worse_than_feared/"
+published = "2026-08-06"  # created_utc on the captured post
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260814T103900Z"
+min_chars = 3000
+capture = "reddit-json"
+why = """
+ineedanamegenerator arguing the Mk3 PRNG seed, UID[31:0] XOR SysTick->VAL, carries far less than the 32 bits assumed: SysTick supplies about 16 bits confined to the lowest bits and overlapping the UID's wafer-coordinate field, which the poster bounds at roughly 7 bits, leaving about 23 bits in total. A substantive technical challenge to the archived Mk3 entropy model, with a mid-post correction on the UID encoding, and one of the week's largest technical discussions. The bit counts and the wafer-size bound are the poster's own derivation, not verified here. Same author as reddit-attacker-execution-critique.
+"""

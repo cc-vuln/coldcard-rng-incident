@@ -1,0 +1,19 @@
+# registry-order: 317
+
+[[source]]
+id = "stackernews-rng-analysis-by-device"
+title = "Coldcard RNG Vulnerability Analysis by Device & Firmware"
+url = "https://stacker.news/items/1536654"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1536654) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+itsrealfake's device-and-firmware breakdown of which COLDCARD models and firmware ranges carried the RNG defect. The post body is a single image, which this text-only capture does not hold; the comment discussion is captured. The analysis is the author's, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

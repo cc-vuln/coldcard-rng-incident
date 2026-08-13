@@ -1,0 +1,13 @@
+# registry-order: 33
+
+[[source]]
+id = "coldcard-firmware-pr-707"
+title = "COLDCARD firmware PR #707: require external entropy for each new wallet"
+url = "https://github.com/Coldcard/firmware/pull/707"
+org = "Coinkite"
+kind = "repo-pr"
+tier = 2
+normalizers = ["github-repo-counters", "github-reactions"]
+note = """
+A seven-commit proposal in the vendor's own firmware repository, open at first capture on 7 Aug 2026, opened by scgbckbone from a branch named improve_seed_gen-public. Its commits mix secure-element entropy into seed generation, reseed with the full 32-byte digest rather than a truncated one, require external entropy for every new master seed and for CCC and temporary seeds, warn before dice-only seed generation, and bump libngu so that the SHA-256 Hash-DRBG replaces Yasmarang. Registered 7 Aug 2026 after being reported in reddit-user-entropy-options; it is the vendor-side counterpart to the upstream libngu proposals already held, and its state is whatever the newest capture shows rather than what the record said when it was registered.
+"""

@@ -1,0 +1,28 @@
+# registry-order: 1066
+
+[[source]]
+id = "stackernews-technical-autopsy-entropy-failure"
+title = "Coldcard: the technical autopsy of an entropy failure"
+url = "https://stacker.news/items/1546011"
+published = "2026-08-11"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260819T132500Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1546011) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+k00b relaying a detailed postmortem that claims the Mk3 and Mk4 candidate spaces
+are smaller than previously reported, estimates sweep costs and collision
+probabilities, and compares device-class vulnerability. The numerical claims are
+the author's and are reported here without endorsement; the thread is a
+significant technical counterpoint to earlier published estimates. Captured
+through the site's public GraphQL API: the rendered pages crash the capture tab,
+and the API answers POST from this host. The query fixes the captured surface to
+the item's title, text and two levels of comments, each with author and absolute
+timestamp.
+"""

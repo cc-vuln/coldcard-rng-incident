@@ -1,0 +1,19 @@
+# registry-order: 333
+
+[[source]]
+id = "stackernews-media-ai-anatomy"
+title = "Coldcard, the Media, and the Anatomy of AI Retardation"
+url = "https://stacker.news/items/1537410"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537410) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Aeneas on the media coverage of the incident and AI-generated commentary, engaging with Coinkite's technical backgrounder. Opinion and media criticism, attributed to the author. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

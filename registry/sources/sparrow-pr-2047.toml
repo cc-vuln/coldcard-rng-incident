@@ -1,0 +1,21 @@
+# registry-order: 822
+
+[[source]]
+id = "sparrow-pr-2047"
+title = "Sparrow Wallet PR #2047: warn on COLDCARD device selection"
+url = "https://github.com/sparrowwallet/sparrow/pull/2047"
+published = "2026-08-06"
+org = "Sparrow"
+kind = "repo-pr"
+tier = 2
+normalizers = ["github-repo-counters", "github-reactions"]
+note = """
+A third-party proposal in Sparrow Wallet to show an advisory warning when a
+user selects a COLDCARD in the device flow, opened 6 Aug 2026 by nrobi144 and
+approved by skwp the same day. Held because wallet software warning its own
+users is a distinct strand of the response from vendor advisories and upstream
+library fixes: it puts the notice where a person is about to use the device.
+Detection keys on the exact COLDCARD wallet model, so subclassing importers do
+not trigger it. The author states the change was drafted with LLM assistance
+and that he could not run a full local build.
+"""

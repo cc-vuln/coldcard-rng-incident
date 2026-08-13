@@ -1,0 +1,20 @@
+# registry-order: 782
+
+[[source]]
+id = "stackernews-2023-hww-paranoia"
+title = "extreme paranoia with hardware wallets"
+url = "https://stacker.news/items/294620"
+published = "2023-10-25"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260810T101637Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 294620) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+lloyddunne in October 2023, praising the COLDCARD yet naming seed-generation trust as the thing that kept them up at night, and proposing normalised offline seed generation with dice and independent checksum verification. A contemporaneous pre-incident record that the concern behind the July 2026 incident was already being discussed, alongside reddit-entropy-warning-october-2023. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

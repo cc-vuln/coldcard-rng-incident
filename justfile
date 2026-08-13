@@ -73,6 +73,19 @@ rotate-discovery *ARGS:
 coverage-index *ARGS:
     @{{py}} scripts/build_coverage_index.py {{ARGS}}
 
+# Build, refresh and verify the discoverable one-record-per-file projection of
+# sources.toml. During the write-transition sources.toml remains the compatible
+# write surface; the shared reader selects shards only while this check proves
+# they match it exactly.
+registry-split *ARGS:
+    @{{py}} scripts/migrate_registry.py {{ARGS}}
+
+registry-refresh:
+    @{{py}} scripts/migrate_registry.py --refresh
+
+registry-check:
+    @{{py}} scripts/migrate_registry.py --check
+
 # Move a rejected registration out of sources.toml into quarantine/, so an
 # invalid registry does not stop the tree. agent_finish runs this by itself
 # after a guard rejection; by hand it needs --before to know what a run added.
@@ -150,6 +163,7 @@ audit:
     # timer is routine and would otherwise mask a registry problem, which is
     # not.
     @{{py}} scripts/check_registry.py
+    @{{py}} scripts/migrate_registry.py --check
     @{{py}} scripts/agent_proxy.py --check
     @{{py}} scripts/check_reviews.py
 
@@ -162,6 +176,7 @@ audit-core:
     @{{py}} scripts/capture.py audit
     @{{py}} scripts/check_publishable.py
     @{{py}} scripts/check_registry.py
+    @{{py}} scripts/migrate_registry.py --check
     @{{py}} scripts/agent_proxy.py --check
 
 # Is the agent sandbox still in place? Reports only; run the script without

@@ -40,17 +40,21 @@ candidate (bounded chunks of 15 per run while a backlog exists), appends
 registrations to `sources.toml` in the established shapes, may correct
 existing `stackernews-*`/`reddit-*` entries with the reason in its report,
 first-captures each community registration via `just capture-one` (exit 10 is
-healthy; exit 21 defers to the next poll), and records every verdict in
-`DISCOVERY.md`. With REVIEW_AGENT_BIN unset, candidates wait in
+healthy; exit 21 defers to the next poll), and submits one JSON verdict per
+candidate. The agent cannot write `DISCOVERY.md`: the guard validates the
+complete outbox against the protected run packet and the registry before and
+after the run, then an operator-side deterministic applier moves terminal
+verdicts while the driver still holds the intake lock. Explicit `retry`
+decisions stay Pending. With REVIEW_AGENT_BIN unset, candidates wait in
 `DISCOVERY.md` for human triage. stacker.news serves no robots.txt, so there
 is no published crawl policy; keep discovery at this volume unless the
 operators have been asked. The recurring community service still does not run
 X discovery: the browser lane has its own `discover-x.timer`, so an X session
 failure cannot stall the community lanes and a community backlog cannot hide
 X candidates. Since 8 Aug 2026, queued X candidates are assessed by the
-registering `xintake` guard role, which consumes the coverage index like the
-community intake does, and the driver captures each approved post with
-`just ingest-x` afterwards; the agent never reaches the browser. The read-only
+registering `xintake` guard role, which consumes the same bounded packet as the
+community intake and submits the same verdict outbox. The driver captures each
+approved post with `just ingest-x` afterwards; the agent never reaches the browser. The read-only
 xtriage prompt and the `--include-x` admission flag are retired. Direct manual
 `just ingest-x` capture is unchanged and does not pass through this queue.
 Full polls remain the scheduled runner's alone.
@@ -104,11 +108,9 @@ A candidate with no comment count to read (X, nostr) is never deferred: the
 rule abstains rather than guessing. To assess one now, move its line to
 Pending by hand.
 
-Only the lanes write to `## Deferred`. `agent_guard.py` treats it as a queue
-rather than a verdict on both sides of a run, so an agent that moved a pending
-line into it would be rejected for disposing of a candidate without recording
-why, while a lane appending there mid-run is not mistaken for an invented
-verdict.
+Only the lanes write to `## Deferred`. The queue is read-only to the agent
+account; intake decisions cross the boundary as data and the operator-side
+applier can move only packet candidates with validated terminal verdicts.
 
 This is a bar on what the agent reads first, not a filter on what is found:
 the underlying sieve is unchanged, every lane's `--all` still reports
@@ -125,10 +127,11 @@ record already holds that theme. The agent reached those verdicts by recalling
 thread it had itself dismissed weeks earlier as the precedent for dismissing
 another.
 
-`just coverage-index` (`scripts/build_coverage_index.py`) turns that recall
-into a lookup. One line per registered entry across all four tables, since a
-candidate can duplicate an X post or a chain monitor's page and not only
-another thread:
+`scripts/build_intake_packet.py` turns that recall into a bounded lookup. Each
+candidate occurs exactly once beside its hydrated body, stable native-object
+key and mechanical exact-registry match. A candidate can duplicate an X post
+or a chain monitor's page and not only another thread, so the packet also
+retains every registered entry that has absorbed a previous duplicate:
 
 ```
 reddit-hardware-wallet-comparison  [reddit]  r/Bitcoin: comparison of major
@@ -139,8 +142,10 @@ hardware wallets after the entropy bug  (absorbed 9)
 read out of past verdicts and validated against the registry, so hyphenated
 prose in a dismissal reason ("repetitive self-custody sentiment") scores
 nothing. It is the saturation signal: a theme that has absorbed nine
-candidates will absorb a tenth. Each block is sorted most-absorbed first. The
-corpus is self-labelling, so nobody maintains this by hand.
+candidates will often absorb a tenth. Rows with no absorbed history are
+counted, not copied into every prompt; exact native-id matches are still
+reported per candidate. The corpus is self-labelling, so nobody maintains
+this by hand. `just coverage-index` remains the complete human-readable view.
 
 The index does not decide anything, and the obvious mechanical alternative was
 measured before this was built. IDF-weighted cosine over candidate titles,
@@ -152,12 +157,12 @@ replaced.
 
 Two consequences worth knowing:
 
-- the driver builds the index as the operator account before it drops
-  privilege, and **refuses to start an agent without one**. An agent that
+- the driver builds and retains the JSON packet as the operator account before
+  it drops privilege, and **refuses to start an agent without one**. An agent that
   cannot see what is covered registers duplicates of it, and duplicates in the
   registry cost far more to undo than a skipped tick
-- the index is other people's thread titles, so it is untrusted material and
-  goes through the fenced channel with the candidate bodies. The prose telling
+- the packet contains other people's thread titles and bodies, so it is
+  untrusted material and goes through one fenced channel. The prose telling
   the agent how to read it lives in the trusted template; the generated file
   is data only, and a test enforces that every line is an entry
 
@@ -167,7 +172,7 @@ dismissal teaches nothing, and the same theme arrives unmarked next time. The
 intake prompt says so.
 
 The X lane is no longer outside this (amended 8 Aug 2026): the registering
-`xintake` role consumes the coverage index exactly as the community intake
+`xintake` role consumes the same bounded packet as the community intake
 does, which removes the duplicate-recall problem over the registered X posts
 that the read-only xtriage prompt solved by hand. That prompt and its
 separate agent binary are retired.

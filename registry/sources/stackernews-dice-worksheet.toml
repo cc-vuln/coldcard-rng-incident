@@ -1,0 +1,22 @@
+# registry-order: 781
+
+# ---- 7 Aug 2026 discovery intake: community threads -------------------------
+
+[[source]]
+id = "stackernews-dice-worksheet"
+title = "Generating seed phrase from dice - an easy, understandable method"
+url = "https://stacker.news/items/1541955"
+published = "2026-08-07"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260810T101637Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1541955) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+BitcoinHandsOn2 publishing a printable dice-to-seed-phrase worksheet, explicitly motivated by lost trust in hardware-wallet entropy after the incident, and asking for feedback on its logic. A small community-built artefact of the dice response, alongside reddit-dice-entropy-pi-tool and the registered dice-guidance threads. The worksheet's correctness is the author's claim, not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

@@ -1,0 +1,20 @@
+# registry-order: 670
+
+[[source]]
+id = "stackernews-nvk-deleted-posts"
+title = "nvk deleting tweets as we speak. Backup and screenshoot interactions with him!"
+url = "https://stacker.news/items/1540885"
+published = "2026-08-05"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260813T044653Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1540885) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+raw_avocado asking readers to preserve NVK's public interactions amid a reported deletion of posts, with an eight-comment discussion. A record of the community's preservation response during the incident, not confirmation that any particular post was deleted or of what it said. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

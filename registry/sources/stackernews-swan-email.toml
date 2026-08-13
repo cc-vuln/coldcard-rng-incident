@@ -1,0 +1,19 @@
+# registry-order: 334
+
+[[source]]
+id = "stackernews-swan-email"
+title = "Swan Email Re Cold Card Hack"
+url = "https://stacker.news/items/1537427"
+published = "2026-07-31"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1537427) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+siggy47 describing an email Swan sent clients about the incident. Provider communications that reach clients by email rather than public posts are otherwise uncapturable; this thread is the public trace of one. The email text is quoted by the poster, not verified against Swan. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

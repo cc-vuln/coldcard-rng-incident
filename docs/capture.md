@@ -291,7 +291,7 @@ because the archive writer lock is not reentrant.
 `--tier` states the cadence and is required when the post is being registered
 now. Turning threading on for a post that is **already** registered is a
 registry edit: add the two keys to its block in `sources.toml` by hand, then
-run `just capture-thread <id>`. `ingest-x.py` appends blocks and does not
+run `just registry-refresh` and `just capture-thread <id>`. `ingest-x.py` appends blocks and does not
 rewrite them, and appending a second block for the same post would give one
 conversation two registry entries and two source pages.
 
@@ -326,7 +326,8 @@ record from replies having been removed.
 driver-side only, under the `X_BROWSER_DISCOVERY_ENABLED` kill switch. It
 writes no capture itself: ID-only candidate metadata stays under `.work/`, the
 tracked `DISCOVERY.md` queue receives a relation label and permalink, the
-registering `xintake` role assesses the queue with the coverage index in view,
+registering `xintake` role assesses a bounded packet with exact registry
+matches and non-zero historical saturation rows,
 and the driver captures each approved post through the `ingest-x.py` path
 above. The agent never reaches the browser. `scripts/discover_x.py`, the
 official-API lane this replaced on 8 Aug 2026, is deprecated; no API App or
