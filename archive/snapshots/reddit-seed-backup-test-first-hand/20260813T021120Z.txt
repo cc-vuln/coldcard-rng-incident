@@ -1,0 +1,379 @@
+post: 1vk1akj
+author: tomthepooper
+created_utc: 1786309527
+title: Actually test your seed backup before adding passphrase/multisig. I’m glad I did.
+body:
+So I had a bit of a wake up call today.
+
+With all the recent Coldcard drama, i started rethinking my own setup. I was planning to improve my custody a bit: add a strong BIP39 passphrase and eventually move toward a more robust multisig setup.
+
+Before doing anything i thought: Let me first check if my current seed backups are actually correct.
+
+I have multiple hardware wallets, each with its own seed. Two of them checked out fine. The third one did not.
+
+I ran the recovery check multiple times. Same result: incorrect seed....
+
+This seed had been stamped into metal months ago. I was pretty sure I had checked it back then. I had evrything labeled, everything looked organized. Still the recovery check failed. Luckily i still had the PIN and access to the wallet, so I was able to move the funds to a wallet with a verified backup. But honestly, this scared the hell out of me. (Imagine the screen had failed or the hardware wallet itself)
+
+The lesson:
+
+A metal backup is not a tested backup. You can stamp words into steel, store them in a safe place, feel secure for months, and still have a useless backup if one word is wrong, swapped, unreadable, or copied incorrectly. Before adding a passphrase, before setting up multisig, before doing anything more complex, check the basics:
+
+\- Run the official recovery check on your hardware wallet.
+
+\- Verify the seed before sending serious funds.
+
+\- Check your backup while the wallet still works.
+
+\- Don’t assume “I wrote it down carefully” means it is recoverable.
+
+\- Don’t wait until the device dies.
+
+I was lucky, i found the problem while I could still move the coins.
+
+If i had discovered this years from now after the device failed, this could have been a disaster.
+
+Not posting this for sympathy. Just a reminder:
+
+Test your backups. Then test them again. Especially before you start adding passphrases or multisig complexity.
+
+comment: p2pud5m
+parent: t3_1vk1akj
+author: Serbithar
+created_utc: 1786310107
+edited: false
+body:
+How can one stamp wrong words into steel?! When drunk...?! ;) 
+
+comment: p2pudv0
+parent: t3_1vk1akj
+author: FullyAutomatedSpace
+created_utc: 1786310113
+edited: false
+body:
+Currency of the future. Remember before you stamp it into metal you need to double check it. Otherwise you'll lose your life savings
+
+comment: p2puloi
+parent: t1_p2pud5m
+author: tomthepooper
+created_utc: 1786310177
+edited: false
+body:
+Well I was 2 months in remission, so I definitely still had some brain fog going on. But I had the other 2 right.
+
+comment: p2pv0fz
+parent: t1_p2pud5m
+author: Adventurous_Kick7772
+created_utc: 1786310301
+edited: false
+body:
+man it's so easy to do, you'd be surprised. you check it once, think you got it right, then your brain just fills in the gaps for months until reality smacks you in the face
+
+comment: p2pvzo4
+parent: t1_p2puloi
+author: InternationalRow67
+created_utc: 1786310591
+edited: false
+body:
+Brain fog is real, but catching this mistake before losing funds is a massive win. Congrats on the remission too
+
+comment: p2q3hsb
+parent: t1_p2puloi
+author: EyesOfEris
+created_utc: 1786312864
+edited: false
+body:
+What was it tho. Did you misspell a word or put them in the wrong order
+
+comment: p2q422f
+parent: t3_1vk1akj
+author: Aromatic-Yellow1100
+created_utc: 1786313038
+edited: false
+body:
+The method I use is this-  
+1-receive seed from device or dice roll
+2-write the seed on paper
+3- fund new wallet with couple bucks from hot wallet
+4-reset device to factory settings
+5-transfer seed from paper to steel
+6-load wallet from the steel (not the paper)
+7-if fund are in the wallet, I destroy the paper copy
+
+Takes a while, but worth it.
+
+comment: p2q55lj
+parent: t3_1vk1akj
+author: BigDiperEruption
+created_utc: 1786313381
+edited: false
+body:
+Did you let the cold wallet show the words again and checked what went wrong? 
+
+comment: p2qjjb2
+parent: t1_p2pudv0
+author: Tahueisin
+created_utc: 1786318037
+edited: false
+body:
+Don't see average Joe ever adopting this stuff...
+
+comment: p2qn7mu
+parent: t3_1vk1akj
+author: xuncx
+created_utc: 1786319278
+edited: false
+body:
+I was recently trying to activate an old wallet and realized I wrote one of the words twice and missed a word entirely. Rip. It was a small stack of shitcoins but still sucks. 
+
+comment: p2r81ou
+parent: t1_p2pud5m
+author: whodkne
+created_utc: 1786326542
+edited: false
+body:
+This... The only thing I could imagine is swapping word position. Otherwise even if you spell something wrong it's still recoverable. 
+
+comment: p2r85so
+parent: t1_p2qn7mu
+author: whodkne
+created_utc: 1786326582
+edited: false
+body:
+Should be recoverable no? One wrong word only takes so long to test. 
+
+comment: p2ry3gk
+parent: t1_p2q422f
+author: tomthepooper
+created_utc: 1786336620
+edited: false
+body:
+Will use this method after resetting my device!
+
+comment: p2ryd5g
+parent: t1_p2qn7mu
+author: filenotfounderror
+created_utc: 1786336739
+edited: false
+body:
+You can brute force 1 wrong word that you know the position of in like 5 mins tops.
+
+comment: p2ryk6h
+parent: t1_p2r85so
+author: xuncx
+created_utc: 1786336826
+edited: false
+body:
+Yeah gotta decide if it’s worth it later down the road. Keeping an eye on the wallet. Just not sure where the wrong word belongs in the sequence
+
+comment: p2ryt68
+parent: t1_p2q55lj
+author: tomthepooper
+created_utc: 1786336935
+edited: false
+body:
+I could do this. It's empty now and i am going to reset it, will let know.
+
+comment: p2ryukj
+parent: t1_p2ryk6h
+author: whodkne
+created_utc: 1786336951
+edited: false
+body:
+Well it's one of the two duplicated, no? Im probably wrong but you can probably vibe code something to check all the words against your known words. 
+
+comment: p2rywwg
+parent: t1_p2qn7mu
+author: tomthepooper
+created_utc: 1786336978
+edited: false
+body:
+I think you could easily bruteforce since there would only be 2048 variations? Or 2048 x 2? 
+
+comment: p2ryz7x
+parent: t1_p2pudv0
+author: tomthepooper
+created_utc: 1786337007
+edited: false
+body:
+Just don't be as retarded like I was.
+
+comment: p2rz7ht
+parent: t1_p2ryd5g
+author: xuncx
+created_utc: 1786337107
+edited: false
+body:
+Yeah idk where in the sequence the wrong word was. I repeated the same word on word 3 and 7
+
+comment: p2rzd7q
+parent: t1_p2ryukj
+author: xuncx
+created_utc: 1786337177
+edited: false
+body:
+Yeah I’m sure it’s not too hard. I’ll look into it. Just not really worth the effort at the moment. 
+
+comment: p2s1d68
+parent: t1_p2rz7ht
+author: filenotfounderror
+created_utc: 1786338066
+edited: false
+body:
+Then just run a brute force script replacing word 3 with every possible word and of that doesn't work do the same with word 7.
+
+From just a computational perspective its not difficult. It would probably take longer to set up the script than to Crack it.
+
+comment: p2s26iv
+parent: t1_p2ryz7x
+author: FullyAutomatedSpace
+created_utc: 1786338437
+edited: false
+body:
+In a sensible system one mistake doesn't irreparably lose all of your money
+
+comment: p2s5wjs
+parent: t3_1vk1akj
+author: abitofcoinOTC
+created_utc: 1786340175
+edited: false
+body:
+The advantage to a 24 word seed is that if you did mess up one word, it would be fairly trivial to brute-force.
+
+The disadvantage with passphrases is that if you mess them up, you'll have no idea how you messed it up, and it may be far more difficult to brute-force.
+
+comment: p2s8e1i
+parent: t3_1vk1akj
+author: Aazimoxx
+created_utc: 1786341377
+edited: false
+body:
+Did you check what you actually got wrong?  Since you were able to access the wallet, you could've dumped the seed again and compared, right?
+
+Edit: sorry, I should've read comments before adding something that's already been asked.
+
+comment: p2s9oia
+parent: t1_p2s1d68
+author: xuncx
+created_utc: 1786342002
+edited: false
+body:
+Ok 👌 
+
+comment: p2sbv0i
+parent: t1_p2s26iv
+author: Aazimoxx
+created_utc: 1786343066
+edited: false
+body:
+Sure, just let us know when you invent such a 'sensible system', since in tradfi if you make 'one mistake' of investing everything in Enron or Silicon Valley Bank, or wiring everything to a scammer, or leaving a wad or suitcase of cash on the bus, you can still be just as fucked.
+
+One key here is diversification; all of your capital should never be in only one place, subject to one set of risks, if you can't afford to lose it all in the worst case scenario.
+
+In the case of the OP, he could've had a second wallet and restored that one from the seed (check is already built into the procedure in that case), with that second wallet stored in safety deposit box or such - and one big benefit of that sort of thing, is that you can afford to have a much weaker credential or such protecting that physically-secured copy, to cover you in case of brain damage or Alzheimer's or whatever else.  This still wouldn't be as durable as steel plate, but if you're going that route you'd better make sure your transcription is on point.
+
+comment: p2sfp4m
+parent: t3_1vk1akj
+author: Clean-Squash-7173
+created_utc: 1786344957
+edited: false
+body:
+the part that gets people is verifying on the same device that produced the seed, that only proves the device agrees with itself. restore it in different software and match a receive address you already know. a stamped backup you never verified properly is worse than none, because you plan around it
+
+comment: p2sgey4
+parent: t1_p2ryt68
+author: BigDiperEruption
+created_utc: 1786345313
+edited: false
+body:
+Typo or wrong sequence? 
+
+comment: p2sgrr6
+parent: t3_1vk1akj
+author: Thin_Needleworker795
+created_utc: 1786345488
+edited: false
+body:
+Well it's common knowledge that you should always test your wallet before you start using it. You test it properly by sending a small amount to it, then reset it and recover from your backup. This has literally been the rule of thumb ever since hardware wallets existed.
+
+comment: p2sgtlu
+parent: t3_1vk1akj
+author: GadJedi
+created_utc: 1786345514
+edited: false
+body:
+Why did you transfer your BTC out of the wallet? You wasted sats to transfer. You should have just made a new backup of the correct seed phrase, which you will need to do anyway.
+
+comment: p2sq0rn
+parent: t1_p2sgtlu
+author: tomthepooper
+created_utc: 1786350211
+edited: false
+body:
+Because I could still access the wallet, but the physical seed backup failed recovery check multiple times. I didn’t want to rely on a hardware device as the only remaining access path.
+
+Maybe I could have tried to debug the incorrect backup but at that point the safest option for me was to move the funds to a wallet with a verified backup first, then deal with the old seed later.
+
+The fee was worth it for peace of mind.
+
+comment: p2t4tmw
+parent: t1_p2q422f
+author: dnguyen823
+created_utc: 1786357600
+edited: false
+body:
+How do you load your wallet from steel? You mean using steel to recover wallet to make sure it all works? 
+
+comment: p2t62ur
+parent: t1_p2qn7mu
+author: SeveredApe137
+created_utc: 1786358167
+edited: false
+body:
+There is an interesting open source project (that I have never tested) called btcrecover:  https://github.com/3rdIteration/btcrecover. I would recommend you take a look at it. Maybe it can help you find out which word is missing. Good luck
+
+comment: p2thjdf
+parent: t3_1vk1akj
+author: caccamo88
+created_utc: 1786362809
+edited: false
+body:
+SLIP39 with a 2-of-3 setup and no passphrase: peace of mind for both me and my heirs
+
+comment: p2ti42u
+parent: t1_p2q422f
+author: caccamo88
+created_utc: 1786363017
+edited: false
+body:
+Keep in mind that even if you handle the seed creation's day-zero risk on your own, you will still have to trust the hardware wallet manufacturer (both firmware and software) for life. You might as well trust them completely from the very beginning. Instead, mitigate the risk of total loss through allocation and diversification.
+
+comment: p2u5tfc
+parent: t1_p2t4tmw
+author: Aromatic-Yellow1100
+created_utc: 1786370489
+edited: false
+body:
+Yes
+
+comment: p2ufona
+parent: t1_p2q422f
+author: GadJedi
+created_utc: 1786373222
+edited: false
+body:
+Better would be:  
+1. Create seed  
+2. Backup seed, including fingerprint and first address  
+3. Reset device  
+4. Restore seed  
+5. Check fingerprint and address match  
+6. Transfer funds if matched
+
+comment: p2ujw5a
+parent: t1_p2pud5m
+author: marvinrabbit
+created_utc: 1786374359
+edited: false
+body:
+Well, the first step is to assume infallibility. Any time there is meat in the equation we can make a mistake. That's why we test.
