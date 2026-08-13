@@ -79,6 +79,23 @@ except ImportError:
 # close a tab another lane is reading.
 X_SESSION = "coldcard-archive-x-hydrate"
 
+# Counted only when the text read comes back empty: an attached photo, video
+# or card is the difference between a media-only post (hydrate it, with the
+# absence stated, so the agent can judge it) and a post that is genuinely not
+# there (leave it Pending). Until 13 Aug 2026 a media-only post failed the
+# read outright, and enough of them accumulated at the head of the queue to
+# stall every batch.
+MEDIA_JS = r"""
+(() => {
+  const article = document.querySelector('article');
+  if (!article) return JSON.stringify({media: 0});
+  const media = article.querySelectorAll(
+    '[data-testid="tweetPhoto"], [data-testid="videoPlayer"],' +
+    ' video, [data-testid="card.wrapper"]').length;
+  return JSON.stringify({media: media});
+})()
+"""
+
 # Read-only extraction, a reduced form of ingest-x.py's EXTRACT_JS: the focal
 # article is the one whose timestamp link names the status id, and its
 # tweetText is the post. No clicking, no scrolling, no show-more expansion;
@@ -142,6 +159,13 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
         info = raw["value"]
         if isinstance(info, str):
             info = json.loads(info)
+        media_count = 0
+        if isinstance(info, dict) and info.get("found") and not info.get("text"):
+            raw_media = x_browser.evaluate(MEDIA_JS, X_SESSION)
+            media_info = raw_media["value"]
+            if isinstance(media_info, str):
+                media_info = json.loads(media_info)
+            media_count = int(media_info.get("media", 0))
     except (x_browser.BridgeError, x_browser.XBrowserConfigError,
             KeyError, ValueError) as exc:
         return False, f"capture browser read failed ({exc})"
@@ -158,7 +182,15 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
         return False, ("post was served truncated; not hydrating a body that "
                        "stops mid-sentence")
     if not info.get("text"):
-        return False, "tweet article has no text body"
+        if not media_count:
+            return False, "tweet article has neither text nor media"
+        user = (info.get("user") or "?").replace("\n", " ")
+        return True, (f"author: {user}\n"
+                      f"posted: {info.get('time') or '?'} "
+                      f"(from the page's <time> element)\n"
+                      "note: no text body; the attached image or video is "
+                      "the whole post\n"
+                      "\n--- post text (verbatim) ---\n\n")
     user = (info.get("user") or "?").replace("\n", " ")
     return True, (f"author: {user}\n"
                   f"posted: {info.get('time') or '?'} "
