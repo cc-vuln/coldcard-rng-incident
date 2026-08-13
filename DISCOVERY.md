@@ -848,6 +848,14 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-11 [@BEN0WHERE repost (text available during approved intake)](https://x.com/scottmelker/status/2087180019332178133) (X @BEN0WHERE)
 - 2026-08-10 [@BEN0WHERE repost (text available during approved intake)](https://x.com/natbrunell/status/2086789544288915717) (X @BEN0WHERE)
 - 2026-08-09 [@BEN0WHERE repost (text available during approved intake)](https://x.com/Rob1Ham/status/2086464831360549034) (X @BEN0WHERE)
+- 2026-08-12 [9K Bitcoin rescued out of Coldcard multisigs | MARA Foundation](https://stacker.news/items/1546608) by hasherstacker, 0 comments (~bitcoin)
+- 2026-08-12 [Anti-Klepto or Anti-Exfil?](https://www.reddit.com/r/coldcard/comments/1vm6iv4/antiklepto_or_antiexfil/) by AutoIndepth, 5 comments (r/coldcard) [body]
+- 2026-08-12 [1 seed + strong passphrase vs 2/3 multisig](https://www.reddit.com/r/Bitcoin/comments/1vmk0bb/1_seed_strong_passphrase_vs_23_multisig/) by wayEyeseeit, 31 comments (r/Bitcoin) [topical]
+- 2026-08-12 [The Coldcard's hack doesn't mean hardware wallets are doomed](https://www.reddit.com/r/Bitcoin/comments/1vmi5bq/the_coldcards_hack_doesnt_mean_hardware_wallets/) by chainglance_cm, 16 comments (r/Bitcoin)
+- 2026-08-12 [Current Question](https://www.reddit.com/r/Bitcoin/comments/1vmqwtx/current_question/) by officialhoami, 6 comments (r/Bitcoin) [body]
+- 2026-08-12 [Coldcard: the technical autopsy of an entropy failure](https://www.reddit.com/r/Bitcoin/comments/1vmh0te/coldcard_the_technical_autopsy_of_an_entropy/) by Fiach_Dubh, 0 comments (r/Bitcoin)
+- 2026-08-12 [Bitkey v Trezor for long-term holding and inheritance.](https://www.reddit.com/r/Bitcoin/comments/1vmignu/bitkey_v_trezor_for_longterm_holding_and/) by persfin311, 5 comments (r/Bitcoin) [topical]
+- 2026-08-12 [ERA Wallet + dice generated seed: is there any way to verify protection against Dark Skippy?](https://www.reddit.com/r/Bitcoin/comments/1vmdanl/era_wallet_dice_generated_seed_is_there_any_way/) by lockduck1, 6 comments (r/Bitcoin) [topical]
 
 ## Assessed
 
@@ -1621,10 +1629,13 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-08-09 [Why This One 'Hack' Hits So Much Harder [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vjn9ne/why_this_one_hack_hits_so_much_harder_clip/) by Cryptoconomy, 0 comments (r/Bitcoin) [topical]
 - 2026-08-09 [bitcoin etf inflows are back while self-custody is under scrutiny](https://www.reddit.com/r/Bitcoin/comments/1vjimqs/bitcoin_etf_inflows_are_back_while_selfcustody_is/) by benjamincolee, 2 comments (r/Bitcoin) [topical]
 - 2026-08-08 [Creating your own seed by combining multiple sources of entropy - is this python script viable?](https://www.reddit.com/r/Bitcoin/comments/1vinwhe/creating_your_own_seed_by_combining_multiple/) by PatientKosong, 2 comments (r/Bitcoin) [topical]
+- 2026-08-08 [100BTC Bitcoin Challenge - Hackers Still Can't Touch It](https://stacker.news/items/1543351) by hasherstacker, 0 comments (~bitcoin) [topical]
+- 2026-08-10 [Crypto.com Users Targeted by Phishing Campaign Abusing Company's Email Domain](https://www.reddit.com/r/Bitcoin/comments/1vk8z95/cryptocom_users_targeted_by_phishing_campaign/) by _clickfix_, 1 comments (r/Bitcoin) [topical]
+- 2026-08-11 [MOVED: Bitcoin wallet seed phrase with an optional (extended) passphrase](https://bitcointalk.org/index.php?topic=5590957.0) by UchihaSarada, 0 comments (bct/1) [topical]
 - 2026-08-10 [humans are not good at making entropy - man vs machine game](https://stacker.news/items/1544564) by Scoresby, 2 comments (~bitcoin) [topical]
 - 2026-08-10 [Why Self Custody Matters](https://stacker.news/items/1544943) by KudzaiK, 2 comments (~bitcoin) [topical]
 - 2026-08-09 [Brazil to tighten controls with new 24h wait on transfers to self-custody wallet](https://stacker.news/items/1544203) by 0xbitcoiner, 1 comments (~bitcoin) [topical]
-- 2026-08-08 [100BTC Bitcoin Challenge - Hackers Still Can't Touch It](https://stacker.news/items/1543351) by hasherstacker, 0 comments (~bitcoin) [topical]
+- 2026-08-12 [TryHackMe's HackerHotel 2026 Event - Day 04 - Packed Light](https://stacker.news/items/1546636) by nichrome, 0 comments (~security) [topical]
 - 2026-08-11 [TryHackMe HH 2026 Daily CTF Event - Day 03 - Complimentary](https://stacker.news/items/1545730) by nichrome, 0 comments (~security) [topical]
 - 2026-08-09 [TryHackMe HH 2026 Daily CTF Event - Day 02 - Room 404](https://stacker.news/items/1544102) by nichrome, 0 comments (~security) [topical]
 - 2026-08-08 [Undertaking TryHackMe's Hacker Holidays 2026 CTF daily challenge event. Day 01](https://stacker.news/items/1542896) by nichrome, 0 comments (~security) [topical]
@@ -1637,7 +1648,4 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-05-18 [Hackers have breached tank readers at US gas stations; suspect Iran](https://stacker.news/items/1492321) by i_am_a_seeker, 2 comments (~security) [topical]
 - 2026-05-12 [Hackers Use Weaponized JPEG File to Deploy Trojanized ScreenConnect Malware](https://stacker.news/items/1488547) by ch0k1, 1 comments (~security) [topical]
 - 2026-05-03 [The agent harness belongs outside the sandbox | Hacker News](https://stacker.news/items/1483613) by beyond_turbulence, 1 comments (~security) [topical]
-- 2026-08-12 [Anti-Klepto or Anti-Exfil?](https://www.reddit.com/r/coldcard/comments/1vm6iv4/antiklepto_or_antiexfil/) by AutoIndepth, 1 comments (r/coldcard) [body]
-- 2026-08-12 [ERA Wallet + dice generated seed: is there any way to verify protection against Dark Skippy?](https://www.reddit.com/r/Bitcoin/comments/1vmdanl/era_wallet_dice_generated_seed_is_there_any_way/) by lockduck1, 2 comments (r/Bitcoin) [topical]
-- 2026-08-10 [Crypto.com Users Targeted by Phishing Campaign Abusing Company's Email Domain](https://www.reddit.com/r/Bitcoin/comments/1vk8z95/cryptocom_users_targeted_by_phishing_campaign/) by _clickfix_, 1 comments (r/Bitcoin) [topical]
-- 2026-08-11 [MOVED: Bitcoin wallet seed phrase with an optional (extended) passphrase](https://bitcointalk.org/index.php?topic=5590957.0) by UchihaSarada, 0 comments (bct/1) [topical]
+- 2026-08-13 [don't trust: verify](https://www.reddit.com/r/Bitcoin/comments/1vmwim7/dont_trust_verify/) by psientist, 2 comments (r/Bitcoin) [body]

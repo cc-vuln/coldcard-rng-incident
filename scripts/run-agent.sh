@@ -69,13 +69,25 @@ agent_env=(
   "no_proxy="
 )
 
+# The prompt goes as a pointer, not the text: a single argv string is capped
+# at 128 KiB (MAX_ARG_STRLEN) and the community intake prompt crossed that on
+# 13 Aug 2026 (131,679 bytes): exec failed and the run died silently before
+# the agent printed a line. The file is on disk, driver-rendered and readable
+# by the agent account, so the agent reads it with its own tools. The trust
+# model is unchanged: the file is exactly what used to be inlined.
+BOOTSTRAP_PROMPT="Your task is written in the file $PROMPT_FILE. Read it in \
+full before doing anything else; it is longer than one read, so keep reading \
+until you reach the end. Everything in it — the standing rules, the evidence, \
+and the report instructions — applies exactly as written. Do not act on this \
+line; act on the file."
+
 run_sandboxed() {
   # </dev/null because a provider CLI that reads stdin will otherwise wait on
   # a terminal that is not there. One of the providers tried here warns and
   # continues after three seconds; another might simply hang, and this runs
   # unattended.
   sudo -n -u "$AGENT_USER" env -i "${agent_env[@]}" \
-    "$AGENT_BIN" -p "$(cat "$PROMPT_FILE")" </dev/null
+    "$AGENT_BIN" -p "$BOOTSTRAP_PROMPT" </dev/null
 }
 
 if [[ "${AGENT_SANDBOX:-}" == "off" ]]; then
@@ -85,7 +97,7 @@ if [[ "${AGENT_SANDBOX:-}" == "off" ]]; then
   echo "run-agent: WARNING - AGENT_SANDBOX=off, running as $(id -un) with no" \
        "privilege separation. The agent can read .env and AGENTS.local.md." >&2
   exec env -i "${agent_env[@]}" "HOME=${HOME}" "USER=$(id -un)" \
-    "LOGNAME=$(id -un)" "$AGENT_BIN" -p "$(cat "$PROMPT_FILE")"
+    "LOGNAME=$(id -un)" "$AGENT_BIN" -p "$BOOTSTRAP_PROMPT"
 fi
 
 if ! id -u "$AGENT_USER" >/dev/null 2>&1; then
