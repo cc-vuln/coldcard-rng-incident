@@ -290,9 +290,20 @@ def _sweep_capture_failures(now: datetime) -> list[dict]:
 
 
 def _sweep_host_proposals(now: datetime) -> list[dict]:
-    """Remind about host proposals waiting more than 48h, once per host per day."""
+    """Remind about host proposals waiting more than 48h, once per host per day.
+
+    A proposal whose host is already admitted is done, whatever the file
+    says: the vetter leaves accepted lines in place as the record of the
+    proposal, so age alone produces a daily false alarm for every admitted
+    host (six fired on 12-13 Aug 2026, all for hosts already listed).
+    """
     if not HOST_PROPOSALS.exists():
         return []
+    try:
+        import check_registry
+        admitted = check_registry.allowed_hosts()
+    except Exception:
+        admitted = set()
     stale: dict[str, str] = {}
     for line in HOST_PROPOSALS.read_text(encoding="utf-8").splitlines():
         if not line.strip() or line.startswith("#"):
@@ -301,6 +312,8 @@ def _sweep_host_proposals(now: datetime) -> list[dict]:
         if len(fields) != 4:
             continue
         host = fields[1].strip()
+        if host in admitted:
+            continue
         stamp = parse_ts(fields[3])
         if host and stamp is not None and now - stamp > HOST_PROPOSAL_AGE:
             stale.setdefault(host, fields[2].strip())

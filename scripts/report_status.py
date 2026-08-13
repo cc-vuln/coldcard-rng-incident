@@ -71,17 +71,32 @@ def host_proposals() -> None:
     if not lines:
         print("none\n")
         return
+    # The vetter leaves accepted lines in place as the record of the
+    # proposal; a host already in registry_hosts.toml is done, not waiting.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import check_registry
+    admitted = check_registry.allowed_hosts()
     hosts = Counter()
+    done = 0
     malformed = 0
     for line in lines:
         fields = line.split("\t")
         if len(fields) == 4 and fields[1].strip():
-            hosts[fields[1].strip()] += 1
+            if fields[1].strip() in admitted:
+                done += 1
+            else:
+                hosts[fields[1].strip()] += 1
         else:
             malformed += 1
-    print(f"{len(lines)} proposal(s), {len(hosts)} unique host(s):")
+    if not hosts:
+        print(f"none waiting ({done} line(s) name already-admitted hosts)\n")
+        return
+    print(f"{len(lines)} proposal(s), {len(hosts)} unique host(s) waiting:")
     for host, n in hosts.most_common():
         print(f"  {host} ({n})")
+    if done:
+        print(f"  ({done} line(s) name already-admitted hosts; kept as the "
+              f"record of the proposal)")
     if malformed:
         print(f"  ({malformed} line(s) not in the tab-separated shape; "
               f"read the file itself)")
