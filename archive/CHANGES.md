@@ -2255,3 +2255,15 @@
 ## 20260812T232349Z
 
 - bitkey-relationship-enrollment-report  +0 -1
+
+## 20260812T235339Z
+
+- casa-blog-index  +4 -4
+- reddit-64-btc-mixing-discussion  +4 -6
+- coindesk-70m-no-device-touch  +26 -26
+- reddit-gold-standard-banner  +8 -0
+- reddit-stolen-funds-recovery-hope  +8 -0
+
+## 20260813T002309Z
+
+- bitkey-relationship-enrollment-report  +1 -0
