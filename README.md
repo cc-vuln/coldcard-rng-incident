@@ -71,7 +71,9 @@ mutability without coupling capture to publication.
 ## What is here
 
 ```
-sources.toml              tracked sources, tiered by mutability and value
+sources.toml              compatible source-registry write ledger
+registry/                 discoverable one-record-per-file registry projection,
+                          with an exact-equivalence manifest
 revision-reviews.toml      additive review of detected differences
 corrections.toml          this project's own corrections, published at /corrections/
 CITATION.cff              repository citation metadata
@@ -129,6 +131,7 @@ just test             # capture regressions plus the fixed synthetic vector
 just test-capture     # registry, normalisation, lock and X-capture regressions
 just test-vectors     # independently verify the fixed synthetic Mk3 path
 just audit            # capture contract and source-registry publication gate
+just registry-check   # prove shards exactly reconstruct the registry ledger
 just check-claims     # claim basis, scope, provenance links and page coverage
 just check-public-output
                       # generated public files contain no operational details
@@ -156,8 +159,12 @@ The detail behind these commands lives in three documents:
 
 ## Adding a source
 
-Append to `sources.toml` and run `just capture`. Nothing else needed. Removing a
-source stops future polling and keeps its accumulated history.
+Append one block to `sources.toml`, run `just registry-refresh`, then run
+`just capture`. Removing a source stops future polling and keeps its accumulated
+history. Repository tooling reads through `scripts/registry_store.py`, which
+uses the one-record-per-file `registry/` tree only while its manifest proves it
+exactly matches `sources.toml`; an interrupted or forgotten refresh therefore
+falls back to the ledger instead of exposing a partial catalogue.
 
 ```toml
 [[source]]
