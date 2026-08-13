@@ -1,0 +1,367 @@
+thread: 2084809954922258718
+url: https://x.com/ishi0k/status/2084809954922258718
+author: ishi0k
+
+post: 2084809954922258718
+role: focal
+author: ishi0k
+name: Ishi
+created: 2026-08-05T01:13:21Z
+media: 1
+body:
+Part 1/3
+
+HERE I present the chronological reconstruction (minute by minute) of how the 
+@COLDCARDwallet
+ disaster was discovered
+
+While 
+@nvk
+ was saying “No need to panic”… or this he wrote "FUD". The wallets were already being emptied.
+
+## Investigation 1 — The true first public victim
+
+### Question
+What is the first publicly traceable report of a victim who claimed their funds had been drained?
+
+### Findings
+
+**First widely documented public report with traction:**
+
+- **Date and time:** July 30, 2026
+     **13:19 UTC**
+- **Platform:** Reddit (r/Bitcoin)
+- **User:** u/s1ammage
+- **Title:** “Full panic - one of my wallets was drained”
+
+- **Original link:** 
+https://
+reddit.com/r/Bitcoin/comm
+ents/1vatgl4/full_panic_one_of_my_wallets_was_drained/
+…
+
+- **Reported amount:** ~0.79 BTC
+- **Model mentioned:** Coldcard Mk3 (purchased in May 2021)
+
+- **Setup details:** Seed generated on the device, never connected to PC, watch-only on Sparrow, funds from Roth IRA (Solera National Bank + Swan Bitcoin).
+
+**Important note on possible earlier reports:**
+
+- According to the community dashboard 
+http://
+coldcard-hack.up.railway.app, there is an anonymous report to an abuse database **on July 30 at 09:15 UTC** (approximately 19.96 BTC). This report is not public on forums and did not generate community discussion.
+
+- Jonathan Goodman (
+@itscoachgoodman
+) publicly reported on July 31 that ~18.25 BTC was drained from him on July 29 (North American local time), but his public post is after the Reddit one.
+
+- No verifiable public reports have been located on X, Bitcointalk, Nostr, or Hacker News **prior** to u/s1ammage's Reddit thread that generated traction or were cited as the first.
+
+**Current conclusion:**  
+
+u/s1ammage's thread on Reddit is the first public victim report with real and documented impact in the community.
+---
+## Investigation 2 — The first on-chain investigator
+
+### Question
+Who was the first person to publicly observe the pattern of consolidating hundreds of UTXOs to the same addresses?
+
+### Findings
+
+- The earliest documented comment identifying the consolidation pattern appears **in u/s1ammage's own Reddit thread**, a few hours after its publication (around 15:23 UTC on July 30).
+
+- Commenting user: u/Hoax__
+- Key content: Identifies the address `bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0` as receiving ~594 BTC from ~500 addresses in a 15-minute window.
+
+**Subsequently:**
+
+- Clay Garrett (
+@clay_garrett
+) of 
+@blocks
+ is the one who publishes the most influential technical analysis of the pattern (fixed fee of 30 sat/vB, no change, etc.), but his public posts are from **July 31**.
+
+- 
+@glxyresearch
+ publishes the complete mapping based on the pattern identified by Block.
+
+**Current conclusion:**  
+The first public pointing out of the massive consolidation pattern to a single address appears to be the comment by u/Hoax__ in the Reddit thread on July 30. Clay Garrett and Block conducted the most solid and public forensic analysis the next day.
+
+Thread continues.. 
+
+post: 2084809966309802441
+role: self-thread
+author: ishi0k
+name: Ishi
+created: 2026-08-05T01:13:24Z
+media: 1
+body:
+Parte 2/3
+
+## Investigación 3 — Kevin Loaec (
+@KLoaec
+)
+
+Kevin Loaec (
+@KLoaec
+) – Actuación pública el 30 de julio 2026
+
+17:35 UTC
+“I'm hearing a potential issue with some Coldcard wallets being drained. I will not FUD, but would like to get at least reports of trusted people...”
+→ Primer mensaje público. Pide verificaciones.
+
+18:58 UTC
+“Alright I'm convinced THIS IS NOT A DRILL.”
+→ Pasa de duda a certeza.
+
+\~20:01 UTC
+Thread: Single-sig only por ahora. No sabemos si es seed o otro bug. Passphrase o dice rolls pueden no salvar. USE MULTISIG.
+→ Empieza a dar recomendaciones.
+
+\~20:28 UTC
+“My current hypothesis for the 
+@COLDCARDwallet
+ theft.”
+
+Propone Low entropy RNG (biblioteca o secure element). Hipótesis de que el atacante usó IA y solo escaneó rutas BIP84.
+
+→ Primera hipótesis pública fuerte de bajo entropy / RNG por parte de un investigador relevante.
+
+### Posteriores
+
+Continúa actualizando, advierte sobre Mk3, habla de entropía, recomienda multisig y Liana.
+
+Kevin fue de los primeros en llevar el tema de “posible FUD de Reddit” a “esto es real y puede ser un problema de entropy”.
+
+---
+
+## Investigación 4 — NVK (
+@nvk
+)
+
+ NVK (
+@nvk
+) – Primeras 24 horas (30 de julio 2026)
+
+\~18:10 UTC
+Post público:
+“No need to panic. Someone loaded a compromised seed onto a Coldcard and/or their seed leaked. This is part of a broader attack involving 500 private keys...”
+→ ELIMINADO posteriormente
+
+\~21:47 UTC
+Post:
+“We've done a lot of investigation about the COLDCARD reports, blog post incoming!”
+→ Investigando
+
+\~22:28 UTC
+Respuesta:
+“That post is wrong. I don’t want wrong information out now... Blog incoming.”
+→ Reconoce error del post anterior
+
+22:50 UTC
+Cuenta oficial 
+@COLDCARDwallet
+
+Publica el primer Security Advisory (Mk3)
+→ Reconocimiento oficial del riesgo
+
+**Cambio de postura documentado:**  
+Pasó de atribuir el problema a “seeds comprometidas / filtradas de fuera” (post eliminado) a reconocer un problema en el firmware de Coldcard (advisory + disculpa posterior del 31 de julio).
+
+---
+
+## Investigación 5 — ¿Cuándo fue avisado Coinkite?
+
+### Evidencia pública disponible
+
+- No existe evidencia pública de emails, tickets de GitHub, mensajes de Telegram/Discord o contactos privados filtrados que indiquen la hora exacta en que Coinkite fue notificado por primera vez.
+
+- 
+@blocks
+ (Clay Garrett y equipo) investigó reportes de wallets no-Bitkey siendo drenadas el 30 de julio y colaboró con 
+@Coinkite
+
+
+- El advisory oficial se publica a las **22:50 UTC del 30 de julio**.
+- 
+@nvk
+ habla de “investigación” desde la tarde del 30.
+
+**Conclusión actual:**  
+
+La evidencia pública muestra que 
+@Coinkite
+ estaba al tanto y investigando al menos desde la tarde del 30 de julio. 
+
+No hay prueba pública del “primer aviso interno” exacto.
+
+---
+
+## Investigación 6 — Preparación del atacante
+
+### Solo evidencia respaldada
+
+- 
+@blocks
+ identificó que el operador usó una cuenta de pago en un proveedor de servicios blockchain para consultar direcciones durante los sweeps.
+
+- El patrón (fee fija, sin change, consolidación rápida, enfoque en direcciones >0.15 BTC y dormidas) indica automatización y lista pre-preparada.
+
+- Galaxy y Block describen la operación como altamente automatizada y preparada.
+
+- No se han publicado scripts del atacante ni evidencia pública de cuándo empezó el cómputo de las seeds candidatas.
+
+- Coinkite sugirió que pudo usarse IA para encontrar el bug en el código open-source.
+
+**No hay evidencia pública sólida** que permita afirmar con precisión cuántos días/semanas/meses llevaba preparando el ataque antes del 30 de julio.
+
+El hilo continua 
+
+post: 2084809978846527802
+role: reply
+author: ishi0k
+name: Ishi
+created: 2026-08-05T01:13:27Z
+media: 1
+body:
+3/3
+
+## Investigación 7 — Primera hipótesis pública del RNG / Entropy
+
+### Orden cronológico de menciones públicas relevantes
+
+1. **Comentario en Reddit** (hilo de u/s1ammage, ~15:23 UTC del 30 julio) – Se menciona la posibilidad de seeds predecibles.
+
+2. **@KLoaec Kevin Loaec (~20:28 UTC del 30 julio)** – Primera hipótesis pública elaborada y de peso: “Low entropy RNG, either in a library or secure element/chip itself.”
+
+Esta es la primera formulación clara y pública por un investigador reconocido vinculando el incidente a un problema de bajo entropy / RNG antes del advisory técnico detallado de 
+@Coinkite
+.
+
+## Investigación 8 — Línea temporal minuto a minuto (hechos documentados)
+
+Cronología del descubrimiento público – 30 de julio 2026
+
+01:10 – 01:51 UTC
+Primera ola on-chain (bloques 960183-960191)
+Fuente: Galaxy Research, Block
+Tipo: On-chain
+
+09:15 UTC
+Posible reporte anónimo a abuse database (\~19.96 BTC)
+Fuente: 
+http://
+coldcard-hack.up.railway.app
+Tipo: Secundaria
+
+13:19 UTC
+Primer reporte público de víctima (u/s1ammage)
+Fuente: Reddit
+Tipo: Primaria
+
+\~15:23 UTC
+Primer señalamiento público del patrón de consolidación (u/Hoax__)
+Fuente: Reddit
+Tipo: Primaria
+
+17:35 UTC
+Kevin Loaec: “I'm hearing a potential issue...”
+Fuente: X (
+@KLoaec
+)
+Tipo: Primaria
+
+18:10 UTC
+
+@nvk
+ post minimizando (“No need to panic... compromised seed”)
+Fuente: X (eliminado)
+Tipo: Primaria (reconstruida)
+
+18:58 UTC
+Kevin Loaec: “THIS IS NOT A DRILL”
+Fuente: X
+Tipo: Primaria
+
+\~20:28 UTC
+Kevin Loaec formula hipótesis de Low entropy RNG
+Fuente: X
+Tipo: Primaria
+
+21:47 UTC
+NVK: “We've done a lot of investigation...”
+Fuente: X
+Tipo: Primaria
+
+22:28 UTC
+NVK: “That post is wrong”
+Fuente: X
+Tipo: Primaria
+
+22:50 UTC
+
+@COLDCARDwallet
+ publica Security Advisory (Mk3)
+Fuente: X / Blog Coinkite
+Tipo: Primaria
+
+---
+
+## Las cinco grandes incógnitas que aún permanecen
+
+1. ¿Hubo algún reporte público de víctima anterior al hilo de Reddit de u/s1ammage que haya pasado desapercibido?
+
+2. ¿Quién exactamente vio primero el patrón de consolidación en tiempo real (antes del comentario de Reddit)?
+
+3. ¿En qué momento exacto Kevin pasó de “posible issue” a sospechar específicamente de RNG/entropy?
+
+4. ¿A qué hora exacta Coinkite confirmó internamente que el problema era su firmware?
+
+5. ¿Cuánto tiempo real de cómputo y preparación llevó el atacante antes de lanzar la primera ola?
+
+---
+
+**Fuentes principales utilizadas**
+- Hilo Reddit u/s1ammage
+- Posts de 
+@KLoaec
+
+- Posts y eliminaciones de 
+@nvk
+ / 
+@COLDCARDwallet
+
+- Análisis de Clay Garrett (
+@clay_garrett
+) / Block
+- Galaxy Research
+- 
+http://
+coldcard-hack.up.railway.app
+- Bitcoin Well Blog, Protos, The Rage, Decrypt y reportes técnicos contemporáneos
+
+**Nota**  
+Este informe se limita estrictamente a lo documentado públicamente hasta la fecha.
+
+Este hilo podrá crecer a medida tengamos más información disponible.
+
+post: 2084817725314965778
+role: reply
+author: nicolasburtey
+name: Nicolas Burtey
+created: 2026-08-05T01:44:14Z
+media: 0
+body:
+missing the "part 0": swap of the seed generation library! from the trezor GPL to a proprietary - source viewable license.
+
+post: 2084826075780034848
+role: reply
+author: ishi0k
+name: Ishi
+created: 2026-08-05T02:17:25Z
+media: 1
+body:
+I took as my starting point the first verifiable public testimony from a user who reported having been affected.
+
+The inferential (hypothetical) part, regarding the possible actions that the attacker would have carried out in the phase prior to the first wave, I developed here.

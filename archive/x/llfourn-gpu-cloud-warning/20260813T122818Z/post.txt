@@ -1,0 +1,56 @@
+url:      https://x.com/LLFOURN/status/2083516078462759245
+author:   Zero-Knowledge Goof
+handle:   @LLFOURN
+posted:   2026-08-01T11:31:57.000Z (from the page's <time> element)
+captured: 20260813T122818Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Public heads-up for GPU cloud / rental providers and Trust & Safety teams:
+
+There is a publicly disclosed hardware-wallet entropy issue that may lead to abuse of consumer GPU rentals — especially multi-GPU NVIDIA RTX 3090 / 4090 and similar CUDA cards — for offline BIP-39 seed recovery.
+
+References: • Coinkite advisory: 
+https://
+blog.coinkite.com/coldcard-mk3-s
+eed-generation-warning/
+… • Technical background: 
+https://
+blog.coinkite.com/entropy-techni
+cal-backgrounder/
+… • Live theft tracker: 
+https://
+coldcard-watch.vercel.app
+
+What this looks like technically: • Offline search of a reduced BIP-39 seed space via bulk PBKDF2-HMAC-SHA512 (2048 iterations) • Mk3: does not need GPUs — that space is small enough to brute-force cheaply, and Mk3 seeds are already linked to on-chain thefts • Mk4 and later: does need large amounts of compute. Those seeds are stronger but still weaker than full design entropy for some pre-fix units. Rough ballpark: recovering one seed ≈ ~10× RTX 4090s for about a day • On rental platforms this tends to look like long-running custom CUDA/hashing binaries or containers on multi-GPU 30/40-series instances — not normal training/inference API usage
+
+Why this matters now: the low-hanging fruit (Mk3 and the weakest seeds that need little or no GPU) appears largely drained already — the tracker above shows the ongoing thefts. The next wave is Mk4-and-later seeds, which are compute-bound. Large blocks of rented consumer GPUs are the bottleneck for attackers.
+
+This is not a vulnerability report against any platform. It's context so abuse / trust teams can:
+1. Route future reports on this topic correctly
+2. Optionally watch for suspicious multi-GPU, long-running custom CUDA jobs
+3. Have background if law enforcement or researchers get in touch
+
+cc: 
+@vast_ai
+ 
+@runpod
+ 
+@clore_ai
+ 
+@TensorDock
+ 
+@SaladTech
+ 
+@akashnet
+ 
+@MassedCompute
+ 
+@Hyperstackcloud
+ 
+@fluidstack
+
+
+Happy to help any team dig in.

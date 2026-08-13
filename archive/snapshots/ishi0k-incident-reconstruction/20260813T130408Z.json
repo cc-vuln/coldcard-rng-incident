@@ -1,0 +1,65 @@
+{
+ "author": "ishi0k",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 6,
+  "posts_observed": 5,
+  "replies_observed": 3,
+  "reply_cap": 500,
+  "screenshots_taken": 5,
+  "scroll_rounds": 15
+ },
+ "gaps": [],
+ "posts": [
+  {
+   "author": "ishi0k",
+   "created": "2026-08-05T01:13:21Z",
+   "media": 1,
+   "name": "Ishi",
+   "role": "focal",
+   "status": "2084809954922258718",
+   "text": "Part 1/3\n\nHERE I present the chronological reconstruction (minute by minute) of how the \n@COLDCARDwallet\n disaster was discovered\n\nWhile \n@nvk\n was saying \u201cNo need to panic\u201d\u2026 or this he wrote \"FUD\". The wallets were already being emptied.\n\n## Investigation 1 \u2014 The true first public victim\n\n### Question\nWhat is the first publicly traceable report of a victim who claimed their funds had been drained?\n\n### Findings\n\n**First widely documented public report with traction:**\n\n- **Date and time:** July 30, 2026\n     **13:19 UTC**\n- **Platform:** Reddit (r/Bitcoin)\n- **User:** u/s1ammage\n- **Title:** \u201cFull panic - one of my wallets was drained\u201d\n\n- **Original link:** \nhttps://\nreddit.com/r/Bitcoin/comm\nents/1vatgl4/full_panic_one_of_my_wallets_was_drained/\n\u2026\n\n- **Reported amount:** ~0.79 BTC\n- **Model mentioned:** Coldcard Mk3 (purchased in May 2021)\n\n- **Setup details:** Seed generated on the device, never connected to PC, watch-only on Sparrow, funds from Roth IRA (Solera National Bank + Swan Bitcoin).\n\n**Important note on possible earlier reports:**\n\n- According to the community dashboard \nhttp://\ncoldcard-hack.up.railway.app, there is an anonymous report to an abuse database **on July 30 at 09:15 UTC** (approximately 19.96 BTC). This report is not public on forums and did not generate community discussion.\n\n- Jonathan Goodman (\n@itscoachgoodman\n) publicly reported on July 31 that ~18.25 BTC was drained from him on July 29 (North American local time), but his public post is after the Reddit one.\n\n- No verifiable public reports have been located on X, Bitcointalk, Nostr, or Hacker News **prior** to u/s1ammage's Reddit thread that generated traction or were cited as the first.\n\n**Current conclusion:**  \n\nu/s1ammage's thread on Reddit is the first public victim report with real and documented impact in the community.\n---\n## Investigation 2 \u2014 The first on-chain investigator\n\n### Question\nWho was the first person to publicly observe the pattern of consolidating hundreds of UTXOs to the same addresses?\n\n### Findings\n\n- The earliest documented comment identifying the consolidation pattern appears **in u/s1ammage's own Reddit thread**, a few hours after its publication (around 15:23 UTC on July 30).\n\n- Commenting user: u/Hoax__\n- Key content: Identifies the address `bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0` as receiving ~594 BTC from ~500 addresses in a 15-minute window.\n\n**Subsequently:**\n\n- Clay Garrett (\n@clay_garrett\n) of \n@blocks\n is the one who publishes the most influential technical analysis of the pattern (fixed fee of 30 sat/vB, no change, etc.), but his public posts are from **July 31**.\n\n- \n@glxyresearch\n publishes the complete mapping based on the pattern identified by Block.\n\n**Current conclusion:**  \nThe first public pointing out of the massive consolidation pattern to a single address appears to be the comment by u/Hoax__ in the Reddit thread on July 30. Clay Garrett and Block conducted the most solid and public forensic analysis the next day.\n\nThread continues.. "
+  },
+  {
+   "author": "ishi0k",
+   "created": "2026-08-05T01:13:24Z",
+   "media": 1,
+   "name": "Ishi",
+   "role": "self-thread",
+   "status": "2084809966309802441",
+   "text": "Parte 2/3\n\n## Investigaci\u00f3n 3 \u2014 Kevin Loaec (\n@KLoaec\n)\n\nKevin Loaec (\n@KLoaec\n) \u2013 Actuaci\u00f3n p\u00fablica el 30 de julio 2026\n\n17:35 UTC\n\u201cI'm hearing a potential issue with some Coldcard wallets being drained. I will not FUD, but would like to get at least reports of trusted people...\u201d\n\u2192 Primer mensaje p\u00fablico. Pide verificaciones.\n\n18:58 UTC\n\u201cAlright I'm convinced THIS IS NOT A DRILL.\u201d\n\u2192 Pasa de duda a certeza.\n\n\\~20:01 UTC\nThread: Single-sig only por ahora. No sabemos si es seed o otro bug. Passphrase o dice rolls pueden no salvar. USE MULTISIG.\n\u2192 Empieza a dar recomendaciones.\n\n\\~20:28 UTC\n\u201cMy current hypothesis for the \n@COLDCARDwallet\n theft.\u201d\n\nPropone Low entropy RNG (biblioteca o secure element). Hip\u00f3tesis de que el atacante us\u00f3 IA y solo escane\u00f3 rutas BIP84.\n\n\u2192 Primera hip\u00f3tesis p\u00fablica fuerte de bajo entropy / RNG por parte de un investigador relevante.\n\n### Posteriores\n\nContin\u00faa actualizando, advierte sobre Mk3, habla de entrop\u00eda, recomienda multisig y Liana.\n\nKevin fue de los primeros en llevar el tema de \u201cposible FUD de Reddit\u201d a \u201cesto es real y puede ser un problema de entropy\u201d.\n\n---\n\n## Investigaci\u00f3n 4 \u2014 NVK (\n@nvk\n)\n\n NVK (\n@nvk\n) \u2013 Primeras 24 horas (30 de julio 2026)\n\n\\~18:10 UTC\nPost p\u00fablico:\n\u201cNo need to panic. Someone loaded a compromised seed onto a Coldcard and/or their seed leaked. This is part of a broader attack involving 500 private keys...\u201d\n\u2192 ELIMINADO posteriormente\n\n\\~21:47 UTC\nPost:\n\u201cWe've done a lot of investigation about the COLDCARD reports, blog post incoming!\u201d\n\u2192 Investigando\n\n\\~22:28 UTC\nRespuesta:\n\u201cThat post is wrong. I don\u2019t want wrong information out now... Blog incoming.\u201d\n\u2192 Reconoce error del post anterior\n\n22:50 UTC\nCuenta oficial \n@COLDCARDwallet\n\nPublica el primer Security Advisory (Mk3)\n\u2192 Reconocimiento oficial del riesgo\n\n**Cambio de postura documentado:**  \nPas\u00f3 de atribuir el problema a \u201cseeds comprometidas / filtradas de fuera\u201d (post eliminado) a reconocer un problema en el firmware de Coldcard (advisory + disculpa posterior del 31 de julio).\n\n---\n\n## Investigaci\u00f3n 5 \u2014 \u00bfCu\u00e1ndo fue avisado Coinkite?\n\n### Evidencia p\u00fablica disponible\n\n- No existe evidencia p\u00fablica de emails, tickets de GitHub, mensajes de Telegram/Discord o contactos privados filtrados que indiquen la hora exacta en que Coinkite fue notificado por primera vez.\n\n- \n@blocks\n (Clay Garrett y equipo) investig\u00f3 reportes de wallets no-Bitkey siendo drenadas el 30 de julio y colabor\u00f3 con \n@Coinkite\n\n\n- El advisory oficial se publica a las **22:50 UTC del 30 de julio**.\n- \n@nvk\n habla de \u201cinvestigaci\u00f3n\u201d desde la tarde del 30.\n\n**Conclusi\u00f3n actual:**  \n\nLa evidencia p\u00fablica muestra que \n@Coinkite\n estaba al tanto y investigando al menos desde la tarde del 30 de julio. \n\nNo hay prueba p\u00fablica del \u201cprimer aviso interno\u201d exacto.\n\n---\n\n## Investigaci\u00f3n 6 \u2014 Preparaci\u00f3n del atacante\n\n### Solo evidencia respaldada\n\n- \n@blocks\n identific\u00f3 que el operador us\u00f3 una cuenta de pago en un proveedor de servicios blockchain para consultar direcciones durante los sweeps.\n\n- El patr\u00f3n (fee fija, sin change, consolidaci\u00f3n r\u00e1pida, enfoque en direcciones >0.15 BTC y dormidas) indica automatizaci\u00f3n y lista pre-preparada.\n\n- Galaxy y Block describen la operaci\u00f3n como altamente automatizada y preparada.\n\n- No se han publicado scripts del atacante ni evidencia p\u00fablica de cu\u00e1ndo empez\u00f3 el c\u00f3mputo de las seeds candidatas.\n\n- Coinkite sugiri\u00f3 que pudo usarse IA para encontrar el bug en el c\u00f3digo open-source.\n\n**No hay evidencia p\u00fablica s\u00f3lida** que permita afirmar con precisi\u00f3n cu\u00e1ntos d\u00edas/semanas/meses llevaba preparando el ataque antes del 30 de julio.\n\nEl hilo continua "
+  },
+  {
+   "author": "ishi0k",
+   "created": "2026-08-05T01:13:27Z",
+   "media": 1,
+   "name": "Ishi",
+   "role": "reply",
+   "status": "2084809978846527802",
+   "text": "3/3\n\n## Investigaci\u00f3n 7 \u2014 Primera hip\u00f3tesis p\u00fablica del RNG / Entropy\n\n### Orden cronol\u00f3gico de menciones p\u00fablicas relevantes\n\n1. **Comentario en Reddit** (hilo de u/s1ammage, ~15:23 UTC del 30 julio) \u2013 Se menciona la posibilidad de seeds predecibles.\n\n2. **@KLoaec Kevin Loaec (~20:28 UTC del 30 julio)** \u2013 Primera hip\u00f3tesis p\u00fablica elaborada y de peso: \u201cLow entropy RNG, either in a library or secure element/chip itself.\u201d\n\nEsta es la primera formulaci\u00f3n clara y p\u00fablica por un investigador reconocido vinculando el incidente a un problema de bajo entropy / RNG antes del advisory t\u00e9cnico detallado de \n@Coinkite\n.\n\n## Investigaci\u00f3n 8 \u2014 L\u00ednea temporal minuto a minuto (hechos documentados)\n\nCronolog\u00eda del descubrimiento p\u00fablico \u2013 30 de julio 2026\n\n01:10 \u2013 01:51 UTC\nPrimera ola on-chain (bloques 960183-960191)\nFuente: Galaxy Research, Block\nTipo: On-chain\n\n09:15 UTC\nPosible reporte an\u00f3nimo a abuse database (\\~19.96 BTC)\nFuente: \nhttp://\ncoldcard-hack.up.railway.app\nTipo: Secundaria\n\n13:19 UTC\nPrimer reporte p\u00fablico de v\u00edctima (u/s1ammage)\nFuente: Reddit\nTipo: Primaria\n\n\\~15:23 UTC\nPrimer se\u00f1alamiento p\u00fablico del patr\u00f3n de consolidaci\u00f3n (u/Hoax__)\nFuente: Reddit\nTipo: Primaria\n\n17:35 UTC\nKevin Loaec: \u201cI'm hearing a potential issue...\u201d\nFuente: X (\n@KLoaec\n)\nTipo: Primaria\n\n18:10 UTC\n\n@nvk\n post minimizando (\u201cNo need to panic... compromised seed\u201d)\nFuente: X (eliminado)\nTipo: Primaria (reconstruida)\n\n18:58 UTC\nKevin Loaec: \u201cTHIS IS NOT A DRILL\u201d\nFuente: X\nTipo: Primaria\n\n\\~20:28 UTC\nKevin Loaec formula hip\u00f3tesis de Low entropy RNG\nFuente: X\nTipo: Primaria\n\n21:47 UTC\nNVK: \u201cWe've done a lot of investigation...\u201d\nFuente: X\nTipo: Primaria\n\n22:28 UTC\nNVK: \u201cThat post is wrong\u201d\nFuente: X\nTipo: Primaria\n\n22:50 UTC\n\n@COLDCARDwallet\n publica Security Advisory (Mk3)\nFuente: X / Blog Coinkite\nTipo: Primaria\n\n---\n\n## Las cinco grandes inc\u00f3gnitas que a\u00fan permanecen\n\n1. \u00bfHubo alg\u00fan reporte p\u00fablico de v\u00edctima anterior al hilo de Reddit de u/s1ammage que haya pasado desapercibido?\n\n2. \u00bfQui\u00e9n exactamente vio primero el patr\u00f3n de consolidaci\u00f3n en tiempo real (antes del comentario de Reddit)?\n\n3. \u00bfEn qu\u00e9 momento exacto Kevin pas\u00f3 de \u201cposible issue\u201d a sospechar espec\u00edficamente de RNG/entropy?\n\n4. \u00bfA qu\u00e9 hora exacta Coinkite confirm\u00f3 internamente que el problema era su firmware?\n\n5. \u00bfCu\u00e1nto tiempo real de c\u00f3mputo y preparaci\u00f3n llev\u00f3 el atacante antes de lanzar la primera ola?\n\n---\n\n**Fuentes principales utilizadas**\n- Hilo Reddit u/s1ammage\n- Posts de \n@KLoaec\n\n- Posts y eliminaciones de \n@nvk\n / \n@COLDCARDwallet\n\n- An\u00e1lisis de Clay Garrett (\n@clay_garrett\n) / Block\n- Galaxy Research\n- \nhttp://\ncoldcard-hack.up.railway.app\n- Bitcoin Well Blog, Protos, The Rage, Decrypt y reportes t\u00e9cnicos contempor\u00e1neos\n\n**Nota**  \nEste informe se limita estrictamente a lo documentado p\u00fablicamente hasta la fecha.\n\nEste hilo podr\u00e1 crecer a medida tengamos m\u00e1s informaci\u00f3n disponible."
+  },
+  {
+   "author": "nicolasburtey",
+   "created": "2026-08-05T01:44:14Z",
+   "media": 0,
+   "name": "Nicolas Burtey",
+   "role": "reply",
+   "status": "2084817725314965778",
+   "text": "missing the \"part 0\": swap of the seed generation library! from the trezor GPL to a proprietary - source viewable license."
+  },
+  {
+   "author": "ishi0k",
+   "created": "2026-08-05T02:17:25Z",
+   "media": 1,
+   "name": "Ishi",
+   "role": "reply",
+   "status": "2084826075780034848",
+   "text": "I took as my starting point the first verifiable public testimony from a user who reported having been affected.\n\nThe inferential (hypothetical) part, regarding the possible actions that the attacker would have carried out in the phase prior to the first wave, I developed here."
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2084809954922258718",
+ "url": "https://x.com/ishi0k/status/2084809954922258718"
+}

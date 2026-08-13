@@ -1,0 +1,178 @@
+--- afilini-2085269060028170742@20260813T080552Z
++++ afilini-2085269060028170742@20260813T143843Z
+@@ -127,67 +127,115 @@
+ body:
+ Does my tweet sound like I’m defending them?
+ 
+-post: 2087563898392395927
+-role: reply
+-author: stutxo
+-name: stu
+-created: 2026-08-12T15:36:33Z
++post: 2087562757079982429
++role: reply
++author: n1ckler
++name: Jonas Nick
++created: 2026-08-12T15:32:00Z
+ media: 1
+ body:
+-bro is on coingecko page 60 looking at shitcoin charts and posting bip110 hopium 
+-
+-there has never been a crash out like it
+-
+-post: 2087619577484046470
+-role: reply
+-author: Schnitzel
+-name: Michael Schmid
+-created: 2026-08-12T19:17:48Z
++LLMs are used very successfully to find vulnerabilities in Bitcoin software.
++Can they also help prove the security of a modern cryptographic library for Bitcoin?
++
++To explore this question, 
++@remix7531
++ and I are publishing libshrincs.
++
++
++https://
++delvingbitcoin.org/t/libshrincs-a
++-c-implementation-with-a-machine-checked-security-proof/2795
++…
++
++libshrincs is a handwritten C library implementing WOTS+C, the one-time signature used by SHRINCS.
++It is a proof of concept and should not be used in production.
++Its machine-checked proofs connect the C implementation to an unforgeability theorem.
++
++The current theorem does not yet give a full post-quantum security bound.
++The post and review tutorial describe its current limits.
++
++Code and proofs:
++
++https://
++github.com/remix7531/libs
++hrincs
++…
++
++Review tutorial for the security proof (no Rocq or SSProve background required):
++
++https://
++github.com/remix7531/libs
++hrincs/blob/tutorial/docs/SSPROVE_SECURITY_REVIEW.pdf
++…
++
++
++@remix7531
++ has written three excellent posts on the library and verification work:
++
++Towards libshrincs
++
++https://
++remix7531.com/post/towards-l
++ibshrincs/
++…
++
++The grind was the only detector
++
++https://
++remix7531.com/post/the_grind
++_was_the_only_detector/
++…
++
++Choosing a verification toolchain
++
++https://
++remix7531.com/post/choosing_
++a_verification_toolchain/
++…
++
++post: 2087780972427395527
++role: reply
++author: lukechilds
++name: Luke Childs
++created: 2026-08-13T05:59:07Z
++media: 0
++body:
++Bitkey got so much unfair hate from people who had a very poor understanding of it's tradeoffs.
++
++They broke every self custody rule:
++- seedless
++- cloud backups
++- fingerprint unlock
++- no screen (for rev 1)
++
++In isolation many of those decisions seem bad. When you step back and reason about the properties of the system as a whole, it achieves a level of UX not seen before, while still retaining very strong security properties.
++
++You often have to break the rules to innovate and come up with something better. These absolute chads willed an entirely new category of self custody solutions into existence.
++
++It does have tradeoffs, and it's maybe not the perfect solution for everyone. But it's damn fine engineering. Like 50% of the tricks in Anzen's design are yanked straight from Bitkey.
++
++(v glad rev 2 got the screen though!)
++
++post: 2087854283546894477
++role: reply
++author: btcqna
++name: QnA
++created: 2026-08-13T10:50:26Z
+ media: 1
+ body:
+-~90% of ASICs run one vendor's closed-source firmware. Almost nobody has audited it.
+-
+-We at 
+-@256FOUNDATION
+- do.
+-
+-Introducing the 256 Red Team  — the 256 Foundation's firmware security program. On hardware we own, in an isolated lab, under coordinated disclosure.
+-
+-post: 2087648218393858456
+-role: reply
+-author: Rob1Ham
+-name: Rob Hamilton
+-created: 2026-08-12T21:11:36Z
+-media: 1
+-body:
+-I have now set up my 2 councils. Monitoring the situation.
+-
+-Red Team: 
+-Deepseekv4 Pro
+-Kimi K3, 
+-GLM5.2
+-
+-Blue Team: 
+-GPT 5.6 Daybreak Blue
+-Grok 4.6
+-Fable/Opus
+-
+-All made possible by 
+-@opencode
+-
+-post: 2087683189489779164
+-role: reply
+-author: jamesob
+-name: James O'Beirne
+-created: 2026-08-12T23:30:34Z
+-media: 1
+-body:
+-Attackers are working through the honeypots on 
+-http://
+-cktripwire.com
+-
+-Our theft frontier is at 11 bits of added entropy on top of the weak mk3 seeds.
+-
+-All of 
+-@ColeTU
+-'s external honeypots have been swept. We just lost our first one-word passphrase UTXO.
++Fucked around.
++
++Found out.
++
++post: 2087874463320666275
++role: reply
++author: callebtc
++name: calle
++created: 2026-08-13T12:10:37Z
++media: 0
++body:
++why humans should not code in c: we're finding memory-safety vulnerabilities in c projects that are prevented by default in many other languages.
++
++in the past, finding a simple buffer overflow wasn't enough. you'd need a highly skilled hacker to turn the vulnerability into a working end-to-end exploit.
++
++today, that's a single prompt.

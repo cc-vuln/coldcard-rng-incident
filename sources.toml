@@ -14645,7 +14645,7 @@ org = "reddit"
 kind = "community-discussion"
 tier = 3
 watch_until = "20260816T020113Z"
-min_chars = 1500
+min_chars = 600
 capture = "reddit-json"
 why = """
 AnaMoneyro sharing an interactive client-side simulator for mapping dice rolls to a BIP39 seed and visualising what 40 bits of entropy means, made after reading about the Coldcard incident. A topical post that adds a community-built explanatory artefact to the dice-seed discussion that followed the entropy bug. The simulator's claims and implementation are the author's own, not verified here.
@@ -14748,4 +14748,1138 @@ author = "jamesob"
 posted = "2026-08-04T13:57:40Z"
 why = """
 James O'Beirne says he reached the same conclusion in May 2025 while auditing coldcard/firmware, finding that the RNG sourced to a library he describes as shady. Held as a dated first-hand account of prior audit work and an independently checkable lead about the RNG source. The May 2025 claim and the library characterization are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-take-offline-advice"
+title = "Advice to take non-essential services offline"
+url = "https://x.com/jamesob/status/2085763034417340500"
+author = "jamesob"
+posted = "2026-08-07T16:20:33Z"
+why = """
+James O'Beirne advises that non-essential services should be taken offline for a few days while the dust settles. Held as a dated incident-response recommendation made during the BTCPay Server active-exploit disclosure. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-blockclock-quote-critique"
+title = "BlockClock Satoshi quote choice questioned"
+url = "https://x.com/jamesob/status/2085378374734684613"
+author = "jamesob"
+posted = "2026-08-06T14:52:03Z"
+why = """
+James O'Beirne questions why a particular Satoshi quote was chosen for BlockClock and how it relates to block clocks. Held as a dated reaction to Coinkite's public messaging during the incident response. The characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-thorough-analysis-link"
+title = "Thorough analysis and credit"
+url = "https://x.com/jamesob/status/2084627798086279459"
+author = "jamesob"
+posted = "2026-08-04T13:09:32Z"
+why = """
+James O'Beirne links to a more thorough analysis on GitHub Gist and credits Dylan LeClair. Held as a dated primary incident statement sharing an external technical artifact and acknowledging another contributor. The linked analysis is the author's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-attacker-capabilities-work"
+title = "Attacker capabilities scan underway"
+url = "https://x.com/jamesob/status/2084445986164982220"
+author = "jamesob"
+posted = "2026-08-04T01:07:04Z"
+why = """
+James O'Beirne says he is working on a way to assess the current capabilities and depth of the attackers, hoping to deploy that night, and urges migrating anyone with weak passphrase or dice entropy. Held as a dated incident-response update and migration guidance. The assessment plan is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "udiwertheimer-vaults-covenants-argument"
+title = "Bitcoin vaults and covenants could have helped"
+url = "https://x.com/udiWertheimer/status/2083958092073431140"
+author = "udiWertheimer"
+posted = "2026-08-02T16:48:21Z"
+why = """
+Udi Wertheimer argues that Bitcoin vault and covenant proposals from 2016 would have given Coldcard users a recoverable safety layer, and calls for covenant soft-forks such as OP_CTV, OP_VAULT or OP_CAT. Held as a dated technical-policy argument about how the incident informs Bitcoin protocol design. The argument is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "peter-mccormack-coldcard-support"
+title = "ColdCard support and personal reassurance"
+url = "https://x.com/PeterMcCormack/status/2083631731052290261"
+author = "PeterMcCormack"
+posted = "2026-08-01T19:11:31Z"
+why = """
+Peter McCormack offers personal reassurance to affected users, acknowledges the scale of the mistake, and states that ColdCard is still needed in Bitcoin despite the incident. Held as a dated first-hand sentiment statement from a named public figure responding to the incident. The characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "llfourn-gpu-cloud-warning"
+title = "GPU cloud provider abuse warning"
+url = "https://x.com/LLFOURN/status/2083516078462759245"
+author = "LLFOURN"
+posted = "2026-08-01T11:31:57Z"
+why = """
+LLFOURN publicly warns GPU cloud and Trust and Safety teams that the disclosed entropy issue may lead to abuse of rented multi-GPU instances for offline BIP-39 seed recovery, estimates roughly ten RTX 4090s for about a day per Mk4-class seed, and lists platforms to watch. Held as a dated first-hand threat-context statement about the attack's compute requirements. The cost and platform claims are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "sanket-mk4-entropy-bits"
+title = "Mk4 entropy may be near 50 bits"
+url = "https://x.com/sanket1729/status/2083149329200730486"
+author = "sanket1729"
+posted = "2026-07-31T11:14:37Z"
+tag = "independent-analysis"
+why = """
+Sanket1729 argues that the actual entropy for Mk4 and later devices is much less than 72 bits because the 72-bit figure assumes security from correlated timer fields, and offers a napkin estimate of almost 50 bits. Held as a dated independent technical analysis of the Mk4 entropy bound. The estimate is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-mk3-move-funds-advice"
+title = "Mk3 single-key move-funds advice"
+url = "https://x.com/jamesob/status/2082946043696574756"
+author = "jamesob"
+posted = "2026-07-30T21:46:50Z"
+why = """
+James O'Beirne advises moving bitcoin held under a single Coldcard Mk3 key generated between 2021 and 2023 if it did not use dice rolls, a passphrase or multi-sig. Held as a dated incident-response migration recommendation. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-multisig-slipstream-advice"
+title = "Multisig recovery via private miner submission"
+url = "https://x.com/jamesob/status/2083196852233515152"
+author = "jamesob"
+posted = "2026-07-31T14:23:28Z"
+why = """
+James O'Beirne recommends using a private direct-to-miner mempool service such as Slipstream when recovering from an affected multi-sig wallet without prior spends, to reduce the chance that the attacker observes pubkeys and has time to grind funds. Held as a dated incident-response mitigation recommendation. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-dice-roll-code-verification"
+title = "Dice-roll code-path verification"
+url = "https://x.com/jamesob/status/2083184261918523650"
+author = "jamesob"
+posted = "2026-07-31T13:33:26Z"
+why = """
+James O'Beirne states that he has verified the code paths for all firmware versions and that dice rolls are mixed into the seed via hash, with 99 or more rolls being good. Held as a dated technical verification statement about the dice-roll mitigation path. The verification claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-provisioned-keys-move"
+title = "Move funds from provisioned Coinkite keys"
+url = "https://x.com/jamesob/status/2083165859783012659"
+author = "jamesob"
+posted = "2026-07-31T12:20:18Z"
+why = """
+James O'Beirne gives a bottom-line recommendation to move funds expeditiously from any Coinkite device bought in or after 2021 if the keys were provisioned without dice rolls, and notes an ongoing investigation into the firmware state. Held as a dated broad incident-response guidance statement. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-mk2-mk4-move-advice"
+title = "Mk2 and Mk4 may also be affected; move single-key funds"
+url = "https://x.com/jamesob/status/2082962518100586708"
+author = "jamesob"
+posted = "2026-07-30T22:52:18Z"
+why = """
+James O'Beirne confirms the issue may also affect Mk2 and Mk4, and updates his advice to move funds held under single keys generated by Coinkite devices bought during or after 2021 without a passphrase or dice rolls. Held as a dated scope-expansion and migration recommendation. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-dice-passphrase-safety"
+title = "Dice-roll path safe; passphrase security depends on passphrase strength"
+url = "https://x.com/jamesob/status/2082980104850792753"
+author = "jamesob"
+posted = "2026-07-31T00:02:11Z"
+why = """
+James O'Beirne states that the dice-roll path is safe provided enough dice rolls were used, and that passphrase-protected coins are now only as safe as the passphrase. Held as a dated mitigation guidance statement about two incident-response paths. The verification claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-coinkite-response-credit"
+title = "Credit to Coinkite and nvk for cooperating during response"
+url = "https://x.com/jamesob/status/2083014160040734908"
+author = "jamesob"
+posted = "2026-07-31T02:17:30Z"
+why = """
+James O'Beirne credits nvk and Coinkite for being alongside responders throughout the incident. Held as a dated statement of sentiment about the vendor's cooperation during the public response. The characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "jamesob-covenants-usability-argument"
+title = "Covenants as the path to usable multi-sig-level security"
+url = "https://x.com/jamesob/status/2083013326804595087"
+author = "jamesob"
+posted = "2026-07-31T02:14:12Z"
+why = """
+James O'Beirne argues that covenants are the only path to multi-signature-level security with human-level usability, framing the incident as a case for protocol-level safeguards. Held as a dated technical-policy argument about how the incident informs Bitcoin design. The argument is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "kloaec-nvk-dochex-mistake"
+title = "NVK and DocHex incident-response critique"
+url = "https://x.com/KLoaec/status/2085714594689880490"
+author = "KLoaec"
+posted = "2026-08-07T13:08:04Z"
+why = """
+Kevin Loaec's dated critique of the vendor response, stating that NVK forgot to tell DocHex to "make no mistake". Held as a sentiment statement about Coinkite leadership during the incident; the characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "kloaec-fork-scam-warning"
+title = "Fork-airdrop scam warning"
+url = "https://x.com/KLoaec/status/2085474252740808915"
+author = "KLoaec"
+posted = "2026-08-06T21:13:02Z"
+thread = true
+tier = 3
+why = """
+Kevin Loaec's public safety warning that a forthcoming Bitcoin fork coin will create scam opportunities targeting holders seeking to sell an airdrop. Held as dated guidance on scams exploiting the post-incident panic; the risk assessment is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "aamanda-victim-support-offer"
+title = "Psychologist volunteer support offer"
+url = "https://x.com/aamanda/status/2085128384498344333"
+author = "aamanda"
+posted = "2026-08-05T22:18:41Z"
+why = """
+Amanda da Silveira, a psychologist and bitcoiner, offers to volunteer time to talk with anyone in the Bitcoin community affected by the incident. Held as a dated first-hand record of community victim-support response; the offer is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "kloaec-prior-report-challenge"
+title = "Challenge to produce prior reports of the fallback-to-PRNG bug"
+url = "https://x.com/KLoaec/status/2085004779780976958"
+author = "KLoaec"
+posted = "2026-08-05T14:07:31Z"
+why = """
+Kevin Loaec asks anyone who knew about the fallback-to-PRNG bug and reported it to Coinkite to send proof to James, adding that he does not believe anyone did. Held as a dated public challenge about prior knowledge of the vulnerability. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "ishi0k-incident-reconstruction"
+title = "Chronological reconstruction of the incident discovery"
+url = "https://x.com/ishi0k/status/2084809954922258718"
+author = "ishi0k"
+posted = "2026-08-05T01:13:21Z"
+thread = true
+tier = 3
+why = """
+Ishi publishes a three-part thread reconstructing the discovery of the COLDCARD disaster, identifying the first widely documented public victim report and the first on-chain observation of the consolidation pattern. Held as a dated reported reconstruction of the incident timeline. The claims about timing and identity are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "profedustream-slipstream-mempool-warning"
+title = "Slipstream mempool-risk warning for Liana and multi-sig users"
+url = "https://x.com/profedustream/status/2084672389070139849"
+author = "profedustream"
+posted = "2026-08-04T16:06:43Z"
+why = """
+ProfEduStream warns Liana and multi-sig users that broadcasting a transaction to the public mempool can let an attacker replace it if one key was generated on an affected Coldcard, and describes a tool that submits signed transactions privately to MARA's Slipstream service. Held as a dated incident-response mitigation recommendation. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "kloaec-prior-knowledge-claim"
+title = "Claim that prior knowledge of the bug was widespread"
+url = "https://x.com/KLoaec/status/2084658920522469885"
+author = "KLoaec"
+posted = "2026-08-04T15:13:12Z"
+why = """
+Kevin Loaec asserts that everyone knew about the fallback-to-PRNG bug for a long time and criticizes other participants as not serious. Held as a dated sentiment statement about prior knowledge of the vulnerability. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "darosior-psbt-miner-tool-advice"
+title = "PSBT miner-submission advice for multisig sweeps"
+url = "https://x.com/darosior/status/2084370661560991841"
+author = "darosior"
+posted = "2026-08-03T20:07:46Z"
+tag = "migration-guidance"
+why = """
+Antoine Poinsot explains that publishing a multisig PSBT through a private miner submission can keep descriptor information off the public mempool until confirmation, which may help when affected COLDCARD keys meet the spending threshold but the attacker still lacks the wallet setup needed to reconstruct scripts. Held as a dated technical mitigation recommendation. The security assessment is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "bitcoinlixin-continuous-audit-commentary"
+title = "Commentary on continuous wallet security audits"
+url = "https://x.com/BitcoinLixin/status/2084349444506689736"
+author = "BitcoinLixin"
+posted = "2026-08-03T18:43:27Z"
+tag = "commentary"
+why = """
+Lixin Liu states that only a small number of wallets continue to perform security audits after product launch. Held as a dated industry commentary on hardware-wallet security practices in the wake of the incident. The claim is the poster's own and is not independently verified here.
+"""
+
+# ---- 13 Aug 2026 discovery intake: community threads ------------------------
+
+[[source]]
+id = "reddit-coldcard-q-self-rolled-signing"
+title = "r/Bitcoin: using a Coldcard Q with a self-rolled dice seed as a pure signing device"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vkgatv/coldcard_q_security_with_selfrolled_seed_as_pure/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260820T132844Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+proper_turtle plans to keep using a Coldcard Q on old firmware as an air-gapped signing device for a dice-rolled seed, and asks whether the QR export to Sparrow Wallet could leak the private key. A distinct mitigation question about reusing affected hardware with externally generated entropy, alongside reddit-coldcard-q-signing-device-only. The claims and risk assessments are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-coinkite-silence-unprofessional"
+title = "r/coldcard: complaint about Coinkite support silence and lack of public statement"
+url = "https://www.reddit.com/r/coldcard/comments/1vm708g/unprofessional/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260820T132844Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Intelligent_Map_246 reports no support response for more than a week and no CEO or public statement from Coinkite after the incident. A sentiment thread documenting the community reaction to the vendor's communication silence. The characterization is the poster's own and is not verified here.
+"""
+
+[[source]]
+id = "reddit-forrest-video-coldcard"
+title = "r/Bitcoin: Forrest video from nine months ago that may have helped Coldcard users"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vm15sk/9_months_ago_a_video_from_forrest_couldve/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260816T132844Z"
+min_chars = 1000
+capture = "reddit-json"
+why = """
+bitcoinphilosophy links to a video by Forrest that commenters suggest could have helped Coldcard users, with discussion of its possible relevance to the incident. A link-post record of community speculation about earlier warnings. The claims about the video's content are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-unplug-blockclock"
+title = "r/Bitcoin: whether to unplug a Coinkite BlockClock after the incident"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vm1gve/unplug_the_blockclock/"
+org = "reddit"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260816T132844Z"
+min_chars = 600
+capture = "reddit-json"
+why = """
+Viking_13v asks whether keeping a Coinkite BlockClock connected to WiFi is safe given the recent controversy. A short spillover thread documenting trust concerns about another Coinkite product after the incident. The concerns are the posters' own and are not verified here.
+"""
+
+[[source]]
+id = "reddit-case-against-passphrases"
+title = "r/Bitcoin: the case against using passphrases"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vm56ou/the_case_against_passphrases/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260820T132844Z"
+min_chars = 3000
+capture = "reddit-json"
+why = """
+PoeCollector argues that passphrases add tedium and loss risk without meaningful extra entropy, while acknowledging that long passphrases protected some users during the Coldcard incident. A distinct technical counterargument in the passphrase debate, alongside reddit-passphrase-extra-security. The claims are the poster's own and are not verified here.
+"""
+
+# ---- 13 Aug 2026 discovery intake: community threads (continued) ------------
+
+[[source]]
+id = "stackernews-mara-9k-bitcoin-rescued"
+title = "9K Bitcoin rescued out of Coldcard multisigs | MARA Foundation"
+url = "https://stacker.news/items/1546608"
+published = "2026-08-12"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 3
+watch_until = "20260816T133801Z"
+min_chars = 100
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1546608) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+hasherstacker links to a MARA Foundation announcement that 9,000 bitcoin were rescued from Coldcard multisig setups. Held as a link-post record of a claimed large-scale rescue operation during the incident response. The rescue claim is the poster's own and is not independently verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "reddit-coldcard-not-doom-hardware-wallets"
+title = "r/Bitcoin: the Coldcard hack does not mean hardware wallets are doomed"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vmi5bq/the_coldcards_hack_doesnt_mean_hardware_wallets/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260820T133801Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+chainglance_cm argues that the COLDCARD bug was a vendor-specific firmware RNG failure, not evidence that hardware wallets as a category are flawed, and compares fully open-source wallets as having more independent review. A distinct opinion thread in the post-incident sentiment and migration discussion, alongside reddit-hardware-wallet-comparison. The claims and comparisons are the poster's own and are not verified here.
+"""
+
+# ---- 13 Aug 2026 discovery intake: X posts ----------------------------------
+
+[[x_post]]
+id = "btchip-dice-entropy-ai-pivot"
+title = "Dice entropy AI pivot"
+url = "https://x.com/BTChip/status/2084207111534248188"
+author = "BTChip"
+posted = "2026-08-03T09:17:52Z"
+why = "Nicolas Bacca of Ledger comments that continuing to discuss dice-based entropy generation in 2026 should prompt a pivot to AI or gardening. Held as a hardware-wallet vendor figure's dated reaction to the post-incident entropy-generation debate. The opinion is the poster's own and is not verified here."
+
+[[x_post]]
+id = "kloaec-suing-open-source-legal-risk"
+title = "Suing open-source security companies is a legal risk"
+url = "https://x.com/KLoaec/status/2084344084043330009"
+author = "KLoaec"
+posted = "2026-08-03T18:22:09Z"
+why = "Kevin Loaec argues that suing security companies with publicly auditable code makes open-source product development legally risky, and urges funding security audits and bug bounties instead. Held as a dated incident-response opinion from a named responder. The opinion is the poster's own and is not verified here."
+
+[[x_post]]
+id = "briantrollz-lightning-channel-warning"
+title = "Lightning channel closure warning for BIP-85 seeds"
+url = "https://x.com/brian_trollz/status/2084150173265981624"
+author = "brian_trollz"
+posted = "2026-08-03T05:31:37Z"
+why = "Bitcoin Isn't About You warns that BIP-85 seeds generated on a compromised Coldcard and used on a Lightning node put on-chain funds at risk if channels are closed, advising off-chain swaps first. Held as dated technical guidance from a named community figure during the incident response. The claims are the poster's own and are not verified here."
+
+[[x_post]]
+id = "kloaec-against-stealing-rescue-funds"
+title = "Against stealing from users who can still move coins"
+url = "https://x.com/KLoaec/status/2084223689734656312"
+author = "KLoaec"
+posted = "2026-08-03T10:23:45Z"
+why = "Kevin Loaec states he is against taking coins from users who can still move them, noting that many no longer have their original device and recovery would be unlikely. Held as a dated statement on the rescue-versus-theft debate from a named responder. The opinion is the poster's own and is not verified here."
+
+[[x_post]]
+id = "giacomozucco-hackers-vs-critics"
+title = "Hackers less disgusting than critics"
+url = "https://x.com/giacomozucco/status/2084063583017607605"
+author = "giacomozucco"
+posted = "2026-08-02T23:47:32Z"
+why = "Giacomo Zucco opines that the actual COLDCARD attacker is less disgusting aesthetically and perhaps ethically than critics he describes as vultures, and compares the harm to KYC and regulated custodians. Held as a dated sentiment post from a named Bitcoin figure. The opinion is the poster's own and is not verified here."
+
+[[x_post]]
+id = "briantrollz-bad-advice-warning"
+title = "Warning against bad advice from named influencers"
+url = "https://x.com/brian_trollz/status/2083939469808345332"
+author = "brian_trollz"
+posted = "2026-08-02T15:34:21Z"
+why = "Bitcoin Isn't About You warns against taking incident-handling advice from hodlonaut, GrassFedBitcoin and similar figures, claiming they have told vulnerable people not to move funds when they should. Held as a dated claim about advice quality during the incident response. The claims are the poster's own and are not verified here."
+
+[[x_post]]
+id = "lianabitcoin-new-followers-silence"
+title = "Welcome to new followers after keeping silent"
+url = "https://x.com/lianabitcoin/status/2084066296342167665"
+author = "lianabitcoin"
+org = "Liana Wallet"
+posted = "2026-08-02T23:58:19Z"
+why = "Liana Wallet welcomes new followers and explains that its account stayed silent while Kevin Loaec was busy warning and helping people on the front line. Held as an organisational statement on the project's incident-response posture. The claims are the poster's own and are not verified here."
+
+# ---- 13 Aug 2026 discovery intake: X posts (continued) ---------------------
+
+[[x_post]]
+id = "salvatoshi-self-custody-dev-tools"
+title = "Self-custody dev tools after the incident"
+url = "https://x.com/salvatoshi/status/2084012674229395902"
+author = "salvatoshi"
+posted = "2026-08-02T20:25:15Z"
+why = "Salvatore Ingala argues that existing self-custody development tools, including those built by Liana, could greatly reduce the fallout from catastrophic failures like the COLDCARD bug, and questions why more developers are not using them. Held as a dated technical argument about application-level custody tooling from a named Bitcoin developer. The argument is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "briantrollz-preserve-compromised-device"
+title = "Preserve compromised Coldcard for ownership proof"
+url = "https://x.com/brian_trollz/status/2083971991132914121"
+author = "brian_trollz"
+posted = "2026-08-02T17:43:35Z"
+why = "Bitcoin Isn't About You advises people who lost funds not to sell, destroy or give away the compromised COLDCARD that generated the affected seed, because the device may be needed to prove legitimate ownership if any stolen funds are recovered. Held as dated incident-response guidance from a named community figure. The claims are the poster's own and are not independently verified here."
+
+[[x_post]]
+id = "ivygalindo-coinkite-email-delay"
+title = "Coinkite firmware email arrived late"
+url = "https://x.com/ivygalindo/status/2083914415112429661"
+author = "ivygalindo"
+posted = "2026-08-02T13:54:48Z"
+why = "Ivy Galindo claims Coinkite emailed customers to update firmware only on 1 August, and asks how much bitcoin could have been saved if the vendor had emailed when the early warning first circulated. Held as a dated public accusation about vendor incident-response timing. The claim is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "teruko21m-data-retention-firsthand"
+title = "First-hand account of long-retained customer email"
+url = "https://x.com/Teruko21M/status/2083757243464560906"
+author = "Teruko21M"
+posted = "2026-08-02T03:30:15Z"
+why = "Teruko reports receiving a Coinkite firmware-update email at a throwaway address created three years earlier, contradicting the stated 120-day customer-data deletion policy. Held as a first-hand account about vendor data-retention practice during the incident response. The account is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "kloaec-mk4-drain-claims-unverified"
+title = "Mk4-class drain claims unverified"
+url = "https://x.com/KLoaec/status/2083842848042987602"
+author = "KLoaec"
+posted = "2026-08-02T09:10:25Z"
+why = "Kevin Loaec says he has not yet verified trustworthy reports of non-Mk3 funds being drained, while noting that Mk4 and later models remain vulnerable. Held as a dated correction of emphasis from a named responder after his earlier Mk4-class drain report. The assessment is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "kloaec-attacker-economics"
+title = "Attacker economics as funds move"
+url = "https://x.com/KLoaec/status/2083704151976861932"
+author = "KLoaec"
+posted = "2026-08-01T23:59:17Z"
+tag = "independent-analysis"
+why = "Kevin Loaec analyzes the game theory facing attackers as community response drives down the reward for further drains while GPU rental costs stay high, and questions whether breaking remaining weak wallets is still profitable. Held as a dated technical argument about attacker economics during the incident. The analysis is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "sd-nym-weak-passphrase-account"
+title = "Weak single-BIP39-word passphrase account"
+url = "https://x.com/sd_nym/status/2083674639876669713"
+author = "sd_nym"
+posted = "2026-08-01T22:02:01Z"
+why = "Rushmore HODL recounts using a single BIP39 word as a passphrase because they took the '25th word' guidance literally. Held as a first-hand account of how passphrase advice was misunderstood during the incident response. The account is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "kloaec-liana-user-psa"
+title = "Liana user transfer versus wait guidance"
+url = "https://x.com/KLoaec/status/2083557680254214174"
+author = "KLoaec"
+posted = "2026-08-01T14:17:16Z"
+tag = "migration-guidance"
+why = "Kevin Loaec gives Liana users a conditional PSA: transfer immediately if their setup uses SegWit with only COLDCARD keys, otherwise wait for the forthcoming Slipstream tool. Held as dated migration guidance from a named responder for a specific wallet configuration. The guidance is the poster's own and is not independently verified here."
+
+# ---- 13 Aug 2026 discovery intake: X posts -----------------------------------
+
+[[x_post]]
+id = "kloaec-passphrase-grinding-warning"
+title = "Passphrase grinding warning"
+url = "https://x.com/KLoaec/status/2083656101891903807"
+author = "KLoaec"
+posted = "2026-08-01T20:48:21Z"
+why = "Kevin Loaec warns that attackers are grinding passphrases and that Reddit claims to the contrary are misinformation from bad actors trying to buy time. Held as a dated incident-response statement from a named responder. The claim is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "llfourn-ai-scam-monitoring"
+title = "AI monitoring for incident-related scams"
+url = "https://x.com/LLFOURN/status/2085943220555702282"
+author = "LLFOURN"
+posted = "2026-08-08T04:16:33Z"
+why = "LLFOURN asks whether AI is monitoring incident-related scams, says Google should be, and suggests building something himself. Held as a dated sentiment about scam-mitigation during the incident response. The claims are the poster's own and are not independently verified here."
+
+[[x_post]]
+id = "lopp-migration-malware-warning"
+title = "Warning about malicious wallet software during migration"
+url = "https://x.com/lopp/status/2085009215530180851"
+author = "lopp"
+posted = "2026-08-05T14:25:09Z"
+why = "Jameson Lopp warns people migrating funds not to find new wallet software through web or app-store search because many results are malicious, advising verification of the real project site first. Held as dated security guidance during the incident response. The claims are the poster's own and are not independently verified here."
+
+[[x_post]]
+id = "llfourn-qwen-3-6-27b-failed"
+title = "Qwen 3.6 27B failed to find the bug"
+url = "https://x.com/LLFOURN/status/2084867395269841037"
+author = "LLFOURN"
+posted = "2026-08-05T05:01:36Z"
+tag = "ai-security-response"
+why = "LLFOURN reports that the Qwen 3.6 27B model failed to identify the COLDCARD firmware vulnerability in his testing. Held as a dated first-hand test result about AI-assisted code review during the incident. The result is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "llfourn-qwen-3-8b-max-failed"
+title = "Qwen 3.8B-Max failed to surface the bug"
+url = "https://x.com/LLFOURN/status/2084898150201131392"
+author = "LLFOURN"
+posted = "2026-08-05T07:03:49Z"
+tag = "ai-security-response"
+why = "LLFOURN reports that Qwen 3.8B-Max came close to identifying the vulnerability during reasoning but did not include it in the final report, and asks what git clone command was used to set up the firmware repo. Held as a dated first-hand AI code-review test result. The result is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "joenakamoto-victim-support"
+title = "First-hand hardware-wallet loss and recovery encouragement"
+url = "https://x.com/JoeNakamoto/status/2084200162696585334"
+author = "JoeNakamoto"
+posted = "2026-08-03T08:50:16Z"
+why = "Joe Nakamoto shares a first-hand account of losing 0.3 BTC in 2019 by using a long passphrase, and encourages affected COLDCARD users that things can get better. Held as dated victim-support sentiment from a named Bitcoin figure. The account is the poster's own and is not independently verified here."
+
+# ---- 13 Aug 2026 discovery intake: X posts (continued) ----------------------
+
+[[x_post]]
+id = "llfourn-welcome-bitcoin-ceo"
+title = "Welcome to Bitcoin's new CEO"
+url = "https://x.com/LLFOURN/status/2084505875155464417"
+author = "LLFOURN"
+posted = "2026-08-04T05:05:03Z"
+why = "LLFOURN sarcastically welcomes 'Bitcoin's new CEO' in the wake of the COLDCARD incident. Held as a dated sentiment about leadership and accountability from a named Bitcoin developer. The opinion is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "rusty-twit-adelaide-migration-help"
+title = "Offer of in-person migration help in Adelaide"
+url = "https://x.com/rusty_twit/status/2084036313343537153"
+author = "rusty_twit"
+posted = "2026-08-02T21:59:11Z"
+why = "TheRustyTwit offers hands-on help migrating people off Coldcard in the Adelaide area after already performing one migration. Held as a dated record of grassroots incident assistance from a named community member. The offer is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "utxoclub-airgapping-larp"
+title = "Airgapping and secure elements are insufficient"
+url = "https://x.com/utxoclub/status/2083931059583070706"
+author = "utxoclub"
+posted = "2026-08-02T15:00:56Z"
+why = "UTXOCLUB argues that airgapping is a larp, secure elements are merely PIN authenticators, and extra dice rolls are a prayer. Held as a dated hardware-wallet security-model critique during the incident response. The argument is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "utxoclub-opus-missed-submodules"
+title = "Opus missed the bug because submodules were not cloned"
+url = "https://x.com/utxoclub/status/2083838008357450063"
+author = "utxoclub"
+posted = "2026-08-02T08:51:11Z"
+tag = "ai-security-response"
+why = "UTXOCLUB explains that an Opus audit missed the COLDCARD bug because not enough submodules were cloned, leaving files that contain the issue off disk while present files told a self-consistent story. Held as a dated first-hand technical account of an AI-assisted code-review limitation. The account is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "frostsnaptech-never-trusted-own-entropy"
+title = "Hardware wallet that never generates its own entropy"
+url = "https://x.com/FrostsnapTech/status/2083625693272002893"
+author = "FrostsnapTech"
+posted = "2026-08-01T18:47:31Z"
+why = "Frostsnap states that its device is the only hardware wallet never trusted to generate its own entropy. Held as a dated product-positioning statement in the post-incident hardware-wallet trust discussion. The claim is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "kloaec-passphrase-phishing-replies"
+title = "Passphrase phishing in tweet replies"
+url = "https://x.com/KLoaec/status/2083499503638769867"
+author = "KLoaec"
+posted = "2026-08-01T10:26:05Z"
+why = "Kevin Loaec warns that attackers are replying to incident tweets with passphrase reassurance and fake entropy-checker websites, and urges users with non-dice passphrases to move funds. Held as a dated scam-warning during the incident response. The claims are the poster's own and are not independently verified here."
+
+[[x_post]]
+id = "americanhodl8-airgap-theater-reaction"
+title = "Reaction to airgap security theater"
+url = "https://x.com/americanhodl8/status/2083363747696083352"
+author = "americanhodl8"
+posted = "2026-08-01T01:26:39Z"
+why = "AMERICAN HODL reacts angrily to the COLDCARD entropy bug, contrasting elaborate airgap precautions with worse entropy than a Trezor One. Held as a dated sentiment post from a named Bitcoin figure. The opinion is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "utxoclub-multisig-slipstream-emergency"
+title = "Multisig emergency transactions through Slipstream"
+url = "https://x.com/utxoclub/status/2083406498928193896"
+author = "utxoclub"
+posted = "2026-08-01T04:16:31Z"
+tag = "migration-guidance"
+why = "UTXOCLUB advises users with multisig setups containing enough affected COLDCARDs to broadcast emergency transactions through Slipstream so they remain private until mined, avoiding a race with a watching thief. Held as dated technical mitigation guidance during the incident response. The guidance is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "llfourn-life-savings-move-now"
+title = "Urgent advice to move life savings off Coldcard"
+url = "https://x.com/LLFOURN/status/2083315485970714695"
+author = "LLFOURN"
+posted = "2026-07-31T22:14:52Z"
+tag = "migration-guidance"
+why = "LLFOURN urges anyone with life savings on a Coldcard that did not use dice rolls or an external seed phrase to stop what they are doing and move funds immediately. Held as a dated urgent migration warning from a named Bitcoin developer. The warning is the poster's own and is not independently verified here."
+
+[[x_post]]
+id = "coryswan-import-vs-spend-warning"
+title = "Importing versus spending to a new wallet"
+url = "https://x.com/CorySwan/status/2083248545960698115"
+author = "CorySwan"
+posted = "2026-07-31T17:48:52Z"
+why = """
+Cory Klippsten warns that importing a COLDCARD-generated seed into a different hardware wallet, rather than spending the bitcoin to a newly generated seed, leaves the funds vulnerable because the seed entropy is low. He notes that some users may choose import to save fees or after loss or theft of the COLDCARD, and stresses that a fresh seed should be generated on the new device. Held as dated migration guidance from a Swan employee during the early incident response. The guidance is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "wood-sliver-mk4-single-sig-loss"
+title = "First-hand Mk4 single-sig loss report"
+url = "https://x.com/Wood_sliver/status/2083262275243155852"
+author = "Wood_sliver"
+posted = "2026-07-31T18:43:26Z"
+why = """
+sliver reports losing a single-signature wallet on a Mk4 COLDCARD, stated as a first-hand victim account during the early hours of the incident. Held as a dated personal loss report from a named account. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "nuno-five-years-unverified-entropy"
+title = "Five years of unverified low entropy"
+url = "https://x.com/bc1nuno/status/2083138591849320750"
+author = "bc1nuno"
+posted = "2026-07-31T10:31:57Z"
+why = """
+Nuno asks how five years of low entropy passed without anyone verifying, calling it a collective failure. Held as a dated sentiment and audit-culture statement from a named Bitcoin figure. The opinion is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "afilini-stm32-uid-whitehat-identification"
+title = "STM32 UID white-hat ownership identification"
+url = "https://x.com/afilini/status/2083137988607754340"
+author = "afilini"
+posted = "2026-07-31T10:29:33Z"
+why = """
+Alekos Filini proposes using STM32 UIDs to identify legitimate coin owners if a white-hat temporarily moves funds, arguing only the owner can produce a physical device with the UID matching the mnemonic. Held as a dated technical proposal in the early incident-response discussion. The proposal is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "egge21m-move-coins-now-roi"
+title = "Attack reproducibility and move-coins warning"
+url = "https://x.com/Egge21M/status/2083140824104100016"
+author = "Egge21M"
+posted = "2026-07-31T10:40:50Z"
+why = """
+Egge warns that the attack can now be reproduced by anyone and that adding compute becomes a return-on-investment decision, urging users to move their coins immediately. Held as a dated urgent advisory during the incident response. The warning is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "briantrollz-mk4-mk5-q-gpu-vulnerability"
+title = "Expanded Mk4, Mk5 and Q vulnerability warning"
+url = "https://x.com/brian_trollz/status/2083079855587852631"
+author = "brian_trollz"
+posted = "2026-07-31T06:38:33Z"
+why = """
+Bitcoin Isn't About You suggests Mk4, Mk5 and Q devices may be more vulnerable than previously thought depending on available GPU resources, and advises moving funds as a precaution. Held as a dated technical risk assessment from a named account. The assessment is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "martybent-rbf-transactions-rising"
+title = "RBF transactions rising as attack spreads"
+url = "https://x.com/MartyBent/status/2083050934611976332"
+author = "MartyBent"
+posted = "2026-07-31T04:43:38Z"
+why = """
+Marty Bent observes that replace-by-fee transactions are on the rise and advises assuming the COLDCARD attack has been widely discovered by multiple attackers. Held as a dated operational observation during the early incident response. The observation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "llfourn-hardware-wallet-trusted-third-party"
+title = "Hardware wallets as trusted third parties"
+url = "https://x.com/LLFOURN/status/2083047161718325564"
+author = "LLFOURN"
+posted = "2026-07-31T04:28:39Z"
+why = """
+LLFOURN argues that the core problem exposed by the incident is that hardware wallets are treated as trusted third parties, and that multi-vendor multisig is only a hack around this problem. He points to FrostsnapTech as a design that does not trust devices to generate keys by themselves. Held as a dated architectural critique from a named Bitcoin developer. The critique is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "achow101-bad-entropy-not-quantum"
+title = "Bad entropy, not quantum computers"
+url = "https://x.com/achow101/status/2083035150276005975"
+author = "achow101"
+posted = "2026-07-31T03:40:55Z"
+why = """
+Ava Chow contrasts the commonly feared quantum-computer threat with the actual risk of bad entropy, framing the COLDCARD incident as a reminder of the latter. Held as a dated framing statement from a named Bitcoin developer. The framing is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "llfourn-reuse-coldcard-recovery"
+title = "Reusing COLDCARD with a newly generated seed"
+url = "https://x.com/LLFOURN/status/2083013100241035625"
+author = "LLFOURN"
+posted = "2026-07-31T02:13:18Z"
+why = """
+LLFOURN advises that users can keep using their COLDCARD by generating a new seed phrase on a trusted device, sending funds to it, loading it into the COLDCARD, and then deleting it from the other device. Held as dated migration guidance from a named Bitcoin developer. The procedure is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "llfourn-laptop-sha512-brute-force"
+title = "Laptop SHA-512 acceleration for seed brute force"
+url = "https://x.com/LLFOURN/status/2083001343678259477"
+author = "LLFOURN"
+posted = "2026-07-31T01:26:35Z"
+why = """
+LLFOURN notes that a laptop CPU with dedicated SHA-512 instructions may be enough for offline BIP-39 seed brute forcing and says he plans to work on it over the weekend. Held as a dated technical observation about the compute requirements for attacking the disclosed entropy weakness. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "llfourn-bip39-pbkdf2-brute-force"
+title = "BIP-39 PBKDF2-HMAC-SHA512 brute-force caveat"
+url = "https://x.com/LLFOURN/status/2082996000386637864"
+author = "LLFOURN"
+posted = "2026-07-31T01:05:21Z"
+why = """
+LLFOURN revises an earlier estimate, noting that BIP-39 key derivation uses PBKDF2-HMAC-SHA512, so the relevant metric is the laptop's GPU rather than raw SHA-512 speed. Held as a dated technical correction about the compute requirements for attacking the disclosed entropy weakness. The observation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "shorttsqueeze-multisig-migration-offer"
+title = "Multisig migration guidance offer"
+url = "https://x.com/shorttsqueeze/status/2085035593663459822"
+author = "shorttsqueeze"
+org = "Casa"
+posted = "2026-08-05T16:09:58Z"
+why = """
+Nathan Shortt says owners moving off affected COLDCARDs commonly delayed multisig because it felt risky to set up alone, and Casa is offering guidance through its advisory calendar. The claim about customer conversations is his own account. The link points to a Casa security-consultation booking page.
+"""
+
+[[x_post]]
+id = "lopp-ai-defender-economics"
+title = "AI tooling has accelerated defender capabilities"
+url = "https://x.com/lopp/status/2084695423076151780"
+author = "lopp"
+posted = "2026-08-04T17:38:15Z"
+why = """
+Jameson Lopp observes that AI tooling has compressed the cost and time of a comprehensive external penetration test and code audit from $50,000-$100,000 over a month to about $1,000 in one day. Held as a dated claim about how defender economics have shifted during the incident response. The figures are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-phishing-scam-warning"
+title = "Phishing emails exploiting the incident"
+url = "https://x.com/lopp/status/2084648046059565066"
+author = "lopp"
+posted = "2026-08-04T14:29:59Z"
+why = """
+Jameson Lopp reports that phishing emails posing as Bitcoin custody companies are offering to help people secure funds, and warns recipients not to trust them. Held as a dated public-safety warning about scams exploiting the post-incident panic. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-bitcoin-days-destroyed"
+title = "Watching Bitcoin Days Destroyed during the compromise"
+url = "https://x.com/lopp/status/2083591099998675333"
+author = "lopp"
+posted = "2026-08-01T16:30:04Z"
+why = """
+Jameson Lopp says he is monitoring the Bitcoin Days Destroyed chart to detect when long-dormant coins begin moving during the mass key compromise. Held as a dated observation about one indicator being used to track the incident's on-chain footprint. The method is described by the poster and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-worst-behind-us"
+title = "The worst may be behind from a wallet count perspective"
+url = "https://x.com/lopp/status/2084301641759576385"
+author = "lopp"
+posted = "2026-08-03T15:33:30Z"
+why = """
+Jameson Lopp suggests the incident may be past its peak in terms of number of wallets affected, while warning that a single high-value wallet could still increase the total bitcoin lost. Held as a dated risk assessment about the ongoing compromise. The assessment is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-casa-client-rescue-repost"
+title = "Repost of Casa client rescue story"
+url = "https://x.com/lopp/status/2084297019191967809"
+author = "lopp"
+posted = "2026-08-03T15:15:08Z"
+why = """
+Jameson Lopp amplifies Nick Neuman's account of a Casa client helping sweep a friend's funds from a single-signature Mk3 into a Casa multisig. Held as evidence of one rescue tactic and of Lopp amplifying the story. The underlying account is attributed to Neuman and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-casa-weekend-support"
+title = "Casa advisors working through the weekend for affected clients"
+url = "https://x.com/lopp/status/2084063471839092778"
+author = "lopp"
+org = "Casa"
+posted = "2026-08-02T23:47:06Z"
+why = """
+Jameson Lopp announces that CasaHODL advisors will work through the weekend and have opened calendar availability to help affected clients restore their key sets. Held as a dated incident-response update from a service provider. The availability claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-rng-vulnerability-history"
+title = "History of weak random number generation vulnerabilities"
+url = "https://x.com/lopp/status/2083933846622384587"
+author = "lopp"
+posted = "2026-08-02T15:12:01Z"
+tag = "historical-precedent"
+why = """
+Jameson Lopp lists earlier weak random-number-generation vulnerabilities found in wallets and libraries, including COLDCARD Mk2 through Mk5 and Q, to show the problem is not new. Held as historical context for the incident. The inventory is the poster's own compilation and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-mycelium-entropy-crowdfunding"
+title = "Crowdfunding the Mycelium Entropy random-number device"
+url = "https://x.com/lopp/status/2083916478156362171"
+author = "lopp"
+posted = "2026-08-02T14:03:00Z"
+tag = "historical-precedent"
+why = """
+Jameson Lopp notes that generating truly random numbers is deceptively difficult and recalls crowdfunding the Mycelium Entropy device twelve years ago for that sole purpose, noting that only about five hundred were produced. Held as historical context showing that dedicated hardware randomness generation has long been neglected. The account is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-bitcoin-only-security-narrative"
+title = "The bitcoin-only security narrative"
+url = "https://x.com/lopp/status/2083575437599371321"
+author = "lopp"
+posted = "2026-08-01T15:27:49Z"
+why = """
+Jameson Lopp argues that the incident shows you cannot judge a product's security posture solely on whether it is bitcoin-only, challenging a long-standing narrative that bitcoin-only products are inherently more secure than multi-coin counterparts. Held as a dated opinion about how the incident reframes wallet security assumptions. The argument is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-casa-weekend-availability-opening"
+title = "Casa opening weekend calendar availability for affected clients"
+url = "https://x.com/lopp/status/2083245927339348100"
+author = "lopp"
+org = "Casa"
+posted = "2026-07-31T17:38:28Z"
+why = """
+Jameson Lopp announces that CasaHODL advisors will work through the weekend and are opening calendar availability to help affected clients restore key sets, framing the help as a response to the mass key compromise. Held as the earliest dated Casa incident-response update of this form. The availability claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "c4-ccss-entropy-livestream"
+title = "C4 CCSS Committee livestream on seed generation and entropy"
+url = "https://x.com/LearnMoreWithC4/status/2083221499423424859"
+author = "LearnMoreWithC4"
+posted = "2026-07-31T16:01:24Z"
+why = """
+C4 announces a livestream in which its CCSS Committee will discuss the seed generation issue affecting certain COLDCARD devices and the importance of entropy. Held as a dated community educational response to the incident. The event details are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "nneuman-casa-life-raft-dilemma"
+title = "Casa cofounder on the ethics of offering a product during the crisis"
+url = "https://x.com/Nneuman/status/2083219736704209225"
+author = "Nneuman"
+posted = "2026-07-31T15:54:24Z"
+why = """
+Nick Neuman, cofounder of Casa, describes the tension between wanting to help affected people and feeling hesitant to promote Casa's product during the emergency, comparing the service to a life raft built for this moment. Held as a dated first-hand statement about a service provider's response to the incident. The analogy and assessment are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-coinkite-customer-records-purge"
+title = "Coinkite's customer-record purge prevents vulnerability outreach"
+url = "https://x.com/lopp/status/2083187480002429090"
+author = "lopp"
+posted = "2026-07-31T13:46:13Z"
+why = """
+Jameson Lopp says Coinkite purges customer records after 120 days to protect against data breaches, which means the company cannot directly reach customers who bought vulnerable COLDCARDs over the past five years to warn them. Held as a dated claim about why vendor direct notification was not possible. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-early-theft-reports"
+title = "Early reports of partial wallet thefts"
+url = "https://x.com/lopp/status/2082908635412181392"
+author = "lopp"
+posted = "2026-07-30T19:18:11Z"
+why = """
+Jameson Lopp reports hearing unverified reports of partial bitcoin wallet thefts that correspond to odd on-chain fund movements, says the root cause is unclear, and asks wallet owners to check balances and report losses. Held as an early dated investigation call from a security figure during the first day of the incident. The unverified status is noted and the claims are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-vulnerable-firmware-warning"
+title = "Coldcard firmware vulnerability warning"
+url = "https://x.com/lopp/status/2082960180849819745"
+author = "lopp"
+posted = "2026-07-30T22:43:01Z"
+why = """
+Jameson Lopp warns COLDCARD users that private keys may be compromised if they were generated under the affected conditions and notes that a full vulnerability report is expected soon. Held as a dated early public warning that helped shape the initial response. The scope of compromise is attributed to the poster and was not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-dont-panic-resecure"
+title = "Do not panic when re-securing funds"
+url = "https://x.com/lopp/status/2082966611372216814"
+author = "lopp"
+posted = "2026-07-30T23:08:34Z"
+why = """
+Jameson Lopp advises COLDCARD users whose seeds were generated on vulnerable firmware to take their time when moving funds to a freshly generated seed, warning that rushed moves can be catastrophic. Held as dated migration guidance emphasizing operational safety during the emergency. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-multivendor-multisig-response"
+title = "Multi-vendor multisig as vendor-risk hedge"
+url = "https://x.com/lopp/status/2082969492284444816"
+author = "lopp"
+posted = "2026-07-30T23:20:01Z"
+why = """
+Jameson Lopp states that every hardware vendor is fallible and recommends multi-vendor multisig to hedge against vendor and supply chain risks, noting that Casa COLDCARD users will be able to rotate out the compromised key. Held as a dated incident-response statement from a wallet-service CTO. The rotation claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-self-custody-faith"
+title = "Lopp argues against losing faith in self custody"
+url = "https://x.com/lopp/status/2083151303853641881"
+author = "lopp"
+posted = "2026-07-31T11:22:28Z"
+why = """
+Jameson Lopp argues that recent events should not cause owners to lose faith in self custody, points out that third-party custodians are also susceptible to weak random number generators, and notes that COLDCARD supports dice-roll entropy alongside seedsigner and krux. Held as a dated opinion piece about how the incident affects self-custody confidence. The argument is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "lopp-diversify-keys-not-coins"
+title = "Diversify your keys, not your coins"
+url = "https://x.com/lopp/status/2083162788461941224"
+author = "lopp"
+posted = "2026-07-31T12:08:06Z"
+why = """
+Jameson Lopp offers a concise technical recommendation that users should diversify their keys rather than their coins, framing it as a response to the compromise. Held as a dated expression of a key-diversification argument that became part of the public response. The recommendation is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "nunchuk-slipstream-public"
+title = "Slipstream opened to the public"
+url = "https://x.com/nunchuk_io/status/2084231624158482636"
+author = "nunchuk_io"
+org = "Nunchuk"
+posted = "2026-08-03T10:55:17Z"
+tag = "migration-guidance"
+why = """
+Nunchuk announces that MARA has opened Slipstream to the public with no access code required, lowering the barrier for affected users to submit transactions through the private mining pool. Held as a dated incident-response update from a wallet-service provider. The claim is Nunchuk's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "nunchuk-slipstream-auto-enabled"
+title = "Slipstream automatic protection enabled"
+url = "https://x.com/nunchuk_io/status/2085372754766004233"
+author = "nunchuk_io"
+org = "Nunchuk"
+posted = "2026-08-06T14:29:43Z"
+tag = "migration-guidance"
+why = """
+Nunchuk announces that Slipstream is now automatically enabled for all impacted subscribers on all platforms, and reminds users to update to the latest app version before migrating funds. Held as a dated incident-response update from a wallet-service provider. The claim is Nunchuk's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "nunchuk-slipstream-automatic-protection"
+title = "Automatic Slipstream protection for multisig migration"
+url = "https://x.com/nunchuk_io/status/2085295546030538899"
+author = "nunchuk_io"
+org = "Nunchuk"
+posted = "2026-08-06T09:22:55Z"
+tag = "migration-guidance"
+why = """
+Nunchuk explains how assisted multisig wallets containing at least one Coldcard will now route transactions through Slipstream automatically after updating to current iOS, Android or Desktop app versions, and provides a manual submission path for users who connect their own Electrum server. Held as a dated incident-response mitigation guide from a wallet-service provider. The instructions are Nunchuk's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "underclass21-coordinated-attack-claim"
+title = "Claim of coordinated attack on Bitcoin"
+url = "https://x.com/underclass21/status/2085915060904305037"
+author = "underclass21"
+posted = "2026-08-08T02:24:39Z"
+why = """
+The account underclass21 claims that Coldcard and BTCPay Server are being targeted in what feels like a coordinated attack against Bitcoin, and nvk reposted the statement. Held as a dated expression of an unverified attack narrative that spread during the incident. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "brian-trollz-mailing-list-alert-appeal"
+title = "Appeal to broadcast Coldcard alert via mailing lists"
+url = "https://x.com/brian_trollz/status/2085795497529508110"
+author = "brian_trollz"
+posted = "2026-08-07T18:29:33Z"
+why = """
+Bitcoin Isn't About You urges anyone with a mailing list to send an immediate alert about the Coldcard incident, arguing that every additional person notified is another person saved, and nvk reposted the appeal. Held as a dated public-outreach appeal from a named community figure. The appeal is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "k3tan-passphrase-trailing-space-warning"
+title = "Passphrase trailing-space warning"
+url = "https://x.com/_k3tan/status/2083268430992716060"
+author = "_k3tan"
+posted = "2026-07-31T19:07:53Z"
+why = """
+k3tan warns that adding a new passphrase to a Mk Coldcard may silently append an extra trailing space, and urges users to write down the fingerprint. Held as a dated operational caution during the incident response. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "coldcardwallet-data-retention-deletion-reply"
+title = "Data retention deletion request reply"
+url = "https://x.com/COLDCARDwallet/status/2085712452784632021"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-07T12:59:34Z"
+why = """
+Coinkite's COLDCARD account replies that customers can directly request deletion of their data, while noting that asking for standard retention policies would exempt records from preservation. Held as a dated vendor statement on incident-related data retention. The statement is the vendor's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "tftc21-coldcard-github-firmware-migration"
+title = "Coldcard directing users to GitHub for migration firmware"
+url = "https://x.com/TFTC21/status/2085464398601318512"
+author = "TFTC21"
+posted = "2026-08-06T20:33:53Z"
+why = """
+TFTC21 reports that COLDCARD is directing users to follow firmware updates on GitHub while the vendor works on a new release focused on customer key migration. Held as a dated incident-response update attributed to the account. The underlying vendor direction is reported, not independently confirmed here.
+"""
+
+[[x_post]]
+id = "callebtc-redteam-gpt-cyber-kyc"
+title = "Red Team GPT Cyber access complaint"
+url = "https://x.com/callebtc/status/2085329161715876280"
+author = "callebtc"
+posted = "2026-08-06T11:36:30Z"
+why = """
+callebtc, a Bitcoin Red Team participant, says team members using GPT Cyber found vulnerabilities but had to KYC to gain access, and complains that US frontier models produce vulnerabilities they refuse to fix. Held as a dated first-hand account of Red Team tooling and frustration during the incident response. The characterization is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "yuvadm-coldcard-dice-entropy-check"
+title = "Independent check of Coinkite's 100-roll dice"
+url = "https://x.com/yuvadm/status/2085327588461854968"
+author = "yuvadm"
+posted = "2026-08-06T11:30:15Z"
+why = """
+Yuval Adam notes that Coinkite sells a small dice set intended to give one hundred rolls at once, and says he will test the entropy quality of those dice while the community verifies rather than trusts. Held as a dated independent verification proposal related to incident-response entropy practices. The test results are pending and the claim is the poster's own.
+"""
+
+[[x_post]]
+id = "atlasphoenixbtc-victim-support-offer"
+title = "Victim support offer open by DM"
+url = "https://x.com/AtlasPhoenixBTC/status/2085159205208772864"
+author = "AtlasPhoenixBTC"
+posted = "2026-08-06T00:21:09Z"
+why = """
+Atlas Phoenix BTC opens direct messages to other victims who need someone to talk to, offering peer support during the incident. Held as a dated community victim-support response. The offer is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "coldcard-secondary-download-page"
+title = "Secondary download page and improved disclosure"
+url = "https://x.com/COLDCARDwallet/status/2084788844168171954"
+author = "COLDCARDwallet"
+org = "Coinkite"
+posted = "2026-08-04T23:49:28Z"
+tag = "vendor-update"
+why = """
+Coinkite's COLDCARD account says a page disclosure was improved and describes the page as a secondary download page that offers different firmware versions for users' upgrade paths. Held as a dated vendor incident-response update about firmware distribution and disclosure. The statement is the vendor's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "freedomisntsafe-rng-hashed-output-testing"
+title = "Warning that diehard RNG tests belong on raw entropy, not hashed outputs"
+url = "https://x.com/FreedomIsntSafe/status/2084959399664070673"
+author = "FreedomIsntSafe"
+posted = "2026-08-05T11:07:12Z"
+why = """
+LazyNinja warns that diehard-style statistical RNG tests are not valid when run on hashed outputs and should instead be applied to raw entropy sources, calling the misuse common. Held as a dated technical argument about entropy-testing methodology during the incident response. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "satsie-dochex-github-activity"
+title = "Claim that DocHex is active on GitHub with private-repository commits"
+url = "https://x.com/satsie/status/2084762659623194937"
+author = "satsie"
+posted = "2026-08-04T22:05:25Z"
+why = """
+satsie claims that DocHex is active on GitHub and made three commits to a private repository today, providing a profile link. Held as a dated, checkable lead about a key figure's activity during the incident response. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "callebtc-boltz-lightning-impact"
+title = "Boltz Lightning outage impacts multiple wallets"
+url = "https://x.com/callebtc/status/2084811772335145049"
+author = "callebtc"
+posted = "2026-08-05T01:20:35Z"
+why = """
+callebtc states that Boltz Lightning went offline and took Lightning functionality in Aqua, Bull Bitcoin, Blockstream Wallet and Arkade with it. Held as a dated first-hand claim about the outage's downstream effects during the incident response. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "forresthodl-fake-jade-app-warning"
+title = "Fake Jade app phishing attempt during migration"
+url = "https://x.com/ForrestHODL/status/2084813829796757873"
+author = "ForrestHODL"
+posted = "2026-08-05T01:28:45Z"
+why = """
+ForrestHODL reports that someone he spoke with downloaded a fake Jade app while moving funds, and warns others to verify official apps during the post-incident migration. Held as a dated first-hand scam warning tied to the panic. The claim is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "bradmillscan-contact-recommended-users"
+title = "Appeal to contact prior COLDCARD recommendees"
+url = "https://x.com/bradmillscan/status/2084626883442856171"
+author = "bradmillscan"
+posted = "2026-08-04T13:05:54Z"
+why = """
+Brad Mills urges bitcoin maximalists who recommended COLDCARD to search their messages and contact those people, saying time is running out. Held as a dated public appeal about spreading awareness to less-technical holders during the incident. The appeal is the poster's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "abdelstark-community-response-tribute"
+title = "Community response tribute"
+url = "https://x.com/AbdelStark/status/2084596615562539073"
+author = "AbdelStark"
+posted = "2026-08-04T11:05:37Z"
+why = """
+AbdelStark calls the community effort to help affected users one of the most beautiful examples of what makes Bitcoin special, names several contributors, and says the COLDCARD saga marks a before and after for self custody. Held as a dated sentiment statement about the public response. The statement is the poster's own and is not independently verified here.
 """

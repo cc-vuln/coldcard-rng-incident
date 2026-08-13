@@ -1,0 +1,39 @@
+url:      https://x.com/nunchuk_io/status/2085295546030538899
+author:   nunchuk_io
+handle:   @nunchuk_io
+posted:   2026-08-06T09:22:55.000Z (from the page's <time> element)
+captured: 20260813T163425Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+IMPORTANT UPDATE Part 2: Using Slipstream to safely migrate funds off multisig wallets containing Coldcard(s)
+
+For context on the Coldcard seed-generation vulnerability and your wallet migration options, see our previous posts.
+
+Our v2.7.2 iOS release is still pending Apple review, but our engineers found a way to make automatic Slipstream protection work on the existing iOS app (v2.7.1) in the meantime. So all platforms are now covered.
+
+Make sure you’re on the latest version before migrating:
+•  iOS: v2.7.1 (already in the App Store)
+•  Android: v2.7.5
+•  Desktop: v2.6.4
+
+Once updated, any transaction you broadcast from an assisted multisig wallet containing at least one Coldcard is automatically routed through Slipstream. No extra steps.
+
+To replace an affected Coldcard key, use the built-in Key Replacement feature in the mobile app:
+
+Wallet > More menu > View wallet config > More menu > Replace key
+
+Or create a new assisted wallet from scratch, using the extra assisted wallet we provisioned for your migration, at no extra cost.
+
+Two things to know:
+If you’re a free Nunchuk user, or a subscriber who connects to your own Electrum server: automatic routing won’t apply, and you’ll need the manual Slipstream submission method detailed in our previous post.
+
+Slipstream transactions confirm more slowly, since MARA has only ~5-6% of total hash rate, and they won’t appear in the usual block explorers while pending. To check status, use the Slipstream page (replace TXID with your transaction ID):
+
+
+https://
+slipstream.mara.com/status?txid=TX
+ID
+…

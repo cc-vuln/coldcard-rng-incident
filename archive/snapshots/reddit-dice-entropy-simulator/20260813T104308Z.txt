@@ -1,0 +1,43 @@
+post: 1vl4ku3
+author: AnaMoneyro
+created_utc: 1786414324
+title: Interactive simulator: how dice rolls become a BIP39 seed (and what 40 bits of entropy actually means)
+body:
+Made an interactive thing to understand where seed entropy actually comes from, after reading about the Coldcard incident. Runs client-side, no tracking.  
+
+
+comment: p30lf5o
+parent: t3_1vl4ku3
+author: ivme
+created_utc: 1786447161
+edited: false
+body:
+Great website
+
+comment: p31k74x
+parent: t3_1vl4ku3
+author: Ok_Knowledge_4977
+created_utc: 1786458029
+edited: false
+body:
+Nice 
+
+comment: p31qihn
+parent: t3_1vl4ku3
+author: toxicacd
+created_utc: 1786459711
+edited: false
+body:
+I thought the hashing should only be done for the checksum bits, which should then be appended to the – non-hashed – entropy? 
+
+comment: p31ufqv
+parent: t1_p31qihn
+author: AnaMoneyro
+created_utc: 1786460739
+edited: false
+body:
+You're right about BIP39 itself, the entropy goes into the words unhashed, and SHA-256 only produces the checksum bits.
+
+What the page shows is the dice workflow specifically. Coldcard and Krux take the dice digits as a string and SHA-256 that to produce the 128/256 bits that *become* the entropy, a separate step, before BIP39 starts. Then BIP39 runs as specified: checksum = first ENT/32 bits of SHA-256(entropy), appended, sliced into 11s.
+
+Two hashes doing different jobs. The page doesn't separate them clearly enough, I'll fix the wording. Good catch.

@@ -1,0 +1,78 @@
+--- coldcard-firmware-pr-713@20260812T172602Z
++++ coldcard-firmware-pr-713@20260813T125418Z
+@@ -119,13 +119,13 @@
+ Improve seed generation - mash timing with microsecond-resolution - #713
+ #713
+ Open
+-scgbckbone wants to merge 7 commits into
++scgbckbone wants to merge 8 commits into
+ Coldcard:masterColdcard/firmware:masterfrom
+ scgbckbone:improve_seed_gen-mash-timingscgbckbone/firmware:improve_seed_gen-mash-timingCopy head branch name to clipboard
+-ConversationCommits7 (7)ChecksFiles changed
++ConversationCommits8 (8)ChecksFiles changed
+ Open
+ Improve seed generation - mash timing with microsecond-resolution#713
+-scgbckbone wants to merge 7 commits into
++scgbckbone wants to merge 8 commits into
+ Coldcard:masterColdcard/firmware:masterfrom
+ scgbckbone:improve_seed_gen-mash-timingscgbckbone/firmware:improve_seed_gen-mash-timingCopy head branch name to clipboard
+ Conversation
+@@ -265,6 +265,58 @@
+ but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
+ for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
+ then we wouldn't need to change the API so much => less bugs
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++scgbckbone
++force-pushed
++the
++improve_seed_gen-mash-timing
++branch
++2 times, most recently
++from
++0fb57c0 to
++e6058db
++Compare
++August 13, 2026 11:45
++review: code dedup - save flash space
++69edb16
++scgbckbone
++force-pushed
++the
++improve_seed_gen-mash-timing
++branch
++from
++e6058db to
++69edb16
++Compare
++August 13, 2026 12:00
++scgbckbone
++commented
++Aug 13, 2026
++Copy link
++Copy Markdown
++Collaborator
++Author
++My thoughts:
++* dice / mosh and coin flips are all the same thing: you are just pressing 1-6 vs. any vs. 1-2/h/t or something
++* IMHO unify the UX for all of them, and still force them into it
++* we should look at number of unique values received, and assume the entropy credit is based on that set size: so if they press a/b/b/b/b/b/a ... that gets credit as 6 samples of 1 bit of entropy
++* that generalizes what we would show as contribution to entropy
++* naturally handles the "just pressing 7 key 50 times" problem.. since samples from a set of size 1 add no entropy
++* intra-key times need not be so precisely measured, I would recommend starting a hardware timer at max speed
++* it will be 16 bit limited, and also maybe only use 12 lower bits [depending on what the hardware can do as a max speed vs. edge times of key events]
++* but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
++* for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
++* then we wouldn't need to change the API so much => less bugs
++Done (69edb16):
++• collectors deduped: dice/coin share one collector driven by a data table; mash keeps its own, its entropy is timing not symbols
++• menu/story/screen strings unified in the same table, net -40 lines
++Leaving as-is:
++• max-speed hw timer / lower 12 bits: we already latch a hw timer tick in a hard GPIO irq at the edge, before debounce. Todd's push-button rng estimates 4-5 bits/press at 50kHz sampling - we sample at 1us and credit only 1 bit/press, the article's own "certainly at least one bit" floor. more resolution wouldnt change the credit
++• set-size crediting: key mash credits timing only, zero entropy for key choice (todd model), so set size is irrelevant here - hitting one button repeatedly is fine. and for dice/coin the bias checks stay: set-size alone misses skew (a/a/a/b still earns full credit under that model)
++• narrower api: already contained - get()/get_nowait() unchanged, only mash sees timestamps
+ All reactions
+ Sorry, something went wrong.
+ Uh oh!

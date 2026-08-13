@@ -41,7 +41,13 @@ import build_coverage_index as coverage_index
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_VERSION = 1
-DEFAULT_MAX_MARKDOWN_BYTES = 48 * 1024
+# Doubled 13 Aug 2026: 15 hydrated community bodies plus the coverage rows
+# crossed 48 KiB (49,374 observed) and the community lane refused to start
+# its agent at all. The ceiling that made 48 KiB load-bearing was the
+# kernel's per-argument limit, and that is gone: the agent reads its prompt
+# from a file since the same day. The bound now only keeps the evidence
+# sized for one attentive pass, and 96 KiB stays well inside that.
+DEFAULT_MAX_MARKDOWN_BYTES = 96 * 1024
 REGISTRY_TABLES = ("source", "x_post", "nostr_post")
 COMMUNITY_LANES = frozenset({"stackernews", "reddit", "bitcointalk", "nostr"})
 
@@ -482,7 +488,15 @@ def build_packet(*, root: Path, lane: str, candidates_path: Path,
         if lane == "community" and platform not in COMMUNITY_LANES:
             raise PacketError(f"X candidate in community lane: {url}")
         if external_key in seen_keys:
-            raise PacketError(f"duplicate external key in candidate batch: {external_key}")
+            # A repost and its original share a status id, so a batch can
+            # name the same post twice under different queue lines. Defer the
+            # later one to a later batch rather than refusing the whole
+            # packet: once the first line is assessed and leaves the queue,
+            # the deferred one is assessable on its own (observed 13 Aug
+            # 2026: three repost lines of one wiz post stopped the drain).
+            print(f"build-intake-packet: duplicate external key deferred to "
+                  f"a later batch: {external_key}", file=sys.stderr)
+            continue
         seen_keys.add(external_key)
         matches = exact_index.get(external_key, [])
         candidates.append({

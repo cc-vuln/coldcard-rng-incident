@@ -1,0 +1,161 @@
+post: 1vkgatv
+author: proper_turtle
+created_utc: 1786355158
+title: ColdCard Q Security with self-rolled seed as pure signing device
+body:
+Hi everyone,
+
+so after the Coldcard dilemma I self-rolled my seed using dice (and only picked the 24th word using the suggestion from Coldcard Q when entering the 23 other words) because I also don't trust the new Coldcard Firmware from those scumbags.
+
+So I'm still on the old firmware. I know the RNG and some connected functionality (like Paperwallet) is vulnerable, but I only want to use it as a signing device for my self-rolled seed (with passphrase, btw).
+
+The only way the seed would be vulnerable (imo) is if the Coldcard's QR Export to Sparrow Wallet (which I'm using) would somehow export the private key as well, which is probably highly unlikely since Sparrow Wallet is not controlled by Coinkite (and I'm not even sure if Sparrow Wallet supports getting the private key that way).
+
+What do you think, is the Coldcard Q secure as a pure signing device? I might take a look into the Coldcard Firmware Codebase again, but the last time I did (just quickly) I couldn't find the function for the Sparrow Wallet export.
+
+Unfortunately the other HW Wallet I had (bitbox) died some time ago, and also I really like the keypad on the Coldcard. It's unfortunate there are (almost?) no other Wallets which have a keypad like that.
+
+comment: p2t1jj1
+parent: t3_1vkgatv
+author: JumpProfessional3372
+created_utc: 1786356077
+edited: false
+body:
+Lot of the people who followed CC's paranoid guide are on the same boat, kept using coldcard as always, no need to update unless we learn that old firmwares can leak a private key or stuff like that.
+
+Obviously these issues, if hey happen, while they are critical, they are less risky than the RNG bug.
+
+Here I'm running 5.2.2 on the MK4.
+
+comment: p2t1pcb
+parent: t3_1vkgatv
+author: Realistic_Junket4452
+created_utc: 1786356155
+edited: false
+body:
+the qr export is just a psbt, sparrow never sees your private key. that's the whole point of air gapped signing
+
+  
+the dice seed + old fw is about as safe as it gets tbh. the rng thing only matters if you're generating on the device which you're not doing
+
+comment: p2t1pta
+parent: t3_1vkgatv
+author: warhol1978
+created_utc: 1786356161
+edited: false
+body:
+If you want to sleep better at night, just get a new hardware wallet. 
+
+comment: p2t41qh
+parent: t1_p2t1pcb
+author: proper_turtle
+created_utc: 1786357247
+edited: false
+body:
+\> the qr export is just a psbt, sparrow never sees your private key. that's the whole point of air gapped signing
+
+Yes, in theory! But then again, the whole point of a HW wallet is to generate secure keys and keeping them secure, which also wasn't true with Coldcard. I mean, you're probably right, but I don't want to trust, I want to verify that!
+
+Unfortunately reading the QR code from the Coldcard with a regular QR code reader only gives me binary code, so I can't easily verify what is transferred.
+
+comment: p2t4yml
+parent: t3_1vkgatv
+author: AdmirableSock192
+created_utc: 1786357661
+edited: false
+body:
+qr export to sparrow should only send xpub not private key. but if you really want peace of mind, do the signing completely air-gapped and verify the address matches on device screen before signing
+
+your self-rolled seed with dice + passphrase setup is already way more secure than 99% of people anyway
+
+comment: p2t5127
+parent: t3_1vkgatv
+author: Reasonable-Use-8772
+created_utc: 1786357692
+edited: false
+body:
+Why can’t you just generate 24 random words yourself from dice rolls and not rely on coldcard’s suggestion for final word? 
+
+comment: p2t5duu
+parent: t1_p2t41qh
+author: aprx4
+created_utc: 1786357853
+edited: false
+body:
+You can audit QR function in source code. It should only read from master public key and signed tx info (in case you want to broadcast signed tx) to product the QR. I highly doubt it somehow create QR from private keys.
+
+comment: p2t98x7
+parent: t3_1vkgatv
+author: Icy_Giraffe_21
+created_utc: 1786359539
+edited: false
+body:
+I will continue to use it. Best device there is on the market for functionality. 
+
+comment: p2tbwxm
+parent: t1_p2t5127
+author: NiagaraBTC
+created_utc: 1786360646
+edited: false
+body:
+The first 23 words you can do randomly but there are only 8 possibilities for the final word as it's a checksum. 
+
+If you have 11 words (looking to make a 12 word seed) then there are 128 valid checksum words so it's more feasible to just guess until you get one that works. 
+
+comment: p2tbzqx
+parent: t1_p2t98x7
+author: NiagaraBTC
+created_utc: 1786360676
+edited: false
+body:
+I agree 
+
+comment: p2tczpg
+parent: t3_1vkgatv
+author: Guybrush1973
+created_utc: 1786361075
+edited: false
+body:
+If you wanna dive into the code, just make it easier with AI. You will find the function you're looking for in a minute or so.
+
+BTW, technically speaking, a cold device that will NEVER (ever) goes online has only one surface attack (if you don't take in account physical steal): seed generation. That's what already exploited as everybody knows.
+
+Signing indeed is still a grey area, if you don't trust hw/sw. Data must still goes in and out to do that. If something breaks in the process, leaks are possible through direct attack or bug.
+
+  
+IMHO, a fido-encrypted usb key in a dedicated laptop 10 years old is still FACTORS more secure than that crap, cheapest, easier to replace on break and nobody will target you just because he/she has found a transaction in your bank account naming a known hw wallet vendor.
+
+I really don't know how da fuck people is still trusting this fancy business model that move your funds on top of any error of anybody involved in the process, from hw manufacturers to sw compiler. For what? A cool keyboard to sign your transactions?? Mah...
+
+comment: p2tkh5f
+parent: t3_1vkgatv
+author: Laukess
+created_utc: 1786363859
+edited: false
+body:
+If your only worry is the Q somehow exporting the private key to a wallet, why not just use it air gapped.  
+That said, I would not use a coldcard HW personally, especially not this soon after the exploit, but you do you. 
+
+comment: p2u41jv
+parent: t1_p2tczpg
+author: crooks4hire
+created_utc: 1786369983
+edited: false
+body:
+Pretty surprising to me how quickly FUD whipped this situation from shitty proprietary codebase into “bitcoin is under attack”.
+
+comment: p2v2i6h
+parent: t3_1vkgatv
+author: Fearless-Second-7230
+created_utc: 1786379181
+edited: false
+body:
+Watchout for nvk paid accounts still working on reddit and x, many coldcard reddit accounts on x and reddit still shilling their shit.
+
+It is very simple why you must stay away from coldcard. The hotfix exposed a dev's team incompetence, trusting any coldcard product is trusting a ticking bomb waiting to be exploited then they just blaming ai that found the exploit vector. 
+
+A hotfix means a patch over a codebase vulnerability, and any serious dev will tell you that in any product there has to be a team of developers patching minor bugs and critical bugs....And believe it...coldcard devs and rnvk (rnvk is his reddit account, and he is active here, so he probably must be reading) they are certainly now these days more focused with lawyers than watching code....
+
+But what they clearly have is coldcard's shillers accounts from their support team trying to minize the risk telling that coldcard is still the best product and criminally telling users to still use coldcard which clearly is not a good advice, non dev users are not going to understand why, and is the worrying part. 
+
+Its shit is probably now being explored by bad actors in search of any other explotable flaw. Moderators should be watching for rnvk accounts and accounts he is paying to still shill his shit. If community does not fight this criminal marketing more losses will arise.

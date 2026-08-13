@@ -1,0 +1,536 @@
+post: 1vm56ou
+author: PoeCollector
+created_utc: 1786512696
+title: The case AGAINST passphrases
+body:
+It's become dogma that everyone should use a passphrase and only an idiot would leave their coins "unprotected" by a passphrase. I do not recommend them. In fact, I think they do more harm than good by adding tedium, luring people into an overconfident sense of security, and worst of all causing people to lose funds from typos and forgetfulness. It is more convenient yet equally secure to have a 24-word seed with verifiable entropy and no additional layers.
+
+## Passphrase Advantages Refuted
+> "I'm adding entropy."
+
+Bitcoin private keys themselves are 256-bit, which equals 24 words, so you cannot make it harder to crack by adding a 25th word and beyond. Long passphrases did save some people in the coldcard incident. But if you are not confident in your seed phrase, making your own with dice is a much better solution.
+
+> "I keep my passphrase separate from my seed."
+
+You have essentially created a 2-of-2 key. This is no better than storing words 1-12 in one place and words 13-24 in another. In fact, it's less secure unless your passphrase has at least 128 bits of entropy. These moves also increase your risk of losing access. If you really want separate keys, consider 2-of-3 multisig instead, which can survive the loss of 1 key.
+
+> "I use the passphrase-less wallet as an early warning system."
+
+A 24-word seed cannot be cracked. If someone has your seed, either they have your passphrase too, or you were better off splitting the seed (see above).
+
+> "I just like having multiple wallets and only one seed to remember."
+
+BIP-85 is a superior method, because the child wallets don't compromise the security of the main wallet.
+
+> "What about wrench attacks? My passphrase hides my real funds behind a decoy wallet."
+
+My favorite: your dark fantasy where you lie to some psychopath who has you tied to a chair and he believes you. First, this whole scenario is incredibly rare. Second, if you're going to lie, there are endless ways to do so without complicating your own access to your coins. Third, there is no easy answer to a situation where someone is torturing you or threatening your family. Fight back, lie, or pay up -- those are your options and a passphrase won't change that.
+
+> "What if my hardware wallet has malicious firmware?"
+
+It would probably just export the XPRV directly, not caring whether a passphrase was part of its generation process.
+
+comment: p36pfpc
+parent: t3_1vm56ou
+author: Brandonva804
+created_utc: 1786513108
+edited: false
+body:
+Anyone making a passphrase who doesn’t do the extra steps to assure they don’t lock themselves out of Crypto are idiots. Here’s how you can be safe so you don’t lock your self out of your own wallet. It’s gone cost you $$$
+
+Buy an additional ledger. Ledger nano S Plus. Very cheap.
+
+Next create a 20 character passphrase with a mixture of upper, lower case, numbers, special characters. Ask AI to give you an example to go off. Do not use AI to make a passphrase.
+
+After passphrase is created do all $3-$5 test samples of all your Crypto. Sending from main ledger wallet to passphrase wallet. Never send all funds just yet.
+
+Next use the new Ledger you brought to fully recover your wallet with your main account and passphrase account. The extra Ledger protects you from accidentally thinking you wrote your 20 character passphrase down correctly but didn’t and you lose your funds if you ever needed to recover your account.
+
+With the passphrase done by 20 word the way I described it is literally impossible to be brute forced hacked. No AI will ever get through in your life time or the universe let alone a human. But it gives you time to change wallets and create a new seed if Ledger experiences a Coldcard hack. Hope this helps.
+
+comment: p36qk2q
+parent: t1_p36pfpc
+author: Ill-Party8305
+created_utc: 1786513641
+edited: false
+body:
+Passpharse with 20 word? This would be hella inconvenient to do transaction cause you have to input it everytime you do transaction
+
+comment: p36rttt
+parent: t1_p36qk2q
+author: Brandonva804
+created_utc: 1786514245
+edited: false
+body:
+If you have a pin you don’t have to input 20 character again unless you wipe your wallet. You can do transactions as easy as main wallet.
+
+comment: p36te3u
+parent: t3_1vm56ou
+author: CleanBaldy
+created_utc: 1786514988
+edited: 1786515369
+body:
+I have no clue what you said, and for that, Bitcoin will never be mainstream.
+
+I have a 13 word key on my ledger and I have no idea what is or isn't wrong with that, and you mentioning keys and passphrases and entropy, it's like you're speaking Chinese.   
+
+I'm not even dumb.  I get that my 12 words created an address with 128 bit.  I just have zero clue if what you said is a reason I need to make a move or not...
+
+comment: p36teq1
+parent: t3_1vm56ou
+author: read_more_comments
+created_utc: 1786514997
+edited: false
+body:
+Your argument is ok but doesn't pan out. The 24 words should be uncrackable. But as we often find out, it isn't due to a variety of reasons, such as weak or flawed trng, physical access to your seed being compromised, hardware exploit on a hardware wallet, etc.
+
+The passphrase shouldn't add any additional security over the 24 words but in reality if you have a phrase you made up that no one else knows, good luck with that account ever being compromised.
+
+ It would have saved you with coldcard, it would save you from your ex swiping your seed phrase, and much more.
+
+Please stop trying to tell people you know better and your way is the right way. Your advice isn't very good.
+
+comment: p36tmg0
+parent: t1_p36rttt
+author: read_more_comments
+created_utc: 1786515097
+edited: false
+body:
+That's wallet specific. Jade plus doesn't have keyboard and doesn't store passphrases. Pain to enter a passphrase but then again, it makes you really need it to do it. 
+
+comment: p36tzgp
+parent: t1_p36te3u
+author: Academic_Barnacle_28
+created_utc: 1786515264
+edited: false
+body:
+I’m sure this fiasco will drive innovation to design new, safer and more convenient ways to store bitcoin in self custody.
+
+I guess we will see
+
+comment: p36vanu
+parent: t3_1vm56ou
+author: Todo_es
+created_utc: 1786515886
+edited: false
+body:
+You are forgetting these very plausible cases:
+
+ANYONE in ANYWAY getting hold of your 24 words, or you losing them.
+
+With a passphrase, your wallet remains hidden and they get nothing, just an empty (or with little btc) decoy wallet. And they don’t even know you have a hidden wallet.
+
+comment: p36wwta
+parent: t1_p36tzgp
+author: creative_usr_name
+created_utc: 1786516660
+edited: false
+body:
+Bitcoin is secure as is. It's people that are the problem. Either by developing insecure or malicious wallets, or by people self custoding but not doing so adequately. There will never be a perfect solution.
+
+comment: p36x5ks
+parent: t3_1vm56ou
+author: orbag
+created_utc: 1786516778
+edited: false
+body:
+Tell that to the coldcard users who got their bitcoin out safely due to having a passphrase
+
+comment: p36xism
+parent: t3_1vm56ou
+author: F23NBA
+created_utc: 1786516952
+edited: false
+body:
+You are mixing up user error with actual security design.
+
+Your argument basically boils down to "people are careless," but that is an execution problem, not a flaw with passphrases.
+
+1. **It is not about adding extra bits past 256.** It is about decoupling your security from the hardware. If you rely strictly on a 24 word seed, you are putting 100% trust in the device random number generator. The recent Coldcard exploit proved that hardware RNGs can and do fail silently. A passphrase brings your own external entropy into the equation so a hardware bug cannot wipe you out.
+2. **Typos and lost words are implementation failures.** Claiming passphrases are bad because people forget them is like saying seatbelts are bad because people forget to buckle them. If you use simple Diceware words, test the recovery process once, and stamp it on metal, the user error risk drops to zero.
+3. **Physical protection matters.** A bare 24 word seed plate is a single point of failure. If a burglar or sketchy contractor finds your metal plate, your funds are gone instantly. A passphrase turns your setup into a 2 of 2 key where physical access to the seed plate alone gets the thief nothing, all without the script complexity and transaction bloat of on chain multisig.
+
+Blaming the passphrase for human error is an execution critique, not a security one. With basic discipline, it remains one of the best self custody upgrades you can make.
+
+comment: p36xk79
+parent: t3_1vm56ou
+author: WeCanTripleIt
+created_utc: 1786516971
+edited: false
+body:
+Fidelity HODLs my BTC. I avoid all these headaches.
+
+comment: p36z1b6
+parent: t1_p36xk79
+author: Infamous-Discount-99
+created_utc: 1786517669
+edited: false
+body:
+Yea, but you'll be made whole in CBDC, programmable stable coins, or whatever they decide to give you in an uncertain future. 
+
+You won't be getting any of your Bitcoin, so you better hope you dont ever want it it need it for the unique properties that actually make it valuable.
+
+Its like having a bank hold your gold, but you get made whole in gum wrappers when you decide to "cash out".
+
+You dont have any Bitcoin
+
+comment: p3719b3
+parent: t1_p36vanu
+author: Ill-Party8305
+created_utc: 1786518750
+edited: false
+body:
+what's the different between holding a 1-12 and 13-24 seedphrase vs 24 and 1 passphrase? it is just the matter of how you hold your seed phrase. again, adding passpharse add nothing in security if your 24 seed pharse is actually done with right entrpy
+
+comment: p371exk
+parent: t1_p36teq1
+author: Ill-Party8305
+created_utc: 1786518825
+edited: false
+body:
+people lost their funds from forgetting passphrase ahell lot more than the case of coldcard.
+
+
+
+comment: p371m3s
+parent: t3_1vm56ou
+author: Skinny_Human
+created_utc: 1786518923
+edited: false
+body:
+Hi OP, 
+
+The central problem with your argument is that it conflates the entropy of the final Bitcoin private key with the security of the derivation process after partial compromise. Nobody is claiming that a passphrase makes a 256-bit private key into a 300-bit private key. The relevant threat model is an attacker who has obtained the BIP39 mnemonic but not the passphrase. In that situation, a genuinely high-entropy passphrase presents an additional brute-force problem that simply does not exist in a seed-only wallet. Nor is separating a seed and passphrase equivalent to splitting a 24-word mnemonic in half: these have different security properties and failure modes, and BIP39 was explicitly designed to incorporate an optional passphrase into seed derivation. BIP85 also solves a different problem, deterministic generation of independent entropy rather than protecting a wallet after compromise of its mnemonic. I agree with the broader point that passphrases introduce operational risk and shouldn’t be recommended indiscriminatelythough because forgotten or incorrectly backed-up passphrase is catastrophic. But that is an argument for using passphrases competently and according to the threat model, not an argument that they provide no additional security.
+
+comment: p371srv
+parent: t1_p36xism
+author: Ill-Party8305
+created_utc: 1786519015
+edited: 1786519281
+body:
+human error should also be counted, passphrase adds a huge additional human error risk for a trade off of security, in which it is insignificant. Low entropy passphrase also getting hacked in coldcard accident, creating a high entropy passphrase only increasing the risk you are locked out from your own fund.
+
+Also wtf with this ai response? get your own brain to response dude
+
+comment: p37223q
+parent: t1_p36x5ks
+author: Ill-Party8305
+created_utc: 1786519144
+edited: false
+body:
+those who has low entropy passphrase still getting their wallet swept. 
+
+The key is you make sure that your seed phrase is 256 bit entropy, if you can make sure it is 256 bit, there is literally nothing to add to make your wallet even secure. 256 bit is literally unbreakable.
+
+No, you don‘t want to add passphrase, what you want is to make sure you make your own seed pharse and making it sure it is 256 bit entropy. Passphrase add nothing if the passphrase is 256 bit already 
+
+comment: p372jpx
+parent: t1_p371m3s
+author: Ill-Party8305
+created_utc: 1786519390
+edited: false
+body:
+how do the attacker get the 24 seed phrase at the first place? 
+
+comment: p3732b2
+parent: t1_p372jpx
+author: Skinny_Human
+created_utc: 1786519647
+edited: false
+body:
+There are so many ways dude, but incompetence is the main one 
+
+comment: p373rw6
+parent: t3_1vm56ou
+author: word-dragon
+created_utc: 1786519998
+edited: false
+body:
+I mostly agree with you.  My focus is always on secretly generating a sound key and storing all the words securely.  I prefer a bank safe deposit box for a lot of reasons, and I would rather store the whole seed in two different places for redundancy, rather than use two different places to split the info.  I think people who do that are probably finding two hiding places rather than investing in secure storage.
+
+I think the decoy strategy has some limited merit - if you securely store your seed words and leave a small but believable amount of coin in the base wallet, and the bulk in a passphrase, then if the base wallet gets drained, you know your seed is compromised (or, in the case of Coldcard, your RNG was shit), you can salvage the passphrase protected portion into another wallet.
+
+comment: p373six
+parent: t1_p36te3u
+author: errezerotre
+created_utc: 1786520006
+edited: false
+body:
+You are ok
+
+comment: p3778o3
+parent: t1_p3719b3
+author: need-not-worry
+created_utc: 1786521759
+edited: false
+body:
+What hardware allows you to do that, and if it does, how? Type the 13-24 phrases manually every time? Sounds very unusable.
+
+comment: p378jvw
+parent: t1_p372jpx
+author: anonuemus
+created_utc: 1786522426
+edited: false
+body:
+like in the coldcard incident?
+
+comment: p378p6b
+parent: t1_p36te3u
+author: anonuemus
+created_utc: 1786522498
+edited: false
+body:
+So? Do you know how ssl works?
+
+comment: p378z0s
+parent: t3_1vm56ou
+author: whitealtoid
+created_utc: 1786522635
+edited: false
+body:
+I suggest creating multiple wallets using the same seed phrase, each with a different passphrase, and distributing your Bitcoin across them to mitigate the risk of losing everything if one passphrase is compromised.
+
+**Example 1:** You have 12 Bitcoin. Create one passphrase-protected wallet for each Bitcoin, and use each month of the year combined with birth year of your dog as the passphrase:
+
+* 1st Bitcoin: January 2023
+* 2nd Bitcoin: February 2023
+* 3rd Bitcoin: March 2023
+* …and so on.
+
+**Example 2:** You have 4 Bitcoin. Create one passphrase-protected wallet for each Bitcoin, and use the names of your favorite bands combined with birth year of your dog:
+
+* 1st Bitcoin: Metallica 2023
+* 2nd Bitcoin: Megadeth 2023
+* 3rd Bitcoin: Slayer 2023
+* 4th Bitcoin: Anthrax 2023
+
+Those are just examples. You can be more creative and use passphrases that are easy for you to remember but difficult for others to guess.
+
+As far as I know, you can create an unlimited number of passphrase wallets from the same seed phrase. (I'm using Trezor)
+
+comment: p37954z
+parent: t3_1vm56ou
+author: TheresNoSecondBest
+created_utc: 1786522721
+edited: false
+body:
+Disagree, mate. Using strong passphrases helps in multiple scenarios. Evil made, $5 wrench attack, inheritance, etc. 
+
+User errors happen regardless. 
+
+comment: p37b8o2
+parent: t3_1vm56ou
+author: Laukess
+created_utc: 1786523786
+edited: false
+body:
+I largely agree.   
+As you point out, if you have a high entropy passphrase you need to back it up, and you have essentially just created a 2-of-2 multi-sig. 
+
+If you want to add entropy, roll your own seed, or add dice rolls. Just to clarify, you don't add entry with a passphrase if your seed is already truly random, but you would if it was not. 
+
+If it's low entropy, it's easier to remember, but also easier to bruit force. 
+
+I'm not a fan of single-sig, but i could see the case for a simple passphrase that can act as a early warning system. Simple enough that you can remember it. You can still back it up, but you should not rely on the backup, it's there if you end up forgetting. 
+
+comment: p37d4ti
+parent: t1_p378jvw
+author: Ill-Party8305
+created_utc: 1786524752
+edited: false
+body:
+of course, but as we know now. Just make sure to generate your own seedphrase and make sure it is 256 bit. And that's it, you don‘t need to worry about passphrase ever 
+
+comment: p37d7v0
+parent: t1_p3732b2
+author: Ill-Party8305
+created_utc: 1786524795
+edited: false
+body:
+then the exact incompetence would have cost them fund lost too for forgetting the passphrase, typo, etc. The thing is this coldcard accident affect only very few people compared to how many retail has lost their funds due to them losing their passphrase
+
+comment: p37dxkk
+parent: t1_p37d7v0
+author: Skinny_Human
+created_utc: 1786525152
+edited: false
+body:
+Sure man I agree. I almost lost mine for exactly this reason, my passphrase had a mistake (one wrong number) but I got lucky by trial and error 
+
+Lesson learnt thats for sure 
+
+comment: p37gveq
+parent: t1_p36wwta
+author: Academic_Barnacle_28
+created_utc: 1786526613
+edited: false
+body:
+There will be better solutions in the future. 
+Multisig for example is better than single sig.
+Some solutions where companies keep one part of a multisig are not bad either.
+
+Innovations like these will solve the issue eventually. 
+
+comment: p37gz5p
+parent: t3_1vm56ou
+author: Honest-Warning-7116
+created_utc: 1786526665
+edited: false
+body:
+Very good, I fully agree with the point of you are creating a 2 out of 2 keys system 
+
+comment: p37l7al
+parent: t1_p3778o3
+author: Ill-Party8305
+created_utc: 1786528689
+edited: false
+body:
+huh? you can‘t extract seedphrase from the wallet, wth do you mean by that? 
+
+comment: p37lfpp
+parent: t1_p371srv
+author: Icy_Giraffe_21
+created_utc: 1786528799
+edited: false
+body:
+Are there confirmed cases of CC with passphrase losing funds ? Pretty should all who were affected didn't have one.
+
+comment: p37luow
+parent: t1_p37dxkk
+author: Ill-Party8305
+created_utc: 1786528994
+edited: false
+body:
+my takeaway is that just generate your own 24 words seedphrase and make sure you generate the right amount of entropy. 256 bits won‘t be cracked, it is practically impossible to breach your seed. adding passphrase on top of your 256 bits entropy seed basically almost add nothing except adding a human error risk onto it.
+
+comment: p37mjw6
+parent: t1_p37luow
+author: Skinny_Human
+created_utc: 1786529318
+edited: false
+body:
+That misses the main purpose of a passphrase. Nobody is adding one because 256 bits of seed entropy is not enough. The passphrase protects against a completely different threat, compromise of the seed itself. If someone finds, photographs or steals your 24 words, they have your wallet. With a sufficiently strong passphrase stored separately, those 24 words alone are useless to them. You are right that a passphrase introduces another potential point of human failure, but that is a tradeoff between operational risk and protection against seed compromise, not an argument that the passphrase adds almost nothing.
+
+EDIT: I want to add, I wouldn’t use numbers again, only words.
+
+comment: p37p9z5
+parent: t1_p37lfpp
+author: dwightshairdresser
+created_utc: 1786530538
+edited: false
+body:
+I think there was one case with a two-word-passphrase
+
+comment: p37syz0
+parent: t3_1vm56ou
+author: Wild_Opportunity6623
+created_utc: 1786532093
+edited: false
+body:
+That's great, honey. Still keeping my passphrase though.
+
+comment: p37w69p
+parent: t1_p37l7al
+author: need-not-worry
+created_utc: 1786533343
+edited: false
+body:
+How do you plan to use these 24 words, if not with a hardware or software wallet?
+
+How do you plan let the wallet know the extra phrases?
+
+comment: p381pmi
+parent: t1_p3719b3
+author: HedgehogGlad9505
+created_utc: 1786535434
+edited: false
+body:
+The difference? When you get wrench attacked, for example.
+
+Or when the thief sees half of your seed and notices the checksum is wrong, then they know there's another half for them to steal.
+
+comment: p38a5dt
+parent: t1_p37lfpp
+author: Ill-Party8305
+created_utc: 1786538239
+edited: false
+body:
+[Yes](https://x.com/coletu/status/2087467596098556048?s=46) it is
+
+comment: p38au8d
+parent: t3_1vm56ou
+author: Ill-Party8305
+created_utc: 1786538456
+edited: false
+body:
+Huh?
+
+comment: p38c4lr
+parent: t1_p381pmi
+author: Ill-Party8305
+created_utc: 1786538852
+edited: false
+body:
+If you got wrench attacked, then just have a whole completely different seedphrase as decoy.
+
+Why would you even give your real seed at the first place? If the theft manage to get your back up metal seed or whatever you put down, you have a bigger security concern
+
+comment: p38vwg0
+parent: t1_p38c4lr
+author: HedgehogGlad9505
+created_utc: 1786544488
+edited: false
+body:
+Usually you only have one hardware wallet device at hand when you get wrench attacked.
+
+comment: p39ivj5
+parent: t1_p378p6b
+author: CleanBaldy
+created_utc: 1786550403
+edited: false
+body:
+ssl?  Certificate authentication handshakes for websites and whatnot?    I know they exist and they look at the certificates to verify the interaction trusted...   
+
+comment: p39mov0
+parent: t1_p39ivj5
+author: anonuemus
+created_utc: 1786551368
+edited: false
+body:
+See, you don't need to know how it works, yet you use it every day.
+
+comment: p39v7k0
+parent: t1_p39mov0
+author: CleanBaldy
+created_utc: 1786553494
+edited: false
+body:
+But I don't configure the SSL for that?   The OP talks about some sort of passphrase and setting it all up himself in different ways.   Maybe it's just how he worded it, making me feel like I'm not doing something correctly?  
+
+For now, I've got my Ledger, I've got my 12 words safe, and my coins are on the Ledger just hanging out.    I don't know what passphrase is, or how I'd switch from 12 words to 24 words, etc.
+
+comment: p3a4ioi
+parent: t3_1vm56ou
+author: piejlucas
+created_utc: 1786555831
+edited: false
+body:
+I see so many people here discussing self storage, hardware wallets, entropy, key security, pass phrases, the list and complexity grows each day and I can’t help but think - are these people with a “HODL” mentality truly thinking about what is in the best interest of their heirs ?  If you pass away tomorrow would anyone inheriting your Bitcoin know how to access it? (before they inadvertently show a third party your keys (once hey locate it¿).   I see so many estate sales by me where a paper with strange words on it would simply be discarded by the next of kin.  
+
+comment: p3bj2b2
+parent: t1_p39v7k0
+author: anonuemus
+created_utc: 1786568865
+edited: false
+body:
+\>I have no clue what you said, and for that, Bitcoin will never be mainstream.
+
+That was the reason I mentioned ssl. At some point you don't need to understand a technology to use it.
+
+comment: p3di0en
+parent: t3_1vm56ou
+author: SmokeAndSkate
+created_utc: 1786591517
+edited: false
+body:
+You make some really great points tbh. I’ve been thinking a lot of the same thoughts. 

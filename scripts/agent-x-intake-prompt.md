@@ -164,9 +164,12 @@ the queue rewrite itself. Use exactly these fields:
 - `candidate_id` is copied exactly from the packet.
 - `action` is `registered`, `dismissed`, `already-registered`, or `retry`.
 - `reason` is a non-empty one-line explanation, no em-dashes.
-- `source_id` is required only for `registered` and `already-registered`.
-  A registered id must be one you added this run; an already-registered id
-  must have existed before the run.
+- `source_id` is required only for `registered` and `already-registered`,
+  and forbidden on `dismissed`. A registered id must be one you added this
+  run; an already-registered id must have existed before the run. When you
+  dismiss a candidate as already represented, the representing id goes in
+  the `reason` text ("repetitive, represented by <id>"), never in
+  `source_id`; a dismissal carrying one rejects the whole outbox.
 - `at` is the verdict's UTC compact timestamp.
 - Use `retry` when evidence was unavailable. It deliberately leaves the
   candidate Pending, but it is still an explicit complete decision record.

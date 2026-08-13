@@ -2312,3 +2312,46 @@
 ## 20260813T102339Z
 
 - bitkey-relationship-enrollment-report  +1 -0
+
+## 20260813T112302Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260813T122300Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+
+## 20260813T125309Z
+
+- coldcard-firmware-pr-713  +55 -3
+- coldcard-firmware-pr-713-patch  +290 -7
+- mempool-research-key-exposure  +63 -4
+- reddit-mk3-seed-entropy-worse  +8 -0
+- coindesk-70m-no-device-touch  +25 -25
+- reddit-safely-store-btc-without-hww  +4 -10
+- reddit-coldcard-future-design-philosophy  +4 -18
+- reddit-dice-adoption-critique  +0 -8
+- reddit-coinkite-inventory-destruction-question  +26 -0
+
+## 20260813T132317Z
+
+- coldcard-hack-tracker  +2 -2
+
+## 20260813T142300Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+- trezor-coldcard-not-affected  +3 -3
+- ncfacanada-self-custody-commentary  +30 -30
+- newsbitcom-class-action-threat  +24 -24
+- clay-attribution  +9 -0
+- bitcoindevs-explainer-thread  +0 -20
+- afilini-2085269060028170742  +108 -60
+- grassfedbitcoin-2085463112048873485  +0 -9
+
+## 20260813T152301Z
+
+- reddit-full-panic-drain-report  +0 -13
+
+## 20260813T162305Z
+
+- bitkey-relationship-enrollment-report  +1 -0
