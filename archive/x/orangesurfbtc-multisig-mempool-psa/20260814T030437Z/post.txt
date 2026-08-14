@@ -1,0 +1,36 @@
+url:      https://x.com/OrangeSurfBTC/status/2084196600092483826
+author:   orangesurf
+handle:   @OrangeSurfBTC
+posted:   2026-08-03T08:36:06.000Z (from the page's <time> element)
+captured: 20260814T030437Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOyNwT8WoAA-vQb?format=jpg&name=small (680 x 383 pixels)
+
+--- post text (verbatim) ---
+
+PSA to anyone with multisig where vulnerable seeds meet the threshold for spending. (Eg 2/3 multisig where 2 devices are default-setup coldcards)
+
+DO NOT BROADCAST TO THE PUBLIC MEMPOOL
+
+DO NOT MAKE A TEST SEND FROM YOUR MULTISIG WHEN MIGRATING YOUR WALLET (but DO make a test send from a different not-vulnerable wallet).
+
+# Address Reuse 
+
+If you have previously spent from addresses which currently have a balance you need to move your funds ASAP - they are already vulnerable. 
+
+# No Address Reuse 
+
+If you have never reused addresses, you are vulnerable after broadcasting the transaction, before it confirms. While it’s in the public mempool it risks being replaced by an attacker. 
+
+# Private Broadcast 
+
+
+@MARAFoundation_
+ has opened up slipstream access, so that’s currently your best route to get these tx confirmed, without exposing them to the public mempool. 
+
+I’m monitoring and so far over 2500 BTC has been moved from 2/3 multisigs via slipstream.
+
+# Current attack status 
+
+I am actively monitoring for multisig RBF battles which would suggest the attackers are primed to steal these funds, and fortunately so far I’m not seeing any evidence of it happening. That could be because nobody is broadcasting compromised tx, or more likely the attackers aren’t at that stage yet and are focused on the low hanging fruit of singlesig. That said, it’s only a matter of time. Take preparation now and prepare a transaction sweeping the funds to a setup with a very very high fee rate so you are ready to broadcast it when you need to.

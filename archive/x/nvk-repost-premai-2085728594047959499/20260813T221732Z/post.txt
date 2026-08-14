@@ -1,0 +1,55 @@
+url:      https://x.com/premai_io/status/2085728594047959499
+author:   Prem
+handle:   @premai_io
+posted:   2026-08-07T14:03:42.000Z (from the page's <time> element)
+captured: 20260813T221732Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    4 attached image(s)
+media-1: https://pbs.twimg.com/media/HPH8mlWaQAEuwx2?format=jpg&name=small (680 x 272 pixels)
+media-2: https://pbs.twimg.com/media/HPH9NnQbgAA-5T9?format=jpg&name=small (680 x 377 pixels)
+media-3: https://pbs.twimg.com/media/HPH-tTzbUAAQLJn?format=jpg&name=small (680 x 379 pixels)
+media-4: https://pbs.twimg.com/media/HPH-5OOboAA4f9V?format=jpg&name=small (680 x 376 pixels)
+
+--- post text (verbatim) ---
+
+When the Guardrail Becomes the Vulnerability 
+
+A paper released in July set out to measure what safety alignment costs defensive security work, and found that refusal rate captures very little of it
+In June 2026, Anthropic shipped Claude Fable 5 with a stricter safety classifier, and within a day security practitioners were reporting that it declined ordinary defensive work, including reviewing their own code. The Verge managed to get it to refuse questions about mitochondria and asthma medication.
+Then on 12 June, a US export-control directive led Anthropic to disable both Fable 5 and Mythos 5 worldwide, over a reported jailbreak. Fable 5 returned on 1 July with a retrained cybersecurity classifier that blocks the reported jailbreak in more than 99% of cases, and which Anthropic said also flags benign requests more often during routine coding and debugging. Fable 5 returned on 1 July with a retrained cybersecurity classifier that blocks the reported jailbreak in more than 99% of cases, and which Anthropic said also flags benign requests more often during routine coding and debugging
+A paper posted the same month suggests the refusals everyone was arguing about were the smaller half of the problem.
+What the paper did
+Beyond Refusal: A Same-Lineage Study of Aligned and Abliterated LLMs for Vulnerability Analysis (Li et al., arXiv:2607.05842) comes out of North Texas, Augusta, and Newcastle, and it takes an unusually careful approach to a question that normally gets answered badly.
+Rather than comparing one company's model against another's, the authors compared two versions of the same model: the normal instruction-tuned release, and a publicly available copy with the refusal behaviour surgically weakened. That copy exists because refusal sits along a single direction inside the model, which researchers can locate and switch off. Both versions ran on the same stack, with the same prompts and the same scoring code, so safety behaviour was the only difference between them.
+Most safety evaluations compare models from different companies and then blame the gap on alignment, when those models also differ in size, training data, and serving path. This one does not have that problem, which is why we would read it over the dozens like it.
+The authors then ran both versions through a ladder of defensive tasks that gets progressively harder: is this code vulnerable, which weakness class does it belong to, which line is the problem, what is the underlying cause, and finally, write a patch we can apply, compile, and test against a real exploit.
+Where the cost showed up
+Both versions returned a usable answer about 97% of the time, which means anyone tracking refusal rate as their safety metric would have looked at these two models and concluded there was nothing to investigate.
+Patch validation funnel
+The difference showed up later, when the answers had to work on a real project. On Java patch generation, the aligned model produced a usable patch 29.9% of the time against 67.8% for the version with refusal removed, and the gap widened at each stage after that: 24.9% against 65.0% for patches that applied cleanly, and 9.0% against 32.8% for patches whose project still compiled afterwards
+So the aligned model was not refusing. It answered, and the answers failed to apply, compile, or fix the bug. That is harder to catch than a refusal, because a developer sees a refusal immediately and works around it. A patch that looks correct and does nothing gets committed.
+What happened when the same request was reworded
+Plain code-review language produced 32 usable patches. Adding an authorisation clause, the kind of sentence that appears in any internal audit request, brought that down to 13, and rephrasing the same defensive task in ordinary security vocabulary brought it down to 8. Under both of those wordings the aligned model produced no patches at all that passed full validation, and roughly a third of its classification labels changed against the plain-language baseline.
+Usable output as prompt wording changes
+When a security engineer writes "check this function for attacker-controlled input," that is how the work is described in their profession. The model does not appear to have read that as a precise description of a legitimate task, but as language that shows up near misuse, and the answers got worse with no sign of it in the output.
+Two limits the paper is careful about
+The absolute performance is poor on both sides. Top-1 accuracy for identifying the vulnerable line ran between 4% and 10%, and full patch validation succeeded in 2 cases out of 59 for the aligned model and 6 for the ablated one, so neither version is close to something a team would run without a person reading every output.
+The direction of the advantage also reverses depending on the language, which undercuts any simple reading of the headline numbers. When the authors repeated the patch test on Python and C/C++, the aligned model led at every stage in C/C++, finishing 7 validated fixes against 4.
+Taken together, those two findings suggest that removing refusal did not make the model better at security work so much as differently shaped, and that shape happened to suit Java repair when the prompt used security language. The paper states that its own goal is not to weaken safeguards, which is worth repeating, because the conclusion the headline numbers invite is not the one the authors reached.
+Cross-language comparison
+Why the method matters beyond security
+The part of this paper that transfers furthest is how the authors measured things rather than what they found.
+Instead of reporting a single accuracy score, they separated whether the answer was usable, whether it was correct among the usable ones, and whether it survived all the way to a working result. They then measured how much the answer moved when the same question was asked in different words.
+Both of those measurements are uncommon in practice, since benchmarks tend to report whether a task passed without showing where along the way it failed, and without indicating how stable the answer is when a different person asks for the same thing in their own phrasing.
+That second gap is the one worth checking on your own product. If your prompts are assembled from ticket text, customer messages, or anything written by more than one person, the variance the paper measured is plausibly already present in what you ship, and it would appear in your metrics as ordinary traffic rather than as an error.
+Who holds the safety setting
+All of which leads to a question about control rather than accuracy.
+When you call a hosted model, the vendor owns its safety configuration, and you cannot inspect it, tune it for your own tasks, or measure what it costs you. If the effect described in this paper is happening to your team, it arrives as slightly worse answers on precisely the work that justified buying the tool.
+The Fable 5 episode added a second dimension to that, since the configuration turned out to be capable of changing by government directive between one week and the next, which means the version a company evaluated in May was not the version it was running in July.
+Open weights move that variable to the operator. The models in this study are public artifacts, so a team can pin a specific version, measure how it behaves on their own tasks, and reasonably expect that behaviour to persist. Doing so also requires control over where the model runs, which is the part Prem builds. Prem Enclave runs open-weight models inside hardware-attested confidential compute in Switzerland, so the infrastructure operator has no path to the data, and Reticle, the tool that verifies what the enclave is running, is MIT-licensed and runs in your browser, so the claim can be checked without Prem’s involvement.
+None of that makes a model more accurate. What it provides is a stack that can be pinned, inspected, and measured, which is the precondition for running the kind of evaluation this paper describes.
+What to take from it
+Refusal rate tells you whether a model blocked a request, and fairly little about whether the answers it did give were correct, stable, or usable.
+The practical response is to measure the stages your output has to survive rather than a single pass rate, to check how much the answer changes when the same question is reworded, and then to keep the model you settle on somewhere it cannot change without you knowing.
+
+

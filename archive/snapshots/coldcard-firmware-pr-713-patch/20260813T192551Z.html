@@ -1,0 +1,1964 @@
+From f460ce3e6fc92772f7aada9709a53f6c0c805d88 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Mon, 3 Aug 2026 19:07:13 +0200
+Subject: [PATCH 1/8] Mix secure element entropy into seed generation
+
+---
+ releases/Next-ChangeLog.md |  2 ++
+ shared/seed.py             | 12 +++++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index a1f1d1b1..82bb00f8 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -4,6 +4,8 @@ This lists the new changes that have not yet been published in a normal release.
+ 
+ # Shared Improvements - Both Mk and Q
+ 
++- Security Improvement: Master seed generation mixes entropy from both Secure
++  Elements with the STM32 TRNG (previously TRNG only).
+ - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ 
+ # Mk Specific Changes
+diff --git a/shared/seed.py b/shared/seed.py
+index e63feb84..4350cc0d 100644
+--- a/shared/seed.py
++++ b/shared/seed.py
+@@ -600,13 +600,19 @@ async def ephemeral_seed_generate_from_dice(nwords):
+         await set_ephemeral_seed_words(words, origin='Dice')
+ 
+ def generate_seed():
+-    # Generate 32 bytes of best-quality high entropy TRNG bytes.
++    # Generate 32 bytes of best-quality high entropy from independent sources.
++    import callgate
+ 
+     seed = ngu.random.bytes(32)
+     assert len(set(seed)) > 4       # TRNG failure
+ 
+-    # hash to mitigate any possible bias in TRNG
+-    return ngu.hash.sha256d(seed)
++    a = callgate.read_rng(1)        # SE1
++    b = callgate.read_rng(2)        # SE2
++    assert len(a) == 32
++    assert len(b) == 8
++
++    # hash to combine the sources and mitigate any possible bias
++    return ngu.hash.sha256d(seed + a + b)
+ 
+ async def make_new_wallet(nwords):
+     # Pick a new random seed.
+
+From d16d47b42775b53394ae8282bbc00ac93d3beaa3 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Tue, 4 Aug 2026 16:40:51 +0200
+Subject: [PATCH 2/8] reseed with full 32 bytes of digest from SE1/SE2 entropy
+ sources
+
+---
+ releases/Next-ChangeLog.md | 2 ++
+ shared/mk4.py              | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index 82bb00f8..d386adc7 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -6,6 +6,8 @@ This lists the new changes that have not yet been published in a normal release.
+ 
+ - Security Improvement: Master seed generation mixes entropy from both Secure
+   Elements with the STM32 TRNG (previously TRNG only).
++- Security Improvement: RNG is seeded with the full 256-bit digest of entropy
++  from both Secure Elements (previously truncated to 32 bits).
+ - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ 
+ # Mk Specific Changes
+diff --git a/shared/mk4.py b/shared/mk4.py
+index 3a3e229d..3958d8f1 100644
+--- a/shared/mk4.py
++++ b/shared/mk4.py
+@@ -42,9 +42,10 @@ def rng_seeding():
+ 
+     a = callgate.read_rng(1)        # SE1
+     b = callgate.read_rng(2)        # SE2
++    assert len(a) == 32
++    assert len(b) == 8
+ 
+     n = ngu.hash.sha256d(a+b)
+-    n, = ustruct.unpack('I', n[0:4])
+ 
+     ngu.random.reseed(n)
+         
+
+From 4f58482b4ab047377882fbd13c8011c09bf7ed43 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Tue, 4 Aug 2026 18:44:33 +0200
+Subject: [PATCH 3/8] Require external entropy for all new master seed wallets
+ - with new options dice/coin/mash
+
+---
+ releases/Next-ChangeLog.md |  10 ++
+ shared/keyboard.py         |  33 +++-
+ shared/lcd_display.py      |   6 +-
+ shared/mempad.py           |  80 +++++++--
+ shared/mk4.py              |   2 +-
+ shared/numpad.py           |  42 ++++-
+ shared/seed.py             | 266 ++++++++++++++++++++++++---
+ testing/conftest.py        |  15 ++
+ testing/test_ux.py         | 360 ++++++++++++++++++++++++++++++++++++-
+ unix/variant/touch.py      |   6 +
+ 10 files changed, 766 insertions(+), 54 deletions(-)
+
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index d386adc7..0abe1d4c 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -8,6 +8,16 @@ This lists the new changes that have not yet been published in a normal release.
+   Elements with the STM32 TRNG (previously TRNG only).
+ - Security Improvement: RNG is seeded with the full 256-bit digest of entropy
+   from both Secure Elements (previously truncated to 32 bits).
++- Change: New master seeds now require extra user supplied entropy.
++    - Choose key mashing (based on [Peter Todd's Push-Button RNG](https://petertodd.org/2014/push-button-rng)),
++      physical dice rolls or physical coin flips.
++    - TRNG, SE1 and SE2 randomness is also mixed into the generated seed.
++    - Dice and coin results are checked for obviously bad distribution.
++    - Key mashing hashes raw GPIO press timing captured at 1-microsecond
++      resolution before keypad debounce. Releases are ignored, repeating one
++      key is valid, and at least 128 presses are required. The full timing delta
++      and key identity are mixed in, with a conservative one bit of entropy
++      credited per accepted press.
+ - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ 
+ # Mk Specific Changes
+diff --git a/shared/keyboard.py b/shared/keyboard.py
+index 9f254d71..83c362a1 100644
+--- a/shared/keyboard.py
++++ b/shared/keyboard.py
+@@ -87,8 +87,20 @@ def start(self):
+         # Begin scanning for events
+         self._wait_any()
+ 
++    def start_mash(self):
++        super().start_mash()
++        self._wait_any()
++        for c in self.cols:
++            c.irq(self._mash_press_irq, Pin.IRQ_FALLING, hard=True)
++
++    def stop_mash(self):
++        super().stop_mash()
++        for c in self.cols:
++            c.irq(self.anypress_irq, Pin.IRQ_FALLING|Pin.IRQ_RISING)
++
+     def _wait_any(self):
+         # wait for any press.
++        self._mash_press_timestamp = None
+         self.waiting_for_any = True
+ 
+         for r in self.rows:
+@@ -111,8 +123,13 @@ def _measure_irq(self, _unused):
+         # CHALLENGE: Called at high rate (61Hz), but can do memory alloc.
+         # - sample all keys once, record any that are pressed
+         if self.waiting_for_any:
+-            # do nothing in that mode
+-            return
++            if not self._mash_mode or self._mash_press_timestamp is None:
++                # do nothing in that mode
++                return
++
++            # The hard column IRQ captured the edge. This soft LCD interrupt
++            # may now perform the normal allocation-heavy scan setup.
++            self._start_scan()
+ 
+         for i in range(NUM_ROWS):
+             row = self.scan_order[i]
+@@ -184,10 +201,17 @@ def process_chg_state(self, new_presses):
+                 #print("KEYNUM %d is no-op (in this state)" % kn)
+                 continue
+ 
++            if self._mash_mode and self._mash_press_timestamp is None:
++                # One raw edge is one timing sample, even if multiple Q1 keys
++                # are held during the same scan cycle.
++                continue
++
+             if ch not in self._char_reported:
+                 #print("KEY: event=%d => %c=0x%x" % (kn, ch, ord(ch)))
+                 self._char_reported.add(ch)
+-                self._key_event(ch)
++                timestamp = self._mash_press_timestamp if self._mash_mode else None
++                self._key_event(ch, timestamp)
++                self._mash_press_timestamp = None
+ 
+                 self.lp_time = utime.ticks_ms()
+ 
+@@ -226,7 +250,8 @@ def process_chg_state(self, new_presses):
+                 self._char_reported.clear()
+                 self._key_event('')
+ 
+-        if (utime.ticks_diff(utime.ticks_ms(), self.lp_time) > 250) and not any(self.is_pressed):
++        if (self._mash_mode or
++                utime.ticks_diff(utime.ticks_ms(), self.lp_time) > 250) and not any(self.is_pressed):
+             # stop scanning now... nothing happening
+             self._wait_any()
+     
+diff --git a/shared/lcd_display.py b/shared/lcd_display.py
+index 6693d05c..ef0f869b 100644
+--- a/shared/lcd_display.py
++++ b/shared/lcd_display.py
+@@ -479,7 +479,7 @@ def _draw_scroll_bar(self, values):
+         self.dis.fill_rect(WIDTH-bw, TOP_MARGIN, bw, ACTIVE_H, COL_SCROLL_DARK)
+         self.dis.fill_rect(WIDTH-bw, TOP_MARGIN+pos, bw, bh, COL_TEXT)
+ 
+-    def fullscreen(self, msg, percent=None, line2=None):
++    def fullscreen(self, msg, percent=None, line2=None, line3=None):
+         # show a simple message "fullscreen". 
+         self.clear()
+         y = CHARS_H // 3
+@@ -489,6 +489,10 @@ def fullscreen(self, msg, percent=None, line2=None):
+             for ln in word_wrap(line2, CHARS_W):
+                 self.text(None, y, ln, dark=True)
+                 y += 1
++        if line3:
++            for ln in word_wrap(line3, CHARS_W):
++                self.text(None, y, ln, dark=True)
++                y += 1
+         if percent is not None:
+             self.progress_bar(percent)
+         self.show()
+diff --git a/shared/mempad.py b/shared/mempad.py
+index e47343fb..2c337ae0 100644
+--- a/shared/mempad.py
++++ b/shared/mempad.py
+@@ -44,9 +44,10 @@ def __init__(self):
+         self._char_reported = set()
+ 
+         # internal state for timer irq handler
+-        self._history = None        # see _start_scan
++        self._history = bytearray(NUM_ROWS * NUM_COLS)
+         self._scan_count = 0
+         self._cycle = 0
++        self._finish_scan_active = False
+ 
+         self.waiting_for_any = True
+ 
+@@ -68,9 +69,40 @@ def start(self):
+         # begin scanning for events
+         self._wait_any()
+ 
++    def start_mash(self):
++        super(MembraneNumpad, self).start_mash()
++        self.timer.deinit()
++        self._wait_any()
++        for c in self.cols:
++            c.irq(self._mash_press_irq, Pin.IRQ_FALLING, hard=True)
++        self.timer.init(freq=SAMPLE_FREQ, callback=self._measure_irq)
++        self._ensure_finish_scan()
++
++    def stop_mash(self):
++        super(MembraneNumpad, self).stop_mash()
++        for c in self.cols:
++            c.irq(self.anypress_irq, Pin.IRQ_FALLING|Pin.IRQ_RISING)
++
++    def _ensure_finish_scan(self):
++        if not self._finish_scan_active:
++            self._finish_scan_active = True
++            call_later_ms(Q_CHECK_RATE, self._finish_scan)
++
+     def _wait_any(self):
+         # wait for any press but stop continuously scanning for now
+-        self.timer.deinit()
++        if not self._mash_mode:
++            self.timer.deinit()
++
++        self._mash_press_timestamp = None
++        self._scan_count = 0
++        for i in range(NUM_ROWS * NUM_COLS):
++            self._history[i] = 0
++
++        if self._mash_mode:
++            try:
++                shuffle(self.scan_order)
++            except OSError:
++                pass
+ 
+         for r in self.rows:
+             r.off()
+@@ -89,19 +121,26 @@ def _start_scan(self):
+             pass
+ 
+         self._scan_count = 0
+-        self._history = bytearray(NUM_ROWS * NUM_COLS)
+-
+         self.timer.init(freq=SAMPLE_FREQ, callback=self._measure_irq)
+-        call_later_ms(Q_CHECK_RATE, self._finish_scan)
++        self._ensure_finish_scan()
+ 
+     def _measure_irq(self, _timer):
+         # CHALLENGE: Called at high rate, and cannot do memory alloc.
+         # - sample all keys once, record any that are pressed
+ 
+         if self.waiting_for_any:
+-            # stop
+-            _timer.deinit()
+-            return
++            if not self._mash_mode:
++                # stop
++                _timer.deinit()
++                return
++            if self._mash_press_timestamp is None:
++                return
++
++            # A hard column IRQ already captured the physical edge. Begin the
++            # existing slow scan only to debounce and identify that key.
++            self.waiting_for_any = False
++            self.lp_time = utime.ticks_ms()
++            self._scan_count = 0
+ 
+         for i in range(NUM_ROWS):
+             row = self.scan_order[i]
+@@ -155,16 +194,29 @@ async def _finish_scan(self):
+             else:
+                 # indicated key was found to be down
+                 ch = DECODER[event]
++                if self._mash_mode and self._mash_press_timestamp is None:
++                    continue
+                 if ch not in self._char_reported:
+                     self._char_reported.add(ch)
+-                    self._key_event(ch)
++                    timestamp = self._mash_press_timestamp if self._mash_mode else None
++                    self._key_event(ch, timestamp)
++                    self._mash_press_timestamp = None
+ 
+                     self.lp_time = utime.ticks_ms()
+ 
+-        if not self._char_reported and utime.ticks_diff(utime.ticks_ms(), self.lp_time) > 250:
+-            # stop scanning now... nothing happening
+-            self._wait_any()
+-        else:
+-            call_later_ms(Q_CHECK_RATE, self._finish_scan)
++        if not self._char_reported:
++            idle = utime.ticks_diff(utime.ticks_ms(), self.lp_time)
++            if self._mash_mode:
++                if (not self.waiting_for_any and
++                        (self._mash_press_timestamp is None or idle > 250)):
++                    # Release completed, or a raw edge failed to debounce.
++                    self._wait_any()
++            elif idle > 250:
++                # stop scanning now... nothing happening
++                self._finish_scan_active = False
++                self._wait_any()
++                return
++
++        call_later_ms(Q_CHECK_RATE, self._finish_scan)
+     
+ # EOF
+diff --git a/shared/mk4.py b/shared/mk4.py
+index 3958d8f1..eefa0428 100644
+--- a/shared/mk4.py
++++ b/shared/mk4.py
+@@ -38,7 +38,7 @@ def make_psram_fs():
+ 
+ def rng_seeding():
+     # seed our RNG with entropy from secure elements
+-    import callgate, ngu, ustruct
++    import callgate, ngu
+ 
+     a = callgate.read_rng(1)        # SE1
+     b = callgate.read_rng(2)        # SE2
+diff --git a/shared/numpad.py b/shared/numpad.py
+index 45abad43..f2be34fb 100644
+--- a/shared/numpad.py
++++ b/shared/numpad.py
+@@ -13,9 +13,12 @@ class NumpadBase:
+     ABORT_KEY = '\xff'
+ 
+     def __init__(self):
+-        # once pressed, and released; keys show up in this queue
++        # Once pressed and released, keys show up in this queue. Timestamp at
++        # the event source so consumers are not measuring their own UX delays.
+         self._changes = Queue(64)
+         self.key_pressed = ''         # internal to ABC, should not be used by subclasses
++        self._mash_mode = False
++        self._mash_press_timestamp = None
+ 
+         self.debug = 0                # 0..2
+ 
+@@ -23,11 +26,17 @@ def __init__(self):
+ 
+     async def get(self):
+         # Get keypad events. Single-character strings.
++        key, _ = await self._changes.get()
++        return key
++
++    async def get_with_timestamp(self):
++        # Get an event and its source timestamp (raw edge during key mashing).
+         return await self._changes.get()
+ 
+     def get_nowait(self):
+         # Poll if anything ready: not async!
+-        return self._changes.get_nowait()
++        key, _ = self._changes.get_nowait()
++        return key
+ 
+     def empty(self):
+         return self._changes.empty()
+@@ -38,31 +47,48 @@ def abort_ux(self):
+ 
+     def inject(self, key):
+         # fake a key press and release
+-        if not self._changes.full():
++        if self._changes.qsize() <= self._changes.maxsize - 2:
+             self.key_pressed = ''
+-            self._changes.put_nowait(key)
+-            self._changes.put_nowait('')
++            self._changes.put_nowait((key, utime.ticks_us()))
++            self._changes.put_nowait(('', utime.ticks_us()))
+ 
+     def clear_pressed(self):
+         # clear any key that is down right now, but don't generate
+         # a key-up event for it either
+         self.key_pressed = ''
+ 
+-    def _key_event(self, key):
++    def start_mash(self):
++        # Subclasses arrange for _mash_press_irq to be called as a hard IRQ.
++        self._mash_press_timestamp = None
++        self._mash_mode = True
++
++    def stop_mash(self):
++        self._mash_mode = False
++        self._mash_press_timestamp = None
++
++    def _mash_press_irq(self, _pin):
++        # Hard IRQ: no allocation. Latch only the first edge until debounce
++        # either accepts the press or rearms after an all-up state.
++        if (self._mash_mode and self.waiting_for_any and
++                self._mash_press_timestamp is None):
++            self._mash_press_timestamp = utime.ticks_us()
++
++    def _key_event(self, key, timestamp=None):
+         if key == self.key_pressed:
+             return
+ 
+         # annouce change
+         self.key_pressed = key
++        now = utime.ticks_us() if timestamp is None else timestamp
+ 
+         if self._changes.full():
+             # no space, but do a "all up" and the new event
+             self._changes.get_nowait()
+             self._changes.get_nowait()
+             if key != '':
+-                self._changes.put_nowait('')
++                self._changes.put_nowait(('', now))
+ 
+-        self._changes.put_nowait(key)
++        self._changes.put_nowait((key, now))
+ 
+         self.last_event_time = utime.ticks_ms()
+ 
+diff --git a/shared/seed.py b/shared/seed.py
+index 4350cc0d..3169004f 100644
+--- a/shared/seed.py
++++ b/shared/seed.py
+@@ -17,9 +17,9 @@
+ from utils import deserialize_secret, problem_file_line, wipe_if_deltamode
+ from uhashlib import sha256
+ from ux import ux_show_story, the_ux, ux_dramatic_pause, ux_confirm, OK, X
+-from ux import PressRelease, ux_input_text, show_qr_code
++from ux import PressRelease, ux_input_text, show_qr_code, ux_clear_keys
+ from actions import goto_top_menu
+-from stash import SecretStash, SensitiveValues
++from stash import SecretStash, SensitiveValues, blank_object
+ from ubinascii import hexlify as b2a_hex
+ from pwsave import PassphraseSaver, PassphraseSaverMenu
+ from glob import settings, dis
+@@ -27,12 +27,54 @@
+ from nvstore import SettingsObject
+ from files import CardMissingError, needs_microsd
+ from charcodes import KEY_QR, KEY_ENTER, KEY_CANCEL, KEY_NFC
++from exceptions import AbortInteraction
+ from uasyncio import sleep_ms
+ from ucollections import namedtuple
++from utime import ticks_us, ticks_diff
++from ustruct import pack
+ 
+ # seed words lengths we support: 24=>256 bits, and recommended
+ VALID_LENGTHS = (24, 18, 12)
+ 
++# Physical key-down events required before generating a new master seed.
++# Credit mash timing just one bit per raw press edge; key choice is extra.
++MIN_MASH_PRESSES = const(128)
++MIN_DICE_ROLLS = const(50)
++MIN_COIN_FLIPS = const(128)
++
++# Versioned domain separators and entropy-method identifiers.
++DOMAIN_MASH = b'CC\x01M'
++DOMAIN_DICE = b'CC\x01D'
++DOMAIN_COIN = b'CC\x01C'
++DOMAIN_SEED = b'CC\x01S'
++METHOD_MASH = b'M'
++METHOD_DICE = b'D'
++METHOD_COIN = b'C'
++
++BAD_DICE_MSG = ('Distribution of dice rolls is not random. '
++                'Some numbers occurred more than 30% of the time.')
++
++MASH_ENTROPY_STORY = '''\
++Your key choices and timing will be mixed into the seed.
++
++Press keys with unpredictable gaps. You may use any keys, but do not type words, a PIN, sequences, keypad shapes, or a repeated rhythm.
++
++You must press at least 128 keys.'''
++
++DICE_ENTROPY_STORY = '''\
++Physical die rolls will be mixed into the seed.
++
++Use a real six-sided die and roll it again before every entry. Enter only the result shown. Do not make up rolls or use an app or computer. Reroll unclear or cocked rolls.
++
++You must enter at least 50 dice rolls.'''
++
++COIN_ENTROPY_STORY = '''\
++Physical coin flips will be mixed into the seed.
++
++Flip a real coin again before every entry. Press 1 for heads or 0 for tails. Do not alternate, choose results, or use an app or computer. Reflip unclear results.
++
++You must enter at least 128 coin flips.'''
++
+ # maximum length for BIP-39 passphrase
+ MAX_PASS_LEN = 100
+ 
+@@ -387,7 +429,7 @@ async def add_dice_rolls(count, seed, judge_them, nwords=None, enforce=False):
+         low_entropy_msg += ", which is considered the minimum for %d word seeds," % nwords
+     low_entropy_msg += " you need at least %d rolls."
+ 
+-    # None is for papaer wallet private key - as it is 32 bytes of entropy we need 99 D6
++    # None is for paper wallet private key - as it is 32 bytes of entropy we need 99 D6
+     if nwords in (24, None):
+         threshold = 99
+         sec_bit = 256
+@@ -424,9 +466,7 @@ async def add_dice_rolls(count, seed, judge_them, nwords=None, enforce=False):
+             md.update(ch)
+ 
+         elif ch in KEY_CANCEL+"x":
+-            # Because the change (roll) has already been applied,
+-            # only let them abort if it's early still
+-            if count < 10 and judge_them:
++            if judge_them and count < 10:
+                 return 0, seed
+         elif ch in KEY_ENTER+"y":
+             if count < threshold and judge_them:
+@@ -451,13 +491,11 @@ async def add_dice_rolls(count, seed, judge_them, nwords=None, enforce=False):
+             if judge_them:
+                 bad_dist = any((v / count) > 0.30 for _, v in counter.items())
+                 if bad_dist:
+-                    bad_dist_msg = ("Distribution of dice rolls is not random. "
+-                                    "Some numbers occurred more than 30% of the time.")
+                     if enforce:
+-                        await ux_show_story(bad_dist_msg)
++                        await ux_show_story(BAD_DICE_MSG)
+                         return 0, seed  # exit
+                     else:
+-                        ok = await ux_confirm(bad_dist_msg)
++                        ok = await ux_confirm(BAD_DICE_MSG)
+                         if not ok:
+                             redraw = True
+                             continue
+@@ -614,10 +652,199 @@ def generate_seed():
+     # hash to combine the sources and mitigate any possible bias
+     return ngu.hash.sha256d(seed + a + b)
+ 
++def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=None):
++    if version.has_qwerty:
++        line2 = '%d / %d %s' % (count, target, unit)
++        line3 = ('Keep %s or ENTER when done' % action) if count >= target else prompt
++        dis.fullscreen(title, percent=count / target, line2=line2, line3=line3)
++        return
++
++    line2 = ('%d  OK=Done' % count) if count >= target else ('%d / %d' % (count, target))
++    dis.fullscreen(mk_title or title, percent=count / target, line2=line2)
++
++async def collect_mash_entropy():
++    # Peter Todd's push-button RNG: hash each raw press time delta.
++    # <https://petertodd.org/2014/push-button-rng>
++    # Supplemental entropy only: the primary seed (TRNG + both SEs) is
++    # independent, so even zero bits here is safe. The keypad drivers latch
++    # the raw GPIO edge in a hard IRQ before their ~50ms debounce. We credit
++    # one bit per press and do not credit human key-choice distribution.
++    from glob import numpad
++
++    md = sha256(DOMAIN_MASH)
++    count = 0
++    displayed_count = 0
++
++    update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
++                          'mashes', 'mashing', 'Press random keys')
++    ux_clear_keys()
++    last = ticks_us()
++
++    try:
++        numpad.start_mash()
++        while True:
++            while numpad.empty():
++                await sleep_ms(2)
++            ch, now = await numpad.get_with_timestamp()
++            if ch == numpad.ABORT_KEY: raise AbortInteraction()
++            if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
++
++            if count >= MIN_MASH_PRESSES and ch == (KEY_ENTER if version.has_qwerty else "y"):
++                break
++
++            # Todd's construction uses raw edge timing, not the debounced
++            # release interval. The first delta starts when collection starts.
++            if not ch:
++                if displayed_count != count and numpad.empty():
++                    update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
++                                          'mashes', 'mashing', 'Press random keys')
++                    displayed_count = count
++                continue
++
++            gap = ticks_diff(now, last)
++            last = now
++
++            # Count, interval and one-byte key code make every event framing
++            # explicit. Key identity is mixed in but receives no entropy credit.
++            md.update(pack('<IIB', count, gap & 0xffffffff, ord(ch)))
++            count += 1
++
++            if numpad.empty():
++                update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
++                                      'mashes', 'mashing', 'Press random keys')
++                displayed_count = count
++
++    finally:
++        numpad.stop_mash()
++
++    await ux_dramatic_pause('Wait...', 1)
++    ux_clear_keys()
++
++    return md.digest()
++
++async def collect_dice_entropy():
++    # Collect 128 bits of supplemental entropy from physical D6 rolls.
++    md = sha256(DOMAIN_DICE)
++    count = 0
++    counter = {}
++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
++    press = PressRelease('123456' + done_keys)
++
++    update_entropy_screen('Dice Rolls', count, MIN_DICE_ROLLS,
++                          'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
++    ux_clear_keys()
++
++    while True:
++        ch = await press.wait()
++        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
++
++        if count >= MIN_DICE_ROLLS and ch == (KEY_ENTER if version.has_qwerty else "y"):
++            break
++
++        if ch not in '123456': continue
++
++        counter[ch] = counter.get(ch, 0) + 1
++        md.update(ch.encode())
++        count += 1
++
++        update_entropy_screen('Dice Rolls', count, MIN_DICE_ROLLS,
++                              'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
++
++    if any((v / count) > 0.30 for v in counter.values()):
++        await ux_show_story(BAD_DICE_MSG)
++        return None
++
++    await ux_dramatic_pause('Wait...', 1)
++    ux_clear_keys()
++
++    return md.digest()
++
++async def collect_coin_entropy():
++    # A coin contributes ~1 bit per flip.
++    md = sha256(DOMAIN_COIN)
++    count = heads = 0
++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
++    press = PressRelease('10' + done_keys)
++
++    update_entropy_screen('Coin Flips', count, MIN_COIN_FLIPS,
++                          'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
++    ux_clear_keys()
++
++    while True:
++        ch = await press.wait()
++        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
++
++        if count >= MIN_COIN_FLIPS and ch == (KEY_ENTER if version.has_qwerty else "y"):
++            break
++
++        if ch not in '10': continue
++
++        if ch == '1':
++            heads += 1
++            md.update(b'1')
++        else:
++            md.update(b'0')
++
++        count += 1
++        update_entropy_screen('Coin Flips', count, MIN_COIN_FLIPS,
++                              'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
++
++    # Catch obviously invented or badly-biased sequences. This does not prove
++    # that the flips were random; the independently-generated seed remains primary.
++    if max(heads, count - heads) / count > 0.65:
++        await ux_show_story('Distribution of coin flips is not random. '
++                            'Heads or tails occurred more than 65% of the time.')
++        return None
++
++    await ux_dramatic_pause('Wait...', 1)
++    ux_clear_keys()
++
++    return md.digest()
++
+ async def make_new_wallet(nwords):
+-    # Pick a new random seed.
++    # Generate the primary seed first, then require one human entropy source.
+     await ux_dramatic_pause('Generating...', 3)
+-    seed = generate_seed()
++    base_seed = None
++    extra_entropy = None
++    mix = None
++    choices = MenuSystem([
++        MenuItem('Mash Keys',
++                 arg=(METHOD_MASH, collect_mash_entropy, MASH_ENTROPY_STORY)),
++        MenuItem('Dice Rolls',
++                 arg=(METHOD_DICE, collect_dice_entropy, DICE_ENTROPY_STORY)),
++        MenuItem('Coin Flips',
++                 arg=(METHOD_COIN, collect_coin_entropy, COIN_ENTROPY_STORY)),
++        MenuItem('CANCEL'),
++    ])
++    try:
++        base_seed = generate_seed()
++
++        while extra_entropy is None:
++            the_ux.push(choices)
++            try:
++                picked = await choices.wait_choice()
++            finally:
++                the_ux.pop()
++
++            # Handles both the CANCEL key and the displayed CANCEL item.
++            if picked is None or picked.arg is None:
++                return
++
++            method, collector, story = picked.arg
++            prompt = '\n\nPress %s to start, %s to exit.' % (OK, X)
++            if await ux_show_story(story + prompt, title=picked.label) == 'x':
++                continue
++
++            extra_entropy = await collector()
++
++        mix = DOMAIN_SEED + method + base_seed + extra_entropy
++        seed = ngu.hash.sha256d(mix)
++
++    finally:
++        blank_object(base_seed)
++        blank_object(extra_entropy)
++        blank_object(mix)
++
+     words = await approve_word_list(seed, nwords)
+     if words:
+         await commit_new_words(words)
+@@ -665,14 +892,14 @@ async def approve_word_list(seed, nwords, ephemeral=False):
+ 
+     words = bip39.b2a_words(seed).split(' ')
+     assert len(words) == nwords
+-    extra_msg = 'Press (4) to add some dice rolls into the mix. '
++    extra_msg = ''
+     if ephemeral:
+         # document quiz skipping if generating ephemeral seed
+-        extra_msg += "Press (6) to skip word quiz. "
++        extra_msg = "Press (6) to skip word quiz. "
+ 
+     while 1:
+         # show the seed words
+-        ch = await show_words(words, escape='46', extra=extra_msg, ephemeral=ephemeral)
++        ch = await show_words(words, escape='6', extra=extra_msg, ephemeral=ephemeral)
+         if ch == 'x': 
+             # user abort, but confirm it!
+             if await ux_confirm("Throw away those words and stop this process?"):
+@@ -680,15 +907,6 @@ async def approve_word_list(seed, nwords, ephemeral=False):
+             else:
+                 continue
+ 
+-        if ch == '4':
+-            # dice roll mode
+-            count, new_seed = await add_dice_rolls(0, seed, False)
+-            if count:
+-                seed = new_seed[0:16] if nwords == 12 else new_seed
+-                words = bip39.b2a_words(seed).split(' ')
+-
+-            continue
+-
+         if ch == '6':
+             # wants to skip the quiz (undocumented)
+             if await ux_confirm("Skipping the quiz means you might have "
+diff --git a/testing/conftest.py b/testing/conftest.py
+index 1f06595e..79e0d929 100644
+--- a/testing/conftest.py
++++ b/testing/conftest.py
+@@ -698,6 +698,21 @@ def press_select(dev, has_qwerty):
+     f = functools.partial(_press_select, dev, has_qwerty)
+     return f
+ 
++@pytest.fixture
++def enter_mash_entropy(pick_menu_item, press_select, need_keypress):
++    def doit():
++        pick_menu_item('Mash Keys')
++        time.sleep(.1)
++        press_select()
++        time.sleep(.1)
++        for i in range(128):
++            need_keypress(str(i % 10))
++
++        time.sleep(.2)
++        press_select()  # done
++
++    return doit
++
+ @pytest.fixture
+ def press_cancel(need_keypress, has_qwerty):
+     def doit(**kws):
+diff --git a/testing/test_ux.py b/testing/test_ux.py
+index f8b96977..d122302e 100644
+--- a/testing/test_ux.py
++++ b/testing/test_ux.py
+@@ -3,7 +3,7 @@
+ import pytest, time, os, re, hashlib, shutil, functools, ndef
+ from binascii import b2a_hex
+ from helpers import xfp2str, prandom
+-from charcodes import KEY_QR, KEY_NFC, KEY_DELETE
++from charcodes import KEY_QR, KEY_NFC, KEY_DELETE, KEY_ENTER
+ from constants import AF_CLASSIC, simulator_fixed_words, simulator_fixed_xfp
+ from mnemonic import Mnemonic
+ from bip32 import BIP32Node
+@@ -241,6 +241,10 @@ def test_import_from_dice(count, nwords, goto_home, pick_menu_item, cap_story, n
+         gave += ch
+         
+     time.sleep(0.1)
++    screen = cap_screen()
++    digest = sha256(gave.encode('ascii')).hexdigest()
++    assert digest[:32] in screen
++    assert digest[32:] in screen
+     press_select()
+ 
+     time.sleep(0.1)
+@@ -263,6 +267,7 @@ def test_import_from_dice(count, nwords, goto_home, pick_menu_item, cap_story, n
+         title, body = cap_story()
+ 
+     target = f'Record these {nwords}'
++    assert 'Press (4)' not in body
+     if is_q1:
+         assert target in title
+         words = [i[:4].upper() for i in seed_story_to_words(body)]
+@@ -303,9 +308,11 @@ def test_import_from_dice(count, nwords, goto_home, pick_menu_item, cap_story, n
+ 
+ @pytest.mark.parametrize('multiple_runs', range(3))
+ @pytest.mark.parametrize('nwords', [12, 24])
++@pytest.mark.parametrize('entropy_method', ['mash', 'dice', 'coin'])
+ def test_new_wallet(nwords, goto_home, pick_menu_item, cap_story, expect_ftux,
+                     cap_menu, get_secrets, unit_test, pass_word_quiz, multiple_runs,
+-                    reset_seed_words, is_q1, seed_story_to_words):
++                    reset_seed_words, is_q1, seed_story_to_words, need_keypress,
++                    cap_screen, entropy_method, sim_exec, press_select):
+     # generate a random wallet, and check seeds are what's shown to user, etc
+     
+     unit_test('devtest/clear_seed.py')
+@@ -313,6 +320,117 @@ def test_new_wallet(nwords, goto_home, pick_menu_item, cap_story, expect_ftux,
+     pick_menu_item('New Seed Words')
+     pick_menu_item(f'{nwords} Words')
+ 
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++
++    def finish_entropy():
++        # Queue a finishing ENTER plus a lagging ENTER before the UX can run.
++        # collect_*_entropy must clear the second event before showing the words.
++        key = KEY_ENTER if is_q1 else 'y'
++        sim_exec("from glob import numpad; numpad.inject(%r); numpad.inject(%r)" % (key, key))
++
++    label, intro = {
++        'mash': ('Mash Keys', 'Your key choices and timing will be mixed into the seed.'),
++        'dice': ('Dice Rolls', 'Physical die rolls will be mixed into the seed.'),
++        'coin': ('Coin Flips', 'Physical coin flips will be mixed into the seed.'),
++    }[entropy_method]
++    pick_menu_item(label)
++    _, story = cap_story()
++    assert intro in story
++    press_select()
++    time.sleep(0.1)
++
++    if entropy_method == 'mash':
++        screen = cap_screen()
++        assert 'Mash Keys' in screen
++        assert ('0 / 128 mashes' if is_q1 else '0 / 128') in screen
++        if is_q1:
++            assert 'Press random keys' in screen
++
++        for i in range(127):
++            need_keypress(str(i % 10))
++
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert 'Mash Keys' in screen
++        assert ('127 / 128 mashes' if is_q1 else '127 / 128') in screen
++        need_keypress('9')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('128 / 128 mashes' in screen and
++                'Keep mashing or ENTER when done' in screen) if is_q1 else \
++               '128  OK=Done' in screen
++        need_keypress('8')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('129 / 128 mashes' in screen and
++                'Keep mashing or ENTER when done' in screen) if is_q1 else \
++               '129  OK=Done' in screen
++        finish_entropy()
++
++    elif entropy_method == 'dice':
++        screen = cap_screen()
++        assert ('Dice Rolls' if is_q1 else 'Roll Dice') in screen
++        assert ('0 / 50 rolls' if is_q1 else '0 / 50') in screen
++        if is_q1:
++            assert 'Enter each roll: 1-6' in screen
++
++        gave = ''
++        for i in range(49):
++            ch = str(1 + (i % 6))
++            need_keypress(ch)
++            gave += ch
++
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('49 / 50 rolls' if is_q1 else '49 / 50') in screen
++        digest = hashlib.sha256(gave.encode('ascii')).hexdigest()
++        assert digest[:32] not in screen
++        assert digest[32:] not in screen
++
++        need_keypress('2')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('50 / 50 rolls' in screen and
++                'Keep rolling or ENTER when done' in screen) if is_q1 else \
++               '50  OK=Done' in screen
++        need_keypress('3')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('51 / 50 rolls' in screen and
++                'Keep rolling or ENTER when done' in screen) if is_q1 else \
++               '51  OK=Done' in screen
++        finish_entropy()
++
++    elif entropy_method == 'coin':
++        screen = cap_screen()
++        assert ('Coin Flips' if is_q1 else 'Coin: 1=H 0=T') in screen
++        if is_q1:
++            assert '1 = Heads, 0 = Tails' in screen
++        assert ('0 / 128 flips' if is_q1 else '0 / 128') in screen
++
++        for i in range(127):
++            need_keypress('1' if i % 2 else '0')
++
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('Coin Flips' if is_q1 else 'Coin: 1=H 0=T') in screen
++        assert ('127 / 128 flips' if is_q1 else '127 / 128') in screen
++        need_keypress('1')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('128 / 128 flips' in screen and
++                'Keep flipping or ENTER when done' in screen) if is_q1 else \
++               '128  OK=Done' in screen
++        need_keypress('0')
++        time.sleep(0.1)
++        screen = cap_screen()
++        assert ('129 / 128 flips' in screen and
++                'Keep flipping or ENTER when done' in screen) if is_q1 else \
++               '129  OK=Done' in screen
++        finish_entropy()
++
++    time.sleep(0.1)
++
+     title, body = cap_story()
+     target = f'Record these {nwords} secret words!'
+     if is_q1:
+@@ -320,6 +438,7 @@ def test_new_wallet(nwords, goto_home, pick_menu_item, cap_story, expect_ftux,
+     else:
+         assert title == 'NO-TITLE'
+         assert target in body
++    assert 'Press (4)' not in body
+ 
+     if is_q1:
+         words = seed_story_to_words(body)
+@@ -342,6 +461,243 @@ def test_new_wallet(nwords, goto_home, pick_menu_item, cap_story, expect_ftux,
+     reset_seed_words()
+ 
+ 
++def test_new_wallet_entropy_cancel(pick_menu_item, cap_menu, cap_story,
++                                   unit_test, press_cancel, press_select,
++                                   sim_eval):
++    unit_test('devtest/clear_seed.py')
++    pick_menu_item('New Seed Words')
++    pick_menu_item('12 Words')
++
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++    pick_menu_item('Mash Keys')
++    _, story = cap_story()
++    assert 'Your key choices and timing will be mixed into the seed.' in story
++    press_cancel()
++    time.sleep(0.1)
++
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++
++    # Also cancel after raw-edge capture has been enabled. The collector's
++    # finally block must restore normal keypad IRQ handling.
++    pick_menu_item('Mash Keys')
++    press_select()
++    time.sleep(0.1)
++    assert sim_eval("__import__('glob').numpad._mash_mode") == 'True'
++    press_cancel()
++    time.sleep(0.1)
++    assert sim_eval("__import__('glob').numpad._mash_mode") == 'False'
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++
++    pick_menu_item('CANCEL')
++    time.sleep(0.1)
++
++    assert cap_menu()[0] == '12 Words'
++
++
++def test_new_wallet_rejects_biased_dice(pick_menu_item, cap_menu, unit_test,
++                                        need_keypress, press_select, cap_story):
++    unit_test('devtest/clear_seed.py')
++    pick_menu_item('New Seed Words')
++    pick_menu_item('12 Words')
++    pick_menu_item('Dice Rolls')
++    press_select()
++    time.sleep(0.1)
++
++    for _ in range(50):
++        need_keypress('1')
++    press_select()
++    time.sleep(0.1)
++
++    _, story = cap_story()
++    assert 'Distribution of dice rolls is not random' in story
++    assert 'Some numbers occurred more than 30% of the time' in story
++    press_select()
++    time.sleep(0.1)
++
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++    pick_menu_item('CANCEL')
++
++
++def test_new_wallet_rejects_biased_coin(pick_menu_item, cap_menu, unit_test,
++                                        need_keypress, press_select, cap_story):
++    unit_test('devtest/clear_seed.py')
++    pick_menu_item('New Seed Words')
++    pick_menu_item('12 Words')
++    pick_menu_item('Coin Flips')
++    press_select()
++    time.sleep(0.1)
++
++    for _ in range(128):
++        need_keypress('1')
++    press_select()
++    time.sleep(0.1)
++
++    _, story = cap_story()
++    assert 'Distribution of coin flips is not random' in story
++    assert 'Heads or tails occurred more than 65% of the time' in story
++    press_select()
++    time.sleep(0.1)
++
++    assert cap_menu() == ['Mash Keys', 'Dice Rolls', 'Coin Flips', 'CANCEL']
++    pick_menu_item('CANCEL')
++
++
++def test_mash_allows_single_key(pick_menu_item, unit_test, need_keypress,
++                                press_select, press_cancel, cap_story):
++    # Todd's construction gets entropy from timing and works with one button.
++    unit_test('devtest/clear_seed.py')
++    pick_menu_item('New Seed Words')
++    pick_menu_item('12 Words')
++    pick_menu_item('Mash Keys')
++    press_select()
++    time.sleep(0.1)
++
++    for _ in range(128):
++        need_keypress('1')
++    press_select()
++    time.sleep(0.1)
++
++    title, story = cap_story()
++    assert 'Record these 12 secret words' in title + story
++
++    # Throw away the generated words.
++    press_cancel()
++    press_select()
++    time.sleep(0.1)
++
++
++def test_mk_mash_debounce_state_machine(sim_exec, sim_eval, is_mark4, is_mark5):
++    # Normal simulator key injection bypasses the Mk membrane scan path.
++    if not (is_mark4 or is_mark5):
++        pytest.skip('membrane keypad only')
++
++    setup = '''\
++import mempad, uasyncio, utime
++from glob import numpad
++mempad._saved_call_later_ms = mempad.call_later_ms
++mempad.call_later_ms = lambda *a, **k: None
++numpad.timer.deinit()
++while numpad.scans:
++    numpad.scans.popleft()
++numpad._char_reported.clear()
++numpad._test_mash_events = []
++events = numpad._test_mash_events
++numpad._key_event = lambda key, timestamp=None, events=events: events.append((key, timestamp))
++numpad._mash_mode = True
++numpad.waiting_for_any = False
++numpad._mash_press_timestamp = 123
++numpad._scan_count = 1
++for i in range(len(numpad._history)):
++    numpad._history[i] = 0
++numpad._history[0] = 1
++numpad.lp_time = utime.ticks_ms()
++uasyncio.create_task(numpad._finish_scan())
++'''
++    try:
++        assert sim_exec(setup) == ''
++        time.sleep(0.05)
++
++        # The 5ms queue poll must not erase an edge while its 60Hz debounce
++        # samples are still being collected.
++        state = '(glob.numpad.waiting_for_any, glob.numpad._mash_press_timestamp, '
++        state += 'glob.numpad._scan_count, glob.numpad._history[0])'
++        assert sim_eval(state) == '(False, 123, 1, 1)'
++
++        # Supply the remaining two down samples and emit the accepted press.
++        assert sim_exec('''\
++import uasyncio
++from glob import numpad
++numpad.cols[0].value(0)
++numpad.cols[1].value(1)
++numpad.cols[2].value(1)
++numpad._measure_irq(numpad.timer)
++numpad._measure_irq(numpad.timer)
++uasyncio.create_task(numpad._finish_scan())
++''') == ''
++        time.sleep(0.05)
++        assert sim_eval('glob.numpad._test_mash_events') == "[('y', 123)]"
++        assert sim_eval('glob.numpad._mash_press_timestamp') == 'None'
++
++        # Three all-up samples emit the release and re-arm raw-edge capture.
++        assert sim_exec('''\
++import uasyncio
++from glob import numpad
++for c in numpad.cols:
++    c.value(1)
++for i in range(3):
++    numpad._measure_irq(numpad.timer)
++uasyncio.create_task(numpad._finish_scan())
++''') == ''
++        time.sleep(0.05)
++        events = "[('y', 123), ('', None)]"
++        assert sim_eval('glob.numpad._test_mash_events') == events
++        state = '(glob.numpad.waiting_for_any, glob.numpad._mash_press_timestamp, '
++        state += 'glob.numpad._scan_count, sum(glob.numpad._history))'
++        assert sim_eval(state) == '(True, None, 0, 0)'
++
++        # A falling-edge glitch that never debounces must eventually re-arm.
++        assert sim_exec('''\
++import uasyncio, utime
++from glob import numpad
++numpad.waiting_for_any = False
++numpad._mash_press_timestamp = 456
++numpad._scan_count = 1
++numpad._history[0] = 1
++numpad.lp_time = utime.ticks_add(utime.ticks_ms(), -251)
++uasyncio.create_task(numpad._finish_scan())
++''') == ''
++        time.sleep(0.05)
++        assert sim_eval(state) == '(True, None, 0, 0)'
++    finally:
++        sim_exec('''\
++import mempad
++from glob import numpad
++mempad.call_later_ms = mempad._saved_call_later_ms
++del mempad._saved_call_later_ms
++del numpad._key_event
++del numpad._test_mash_events
++numpad._mash_mode = False
++numpad._mash_press_timestamp = None
++numpad._finish_scan_active = False
++numpad._wait_any()
++''')
++
++
++def test_mash_entropy_includes_timing(goto_home, pick_menu_item, cap_story,
++                                      need_keypress, press_select, sim_exec,
++                                      unit_test, expect_ftux):
++    # Identical base seed and identical key sequence, twice. Only press
++    # timing may differ, so the resulting words must differ: proves that
++    # timing reaches the hash and keys alone cannot regenerate the seed.
++    unit_test('devtest/clear_seed.py')
++    sim_exec("import seed; seed._orig_gs = seed.generate_seed;"
++             " seed.generate_seed = lambda: bytes(32)")
++    try:
++        stories = []
++        for _ in range(2):
++            goto_home()
++            pick_menu_item('New Seed Words')
++            pick_menu_item('12 Words')
++            pick_menu_item('Mash Keys')
++            press_select()
++            for i in range(128):
++                need_keypress(str(i % 10))
++            press_select()
++            time.sleep(0.1)
++
++            _, body = cap_story()
++            stories.append(body)
++
++            # throw the words away, do not commit them
++            need_keypress('x')
++            press_select()
++            time.sleep(0.1)
++
++        assert stories[0] != stories[1]
++    finally:
++        sim_exec("import seed; seed.generate_seed = seed._orig_gs")
++
++
+ @pytest.mark.parametrize('way', ["sd", "vdisk", "nfc", "qr"])
+ @pytest.mark.parametrize('testnet', [True, False])
+ def test_import_prv(way, testnet, pick_menu_item, cap_story, need_keypress, unit_test, cap_menu,
+diff --git a/unix/variant/touch.py b/unix/variant/touch.py
+index d1c3859c..18c8a90d 100644
+--- a/unix/variant/touch.py
++++ b/unix/variant/touch.py
+@@ -52,6 +52,12 @@ async def worker(self):
+                 for kn in range(NUM_ROWS * NUM_COLS):
+                     numpad.is_pressed[kn] = (0 if kn not in pressed else 1)
+ 
++                if new_presses and numpad._mash_mode and numpad.waiting_for_any:
++                    # Emulate the raw column edge that real Q hardware captures
++                    # before process_chg_state receives its debounced state.
++                    numpad._mash_press_irq(None)
++                    numpad.waiting_for_any = False
++
+                 # Q1 simulator sends keynumbers, from shared/charcodes.py
+                 numpad.process_chg_state(new_presses)
+             else:
+
+From d8f73c10ad928230541a6a7642fb1ca1e623824e Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Wed, 5 Aug 2026 11:43:52 +0200
+Subject: [PATCH 4/8] Warn before dice-only seed generation
+
+---
+ releases/Next-ChangeLog.md |  2 ++
+ shared/seed.py             | 11 +++++++++++
+ testing/test_ux.py         |  6 ++++++
+ 3 files changed, 19 insertions(+)
+
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index 0abe1d4c..4ec72611 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -18,6 +18,8 @@ This lists the new changes that have not yet been published in a normal release.
+       key is valid, and at least 128 presses are required. The full timing delta
+       and key identity are mixed in, with a conservative one bit of entropy
+       credited per accepted press.
++- Enhancement: Dice-only seed generation now warns that no hardware randomness is
++  included and the final hash shown on-screen must be kept secret.
+ - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ 
+ # Mk Specific Changes
+diff --git a/shared/seed.py b/shared/seed.py
+index 3169004f..24b897c0 100644
+--- a/shared/seed.py
++++ b/shared/seed.py
+@@ -75,6 +75,13 @@
+ 
+ You must enter at least 128 coin flips.'''
+ 
++DICE_ONLY_WARNING = '''\
++These dice rolls will be the only source of randomness for your seed. No hardware-generated randomness is mixed in.
++
++The hash shown while rolling is SECRET. Anyone who sees or photographs the final hash can recreate your wallet and steal the funds.
++
++Keep the screen hidden from people and cameras. If you verify the hash elsewhere, use only a trusted offline device and erase all traces afterward.'''
++
+ # maximum length for BIP-39 passphrase
+ MAX_PASS_LEN = 100
+ 
+@@ -511,6 +518,10 @@ async def new_from_dice(nwords):
+     # Note: only 2.585 bits of entropy per roll, so need lots!
+     # 50 => 128bits, 99 => 256bits
+ 
++    prompt = '\n\nPress %s to continue, %s to exit.' % (OK, X)
++    if await ux_show_story(DICE_ONLY_WARNING + prompt, title='WARNING') == 'x':
++        return
++
+     seed = b''
+     count = 0
+ 
+diff --git a/testing/test_ux.py b/testing/test_ux.py
+index d122302e..f346b167 100644
+--- a/testing/test_ux.py
++++ b/testing/test_ux.py
+@@ -229,6 +229,12 @@ def test_import_from_dice(count, nwords, goto_home, pick_menu_item, cap_story, n
+     pick_menu_item('Advanced')
+ 
+     pick_menu_item(f'{nwords} Word Dice Roll')
++    title, warning = cap_story()
++    assert title == 'WARNING'
++    assert 'only source of randomness' in warning
++    assert 'final hash can recreate your wallet' in warning
++    press_select()
++    time.sleep(0.1)
+ 
+     gave = ''
+     for i in range(count):
+
+From 62a502879c484e2d9d5b7ff7ed2ae1bbea30c464 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Wed, 5 Aug 2026 12:20:43 +0200
+Subject: [PATCH 5/8] external entropy required for CCC key and temporary seeds
+
+---
+ releases/Next-ChangeLog.md |  2 ++
+ shared/ccc.py              | 11 +++++++----
+ shared/seed.py             | 27 +++++++++++++++++++--------
+ testing/test_ccc.py        |  3 ++-
+ testing/test_ephemeral.py  | 11 ++++++++---
+ 5 files changed, 38 insertions(+), 16 deletions(-)
+
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index 4ec72611..0fcb6b62 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -20,6 +20,8 @@ This lists the new changes that have not yet been published in a normal release.
+       credited per accepted press.
+ - Enhancement: Dice-only seed generation now warns that no hardware randomness is
+   included and the final hash shown on-screen must be kept secret.
++- Change: Generated Temporary Seeds and generated CCC key C now require extra
++  user supplied entropy.
+ - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+ 
+ # Mk Specific Changes
+diff --git a/shared/ccc.py b/shared/ccc.py
+index c536944b..3c154380 100644
+--- a/shared/ccc.py
++++ b/shared/ccc.py
+@@ -14,7 +14,7 @@
+ from chains import NLOCK_IS_TIME
+ from utils import swab32, xfp2str, truncate_address, deserialize_secret, show_single_address
+ from glob import settings, dis
+-from ux import ux_confirm, ux_show_story, the_ux, OK, ux_dramatic_pause, ux_enter_number, ux_aborted
++from ux import ux_confirm, ux_show_story, the_ux, OK, ux_enter_number, ux_aborted
+ from menu import MenuSystem, MenuItem, start_chooser
+ from seed import seed_words_to_encoded_secret
+ from stash import SecretStash
+@@ -856,7 +856,8 @@ async def toggle_2fa(self, *a):
+ 
+ async def gen_or_import():
+     # returns 12 words, or None to abort
+-    from seed import WordNestMenu, generate_seed, approve_word_list, SeedVaultChooserMenu
++    from seed import WordNestMenu, generate_seed_with_user_entropy, approve_word_list
++    from seed import SeedVaultChooserMenu, PURPOSE_CCC
+ 
+     msg = "Press %s to generate a new 12-word seed phrase to be used "\
+           "as the Coldcard Co-Signing Secret (key C).\n\nOr press (1) to import existing "\
+@@ -895,8 +896,10 @@ async def done_key_C_import(words):
+ 
+     elif ch == 'y':
+         # normal path: pick 12 words, quiz them
+-        await ux_dramatic_pause('Generating...', 3)
+-        seed = generate_seed()
++        seed = await generate_seed_with_user_entropy(PURPOSE_CCC)
++        if seed is None:
++            return None
++
+         words = await approve_word_list(seed, 12)
+     else:
+         return None
+diff --git a/shared/seed.py b/shared/seed.py
+index 24b897c0..c53f1c36 100644
+--- a/shared/seed.py
++++ b/shared/seed.py
+@@ -50,6 +50,9 @@
+ METHOD_MASH = b'M'
+ METHOD_DICE = b'D'
+ METHOD_COIN = b'C'
++PURPOSE_MASTER = b'M'
++PURPOSE_EPHEMERAL = b'T'
++PURPOSE_CCC = b'C'
+ 
+ BAD_DICE_MSG = ('Distribution of dice rolls is not random. '
+                 'Some numbers occurred more than 30% of the time.')
+@@ -812,9 +815,8 @@ async def collect_coin_entropy():
+ 
+     return md.digest()
+ 
+-async def make_new_wallet(nwords):
+-    # Generate the primary seed first, then require one human entropy source.
+-    await ux_dramatic_pause('Generating...', 3)
++async def generate_seed_with_user_entropy(purpose):
++    # Require one human entropy source and mix it with device-generated entropy.
+     base_seed = None
+     extra_entropy = None
+     mix = None
+@@ -829,6 +831,7 @@ async def make_new_wallet(nwords):
+     ])
+     try:
+         base_seed = generate_seed()
++        await ux_dramatic_pause('Generating...', 3)
+ 
+         while extra_entropy is None:
+             the_ux.push(choices)
+@@ -848,14 +851,20 @@ async def make_new_wallet(nwords):
+ 
+             extra_entropy = await collector()
+ 
+-        mix = DOMAIN_SEED + method + base_seed + extra_entropy
+-        seed = ngu.hash.sha256d(mix)
++        mix = DOMAIN_SEED + purpose + method + base_seed + extra_entropy
++        return ngu.hash.sha256d(mix)
+ 
+     finally:
+         blank_object(base_seed)
+         blank_object(extra_entropy)
+         blank_object(mix)
+ 
++
++async def make_new_wallet(nwords):
++    seed = await generate_seed_with_user_entropy(PURPOSE_MASTER)
++    if seed is None:
++        return
++
+     words = await approve_word_list(seed, nwords)
+     if words:
+         await commit_new_words(words)
+@@ -873,12 +882,14 @@ async def import_done_cb(words):
+         return WordNestMenu(nwords, done_cb=import_done_cb)
+ 
+ async def ephemeral_seed_generate(nwords):
+-    await ux_dramatic_pause('Generating...', 3)
+-    seed = generate_seed()
++    seed = await generate_seed_with_user_entropy(PURPOSE_EPHEMERAL)
++    if seed is None:
++        return
++
+     words = await approve_word_list(seed, nwords, ephemeral=True)
+     if words:
+         dis.fullscreen("Applying...")
+-        await set_ephemeral_seed_words(words, origin="TRNG Words")
++        await set_ephemeral_seed_words(words, origin="Generated Words")
+ 
+ async def set_seed_extended_key(extended_key):
+     encoded, chain = xprv_to_encoded_secret(extended_key)
+diff --git a/testing/test_ccc.py b/testing/test_ccc.py
+index e3a88b74..623f5f12 100644
+--- a/testing/test_ccc.py
++++ b/testing/test_ccc.py
+@@ -189,7 +189,7 @@ def doit():
+ def setup_ccc(goto_ccc_menu, pick_menu_item, cap_story, press_select, pass_word_quiz, is_q1,
+               seed_story_to_words, cap_menu, OK, word_menu_entry, press_cancel, press_delete,
+               enter_number, scan_a_qr, cap_screen, settings_get, need_keypress, microsd_path,
+-              master_settings_get):
++              master_settings_get, enter_mash_entropy):
+ 
+     def doit(c_words=None, mag=None, vel=None, whitelist=None, w2fa=None, first_time=True):
+         if first_time:
+@@ -211,6 +211,7 @@ def doit(c_words=None, mag=None, vel=None, whitelist=None, w2fa=None, first_time
+             if c_words is None:
+                 nwords = 12  # always 12 words if generated by us
+                 press_select()
++                enter_mash_entropy()
+                 time.sleep(.1)
+                 title, story = cap_story()
+                 assert f'Record these {nwords} secret words!' in (title if is_q1 else story)
+diff --git a/testing/test_ephemeral.py b/testing/test_ephemeral.py
+index 3e1f1730..2377786b 100644
+--- a/testing/test_ephemeral.py
++++ b/testing/test_ephemeral.py
+@@ -367,7 +367,8 @@ def doit(mnemonic=None, xpub=None, expected_xfp=None, seed_vault=False,
+ @pytest.fixture
+ def generate_ephemeral_words(goto_eph_seed_menu, pick_menu_item, press_select,
+                              need_keypress, cap_story, settings_set, seed_story_to_words,
+-                             ephemeral_seed_disabled_ui, confirm_tmp_seed, is_q1):
++                             ephemeral_seed_disabled_ui, confirm_tmp_seed, is_q1,
++                             enter_mash_entropy):
+     def doit(num_words, dice=False, from_main=False, seed_vault=None, testnet=True):
+         if testnet:
+             netcode = "XTN"
+@@ -383,6 +384,7 @@ def doit(num_words, dice=False, from_main=False, seed_vault=None, testnet=True):
+         pick_menu_item("Generate Words")
+         if not dice:
+             pick_menu_item(f"{num_words} Words")
++            enter_mash_entropy()
+             time.sleep(0.1)
+         else:
+             pick_menu_item(f"{num_words} Word Dice Roll")
+@@ -1575,7 +1577,7 @@ def test_import_master_as_tmp(reset_seed_words, goto_eph_seed_menu, cap_story,
+                               need_keypress, word_menu_entry, settings_set,
+                               confirm_tmp_seed, cap_menu, microsd_path,
+                               restore_main_seed, get_identity_story, press_select,
+-                              press_cancel, settings_remove):
++                              press_cancel, settings_remove, enter_mash_entropy):
+     
+     
+     reset_seed_words()
+@@ -1608,6 +1610,7 @@ def test_import_master_as_tmp(reset_seed_words, goto_eph_seed_menu, cap_story,
+     # random temporary seed
+     pick_menu_item("Generate Words")
+     pick_menu_item(f"12 Words")
++    enter_mash_entropy()
+     need_keypress("6")  # skip quiz
+     press_select()  # yes - I'm sure
+     confirm_tmp_seed(seedvault=False)
+@@ -1658,7 +1661,8 @@ def test_import_master_as_tmp(reset_seed_words, goto_eph_seed_menu, cap_story,
+     assert xfp_str == parsed_ident["xfp"]
+ 
+ def test_home_menu_xfp(goto_home, pick_menu_item, press_select, cap_story, cap_menu,
+-                       settings_get, goto_eph_seed_menu, need_keypress):
++                       settings_get, goto_eph_seed_menu, need_keypress,
++                       enter_mash_entropy):
+     goto_home()
+     pick_menu_item("Settings")
+     pick_menu_item("Buried Settings")
+@@ -1676,6 +1680,7 @@ def test_home_menu_xfp(goto_home, pick_menu_item, press_select, cap_story, cap_m
+     goto_eph_seed_menu()
+     pick_menu_item("Generate Words")
+     pick_menu_item(f"12 Words")
++    enter_mash_entropy()
+     time.sleep(0.1)
+     need_keypress("6")  # skip quiz
+     press_select()
+
+From 6a55baf02ead10b2c26ec7a4f399e25b8e701fdc Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Wed, 5 Aug 2026 14:48:30 +0200
+Subject: [PATCH 6/8] Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+
+---
+ external/libngu            | 2 +-
+ releases/Next-ChangeLog.md | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/external/libngu b/external/libngu
+index 537519a8..5d04106a 160000
+--- a/external/libngu
++++ b/external/libngu
+@@ -1 +1 @@
+-Subproject commit 537519a829259622ea6b0334fbafd6cae852852f
++Subproject commit 5d04106a16afea6c3aa7802366e1687e55331cf8
+diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+index 0fcb6b62..28d48077 100644
+--- a/releases/Next-ChangeLog.md
++++ b/releases/Next-ChangeLog.md
+@@ -8,6 +8,8 @@ This lists the new changes that have not yet been published in a normal release.
+   Elements with the STM32 TRNG (previously TRNG only).
+ - Security Improvement: RNG is seeded with the full 256-bit digest of entropy
+   from both Secure Elements (previously truncated to 32 bits).
++- Security Improvement: libngu now uses a SHA-256 Hash_DRBG (NIST SP 800-90A)
++  instead of the Yasmarang PRNG.
+ - Change: New master seeds now require extra user supplied entropy.
+     - Choose key mashing (based on [Peter Todd's Push-Button RNG](https://petertodd.org/2014/push-button-rng)),
+       physical dice rolls or physical coin flips.
+
+From 11d813022ee482d1debcd64c0e8d96ada18cca9d Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Fri, 7 Aug 2026 09:57:58 +0200
+Subject: [PATCH 7/8] exclude schnorr/musig from libngu to save flash space;
+ add adition macro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
+
+---
+ stm32/COLDCARD_MK4/mpconfigboard.h  | 4 +++-
+ stm32/COLDCARD_MK4/mpconfigboard.mk | 5 ++++-
+ stm32/COLDCARD_Q1/mpconfigboard.h   | 5 ++++-
+ stm32/COLDCARD_Q1/mpconfigboard.mk  | 5 ++++-
+ unix/variant/mpconfigvariant.mk     | 4 ++--
+ 5 files changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/stm32/COLDCARD_MK4/mpconfigboard.h b/stm32/COLDCARD_MK4/mpconfigboard.h
+index b3ccb7c7..0484ef94 100644
+--- a/stm32/COLDCARD_MK4/mpconfigboard.h
++++ b/stm32/COLDCARD_MK4/mpconfigboard.h
+@@ -76,7 +76,9 @@
+ 
+ // We have our own version of this code.
+ // LATER: when zero, this selected some PRNG code we really didnt want.
+-#define MICROPY_HW_ENABLE_RNG       (0)
++#define MICROPY_HW_ENABLE_RNG            (0)
++// Confirm that the board provides a hardware-backed rng_get().
++#define NGU_STM32_EXTERNAL_RNG_GET       (1)
+ 
+ extern void ckcc_early_init(void);
+ #define MICROPY_BOARD_EARLY_INIT        ckcc_early_init
+diff --git a/stm32/COLDCARD_MK4/mpconfigboard.mk b/stm32/COLDCARD_MK4/mpconfigboard.mk
+index b00447e9..53260503 100644
+--- a/stm32/COLDCARD_MK4/mpconfigboard.mk
++++ b/stm32/COLDCARD_MK4/mpconfigboard.mk
+@@ -19,7 +19,10 @@ CFLAGS_EXTRA += -DCOLDCARD_DEBUG=$(DEBUG_BUILD)
+ #initfs.c: $(GEN_CDCINF_HEADER)
+ 
+ # NgU and uQR libraries
+-NGU_NEEDS_CIFRA = 1
++NGU_NEEDS_CIFRA  = 1
++# Exclude unused optional libngu secp256k1 features to save firmware space
++NGU_INCL_SCHNORR = 0
++NGU_INCL_MUSIG   = 0
+ USER_C_MODULES = boards/$(BOARD)/c-modules
+ 
+ # the bulk of the COLDCARD-specific code
+diff --git a/stm32/COLDCARD_Q1/mpconfigboard.h b/stm32/COLDCARD_Q1/mpconfigboard.h
+index 5a52972b..22a1a624 100644
+--- a/stm32/COLDCARD_Q1/mpconfigboard.h
++++ b/stm32/COLDCARD_Q1/mpconfigboard.h
+@@ -77,7 +77,10 @@
+ 
+ 
+ // We have our own version of this code.
+-#define MICROPY_HW_ENABLE_RNG       (0)
++// LATER: when zero, this selected some PRNG code we really didnt want.
++#define MICROPY_HW_ENABLE_RNG            (0)
++// Confirm that the board provides a hardware-backed rng_get().
++#define NGU_STM32_EXTERNAL_RNG_GET       (1)
+ 
+ extern void ckcc_early_init(void);
+ #define MICROPY_BOARD_EARLY_INIT        ckcc_early_init
+diff --git a/stm32/COLDCARD_Q1/mpconfigboard.mk b/stm32/COLDCARD_Q1/mpconfigboard.mk
+index 54c26cec..e4684c57 100644
+--- a/stm32/COLDCARD_Q1/mpconfigboard.mk
++++ b/stm32/COLDCARD_Q1/mpconfigboard.mk
+@@ -15,7 +15,10 @@ CFLAGS_EXTRA += -DMP_CONFIGFILE=\"boards/$(BOARD)/ckcc-port.h\"
+ CFLAGS_EXTRA += -DCOLDCARD_DEBUG=$(DEBUG_BUILD)
+ 
+ # NgU and uQR libraries
+-NGU_NEEDS_CIFRA = 1
++NGU_NEEDS_CIFRA  = 1
++# Exclude unused optional libngu secp256k1 features to save firmware space
++NGU_INCL_SCHNORR = 0
++NGU_INCL_MUSIG   = 0
+ USER_C_MODULES = boards/$(BOARD)/c-modules
+ 
+ # the bulk of the COLDCARD-specific code
+diff --git a/unix/variant/mpconfigvariant.mk b/unix/variant/mpconfigvariant.mk
+index 615858a4..19e547ff 100644
+--- a/unix/variant/mpconfigvariant.mk
++++ b/unix/variant/mpconfigvariant.mk
+@@ -17,8 +17,8 @@ MICROPY_USE_READLINE = 1
+ # btree module using Berkeley DB 1.xx
+ MICROPY_PY_BTREE = 1
+ 
+-# _thread module using pthreads
+-MICROPY_PY_THREAD = 1
++# ngu.random holds mutable DRBG and source-check state.
++MICROPY_PY_THREAD = 0
+ 
+ # Subset of CPython termios module
+ MICROPY_PY_TERMIOS = 1
+
+From c81f966aa61df985071933b5267803c2d49fa1e2 Mon Sep 17 00:00:00 2001
+From: scgbckbone <scgbckbone@proton.me>
+Date: Thu, 13 Aug 2026 11:45:48 +0200
+Subject: [PATCH 8/8] review: code dedup - save flash space
+
+---
+ shared/seed.py | 196 +++++++++++++++++++++++--------------------------
+ 1 file changed, 92 insertions(+), 104 deletions(-)
+
+diff --git a/shared/seed.py b/shared/seed.py
+index c53f1c36..43795a1f 100644
+--- a/shared/seed.py
++++ b/shared/seed.py
+@@ -43,9 +43,7 @@
+ MIN_COIN_FLIPS = const(128)
+ 
+ # Versioned domain separators and entropy-method identifiers.
+-DOMAIN_MASH = b'CC\x01M'
+-DOMAIN_DICE = b'CC\x01D'
+-DOMAIN_COIN = b'CC\x01C'
++# - per-method domain separator is derived: b'CC\x01' + method
+ DOMAIN_SEED = b'CC\x01S'
+ METHOD_MASH = b'M'
+ METHOD_DICE = b'D'
+@@ -57,6 +55,9 @@
+ BAD_DICE_MSG = ('Distribution of dice rolls is not random. '
+                 'Some numbers occurred more than 30% of the time.')
+ 
++BAD_COIN_MSG = ('Distribution of coin flips is not random. '
++                'Heads or tails occurred more than 65% of the time.')
++
+ MASH_ENTROPY_STORY = '''\
+ Your key choices and timing will be mixed into the seed.
+ 
+@@ -667,6 +668,7 @@ def generate_seed():
+     return ngu.hash.sha256d(seed + a + b)
+ 
+ def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=None):
++    # progress display while collecting user entropy
+     if version.has_qwerty:
+         line2 = '%d / %d %s' % (count, target, unit)
+         line3 = ('Keep %s or ENTER when done' % action) if count >= target else prompt
+@@ -676,6 +678,64 @@ def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=N
+     line2 = ('%d  OK=Done' % count) if count >= target else ('%d / %d' % (count, target))
+     dis.fullscreen(mk_title or title, percent=count / target, line2=line2)
+ 
++# Specs for user-supplied entropy from dice rolls and coin flips; they share
++# collect_symbol_entropy() since their differences are pure data (menu label
++# is the title). Key mashing is not covered here: it has its own collector,
++# since its entropy comes from raw key timing, not symbols.
++SymbolEntropy = namedtuple('SymbolEntropy',
++    ('title', 'story', 'alphabet', 'min_events', 'method',
++     'max_freq', 'bad_msg', 'unit', 'action', 'prompt', 'mk_title'))
++
++DICE_ENTROPY = SymbolEntropy(
++    'Dice Rolls', DICE_ENTROPY_STORY, '123456', MIN_DICE_ROLLS, METHOD_DICE,
++    0.30, BAD_DICE_MSG, 'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
++
++COIN_ENTROPY = SymbolEntropy(
++    'Coin Flips', COIN_ENTROPY_STORY, '10', MIN_COIN_FLIPS, METHOD_COIN,
++    0.65, BAD_COIN_MSG, 'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
++
++async def collect_symbol_entropy(spec):
++    # Collect supplemental user entropy from physical dice rolls or coin
++    # flips (spec: DICE_ENTROPY or COIN_ENTROPY). Supplemental only: the
++    # primary seed (TRNG + both SEs) is independent, so even zero bits here
++    # is safe.
++    md = sha256(b'CC\x01' + spec.method)
++    count = 0
++    counter = {}
++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
++    press = PressRelease(spec.alphabet + done_keys)
++
++    update_entropy_screen(spec.title, 0, spec.min_events,
++                          spec.unit, spec.action, spec.prompt, spec.mk_title)
++    ux_clear_keys()
++
++    while True:
++        ch = await press.wait()
++        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
++
++        if count >= spec.min_events and ch == (KEY_ENTER if version.has_qwerty else "y"):
++            break
++
++        if ch not in spec.alphabet: continue
++
++        counter[ch] = counter.get(ch, 0) + 1
++        md.update(ch.encode())
++        count += 1
++
++        update_entropy_screen(spec.title, count, spec.min_events,
++                              spec.unit, spec.action, spec.prompt, spec.mk_title)
++
++    if (max(counter.values()) / count) > spec.max_freq:
++        # Catch obviously invented or badly-biased sequences. This does not
++        # prove randomness; the independently-generated seed remains primary.
++        await ux_show_story(spec.bad_msg)
++        return None
++
++    await ux_dramatic_pause('Wait...', 1)
++    ux_clear_keys()
++
++    return md.digest()
++
+ async def collect_mash_entropy():
+     # Peter Todd's push-button RNG: hash each raw press time delta.
+     # <https://petertodd.org/2014/push-button-rng>
+@@ -685,11 +745,13 @@ async def collect_mash_entropy():
+     # one bit per press and do not credit human key-choice distribution.
+     from glob import numpad
+ 
+-    md = sha256(DOMAIN_MASH)
++    md = sha256(b'CC\x01' + METHOD_MASH)
+     count = 0
+-    displayed_count = 0
+ 
+-    update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
++    cancel_key = KEY_CANCEL if version.has_qwerty else "x"
++    done_key = KEY_ENTER if version.has_qwerty else "y"
++
++    update_entropy_screen('Mash Keys', 0, MIN_MASH_PRESSES,
+                           'mashes', 'mashing', 'Press random keys')
+     ux_clear_keys()
+     last = ticks_us()
+@@ -701,33 +763,30 @@ async def collect_mash_entropy():
+                 await sleep_ms(2)
+             ch, now = await numpad.get_with_timestamp()
+             if ch == numpad.ABORT_KEY: raise AbortInteraction()
+-            if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
++            if ch == cancel_key: return
+ 
+-            if count >= MIN_MASH_PRESSES and ch == (KEY_ENTER if version.has_qwerty else "y"):
++            if count >= MIN_MASH_PRESSES and ch == done_key:
+                 break
+ 
+-            # Todd's construction uses raw edge timing, not the debounced
+-            # release interval. The first delta starts when collection starts.
+             if not ch:
+-                if displayed_count != count and numpad.empty():
++                # release event: refresh progress display when idle
++                if numpad.empty():
+                     update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
+                                           'mashes', 'mashing', 'Press random keys')
+-                    displayed_count = count
+                 continue
+ 
+-            gap = ticks_diff(now, last)
+-            last = now
+-
++            # Todd's construction uses raw edge timing, not the debounced
++            # release interval. First delta starts when collection starts.
+             # Count, interval and one-byte key code make every event framing
+             # explicit. Key identity is mixed in but receives no entropy credit.
++            gap = ticks_diff(now, last)
++            last = now
+             md.update(pack('<IIB', count, gap & 0xffffffff, ord(ch)))
+             count += 1
+ 
+             if numpad.empty():
+                 update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
+                                       'mashes', 'mashing', 'Press random keys')
+-                displayed_count = count
+-
+     finally:
+         numpad.stop_mash()
+ 
+@@ -736,97 +795,15 @@ async def collect_mash_entropy():
+ 
+     return md.digest()
+ 
+-async def collect_dice_entropy():
+-    # Collect 128 bits of supplemental entropy from physical D6 rolls.
+-    md = sha256(DOMAIN_DICE)
+-    count = 0
+-    counter = {}
+-    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
+-    press = PressRelease('123456' + done_keys)
+-
+-    update_entropy_screen('Dice Rolls', count, MIN_DICE_ROLLS,
+-                          'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
+-    ux_clear_keys()
+-
+-    while True:
+-        ch = await press.wait()
+-        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+-
+-        if count >= MIN_DICE_ROLLS and ch == (KEY_ENTER if version.has_qwerty else "y"):
+-            break
+-
+-        if ch not in '123456': continue
+-
+-        counter[ch] = counter.get(ch, 0) + 1
+-        md.update(ch.encode())
+-        count += 1
+-
+-        update_entropy_screen('Dice Rolls', count, MIN_DICE_ROLLS,
+-                              'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
+-
+-    if any((v / count) > 0.30 for v in counter.values()):
+-        await ux_show_story(BAD_DICE_MSG)
+-        return None
+-
+-    await ux_dramatic_pause('Wait...', 1)
+-    ux_clear_keys()
+-
+-    return md.digest()
+-
+-async def collect_coin_entropy():
+-    # A coin contributes ~1 bit per flip.
+-    md = sha256(DOMAIN_COIN)
+-    count = heads = 0
+-    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
+-    press = PressRelease('10' + done_keys)
+-
+-    update_entropy_screen('Coin Flips', count, MIN_COIN_FLIPS,
+-                          'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
+-    ux_clear_keys()
+-
+-    while True:
+-        ch = await press.wait()
+-        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+-
+-        if count >= MIN_COIN_FLIPS and ch == (KEY_ENTER if version.has_qwerty else "y"):
+-            break
+-
+-        if ch not in '10': continue
+-
+-        if ch == '1':
+-            heads += 1
+-            md.update(b'1')
+-        else:
+-            md.update(b'0')
+-
+-        count += 1
+-        update_entropy_screen('Coin Flips', count, MIN_COIN_FLIPS,
+-                              'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
+-
+-    # Catch obviously invented or badly-biased sequences. This does not prove
+-    # that the flips were random; the independently-generated seed remains primary.
+-    if max(heads, count - heads) / count > 0.65:
+-        await ux_show_story('Distribution of coin flips is not random. '
+-                            'Heads or tails occurred more than 65% of the time.')
+-        return None
+-
+-    await ux_dramatic_pause('Wait...', 1)
+-    ux_clear_keys()
+-
+-    return md.digest()
+-
+ async def generate_seed_with_user_entropy(purpose):
+     # Require one human entropy source and mix it with device-generated entropy.
+     base_seed = None
+     extra_entropy = None
+     mix = None
+     choices = MenuSystem([
+-        MenuItem('Mash Keys',
+-                 arg=(METHOD_MASH, collect_mash_entropy, MASH_ENTROPY_STORY)),
+-        MenuItem('Dice Rolls',
+-                 arg=(METHOD_DICE, collect_dice_entropy, DICE_ENTROPY_STORY)),
+-        MenuItem('Coin Flips',
+-                 arg=(METHOD_COIN, collect_coin_entropy, COIN_ENTROPY_STORY)),
++        MenuItem('Mash Keys', arg=METHOD_MASH),
++        MenuItem(DICE_ENTROPY.title, arg=DICE_ENTROPY),
++        MenuItem(COIN_ENTROPY.title, arg=COIN_ENTROPY),
+         MenuItem('CANCEL'),
+     ])
+     try:
+@@ -844,12 +821,23 @@ async def generate_seed_with_user_entropy(purpose):
+             if picked is None or picked.arg is None:
+                 return
+ 
+-            method, collector, story = picked.arg
++            if picked.arg == METHOD_MASH:
++                method = METHOD_MASH
++                spec = None
++                story = MASH_ENTROPY_STORY
++            else:
++                spec = picked.arg
++                method = spec.method
++                story = spec.story
++
+             prompt = '\n\nPress %s to start, %s to exit.' % (OK, X)
+             if await ux_show_story(story + prompt, title=picked.label) == 'x':
+                 continue
+ 
+-            extra_entropy = await collector()
++            if spec is None:
++                extra_entropy = await collect_mash_entropy()
++            else:
++                extra_entropy = await collect_symbol_entropy(spec)
+ 
+         mix = DOMAIN_SEED + purpose + method + base_seed + extra_entropy
+         return ngu.hash.sha256d(mix)

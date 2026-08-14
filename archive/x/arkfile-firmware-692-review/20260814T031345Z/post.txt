@@ -1,0 +1,21 @@
+url:      https://x.com/Arkfile_OSP/status/2084248974861697063
+author:   Arkfile
+handle:   @Arkfile_OSP
+posted:   2026-08-03T12:04:13.000Z (from the page's <time> element)
+captured: 20260814T031345Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Please see this PR from 
+@Silexperience
+: 
+
+
+https://
+github.com/Coldcard/firmw
+are/pull/692
+… 
+
+Summary: the entropy fix is correct -- rng_get() now resolves to the board TRNG accessor instead of MicroPython's software fallback. But rng_get_or_fault() has no recovery path for the STM32 RNG error flags, so a single seed error latches the peripheral into a state the code can never clear. Every subsequent call times out and raises OSError(EFAULT), forever. Because rng_get() is now on the keypad scan path, which runs from an IRQ callback before login, that exception is not survivable by the user.

@@ -1,0 +1,169 @@
+--- afilini-2085269060028170742@20260813T143843Z
++++ afilini-2085269060028170742@20260813T210755Z
+@@ -112,7 +112,7 @@
+ post: 2085530373337804976
+ role: reply
+ author: LucasBean91
+-name: Adiney  BIP-110
++name: AdineyBIP110BLAKE2b
+ created: 2026-08-07T00:56:02Z
+ media: 0
+ body:
+@@ -127,115 +127,61 @@
+ body:
+ Does my tweet sound like I’m defending them?
+ 
+-post: 2087562757079982429
++post: 2087893343590113547
+ role: reply
+-author: n1ckler
+-name: Jonas Nick
+-created: 2026-08-12T15:32:00Z
++author: mikegermano
++name: Mike Germano
++created: 2026-08-13T13:25:38Z
+ media: 1
+ body:
+-LLMs are used very successfully to find vulnerabilities in Bitcoin software.
+-Can they also help prove the security of a modern cryptographic library for Bitcoin?
++Nothing more comical than watching BIP-110 maxis drop thousands on new mining hardware after complaining that an $80 hard drive would centralize Bitcoin
+ 
+-To explore this question, 
+-@remix7531
+- and I are publishing libshrincs.
+-
+-
+-https://
+-delvingbitcoin.org/t/libshrincs-a
+--c-implementation-with-a-machine-checked-security-proof/2795
+-…
+-
+-libshrincs is a handwritten C library implementing WOTS+C, the one-time signature used by SHRINCS.
+-It is a proof of concept and should not be used in production.
+-Its machine-checked proofs connect the C implementation to an unforgeability theorem.
+-
+-The current theorem does not yet give a full post-quantum security bound.
+-The post and review tutorial describe its current limits.
+-
+-Code and proofs:
+-
+-https://
+-github.com/remix7531/libs
+-hrincs
+-…
+-
+-Review tutorial for the security proof (no Rocq or SSProve background required):
+-
+-https://
+-github.com/remix7531/libs
+-hrincs/blob/tutorial/docs/SSPROVE_SECURITY_REVIEW.pdf
+-…
+-
+-
+-@remix7531
+- has written three excellent posts on the library and verification work:
+-
+-Towards libshrincs
+-
+-https://
+-remix7531.com/post/towards-l
+-ibshrincs/
+-…
+-
+-The grind was the only detector
+-
+-https://
+-remix7531.com/post/the_grind
+-_was_the_only_detector/
+-…
+-
+-Choosing a verification toolchain
+-
+-https://
+-remix7531.com/post/choosing_
+-a_verification_toolchain/
+-…
+-
+-post: 2087780972427395527
++post: 2087931686600454337
+ role: reply
+-author: lukechilds
+-name: Luke Childs
+-created: 2026-08-13T05:59:07Z
+-media: 0
+-body:
+-Bitkey got so much unfair hate from people who had a very poor understanding of it's tradeoffs.
+-
+-They broke every self custody rule:
+-- seedless
+-- cloud backups
+-- fingerprint unlock
+-- no screen (for rev 1)
+-
+-In isolation many of those decisions seem bad. When you step back and reason about the properties of the system as a whole, it achieves a level of UX not seen before, while still retaining very strong security properties.
+-
+-You often have to break the rules to innovate and come up with something better. These absolute chads willed an entirely new category of self custody solutions into existence.
+-
+-It does have tradeoffs, and it's maybe not the perfect solution for everyone. But it's damn fine engineering. Like 50% of the tricks in Anzen's design are yanked straight from Bitkey.
+-
+-(v glad rev 2 got the screen though!)
+-
+-post: 2087854283546894477
+-role: reply
+-author: btcqna
+-name: QnA
+-created: 2026-08-13T10:50:26Z
++author: arkade_os
++name: Arkade
++created: 2026-08-13T15:58:00Z
+ media: 1
+ body:
+-Fucked around.
++Lightning is back. 
+ 
+-Found out.
++A recent outage exposed the risk of having so much depend on a single provider.
+ 
+-post: 2087874463320666275
++We felt it, you too. We’re working to ensure this never happens again.
++
++Today we are launching Intents, a shared market interface for payments & exchange, built on Bitcoin.
++
++post: 2087941044608331901
+ role: reply
+ author: callebtc
+ name: calle
+-created: 2026-08-13T12:10:37Z
++created: 2026-08-13T16:35:11Z
+ media: 0
+ body:
+-why humans should not code in c: we're finding memory-safety vulnerabilities in c projects that are prevented by default in many other languages.
++we're all bitcoin red team 
+ 
+-in the past, finding a simple buffer overflow wasn't enough. you'd need a highly skilled hacker to turn the vulnerability into a working end-to-end exploit.
++post: 2087959120515101035
++role: reply
++author: BtcpayServer
++name: BTCPay Server
++created: 2026-08-13T17:47:01Z
++media: 1
++body:
++Today, we are releasing BTCPay Server v2.4.3-rc4, a security update addressing vulnerabilities reported by the Bitcoin Red Team, 
++@ProjectLoupe
++, 
++@MagicGrants
++, 
++@Premai_io
++, and independent researchers.
+ 
+-today, that's a single prompt.
++This release follows several days of nonstop work, review, and testing. It was built from our temporary private security repository, but to make these security fixes available as quickly as possible, we are releasing the Docker image publicly now.
++
++This is a release candidate, so bugs may still be present. NFC is now opt-in, and the Phoenixd plugin is temporarily incompatible with this release. Please report any issues to the team. We will document behavioral changes within the main release.
++
++Despite its RC status, we strongly recommend upgrading now using the standard process:
++
++Server Settings > Maintenance > Update
++or run or run btcpay-update(.)sh from the command line, removing the parentheses
++
++If no significant issues are reported, the release candidate will be tagged as v2.4.3 and fully open-sourced within the next 48 hours.

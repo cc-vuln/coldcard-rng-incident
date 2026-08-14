@@ -29,12 +29,8 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 ## Pending
 
-- 2026-08-09 [@KLoaec repost (text available during approved intake)](https://x.com/Macronaut_/status/2086373232375124039) (X @KLoaec)
 - 2026-07-31 [@LLFOURN repost (text available during approved intake)](https://x.com/utxoclub/status/2083011416303575066) (X @LLFOURN)
-- 2026-08-07 [@PraveenPerera post (text available during approved intake)](https://x.com/PraveenPerera/status/2085800588395081751) (X @PraveenPerera)
 - 2026-08-01 [@PraveenPerera repost (text available during approved intake)](https://x.com/Rob1Ham/status/2083428863887994962) (X @PraveenPerera)
-- 2026-08-09 [@blockunmasked post (text available during approved intake)](https://x.com/BlockUnmasked/status/2086398271774163407) (X @blockunmasked)
-- 2026-08-03 [@zherbert post (text available during approved intake)](https://x.com/zherbert/status/2084271380724355321) (X @zherbert)
 
 ## Assessed
 
@@ -1561,9 +1557,12 @@ verbatim, and a verdict without a UTC stamp never rotates.
 - 2026-08-11 [@BEN0WHERE repost (text available during approved intake)](https://x.com/scottmelker/status/2087180019332178133) (X @BEN0WHERE) -> registered as scottmelker-2087180019332178133 (20260814T052345Z)
 - 2026-08-10 [@BEN0WHERE repost (text available during approved intake)](https://x.com/natbrunell/status/2086789544288915717) (X @BEN0WHERE) -> dismissed: off-topic product promotion for Bitkey, no incident content (20260814T052345Z)
 - 2026-08-09 [@BEN0WHERE repost (text available during approved intake)](https://x.com/Rob1Ham/status/2086464831360549034) (X @BEN0WHERE) -> registered as rob1ham-2086464831360549034 (20260814T052345Z)
-
 - 2026-08-07 [@PraveenPerera post (text available during approved intake)](https://x.com/PraveenPerera/status/2085804512971772412) (X @PraveenPerera) -> dismissed: post not found at read time on two days (deleted or account gone); never captured (20260814T054653Z)
 - 2026-08-07 [@OrangeSurfBTC post (text available during approved intake)](https://x.com/OrangeSurfBTC/status/2085649871143387519) (X @OrangeSurfBTC) -> dismissed: post not found at read time on two days (deleted or account gone); never captured (20260814T054653Z)
+- 2026-08-09 [@KLoaec repost (text available during approved intake)](https://x.com/Macronaut_/status/2086373232375124039) (X @KLoaec) -> registered as kloaec-repost-macronaut-2086373232375124039 (20260814T055441Z)
+- 2026-08-07 [@PraveenPerera post (text available during approved intake)](https://x.com/PraveenPerera/status/2085800588395081751) (X @PraveenPerera) -> registered as praveenperera-2085800588395081751 (20260814T055441Z)
+- 2026-08-09 [@blockunmasked post (text available during approved intake)](https://x.com/BlockUnmasked/status/2086398271774163407) (X @blockunmasked) -> registered as blockunmasked-2086398271774163407 (20260814T055441Z)
+- 2026-08-03 [@zherbert post (text available during approved intake)](https://x.com/zherbert/status/2084271380724355321) (X @zherbert) -> registered as zherbert-2084271380724355321 (20260814T055441Z)
 
 ## Link review, held for a human decision
 

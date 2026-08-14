@@ -1,0 +1,51 @@
+url:      https://x.com/KuptoKosmos/status/2086166930033913909
+author:   Kruptos
+handle:   @KuptoKosmos
+posted:   2026-08-08T19:05:29.000Z (from the page's <time> element)
+captured: 20260814T050030Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    2 attached image(s)
+media-1: https://pbs.twimg.com/media/HPONw-bXYAAU-tp?format=jpg&name=small (679 x 491 pixels)
+media-2: https://pbs.twimg.com/media/HOuOxOQWsAA5uBa?format=jpg&name=small (590 x 680 pixels)
+
+--- post text (verbatim) ---
+
+ COLDCARD UPDATE
+
+ Before 2020
+Peter Gray (future CTO of Coinkite) was already working on USB keyloggers and remote computer control systems
+
+ October 2020
+An anonymous account named "switck" appears on GitHub and creates the libngu library
+
+8 days later, Damien George (creator of MicroPython) improves MicroPython's software random number generator. He seeds it with the chip's unique identifier + the clock (Yasmarang)
+
+ March 2021... The vulnerability is created!
+
+Peter Gray (under his real account DocHex) integrates libngu into the Coldcard firmware
+
+He deliberately disables the hardware generator to use his own code... but due to a very simple programming error, the firmware actually falls back on MicroPython's weak generator (Yasmarang)
+
+From that moment on, all Coldcards that generate a seed (without dice or passphrase) produce keys that are far too predictable
+
+The vulnerability remains invisible for 5 years... No one really notices it, even though the code is public
+
+ In May 2025, a developer (James O’Beirne) finds the issue and reports it to 
+@Coinkite
+... Peter Gray dismisses the alert by essentially saying: "If it were true, we'd already know about it"
+
+ July-August 2026
+Late July 2026, attackers (likely with AI assistance) discover the vulnerability... They reconstruct weak seeds offline and drain thousands of dormant 
+@COLDCARDwallet
+ wallets
+
+Probably over 130 million dollars are stolen in multiple waves
+
+ Early August 2026
+It's discovered through GPG signatures that "switck" and "DocHex" are the same person... Peter Gray!
+
+He wrote the critical library under a false name, talked to himself in technical discussions, and signed the commits with his own key... Coinkite remains silent on this identity 
+
+#COLDCARD

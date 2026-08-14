@@ -1,0 +1,27 @@
+url:      https://x.com/zherbert/status/2087514436210716980
+author:   Zach Herbert
+handle:   @zherbert
+posted:   2026-08-12T12:20:00.000Z (from the page's <time> element)
+captured: 20260814T050938Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    0 attached image(s)
+reply-to: Asanoha | Timechain Art Magazine
+@asanoha_gold
+·
+Aug 12 -- 'Hey \n@FoundationHQ\n \n@zherbert\n \n@OwenKemeys\n do you guys have any plans to re-release the Passport Core? \n\nI know a lot of us want a simple air-gapped hardware wallet. No NFC or Bluetooth or any crap, just good old fashioned SD card and QR codes. \n\nMaybe a revamped version of th'
+
+--- post text (verbatim) ---
+
+We do not. There’s many reasons but the main one is KeyOS. 
+
+KeyOS is a microkernel operating system powering Passport Prime. It took us 3 years to build. The kernel is around 9000 lines of code. It’s a much better security architecture than MicroPython based hardware wallets (or other architectures).
+
+Once we release the app store in the coming weeks, youll be able to decide exactly what runs on your device (and what doesnt) 
+
+You can already update the firmware without using Envoy app, the only thing you technically need it for right now is initial setup. At some point we will offer a setup option without Envoy as well. 
+
+NFC is a core part of the backup options. Bluetooth isn’t just normal bluetooth; we put a separate chip on the board and create an encrypted tunnel through it (QuantumLink). KeyOS fully controls the bluetooth chip. It even controls the firmware running on it. If you turn off Bluetooth then it’s off.  
+
+What attack model are you protecting yourself from? If it’s a malicious vendor then you should throw the device in the garbage or use it only in a Multisig. KeyOS is FOSS and builds are reproducible. You now have the power to verify exactly how it works for yourself.

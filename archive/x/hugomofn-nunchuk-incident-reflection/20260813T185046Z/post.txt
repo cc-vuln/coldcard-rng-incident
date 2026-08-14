@@ -1,0 +1,25 @@
+url:      https://x.com/hugomofn/status/2083798055388655967
+author:   Hugo
+handle:   @hugomofn
+posted:   2026-08-02T06:12:26.000Z (from the page's <time> element)
+captured: 20260813T185046Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+expanded: this post was served truncated; its show-more control was
+          expanded before reading, so the text below is the whole post
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+Some quick reflections on the Coldcard incident:
+
+This was a human error issue. It reminds me of incidents like the Sony PlayStation hack (no randomness) or the log4j vulnerability (popular software that countless projects depended on). Software is largely written by people. Security software even more so. And the Bitcoin software industry is young compared to the software industry at large. So major security issues are bound to happen at some point, in the least expected and most unthinkable ways.
+
+One of the first things we did when starting Nunchuk was decide which random number generator to use. Bitcoin Core is by far one of the most reviewed codebases in the world, and probably the most scrutinized in terms of economic impact. So we decided to reuse Core code in Nunchuk, including Core’s RNG.
+
+Ironically, when it came to generating platform keys, we didn’t use our own software (doing so would mean loading Nunchuk onto a general-purpose device) and instead opted for a Bitcoin-only hardware vendor’s RNG. That was a choice we made, and one many Bitcoiners would have made too. The assumption proved wrong. We pivoted quickly: new platform keys are now generated from dice rolls, full 256 bits, independent of any hardware vendor.
+
+One silver lining from this incident is our Key Replacement feature, which automates key rotation in a multisig wallet, including coin control and randomized broadcast during the migration. We shipped it two years ago without anyone asking for it, because we foresaw the need. This weekend, many users rotated keys and migrated to new assisted wallets quickly, without issues. Proud of our team for the round-the-clock support.
+
+I believed in multisig, and multi-vendor multisig, from day one. Many thought I was crazy for believing that multisig should be the norm. But this weekend only strengthened that belief. It’s easy to pile on Coinkite, but anyone who understands how software actually gets built (it’s an art, not a science) should see this as the kind of thing that was going to happen to someone eventually. And you’d be naive to think it can’t happen to another vendor. Security flaws have plagued the software industry for decades and will keep doing so. It doesn’t matter if a project has a big corporation behind it (like Apple) or if it’s open source (openssl, log4j). There will be flaws. AI can help, but it’s not the end-all-be-all. All software, especially security software, still has humans in the loop. And even AI can hallucinate and make mistakes. We could all use a little humility. So the most rational thing to do is hedge your bets and never put your trust in any single vendor. Multi-vendor multisig is the way to go.
+
+This incident may have set back self-custody adoption, which is a shame. We’ll learn and grow from it.

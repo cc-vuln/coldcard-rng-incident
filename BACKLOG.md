@@ -148,21 +148,22 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Rechecked 13 August 2026.
+- **MONITOR: official technical follow-up.** Rechecked 14 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
-  detailed scope; the blog index captured 8 August 2026 lists no postmortem.
-  No captured source announces a post-incident independent audit of the fixed
-  firmware, and NVD/MITRE remained unreachable or inconclusive from this host so
-  the CVE question could not be re-queried directly. The firmware repository did
-  move: PR #707 was closed unmerged and replaced by PR #713, which remains open
-  in the capture held 12 August 2026, 17:26 UTC, and the libngu changes it
-  referenced (#68 and #56) were merged on 7 and 6 August 2026. No new release
-  tag or shipped firmware has appeared. Those developments are registered and
-  requested for capture; they describe a proposal, not a shipped release, audit
-  or postmortem.
+  detailed scope; the blog index captured 8 August 2026 and polled unchanged
+  through 14 August 2026 lists no postmortem. No captured source announces a
+  post-incident independent audit of the fixed firmware, and NVD/MITRE remained
+  unreachable or inconclusive from this host so the CVE question could not be
+  re-queried directly. The firmware repository did move: PR #707 was closed
+  unmerged and replaced by PR #713, which remains open in the newest held
+  capture (13 August 2026, 19:25 UTC), and the libngu changes it referenced
+  (#68 and #56) were merged on 7 and 6 August 2026. No new release tag or
+  shipped firmware has appeared. Those developments are registered and requested
+  for capture; they describe a proposal, not a shipped release, audit or
+  postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.**
-  Rechecked 13 August 2026. No public filing, regulator statement, insurer
+  Rechecked 14 August 2026. No public filing, regulator statement, insurer
   decision or compensation offer has been captured since the 7 August
   customer-data retention post, which remains the only public vendor
   acknowledgement of legal activity. The legal page's absence claim still holds

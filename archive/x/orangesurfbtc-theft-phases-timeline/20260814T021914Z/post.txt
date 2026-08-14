@@ -1,0 +1,96 @@
+url:      https://x.com/OrangeSurfBTC/status/2084404601130786980
+author:   orangesurf
+handle:   @OrangeSurfBTC
+posted:   2026-08-03T22:22:37.000Z (from the page's <time> element)
+captured: 20260814T021914Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    1 attached image(s)
+media-1: https://pbs.twimg.com/media/HOyNwT8WoAA-vQb?format=jpg&name=small (680 x 383 pixels)
+
+--- post text (verbatim) ---
+
+Coldcard Theft Phases & Timeline
+
+We can expect an attacker to start by hunting for the weakest keys first which are the cheapest to find (in terms of the computational cost) and which require the least time to develop the tooling required. 
+
+We can then expect them to move on to the harder to steal coins (more cost, more tooling required) only once they have exhausted their search or detect that they have competition within a search space.
+
+With what we now know I think that we can expect 3 phases of theft
+
+Phase 1 (Fully offline single sig)
+- Attacker can construct and broadcast a complete valid transaction immediately after cracking keys offline
+- Fully automated, high throughput, no external dependencies
+
+Likely theft order
+- 1.1 single sig Mk2/3 no passphrase, no dice throws
+- 1.2 single sig Mk2/3 with weak passphrase or small number of dice rolls
+- 1.3 single sig Mk4 / Mk5 / Q no passphrase,
+- 1.4 single sig Mk4 / Mk5 / Q with weak passphrase or small number of dice rolls
+
+Phase 2 (Multisig via address/key reuse)
+- Attacker scans their local UTXO set for multisigs with address reuse
+- Searches redeem script / witness script for matches against indexed weak public keys
+
+Likely theft order
+- 2.1 multisig with threshold met by compromised Mk2 / Mk3 keys with address reuse
+- 2.2 multisig with threshold met by compromised Mk2 / Mk3 / Mk4 / Mk5 / Q devices with address reuse
+
+Phase 3 (Multisig via live mempool reaction)
+- Attacker monitors the public mempool for spends involving known weak keys.
+- Must react quickly (seconds to minutes) to construct and broadcast their replacment theft transaction.
+
+Likely theft order
+- 3.1 multisig with threshold met by compromised Mk2 / Mk3 / Mk4 / Mk5 / Q devices with public mempool RBF
+
+So far I have only seen Phase 1 thefts.
+
+Phase 1:
+- July 30, ~01:10 UTC: The first wave of thefts from single sig Mk3 no passphrase wallets [1]
+- Aug 1, 2026, ~ 05:44 UTC: A reported theft from a single sig Mk4 no passphrase wallets [2]
+- Aug 2, 2026, ~04:00 UTC A reported theft from of a single sig Mk3 with a weak (2 word) passhrase. [3]
+
+Phase 2:
+- None reported AFAIK
+
+Phase 3:
+- None reported yet, possibly due to mitigation using slipstream [4] but also possible that attackers are focusing on prior phases.
+
+WHAT TO DO NOW
+
+Single Sig 
+If you have a single sig coldcard wallet which you are not absolutely sure used 100 dice rolls or has a very very long passphrase (e.g. 12 words) you need to migrate your funds ASAP. If you used the key teleport feature you need to migrate your funds ASAP. If you used the derive paper wallets feature you need to move those funds ASAP.
+
+Multi Sig 
+If you have a multisig setup in which two devices were coldcards and you have spent from an address which holds funds you need to move them, this is urgent. However, for transactions spending from any addresses which have not been spent from previously you need to ensure your transaction is not broadcast publicly, currently the best way to do this is using mara's slipstream [4] 
+
+[1] 
+https://
+mempool.space/tx/5abde335240
+99c6fb41d6604fa87f761decf8ba57a8177eb162e998ba4c05e0e
+…
+
+[2] 
+https://
+mempool.space/address/bc1qzm
+5pauxyv7t7vqstzpumqcn066wfjsmev34mf3
+… from 
+https://
+x.com/TomerStrolight
+/status/2083525927309320202
+…
+
+[3] 
+https://
+x.com/BTCsessions/st
+atus/2084024733511921691
+…
+
+[4] 
+https://
+x.com/OrangeSurfBTC/
+status/2084196600092483826
+…
+
+[4] 
+https://
+slipstream.mara.com

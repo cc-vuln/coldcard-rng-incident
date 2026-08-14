@@ -2355,3 +2355,78 @@
 ## 20260813T162305Z
 
 - bitkey-relationship-enrollment-report  +1 -0
+
+## 20260813T172348Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260813T182300Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+
+## 20260813T192314Z
+
+- coldcard-hack-tracker  +11 -3
+- coldcard-firmware-pr-713  +13 -13
+- coldcard-firmware-pr-713-patch  +73 -83
+- coldcard-firmware-pr-693  +1 -1
+- reddit-mk3-seed-entropy-worse  +0 -12
+- coindesk-70m-no-device-touch  +30 -30
+- reddit-bitcoin-not-broken-explainer  +0 -12
+- reddit-coldcard-future-design-philosophy  +0 -10
+- reddit-steel-plates-wasted  +48 -4
+- reddit-stolen-funds-recovery-hope  +8 -0
+- reddit-novak-deceptive-marketing  +32 -0
+- reddit-coinkite-silence-unprofessional  +24 -0
+- reddit-case-against-passphrases  +0 -8
+- reddit-coldcard-not-doom-hardware-wallets  +8 -0
+
+## 20260813T202339Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260813T205329Z
+
+- bitcoinmag-fix-and-ai  +21 -15
+- ncfacanada-self-custody-commentary  +17 -17
+- bitcoinmag-self-custody-response  +21 -15
+- newsbitcom-class-action-threat  +23 -23
+- bitcoinmag-closed-source-era  +23 -16
+- reddit-forrest-video-coldcard  +8 -0
+- bitcoindevs-explainer-thread  +20 -0
+- trezor-2084975929948766645  +1 -10
+- afilini-2085269060028170742  +43 -97
+
+## 20260813T212340Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+
+## 20260813T222349Z
+
+- bitkey-relationship-enrollment-report  +0 -1
+
+## 20260814T002349Z
+
+- coldcard-hack-tracker  +4 -0
+
+## 20260814T015339Z
+
+- coindesk-70m-no-device-touch  +24 -24
+- ledger-open-source-security-position  +3 -3
+
+## 20260814T032300Z
+
+- bitcoinmag-fix-and-ai  +5 -11
+- newsbitcom-who-lost-who-at-risk  +6 -0
+- ncfacanada-self-custody-commentary  +21 -21
+- bitcoinmag-self-custody-response  +3 -3
+- newsbitcom-class-action-threat  +22 -22
+- bitcoinmag-closed-source-era  +6 -13
+- reddit-forrest-video-coldcard  +14 -0
+- clay-attribution  +1 -11
+- trezor-2084975929948766645  +1 -1
+- afilini-2085269060028170742  +1 -60
+
+## 20260814T052300Z
+
+- bitkey-relationship-enrollment-report  +1 -0

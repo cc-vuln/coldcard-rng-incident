@@ -1,0 +1,242 @@
+--- coldcard-firmware-pr-713-patch@20260813T125421Z
++++ coldcard-firmware-pr-713-patch@20260813T192551Z
+@@ -1540,18 +1540,28 @@
+ +MICROPY_PY_THREAD = 0
+  # Subset of CPython termios module
+  MICROPY_PY_TERMIOS = 1
+-From 69edb167b9ae8f5c2bdefb033b5e31539015ce70 Mon Sep 17 00:00:00 2001
++From c81f966aa61df985071933b5267803c2d49fa1e2 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Thu, 13 Aug 2026 11:45:48 +0200
+ Subject: [PATCH 8/8] review: code dedup - save flash space
+ ---
+- shared/seed.py | 214 +++++++++++++++++++++++++------------------------
+- 1 file changed, 111 insertions(+), 103 deletions(-)
++ shared/seed.py | 196 +++++++++++++++++++++++--------------------------
++ 1 file changed, 92 insertions(+), 104 deletions(-)
+ diff --git a/shared/seed.py b/shared/seed.py
+-index c53f1c36..99946de3 100644
++index c53f1c36..43795a1f 100644
+ --- a/shared/seed.py
+ +++ b/shared/seed.py
+-@@ -57,6 +57,9 @@
++@@ -43,9 +43,7 @@
++ MIN_COIN_FLIPS = const(128)
++ # Versioned domain separators and entropy-method identifiers.
++-DOMAIN_MASH = b'CC\x01M'
++-DOMAIN_DICE = b'CC\x01D'
++-DOMAIN_COIN = b'CC\x01C'
+++# - per-method domain separator is derived: b'CC\x01' + method
++ DOMAIN_SEED = b'CC\x01S'
++ METHOD_MASH = b'M'
++ METHOD_DICE = b'D'
++@@ -57,6 +55,9 @@
+  BAD_DICE_MSG = ('Distribution of dice rolls is not random. '
+                  'Some numbers occurred more than 30% of the time.')
+ +BAD_COIN_MSG = ('Distribution of coin flips is not random. '
+@@ -1559,86 +1569,67 @@
+ +
+  MASH_ENTROPY_STORY = '''\
+  Your key choices and timing will be mixed into the seed.
+-@@ -667,6 +670,7 @@ def generate_seed():
++@@ -667,6 +668,7 @@ def generate_seed():
+      return ngu.hash.sha256d(seed + a + b)
+  def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=None):
+ +    # progress display while collecting user entropy
+      if version.has_qwerty:
+          line2 = '%d / %d %s' % (count, target, unit)
+          line3 = ('Keep %s or ENTER when done' % action) if count >= target else prompt
+-@@ -676,6 +680,83 @@ def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=N
++@@ -676,6 +678,64 @@ def update_entropy_screen(title, count, target, unit, action, prompt, mk_title=N
+      line2 = ('%d  OK=Done' % count) if count >= target else ('%d / %d' % (count, target))
+      dis.fullscreen(mk_title or title, percent=count / target, line2=line2)
+-+# Per-method specs for user-supplied entropy from dice rolls and coin flips;
+-+# they share collect_symbol_entropy() since their differences are pure data.
+-+# Key mashing is not covered here: it has its own collector, since its
+-+# entropy comes from raw key timing, not symbols.
+-+SYMBOL_ENTROPY_METHODS = (
+-+    {'method': METHOD_DICE, 'title': 'Dice Rolls',
+-+     'story': DICE_ENTROPY_STORY, 'alphabet': '123456',
+-+     'min_events': MIN_DICE_ROLLS, 'domain': DOMAIN_DICE,
+-+     'max_freq': 0.30, 'bad_msg': BAD_DICE_MSG,
+-+     'unit': 'rolls', 'action': 'rolling', 'prompt': 'Enter each roll: 1-6',
+-+     'mk_title': 'Roll Dice'},
+-+    {'method': METHOD_COIN, 'title': 'Coin Flips',
+-+     'story': COIN_ENTROPY_STORY, 'alphabet': '10',
+-+     'min_events': MIN_COIN_FLIPS, 'domain': DOMAIN_COIN,
+-+     'max_freq': 0.65, 'bad_msg': BAD_COIN_MSG,
+-+     'unit': 'flips', 'action': 'flipping', 'prompt': '1 = Heads, 0 = Tails',
+-+     'mk_title': 'Coin: 1=H 0=T'},
+-+)
+++# Specs for user-supplied entropy from dice rolls and coin flips; they share
+++# collect_symbol_entropy() since their differences are pure data (menu label
+++# is the title). Key mashing is not covered here: it has its own collector,
+++# since its entropy comes from raw key timing, not symbols.
+++SymbolEntropy = namedtuple('SymbolEntropy',
+++    ('title', 'story', 'alphabet', 'min_events', 'method',
+++     'max_freq', 'bad_msg', 'unit', 'action', 'prompt', 'mk_title'))
+++
+++DICE_ENTROPY = SymbolEntropy(
+++    'Dice Rolls', DICE_ENTROPY_STORY, '123456', MIN_DICE_ROLLS, METHOD_DICE,
+++    0.30, BAD_DICE_MSG, 'rolls', 'rolling', 'Enter each roll: 1-6', 'Roll Dice')
+++
+++COIN_ENTROPY = SymbolEntropy(
+++    'Coin Flips', COIN_ENTROPY_STORY, '10', MIN_COIN_FLIPS, METHOD_COIN,
+++    0.65, BAD_COIN_MSG, 'flips', 'flipping', '1 = Heads, 0 = Tails', 'Coin: 1=H 0=T')
+ +
+ +async def collect_symbol_entropy(spec):
+ +    # Collect supplemental user entropy from physical dice rolls or coin
+-+    # flips (see SYMBOL_ENTROPY_METHODS). Supplemental only: the primary seed
+-+    # (TRNG + both SEs) is independent, so even zero bits here is safe.
+-+    from glob import numpad
+-+
+-+    md = sha256(spec['domain'])
+++    # flips (spec: DICE_ENTROPY or COIN_ENTROPY). Supplemental only: the
+++    # primary seed (TRNG + both SEs) is independent, so even zero bits here
+++    # is safe.
+++    md = sha256(b'CC\x01' + spec.method)
+ +    count = 0
+ +    counter = {}
+-+
+-+    cancel_key = KEY_CANCEL if version.has_qwerty else "x"
+-+    done_key = KEY_ENTER if version.has_qwerty else "y"
+-+
+-+    update_entropy_screen(spec['title'], 0, spec['min_events'],
+-+                          spec['unit'], spec['action'], spec['prompt'],
+-+                          spec.get('mk_title'))
+++    done_keys = (KEY_ENTER + KEY_CANCEL) if version.has_qwerty else 'yx'
+++    press = PressRelease(spec.alphabet + done_keys)
+++
+++    update_entropy_screen(spec.title, 0, spec.min_events,
+++                          spec.unit, spec.action, spec.prompt, spec.mk_title)
+ +    ux_clear_keys()
+ +
+ +    while True:
+-+        while numpad.empty():
+-+            await sleep_ms(2)
+-+        ch, _ = await numpad.get_with_timestamp()
+-+        if ch == numpad.ABORT_KEY: raise AbortInteraction()
+-+        if ch == cancel_key: return
+-+
+-+        if count >= spec['min_events'] and ch == done_key:
+++        ch = await press.wait()
+++        if ch == (KEY_CANCEL if version.has_qwerty else "x"): return
+++
+++        if count >= spec.min_events and ch == (KEY_ENTER if version.has_qwerty else "y"):
+ +            break
+ +
+-+        if not ch:
+-+            # release event: refresh progress display when idle
+-+            if numpad.empty():
+-+                update_entropy_screen(spec['title'], count, spec['min_events'],
+-+                                      spec['unit'], spec['action'], spec['prompt'],
+-+                                      spec.get('mk_title'))
+-+            continue
+-+        if ch not in spec['alphabet']:
+-+            continue
+-+
+++        if ch not in spec.alphabet: continue
+++
+++        counter[ch] = counter.get(ch, 0) + 1
+ +        md.update(ch.encode())
+-+        counter[ch] = counter.get(ch, 0) + 1
+ +        count += 1
+ +
+-+        if numpad.empty():
+-+            update_entropy_screen(spec['title'], count, spec['min_events'],
+-+                                  spec['unit'], spec['action'], spec['prompt'],
+-+                                  spec.get('mk_title'))
+-+
+-+    if (max(counter.values()) / count) > spec['max_freq']:
+++        update_entropy_screen(spec.title, count, spec.min_events,
+++                              spec.unit, spec.action, spec.prompt, spec.mk_title)
+++
+++    if (max(counter.values()) / count) > spec.max_freq:
+ +        # Catch obviously invented or badly-biased sequences. This does not
+ +        # prove randomness; the independently-generated seed remains primary.
+-+        await ux_show_story(spec['bad_msg'])
+++        await ux_show_story(spec.bad_msg)
+ +        return None
+ +
+ +    await ux_dramatic_pause('Wait...', 1)
+@@ -1649,8 +1640,11 @@
+  async def collect_mash_entropy():
+      # Peter Todd's push-button RNG: hash each raw press time delta.
+      # <https://petertodd.org/2014/push-button-rng>
+-@@ -687,9 +768,11 @@ async def collect_mash_entropy():
+-     md = sha256(DOMAIN_MASH)
++@@ -685,11 +745,13 @@ async def collect_mash_entropy():
++     # one bit per press and do not credit human key-choice distribution.
++     from glob import numpad
++-    md = sha256(DOMAIN_MASH)
+++    md = sha256(b'CC\x01' + METHOD_MASH)
+      count = 0
+ -    displayed_count = 0
+ -    update_entropy_screen('Mash Keys', count, MIN_MASH_PRESSES,
+@@ -1661,7 +1655,7 @@
+                            'mashes', 'mashing', 'Press random keys')
+      ux_clear_keys()
+      last = ticks_us()
+-@@ -701,33 +784,30 @@ async def collect_mash_entropy():
++@@ -701,33 +763,30 @@ async def collect_mash_entropy():
+                  await sleep_ms(2)
+              ch, now = await numpad.get_with_timestamp()
+              if ch == numpad.ABORT_KEY: raise AbortInteraction()
+@@ -1698,7 +1692,7 @@
+ -
+      finally:
+          numpad.stop_mash()
+-@@ -736,99 +816,16 @@ async def collect_mash_entropy():
++@@ -736,97 +795,15 @@ async def collect_mash_entropy():
+      return md.digest()
+ -async def collect_dice_entropy():
+ -    # Collect 128 bits of supplemental entropy from physical D6 rolls.
+@@ -1784,35 +1778,31 @@
+      base_seed = None
+      extra_entropy = None
+      mix = None
+--    choices = MenuSystem([
++     choices = MenuSystem([
+ -        MenuItem('Mash Keys',
+ -                 arg=(METHOD_MASH, collect_mash_entropy, MASH_ENTROPY_STORY)),
+ -        MenuItem('Dice Rolls',
+ -                 arg=(METHOD_DICE, collect_dice_entropy, DICE_ENTROPY_STORY)),
+ -        MenuItem('Coin Flips',
+ -                 arg=(METHOD_COIN, collect_coin_entropy, COIN_ENTROPY_STORY)),
+--        MenuItem('CANCEL'),
+--    ])
+-+    choices = MenuSystem(
+-+        [MenuItem('Mash Keys', arg=METHOD_MASH)]
+-+        + [MenuItem(spec['title'], arg=spec['method'])
+-+           for spec in SYMBOL_ENTROPY_METHODS]
+-+        + [MenuItem('CANCEL')])
+++        MenuItem('Mash Keys', arg=METHOD_MASH),
+++        MenuItem(DICE_ENTROPY.title, arg=DICE_ENTROPY),
+++        MenuItem(COIN_ENTROPY.title, arg=COIN_ENTROPY),
++         MenuItem('CANCEL'),
++     ])
+      try:
+-         base_seed = generate_seed()
+-         await ux_dramatic_pause('Generating...', 3)
+-@@ -844,12 +841,23 @@ async def generate_seed_with_user_entropy(purpose):
++@@ -844,12 +821,23 @@ async def generate_seed_with_user_entropy(purpose):
+              if picked is None or picked.arg is None:
+                  return
+ -            method, collector, story = picked.arg
+-+            method = picked.arg
+-+            if method == METHOD_MASH:
+++            if picked.arg == METHOD_MASH:
+++                method = METHOD_MASH
+++                spec = None
+ +                story = MASH_ENTROPY_STORY
+-+                spec = None
+ +            else:
+-+                spec = next(s for s in SYMBOL_ENTROPY_METHODS
+-+                            if s['method'] == method)
+-+                story = spec['story']
+++                spec = picked.arg
+++                method = spec.method
+++                story = spec.story
+ +
+              prompt = '\n\nPress %s to start, %s to exit.' % (OK, X)
+              if await ux_show_story(story + prompt, title=picked.label) == 'x':
