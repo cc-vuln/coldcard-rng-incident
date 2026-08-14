@@ -31,6 +31,23 @@ verbatim, and a verdict without a UTC stamp never rotates.
 
 - 2026-07-31 [@LLFOURN repost (text available during approved intake)](https://x.com/utxoclub/status/2083011416303575066) (X @LLFOURN)
 - 2026-08-01 [@PraveenPerera repost (text available during approved intake)](https://x.com/Rob1Ham/status/2083428863887994962) (X @PraveenPerera)
+- 2026-08-14 [Tracing the Attacker’s Steps Through 1,082 BTC Coldcard Drain - Praveen Perera](https://stacker.news/items/1547780) by Scoresby, 5 comments (~bitcoin)
+- 2026-08-13 [Does two words per pill actually give full BIP39 entropy](https://stacker.news/items/1547086) by anon, 6 comments (~bitcoin) [topical]
+- 2026-08-13 [Rolling Dice to Generate Fresh Entropy on Coldcard Devices](https://stacker.news/items/1547505) by Nittany, 4 comments (~bitcoin)
+- 2026-08-13 [Coldcard's Next Exploit](https://www.reddit.com/r/coldcard/comments/1vn79qp/coldcards_next_exploit/) by Ok-Photograph-3585, 10 comments (r/coldcard)
+- 2026-08-14 [We need a Glacier Protocol 2.0 for Bitcoin Self-Custody to be taken seriously](https://www.reddit.com/r/Bitcoin/comments/1vnu1eb/we_need_a_glacier_protocol_20_for_bitcoin/) by monstane, 37 comments (r/Bitcoin) [topical]
+- 2026-08-13 [Trezor's shipping provider, ShipMonk, data breach. Great, just what we need.](https://www.reddit.com/r/Bitcoin/comments/1vna0l9/trezors_shipping_provider_shipmonk_data_breach/) by MPDisorder, 180 comments (r/Bitcoin) [body]
+- 2026-08-13 [trezor breach explained for anyone still in coldcard hack ptsd mode](https://www.reddit.com/r/Bitcoin/comments/1vnkt5d/trezor_breach_explained_for_anyone_still_in/) by chainglance_cm, 38 comments (r/Bitcoin)
+- 2026-08-13 [after DCA'ing, 15k imma get a Trezor](https://www.reddit.com/r/Bitcoin/comments/1vn90og/after_dcaing_15k_imma_get_a_trezor/) by Maximum_Natural_8915, 85 comments (r/Bitcoin) [body]
+- 2026-08-13 [Make a Bitcoin Seed Phrase from Scratch (Using Casino Dice) - a Proper Guide](https://www.reddit.com/r/Bitcoin/comments/1vnobvt/make_a_bitcoin_seed_phrase_from_scratch_using/) by Fiach_Dubh, 5 comments (r/Bitcoin) [topical]
+- 2026-08-14 [12 or 24 word on multi sig?  passphrase or no passphrase](https://www.reddit.com/r/Bitcoin/comments/1vnywmg/12_or_24_word_on_multi_sig_passphrase_or_no/) by Downtown_Long_933, 25 comments (r/Bitcoin) [topical]
+- 2026-08-13 [Ian Coleman](https://www.reddit.com/r/Bitcoin/comments/1vnphgd/ian_coleman/) by Usuario_Desconhecid0, 7 comments (r/Bitcoin) [body]
+- 2026-08-13 [Boltz shut down all Bitcoin swap services on August 3, saying attackers now iterate faster than a small team can patch. It's the clearest AI-vs-defense story I've seen in this space yet.](https://www.reddit.com/r/Bitcoin/comments/1vn5clz/boltz_shut_down_all_bitcoin_swap_services_on/) by Large-Cress900, 9 comments (r/Bitcoin) [body]
+- 2026-08-13 [I classified 551 wallet-recovery questions on Bitcoin Stack Exchange. Only 5 were about losing a seed word.](https://www.reddit.com/r/Bitcoin/comments/1vneshc/i_classified_551_walletrecovery_questions_on/) by 12PALABRAS, 12 comments (r/Bitcoin) [body]
+- 2026-08-13 [Using offline laptop with sparrow as part of multisig quorum](https://www.reddit.com/r/Bitcoin/comments/1vnm4s8/using_offline_laptop_with_sparrow_as_part_of/) by AdmirableDoggo, 7 comments (r/Bitcoin) [body]
+- 2026-08-13 [When setting up Multi Vendor Multi Sig - Can I also use a passphrase on top of each keystore (in Sparrow)?](https://www.reddit.com/r/Bitcoin/comments/1vn3r9z/when_setting_up_multi_vendor_multi_sig_can_i_also/) by DependentFabulous588, 15 comments (r/Bitcoin) [topical]
+- 2026-08-13 [Yall holding on to your trezor’s after the shipmonk breach ?](https://www.reddit.com/r/Bitcoin/comments/1vnahw4/yall_holding_on_to_your_trezors_after_the/) by Decent-Ant-5294, 21 comments (r/Bitcoin) [body]
+- 2026-08-13 [Coldcard's Next Exploit](https://www.reddit.com/r/Bitcoin/comments/1vn78qh/coldcards_next_exploit/) by Ok-Photograph-3585, 37 comments (r/Bitcoin)
 
 ## Assessed
 
@@ -1591,9 +1608,9 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-08-10 [Crypto.com Users Targeted by Phishing Campaign Abusing Company's Email Domain](https://www.reddit.com/r/Bitcoin/comments/1vk8z95/cryptocom_users_targeted_by_phishing_campaign/) by _clickfix_, 1 comments (r/Bitcoin) [topical]
 - 2026-08-11 [MOVED: Bitcoin wallet seed phrase with an optional (extended) passphrase](https://bitcointalk.org/index.php?topic=5590957.0) by UchihaSarada, 0 comments (bct/1) [topical]
 - 2026-08-13 [don't trust: verify](https://www.reddit.com/r/Bitcoin/comments/1vmwim7/dont_trust_verify/) by psientist, 2 comments (r/Bitcoin) [body]
+- 2026-08-09 [Brazil to tighten controls with new 24h wait on transfers to self-custody wallet](https://stacker.news/items/1544203) by 0xbitcoiner, 1 comments (~bitcoin) [topical]
 - 2026-08-10 [humans are not good at making entropy - man vs machine game](https://stacker.news/items/1544564) by Scoresby, 2 comments (~bitcoin) [topical]
 - 2026-08-10 [Why Self Custody Matters](https://stacker.news/items/1544943) by KudzaiK, 2 comments (~bitcoin) [topical]
-- 2026-08-09 [Brazil to tighten controls with new 24h wait on transfers to self-custody wallet](https://stacker.news/items/1544203) by 0xbitcoiner, 1 comments (~bitcoin) [topical]
 - 2026-08-12 [TryHackMe's HackerHotel 2026 Event - Day 04 - Packed Light](https://stacker.news/items/1546636) by nichrome, 0 comments (~security) [topical]
 - 2026-08-11 [TryHackMe HH 2026 Daily CTF Event - Day 03 - Complimentary](https://stacker.news/items/1545730) by nichrome, 0 comments (~security) [topical]
 - 2026-08-09 [TryHackMe HH 2026 Daily CTF Event - Day 02 - Room 404](https://stacker.news/items/1544102) by nichrome, 0 comments (~security) [topical]
@@ -1607,3 +1624,5 @@ Queued, but held back from the agent: the title never names the incident and the
 - 2026-05-18 [Hackers have breached tank readers at US gas stations; suspect Iran](https://stacker.news/items/1492321) by i_am_a_seeker, 2 comments (~security) [topical]
 - 2026-05-12 [Hackers Use Weaponized JPEG File to Deploy Trojanized ScreenConnect Malware](https://stacker.news/items/1488547) by ch0k1, 1 comments (~security) [topical]
 - 2026-05-03 [The agent harness belongs outside the sandbox | Hacker News](https://stacker.news/items/1483613) by beyond_turbulence, 1 comments (~security) [topical]
+- 2026-08-14 [Governmental Oversight](https://www.reddit.com/r/Bitcoin/comments/1vnxr8i/governmental_oversight/) by Big-Cheetah5159, 2 comments (r/Bitcoin) [body]
+- 2026-08-14 [AI Supercharges Hackers: PPQ's $8,000 Lesson [Clip]](https://www.reddit.com/r/Bitcoin/comments/1vo4ejy/ai_supercharges_hackers_ppqs_8000_lesson_clip/) by Cryptoconomy, 0 comments (r/Bitcoin) [topical]
