@@ -1,0 +1,78 @@
+--- reddit-forrest-video-coldcard@20260814T032834Z
++++ reddit-forrest-video-coldcard@20260814T100112Z
+@@ -381,3 +381,75 @@
+ Basically, if you are trusting software to do the right thing, how do you come about trusting that it has done the right thing. 
+ 
+ In your case, the software is some conversion from actualy seed to the BIP-39. 
++
++comment: p3l01fc
++parent: t1_p3j3sim
++author: word-dragon
++created_utc: 1786680718
++edited: false
++body:
++This is a riot!  I’ve written software all my life and always thought in terms of explaining to the computer what process it has to go through to accomplish its task.  Occasionally you have to run through it yourself to verify it’s gonna do what you want.
++
++The software is me.  I don’t plan on using anyone’s computer hardware or someone’s software I’d have to verify.  In the case you are asking:  There are 2048 words often listed as 1 to 2048, but actually representing the bit patterns from 00000000000 to 11111111111 (000 to 7ff, in hex).  So you take your first 11 bits that you generated using your manual process, and write down the corresponding word. Then you take the next eleven bits…and so on.  Since 11 bits times 24 words is 264 bits, you’ll run out of bits in the last word.  The last 8 bits are the first 8 bits of the SHA-256 hash of the key. How you get that manually is left as an exercise for the reader, lol!
++
++comment: p3lea3d
++parent: t1_p378azi
++author: Strong_Judge_3730
++created_utc: 1786686978
++edited: false
++body:
++Trezor allow you to add your own enthropy. A passphrase is doing exactly that. 
++
++Using a cryptographically safe random number generator is safe for most people.
++
++Creating a complicated process to generate a seed using dice is basically security theatre.
++
++comment: p3ll3o5
++parent: t1_p3lea3d
++author: Laukess
++created_utc: 1786690237
++edited: false
++body:
++They also allow you to roll your seed on another device and import it.  
++Or roll the 24 words and just guess the 24th  
++Or doing the above and XOR it with the seed they generate.
++
++They could also just offer the easy tools, but the dont.
++
++A feature that has potentially saved a lot of people a lot of money is not security theatre. 
++
++comment: p3m1ntg
++parent: t1_p3ll3o5
++author: Strong_Judge_3730
++created_utc: 1786698408
++edited: false
++body:
++Cold card focused on security theatre features like being able to roll dice to generate a seed. If they focused on their core product no one would have been hacked.
++
++Maybe people should listen to the hardware wallet manufacturers that did implement their firmware properly 
++
++comment: p3m1rul
++parent: t1_p37tp8h
++author: Strong_Judge_3730
++created_utc: 1786698463
++edited: false
++body:
++Trezor already combines multiple enthropy sources including from your PC.
++
++comment: p3m238k
++parent: t1_p3b9g7g
++author: Strong_Judge_3730
++created_utc: 1786698621
++edited: false
++body:
++They were just incompetent engineers. Ie focus on sales and not engineering. They wanted add all these bells an whistles to their HW to stand out to paranoid and gullible fools.
++
++It clearly worked because many people shilled it as being a more secure product.
++
++comment: p3m3tuh
++parent: t1_p3m1rul
++author: Mooks79
++created_utc: 1786699468
++edited: false
++body:
++I know. As I said below, but given they have a touchscreen why not allow manual entropy *as well* for users who want to use it? It would be relatively simple to do and more entropy options is better as a rule of thumb. 

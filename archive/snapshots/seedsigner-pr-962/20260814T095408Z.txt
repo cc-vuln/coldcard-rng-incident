@@ -1,0 +1,274 @@
+Skip to content
+Navigation Menu
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+SeedSigner
+/
+seedsigner
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+329
+Star
+1.2k
+Code
+Issues
+168
+Pull requests
+97
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+Add health checks and CSPRNG mixing to the camera entropy path - #962
+#962
+Closed
+Silexperience210 wants to merge 1 commit into
+SeedSigner:devSeedSigner/seedsigner:devfrom
+Silexperience210:fix/camera-entropy-health-checksSilexperience210/seedsigner:fix/camera-entropy-health-checksCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Closed
+Add health checks and CSPRNG mixing to the camera entropy path#962
+Silexperience210 wants to merge 1 commit into
+SeedSigner:devSeedSigner/seedsigner:devfrom
+Silexperience210:fix/camera-entropy-health-checksSilexperience210/seedsigner:fix/camera-entropy-health-checksCopy head branch name to clipboard
+Conversation
+Silexperience210
+commented
+Jul 31, 2026
+Copy link
+Copy Markdown
+Motivation
+The July 2026 COLDCARD RNG failure was not a weak algorithm — it was a silent fallback. A macro was tested with defined() instead of by value, seed generation fell back to a PRNG seeded from the chip UID and a timer, and the device shipped ~40-bit seeds for four years without ever signalling a problem.
+SeedSigner is structurally immune to that specific bug: there is no RNG fallback path in the seed generation code at all. But the camera ("image entropy") flow has three defects of the same class — failures that degrade entropy silently — plus no defense in depth.
+None of these are known to be exploitable today. This PR closes them anyway, because "the source was probably fine" is exactly the reasoning that cost 594 BTC.
+What was wrong
+1. An empty or frozen preview buffer was iterated silently.
+for frame in preview_images:
+hash_bytes = hashlib.sha256(hash_bytes + frame.tobytes()).digest()
+If image_entropy_preview_frames came back None or empty, this loop simply did not execute. The seed was then derived from the CPU serial (non-secret, constant per device), the wall clock, and a single image — with no indication to the user that a source had vanished.
+2. A degenerate capture was accepted as entropy. Capped lens, total darkness, blown-out exposure, or a dead sensor all produced a near-constant pixel buffer that was hashed as though it carried 256 bits.
+3. /proc/cpuinfo failure fell back to a constant.
+except Exception as e:
+logger.info(repr(e), exc_info=True)
+hash_bytes = b'0'
+Benign in isolation — the serial is not secret and contributes uniqueness rather than entropy — but a constant that looks like a value is the wrong shape for this code.
+4. No defense in depth. 100% of the entropy came from one physical source, with no independent second source and no way to notice if that source failed.
+What this PR changes
+Extracts the derivation into seedsigner/helpers/camera_entropy.py, so it can be unit tested without the GUI or camera hardware stack. The View drops from ~30 lines of inline hashing to a single call.
+Health-checks before hashing. Preview frames must be non-empty and not all-identical; the final image must clear a Shannon-entropy and distinct-value floor, scored per band so a stuck channel is not masked by noisy ones. Failure raises EntropyHealthError and aborts — it is never swallowed and never falls back.
+Surfaces the failure via ToolsImageEntropyHealthCheckErrorView, which sends the user back to retake the photo.
+Returns b"" rather than b'0' when the CPU serial is unavailable — honest about contributing nothing.
+Mixes os.urandom(32) into the chain as a final step.
+On the os.urandom step
+I expect this to be the contentious part, so to be explicit about what it does and does not mean:
+The camera remains the headline entropy source. This does not shift the trust model toward the Broadcom SoC. Because the chain is SHA-256(previous ‖ new), adding an input cannot reduce the entropy of the result — if the CSPRNG were compromised or entirely predictable, the output is exactly as strong as it is today. What it buys is the removal of a single-source failure mode: two independent sources must both fail, not one.
+On Raspberry Pi OS this resolves to the Linux ChaCha20 DRBG, itself seeded from the BCM2835 hardware RNG.
+If maintainers prefer to keep the flow free of any kernel-provided randomness on principle, I'm happy to drop that single line — the health checks are the substantive part of the PR and stand alone.
+Explicitly NOT changed
+The dice and coin-flip paths are untouched. Their output is externally verifiable (docs/dice_verification.md, iancoleman "Base 10" mode), and altering their hash chain would break that property. That verifiability is SeedSigner's strongest security claim and this PR does not go near it.
+Compatibility
+The camera path's output changes (a new step is mixed in), but that path was never reproducible — you cannot re-enter a photograph — so no existing seed can be affected. No stored data, settings, or QR formats change.
+Testing
+26 new unit tests in tests/test_camera_entropy.py, covering the Shannon calculation, each rejection case (flat black, flat white, near-dark, stuck band, empty frames, frozen frames, missing image), a pinned reference hash chain that catches any reordering of the sources, and the CPU serial parsing/fallback.
+Full suite: 209 passed. The 4 failures in tests/test_l10n.py are pre-existing on dev in a clean checkout (missing compiled .mo catalogs) and are unrelated to this change.
+Follow-up, not in this PR
+embit/util/key.py:370 — generate_privkey() uses random.randrange (Mersenne Twister). It is not reachable from SeedSigner, since keys always derive from a BIP-39 mnemonic. Worth an upstream issue on embit regardless: it is precisely the kind of dormant path that comes back to life after a refactor.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+Add health checks and CSPRNG mixing to camera entropy path
+…
+a1d19d1
+The image entropy flow had three silent-failure modes and no defense in
+depth. None of them are known to be exploitable today, but they are the
+same class of defect as the July 2026 COLDCARD RNG failure, where a
+silent fallback produced ~40-bit seeds for four years.
+- Empty/frozen preview frame buffer was iterated silently: the for-loop
+simply did not execute and the seed was derived from the CPU serial,
+the wall clock and one image, with no indication to the user.
+- A degenerate capture (capped lens, total darkness, dead sensor) was
+accepted and hashed as if it carried entropy.
+- open('/proc/cpuinfo') failure fell back to the constant b'0'.
+Changes:
+- Extract the derivation into seedsigner/helpers/camera_entropy.py so it
+is unit testable without the GUI or camera stack.
+- Health-check preview frames and the final image before hashing; raise
+EntropyHealthError and abort seed generation on failure.
+- Add ToolsImageEntropyHealthCheckErrorView to surface the failure and
+send the user back to retake the photo.
+- Return b'' rather than a constant when the CPU serial is unavailable.
+- Mix os.urandom(32) into the chain as defense in depth. The camera
+remains the headline source; hashing an extra input can never reduce
+entropy, and this removes the single-source failure mode.
+The dice and coin-flip paths are deliberately untouched: they are
+externally verifiable (docs/dice_verification.md) and changing their
+hash chain would break that property.
+Adds 26 unit tests. Full suite passes except 4 pre-existing test_l10n.py
+failures also present on dev.
+Silexperience210
+commented
+Jul 31, 2026
+Copy link
+Copy Markdown
+Author
+Closing this — the criticism is fair.
+The histogram thresholds conflate scene complexity with entropy. A valid low-light or flat-scene capture has very few distinct byte values but still carries thousands of bits from sensor noise, so this check would reject good entropy while catching nothing real. My tests only passed because they used synthetic flat images that no sensor actually produces.
+Sorry for the noise.
+❤️
+1
+Vagalam88 reacted with heart emoji
+All reactions
+❤️
+1 reaction
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+Silexperience210
+closed this
+Jul 31, 2026
+ronaldstoner
+mentioned this pull request
+Aug 4, 2026
+tests: add some entropy pipeline regression tests with NIST SP 800-22…
+#980
+Open
+19 tasks
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+1 participant
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

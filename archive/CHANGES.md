@@ -2458,3 +2458,22 @@
 - coindesk-70m-no-device-touch  +21 -21
 - ledger-primary-incident-article  +3 -3
 - reddit-multi-source-fail-closed-entropy  +28 -0
+
+## 20260814T095353Z
+
+- coldcard-firmware-pr-689  +5 -3
+- coldcard-firmware-pr-690  +5 -3
+- bitcoinorg-pr-4905  +5 -3
+- seedsigner-pr-962  +5 -3
+- keychainx-reference  +1 -0
+- newsbitcom-who-lost-who-at-risk  +8 -3
+- ncfacanada-self-custody-commentary  +17 -17
+- bitcoinmag-self-custody-response  +2 -8
+- newsbitcom-class-action-threat  +26 -26
+- reddit-forrest-video-coldcard  +72 -0
+- grassfedbitcoin-2085463112048873485  +1 -1
+- kloaec-fork-scam-warning  +0 -120
+
+## 20260814T102329Z
+
+- bitkey-relationship-enrollment-report  +1 -0
