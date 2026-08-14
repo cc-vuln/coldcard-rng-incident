@@ -1,0 +1,241 @@
+Skip to content
+Navigation Menu
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+Coldcard
+/
+firmware
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+221
+Star
+774
+Code
+Pull requests
+14
+Actions
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Pull requests
+Actions
+Security and quality
+Insights
+fix: feed full SE hash into ngu.random.reseed - #697
+#697
+Closed
+SashaMIT wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+SashaMIT:fix/rng-seeding-full-se-hashSashaMIT/firmware:fix/rng-seeding-full-se-hashCopy head branch name to clipboard
+ConversationCommits1 (1)ChecksFiles changed
+Closed
+fix: feed full SE hash into ngu.random.reseed#697
+SashaMIT wants to merge 1 commit into
+Coldcard:masterColdcard/firmware:masterfrom
+SashaMIT:fix/rng-seeding-full-se-hashSashaMIT/firmware:fix/rng-seeding-full-se-hashCopy head branch name to clipboard
+Conversation
+SashaMIT
+commented
+Aug 4, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Summary
+rng_seeding() hashed SE1+SE2 with sha256d, then kept only the first 4 bytes for ngu.random.reseed(int). That discarded most SE entropy, and libngu’s integer reseed only overwrote yasmarang_pad.
+This change passes the full 32-byte digest to reseed.
+Dependency
+Requires switck/libngu#65 (reseed(bytes) absorbs into full yasmarang state). Integer reseed remains for compatibility.
+Test plan
+Build with updated libngu submodule / vendored tree
+Boot MK4 / Q1 / simulator — init0 → rng_seeding no exception
+Confirm uniform / seed paths still function
+Elacity CodeRED Amber review (portal #52). Related: libngu TRNG retry + Linux getrandom in the same libngu PR (#51/#53).
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+fix: feed full SE hash into ngu.random.reseed
+…
+43f7a5c
+rng_seeding previously truncated sha256d(SE1||SE2) to 32 bits before
+reseed, which also only overwrote one yasmarang state word. Pass the
+full digest bytes (needs libngu reseed(bytes) from switck/libngu#65).
+Co-authored-by: Cursor <cursoragent@cursor.com>
+SashaMIT
+commented
+Aug 5, 2026
+Copy link
+Copy Markdown
+Author
+Friendly bump — related entropy hardening across libngu#65 and Coldcard firmware#697 (TRNG remix on reject, Linux getrandom, full SE hash reseed). Happy to split or retarget if you want a different shape.
+👍
+1
+haakonn reacted with thumbs up emoji
+All reactions
+👍
+1 reaction
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+doc-hex
+commented
+Aug 5, 2026
+Copy link
+Copy Markdown
+Contributor
+please confirm this is superseded by #707
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+SashaMIT
+commented
+Aug 5, 2026
+Copy link
+Copy Markdown
+Author
+Confirmed — superseded by #707. That PR removes this exact call site (the 4-byte-unpack reseed) and moves reseeding to full 32 bytes inside libngu with the SHA256 DRBG, which is a strictly stronger fix than the truncation patch here. Closing in favor of #707. Thanks!
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+SashaMIT
+closed this
+Aug 5, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+2 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

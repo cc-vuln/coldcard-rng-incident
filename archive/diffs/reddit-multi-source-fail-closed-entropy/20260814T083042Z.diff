@@ -1,0 +1,34 @@
+--- reddit-multi-source-fail-closed-entropy@20260812T044758Z
++++ reddit-multi-source-fail-closed-entropy@20260814T083042Z
+@@ -451,3 +451,31 @@
+ 
+ Important: in iancoleman tool I could not use the option for dice (1-6) because it converts 6 to 0 and it gives different result than coldcard's script.  
+ But if you put **Base 10** \[0-9\] option, then you get the same seed. Also need to put Mnemonic Length = 24 words.
++
++comment: p3lfeqf
++parent: t3_1vjn3u5
++author: sporastefy
++created_utc: 1786687513
++edited: false
++body:
++Disclosure first: ERA Wallet are running a bounty for discussion of this incident, which is what got me to write it up. They asked for honest opinions including criticism. Most of what follows is about Coldcard and about builds, and you can weigh the rest accordingly.
++
++I've spent about thirty years doing Linux systems and distribution work, including co-founding a Debian fork and writing the tooling that merges and republishes its signed package archive. That background makes me read this story differently from most of the coverage.
++
++Nobody broke the cryptography here. The cryptography never ran.
++
++A build configuration error meant seed generation fell back to a software PRNG instead of the hardware entropy source. Not a weakness in the algorithm, not a flaw in the maths — the good path simply wasn't the path that shipped.
++
++Two things follow from that, and I think the second one matters more than the entropy discussion this thread has mostly been having.
++
++**Silent degradation is the actual defect.** The PRNG isn't the bug. The bug is a fallback that quietly continued instead of stopping. A weak seed is indistinguishable from a strong one — same 24 words, same checksum, same everything — so there is no runtime check that catches it and no user who can tell. The only detector is somebody draining the addresses, five years later. Anything that cannot reach its entropy source has to refuse to generate a key and say so on screen. In systems work this is old: a service that fails silently is far more dangerous than one that crashes, because the crash gets fixed on Tuesday.
++
++**It was a build problem, and open source did not catch it.** You put reproducible builds in your list of what you still want, and I'd argue it belongs higher than that — not one item among several, but the thing the whole incident turns on. Coldcard's source was open. People read it. The divergence was between what the source said and what the build produced.
++
++Open source tells you what the code says. It does not tell you what is running on your device.
++
++Reproducible builds are the thing that closes that gap, and only that. If an independent party can rebuild the shipped firmware byte-for-byte from published source, a build-configuration divergence stops being invisible. Debian has been grinding at this problem for over a decade and it is largely solved there. A hardware wallet holds bearer assets. It should be held to at least the standard we hold a package manager to, and right now most of them aren't.
++
++So the question I'd put to any vendor, including the one paying for this discussion: are your builds reproducible, and can a third party verify that the firmware on my device matches your published source? "We're open source" is not an answer to that question. Coldcard was open source and it still lost the money.
++
++For what it's worth, ERA's own write-up does address the silent-degradation half properly — they describe a quality gate that rejects weak input rather than accepting it, and collection that fails cleanly. That's the right instinct and more than most vendors bother with. But their article doesn't mention reproducible builds or firmware verification either, so the second half of the problem is open there too.

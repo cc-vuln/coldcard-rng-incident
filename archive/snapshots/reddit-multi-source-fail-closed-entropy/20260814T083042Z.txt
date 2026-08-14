@@ -1,0 +1,481 @@
+post: 1vjn3u5
+author: CommercialMonth3640
+created_utc: 1786273660
+title: ColdCard users lost ~1,367 BTC (~$89M) because a 2021 firmware bug silently swapped hardware RNG for a software one — the case for multi-source, fail-closed entropy
+body:
+Verification because this sounds unreal: Privacy Guides and The Hacker News both covered it at the start of August 2026 — attackers drained thousands of ColdCard wallets for a total of \~1,367 BTC (\~$89M). Root cause: a firmware bug from 2021. During seed generation some devices silently fell back from the hardware RNG to a weak software RNG. The 24-word seeds looked completely normal — no warnings, nothing. But they could be reconstructed offline, years later.
+
+The scary part is that weak randomness looks identical to good randomness, right up until someone else derives your keys. ColdCard's incident was a trust failure: a single chain of trust ("one certified chip from a trusted vendor") that had a silent fallback path. It's now the clearest proof that one point of trust in entropy is one point of failure.
+
+This is why I now look at entropy architecture differently:
+
+1. Certified chip ≠ failure-proof design. A certified secure element is a vendor claim, not a guarantee. If the firmware around it can silently fall back, the certification is worthless exactly when it matters.
+
+2. Multi-source matters. Two independent chips from two manufacturers (STM32 TRNG + NIST SP 800-90B certified ATECC608C) each harvest separate physical noise. Compromising one does not compromise the seed — because the SHA-256 blend cannot be reversed. One honest source in the mix keeps the output unpredictable.
+
+3. Fail-closed is the property that matters. Some wallets now run on-device statistical randomness tests on every entropy input. A lazy swipe, a camera pointing at a table, an idle device — the input is rejected and the step repeats. The device refuses to continue rather than accept bad entropy. That is exactly the property ColdCard's 2021 fallback violated.
+
+4. User-entropy input (camera, screen drawing, device shake) kills the "factory deck" problem. No manufacturer could have precomputed your room and your motion at that moment.
+
+What I still want before trusting large amounts (honest concerns):
+- Firmware transparency: third-party audits, reproducible builds, published entropy logs. A paper describing the pipeline is not the pipeline.
+- Some wallets only mix user entropy in an "expert flow"; the standard flow still relies on the two hardware chips. Those are solid, but a user decision shouldn't change the security floor.
+- Side-channel and fault attacks still exist — more sources reduce risk, nothing is absolute.
+
+The bar I'll use after this incident for any hardware wallet I recommend: "Can this device fail closed — refuse loudly when entropy is weak — or does it silently continue?" ColdCard silently continued. Everything else is marketing.
+
+
+
+comment: p2mkyzy
+parent: t3_1vjn3u5
+author: Neverjetni
+created_utc: 1786274459
+edited: false
+body:
+Would you advise users who generated their seed with Trezor one to redo it?
+
+comment: p2mldk1
+parent: t1_p2mkyzy
+author: MrBansal
+created_utc: 1786274638
+edited: false
+body:
+No
+
+comment: p2mleq9
+parent: t3_1vjn3u5
+author: ineedanamegenerator
+created_utc: 1786274653
+edited: false
+body:
+You say weak randomness looks identical to good randomness (correct), but then demand proof of entropy, how?
+
+What exactly could the Coldcard firmware have done with the 32 bytes of PRNG to "fail closed"? (I'm not defending them to be clear, just don't understand what you expect code can do to verify entropy).
+
+comment: p2mnh0b
+parent: t1_p2mleq9
+author: FortunateGeek
+created_utc: 1786275548
+edited: false
+body:
+This is really the crux of the issue.  Its not possible for a user to verify that their hardware wallet is correctly invoking the TRNG to create the seed upon which everything else stands or falls.  There are two choices that I know of:
+
+1) buy a hardware wallet that lets you input dice rolls to generate the seed.
+
+2) Trust the hardware wallet vendor.  I'm certain that the bigger vendors have done that and verified their implementations work as designed...(e.g. the Trezor 7 suppossedly uses 4 sources of entropy).
+
+Best of luck!
+
+comment: p2mp0lh
+parent: t1_p2mnh0b
+author: Newbie123plzhelp
+created_utc: 1786276199
+edited: 1786317791
+body:
+People keep parroting the dice roll thing, but there could have just as easily been a big that didn't combine the dice roll entropy for example. Firmware is still unreliable.
+
+Both dice and a coldcard *can* generate proper entropy, the problem is the code didn't do it.
+
+comment: p2mpecn
+parent: t3_1vjn3u5
+author: SpendHefty6066
+created_utc: 1786276357
+edited: false
+body:
+RNG no matter how sophisticated will always be a vendor claim. And the software scaffolding around the RNG can break. This is why one must simply roll your own entropy. 
+
+comment: p2mpkss
+parent: t1_p2mkyzy
+author: CommercialMonth3640
+created_utc: 1786276430
+edited: false
+body:
+Trezor One wasn't affected by this particular fallback, at least not that we know from public disclosures, so I wouldn't tell everyone to panic redo. But the deeper problem is that you can't verify a seed that was already generated. There is no way to look at a BIP39 mnemonic and tell whether the RNG behind it was solid, the outputs look identical by design.
+
+So my honest answer: if the seed is old, or the device spent time in an untrusted state, or you're honestly just not sure, regenerating is the cheap insurance move. It costs a few minutes, a fresh empty wallet, and it puts the uncertainty behind you. If that seed protects money you don't want to lose, the asymmetry is clear. A clean new seed with a firmware you can verify is the recommendation when doubt exists, and for everyone else the takeaway is to make sure the device proves the entropy chain instead of assuming it.
+
+comment: p2mpwho
+parent: t1_p2mleq9
+author: CommercialMonth3640
+created_utc: 1786276562
+edited: false
+body:
+Good pushback. The honest answer is that you can't verify entropy from the output, 32 bytes from a weak PRNG and 32 bytes from a good TRNG are statistically indistinguishable. My post was sloppy using the word proof, I should have said architecture.
+
+Fail-closed is about removing the failure path, not inspecting bytes. ColdCard's bug was a silent fallback to a software PRNG. A fail-closed design instead treats that exact condition as an error: if the hardware TRNG isn't healthy, the device refuses to generate a seed, shows a warning, and repeats the step. No software fallback exists in the code, so there is nothing to silently succeed.
+
+Health tests like NIST SP 800-90B on the TRNG output can catch obviously broken sources, but they can't catch every weak seed, nobody can. What actually moves the needle is independence: multiple entropy sources with their own circuits and vendors, plus user input mixed in. If one source is compromised the seed still isn't derivable, because the other independent sources still add unpredictability. That is closer to a guarantee than any post-hoc entropy test could ever be.
+
+comment: p2mpzew
+parent: t3_1vjn3u5
+author: HeroicHeron
+created_utc: 1786276596
+edited: false
+body:
+"the input is rejected and the step repeats. The device refuses to continue rather than accept bad entropy."
+
+And what if the code that is supposed to execute this step fails to execute properly and instead let's the seed generation continue? The whole problem with the CC entropy bug was that due to faulty code, a properly coded TRNG path was never executed. On a theoretical level, if the CC had some kind of code for double-checking the entropy, a different piece of bad code could have led to that step being skipped over as well.
+
+The only way to truly and permanently eliminate the low entropy RNG attack vector is to roll your own seed and convert it manually to BIP39 words which is incredibly easy to do. The main improvement we can hope for from the hardware wallet ecosystem is more support for generating the 24th word checksum when importing a seed. Only a few devices do this currently. Even if this step is faulty or has malicious code, there is no risk to the user as the seed simply can't be initialized.
+
+comment: p2muarr
+parent: t3_1vjn3u5
+author: LordVixen
+created_utc: 1786278264
+edited: false
+body:
+I read that an AI only took a few hours to find the flaw in the software 😂
+
+comment: p2muuiq
+parent: t1_p2mpwho
+author: ineedanamegenerator
+created_utc: 1786278467
+edited: false
+body:
+The problem in coldcard was not that TRNG failed and there was a fallback. Lots of incorrect info is spread about it being a compiler flag, that was also not the issue.
+
+Coldcard had their own TRNG peripheral driver (a choice I can support, don't rely on a open source driver). Therefore they disabled TRNG in the library they used (that's the define, that was intentional). The library used PRNG as backup (we're still in compile time here, this is not a runtime fallback).
+
+The problem was that their python code called a function that ended up in the library instead of in their own driver. So the TRNG code was there all along (and as far as I can see even accessible from Python via another function name), but the random.byte() function they used unintentionally ended up using the PRNG (later they called the library directly with the same result).
+
+PS: I've used Claude enough to recognize your answer was at least largely generated by it.
+
+comment: p2mw4di
+parent: t1_p2mpwho
+author: nullc
+created_utc: 1786278934
+edited: false
+body:
+> Good pushback. The honest answer
+
+die clanker.  Don't your masters at (mis)anthropic know that it's unethical to larp as a human on reddit?
+
+comment: p2mwixv
+parent: t3_1vjn3u5
+author: Effective_Map_1042
+created_utc: 1786279078
+edited: false
+body:
+So much work just to not get ALL of your money stolen with zero chance of recovering it. It is so quaint to think some people still think this will be adopted widely lol
+
+comment: p2mxpqy
+parent: t1_p2muuiq
+author: CommercialMonth3640
+created_utc: 1786279503
+edited: false
+body:
+I even do not have a subscription of Claude.. I wrote it and gave it to DeepSeek to make it clear. I also wrote @X without AI touch.. I have enough experience (32 years) not to use AI to write something about my opinions..
+
+comment: p2mzah5
+parent: t3_1vjn3u5
+author: Pisces1975
+created_utc: 1786280062
+edited: false
+body:
+After cold card issue, how can you know other cold wallet will not or ever have this kind of issue?  It’s just kill my trust in any cold wallet now 
+
+comment: p2n1hrx
+parent: t1_p2mxpqy
+author: ineedanamegenerator
+created_utc: 1786280825
+edited: false
+body:
+I'll believe you (because why would you lie on the internet 😉).
+
+Interesting because I guarantee you some sentences are very signature Claude. Guess the rumors about DeepSeek distilling are true.
+
+comment: p2n2no2
+parent: t1_p2mleq9
+author: atanasius
+created_utc: 1786281218
+edited: 1786281412
+body:
+The fimware build should not have linked the software PRNG at all. A post-build test could check this.
+
+Approval testing should include a simulation run where the test generates a key and checks that hardware TRNG was invoked. This still doesn't guarantee that TRNG output was used correctly, but it is a minimal test.
+
+comment: p2n2o79
+parent: t3_1vjn3u5
+author: Astropin
+created_utc: 1786281224
+edited: false
+body:
+Not this particular vulnerability...but ANY vunuralbilities, is why I decided years ago to use a 2 of 3 multi-sig setup. Now two different wallets have to fail at the same time to lose anything.
+
+comment: p2n3m83
+parent: t1_p2n2no2
+author: ineedanamegenerator
+created_utc: 1786281541
+edited: false
+body:
+Completely agree. I was just pointing out the issue was way more subtle than "flag set wrong".
+
+There is no excuse that this passed tests for years.
+
+It was the library that did the fallback. I understand not wanting to fork the library, but this library was (allegedly) a side project of the CTO. So they could have easily fixed it upstream to have a flag to completely disable the RNG code and demand the user provided their own.
+
+comment: p2n569g
+parent: t1_p2mp0lh
+author: zootreddit
+created_utc: 1786282047
+edited: false
+body:
+Yes but there is good reason for parroting dice rolls.
+
+Device coded entropy is a black box - there is no easy way to verify.
+
+With dice rolls you can run your 100 numbers through multiple seed generators and expect them to produce the same result. It is a simple method anyone can use for reassurance.
+
+comment: p2n64sb
+parent: t3_1vjn3u5
+author: Tokentactico
+created_utc: 1786282354
+edited: false
+body:
+Weak randomness looks identical to good randomness right up until it isn't, that's the part people underestimate. You can't audit entropy by looking at the seed words, they'll pass every sanity check a human can do.
+
+The multi-source argument is solid but I'd push back on one thing: SHA-256 blending two sources only helps if the mixing function itself is implemented correctly and isn't the thing that gets silently bypassed. The ColdCard bug wasn't a weak RNG chip, it was a fallback path that nobody audited because "it's certified" became a stopping point for scrutiny. Add a second chip and you've added a second thing that can have its own silent fallback nobody checks. More sources helps, but only if the failure mode is fail-closed like you said, not fail-open with a friendlier UI.
+
+The thing I'd actually want before trusting a device with real money: a way to independently verify the entropy source that was used for a specific seed, after the fact, without trusting the device's own self-report. Right now if a wallet says "hardware RNG used" you're taking its word for it. That's the same trust assumption that just cost people 1,367 BTC.
+
+comment: p2ofl94
+parent: t3_1vjn3u5
+author: deadshift2010
+created_utc: 1786295543
+edited: false
+body:
+I think we're up to around $111M now :p
+
+comment: p2ohsuj
+parent: t1_p2mxpqy
+author: Vinny_d_25
+created_utc: 1786296161
+edited: false
+body:
+> I wrote it and gave it to DeepSeek to make it clear.
+
+Don't do that. It just makes people think you're copy pasting replies into Claude (which is still what I think you did). If you're competent enough to write something, then write it yourself. People would much rather read bad English or spelling/grammer mistakes than AI slop.
+
+comment: p2opdc0
+parent: t1_p2mleq9
+author: Opposite_Cold8616
+created_utc: 1786298275
+edited: false
+body:
+Why not just have the wallet output the code path that was invoked regardless of the outcome?
+
+comment: p2oq39n
+parent: t1_p2opdc0
+author: ineedanamegenerator
+created_utc: 1786298480
+edited: false
+body:
+That's not a thing that exists on those devices. And it would just have said "rng_get()" and you'd know nothing.
+
+comment: p2ozt09
+parent: t1_p2muarr
+author: reddit4485
+created_utc: 1786301216
+edited: false
+body:
+Yes, but people were using AI to screen the code after the ColdCard hack.  These AI models update on current events and were aware of the entropy hack before being asked to screen the code. As a result, they were just pointing out an error they knew about already.  ColdCard said they used one of the most sophisticated AI models to screen their code before the hack and it found nothing.
+
+comment: p2p619c
+parent: t1_p2mpecn
+author: oinkbar
+created_utc: 1786303009
+edited: false
+body:
+or use windows/linux OS CSPRNG
+
+comment: p2ptfdc
+parent: t1_p2p619c
+author: JumpProfessional3372
+created_utc: 1786309832
+edited: false
+body:
+For a quick wallet I guess is OK. But for a very long term wallet that you cannot afford to lose I'd still roll a dice instead of trusting software. It takes a few minutes 
+
+comment: p2q0clh
+parent: t1_p2mpkss
+author: Gallagger
+created_utc: 1786311900
+edited: false
+body:
+Old seed doesn't matter, untrusted state is unlikely (how would it be), "just not sure" is advising to act on feelings.  
+
+A trezor one seed is totally fine. An expert can extract it from a trezor one with physical access, but that becomes nearly irrelevant if the device is stored in a place as save as the seed phrase.
+
+comment: p2qf7gh
+parent: t1_p2muarr
+author: very_bug_like
+created_utc: 1786316596
+edited: false
+body:
+How does anyone know this? Has anyone talked to the person/team that found the bug? How would we ever know if it was found by AI or someone actually reading the code?
+
+comment: p2qiyak
+parent: t1_p2n569g
+author: Newbie123plzhelp
+created_utc: 1786317841
+edited: false
+body:
+Exactly and so they should. Something tells me most people aren't doing that though
+
+comment: p2sza7g
+parent: t3_1vjn3u5
+author: putyograsseson
+created_utc: 1786354974
+edited: false
+body:
+So coldcard users who generated their seeds before 2021 firmware update were unaffected from the recent fiasco?
+
+comment: p2turki
+parent: t1_p2muarr
+author: crazynerd
+created_utc: 1786367227
+edited: false
+body:
+And then just a few minutes to write this post 
+
+comment: p2ufasv
+parent: t1_p2ptfdc
+author: puck2
+created_utc: 1786373118
+edited: false
+body:
+can bitcoin core, electrum, or sparrow receive dice roll entropy?
+
+comment: p2uslr0
+parent: t1_p2ufasv
+author: JumpProfessional3372
+created_utc: 1786376633
+edited: 1786377219
+body:
+Haven't tried but I understand that Sparrow, SeedSigner, iancoleman tool and coldcard can all receive the same concatenation of 100+ numbers and generate the same 24 word seed.  
+I'd try this before trusting my comment. Doesn't seem too hard to test. type 100 numbers randomly with the keyboard and start testing Sparrow + iancoleman tool + coldcard (if you have a coldcard) to see the seeds you get.
+
+comment: p2v3hhv
+parent: t1_p2uslr0
+author: puck2
+created_utc: 1786379428
+edited: false
+body:
+sparrow cannot
+
+comment: p2v4k2f
+parent: t1_p2v3hhv
+author: JumpProfessional3372
+created_utc: 1786379703
+edited: false
+body:
+Yeah you are right. At least tried to find an option in Sparrow 2.2.3 and i couldn't.
+
+  
+Careful with Electrum because I remember the seed words it uses by default is not std. (You can still import a BIP39 seed but as non-default option).
+
+comment: p2vkzgw
+parent: t1_p2ufasv
+author: oinkbar
+created_utc: 1786383821
+edited: false
+body:
+you can generate a electrum seed using dice roll, but its not a functionality offered in the electrum interface. you need to DIY by copying the [make_seed](https://github.com/spesmilo/electrum/blob/1bfee7d1956ccb31778c76955683b789d1585d0c/electrum/mnemonic.py#L201) source code and modify it to accept a custom integer number (that you derivate from the dice rolls) instead of using the csprng. High level steps (do on airgapped system):  
+1. copy make_seed and related source code to your pc and test it. slightly modify it so that seed is printed in the screen.  
+2. dice roll 52x times (the minimum required number to have 132 bits of entropy). note the numbers in base6 (each roll is a number in the range 0-5)  
+3. modify the source code to use your dice rolled sequence instead of csprng. this means replacing the line "entropy = randrange(pow(2, num_bits))" by something like entropy=int("3234543212400431232343212345432340423123043212343532",base=6).  
+4.  run the code to get your seed  
+5.  test loading it in electrum  
+6. secure it :)
+
+
+comment: p2w0fg0
+parent: t3_1vjn3u5
+author: Kaivenn__
+created_utc: 1786387711
+edited: false
+body:
+The part of this incident that changed my view was not “hardware RNG bad.” It was that the intended hardware RNG existed, yet one integration mistake sent seed generation to a deterministic fallback. The output still looked random, and hashing could not add missing entropy.
+
+
+
+I read ERA Wallet’s response because its architecture addresses that exact failure class: two hardware RNGs from different vendors, optional user-generated touch, motion and camera samples, and a SHA-512/256 combiner.
+
+
+
+If at least one correctly framed input remains unpredictable, a single failed source should not determine the seed. That is a real strength compared with relying on one entropy path.
+
+
+
+My reservation is common-mode failure. The same firmware reads, validates and mixes every source. One bug could still ignore an input, reuse a buffer or fail open. Five physical sources do not help if the one program handling all five is wrong.
+
+
+
+ERA’s August 10 report is stronger than a generic “passes NIST” claim because it uses negative controls and 1,000 verified cold boots. But the report also acknowledges that the campaign used one physical unit, so it cannot establish independence across different devices.
+
+
+
+My conclusion is that ERA’s design reduces entropy trust rather than eliminating it. I would still want a public combiner specification with test vectors, reproducible evidence tying the reviewed source to the production binary, and fault-injection demonstrations showing what happens when each source repeats, fails or returns constants.
+
+
+
+More sources are good. A verifiable path from every source to the final seed is better.
+
+comment: p2wgamn
+parent: t3_1vjn3u5
+author: necrogay
+created_utc: 1786391817
+edited: false
+body:
+$89M + $142 in remaining Bitcoin from my old Coldcard. Since the address the hackers transferred the funds to is unique rather than a shared one, I suspect the scale of the heist is significantly larger.
+
+comment: p2zyiyq
+parent: t1_p2v3hhv
+author: JumpProfessional3372
+created_utc: 1786436544
+edited: 1786436983
+body:
+I just compared [rolls.py](http://rolls.py) (coldcard) with iancoleman tool and got the same result
+
+In Rolls.py:
+
+Echo 3145236345613452634512345132513231546236154231546325461324513452315423154325461345263156423541325461356423145235461342513452315623651342531523451325461356423154632561324561345231543254613652431456234561345263123456134523145231453256413456213562 | python3 [rolls.py](http://rolls.py)
+
+In iancolemans i put (directly on the web site tool, since i do not care about security here):
+
+3145236345613452634512345132513231546236154231546325461324513452315423154325461345263156423541325461356423145235461342513452315623651342531523451325461356423154632561324561345231543254613652431456234561345263123456134523145231453256413456213562
+
+and both gave me this seed:
+
+imitate grid off enlist scan cement approve tattoo city forum fancy rack tissue hover certain since gentle oven lyrics urban lock dove account chief
+
+Important: in iancoleman tool I could not use the option for dice (1-6) because it converts 6 to 0 and it gives different result than coldcard's script.  
+But if you put **Base 10** \[0-9\] option, then you get the same seed. Also need to put Mnemonic Length = 24 words.
+
+comment: p3lfeqf
+parent: t3_1vjn3u5
+author: sporastefy
+created_utc: 1786687513
+edited: false
+body:
+Disclosure first: ERA Wallet are running a bounty for discussion of this incident, which is what got me to write it up. They asked for honest opinions including criticism. Most of what follows is about Coldcard and about builds, and you can weigh the rest accordingly.
+
+I've spent about thirty years doing Linux systems and distribution work, including co-founding a Debian fork and writing the tooling that merges and republishes its signed package archive. That background makes me read this story differently from most of the coverage.
+
+Nobody broke the cryptography here. The cryptography never ran.
+
+A build configuration error meant seed generation fell back to a software PRNG instead of the hardware entropy source. Not a weakness in the algorithm, not a flaw in the maths — the good path simply wasn't the path that shipped.
+
+Two things follow from that, and I think the second one matters more than the entropy discussion this thread has mostly been having.
+
+**Silent degradation is the actual defect.** The PRNG isn't the bug. The bug is a fallback that quietly continued instead of stopping. A weak seed is indistinguishable from a strong one — same 24 words, same checksum, same everything — so there is no runtime check that catches it and no user who can tell. The only detector is somebody draining the addresses, five years later. Anything that cannot reach its entropy source has to refuse to generate a key and say so on screen. In systems work this is old: a service that fails silently is far more dangerous than one that crashes, because the crash gets fixed on Tuesday.
+
+**It was a build problem, and open source did not catch it.** You put reproducible builds in your list of what you still want, and I'd argue it belongs higher than that — not one item among several, but the thing the whole incident turns on. Coldcard's source was open. People read it. The divergence was between what the source said and what the build produced.
+
+Open source tells you what the code says. It does not tell you what is running on your device.
+
+Reproducible builds are the thing that closes that gap, and only that. If an independent party can rebuild the shipped firmware byte-for-byte from published source, a build-configuration divergence stops being invisible. Debian has been grinding at this problem for over a decade and it is largely solved there. A hardware wallet holds bearer assets. It should be held to at least the standard we hold a package manager to, and right now most of them aren't.
+
+So the question I'd put to any vendor, including the one paying for this discussion: are your builds reproducible, and can a third party verify that the firmware on my device matches your published source? "We're open source" is not an answer to that question. Coldcard was open source and it still lost the money.
+
+For what it's worth, ERA's own write-up does address the silent-degradation half properly — they describe a quality gate that rejects weak input rather than accepting it, and collection that fails cleanly. That's the right instinct and more than most vendors bother with. But their article doesn't mention reproducible builds or firmware verification either, so the second half of the problem is open there too.

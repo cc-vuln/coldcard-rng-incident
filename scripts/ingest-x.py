@@ -165,6 +165,14 @@ EXTRACT_JS = r"""
   // No scrolling: the CDP clip is computed in document coordinates and
   // captures beyond the viewport.
   el.id = "cc-ingest-target";
+  // X's newer quote and article layouts drop tweetText entirely: a bare
+  // quote carries only the quoted card, and a quote comment lives outside
+  // any semantic node. The embed flag keeps such posts capturable; the
+  // sidecar then says plainly what the body does and does not hold.
+  const embed = !!el.querySelector(
+    '[data-testid="card.wrapper"], [data-testid="article-cover-image"], article') ||
+    [...el.querySelectorAll("div, span")].some(
+      d => d.innerText.trim() === "Quote");
   return JSON.stringify({
     found: true,
     // Set while any of this post's text is still behind a show-more control.
@@ -175,6 +183,7 @@ EXTRACT_JS = r"""
     timeLink: t && t.closest("a") ? t.closest("a").getAttribute("href") : null,
     text: txt ? (longformTitle ? longformTitle + "\n\n" + txt.innerText
                                : txt.innerText) : null,
+    embed: embed,
     height: el.offsetHeight,
     mediaSlots: mediaSlots.length,
     mediaReady: mediaReady,
@@ -186,22 +195,23 @@ EXTRACT_JS = r"""
 """
 
 
-RECT_JS = r"""
-(() => {
-  const el = document.getElementById("cc-ingest-target");
-  if (!el || !el.isConnected) return JSON.stringify({found: false});
-  const r = el.getBoundingClientRect();
-  return JSON.stringify({x: r.x, y: r.y + window.scrollY,
-                         w: r.width, h: r.height, dpr: devicePixelRatio,
-                         scrollY: window.scrollY});
-})()
-"""
-
-
 ISOLATE_JS = r"""
 (async () => {
   document.getElementById("cc-ingest-overlay")?.remove();
-  const el = document.getElementById("cc-ingest-target");
+  // Re-find the focal article when the pin is gone: X re-renders quote-layout
+  // permalinks often enough that a node pinned by an earlier evaluate has
+  // been replaced by the next one (observed 14 Aug 2026: the pin died between
+  // measure and isolate on every attempt of a bare-quote capture). Finding it
+  // here keeps this one evaluate atomic against React's render tasks.
+  const tweetId = "__TWEET_ID__";
+  let el = document.getElementById("cc-ingest-target");
+  if (!el || !el.isConnected) {
+    const arts = [...document.querySelectorAll("article")];
+    el = arts.find(a => [...a.querySelectorAll("time")].some(t => {
+      const href = t.closest("a")?.getAttribute("href");
+      return href && href.includes("/status/" + tweetId);
+    }));
+  }
   if (!el || !el.isConnected) return JSON.stringify({found: false});
   const r = el.getBoundingClientRect();
   const overlay = document.createElement("div");
@@ -213,7 +223,8 @@ ISOLATE_JS = r"""
   ].join(";");
   const clone = el.cloneNode(true);
   clone.removeAttribute("id");
-  clone.style.width = "100%";
+  clone.style.width = "100%";  // noqa: the literal percent is why the caller
+  // substitutes the status id with .replace(), not % formatting
   clone.style.margin = "0";
   overlay.appendChild(clone);
   document.body.appendChild(overlay);
@@ -511,7 +522,8 @@ def main() -> None:
         raw = bridge("evaluate", {"code": EXTRACT_JS % (handle, tweet_id)})
         info = json.loads(raw["value"])
         if (info.get("found")
-                and (info.get("text") or info.get("mediaSlots"))
+                and (info.get("text") or info.get("mediaSlots")
+                     or info.get("embed"))
                 and info.get("mediaReady") and not info.get("truncated")):
             break
         # A post that scrolled or re-rendered can come back truncated again.
@@ -519,7 +531,8 @@ def main() -> None:
         time.sleep(2)
     if not info.get("found"):
         sys.exit(f"tweet article not found for @{handle} (deleted? wrong URL?)")
-    if not info.get("text") and not info.get("mediaSlots"):
+    if not info.get("text") and not info.get("mediaSlots") \
+            and not info.get("embed"):
         sys.exit(f"tweet article for @{handle} has neither text nor media; "
                  "refusing an empty capture")
     if not info.get("text"):
@@ -551,12 +564,9 @@ def main() -> None:
                 sys.exit(capture_thread_now(slug))
             return
 
-    # X permalink pages keep shifting while replies and media hydrate. Retag
-    # the exact status if X re-renders it, then isolate a static rendered clone
-    # before capture so later thread movement cannot change the artefact.
-    def measure() -> dict:
-        return json.loads(bridge("evaluate", {"code": RECT_JS})["value"])
-
+    # X permalink pages keep shifting while replies and media hydrate. The
+    # isolate step re-finds the exact status itself, because a node pinned by
+    # an earlier evaluate can be replaced between calls.
     shot = None
     for attempt in range(10):
         # Background tabs throttle paint and rAF; pulling the tab forward makes
@@ -573,15 +583,13 @@ def main() -> None:
                 time.sleep(1)
                 continue
         time.sleep(1.5)
-        rect = measure()
-        if not rect or rect.get("found") is False:
-            continue
-        print(f"clip rect: {rect}")
         isolated = json.loads(
-            bridge("evaluate", {"code": ISOLATE_JS})["value"]
+            bridge("evaluate", {"code": ISOLATE_JS.replace(
+                "__TWEET_ID__", tweet_id)})["value"]
         )
         if not isolated.get("found"):
             continue
+        print(f"clip: w={isolated['w']} h={isolated['h']}")
         shot = bridge("cdp", {"method": "Page.captureScreenshot", "params": {
             "format": "png",
             "captureBeyondViewport": True,
@@ -630,7 +638,13 @@ def main() -> None:
     if info.get("replyTo") and info["replyTo"].get("user"):
         rt = info["replyTo"]
         lines.append(f"reply-to: {rt['user']} -- {rt['text']!r}")
-    if not info["text"]:
+    if not info["text"] and info.get("embed") and not info.get("media"):
+        lines.append("note:     no text body of its own; a quoted card is the "
+                     "whole post and")
+        lines.append("          shows in the screenshot. Under X's newer quote "
+                     "markup a quote")
+        lines.append("          comment is not captured as text")
+    elif not info["text"]:
         lines.append("note:     no text body; the attached image is the whole post")
     lines += ["", "--- post text (verbatim) ---", "", info["text"], ""]
     try:

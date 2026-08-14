@@ -2435,3 +2435,26 @@
 
 - reddit-full-panic-drain-report  +0 -8
 - bitkey-relationship-enrollment-report  +0 -1
+
+## 20260814T082319Z
+
+- libngu-pr-58  +5 -3
+- libngu-pr-59  +5 -3
+- libngu-pr-60  +5 -3
+- libngu-pr-61  +5 -3
+- libngu-pr-62  +5 -3
+- libngu-pr-63  +5 -3
+- libngu-pr-64  +5 -3
+- libngu-pr-68  +5 -3
+- libngu-pr-56  +5 -3
+- coldcard-firmware-pr-691  +5 -3
+- coldcard-firmware-pr-707  +5 -3
+- coldcard-firmware-pr-713  +5 -3
+- coldcard-firmware-pr-697  +5 -3
+- coldcard-firmware-pr-692  +5 -3
+- coldcard-firmware-pr-693  +5 -3
+- satsigner-pr-468  +5 -3
+- sparrow-pr-2047  +5 -3
+- coindesk-70m-no-device-touch  +21 -21
+- ledger-primary-incident-article  +3 -3
+- reddit-multi-source-fail-closed-entropy  +28 -0

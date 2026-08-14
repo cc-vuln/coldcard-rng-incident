@@ -1,0 +1,361 @@
+Skip to content
+Navigation Menu
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+Uh oh!
+There was an error while loading. Please reload this page.
+Coldcard
+/
+firmware
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+221
+Star
+774
+Code
+Pull requests
+14
+Actions
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Pull requests
+Actions
+Security and quality
+Insights
+Improve seed generation - mash timing with microsecond-resolution - #713
+#713
+Open
+scgbckbone wants to merge 8 commits into
+Coldcard:masterColdcard/firmware:masterfrom
+scgbckbone:improve_seed_gen-mash-timingscgbckbone/firmware:improve_seed_gen-mash-timingCopy head branch name to clipboard
+ConversationCommits8 (8)ChecksFiles changed
+Open
+Improve seed generation - mash timing with microsecond-resolution#713
+scgbckbone wants to merge 8 commits into
+Coldcard:masterColdcard/firmware:masterfrom
+scgbckbone:improve_seed_gen-mash-timingscgbckbone/firmware:improve_seed_gen-mash-timingCopy head branch name to clipboard
+Conversation
+scgbckbone
+commented
+Aug 7, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Collaborator
+This improves PR #707’s mash method by hashing microsecond-resolution timing captured at the raw key edge, before debounce and UI delays, instead of relying on coarse processed key events and key-choice distribution. Following Peter Todd’s push-button RNG model, it conservatively credits one timing bit per press, requires 128 presses, and hashes each complete timing interval while remaining safe even when repeatedly pressing one key.
+aims to replace #707
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+scgbckbone
+added 2 commits
+August 5, 2026 15:35
+Mix secure element entropy into seed generation
+f460ce3
+reseed with full 32 bytes of digest from SE1/SE2 entropy sources
+d16d47b
+scgbckbone
+commented
+Aug 7, 2026
+Copy link
+Copy Markdown
+Collaborator
+Author
+same as #707 but key mashing is improved to microsecond-resolution. Based on Peter Todd article Push Button RNG
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+scgbckbone
+mentioned this pull request
+Aug 7, 2026
+Improve seed gen & require external entropy for each new wallet
+#707
+Closed
+scgbckbone
+force-pushed
+the
+improve_seed_gen-mash-timing
+branch
+3 times, most recently
+from
+4a793cd to
+401ad72
+Compare
+August 11, 2026 12:24
+scgbckbone
+mentioned this pull request
+Aug 11, 2026
+fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
+#691
+Draft
+scgbckbone
+added 5 commits
+August 11, 2026 15:42
+Require external entropy for all new master seed wallets - with new o…
+…
+4f58482
+…ptions dice/coin/mash
+Warn before dice-only seed generation
+d8f73c1
+external entropy required for CCC key and temporary seeds
+62a5028
+Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+6a55baf
+exclude schnorr/musig from libngu to save flash space; add adition ma…
+…
+11d8130
+…cro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
+scgbckbone
+force-pushed
+the
+improve_seed_gen-mash-timing
+branch
+from
+401ad72 to
+11d8130
+Compare
+August 11, 2026 13:43
+scgbckbone
+commented
+Aug 11, 2026
+View reviewed changes
+scgbckbone
+left a comment
+Copy link
+Copy Markdown
+Collaborator
+Author
+There was a problem hiding this comment.
+Choose a reason for hiding this comment
+The reason will be displayed to describe this comment to others. Learn more.
+Choose a reason
+Spam
+Abuse
+Off Topic
+Outdated
+Duplicate
+Resolved
+Low Quality
+Hide comment
+OK by KIMI3
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+All reactions
+scgbckbone
+mentioned this pull request
+Aug 11, 2026
+rng: verify libngu bytes path reaches hardware driver
+#700
+Open
+doc-hex
+commented
+Aug 12, 2026
+Copy link
+Copy Markdown
+Contributor
+My thoughts:
+dice / mosh and coin flips are all the same thing: you are just pressing 1-6 vs. any vs. 1-2/h/t or something
+IMHO unify the UX for all of them, and still force them into it
+we should look at number of unique values received, and assume the entropy credit is based on that set size: so if they press a/b/b/b/b/b/a ... that gets credit as 6 samples of 1 bit of entropy
+that generalizes what we would show as contribution to entropy
+naturally handles the "just pressing 7 key 50 times" problem.. since samples from a set of size 1 add no entropy
+intra-key times need not be so precisely measured, I would recommend starting a hardware timer at max speed
+it will be 16 bit limited, and also maybe only use 12 lower bits [depending on what the hardware can do as a max speed vs. edge times of key events]
+but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
+for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
+then we wouldn't need to change the API so much => less bugs
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+scgbckbone
+force-pushed
+the
+improve_seed_gen-mash-timing
+branch
+3 times, most recently
+from
+e6058db to
+69edb16
+Compare
+August 13, 2026 12:00
+scgbckbone
+commented
+Aug 13, 2026
+Copy link
+Copy Markdown
+Collaborator
+Author
+My thoughts:
+* dice / mosh and coin flips are all the same thing: you are just pressing 1-6 vs. any vs. 1-2/h/t or something
+* IMHO unify the UX for all of them, and still force them into it
+* we should look at number of unique values received, and assume the entropy credit is based on that set size: so if they press a/b/b/b/b/b/a ... that gets credit as 6 samples of 1 bit of entropy
+* that generalizes what we would show as contribution to entropy
+* naturally handles the "just pressing 7 key 50 times" problem.. since samples from a set of size 1 add no entropy
+* intra-key times need not be so precisely measured, I would recommend starting a hardware timer at max speed
+* it will be 16 bit limited, and also maybe only use 12 lower bits [depending on what the hardware can do as a max speed vs. edge times of key events]
+* but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
+* for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
+* then we wouldn't need to change the API so much => less bugs
+Done (69edb16):
+• collectors deduped: dice/coin share one collector driven by a data table; mash keeps its own, its entropy is timing not symbols
+• menu/story/screen strings unified in the same table, net -40 lines
+Leaving as-is:
+• max-speed hw timer / lower 12 bits: we already latch a hw timer tick in a hard GPIO irq at the edge, before debounce. Todd's push-button rng estimates 4-5 bits/press at 50kHz sampling - we sample at 1us and credit only 1 bit/press, the article's own "certainly at least one bit" floor. more resolution wouldnt change the credit
+• set-size crediting: key mash credits timing only, zero entropy for key choice (todd model), so set size is irrelevant here - hitting one button repeatedly is fine. and for dice/coin the bias checks stay: set-size alone misses skew (a/a/a/b still earns full credit under that model)
+• narrower api: already contained - get()/get_nowait() unchanged, only mash sees timestamps
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+review: code dedup - save flash space
+c81f966
+scgbckbone
+force-pushed
+the
+improve_seed_gen-mash-timing
+branch
+from
+69edb16 to
+c81f966
+Compare
+August 13, 2026 14:15
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+2 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.
