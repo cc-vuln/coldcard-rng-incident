@@ -4,6 +4,34 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-14
+
+### Scope
+
+- Retracted 11 X registrations after an operator scope review of all 934:
+  two off-topic (a BIP-110 movement-politics post, a newsletter promo) and
+  nine thin replies whose own registration notes conceded no incident
+  material (endorsements, an insult, a thank-you, a joke). The blocks moved
+  verbatim to `quarantine/registry-2026-08.toml` with the reason; captures
+  stay on disk. As with the 8 Aug re-grounding, this retracts out-of-scope
+  work rather than errors, so it is a changelog entry, not a correction.
+  Both intake prompts now name the two failure shapes (off-topic, thin
+  reply) so the bar is applied before registration rather than after.
+
+### Tooling
+
+- ingest-x.py captures X's newer quote and card layouts (the isolate step
+  re-finds the focal article atomically; an embed branch keeps bare-quote
+  posts capturable, with the sidecar stating when a quote comment is not
+  readable as text), and no longer crashes at exit after capturing an
+  already-registered post.
+- The intake hydrator reads media-only and quote posts instead of failing
+  them, which had jammed the queue head; duplicate repost/original pairs in
+  one batch are deferred rather than wedging it; the intake packet limit
+  rose to 96 KiB now that prompts are read from files; run-agent.sh passes a
+  bootstrap pointer instead of an argv prompt after the 128 KiB exec limit
+  silently killed a run.
+
 ## 2026-08-13
 
 ### Registry and intake tooling

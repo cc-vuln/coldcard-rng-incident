@@ -77,7 +77,11 @@ Register another only when it contributes at least one of:
 - a substantial discussion that became a distinct part of the public response.
 
 Dismiss repetitive confidence-loss, blame, product-comparison, “am I affected”
-and “not your keys” threads when an existing registered thread already captures
+threads, and the two shapes the operator's 14 Aug 2026 scope review named:
+off-topic material (a known author's unrelated cause that merely gestures at
+the incident; if the incident content could be deleted without changing the
+point, it fails) and thin replies (endorsements, insults, thanks or jokes
+that add no claim, event or named-party response beyond their parent).and “not your keys” threads when an existing registered thread already captures
 the same response. A link post relaying an already registered primary source
 needs its own substantial discussion to qualify. Popularity or comment volume
 alone is not record value.

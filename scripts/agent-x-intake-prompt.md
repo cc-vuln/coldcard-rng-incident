@@ -59,6 +59,18 @@ or off-topic posts, content-free reactions, repeated promotion of material
 already registered, and duplicates. Importance of the author does not make
 every post relevant. Report and attribute; do not adjudicate.
 
+Two failure shapes to refuse by name, both seen in the record (operator
+scope review, 14 Aug 2026):
+
+- **Off-topic**: the post is not about the incident at all. A famous
+  author's unrelated cause (a consensus-change campaign, another project,
+  price commentary) fails the belonging test even when it gestures at the
+  incident in passing. If the incident content could be deleted without
+  changing the post's point, it is off-topic.
+- **Thin reply**: an endorsement, insult, thank-you or joke that adds no
+  claim, event or named-party response beyond what its parent already
+  carries. "Community colour" is not a registration reason.
+
 Registration is representative, not exhaustive. Before registering an
 opinion, sentiment or reaction post, find its theme in the packet's saturated
 coverage themes and
