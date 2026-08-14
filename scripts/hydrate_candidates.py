@@ -87,12 +87,23 @@ X_SESSION = "coldcard-archive-x-hydrate"
 # stall every batch.
 MEDIA_JS = r"""
 (() => {
-  const article = document.querySelector('article');
+  const arts = [...document.querySelectorAll("article")];
+  const tweetId = "%s";
+  const article = arts.find(a => [...a.querySelectorAll("time")].some(t => {
+    const href = t.closest("a")?.getAttribute("href");
+    return href && href.includes("/status/" + tweetId);
+  })) || arts[0];
   if (!article) return JSON.stringify({media: 0});
   const media = article.querySelectorAll(
     '[data-testid="tweetPhoto"], [data-testid="videoPlayer"],' +
-    ' video, [data-testid="card.wrapper"]').length;
-  return JSON.stringify({media: media});
+    ' video, [data-testid="card.wrapper"],' +
+    ' [data-testid="article-cover-image"], article article').length;
+  // X's newer quote layout drops every semantic testid; the only marker
+  // left is a bare "Quote" label div. A quote comment may not be readable
+  // under this markup, which the hydration note then says.
+  const quote = [...article.querySelectorAll("div, span")].some(
+    d => d.innerText.trim() === "Quote");
+  return JSON.stringify({media: media + (quote ? 1 : 0), quote: quote});
 })()
 """
 
@@ -161,7 +172,7 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
             info = json.loads(info)
         media_count = 0
         if isinstance(info, dict) and info.get("found") and not info.get("text"):
-            raw_media = x_browser.evaluate(MEDIA_JS, X_SESSION)
+            raw_media = x_browser.evaluate(MEDIA_JS % ident, X_SESSION)
             media_info = raw_media["value"]
             if isinstance(media_info, str):
                 media_info = json.loads(media_info)
@@ -188,8 +199,10 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
         return True, (f"author: {user}\n"
                       f"posted: {info.get('time') or '?'} "
                       f"(from the page's <time> element)\n"
-                      "note: no text body; the attached image or video is "
-                      "the whole post\n"
+                      "note: no text body of its own; an attached image, "
+                      "video or quoted card is the whole post. Under X's "
+                      "newer quote markup a quote comment is not readable "
+                      "by this reader\n"
                       "\n--- post text (verbatim) ---\n\n")
     user = (info.get("user") or "?").replace("\n", " ")
     return True, (f"author: {user}\n"
