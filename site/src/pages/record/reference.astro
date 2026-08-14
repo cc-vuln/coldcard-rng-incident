@@ -191,7 +191,7 @@ const PRIMARY_GROUPS: PrimaryGroup[] = [
         who: 'Rob Hamilton and CKTRIPWIRE',
         what: 'A live honeypot experiment',
         evidence: [{ href: '/record/sources/cktripwire-honeypot-monitor/', label: 'Live scoreboard' }],
-        detail: 'Publishes live states for honeypots across a control and stepped added-entropy bands. Eight were listed at the first capture, where the control was reported swept after 1 hour 18 minutes while the seven other cases remained live. The board has grown since: the capture of 6 August 2026 holds 17 entries, 12 of the operator\'s own and 5 submitted by others and watched only, with 15 live and two swept — the trivial-difficulty control at 1 hour 18 minutes, and a submitted Mk3 with no added entropy at two minutes. The same day the operator revised its estimated GPU crack times sharply downward across every difficulty band.',
+        detail: 'Publishes live states for honeypots across a control and stepped added-entropy bands. Eight were listed at the first capture, where the control was reported swept after 1 hour 18 minutes while the seven other cases remained live. The board has grown since: the capture of 6 August 2026 holds 17 entries, 12 of the operator\'s own and 5 submitted by others and watched only, with 15 live and two swept — the trivial-difficulty control at 1 hour 18 minutes, and a submitted Mk3 with no added entropy at two minutes. The same day the operator revised its estimated GPU crack times sharply downward across every difficulty band. By the capture of 12 August 2026 the board had grown to 19 entries, 12 live and 7 swept; the new swept entries were two trivial-difficulty honeypots (HP-88A9 and HP-D85A) and the two low-dice honeypots HP-2C6F and HP-10ED, while HP-696E remained live and the community-submitted one-word and two-word passphrase cases were swept after about six days.',
         status: 'Reported live experiment; revision-captured by this archive.',
         scope: 'The experiment is ongoing and the figures above are the state of one held capture, not a current reading. Two swept zero-added-entropy cases and fifteen then-live ones do not establish a safe entropy threshold or a general attack-time distribution, and the anonymised handles were re-randomised on 6 August, so an individual row cannot be followed from one capture to the next.',
       },
@@ -447,11 +447,11 @@ const HELD: Entry[] = [
 
 /* Already in the source registry before this catalogue existed. */
 const TRACKED: { id: string; role: string }[] = [
-  { id: 'libngu-random-c', role: 'The generator file at the centre of the defect, tracked for change. Its master state changed on 6 August 2026 when the hardware-TRNG enforcement below was merged into it.' },
+  { id: 'libngu-random-c', role: 'The generator file at the centre of the defect, tracked for change. Its master state changed on 6 August 2026 when the hardware-TRNG enforcement below was merged into it, and again by 12 August 2026 when the implementation was refactored behind random_backend.h.' },
   { id: 'libngu-pr-58', role: 'Incident-response proposal, "Enforce HW TRNG", open in every 1 August capture and merged on 6 August 2026 as commit e9d5e80.' },
   { id: 'libngu-pr-59', role: 'Broad incident-response proposal; the maintainer called the diff too large and the author closed it on 1 August in favour of a three-pull-request stack, #62, #63 and #64; the closing comment was edited on 7 August 2026 as two of those were retitled.' },
   { id: 'libngu-pr-60', role: 'Full-width reseeding proposal, closed by its author on 1 August. Was the companion to firmware PR #691, which now names libngu #61.' },
-  { id: 'coldcard-firmware-pr-691', role: 'Removes the firmware-side four-byte truncation. A draft by the last 1 August capture; now depends on libngu PR #61.' },
+  { id: 'coldcard-firmware-pr-691', role: 'Removes the firmware-side four-byte truncation. A draft by the last 1 August capture; now depends on libngu PR #61. In the 12 August 2026 capture a reviewer notes the change is already covered by Coldcard/firmware PR #713 commit d16d47b and asks the author to close the draft.' },
   { id: 'coldcard-firmware-pr-689', role: 'Merged Mk3 hotfix behind release 4.2.0.' },
   { id: 'coldcard-firmware-pr-690', role: 'Merged Edge hotfix behind 6.6.0X and 6.6.0QX.' },
   { id: 'coldcard-firmware-mainline-hotfix', role: 'The mainline hotfix commit carried by the Mk4/Mk5 and Q releases.' },

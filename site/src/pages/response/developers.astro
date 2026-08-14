@@ -129,46 +129,49 @@ import Answer from '../../components/Answer.astro';
 
   <ul class="node-list">
     <li><strong><a href="/record/sources/libngu-pr-62/">#62</a>, the HMAC_DRBG core, is closed.</strong> Its single commit added an HMAC_DRBG built directly on the SHA-256 backend libngu already uses, rather than mbedtls' HMAC layer, which the author says allocates; the author states it was checked by a host-compiled harness against official NIST CAVP vectors through both backends. The author closed it on 7 August with the comment "No longer relevant given #61" — the proposal the maintainer had merged two days earlier.</li>
-    <li><strong><a href="/record/sources/libngu-pr-63/">#63</a>, the entropy health rule, is open</strong> with one commit. It rejects a source word that is zero or that matches either of the two most recently accepted words, so that a stuck source and an exact two-word cycle are caught, and a rejected word does not advance the history. The author states a steady-state false-rejection probability of 2<sup>-31</sup> per word and says the rule detects no cycle longer than two words.</li>
-    <li><strong><a href="/record/sources/libngu-pr-64/">#64</a>, the platform-boundary rework, is open</strong> with three commits and is stacked on #63. It centralises backend selection so unknown targets fail to build, permits STM32 builds only with <code>MICROPY_HW_ENABLE_RNG=1</code>, requires an explicit ESP32 attestation, uses <code>getrandom(2)</code> on Linux and <code>arc4random()</code> on macOS and FreeBSD, refuses thread-enabled builds without a GIL, corrects the rejection mask in <code>uniform()</code>, and adds negative compile gates that assert each misconfiguration fails.</li>
+    <li><strong><a href="/record/sources/libngu-pr-63/">#63</a>, the entropy health rule, is closed.</strong> It rejected a source word that was zero or that matched either of the two most recently accepted words, so that a stuck source and an exact two-word cycle were caught, and a rejected word did not advance the history. The author stated a steady-state false-rejection probability of 2<sup>-31</sup> per word and said the rule detected no cycle longer than two words. On 7 August 2026 the author of the merged #61 reviewed it, argued that no guidance he could find recommended rejecting a single A, B, A sequence and that a healthy 32-bit generator would produce one about once in four billion words, and asked whether a documented two-word cycle failure mode justified the check. The author agreed, said he would rebase #64 without the rule, and closed #63 the same day.</li>
+    <li><strong><a href="/record/sources/libngu-pr-64/">#64</a>, the platform-boundary rework, is merged</strong> with four commits. It centralises backend selection so unknown targets fail to build, permits STM32 builds only with <code>MICROPY_HW_ENABLE_RNG=1</code> or an explicitly declared external <code>rng_get()</code>, requires an explicit ESP32 attestation, uses <code>getrandom(2)</code> on Linux and <code>arc4random()</code> on macOS and FreeBSD, refuses thread-enabled builds without a GIL, corrects the rejection mask in <code>uniform()</code>, and adds negative compile gates that assert each misconfiguration fails. It was merged on 10 August 2026 after scgbckbone approved it on 9 August.</li>
   </ul>
 
   <p>
     What the stack proposes has narrowed since #59 closed. #59 offered to replace
-    Yasmarang with the author's own HMAC_DRBG; #64 now states that the generator
+    Yasmarang with the author's own HMAC_DRBG; #64 states that the generator
     "remains Cifra Hash_DRBG" as merged in #61, and hardens the entropy boundary
-    around that generator rather than substituting for it. Both #63 and #64 were
-    force-pushed and retitled on 7 August. Each of the three carries a disclosure
-    from its author that it was developed with substantial LLM assistance, then
-    adversarially reviewed, and that maintainer review is still required.
+    around that generator rather than substituting for it. #62 and #63 were closed
+    on 7 August; #64 was force-pushed and retitled twice on 7 August and merged
+    on 10 August. Each of the three carries a disclosure from its author that it
+    was developed with substantial LLM assistance, then adversarially reviewed,
+    and that maintainer review is still required.
     <Claim
       basis="verified"
-      scope="The titles, open or closed states, commit counts, stated scope and stated verification steps of libngu #62, #63 and #64, the closing comment on #62, and the 7 August force-pushes and retitles, as displayed in the captures held"
-      source="Captured switck/libngu pull-request pages #62, #63 and #64 and their separate patch captures, 7 Aug 2026"
+      scope="The titles, open or closed states, commit counts, stated scope and stated verification steps of libngu #62, #63 and #64, the closing comments on #62 and #63, the 7 August force-pushes and retitles, the 9 August approval and the 10 August merge of #64, as displayed in the captures held"
+      source="Captured switck/libngu pull-request pages #62, #63 and #64 and their separate patch captures, 7 Aug to 12 Aug 2026"
       href="/record/sources/libngu-pr-64/"
       compact
     />
     <Claim
       basis="reported"
       scope="The authors' own statements about CAVP verification, false-rejection rates, compile-gate coverage and LLM assistance; none of these test runs has been repeated by this archive"
-      source="jgmontoya's pull-request descriptions on libngu #62, #63 and #64, captured 7 Aug 2026"
+      source="jgmontoya's pull-request descriptions on libngu #62, #63 and #64, captured 7 Aug and 12 Aug 2026"
       href="/record/sources/libngu-pr-62/"
       compact
     />
   </p>
 
   <p>
-    #63 also drew a substantive review, from the author of the merged #61. On 7
+    #63 drew a substantive review from the author of the merged #61. On 7
     August 2026 scgbckbone, writing as a repository contributor, questioned the
     rule: nothing in NIST SP 800-90B or STM32 guidance that he could find
     recommends rejecting a single A, B, A sequence, a healthy 32-bit generator
     will produce one about once in four billion words, and without a documented
     two-word cycle failure mode the check "seems arbitrary" and only adds an
-    eventual false failure. The capture records no reply. #64 shows no reviews.
+    eventual false failure. The author agreed later the same day, said he would
+    rebase #64 without the health rule and closed #63. #64 later received
+    scgbckbone's approval on 9 August and was merged on 10 August.
     <Claim
       basis="reported"
-      scope="scgbckbone's review comment on libngu #63 and the absence of a reply or of any review on #64 in the capture held"
-      source="scgbckbone review comment on libngu #63, 7 Aug 2026, captured the same day"
+      scope="scgbckbone's review comment on libngu #63, the author's reply agreeing to drop the rule and close #63, and scgbckbone's later approval of #64"
+      source="scgbckbone review comment on libngu #63 and scgbckbone's approval of libngu #64, captured 7 Aug and 12 Aug 2026"
       href="/record/sources/libngu-pr-63/"
       compact
     />
@@ -184,11 +187,15 @@ import Answer from '../../components/Answer.astro';
     pull request against the libngu repository. The rewritten description now depends
     on <a href="/record/sources/libngu-pr-61/">libngu #61</a> rather than #60, a proposal
     that replaces the generator with a SHA-256 Hash-DRBG and requires a seed of at
-    least 32 bytes, so the old four-byte call is rejected outright.
+    least 32 bytes, so the old four-byte call is rejected outright. In the capture
+    held on 12 August 2026 a reviewer notes that the same change is already covered
+    by <a href="/record/sources/coldcard-firmware-pr-713/">PR #713</a> commit
+    <code>d16d47b</code> and asks the author to close this draft; a collaborator asks
+    the author to double-check and close it.
     <Claim
       basis="verified"
-      scope="The public contents of COLDCARD firmware pull request #691, its stated dependency, and the state it was in at every capture held from 06:21 to 17:41 UTC on 1 August 2026. The libngu #61 proposal it now names is registered and captured separately"
-      source="Captured Coldcard/firmware pull-request page and separate patch capture, 1 Aug 2026"
+      scope="The public contents of COLDCARD firmware pull request #691, its stated dependency, the state it was in at every capture held from 06:21 to 17:41 UTC on 1 August 2026, and the 11 August 2026 review noting that PR #713 commit d16d47b covers the same change"
+      source="Captured Coldcard/firmware pull-request page and separate patch capture, 1 Aug and 12 Aug 2026"
       href="/record/sources/coldcard-firmware-pr-691/"
       compact
     />
