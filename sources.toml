@@ -17680,3 +17680,50 @@ posted = "2026-08-03T13:33:15Z"
 why = """
 Media-only post by Zach Herbert on 2026-08-03; the archive holds the attached image or video as the post's full content and no text body was extracted. Held as a dated publication from a named incident participant during the Coldcard-response week. The specific statement is carried by the attached media and is not independently verified here.
 """
+
+[[source]]
+id = "stackernews-tracing-attacker-steps-praveen"
+title = "Tracing the Attacker's Steps Through 1,082 BTC Coldcard Drain - Praveen Perera"
+url = "https://stacker.news/items/1547780"
+published = "2026-08-14"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260821T134807Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1547780) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby links Praveen Perera's analysis of the 1,082 BTC Coldcard drain, focusing on 153 swept addresses that researchers have not been able to reconstruct seeds for. Perera describes a search effort covering 104 billion candidate seeds and 5.60 trillion address checks, and argues a missed derivation path is unlikely. Held as a dated technical follow-up on the attacker methodology and the remaining reconstruction gap. The claims and calculations are Perera's own and are not independently verified here.
+"""
+
+[[source]]
+id = "reddit-glacier-protocol-20-call"
+title = "r/Bitcoin: call for a Glacier Protocol 2.0 self-custody standard"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vnu1eb/we_need_a_glacier_protocol_20_for_bitcoin/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260821T134807Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+monstane argues that the COLDCARD incident shows self-custody advice is too complex for regular people, and calls for a well-funded, open-source Glacier Protocol 2.0 standard maintained by security experts. Held as a dated sentiment and proposal thread on the future of self-custody standards after the incident. The argument is the poster's own and is not independently verified here.
+"""
+
+[[source]]
+id = "reddit-trezor-breach-coldcard-ptsd"
+title = "r/Bitcoin: Trezor ShipMonk breach explained for people still reacting to the COLDCARD hack"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vnkt5d/trezor_breach_explained_for_anyone_still_in/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260821T134807Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+chainglance_cm explains that the Trezor ShipMonk shipping-data breach exposed customer PII but did not compromise devices or keys, contextualizing it for readers still jumpy after the COLDCARD hack. Held as a dated community-sentiment thread comparing two consecutive hardware-wallet security headlines. The claims about the breach scope are the poster's own and are not independently verified here.
+"""
