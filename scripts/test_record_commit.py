@@ -11,12 +11,16 @@ execution.
 """
 from __future__ import annotations
 
+import io
+import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -74,6 +78,8 @@ class RepoFixture(unittest.TestCase):
         self.write("BACKLOG.md", "# backlog\n")
         self.write("CHANGELOG.md", "# changelog\n")
         self.write("DISCOVERY.md", "# discovery\n\n## Pending\n")
+        self.write("discovery/transactions/2026-08/00000001-baseline.json",
+                   '{"sequence":1}\n')
         self.write(".gitignore", ".work/\n.env\n")
         self.commit("record: the baseline")
 
@@ -97,12 +103,17 @@ class RepoFixture(unittest.TestCase):
     def head_epoch(self) -> int:
         return int(git(self.root, "log", "-1", "--format=%ct"))
 
-    def guard_run(self, name: str, passed: bool, mtime: int | None = None) -> Path:
+    def guard_run(self, name: str, passed: bool, mtime: int | None = None,
+                  *, role: str | None = None,
+                  workflow_complete: bool = False) -> Path:
         run = self.root / ".work" / "agent-guard" / name
         run.mkdir(parents=True)
-        (run / "manifest.json").write_text("{}")
+        (run / "manifest.json").write_text(json.dumps(
+            {"role": role} if role is not None else {}))
         if passed:
             (run / "approved-captures.txt").write_text("")
+        if workflow_complete:
+            (run / "workflow-complete").write_text("")
         if mtime is not None:
             os.utime(run, (mtime, mtime))
         return run
@@ -126,6 +137,52 @@ class TestBranchAndGuardRuns(RepoFixture):
         self.guard_run("20990101T000000Z-1", passed=False)
         self.assertEqual(rc.unresolved_guard_runs(self.root),
                          ["20990101T000000Z-1"])
+        self.assertEqual(
+            rc.unresolved_guard_run_details(self.root),
+            (["20990101T000000Z-1"], []))
+
+    def test_registering_guard_pass_without_workflow_marker_blocks(self) -> None:
+        names = []
+        for number, role in enumerate(("intake", "xintake"), 1):
+            name = f"20990101T00000{number}Z-{role}"
+            names.append(name)
+            self.guard_run(name, passed=True, role=role)
+        self.assertEqual(rc.unresolved_guard_runs(self.root), names)
+        self.assertEqual(
+            rc.unresolved_guard_run_details(self.root), ([], names))
+
+    def test_precondition_names_guard_and_registering_blockers_separately(self) -> None:
+        unapproved = "20990101T000001Z-unapproved"
+        incomplete = "20990101T000002Z-intake"
+        self.guard_run(unapproved, passed=False)
+        self.guard_run(incomplete, passed=True, role="intake")
+        with mock.patch.object(rc, "current_branch", return_value="main"), \
+                mock.patch.object(rc, "run_just", return_value=0), \
+                mock.patch.object(rc, "audit_with_retry", return_value=True):
+            with self.assertRaises(rc.Blocked) as raised:
+                rc.check_preconditions(self.root, out=io.StringIO())
+        message = str(raised.exception)
+        self.assertIn("no guard pass verdict", message)
+        self.assertIn(unapproved, message)
+        self.assertIn("guard-approved registering workflow", message)
+        self.assertIn("no workflow-complete marker", message)
+        self.assertIn(incomplete, message)
+
+    def test_registering_workflow_marker_completes_the_run(self) -> None:
+        for number, role in enumerate(("intake", "xintake"), 1):
+            self.guard_run(
+                f"20990101T00000{number}Z-{role}", passed=True, role=role,
+                workflow_complete=True)
+        self.assertEqual(rc.unresolved_guard_runs(self.root), [])
+
+    def test_workflow_marker_does_not_replace_guard_approval(self) -> None:
+        names = []
+        for number, role in enumerate(("intake", "xintake"), 1):
+            name = f"20990101T00000{number}Z-{role}"
+            names.append(name)
+            self.guard_run(
+                name, passed=False, role=role, workflow_complete=True)
+        self.assertEqual(rc.unresolved_guard_runs(self.root), names)
 
     def test_unpassed_run_before_last_commit_is_ignored(self) -> None:
         # A run that was already sitting in the tree when the last commit was
@@ -170,13 +227,21 @@ class TestStaging(RepoFixture):
     def test_clean_tree_stages_nothing(self) -> None:
         self.assertEqual(rc.stage(self.root), [])
 
+    def test_a_path_staged_before_the_committer_cannot_bypass_allowlist(self) -> None:
+        self.write("operator-secret.txt", "must not be committed\n")
+        git(self.root, "add", "operator-secret.txt")
+        staged = rc.stage(self.root)
+        problems = rc.stage_allowlist_problems(staged)
+        self.assertEqual(1, len(problems))
+        self.assertIn("outside record_commit.py's allowlist", problems[0])
+
 
 class TestSummaryAndMessage(RepoFixture):
 
     def churn(self) -> list[tuple[str, str]]:
         # Two new snapshot captures (three files for one, one for another),
         # a social capture, a registration, a classification, a correction,
-        # a rotated discovery file and a quarantine move.
+        # a generated discovery projection and a quarantine move.
         self.write("archive/snapshots/stackernews-example-thread/"
                    "20260808T000000Z.txt", "changed text\n")
         self.write("archive/snapshots/stackernews-example-thread/"
@@ -190,7 +255,7 @@ class TestSummaryAndMessage(RepoFixture):
                     'timestamp = "20260808T000000Z"\n')
         self.write("corrections.toml",
                    '# corrections\n\n[[correction]]\ndate = "2026-08-08"\n')
-        self.write("discovery/assessed-2026-08.md", "# assessed\n")
+        self.write("discovery/candidates/reddit/example.json", "{}\n")
         self.write("quarantine/registry-2026-08.toml", "# quarantined\n")
         return rc.stage(self.root)
 
@@ -202,7 +267,6 @@ class TestSummaryAndMessage(RepoFixture):
         self.assertEqual(summary.registrations, 1)
         self.assertEqual(summary.classifications, 1)
         self.assertEqual(summary.corrections, 1)
-        self.assertEqual(summary.rotations, 1)
         self.assertEqual(summary.quarantines, 1)
 
     def test_message_shape_and_prefixes(self) -> None:
@@ -228,10 +292,57 @@ class TestSummaryAndMessage(RepoFixture):
         self.assertEqual(rc.classify([("M", "scripts/capture.py"),
                                       ("M", "docs/README.md")]), "automation")
 
-    def test_structured_candidates_are_not_counted_as_legacy_rotations(self) -> None:
+    def test_structured_candidates_have_no_legacy_rotation_summary(self) -> None:
         self.write("discovery/candidates/reddit/abc.json", "{}\n")
-        summary = rc.summarize(self.root, rc.stage(self.root))
-        self.assertEqual(0, summary.rotations)
+        message = rc.build_message(rc.summarize(self.root, rc.stage(self.root)))
+        self.assertNotIn("rotated discovery", message)
+
+
+class TestImmutableTransactions(RepoFixture):
+
+    def test_a_new_transaction_is_allowed(self) -> None:
+        self.write("discovery/transactions/2026-08/00000002-new.json",
+                   '{"sequence":2}\n')
+        staged = rc.stage(self.root)
+        self.assertEqual([], rc.immutable_transaction_problems(staged))
+        summary = rc.summarize(self.root, staged)
+        self.assertEqual(1, summary.discovery_transactions)
+        self.assertIn("1 discovery transaction(s)", rc.build_message(summary))
+
+    def test_modifying_a_committed_transaction_is_rejected(self) -> None:
+        self.write("discovery/transactions/2026-08/00000001-baseline.json",
+                   '{"sequence":999}\n')
+        staged = rc.stage(self.root)
+        problems = rc.immutable_transaction_problems(staged)
+        self.assertEqual(1, len(problems))
+        self.assertIn("status 'M'", problems[0])
+
+    def test_deleting_the_whole_transaction_tree_is_rejected(self) -> None:
+        shutil.rmtree(self.root / "discovery")
+        staged = rc.stage(self.root)
+        by_path = {path: status for status, path in staged}
+        self.assertEqual(
+            "D", by_path.get(
+                "discovery/transactions/2026-08/00000001-baseline.json"))
+        self.assertTrue(rc.immutable_transaction_problems(staged))
+
+    def test_renaming_a_transaction_exposes_the_immutable_deletion(self) -> None:
+        old = self.root / "discovery/transactions/2026-08/00000001-baseline.json"
+        new = self.root / "discovery/transactions/2026-08/00000001-renamed.json"
+        old.rename(new)
+        staged = rc.stage(self.root)
+        by_path = {path: status for status, path in staged}
+        self.assertEqual("D", by_path.get(old.relative_to(self.root).as_posix()))
+        self.assertTrue(rc.immutable_transaction_problems(staged))
+
+    def test_modifying_cutover_evidence_is_rejected(self) -> None:
+        problems = rc.immutable_transaction_problems([
+            ("M", "discovery/migration-v1/manifest.json"),
+            ("D", "discovery/migration-v1/legacy/DISCOVERY.md"),
+        ])
+        self.assertEqual(2, len(problems))
+        self.assertTrue(all("canonical discovery history" in problem
+                            for problem in problems))
 
 
 class TestMessageLint(RepoFixture):
@@ -255,12 +366,63 @@ class TestMessageLint(RepoFixture):
 
 class TestCommitFlow(RepoFixture):
 
+    def test_agent_run_lock_is_exclusive_and_nonblocking(self) -> None:
+        with rc.agent_run_lock(self.root):
+            with self.assertRaises(rc.AgentRunLockBusy):
+                with rc.agent_run_lock(self.root):
+                    self.fail("a committer entered during an agent run")
+        self.assertEqual(
+            0o600,
+            (self.root / ".work/agent-runs.lock").stat().st_mode & 0o777)
+
+    def test_agent_run_lock_rejects_symlinked_work_directory(self) -> None:
+        target = self.root / "unrelated-agent-work"
+        target.mkdir()
+        (self.root / ".work").symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(rc.Blocked, "agent-run lock path is unsafe"):
+            with rc.agent_run_lock(self.root):
+                self.fail("a substituted .work directory was followed")
+        self.assertEqual(list(target.iterdir()), [])
+
     def test_build_lock_is_exclusive(self) -> None:
         path = self.root / "build.lock"
         with rc.build_lock(path):
             with self.assertRaises(rc.BuildLockBusy):
                 with rc.build_lock(path):
                     self.fail("a second owner acquired the build lock")
+
+    def test_discovery_lock_is_exclusive_and_operator_only(self) -> None:
+        path = self.root / ".work/locks/discovery.lock"
+        with rc.discovery_lock(self.root, path):
+            self.assertEqual(0o600, path.stat().st_mode & 0o777)
+            self.assertEqual(0o700, path.parent.stat().st_mode & 0o777)
+            with self.assertRaises(rc.DiscoveryLockBusy):
+                with rc.discovery_lock(self.root, path):
+                    self.fail("a second owner acquired the discovery lock")
+
+    def test_discovery_lock_rejects_a_symlinked_lock_directory(self) -> None:
+        target = self.root / "unrelated"
+        target.mkdir(mode=0o755)
+        work = self.root / ".work"
+        work.mkdir()
+        (work / "locks").symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(rc.Blocked, "not an ordinary directory"):
+            with rc.discovery_lock(self.root):
+                self.fail("a symlinked lock namespace was followed")
+        self.assertEqual(0o755, target.stat().st_mode & 0o777)
+
+    def test_discovery_lock_rejects_a_symlinked_lock_file(self) -> None:
+        target = self.root / "unrelated.lock"
+        target.write_text("do not touch\n")
+        target.chmod(0o644)
+        lock_dir = self.root / ".work/locks"
+        lock_dir.mkdir(parents=True)
+        (lock_dir / "discovery.lock").symlink_to(target)
+        with self.assertRaisesRegex(rc.Blocked, "lock path is unsafe"):
+            with rc.discovery_lock(self.root):
+                self.fail("a symlinked lock file was followed")
+        self.assertEqual("do not touch\n", target.read_text())
+        self.assertEqual(0o644, target.stat().st_mode & 0o777)
 
     def test_stage_and_commit_leaves_a_clean_tree(self) -> None:
         self.write("archive/snapshots/stackernews-example-thread/"

@@ -325,7 +325,8 @@ record from replies having been removed.
 `[[x_watch]]` registry for new permalinks through the capture browser,
 driver-side only, under the `X_BROWSER_DISCOVERY_ENABLED` kill switch. It
 writes no capture itself: ID-only candidate metadata stays under `.work/`, the
-tracked `DISCOVERY.md` queue receives a relation label and permalink, the
+immutable discovery store receives a public observation with the relation
+label and permalink, the generated Pending view exposes it, the
 registering `xintake` role assesses a bounded packet with exact registry
 matches and non-zero historical saturation rows,
 and the driver captures each approved post through the `ingest-x.py` path

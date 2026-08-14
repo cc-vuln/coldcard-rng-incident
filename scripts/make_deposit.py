@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """Stage the archival deposit: everything this project created, nothing it did not.
 
-This assembles a deposit tree under `.work/`, reports exactly what went in and
-what was held back, and stops. **It has no upload path and never will.** Where
+This assembles the exact committed tree under `.work/`, reports exactly what
+went in and what was held back, and stops. Discovery and archive writers are
+locked while their records are validated and described. **It has no upload
+path and never will.** Where
 the deposit goes, and whether it is open or access-restricted, is an operator
 decision made after looking at what this prints.
 
 The rule is subtractive, not additive: the deposit is every git-tracked file
-minus three trees. Subtractive is what makes it auditable. An allowlist silently
+minus four trees. Subtractive is what makes it auditable. An allowlist silently
 omits whatever nobody remembered to add, and the omission looks identical to a
-deliberate exclusion; a denylist of three named trees can be checked against
+deliberate exclusion; a denylist of four named trees can be checked against
 `git ls-files` by anyone in one command.
 
 What is held back, and why:
 
-  archive/snapshots/   complete copies of other people's articles, threads and
-  archive/x/           posts. This project holds and quotes them under an
+  archive/snapshots/   complete copies of other people's articles and threads.
+  archive/x/ and
+  archive/nostr/       social posts and replies. This project holds and quotes
+                       them under an
                        archival rationale; it does not warrant the right to
                        redistribute them in a deposit designed to be permanent,
                        and it could not: the works have several hundred authors,
@@ -141,15 +145,52 @@ def git(*args: str) -> str:
     ).stdout.strip()
 
 
-def tracked_files() -> list[str]:
-    return [line for line in git("ls-files").splitlines() if line]
+def committed_tree(commit: str) -> list[tuple[str, str]]:
+    """Return ``(mode, path)`` entries from one immutable Git tree."""
+    result = subprocess.run(
+        ["git", "ls-tree", "-r", "-z", commit], cwd=REPO, check=True,
+        capture_output=True,
+    )
+    rows = []
+    for raw in result.stdout.split(b"\0"):
+        if not raw:
+            continue
+        meta, path = raw.split(b"\t", 1)
+        mode = meta.split(b" ", 1)[0].decode("ascii")
+        rows.append((mode, path.decode("utf-8", errors="surrogateescape")))
+    return rows
 
 
-def version_label() -> tuple[str, str]:
-    """(version, commit). The tag when there is one, else the short commit."""
-    commit = git("rev-parse", "HEAD")
+def copy_committed_tree(commit: str, target: Path) -> None:
+    """Stream one committed tree into *target*, excluding held captures.
+
+    A single ``git archive`` is both faster and more coherent than thousands
+    of worktree copies. Negative pathspecs apply the same four exclusions the
+    deposit report uses. Python's data filter rejects absolute paths, ``..``
+    traversal and unsafe links before extraction.
+    """
+    command = ["git", "archive", "--format=tar", commit, "--", "."]
+    command += [f":(exclude){prefix.rstrip('/')}" for prefix in EXCLUDED]
+    process = subprocess.Popen(command, cwd=REPO, stdout=subprocess.PIPE)
+    assert process.stdout is not None
     try:
-        tag = git("describe", "--tags", "--abbrev=0")
+        with tarfile.open(fileobj=process.stdout, mode="r|") as archive:
+            archive.extractall(target, filter="data")
+    except Exception:
+        process.kill()
+        process.wait()
+        raise
+    finally:
+        process.stdout.close()
+    if process.wait() != 0:
+        raise RuntimeError("git archive failed while staging the committed tree")
+
+
+def version_label(commit: str | None = None) -> tuple[str, str]:
+    """(version, commit). The tag when there is one, else the short commit."""
+    commit = commit or git("rev-parse", "HEAD")
+    try:
+        tag = git("describe", "--tags", "--abbrev=0", commit)
     except subprocess.CalledProcessError:
         tag = ""
     return (tag or commit[:12]), commit
@@ -198,6 +239,9 @@ DEPOSIT_README = """# COLDCARD predictable-RNG incident archive: deposit
 This is the deposit of everything the cc-vuln.org project created: the source
 registry, the poll record, the classification of every detected difference, the
 corrections log, the capture tooling, the site and the method documentation.
+The structured discovery record includes its immutable transactions, schemas,
+and the migration bundle containing exact pre-cutover queue bytes; candidate
+files and views can be rebuilt and are validated before this deposit is staged.
 
 Version {version} ({commit}).
 Staged {staged}.
@@ -235,16 +279,9 @@ deposit, is at https://cc-vuln.org/cite/ and in CITATION.cff.
 """
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT,
-                        help=f"staging directory (default {DEFAULT_OUT})")
-    parser.add_argument("--tar", action="store_true",
-                        help="also write a .tar.gz beside the staged tree")
-    parser.add_argument("--allow-dirty", action="store_true",
-                        help="stage even though tracked files differ from HEAD")
-    args = parser.parse_args()
-
+def _stage_locked(args: argparse.Namespace) -> int:
+    """Copy one committed tree while archive and discovery writers are held."""
+    commit = git("rev-parse", "HEAD")
     dirty = bool(git("status", "--porcelain=v1", "--untracked-files=no"))
     if dirty and not args.allow_dirty:
         print(
@@ -255,9 +292,30 @@ def main() -> int:
         )
         return 2
 
+    # The deposit's capture manifest and structured-store validation read the
+    # working tree. Unlike ordinary prose, those records must therefore match
+    # the named commit even for --allow-dirty. Both writer locks are held, and
+    # --untracked-files=all catches a new transaction or capture not yet in
+    # HEAD as well as modification of a tracked one.
+    critical = git(
+        "status", "--porcelain=v1", "--untracked-files=all", "--",
+        "archive", "DISCOVERY.md", "discovery",
+    )
+    if critical:
+        print(
+            "deposit: archive or discovery differs from HEAD. Commit the "
+            "locked record first; --allow-dirty never mixes an uncommitted "
+            "canonical record with a deposit that names a commit.",
+            file=sys.stderr,
+        )
+        return 2
+
+    tree = committed_tree(commit)
+    committed_paths = [path for _mode, path in tree]
+
     unclassified = sorted({
         path.split("/")[1] if "/" in path[len("archive/"):] else path
-        for path in tracked_files()
+        for path in committed_paths
         if path.startswith("archive/")
         and not path.startswith(EXCLUDED)
         and not path.startswith(ARCHIVE_INCLUDED)
@@ -274,7 +332,7 @@ def main() -> int:
             print(f"  - archive/{name}", file=sys.stderr)
         return 3
 
-    version, commit = version_label()
+    version, commit = version_label(commit)
     name = f"cc-vuln-coldcard-rng-incident-{version}"
     root = args.out / name
     if root.exists():
@@ -283,23 +341,38 @@ def main() -> int:
 
     included: list[str] = []
     withheld: list[str] = []
-    for path in tracked_files():
+    for path in committed_paths:
         (withheld if path.startswith(EXCLUDED) else included).append(path)
 
+    copy_committed_tree(commit, root)
+    leaked = next((path for path in withheld
+                   if (root / path).exists() or (root / path).is_symlink()), None)
+    if leaked:
+        raise RuntimeError(f"git archive included withheld path: {leaked}")
     sizes: dict[str, tuple[int, int]] = {}
     for path in included:
-        source = REPO / path
-        if not source.exists():           # a deleted-but-staged path
-            continue
         target = root / path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+        if not target.exists() and not target.is_symlink():
+            raise RuntimeError(f"git archive omitted committed path: {path}")
         label = next(
             (name for name, prefixes in GROUPS if path.startswith(prefixes)),
             "other",
         )
         count, total = sizes.get(label, (0, 0))
-        sizes[label] = (count + 1, total + source.stat().st_size)
+        sizes[label] = (count + 1, total + target.lstat().st_size)
+
+    # This second validation runs against exactly what will be deposited. It
+    # is the explicit guarantee that the migration bundle and schemas were
+    # included, and that a clean checkout of the deposit can reconstruct every
+    # candidate, state file, view and the root index from its transactions.
+    from discovery_store import validate_store
+
+    try:
+        validate_store(root, lock_held=True)
+    except Exception as exc:
+        print(f"deposit: copied discovery record is incomplete or invalid: {exc}",
+              file=sys.stderr)
+        return 4
 
     # The manifest is generated into the deposit rather than committed: it is
     # derived from the archive, and a derived file in archive/ would be the one
@@ -307,7 +380,9 @@ def main() -> int:
     sys.path.insert(0, str(REPO / "scripts"))
     import build_manifest
 
-    rows = build_manifest.build()
+    import registry_store
+
+    rows = build_manifest.build(registry_store.load(root))
     manifest_path = root / "archive" / "manifest.jsonl"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(
@@ -351,9 +426,10 @@ def main() -> int:
         ],
         "notes": (
             "Project-created material only. Captured third-party material "
-            "(archive/snapshots/, archive/x/) is excluded and remains its "
-            "authors' copyright; every withheld capture is described in "
-            "archive/manifest.jsonl. Built from commit " + commit + "."
+            "(archive/snapshots/, archive/x/, and archive/nostr/) is excluded "
+            "and remains its authors' copyright; per-run telemetry under "
+            "archive/runs/ is also excluded. Every withheld capture is "
+            "described in archive/manifest.jsonl. Built from commit " + commit + "."
         ),
     }
     (root / "deposit-metadata.json").write_text(
@@ -410,6 +486,41 @@ def main() -> int:
         print(f"  tarball: {args.out / (name + '.tar.gz')}")
     print("nothing was uploaded: this tool has no upload path.")
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT,
+                        help=f"staging directory (default {DEFAULT_OUT})")
+    parser.add_argument("--tar", action="store_true",
+                        help="also write a .tar.gz beside the staged tree")
+    parser.add_argument(
+        "--allow-dirty", action="store_true",
+        help="allow unrelated dirty files; deposited files still come from HEAD",
+    )
+    args = parser.parse_args()
+
+    sys.path.insert(0, str(REPO / "scripts"))
+    from archive_lock import ArchiveLockBusy, archive_lock
+    from discovery_store import DiscoveryStore, validate_store
+
+    store = DiscoveryStore(REPO)
+    try:
+        # Consistent lock order: discovery before archive. The store validator
+        # is told the lock is already held so it cannot self-deadlock.
+        with store.locked():
+            try:
+                validate_store(REPO, lock_held=True)
+            except Exception as exc:
+                print(f"deposit: structured discovery is invalid: {exc}",
+                      file=sys.stderr)
+                return 4
+            with archive_lock("make-deposit"):
+                return _stage_locked(args)
+    except ArchiveLockBusy as exc:
+        print(f"deposit: archive writer lock is held ({exc}); retry after the "
+              "capture finishes", file=sys.stderr)
+        return 21
 
 
 if __name__ == "__main__":

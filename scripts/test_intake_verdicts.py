@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Focused tests for the guarded legacy intake-verdict handoff."""
+"""Focused tests for the guarded structured intake-verdict handoff."""
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -13,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import apply_intake_verdicts as applier
 import intake_verdicts
+from discovery_test_fixture import install_store
 
 
 OLD = """\
@@ -60,27 +60,38 @@ class VerdictCase(unittest.TestCase):
         self.packet = self.run / "intake-packet.json"
         self.outbox = self.run / "intake-verdicts.jsonl"
         self.approval = self.run / "approved-captures.txt"
-        self.intake = self.root / "DISCOVERY.md"
         self.before.write_text(OLD, encoding="utf-8")
         self.after.write_text(NEW, encoding="utf-8")
         self.approval.write_text("", encoding="utf-8")
-        self.intake.write_text(
-            "# Discovery\n\n## Pending\n\n" + LINE_A + "\n" + LINE_B +
-            "\n\n## Assessed\n\n- an old verdict\n\n"
-            "## Link review, held for a human decision\n\n- held line\n",
-            encoding="utf-8")
+        self.store = install_store(self.root, [
+            {"line": LINE_A,
+             "url": "https://www.reddit.com/r/test/comments/new111/new/",
+             "at": "20260813T000000Z"},
+            {"line": LINE_B, "url": "https://stacker.news/items/222",
+             "at": "20260813T000001Z"},
+        ])
         self.write_packet([
             ("reddit:new111", "reddit:submission:new111", LINE_A, []),
             ("stackernews:222", "stackernews:item:222", LINE_B, []),
         ])
 
     def write_packet(self, candidates: list[tuple[str, str, str, list[str]]]) -> None:
-        value = {"schema_version": 1, "lane": "community", "candidates": [
-            {"candidate_id": ident, "external_key": key, "queue_line": line,
-             "registry_exact_match": {"matched": bool(exact),
-                                      "source_ids": exact}}
-            for ident, key, line, exact in candidates
-        ]}
+        records = []
+        for ident, key, line, exact in candidates:
+            projected = self.store.load_candidate(ident)
+            records.append({
+                "candidate_id": ident,
+                "candidate_head": (projected["head"] if projected
+                                   else "a" * 64),
+                "external_key": key,
+                "queue_line": line,
+                "registry_exact_match": {
+                    "matched": bool(exact), "source_ids": exact,
+                },
+            })
+        value = {"schema_version": 1, "lane": "community",
+                 "discovery": {"mode": "structured"},
+                 "candidates": records}
         self.packet.write_text(json.dumps(value), encoding="utf-8")
 
     def write_rows(self, rows: list[dict]) -> None:
@@ -95,10 +106,16 @@ class VerdictCase(unittest.TestCase):
             after_registry_path=self.after)
 
     def apply(self) -> tuple[int, int]:
-        return applier.apply(
-            intake_path=self.intake, packet_path=self.packet,
-            verdict_path=self.outbox, before_registry_path=self.before,
-            after_registry_path=self.after, approval_path=self.approval)
+        with self.store.locked():
+            return applier.apply(
+                root=self.root, packet_path=self.packet,
+                verdict_path=self.outbox, before_registry_path=self.before,
+                after_registry_path=self.after, approval_path=self.approval,
+                lock_held=True, operation_id="fixture-run")
+
+    def event_bytes(self) -> bytes:
+        return b"".join(path.read_bytes() for path in sorted(
+            (self.root / "discovery/transactions").glob("*/*.json")))
 
     def test_applier_moves_terminal_and_leaves_retry_pending(self) -> None:
         self.write_rows([
@@ -106,13 +123,14 @@ class VerdictCase(unittest.TestCase):
             row("stackernews:222", "retry", "body unavailable"),
         ])
         self.assertEqual((1, 1), self.apply())
-        text = self.intake.read_text(encoding="utf-8")
-        pending = text.split("## Pending", 1)[1].split("## Assessed", 1)[0]
-        assessed = text.split("## Assessed", 1)[1].split("## Link review", 1)[0]
-        self.assertNotIn(LINE_A, pending)
-        self.assertIn(LINE_B, pending)
-        self.assertIn(LINE_A + " -> dismissed: not incident material ", assessed)
-        self.assertIn("- held line", text)
+        first = self.store.load_candidate("reddit:new111")
+        second = self.store.load_candidate("stackernews:222")
+        self.assertEqual("assessed", first["state"])
+        self.assertEqual("dismissed", first["verdict"]["kind"])
+        self.assertEqual("20260813T120000Z", first["verdict"]["at"])
+        self.assertEqual("pending", second["state"])
+        self.assertEqual("body unavailable", second["retry"]["reason"])
+        self.assertEqual("20260813T120000Z", second["retry"]["at"])
 
     def test_output_order_is_packet_order_not_outbox_order(self) -> None:
         self.write_rows([
@@ -123,18 +141,50 @@ class VerdictCase(unittest.TestCase):
         self.assertEqual(["reddit:new111", "stackernews:222"],
                          [value["candidate_id"] for value in normalized])
         self.apply()
-        assessed = self.intake.read_text().split("## Assessed", 1)[1]
-        self.assertLess(assessed.index(LINE_A), assessed.index(LINE_B))
+        self.assertEqual("assessed",
+                         self.store.load_candidate("reddit:new111")["state"])
+        self.assertEqual("assessed",
+                         self.store.load_candidate("stackernews:222")["state"])
+
+    def test_queue_line_is_presentation_not_apply_identity(self) -> None:
+        packet = json.loads(self.packet.read_text(encoding="utf-8"))
+        packet["candidates"][0]["queue_line"] = "- cosmetic packet label"
+        self.packet.write_text(json.dumps(packet), encoding="utf-8")
+        self.write_rows([row("reddit:new111", "dismissed"),
+                         row("stackernews:222", "retry")])
+        self.apply()
+        self.assertEqual("assessed",
+                         self.store.load_candidate("reddit:new111")["state"])
+
+    def test_exact_guarded_operation_replay_is_idempotent(self) -> None:
+        self.write_rows([row("reddit:new111", "dismissed"),
+                         row("stackernews:222", "retry")])
+        self.apply()
+        committed = self.event_bytes()
+        self.assertEqual((1, 1), self.apply())
+        self.assertEqual(committed, self.event_bytes())
+
+    def test_operation_id_reuse_with_different_content_fails_closed(self) -> None:
+        self.write_rows([row("reddit:new111", "dismissed"),
+                         row("stackernews:222", "retry")])
+        self.apply()
+        committed = self.event_bytes()
+        self.write_rows([row("reddit:new111", "dismissed", "changed reason"),
+                         row("stackernews:222", "retry")])
+        with self.assertRaisesRegex(intake_verdicts.VerdictError,
+                                    "reused with different content"):
+            self.apply()
+        self.assertEqual(committed, self.event_bytes())
 
     def test_missing_guard_marker_writes_nothing(self) -> None:
         self.write_rows([row("reddit:new111", "dismissed"),
                          row("stackernews:222", "retry")])
-        before = self.intake.read_bytes()
+        before = self.event_bytes()
         self.approval.unlink()
         with self.assertRaisesRegex(intake_verdicts.VerdictError,
                                     "approval marker"):
             self.apply()
-        self.assertEqual(before, self.intake.read_bytes())
+        self.assertEqual(before, self.event_bytes())
 
     def test_registered_must_name_same_native_object(self) -> None:
         wrong = NEW.replace("comments/new111/new", "comments/other999/other")
@@ -192,14 +242,14 @@ class VerdictCase(unittest.TestCase):
     def test_validation_failure_is_all_or_nothing(self) -> None:
         self.write_rows([row("reddit:new111", "dismissed"),
                          row("stackernews:222", "retry")])
-        self.intake.write_text(
-            self.intake.read_text().replace(LINE_B + "\n", ""),
-            encoding="utf-8")
-        before = self.intake.read_bytes()
+        packet = json.loads(self.packet.read_text(encoding="utf-8"))
+        packet["candidates"][1]["candidate_head"] = "0" * 64
+        self.packet.write_text(json.dumps(packet), encoding="utf-8")
+        before = self.event_bytes()
         with self.assertRaisesRegex(intake_verdicts.VerdictError,
-                                    "appears 0 times"):
+                                    "head changed"):
             self.apply()
-        self.assertEqual(before, self.intake.read_bytes())
+        self.assertEqual(before, self.event_bytes())
 
     def test_outbox_has_a_small_regular_file_boundary(self) -> None:
         self.outbox.write_text("{}\n" * 16, encoding="utf-8")
@@ -210,23 +260,25 @@ class VerdictCase(unittest.TestCase):
         with self.assertRaisesRegex(intake_verdicts.VerdictError, "non-symlink"):
             self.validate()
 
-    def test_applier_import_has_no_discovery_store_dependency(self) -> None:
-        scripts = Path(__file__).resolve().parent
-        code = """
-import builtins, sys
-real = builtins.__import__
-def blocked(name, *args, **kwargs):
-    if name == 'discovery_store':
-        raise ImportError('structured store deliberately absent')
-    return real(name, *args, **kwargs)
-builtins.__import__ = blocked
-sys.path.insert(0, sys.argv[1])
-import apply_intake_verdicts
-"""
-        result = subprocess.run(
-            [sys.executable, "-c", code, str(scripts)], text=True,
-            capture_output=True, check=False)
-        self.assertEqual(0, result.returncode, result.stderr)
+    def test_applier_rejects_legacy_packet_without_head_binding(self) -> None:
+        packet = json.loads(self.packet.read_text(encoding="utf-8"))
+        packet.pop("discovery")
+        for candidate in packet["candidates"]:
+            candidate.pop("candidate_head")
+        self.packet.write_text(json.dumps(packet), encoding="utf-8")
+        self.write_rows([row("reddit:new111", "dismissed"),
+                         row("stackernews:222", "retry")])
+        with self.assertRaisesRegex(intake_verdicts.VerdictError,
+                                    "requires a structured"):
+            self.apply()
+
+    def test_structured_packet_requires_every_candidate_head(self) -> None:
+        packet = json.loads(self.packet.read_text(encoding="utf-8"))
+        packet["candidates"][0].pop("candidate_head")
+        self.packet.write_text(json.dumps(packet), encoding="utf-8")
+        with self.assertRaisesRegex(intake_verdicts.VerdictError,
+                                    "valid candidate head"):
+            intake_verdicts.load_packet(self.packet)
 
 
 if __name__ == "__main__":

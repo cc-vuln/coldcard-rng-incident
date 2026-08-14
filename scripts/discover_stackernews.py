@@ -22,23 +22,25 @@ what the site already answers anonymously for any reader, but the open
 permission question for anything heavier remains a standing limit in
 AGENTS.md.
 
-Candidates land in two places: .work/stackernews-candidates.jsonl (the
-gitignored raw log) and DISCOVERY.md at the repo root (the tracked intake
-queue, shared with every other discovery lane, so new candidates show up in
-git status and in front of anyone working the tree). A candidate is a new item
-whose title matches the incident vocabulary; --all reports every new item for
-a full manual sweep.
+Candidates land in two forms: .work/stackernews-candidates.jsonl is the
+gitignored diagnostic log, while the durable observation batch is an immutable
+transaction in the structured discovery store shared with every lane. The
+store regenerates one JSON projection per candidate, sharded Markdown working
+views and the small root DISCOVERY.md index. A candidate is a new item whose
+title matches the incident vocabulary; --all reports every new item for a full
+manual sweep.
 
-Assessment is the intake agent's job, not this script's: pending DISCOVERY.md
-entries are assessed by scripts/agent-discovery-intake.sh (REVIEW_AGENT_BIN,
+Assessment is the intake agent's job, not this script's: pending structured
+candidates are assessed by scripts/agent-discovery-intake.sh (REVIEW_AGENT_BIN,
 the same agent pattern as agent-review.sh), which registers relevant threads
-in sources.toml, first-captures them with `just capture-one`, and records
-every verdict in DISCOVERY.md. Entries whose
-thread reaches sources.toml by any route drop out of Pending on the next run.
+in sources.toml and requests their first capture. Its protected packet binds
+candidate ids to event heads; after guard approval the driver commits the
+whole verdict batch as one transaction. A thread that reaches sources.toml by
+another route receives an explicit already-registered event on reconciliation.
 Nothing here writes to archive/: capture.py remains the only writer.
 
 Zero dependencies: stdlib only (imports discovery_common.py for the keyword
-list and intake file handling), Python 3.11+ for tomllib.
+list and structured discovery handling), Python 3.11+ for tomllib.
 """
 
 import argparse
@@ -115,7 +117,7 @@ def fetch_item_body(item_id: str) -> None:
     print(json.dumps(item, indent=2, sort_keys=True))
 
 
-def registered_urls_sn() -> set[str]:
+def registered_urls_sn() -> dict[str, str]:
     """Canonical URLs of every stacker.news source already in sources.toml."""
     def canonical(url: str) -> str | None:
         m = ITEM_URL_RE.search(url)

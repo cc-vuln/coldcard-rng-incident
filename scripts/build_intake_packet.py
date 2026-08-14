@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a small, deterministic evidence packet for an intake-agent run.
 
-The legacy intake drivers hand an agent the candidate queue twice and the
-whole source registry once.  This adapter keeps the evidence that changes a
+Earlier intake drivers handed an agent the candidate queue twice and the
+whole source registry once.  This builder keeps the evidence that changes a
 decision while making the transport independent of the eventual registry and
 discovery layouts:
 
@@ -16,12 +16,11 @@ The JSON is the machine-checkable packet.  The compact Markdown is the only
 part intended for an agent prompt, and must still be passed through
 ``render_agent_prompt.py`` as untrusted evidence.
 
-Legacy ``sources.toml``, ``DISCOVERY.md`` and rotated verdict files are read
-until their structured replacements are populated.  If
-``scripts/registry_store.py`` is present, its ``load(root)`` API is preferred
-for the registry.  A populated discovery store is read through
-``load_intake_verdict_lines(root)``; the legacy reader remains the migration
-boundary before that store exists.
+If ``scripts/registry_store.py`` is present, its ``load(root)`` API is
+preferred for the registry.  Discovery is different: the migration marker is
+an activation boundary and production packets fail closed unless the
+structured store validates.  Explicit Markdown paths remain available only
+for small migration-era fixtures.
 """
 from __future__ import annotations
 
@@ -35,7 +34,8 @@ import tomllib
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import parse_qs, urlparse
+
+from discovery_store import url_identity
 
 import build_coverage_index as coverage_index
 
@@ -54,6 +54,15 @@ COMMUNITY_LANES = frozenset({"stackernews", "reddit", "bitcointalk", "nostr"})
 URL_IN_LINE = re.compile(r"\((https?://[^)]+)\)")
 HYDRATED_HEADING = re.compile(r"^### Candidate ([1-9][0-9]*)$")
 OPEN_FENCE = re.compile(r"^<<<UNTRUSTED-([a-zA-Z0-9-]+)$")
+HEAD_RE = re.compile(r"^[0-9a-f]{64}$")
+IDENTITY_RE = re.compile(
+    r"^[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}$")
+INTAKE_FIELDS = frozenset({
+    "schema", "candidate_id", "candidate_head", "url", "queue_line",
+})
+HYDRATION_FIELDS = frozenset({
+    *INTAKE_FIELDS, "platform", "hydration_status", "hydration_detail", "body",
+})
 
 
 class PacketError(ValueError):
@@ -106,45 +115,21 @@ def canonical_external_key(url: str) -> tuple[str, str]:
     They identify the publisher's native object, which is the exact-duplicate
     question the driver can answer without model judgement.
     """
-    parsed = urlparse(url)
-    host = (parsed.hostname or "").lower()
-    path = parsed.path.rstrip("/")
-
-    if host in {"x.com", "www.x.com", "twitter.com", "www.twitter.com"}:
-        match = re.fullmatch(r"/[^/]+/status/(\d+)", path, re.IGNORECASE)
-        if match:
-            return "x", f"x:status:{match.group(1)}"
-
-    if host == "redd.it":
-        match = re.fullmatch(r"/([0-9a-z]+)", path, re.IGNORECASE)
-        if match:
-            return "reddit", f"reddit:submission:{match.group(1).lower()}"
-    if host == "reddit.com" or host.endswith(".reddit.com"):
-        match = re.search(r"/comments/([0-9a-z]+)(?:/|$)",
-                          parsed.path, re.IGNORECASE)
-        if match:
-            return "reddit", f"reddit:submission:{match.group(1).lower()}"
-
-    if host == "stacker.news":
-        match = re.fullmatch(r"/items/(\d+)", path)
-        if match:
-            return "stackernews", f"stackernews:item:{match.group(1)}"
-
-    if host == "bitcointalk.org" or host.endswith(".bitcointalk.org"):
-        raw_topic = parse_qs(parsed.query).get("topic", [""])[0]
-        match = re.match(r"(\d+)", raw_topic)
-        if match:
-            return "bitcointalk", f"bitcointalk:topic:{match.group(1)}"
-
-    if host == "njump.me":
-        match = re.fullmatch(
-            r"/(note1[023456789acdefghjklmnpqrstuvwxyz]+)", path,
-            re.IGNORECASE)
-        if match:
-            note = match.group(1).lower()
-            return "nostr", f"nostr:note:{note}"
-
-    raise PacketError(f"unrecognized intake permalink: {url}")
+    try:
+        platform, native_id = url_identity(url, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise PacketError(f"unrecognized intake permalink: {url}") from exc
+    kinds = {
+        "x": "status",
+        "reddit": "submission",
+        "stackernews": "item",
+        "bitcointalk": "topic",
+        "nostr": "note",
+    }
+    kind = kinds.get(platform)
+    if kind is None:
+        raise PacketError(f"unrecognized intake platform: {platform}")
+    return platform, f"{platform}:{kind}:{native_id}"
 
 
 def stable_candidate_id(external_key: str) -> str:
@@ -235,36 +220,32 @@ def legacy_assessed_lines(discovery: Path, rotated_dir: Path) -> list[str]:
 
 def load_assessed_lines(root: Path, discovery: Path | None = None,
                         rotated_dir: Path | None = None) -> list[str]:
-    """Load verdict evidence through a future discovery-store hook."""
-    # The module may land before its migration does.  Presence of code is not
-    # a completion marker: an empty, not-yet-populated store must not shadow
-    # the legacy verdict ledger and silently reset every saturation count.
-    # migrate_discovery writes this manifest only after the complete candidate,
-    # event and view trees are durable.  A candidates/ directory appears while
-    # those trees are being copied and is therefore not a safe activation
-    # signal by itself.
-    canonical_marker = root / "discovery" / "migration-manifest.json"
-    if discovery is None and rotated_dir is None and canonical_marker.is_file():
-        try:
-            import discovery_store  # type: ignore
-        except ImportError:
-            discovery_store = None
-        hook = (getattr(discovery_store, "load_intake_verdict_lines", None)
-                if discovery_store is not None else None)
-        if callable(hook):
-            validate = getattr(discovery_store, "validate_migration", None)
-            if not callable(validate):
-                raise PacketError("structured discovery marker exists but "
-                                  "discovery_store.validate_migration is missing")
-            try:
-                validate(root)
-            except ValueError as exc:
-                raise PacketError(str(exc)) from exc
-            return list(hook(root))
+    """Read explicitly supplied legacy fixture paths.
+
+    There is deliberately no implicit production fallback: a missing or bad
+    structured store must not look like an empty verdict history.
+    """
+    del root  # Kept in the signature for callers from the migration period.
+    if discovery is None or rotated_dir is None:
+        raise PacketError("legacy discovery reads require both explicit "
+                          "DISCOVERY.md and rotated-directory paths")
+    return legacy_assessed_lines(discovery, rotated_dir)
+
+
+def load_structured_store(root: Path, *, lock_held: bool):
+    try:
+        import discovery_store
+    except ImportError as exc:  # pragma: no cover - deployment packaging guard
         raise PacketError("structured discovery marker exists but "
-                          "discovery_store.load_intake_verdict_lines is missing")
-    return legacy_assessed_lines(discovery or root / "DISCOVERY.md",
-                                 rotated_dir or root / "discovery")
+                          "discovery_store is unavailable") from exc
+    store = discovery_store.DiscoveryStore(root)
+    if not store.marker.is_file():
+        raise PacketError("structured discovery migration marker is missing")
+    try:
+        discovery_store.validate_store(root, lock_held=lock_held)
+    except (OSError, TypeError, ValueError) as exc:
+        raise PacketError(str(exc)) from exc
+    return store
 
 
 def coverage_summary(rows: list[dict[str, Any]],
@@ -404,6 +385,122 @@ def read_candidate_lines(path: Path) -> list[str]:
     return lines
 
 
+def _validate_intake_record(value: Any, *, context: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != INTAKE_FIELDS \
+            or value.get("schema") != 1:
+        raise PacketError(f"{context} has unsupported fields")
+    candidate_id = value.get("candidate_id")
+    candidate_head = value.get("candidate_head")
+    url = value.get("url")
+    queue_line = value.get("queue_line")
+    if not isinstance(candidate_id, str) \
+            or not IDENTITY_RE.fullmatch(candidate_id):
+        raise PacketError(f"{context} has an invalid candidate id")
+    if not isinstance(candidate_head, str) \
+            or not HEAD_RE.fullmatch(candidate_head):
+        raise PacketError(f"{context} has an invalid candidate head")
+    if not isinstance(url, str) or not 1 <= len(url) <= 8192 or "\x00" in url:
+        raise PacketError(f"{context} has an invalid URL")
+    if not isinstance(queue_line, str) or len(queue_line) > 16384 \
+            or "\x00" in queue_line:
+        raise PacketError(f"{context} has an invalid display line")
+    platform, external_key = canonical_external_key(url)
+    if stable_candidate_id(external_key) != candidate_id:
+        raise PacketError(f"{context} id disagrees with its canonical URL")
+    return {**value, "platform": platform, "external_key": external_key}
+
+
+def read_candidate_batch(path: Path, *, structured: bool) -> list[dict[str, Any]]:
+    """Read the machine batch; Markdown is accepted only by legacy fixtures."""
+    raw_lines = [line for line in path.read_text(encoding="utf-8").splitlines()
+                 if line.strip()]
+    if not raw_lines:
+        raise PacketError("candidate batch is empty")
+    if not structured:
+        rows = []
+        for number, line in enumerate(raw_lines, 1):
+            url = url_from_queue_line(line)
+            platform, external_key = canonical_external_key(url)
+            rows.append({
+                "schema": 1,
+                "candidate_id": stable_candidate_id(external_key),
+                "candidate_head": None,
+                "url": url,
+                "queue_line": line,
+                "platform": platform,
+                "external_key": external_key,
+            })
+        return rows
+
+    rows = []
+    seen: set[str] = set()
+    for number, line in enumerate(raw_lines, 1):
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise PacketError(
+                f"candidate JSONL line {number} is invalid: {exc}") from exc
+        row = _validate_intake_record(
+            value, context=f"candidate JSONL line {number}")
+        if row["candidate_id"] in seen:
+            raise PacketError(
+                f"candidate JSONL repeats id: {row['candidate_id']}")
+        seen.add(row["candidate_id"])
+        rows.append(row)
+    return rows
+
+
+def parse_hydrated_jsonl(text: str,
+                         candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Verify hydration without parsing an id or URL out of display prose."""
+    raw_lines = [line for line in text.splitlines() if line.strip()]
+    if len(raw_lines) != len(candidates):
+        raise PacketError(
+            f"hydrated evidence has {len(raw_lines)} JSON object(s), "
+            f"batch has {len(candidates)}")
+    rows: list[dict[str, Any]] = []
+    for number, (raw, candidate) in enumerate(zip(raw_lines, candidates), 1):
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise PacketError(
+                f"hydrated JSONL line {number} is invalid: {exc}") from exc
+        if not isinstance(value, dict) or set(value) != HYDRATION_FIELDS \
+                or value.get("schema") != 1:
+            raise PacketError(
+                f"hydrated JSONL line {number} has unsupported fields")
+        common = {key: value[key] for key in INTAKE_FIELDS}
+        checked = _validate_intake_record(
+            common, context=f"hydrated JSONL line {number}")
+        for key in ("candidate_id", "candidate_head", "url", "queue_line"):
+            if checked[key] != candidate[key]:
+                raise PacketError(
+                    f"hydrated JSONL line {number} changed candidate {key}")
+        if value.get("platform") != candidate["platform"]:
+            raise PacketError(
+                f"hydrated JSONL line {number} changed candidate platform")
+        status = value.get("hydration_status")
+        detail, body = value.get("hydration_detail"), value.get("body")
+        if status in {"complete", "truncated"}:
+            if not isinstance(body, str) or detail is not None:
+                raise PacketError(
+                    f"hydrated JSONL line {number} has invalid body data")
+        elif status in {"failed", "not-hydrated"}:
+            if body is not None or not isinstance(detail, str) or not detail:
+                raise PacketError(
+                    f"hydrated JSONL line {number} has invalid failure data")
+        else:
+            raise PacketError(
+                f"hydrated JSONL line {number} has an unknown status")
+        rows.append({
+            "hydration_status": status,
+            "hydration_detail": detail,
+            "body_sha256": sha256_text(body) if body is not None else None,
+            "body": body,
+        })
+    return rows
+
+
 def render_markdown(packet: dict[str, Any]) -> str:
     coverage = packet["coverage"]
     exact = sum(1 for candidate in packet["candidates"]
@@ -462,32 +559,63 @@ def build_packet(*, root: Path, lane: str, candidates_path: Path,
                  hydrated_path: Path, registry_path: Path | None = None,
                  discovery_path: Path | None = None,
                  rotated_dir: Path | None = None,
+                 lock_held: bool = False,
                  max_markdown_bytes: int = DEFAULT_MAX_MARKDOWN_BYTES,
                  hydrated_text: str | None = None) -> tuple[dict[str, Any], str]:
     if lane not in {"community", "x"}:
         raise PacketError(f"unknown lane: {lane}")
-    queue_lines = read_candidate_lines(candidates_path)
+    legacy_fixture = discovery_path is not None or rotated_dir is not None
+    batch = read_candidate_batch(candidates_path, structured=not legacy_fixture)
     hydrated_raw = (hydrated_text if hydrated_text is not None else
                     hydrated_path.read_text(encoding="utf-8"))
-    hydration = parse_hydrated(hydrated_raw, queue_lines)
+    hydration = (parse_hydrated(
+        hydrated_raw, [candidate["queue_line"] for candidate in batch])
+        if legacy_fixture else parse_hydrated_jsonl(hydrated_raw, batch))
 
     registry = load_registry(root, registry_path)
     rows = registry_entries(registry)
     exact_index = exact_registry_index(rows)
-    verdicts = load_assessed_lines(root, discovery_path, rotated_dir)
-    counts = coverage_index.absorbed_counts(
-        verdicts, {row["id"] for row in rows})
+    known_ids = {row["id"] for row in rows}
+
+    if legacy_fixture:
+        verdict_evidence: list[Any] = load_assessed_lines(
+            root, discovery_path, rotated_dir)
+        counts = coverage_index.absorbed_counts(verdict_evidence, known_ids)
+        pending_by_id: dict[str, dict] | None = None
+        discovery_mode = "legacy-fixture"
+    else:
+        store = load_structured_store(root, lock_held=lock_held)
+        all_candidates = store.list_candidates(lock_held=lock_held)
+        assessed = [candidate for candidate in all_candidates
+                    if candidate["state"] == "assessed"]
+        verdict_evidence = coverage_index.verdict_facts(assessed)
+        counts = coverage_index.absorbed_counts_from_facts(
+            verdict_evidence, known_ids)
+        pending = [candidate for candidate in all_candidates
+                   if candidate["state"] == "pending" and
+                   ((lane == "x" and candidate["platform"] == "x") or
+                    (lane == "community" and candidate["platform"] != "x"))]
+        pending_by_id = {candidate["identity"]: candidate
+                         for candidate in pending}
+        if len(pending_by_id) != len(pending):
+            raise PacketError("structured discovery returned duplicate identities")
+        discovery_mode = "structured"
 
     candidates = []
     seen_keys: set[str] = set()
-    for queue_line, hydrated in zip(queue_lines, hydration):
-        url = url_from_queue_line(queue_line)
-        platform, external_key = canonical_external_key(url)
+    for batched, hydrated in zip(batch, hydration):
+        queue_line = batched["queue_line"]
+        url = batched["url"]
+        platform = batched["platform"]
+        external_key = batched["external_key"]
         if lane == "x" and platform != "x":
             raise PacketError(f"community candidate in X lane: {url}")
         if lane == "community" and platform not in COMMUNITY_LANES:
             raise PacketError(f"X candidate in community lane: {url}")
         if external_key in seen_keys:
+            if pending_by_id is not None:
+                raise PacketError(
+                    f"candidate batch repeats structured identity: {external_key}")
             # A repost and its original share a status id, so a batch can
             # name the same post twice under different queue lines. Defer the
             # later one to a later batch rather than refusing the whole
@@ -498,9 +626,24 @@ def build_packet(*, root: Path, lane: str, candidates_path: Path,
                   f"a later batch: {external_key}", file=sys.stderr)
             continue
         seen_keys.add(external_key)
+        candidate_id = batched["candidate_id"]
+        candidate_head: str | None = batched["candidate_head"]
+        if pending_by_id is not None:
+            projection = pending_by_id.get(candidate_id)
+            if projection is None:
+                raise PacketError(
+                    f"candidate is not pending in the {lane} lane: {candidate_id}")
+            projected_head = projection.get("head")
+            if not isinstance(projected_head, str) \
+                    or not HEAD_RE.fullmatch(projected_head):
+                raise PacketError(
+                    f"pending candidate has no valid event head: {candidate_id}")
+            if candidate_head != projected_head:
+                raise PacketError(
+                    f"candidate batch head is stale: {candidate_id}")
         matches = exact_index.get(external_key, [])
-        candidates.append({
-            "candidate_id": stable_candidate_id(external_key),
+        record = {
+            "candidate_id": candidate_id,
             "platform": platform,
             "native_id": external_key.rsplit(":", 1)[1],
             "external_key": external_key,
@@ -512,20 +655,27 @@ def build_packet(*, root: Path, lane: str, candidates_path: Path,
                 "matched": bool(matches),
                 "source_ids": matches,
             },
-        })
+        }
+        if candidate_head is not None:
+            record["candidate_head"] = candidate_head
+        candidates.append(record)
 
     semantic_registry = _jsonable(registry)
-    semantic_verdicts = sorted(verdicts)
+    semantic_verdicts = sorted(
+        verdict_evidence,
+        key=lambda value: (value.get("candidate_id", "")
+                           if isinstance(value, dict) else str(value)))
     semantic_candidates = [
-        {key: candidate[key] for key in (
-            "candidate_id", "external_key", "queue_line_sha256",
-            "hydration_status", "body_sha256")}
+        {key: candidate.get(key) for key in (
+            "candidate_id", "candidate_head", "external_key",
+            "queue_line_sha256", "hydration_status", "body_sha256")}
         for candidate in candidates
     ]
     coverage = coverage_summary(rows, counts)
     packet: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "lane": lane,
+        "discovery": {"mode": discovery_mode},
         "source_ledger_hashes": {
             "registry_semantic_sha256": sha256_bytes(
                 canonical_json_bytes(semantic_registry)),
@@ -568,6 +718,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="legacy DISCOVERY.md override")
     parser.add_argument("--rotated-dir", type=Path,
                         help="legacy discovery/ verdict directory override")
+    parser.add_argument("--lock-held", action="store_true",
+                        help="caller already holds the discovery writer lock")
     parser.add_argument("--max-markdown-bytes", type=int,
                         default=DEFAULT_MAX_MARKDOWN_BYTES)
     args = parser.parse_args(argv)
@@ -581,6 +733,7 @@ def main(argv: list[str] | None = None) -> int:
             registry_path=args.registry,
             discovery_path=args.discovery,
             rotated_dir=args.rotated_dir,
+            lock_held=args.lock_held,
             max_markdown_bytes=args.max_markdown_bytes)
     # Optional storage adapters expose their validation failures as
     # ValueError subclasses. Keep those failures at the same clean CLI

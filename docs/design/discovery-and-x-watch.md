@@ -2,9 +2,10 @@
 
 **Status:** known-URL capture and tier-aware scheduling built; community
 discovery scheduled; X discovery moved to the capture browser with automated
-promotion on 8 Aug 2026; X scheduling in progress; deletion checks, nightly
-audit and backup remain proposed
-**Date:** 5 Aug 2026; amended 8 Aug 2026
+promotion and its own timer on 8 Aug 2026; immutable structured discovery
+storage adopted 14 Aug 2026; deletion checks, nightly audit and backup remain
+proposed
+**Date:** 5 Aug 2026; amended 8 and 14 Aug 2026
 
 **Amendment, 8 Aug 2026:** the operator reversed the official-API-only policy
 recorded below. X discovery now reads the home timeline and watched profiles
@@ -16,6 +17,19 @@ stands as the record of what was decided on 5 Aug 2026.
 
 The question this answers: how does the archive notice *new* information,
 rather than only noticing edits to pages we already know about?
+
+**Amendment, 14 Aug 2026:** the flat intake file and age-based verdict
+rotation have been replaced. Canonical discovery history is now a chain of
+immutable logical-batch transactions under `discovery/transactions/YYYY-MM/`,
+serialised through `.work/locks/discovery.lock`. One generated candidate JSON
+file per native object and state/platform/month-sharded Markdown views make
+the record navigable; root `DISCOVERY.md` is only their generated index.
+Intake packets bind each pending candidate id to its event head, and the
+operator-side applier checks every binding before committing the whole verdict
+batch as one transaction. The cutover retains byte-exact copies and provenance
+for the former queue and rotated files. Explicitly dated historical passages
+below remain descriptions of those earlier decisions, not instructions for
+the current store.
 
 ---
 
@@ -38,7 +52,10 @@ Current implementation, verified against the working tree on 3 Aug 2026:
   lane; see §3 for the capture-browser lane that replaced it.)*
 - Stacker News, Reddit and BitcoinTalk discovery feed the same intake file and
   are scheduled every 12 hours. Direct X-post availability classification,
-  nightly audit and backup are not built.
+  nightly audit and backup are not built. *(Amended 14 Aug 2026: this bullet
+  preserves the 3 Aug implementation snapshot. The shared intake is now the
+  structured store described above; observation and verdict batches take its
+  shared lock and regenerate the working views.)*
 
 ## 1. What "check for new information" actually decomposes into
 
@@ -60,12 +77,11 @@ The design below covers all three, in that order of maturity.
 
 ## 2. Principles, inherited from the repo's existing rules
 
-- **Discovery is not publication.** Discovery fills `DISCOVERY.md`; only
-  registered sources appear on the site. The intake agent may assess and
-  register bounded community batches under a standing prompt. X uses a
-  separate read-only triage prompt and stops at a human-review recommendation.
-  Every promoted item still needs a scoped `why`, attribution and a successful
-  manual first capture.
+- **Discovery is not publication.** Discovery commits candidate observations;
+  only registered sources appear on the site. The community and X intake
+  agents may assess and register their own bounded pending batches under
+  standing prompts. Every promoted item still needs a scoped `why`,
+  attribution, guard approval and a driver-side first capture.
 - **Discovery records are operational leads.** Machine-discovered X IDs and
   recommendations are never presented as archive captures or published
   evidence.
@@ -324,18 +340,21 @@ tick result are retained beside that state. Changed events are passed once to
 remains the default where the host provides one. Signal alerting stays opt-in
 and untouched.
 
-Direct-post availability checks, X discovery, nightly archive and build audits,
-and off-machine backup remain candidate jobs. X discovery is a manual command
-during probation and is not part of either recurring timer. Deployment is
-never a scheduled job.
+Direct-post availability checks, nightly archive and build audits, and
+off-machine backup remain candidate jobs. Since 8 Aug 2026 X discovery runs on
+its own 12-hour timer, separate from known-URL and community discovery.
+Deployment is never a scheduled job.
 
 ## 7. What never reaches the site automatically (amended 8 Aug 2026)
 
-The intake queue is operational, not editorial. The public site continues to
-render only registered sources and registered posts. Since 8 Aug 2026 X
+The discovery store is operational, not editorial. The public site continues
+to render only registered sources and registered posts. Since 8 Aug 2026 X
 promotion is automated under the same containment as community intake: the
 registering `xintake` guard role assesses queued X candidates with the
-bounded intake packet in view, every registration carries a scoped `why`,
+bounded intake packet in view. Since the 14 Aug storage cutover, that protected
+packet binds each candidate id to its current event head; a stale or
+non-pending candidate rejects the entire apply before any verdict transaction
+is written. Every registration carries a scoped `why`,
 attribution and evidence treatment, `agent_guard.py` enforces the role's path
 allowlist and `check_registry.py` validates the result, and the driver makes
 the first capture through `ingest-x.py` afterwards. The agent never reaches
@@ -346,29 +365,29 @@ separate from the community service. Direct manual ingestion of an
 operator-supplied X permalink remains a separate, unchanged path.
 
 What still never reaches the site automatically: a source marked
-`withhold_text`, anything identifying a private individual, and
-discovery-queue material itself, which stays operational and is never
-published as evidence.
+`withhold_text`, anything identifying a private individual, and discovery
+transactions or their generated working views, which stay operational and are
+never published as evidence.
 
 Also unchanged: the unnamed blockchain-services provider stays unnamed
 regardless of what any watched account posts, and nothing identifying a
 private individual gets published. Watching is not publishing.
 
-## 8. Remaining implementation order (amended 8 Aug 2026)
+## 8. Implementation status (amended 8 and 14 Aug 2026)
 
 The API App approval steps this list opened with are deleted with the lane:
-no App exists and none will be created. What remains is scoped to the browser
-lane:
+no App exists and none will be created. The first two browser-lane steps are
+complete; the remaining work keeps their original order:
 
-1. Finish `scripts/discover_x_browser.py`: home-timeline and watched-profile
-   reads through the capture browser, driver-side only, with the caps,
-   baselining, ID-only queue and atomic checkpoint the API lane established.
-   Prove the session-health failure classes — login wall, challenge, rate
-   limit — stay distinct and fail closed with a cooldown.
-2. Schedule the lane on its own `discover-x.timer`, separate from
-   `discover-community`, preserving the caps, fixed spacing, cooldown and the
-   `X_BROWSER_DISCOVERY_ENABLED` kill switch, and reporting incomplete runs
-   without borrowing capture.py's exit 10.
+1. **Completed 8 Aug 2026.** `scripts/discover_x_browser.py` reads the home
+   timeline and watched profiles through the capture browser, driver-side
+   only, with the caps, baselining, text-free candidate presentation and atomic
+   checkpoint the API lane established. Login wall, challenge and rate limit
+   remain distinct session-health failures and fail closed with a cooldown.
+2. **Completed 8 Aug 2026.** The lane runs on its own `discover-x.timer`,
+   separate from `discover-community`, preserving the caps, fixed spacing,
+   cooldown and `X_BROWSER_DISCOVERY_ENABLED` kill switch, and reporting
+   incomplete runs without borrowing capture.py's exit 10.
 3. Add direct-post availability re-checks only after deletion, suspension,
    protection, restriction and session failure are distinguishable.
 4. Add GitHub and HN topic discovery, nightly audits and backup after their own

@@ -3,10 +3,13 @@
 
 The nostr twin of discover_stackernews.py: it asks NIP-50 search relays for
 recent kind-1 notes matching a few fixed incident queries, sieves the results
-through the same keyword list the other community discoverers use, and queues
-new candidates in DISCOVERY.md, the shared intake file, for the intake agent
-(scripts/agent-discovery-intake.sh). Capture of registered posts is a
-separate lane (scripts/ingest_nostr.py); nothing here writes to archive/.
+through the same keyword list the other community discoverers use, and records
+new candidate observations in the shared structured discovery store for the
+intake agent (scripts/agent-discovery-intake.sh). Each saved run commits an
+immutable observation batch and regenerates the candidate JSON and sharded
+Markdown views; root DISCOVERY.md is only their index. Capture of registered
+posts is a separate lane (scripts/ingest_nostr.py); nothing here writes to
+archive/.
 
 Volume discipline, because public relays are shared infrastructure:
 
@@ -38,7 +41,8 @@ touching the network.
 nak (the nostr CLI) does the relay protocol work; bech32 note1/npub coding
 comes from nostr_common.py because nak v0.20.2 has no `encode note` target.
 Zero other dependencies: stdlib only (imports discovery_common.py for the
-keyword list and intake file handling, nostr_common.py for nip19 coding).
+keyword list and structured discovery handling, nostr_common.py for nip19
+coding).
 """
 
 import argparse
@@ -153,7 +157,7 @@ def search_relay(relay: str, query: str, since: int) -> list[dict]:
 # --- registry, state, candidates --------------------------------------------
 
 
-def registered_urls_nostr() -> set[str]:
+def registered_urls_nostr() -> dict[str, str]:
     """URLs of every nostr post already registered in sources.toml.
 
     Registrations are [[nostr_post]] blocks, not [[source]]: they are

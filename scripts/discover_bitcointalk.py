@@ -21,8 +21,13 @@ Two routes worth knowing, found 4 Aug 2026:
 Volume discipline matches the other lanes: one page per board per run, twice
 a day. Do not page deeper to backfill; that is a one-off enumeration job.
 
+Matching topic observations are committed as one immutable batch in the
+shared structured discovery store. Candidate JSON and sharded Markdown pages,
+including the root DISCOVERY.md index, are regenerated views rather than an
+intake file this lane edits.
+
 Zero dependencies: stdlib only (imports discovery_common.py for the keyword
-list and intake file handling).
+list and structured discovery handling).
 """
 
 import argparse
@@ -100,7 +105,7 @@ def parse_board(page: str) -> list[dict]:
     return topics
 
 
-def registered_urls_bct() -> set[str]:
+def registered_urls_bct() -> dict[str, str]:
     """Canonical topic URLs of every bitcointalk source in sources.toml.
 
     Rebuilt from the topic id rather than compared as written: SMF will hand

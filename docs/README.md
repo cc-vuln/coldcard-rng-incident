@@ -12,6 +12,8 @@ Operator and deployment detail behind the root README's command reference.
 - [`capture.md`](capture.md): capture methods, change normalisation, failure
   classes, withdrawn sources, Wayback recovery, X and nostr capture and the
   review layer
+- [`DISCOVERY.md`](DISCOVERY.md): candidate discovery, the immutable
+  transaction store, generated views and bounded intake workflow
 - [`operations.md`](operations.md): the capture host and its services, the
   recurring capture schedule, the unattended pipeline timers and their kill
   switches, the one-writer rule, notification delivery, Signal alerting and

@@ -21,8 +21,8 @@ handful the role is allowed to write. `after` recomputes and enforces:
 1. nothing outside the role's remit changed, in either direction
 2. no secret value, key shape or operator needle appears in what was added
 3. the registry changes are in shape (scripts/check_registry.py)
-4. intake verdict data covers exactly the protected packet and the agent did
-   not edit DISCOVERY.md directly
+4. intake verdict data covers exactly the protected packet and an intake
+   agent did not edit any part of the discovery record directly
 5. requested first captures name sources this run actually registered
 6. the append-only files only gained lines: their before-text is a verbatim
    prefix of their after-text
@@ -91,28 +91,36 @@ ROLES: dict[str, tuple[str, ...]] = {
 # first capture. The driver performs the capture itself, after this gate.
 REGISTERING_ROLES = {"intake", "xintake"}
 
-# The two files other tooling in this repository legitimately writes while an
-# agent is running: `ingest-x.py` and `ingest_nostr.py` register into the
-# registry, and the discovery scripts append to the queue and prune entries
-# from it once their thread is registered. This is one working tree with live
-# timers in it, so "did this file change" cannot tell an agent's edit from a
-# neighbour's.
+# Other operator-side tooling legitimately writes the registry and structured
+# discovery store while most agent roles are running. This is one working tree
+# with live timers in it, so "did this file change" cannot tell an agent's edit
+# from a neighbour's.
 #
 # Failing on that would be wrong twice over: it fails runs that did nothing
 # wrong, and a gate that cries wolf is a gate somebody switches off. So a
 # change here that is outside the role's remit is reported and not fatal,
 # and the content rules below carry the weight instead. Those run on every
 # role: whoever wrote a registry block, it must name an allowlisted host and
-# the pinned query, and whoever moved a queue line, the candidate text must
-# survive. What an out-of-remit review agent could get away with is
+# the pinned query, and a discovery change must leave the immutable transaction
+# chain and every generated projection valid. What an out-of-remit review agent
+# could get away with is
 # registering a thread that already passes every registry rule, which is
 # visible in the next `git diff` and is not a capability worth the noise.
-SHARED_PATHS = frozenset({"sources.toml", "DISCOVERY.md"})
+SHARED_PATHS = frozenset({"sources.toml"})
+
+
+def is_discovery_path(rel: str) -> bool:
+    """Whether *rel* is canonical or generated discovery state."""
+    return rel == "DISCOVERY.md" or rel.startswith("discovery/")
+
+
+def is_shared_path(rel: str) -> bool:
+    return rel in SHARED_PATHS or is_discovery_path(rel)
 
 # Files kept in full before the run, so the scan sees added lines rather than
 # whole files. Everything else is covered by its hash alone.
 SNAPSHOT: tuple[str, ...] = (
-    "sources.toml", "DISCOVERY.md", "revision-reviews.toml", "BACKLOG.md",
+    "sources.toml", "revision-reviews.toml", "BACKLOG.md",
 )
 
 # Append-only by project rule: revision-reviews.toml and corrections.toml are
@@ -261,7 +269,7 @@ def scan_added(role: str, run_dir: Path, changed: list[str]) -> list[str]:
     needles = private_needles()
 
     for rel in changed:
-        if not in_remit(rel, role) and rel not in SHARED_PATHS:
+        if not in_remit(rel, role) and not is_shared_path(rel):
             continue  # already reported as out of remit; do not scan twice
         path = ROOT / rel
         if not path.is_file():
@@ -289,102 +297,22 @@ def scan_added(role: str, run_dir: Path, changed: list[str]) -> list[str]:
     return problems
 
 
-def discovery_integrity(run_dir: Path) -> list[str]:
-    """Every assessed candidate must still carry the line it came from.
+def structured_discovery_integrity() -> list[str]:
+    """Ask the store owner to validate canonical and generated discovery.
 
-    A verdict is appended to the candidate line, so an assessed line begins
-    with the pending line it replaced. Without this an injected run could
-    rewrite a candidate on its way past: relabel someone's thread, or point
-    the permalink somewhere else, and the queue would carry the change as
-    though a person had made it.
+    The guard deliberately does not duplicate transaction-chain or rendering
+    rules. A discovery writer may run concurrently with non-intake roles, but
+    its output is shared only when the store's single read-only validator says
+    the immutable chain, candidate projections, state, views, index and
+    migration bundle all agree.
     """
-    before = run_dir / "before" / "DISCOVERY.md"
-    after = ROOT / "DISCOVERY.md"
-    if not before.exists() or not after.exists():
-        return []
+    try:
+        from discovery_store import validate_store
 
-    def sections(text: str) -> dict[str, list[str]]:
-        out: dict[str, list[str]] = {}
-        current = ""
-        for line in text.splitlines():
-            if line.startswith("## "):
-                current = line[3:].strip()
-                out.setdefault(current, [])
-            elif line.startswith("- ") and current:
-                out[current].append(line)
-        return out
-
-    # Everything that is not a queue counts as settled, on both sides. Reading
-    # the sections asymmetrically is a bug this check shipped with: "Link
-    # review, held for a human decision" was counted as settled in the new
-    # file and not in the old, so every line already sitting there looked like
-    # a verdict invented during the run, and a clean intake was rejected with
-    # eleven false positives.
-    #
-    # Deferred is a queue and not a verdict, so it is excluded on both sides
-    # too. That is what makes a pending line moved into it a problem rather
-    # than an exit: an agent that could defer a candidate could decline to
-    # assess one without ever recording why, and the check below would see the
-    # line survive and pass it.
-    queues = ("Pending", "Deferred")
-
-    def settled(parsed: dict[str, list[str]]) -> list[str]:
-        return [line for name, lines in parsed.items()
-                if name not in queues for line in lines]
-
-    old, new = sections(read_text(before)), sections(read_text(after))
-    old_pending = old.get("Pending", [])
-    still_pending = set(new.get("Pending", []))
-    assessed = settled(new)
-    old_assessed = set(settled(old))
-    registry_text = read_text(ROOT / "sources.toml")
-
-    problems = []
-    for line in old_pending:
-        if line in still_pending:
-            continue
-        if any(entry == line or entry.startswith(line + " ") for entry in assessed):
-            continue
-        # The discovery scripts prune a pending line once its thread reaches
-        # the registry by any route, and they run on their own timer. A line
-        # whose URL is now registered left the queue the ordinary way.
-        url = re.search(r"\((https?://[^)]+)\)", line)
-        if url and url.group(1) in registry_text:
-            continue
-        problems.append(
-            f"DISCOVERY.md: a pending candidate left the queue without its "
-            f"text surviving into an assessed line: {line[:90]}")
-    for entry in assessed:
-        if entry in old_assessed:
-            continue
-        if any(entry == line or entry.startswith(line + " ")
-               for line in old_pending):
-            continue
-        problems.append(
-            f"DISCOVERY.md: an assessed line does not match any candidate "
-            f"that was pending: {entry[:90]}")
-
-    # A run's only verdict destination is Assessed, and the lanes own the
-    # queues. Every other section is a human parking spot or another
-    # writer's, and a verdict appended there passes both checks above as
-    # "settled": 64 of them landed in "Link review, held for a human
-    # decision" over 5-6 Aug 2026 and were found only when the queue was
-    # read by hand. Lines in those sections must be exactly the lines that
-    # were there when the run started.
-    for name in sorted(set(old) | set(new)):
-        if name in queues or name == "Assessed":
-            continue
-        held_before = set(old.get(name, []))
-        held_after = set(new.get(name, []))
-        for line in sorted(held_after - held_before):
-            problems.append(
-                f"DISCOVERY.md: a line was added to '## {name}', a section "
-                f"the run may not write: {line[:90]}")
-        for line in sorted(held_before - held_after):
-            problems.append(
-                f"DISCOVERY.md: a line was removed from '## {name}', a "
-                f"section the run may not write: {line[:90]}")
-    return problems
+        validate_store(ROOT)
+    except Exception as exc:  # validation failures are evidence, not crashes
+        return [f"structured discovery validation failed: {exc}"]
+    return []
 
 
 def append_only_integrity(run_dir: Path) -> list[str]:
@@ -576,18 +504,19 @@ def do_after(role: str, run_dir: Path) -> int:
 
     problems = []
     shared_notes = []
+    discovery_changed = [rel for rel in changed if is_discovery_path(rel)]
     for rel in changed:
-        # Intake roles never edit the queue directly. Even though discovery
-        # tooling can legitimately touch this shared path during other roles,
-        # the intake lock excludes such a neighbour for these two drivers.
-        if rel == "DISCOVERY.md" and role in REGISTERING_ROLES:
-            problems.append(
-                "DISCOVERY.md: an intake agent edited the queue directly; "
-                "write .work/intake-verdicts.jsonl instead")
+        # Intake roles never edit canonical transactions or their generated
+        # projections. Their driver binds decisions to candidate heads, so a
+        # neighbouring lane may legitimately advance discovery during the
+        # deprivileged phase; the operator-side applier then stale-rejects the
+        # whole outbox if any selected head changed.
+        if is_discovery_path(rel) and role in REGISTERING_ROLES:
+            shared_notes.append(rel)
             continue
         if in_remit(rel, role):
             continue
-        if rel in SHARED_PATHS:
+        if is_shared_path(rel):
             shared_notes.append(rel)
             continue
         if rel not in after_files:
@@ -614,8 +543,13 @@ def do_after(role: str, run_dir: Path) -> int:
             problems.append("the registry changes were rejected:\n    " +
                             "\n    ".join(registry.stderr.strip().splitlines()))
 
-    if "DISCOVERY.md" in changed and role not in REGISTERING_ROLES:
-        problems += discovery_integrity(run_dir)
+    if discovery_changed:
+        # The sandbox account cannot write discovery/. A valid change during
+        # an intake run is therefore a neighbouring operator-side lane, which
+        # the packet's candidate heads handle optimistically. Invalid changes
+        # still fail here; selected-head changes fail later, all-or-nothing,
+        # in the verdict applier.
+        problems += structured_discovery_integrity()
 
     problems += validate_intake_outbox(role, run_dir)
 
@@ -640,12 +574,21 @@ def do_after(role: str, run_dir: Path) -> int:
     touched = [rel for rel in changed if in_remit(rel, role)]
     print(f"agent-guard: the {role} run is in remit: {len(touched)} file(s) "
           f"changed, {len(approved)} first capture(s) approved")
-    for rel in shared_notes:
+    for rel in (path for path in shared_notes if not is_discovery_path(path)):
         print(f"agent-guard: note, {rel} also changed during this run and is "
-              f"outside the {role} remit. It is shared with the discovery and "
-              f"ingest tooling, so this is usually a neighbour rather than the "
-              f"agent; its content rules passed either way. Check `git diff "
+              f"outside the {role} remit. It is shared with operator-side "
+              f"discovery or ingest tooling, so this is usually a neighbour "
+              f"rather than the agent; its deterministic validation passed. "
+              f"Check `git diff "
               f"-- {rel}` if the run looks odd.")
+    shared_discovery = [path for path in shared_notes
+                        if is_discovery_path(path)]
+    if shared_discovery:
+        print(f"agent-guard: note, {len(shared_discovery)} structured discovery "
+              f"path(s) also changed outside the {role} remit. The canonical "
+              "chain and every generated projection validated, so this is "
+              "accepted as a concurrent operator-side update. Check `git "
+              "diff -- DISCOVERY.md discovery/` if the run looks odd.")
     return 0
 
 

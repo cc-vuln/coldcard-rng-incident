@@ -64,9 +64,11 @@ discovery-intake *ARGS:
 x-intake *ARGS:
     @./scripts/agent-x-intake.sh {{ARGS}}
 
-# Rotate old DISCOVERY.md verdicts into discovery/assessed-YYYY-MM.md
-rotate-discovery *ARGS:
-    @{{py}} scripts/rotate_discovery.py {{ARGS}}
+# Validate the immutable discovery transaction chain and compare every
+# generated candidate, state file, working view and root index with a clean
+# rebuild. Read-only: a mismatch is reported, never repaired here.
+discovery-check:
+    @{{py}} scripts/discovery_store.py validate
 
 # What the record already covers, as the intake agent is shown it. The driver
 # builds this itself before every run; this is for reading it by hand.
@@ -164,6 +166,7 @@ audit:
     # not.
     @{{py}} scripts/check_registry.py
     @{{py}} scripts/migrate_registry.py --check
+    @{{py}} scripts/discovery_store.py validate
     @{{py}} scripts/agent_proxy.py --check
     @{{py}} scripts/check_reviews.py
 
@@ -177,6 +180,7 @@ audit-core:
     @{{py}} scripts/check_publishable.py
     @{{py}} scripts/check_registry.py
     @{{py}} scripts/migrate_registry.py --check
+    @{{py}} scripts/discovery_store.py validate
     @{{py}} scripts/agent_proxy.py --check
 
 # Is the agent sandbox still in place? Reports only; run the script without

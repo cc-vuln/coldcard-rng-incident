@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Invoke the intake agent over pending discovery candidates.
 #
-# Community discovery and the X watcher queue candidates in DISCOVERY.md.
+# Community discovery and the X watcher queue candidates in the structured
+# discovery store.
 # This script owns the community assessment layer: when pending entries exist
 # it asks the agent to judge each one and record every verdict, registering
 # accepted threads. X candidates are assessed by their own lane,
@@ -30,7 +31,7 @@
 #   1  agent run failed, or the run wrote outside its remit (entries stay
 #      pending; next tick retries)
 #
-# An unset selected agent is supported: candidates wait in DISCOVERY.md.
+# An unset selected agent is supported: candidates remain pending.
 
 set -Eeuo pipefail
 
@@ -57,21 +58,32 @@ if ! [[ "$MAX" =~ ^[1-9][0-9]*$ && "$BATCHES" =~ ^[1-9][0-9]*$ ]] || \
   exit 2
 fi
 
+if [[ ! -f "$ROOT/discovery/migration-v1/manifest.json" ]]; then
+  echo "agent-discovery-intake: structured discovery migration is not active" >&2
+  exit 1
+fi
+
 if (( BATCHES > 1 )); then
   pending_community_count() {
-    awk '/^## Pending/{p=1; next} /^## Assessed/{p=0} p && /^- / && !/https:\/\/x\.com\//{n++} END{print n+0}' \
-      "$ROOT/DISCOVERY.md" 2>/dev/null || printf '0\n'
+    .venv/bin/python scripts/discovery_store.py --root "$ROOT" count \
+      --state pending --lane community
   }
 
   for ((batch = 1; batch <= BATCHES; batch++)); do
-    before="$(pending_community_count)"
+    if ! before="$(pending_community_count)"; then
+      echo "agent-discovery-intake: cannot count the structured queue" >&2
+      exit 1
+    fi
     if (( before == 0 )); then
       echo "agent-discovery-intake: backlog drained after $((batch - 1)) batch(es)"
       exit 0
     fi
     echo "agent-discovery-intake: batch ${batch}/${BATCHES}; ${before} pending"
     "$0" --max "$MAX" --batches 1
-    after="$(pending_community_count)"
+    if ! after="$(pending_community_count)"; then
+      echo "agent-discovery-intake: cannot recount the structured queue" >&2
+      exit 1
+    fi
     if (( after >= before )); then
       echo "agent-discovery-intake: no queue progress; stopping bounded drain"
       exit 0
@@ -80,11 +92,10 @@ if (( BATCHES > 1 )); then
   exit 0
 fi
 
-INTAKE="$ROOT/DISCOVERY.md"
 STATE_DIR="$ROOT/.work/agent-discovery-intake"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
-CANDIDATE_LIST="$STATE_DIR/candidates.txt"
-HYDRATED="$STATE_DIR/hydrated.md"
+CANDIDATE_LIST="$STATE_DIR/candidates.jsonl"
+HYDRATED="$STATE_DIR/hydrated.jsonl"
 PACKET_JSON="$STATE_DIR/intake-packet.json"
 PACKET_MARKDOWN="$STATE_DIR/intake-packet.md"
 
@@ -94,39 +105,28 @@ mkdir -p "$STATE_DIR"
 # Runs before this driver takes the lock: the script takes it itself.
 .venv/bin/python scripts/queue_candidates.py || true
 
-# One agent at a time over DISCOVERY.md and sources.toml: the 12-hourly timer
-# and manual drain runs must never overlap. A contender waits a minute, then
-# skips quietly; the next tick continues the work.
-exec 9>"$STATE_DIR/intake.lock"
-if ! flock -w 60 9; then
-  echo "agent-discovery-intake: another run holds the lock; skipping"
-  exit 0
-fi
+# Each structured-store command takes the short discovery lock itself. The
+# batch carries candidate heads, so a concurrent update makes the guarded
+# apply fail atomically instead of holding this lock across network hydration
+# and an agent run. agent_begin below separately serializes all agent roles.
 
-if [[ ! -f "$INTAKE" ]]; then
-  echo "agent-discovery-intake: no DISCOVERY.md; nothing to do"
-  exit 0
-fi
-
-# Pending entries are list lines between "## Pending" and "## Assessed",
-# capped at --max per run so a large backlog is assessed in bounded chunks.
-# X candidates are the X lane's (scripts/agent-x-intake.sh) and are excluded
-# here, whatever else is pending.
-mapfile -t RAW_PENDING < <(awk '/^## Pending/{p=1; next} /^## Assessed/{p=0} p && /^- /' "$INTAKE")
-ALL_PENDING=()
-for candidate in "${RAW_PENDING[@]}"; do
-  if [[ "$candidate" != *"https://x.com/"* ]]; then
-    ALL_PENDING+=("$candidate")
-  fi
-done
 AGENT_BIN="${REVIEW_AGENT_BIN:-}"
 AGENT_ENV_NAME="REVIEW_AGENT_BIN"
 PROMPT_TEMPLATE="$ROOT/scripts/agent-discovery-intake-prompt.md"
 ROLE=intake
-PENDING=("${ALL_PENDING[@]:0:$MAX}")
 
-if [[ ${#ALL_PENDING[@]} -eq 0 ]]; then
-  if [[ ${#RAW_PENDING[@]} -gt 0 ]]; then
+if ! ALL_PENDING_COUNT="$(.venv/bin/python scripts/discovery_store.py \
+    --root "$ROOT" count --state pending --lane community)"; then
+  echo "agent-discovery-intake: cannot count the structured queue" >&2
+  exit 1
+fi
+if (( ALL_PENDING_COUNT == 0 )); then
+  if ! X_PENDING_COUNT="$(.venv/bin/python scripts/discovery_store.py \
+      --root "$ROOT" count --state pending --lane x)"; then
+    echo "agent-discovery-intake: cannot count the X queue" >&2
+    exit 1
+  fi
+  if (( X_PENDING_COUNT > 0 )); then
     echo "agent-discovery-intake: only X candidates are pending; they are the X lane's (just x-intake)"
   else
     echo "agent-discovery-intake: no pending candidates; nothing to do"
@@ -135,24 +135,34 @@ if [[ ${#ALL_PENDING[@]} -eq 0 ]]; then
 fi
 
 if [[ -z "$AGENT_BIN" ]]; then
-  echo "agent-discovery-intake: ${#ALL_PENDING[@]} pending candidate(s), but $AGENT_ENV_NAME is unset;"
-  echo "  candidates wait in DISCOVERY.md for human triage (see .env.example)"
+  echo "agent-discovery-intake: ${ALL_PENDING_COUNT} pending candidate(s), but $AGENT_ENV_NAME is unset;"
+  echo "  candidates remain pending for human triage (see .env.example)"
   exit 0
 fi
 
-echo "agent-discovery-intake: assessing ${#PENDING[@]} of ${#ALL_PENDING[@]} pending candidate(s)"
+if ! .venv/bin/python scripts/discovery_store.py --root "$ROOT" list \
+    --state pending --lane community --format intake-json --limit "$MAX" \
+    > "$CANDIDATE_LIST"; then
+  echo "agent-discovery-intake: cannot list the structured queue" >&2
+  exit 1
+fi
+mapfile -t PENDING < "$CANDIDATE_LIST"
+if [[ ${#PENDING[@]} -eq 0 ]]; then
+  echo "agent-discovery-intake: structured queue count/list disagreed" >&2
+  exit 1
+fi
+
+echo "agent-discovery-intake: assessing ${#PENDING[@]} of ${ALL_PENDING_COUNT} pending candidate(s)"
 
 agent_begin "$ROLE"
-
-printf -- '%s\n' "${PENDING[@]}" > "$CANDIDATE_LIST"
 
 # Fetch every body here, as the operator account, one request per candidate.
 echo "agent-discovery-intake: hydrating ${#PENDING[@]} candidate body(ies)"
 .venv/bin/python scripts/hydrate_candidates.py --nonce "$AGENT_NONCE" \
   < "$CANDIDATE_LIST" > "$HYDRATED"
 
-# Build one bounded evidence packet. It joins each queue line to its hydrated
-# body, resolves exact registry duplicates mechanically, and includes every
+# Build one bounded evidence packet. It joins each structured candidate id,
+# head and URL to its hydrated body, resolves exact registry duplicates, and includes every
 # non-zero saturation row while counting the zero-history rows it omits.
 if ! .venv/bin/python scripts/build_intake_packet.py \
   --root "$ROOT" --lane community \
@@ -198,11 +208,11 @@ if [[ $rc -ne 0 ]]; then
   exit 1
 fi
 
-# The only DISCOVERY.md writer in an intake run is this deterministic applier.
-# The driver still holds intake.lock, so the packet's exact Pending lines
-# cannot race another queue writer between guard validation and replacement.
+# The applier reacquires discovery.lock, checks every packet event head and
+# commits the guarded verdict rows as one immutable transaction.
 if ! .venv/bin/python scripts/apply_intake_verdicts.py \
-  --run-dir "$AGENT_RUN_DIR"; then
+  --root "$ROOT" --run-dir "$AGENT_RUN_DIR" \
+  --operation-id "$AGENT_RUN_ID"; then
   echo "agent-discovery-intake: guarded verdicts could not be applied; no" \
        "first capture was made" >&2
   exit 1
@@ -214,6 +224,8 @@ agent_run_captures
 # admitted driver-side. vet_host.py exits 0 on every outcome short of usage,
 # and a vetting failure must never fail the intake run.
 .venv/bin/python scripts/vet_host.py --yes || true
+
+agent_mark_workflow_complete
 
 echo "agent-discovery-intake: run complete"
 exit 0

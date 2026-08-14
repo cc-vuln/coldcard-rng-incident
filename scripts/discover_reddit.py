@@ -3,9 +3,11 @@
 
 The Reddit twin of discover_stackernews.py: capture of registered threads is
 generic (sources.toml capture = "reddit-json"); what was missing is discovery.
-This script reads each watched subreddit's /new listing and queues
-keyword-matched threads in DISCOVERY.md, the shared intake file, for the
-intake agent (scripts/agent-discovery-intake.sh).
+This script reads each watched subreddit's /new listing and records
+keyword-matched thread observations in the shared structured discovery store
+for the intake agent (scripts/agent-discovery-intake.sh). The observation
+batch is an immutable transaction; per-candidate JSON, sharded Markdown views
+and root DISCOVERY.md are generated projections.
 
 The route is the capture browser, not a direct request: Reddit refuses
 anonymous JSON from this host with a 403 challenge, so listings are read
@@ -26,7 +28,8 @@ backfill: that is a one-off enumeration job, not this script's.
 It exists for the intake agent, which cannot reach Reddit directly either.
 
 Zero dependencies: stdlib only (imports capture.py for the webbridge protocol
-and discovery_common.py for the keyword list and intake file handling).
+and discovery_common.py for the keyword list and structured discovery
+handling).
 """
 
 import argparse
@@ -60,7 +63,7 @@ DEFAULT_SUBS = ["coldcard", "Bitcoin"]
 POST_URL_RE = re.compile(r"reddit\.com/r/[^/]+/comments/([a-z0-9]+)")
 
 
-def registered_urls_reddit() -> set[str]:
+def registered_urls_reddit() -> dict[str, str]:
     """URLs of every reddit source already in sources.toml.
 
     Reddit permalinks are registered in the form the listing reports them, so

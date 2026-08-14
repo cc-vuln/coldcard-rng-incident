@@ -1,140 +1,108 @@
-"""Tests for DISCOVERY.md verdict rotation.
+"""Tests for the post-cutover rotate-discovery compatibility command."""
 
-The queue file is shared with five lanes and two agent prompts, so the
-properties worth pinning down are the ones a regression would silently
-break:
-
-- A rotated line is byte-identical to the line that sat in the queue, and
-  a kept line — pending or assessed — is not touched
-- A verdict without a stamp never rotates: there is no assessment date to
-  file it under
-- A corrected verdict (two stamps) is filed by its last stamp
-- Month files are append-only and dedupe, so a restore-and-rerun cannot
-  duplicate a line
-- A run with nothing old enough writes nothing at all
-"""
-
+import io
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import date
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import discovery_common as dc  # noqa: E402
 import rotate_discovery as rd  # noqa: E402
-
-QUEUE = """# Discovery intake
-
-Header prose the rotation must not disturb.
-
-## Pending
-
-- 2026-08-06 [pending thread](https://stacker.news/items/111) by alice, 3 comments (~bitcoin)
-
-## Assessed
-
-- 2026-08-05 [fresh verdict](https://stacker.news/items/222) by bob, 7 comments (~bitcoin) -> dismissed: repetitive (20260806T080000Z)
-
-- 2026-07-02 [old verdict](https://stacker.news/items/333) by carol, 1 comments (~bitcoin) -> registered as stackernews-old (20260702T090000Z)
-- 2026-07-03 [corrected verdict](https://stacker.news/items/444) by dan, 2 comments (~bitcoin) -> dismissed: first pass (20260703T090000Z); corrected on re-check (20260801T090000Z)
-- 2026-06-01 [hand dismissed](https://stacker.news/items/555) by eve, 0 comments (~bitcoin) -> dismissed: no stamp here
-"""
+from discovery_store import DiscoveryStore  # noqa: E402
 
 
-class RotationTests(unittest.TestCase):
+def transaction_bytes(root: Path) -> dict[str, bytes]:
+    transaction_root = root / "discovery/transactions"
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(transaction_root.rglob("*.json"))
+    }
+
+
+def event_count(store: DiscoveryStore) -> int:
+    return sum(len(transaction["events"])
+               for transaction in store.load_transactions())
+
+
+class RotationCompatibilityTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        root = Path(self.tmp.name)
-        (root / ".work").mkdir()
-        self._saved = (dc.ROOT, dc.WORK, dc.INTAKE, dc.INTAKE_LOCK)
-        dc.ROOT = root
-        dc.WORK = root / ".work"
-        dc.INTAKE = root / "DISCOVERY.md"
-        dc.INTAKE_LOCK = root / ".work" / "agent-discovery-intake" / "intake.lock"
-        dc.INTAKE.write_text(QUEUE, encoding="utf-8")
-        self.root = root
+        self.root = Path(self.tmp.name)
+        self.saved_root = dc.ROOT
+        dc.ROOT = self.root
+        marker = self.root / "discovery/migration-v1/manifest.json"
+        marker.parent.mkdir(parents=True)
+        marker.write_text('{\n  "schema": 1\n}\n', encoding="utf-8")
+        self.store = DiscoveryStore(self.root)
+        self.store.record_observation(
+            {"url": "https://stacker.news/items/44", "title": "candidate",
+             "display_line": ("- 2026-08-01 [candidate]"
+                              "(https://stacker.news/items/44)")},
+            event_at="20260801T000000Z",
+        )
+        self.store.record_verdict(
+            "stackernews:44", "dismissed", reason="off topic",
+            at="20260802T000000Z",
+        )
 
     def tearDown(self):
-        dc.ROOT, dc.WORK, dc.INTAKE, dc.INTAKE_LOCK = self._saved
+        dc.ROOT = self.saved_root
         self.tmp.cleanup()
 
-    def queue_text(self) -> str:
-        return dc.INTAKE.read_text(encoding="utf-8")
+    def test_validates_then_renders_without_changing_history(self):
+        history_before = transaction_bytes(self.root)
+        with mock.patch.object(rd, "validate_migration", return_value={}) as check:
+            written = rd.rotate(date(2026, 8, 14), keep_days=1)
+        check.assert_called_once_with(self.root)
+        self.assertIn("DISCOVERY.md", written)
+        self.assertTrue((self.root / "DISCOVERY.md").exists())
+        self.assertEqual(transaction_bytes(self.root), history_before)
 
-    def test_old_verdict_moves_to_its_month_file_verbatim(self):
-        moved = rd.rotate(date(2026, 8, 7), keep_days=31)
-        self.assertEqual(sorted(moved), ["2026-07"])
-        line = moved["2026-07"][0]
-        self.assertIn("https://stacker.news/items/333", line)
-        month_file = (self.root / "discovery" / "assessed-2026-07.md")
-        self.assertIn(line, month_file.read_text(encoding="utf-8").splitlines())
-        self.assertNotIn("items/333", self.queue_text())
+    def test_age_options_no_longer_select_or_delete_history(self):
+        with mock.patch.object(rd, "validate_migration", return_value={}):
+            first = rd.rotate(date(2000, 1, 1), keep_days=0)
+            second = rd.rotate(date(2099, 1, 1), keep_days=99999)
+        self.assertEqual(first, second)
+        self.assertEqual(self.store.count(state="assessed"), 1)
+        self.assertEqual(event_count(self.store), 2)
 
-    def test_recent_pending_and_unstamped_lines_stay(self):
-        rd.rotate(date(2026, 8, 7), keep_days=31)
-        text = self.queue_text()
-        self.assertIn("items/111", text)  # pending is never rotation's business
-        self.assertIn("items/222", text)  # fresh verdict
-        self.assertIn("items/555", text)  # no stamp: no date to file under
+    def test_dry_run_validates_without_rendering(self):
+        with mock.patch.object(rd, "validate_migration", return_value={}) as check, \
+                mock.patch.object(rd.DiscoveryStore, "render_all") as render:
+            self.assertEqual(rd.rotate(dry_run=True), {})
+        check.assert_called_once_with(self.root)
+        render.assert_not_called()
 
-    def test_corrected_verdict_is_filed_by_its_last_stamp(self):
-        # The first stamp (July) is old enough to rotate; the correction
-        # (1 August) is not, so the line stays.
-        moved = rd.rotate(date(2026, 8, 7), keep_days=31)
-        self.assertNotIn("items/444", "\n".join(moved.get("2026-07", [])))
-        self.assertIn("items/444", self.queue_text())
+    def test_validation_failure_prevents_render(self):
+        with mock.patch.object(
+                rd, "validate_migration", side_effect=ValueError("bad ledger")), \
+                mock.patch.object(rd.DiscoveryStore, "render_all") as render:
+            with self.assertRaisesRegex(ValueError, "bad ledger"):
+                rd.rotate()
+        render.assert_not_called()
 
-    def test_header_and_pending_survive_verbatim(self):
-        rd.rotate(date(2026, 8, 7), keep_days=31)
-        head = self.queue_text().split("## Assessed", 1)[0]
-        self.assertEqual(head, QUEUE.split("## Assessed", 1)[0])
+    def test_main_reports_compatibility_result(self):
+        output = io.StringIO()
+        with mock.patch.object(sys, "argv", ["rotate_discovery.py", "--dry-run"]), \
+                mock.patch.object(rd, "rotate", return_value={}), \
+                redirect_stdout(output):
+            self.assertEqual(rd.main(), 0)
+        self.assertIn("no files written", output.getvalue())
 
-    def test_month_file_dedupes_a_second_rotation(self):
-        rd.rotate(date(2026, 8, 7), keep_days=31)
-        # The line comes back, as it would after a restore from backup.
-        with dc.INTAKE.open("a", encoding="utf-8") as fh:
-            fh.write("- 2026-07-02 [old verdict](https://stacker.news/items/333) "
-                     "by carol, 1 comments (~bitcoin) -> registered as "
-                     "stackernews-old (20260702T090000Z)\n")
-        rd.rotate(date(2026, 8, 7), keep_days=31)
-        body = (self.root / "discovery" / "assessed-2026-07.md").read_text()
-        self.assertEqual(body.count("items/333"), 1)
-
-    def test_nothing_old_enough_writes_nothing(self):
-        before = self.queue_text()
-        moved = rd.rotate(date(2026, 7, 5), keep_days=31)
-        self.assertEqual(moved, {})
-        self.assertEqual(self.queue_text(), before)
-        self.assertFalse((self.root / "discovery").exists())
-
-    def test_dry_run_reports_without_writing(self):
-        before = self.queue_text()
-        moved = rd.rotate(date(2026, 8, 7), keep_days=31, dry_run=True)
-        self.assertEqual(sorted(moved), ["2026-07"])
-        self.assertEqual(self.queue_text(), before)
-        self.assertFalse((self.root / "discovery").exists())
-
-    def test_missing_assessed_section_fails_visibly(self):
-        dc.INTAKE.write_text("# Discovery intake\n\n## Pending\n", encoding="utf-8")
-        with self.assertRaises(SystemExit):
-            rd.rotate(date(2026, 8, 7), keep_days=31)
-
-    def test_later_sections_are_not_verdicts(self):
-        # "Link review, held for a human decision" follows Assessed in the
-        # live queue. Its lines are not verdicts: even a stamped one must
-        # survive, byte for byte.
-        third = ("## Link review, held for a human decision\n\n"
-                 "- [a link](https://example.com/a) held for review "
-                 "(20260101T000000Z)\n")
-        dc.INTAKE.write_text(QUEUE.rstrip("\n") + "\n\n" + third, encoding="utf-8")
-        rd.rotate(date(2026, 8, 7), keep_days=31)
-        text = self.queue_text()
-        self.assertIn(third.rstrip("\n"), text)
-        self.assertNotIn("items/333", text)
-        self.assertFalse((self.root / "discovery" / "assessed-2026-01.md").exists())
+    def test_main_reports_validation_error(self):
+        error = io.StringIO()
+        with mock.patch.object(sys, "argv", ["rotate_discovery.py"]), \
+                mock.patch.object(rd, "rotate",
+                                  side_effect=ValueError("bad migration")), \
+                redirect_stderr(error):
+            self.assertEqual(rd.main(), 2)
+        self.assertIn("bad migration", error.getvalue())
 
 
 if __name__ == "__main__":

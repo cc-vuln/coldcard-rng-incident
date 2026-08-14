@@ -21,9 +21,10 @@ the current absence is already documented and should change only when new
 public material appears · **BLOCKED** needs an operator choice, external access
 or evidence from a third party.
 
-Last reviewed: 12 Aug 2026, after the public-record scope, historical coverage,
-discovery durability, agent containment, site-sync cursor and presentation-
-scale audit. The completed entries below record the gap-fill and tooling work;
+Last reviewed: 14 Aug 2026, after replacing the flat discovery history with a
+structured immutable store and rechecking the public-record scope, historical
+coverage, agent containment, site-sync cursor and presentation-scale audit.
+The completed entries below record the gap-fill and tooling work;
 remaining entries are evidence gaps, monitoring questions or discrete scale
 work rather than a second site mission.
 Previous review: 8 Aug 2026, when X discovery moved to the capture browser
@@ -348,6 +349,45 @@ Ordered by value, not effort.
   from the 9 Aug sweep), the intake backlog stood at 747 pending, and the
   home-timeline window of 10-12 Aug is unrecoverable — watched profiles
   re-read with a since-cursor, the timeline does not.
+
+- **DONE 14 Aug 2026: replace the entire flat discovery history with a
+  structured store.** The 404KB `DISCOVERY.md` had become both canonical
+  history and a live work queue: every producer rewrote it, every consumer
+  reparsed it, and agents were repeatedly handed material they did not need.
+  The cutover imported all 1,606 legacy bullet occurrences as 1,590 stable
+  platform-native candidates in two immutable, hash-chained transactions.
+  The migration bundle keeps the exact old bytes and proves each occurrence's
+  source path, line number and queue rank. It also preserves all eight
+  multi-transition rows, makes 18 replacement verdicts explicit
+  supersessions, and repairs the seven retry-only rows formerly filed under
+  Assessed back to Pending. Those are presentation/state repairs, not deleted
+  history: the original rows remain byte-for-byte in `migration-v1/legacy/`.
+
+  Canonical writes are now atomic transaction batches under one protected
+  lock. One JSON projection per candidate and 100-row paged Markdown views make
+  the corpus discoverable without replaying a 1,600-line document; root
+  `DISCOVERY.md` is a generated index. Intake packets contain only the bounded
+  Pending slice and bind verdicts to candidate ids and event heads. Generated
+  files can be reorganised or rebuilt, while the transaction history is never
+  edited or rotated. `just discovery-check`, the commit guard and archival
+  deposit gate independently replay the chain and compare every projection and
+  every legacy occurrence with the held bytes.
+
+- **OPEN: keep the structured discovery store's scale contracts explicit.**
+  The first cutover is comfortably within its bounds: 1,590 candidates,
+  36 Markdown view pages, and roughly 0.6 seconds / 48 MB for a cold targeted
+  read on this host. Reads currently replay the full transaction chain, while
+  a changed batch loads it again and regenerates every projection under the
+  lock. Keep that simple path until measured growth makes it material; then
+  pass one loaded session into commit/render rather than adding an opaque cache.
+
+  The checked-in transaction and candidate JSON Schemas deliberately describe
+  structural envelopes only. Hash recomputation, state transitions,
+  cross-record references, projection equality, and the migration manifest,
+  occurrence-table and `state.json` formats are enforced normatively by
+  `discovery_store.py validate`. If external consumers begin using those files,
+  add discriminated event-payload and artifact schemas before treating the
+  current envelopes as a complete interoperability contract.
 
 - **The nostr lane is the noisiest discovery source by a wide margin, and
   deferral does not reach it.** Of 38 nostr candidates assessed, 36 were

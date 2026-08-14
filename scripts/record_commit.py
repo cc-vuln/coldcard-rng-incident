@@ -33,14 +33,22 @@ Every precondition prints its reason when it blocks, and a block exits 1:
      classification would stall the committer most of the day. capture.py
      still exits 21 when the poll holds the writer lock, which is contention
      rather than a finding, so 21s are retried across a typical poll window.
-  5. No unresolved agent-guard run since the last commit. agent_guard.py
-     writes approved-captures.txt only when a run passes; a run directory
-     without one was rejected, is still in flight, or died mid-run. All three
-     block: a rejected run's edits are evidence a person has to read, and
-     committing them would launder an injection into the record.
-  6. The site build lock is free, and is then HELD across staging and the
+  5. Every agent run since the last commit has a guard approval. Registering
+     roles must also have finished their driver-side transaction and capture
+     phase, recorded by workflow-complete. A missing guard approval and a
+     guard-approved but incomplete registering workflow both block, for
+     different reasons that the status output names explicitly.
+  6. The global agent-run lock is free, and is then HELD across every check,
+     staging and commit. Candidate heads let discovery stay unlocked while an
+     intake agent works, so this lock prevents committing its registry edit
+     halfway through the guarded run.
+  7. The site build lock is free, and is then HELD across staging and the
      commit. A publish build must read one stable HEAD for its version stamp.
-  7. The archive writer lock is free, and is then HELD across staging and the
+  8. The discovery lock is free, and is then HELD while the immutable
+     transaction chain and every generated projection are validated and
+     staged. Existing transaction files may not be modified, deleted or
+     renamed relative to HEAD.
+  9. The archive writer lock is free, and is then HELD across staging and the
      commit. Staging archive/ while a poll is mid-write could commit a
      snapshot without its index.jsonl line, which is the change record this
      repository exists to get right.
@@ -123,6 +131,8 @@ FORBIDDEN_MESSAGE_STRINGS: tuple[str, ...] = (
 # reason to retry, not a reason to stay blocked.
 LOCK_BUSY_EXIT = 21
 BUILD_LOCK_PATH = Path("/tmp/cc-build.lock")
+AGENT_RUN_LOCK_PATH = Path(".work/agent-runs.lock")
+DISCOVERY_LOCK_PATH = Path(".work/locks/discovery.lock")
 # A tier poll can hold the lock for a quarter of an hour now that browser
 # captures and the chain monitors share the tick (observed 9 Aug 2026); the
 # retry span covers that. Skipping a tick costs nothing.
@@ -134,6 +144,58 @@ RUN_ID_RE = re.compile(r"^(\d{8}T\d{6}Z)-")
 
 class BuildLockBusy(RuntimeError):
     """Raised when a site build or publish owns the shared build lock."""
+
+
+class DiscoveryLockBusy(RuntimeError):
+    """Raised when a discovery writer owns the canonical-store lock."""
+
+
+class AgentRunLockBusy(RuntimeError):
+    """Raised when an agent may still be changing guarded project files."""
+
+
+@contextlib.contextmanager
+def agent_run_lock(root: Path) -> Iterator[None]:
+    """Take the global agent-mutation lock without following .work symlinks."""
+    root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    work_fd: int | None = None
+    fd: int | None = None
+    try:
+        try:
+            os.mkdir(".work", 0o775, dir_fd=root_fd)
+            os.fsync(root_fd)
+        except FileExistsError:
+            pass
+        work_fd = os.open(
+            ".work", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=root_fd)
+        fd = os.open(
+            AGENT_RUN_LOCK_PATH.name,
+            os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
+            0o600, dir_fd=work_fd)
+        os.fchmod(fd, 0o600)
+    except OSError as exc:
+        if fd is not None:
+            os.close(fd)
+        if work_fd is not None:
+            os.close(work_fd)
+        os.close(root_fd)
+        raise Blocked(
+            f"agent-run lock path is unsafe: {root / AGENT_RUN_LOCK_PATH}: {exc}") \
+            from exc
+    os.close(work_fd)
+    os.close(root_fd)
+    handle = os.fdopen(fd, "a+", encoding="utf-8")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as exc:
+        handle.close()
+        raise AgentRunLockBusy(str(root / AGENT_RUN_LOCK_PATH)) from exc
+    try:
+        yield
+    finally:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
 
 
 @contextlib.contextmanager
@@ -159,6 +221,68 @@ def build_lock(path: Path = BUILD_LOCK_PATH) -> Iterator[None]:
     finally:
         fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         handle.close()
+
+
+@contextlib.contextmanager
+def discovery_lock(root: Path, path: Path | None = None) -> Iterator[None]:
+    """Hold the operator-only discovery lock without waiting.
+
+    The global lock order is agent-run, build, discovery, archive. Keeping
+    validation and staging inside this context closes the
+    gap in which a valid chain could grow after the audit but before git read
+    it. The store's validator is called with ``lock_held=True`` below, so it
+    never opens a second file description and deadlocks behind itself.
+    """
+    actual = path or (root / DISCOVERY_LOCK_PATH)
+    actual.parent.mkdir(parents=True, exist_ok=True)
+    if actual.parent.is_symlink() or not actual.parent.is_dir():
+        raise Blocked(
+            f"discovery lock directory is not an ordinary directory: "
+            f"{actual.parent}")
+    fd: int | None = None
+    try:
+        # Work relative to an O_NOFOLLOW directory descriptor. This avoids
+        # turning a substituted `.work/locks` symlink into a chmod/open of an
+        # unrelated operator path before audit-sandbox has repaired modes.
+        directory_fd = os.open(
+            actual.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fchmod(directory_fd, 0o700)
+            fd = os.open(
+                actual.name,
+                os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
+                0o600,
+                dir_fd=directory_fd,
+            )
+        finally:
+            os.close(directory_fd)
+        os.fchmod(fd, 0o600)
+    except OSError as exc:
+        if fd is not None:
+            os.close(fd)
+        raise Blocked(f"discovery lock path is unsafe: {actual}: {exc}") from exc
+    assert fd is not None
+    handle = os.fdopen(fd, "a+", encoding="utf-8")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as exc:
+        handle.close()
+        raise DiscoveryLockBusy(str(actual)) from exc
+    try:
+        yield
+    finally:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
+
+
+def validate_discovery_locked(root: Path) -> None:
+    """Validate the complete store while ``discovery_lock`` is held."""
+    try:
+        from discovery_store import validate_store
+
+        validate_store(root, lock_held=True)
+    except Exception as exc:
+        raise Blocked(f"structured discovery validation fails: {exc}") from exc
 
 
 def git(root: Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -188,26 +312,41 @@ def run_id_epoch(name: str) -> int | None:
     return int(stamp.replace(tzinfo=timezone.utc).timestamp())
 
 
-def unresolved_guard_runs(root: Path) -> list[str]:
-    """Guard run directories newer than HEAD that never recorded a pass.
+def unresolved_guard_run_details(root: Path) -> tuple[list[str], list[str]]:
+    """Separate missing guard passes from incomplete registering workflows.
 
-    agent_guard.py's after pass writes approved-captures.txt only on success,
-    so its absence names a run that was rejected, is still running, or died
-    between passes. A rejected run leaves its edits in the tree on purpose —
-    what an injection tried is the evidence — and a committer that swept them
-    in would be the injection's last mile. "Since the last commit" scopes the
-    check: older unresolved runs were already sitting in the tree when a
-    person made that commit, so they have been seen.
+    agent_guard.py's after pass writes approved-captures.txt only on success.
+    Registering roles additionally write workflow-complete only after the
+    head-bound verdict transaction and first-capture attempts. Keeping these
+    states separate lets the operator distinguish a guard rejection/in-flight
+    guard from work that the guard approved but its registering driver has not
+    finished. "Since the last commit" scopes the check: older unresolved runs
+    were already sitting in the tree when a person made that commit, so they
+    have been seen.
     """
     runs_dir = root / GUARD_RUNS
     if not runs_dir.is_dir():
-        return []
+        return [], []
     since = last_commit_epoch(root)
-    unresolved = []
+    missing_pass: list[str] = []
+    incomplete_registering: list[str] = []
     for entry in sorted(runs_dir.iterdir()):
         if not entry.is_dir():
             continue
-        if (entry / "approved-captures.txt").exists():
+        approved = (entry / "approved-captures.txt").exists()
+        role = None
+        manifest_path = entry / "manifest.json"
+        if manifest_path.is_file():
+            try:
+                manifest_value = json.loads(
+                    manifest_path.read_text(encoding="utf-8"))
+                role = manifest_value.get("role")
+            except (OSError, json.JSONDecodeError, AttributeError):
+                role = None
+        registering_incomplete = approved \
+            and role in {"intake", "xintake"} \
+            and not (entry / "workflow-complete").is_file()
+        if approved and not registering_incomplete:
             continue
         started = run_id_epoch(entry.name)
         # A run whose id predates HEAD still blocks if the directory has been
@@ -218,8 +357,18 @@ def unresolved_guard_runs(root: Path) -> list[str]:
         marker = started if started is not None else int(entry.stat().st_mtime)
         touched = int(entry.stat().st_mtime)
         if since is None or marker >= since or touched >= since:
-            unresolved.append(entry.name)
-    return unresolved
+            target = (
+                incomplete_registering if registering_incomplete
+                else missing_pass
+            )
+            target.append(entry.name)
+    return missing_pass, incomplete_registering
+
+
+def unresolved_guard_runs(root: Path) -> list[str]:
+    """Compatibility list of every guard or registering-workflow blocker."""
+    missing_pass, incomplete_registering = unresolved_guard_run_details(root)
+    return sorted([*missing_pass, *incomplete_registering])
 
 
 def _staging_env(index_file: Path | None) -> dict | None:
@@ -250,11 +399,20 @@ def stage(root: Path, index_file: Path | None = None) -> list[tuple[str, str]]:
     """Stage the allowlist and return the staged (status, path) pairs.
 
     `-A` scoped to the named paths, so deletions inside them are staged too.
-    Missing paths are filtered out first: a fresh clone has no quarantine/
-    and git would fail the whole add for one absent name.
+    Missing and untracked paths are filtered out first: a fresh clone has no
+    quarantine/ and git would fail the whole add for one absent name. A path
+    that vanished from disk but is present in HEAD is retained so deletion of
+    a whole allowed tree is staged and cannot hide an immutable transaction.
     """
     env = _staging_env(index_file)
-    existing = [p for p in STAGE_PATHS if (root / p.rstrip("/")).exists()]
+    existing = []
+    for pathspec in STAGE_PATHS:
+        if (root / pathspec.rstrip("/")).exists():
+            existing.append(pathspec)
+            continue
+        tracked = git(root, "ls-files", "--", pathspec, env=env)
+        if tracked.stdout.strip():
+            existing.append(pathspec)
     if existing:
         result = git(root, "add", "-A", "--", *existing, env=env)
         if result.returncode != 0:
@@ -263,7 +421,9 @@ def stage(root: Path, index_file: Path | None = None) -> list[tuple[str, str]]:
 
 
 def staged_changes(root: Path, index_file: Path | None = None) -> list[tuple[str, str]]:
-    result = git(root, "diff", "--cached", "--name-status", "-z",
+    # Disable rename detection so a transaction moved elsewhere is represented
+    # as deletion of the immutable old path plus addition of the new path.
+    result = git(root, "diff", "--cached", "--no-renames", "--name-status", "-z",
                  env=_staging_env(index_file))
     out = []
     fields = [f for f in result.stdout.split("\0") if f]
@@ -280,6 +440,44 @@ def staged_changes(root: Path, index_file: Path | None = None) -> list[tuple[str
     return out
 
 
+def immutable_transaction_problems(
+        staged: list[tuple[str, str]]) -> list[str]:
+    """Reject rewrites of canonical transactions or cutover evidence."""
+    return [
+        f"{path}: canonical discovery history is immutable; staged "
+        f"status {status!r} is not an addition"
+        for status, path in staged
+        if (path.startswith("discovery/transactions/")
+            or path.startswith("discovery/migration-v1/")) and status != "A"
+    ]
+
+
+def stage_allowlist_problems(staged: list[tuple[str, str]]) -> list[str]:
+    """Catch paths somebody staged before this fixed-allowlist committer ran."""
+    problems = []
+    for _status, path in staged:
+        allowed = any(
+            path.startswith(spec) if spec.endswith("/") else path == spec
+            for spec in STAGE_PATHS
+        )
+        if not allowed:
+            problems.append(
+                f"{path}: already staged outside record_commit.py's allowlist")
+    return problems
+
+
+def require_stage_allowlist(staged: list[tuple[str, str]]) -> None:
+    problems = stage_allowlist_problems(staged)
+    if problems:
+        raise Blocked("; ".join(problems))
+
+
+def require_immutable_transactions(staged: list[tuple[str, str]]) -> None:
+    problems = immutable_transaction_problems(staged)
+    if problems:
+        raise Blocked("; ".join(problems))
+
+
 @dataclass
 class Summary:
     """What a staged set contains, in the units the commit message reports."""
@@ -289,7 +487,7 @@ class Summary:
     registrations: int = 0      # new [[source]]/[[x_post]]/[[nostr_post]] blocks
     classifications: int = 0    # new [[revision]] entries
     corrections: int = 0        # new [[correction]] entries
-    rotations: int = 0          # new discovery/assessed-*.md files
+    discovery_transactions: int = 0  # new immutable discovery batches
     quarantines: int = 0        # new quarantine/*.toml files
     areas: dict[str, int] = field(default_factory=dict)  # top area -> files
     statuses: list[tuple[str, str]] = field(default_factory=list)
@@ -314,6 +512,8 @@ def summarize(root: Path, staged: list[tuple[str, str]],
         summary.areas[_area_of(path)] = summary.areas.get(_area_of(path), 0) + 1
         if status != "A":
             continue
+        if path.startswith("discovery/transactions/"):
+            summary.discovery_transactions += 1
         snap = re.match(r"archive/snapshots/([^/]+)/([^/.]+)\.", path)
         if snap:
             snapshot_keys.add(snap.groups())
@@ -322,9 +522,7 @@ def summarize(root: Path, staged: list[tuple[str, str]],
         if social:
             social_keys.add(social.group(1))
             continue
-        if re.fullmatch(r"discovery/assessed-\d{4}-\d{2}\.md", path):
-            summary.rotations += 1
-        elif path.startswith("quarantine/"):
+        if path.startswith("quarantine/"):
             summary.quarantines += 1
     summary.snapshots = len(snapshot_keys)
     summary.social_captures = len(social_keys)
@@ -347,7 +545,7 @@ def summarize(root: Path, staged: list[tuple[str, str]],
 
 # Which staged paths make a commit agent work rather than record churn or a
 # site change. These are the files the four roles are allowed to write (plus
-# the queue rotations and quarantine moves their drivers produce), so their
+# the structured projections and quarantine moves their drivers produce), so their
 # presence without any archive/ change means the churn came from an agent run.
 AGENT_PATHS = (
     "sources.toml", "revision-reviews.toml", "DISCOVERY.md", "BACKLOG.md",
@@ -387,8 +585,8 @@ def build_message(summary: Summary) -> str:
         parts.append(f"{summary.classifications} classification(s)")
     if summary.corrections:
         parts.append(f"{summary.corrections} correction(s)")
-    if summary.rotations:
-        parts.append(f"{summary.rotations} rotated discovery file(s)")
+    if summary.discovery_transactions:
+        parts.append(f"{summary.discovery_transactions} discovery transaction(s)")
     if summary.quarantines:
         parts.append(f"{summary.quarantines} quarantined registration file(s)")
     if not parts:
@@ -494,15 +692,25 @@ def check_preconditions(root: Path, out=sys.stdout) -> None:
                       "retried through a poll window; it still fails)")
     print("precondition: just audit-core passes (no review gate)", file=out)
 
-    unresolved = unresolved_guard_runs(root)
-    if unresolved:
-        raise Blocked(
-            f"{len(unresolved)} agent-guard run(s) since the last commit have "
-            "no pass verdict (rejected, in flight, or died mid-run); their "
-            "edits are evidence and stay uncommitted until a person reads "
-            f"them: {', '.join(unresolved)}")
-    print("precondition: every agent-guard run since the last commit passed",
-          file=out)
+    missing_pass, incomplete_registering = unresolved_guard_run_details(root)
+    blockers = []
+    if missing_pass:
+        blockers.append(
+            f"{len(missing_pass)} agent-guard run(s) since the last commit "
+            "have no guard pass verdict (rejected, still in the guard, or "
+            f"died during it): {', '.join(missing_pass)}")
+    if incomplete_registering:
+        blockers.append(
+            f"{len(incomplete_registering)} guard-approved registering "
+            "workflow(s) since the last commit have no workflow-complete "
+            "marker (the driver transaction/capture phase is still in flight "
+            f"or died after approval): {', '.join(incomplete_registering)}")
+    if blockers:
+        raise Blocked("; ".join(blockers) +
+                      "; affected edits stay uncommitted until the run is "
+                      "reviewed or the registering workflow completes")
+    print("precondition: every agent run is guard-approved and every "
+          "registering workflow is complete", file=out)
 
 
 def commit_staged(root: Path, message: str) -> str:
@@ -543,18 +751,15 @@ def push_committed(root: Path) -> None:
     print("record-commit: pushed")
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--dry-run", action="store_true",
-                      help="report everything, commit nothing (the default)")
-    mode.add_argument("--yes", action="store_true",
-                      help="actually commit")
-    args = parser.parse_args(argv)
-    dry_run = not args.yes
-
+def _run_locked(dry_run: bool) -> int:
     try:
         check_preconditions(ROOT)
+    except Blocked as exc:
+        print(f"record-commit: blocked, {exc}", file=sys.stderr)
+        return 1
+
+    try:
+        require_stage_allowlist(staged_changes(ROOT))
     except Blocked as exc:
         print(f"record-commit: blocked, {exc}", file=sys.stderr)
         return 1
@@ -562,53 +767,68 @@ def main(argv: list[str] | None = None) -> int:
     if dry_run:
         # A temporary index makes the dry run exact — same staged set, same
         # message — without touching the index the operator may be using.
-        with tempfile.TemporaryDirectory() as tmp:
-            index = Path(tmp) / "index"
-            _prepare_temp_index(ROOT, _staging_env(index))
-            staged = stage(ROOT, index_file=index)
-            if not staged:
-                print("record-commit: nothing to commit")
-                return 0
-            summary = summarize(ROOT, staged, index_file=index)
-            message = build_message(summary)
-            print(f"record-commit: would stage {len(staged)} path(s):")
-            for status, path in staged:
-                print(f"  {status} {path}")
-            problems = lint_message(ROOT, message)
-            if problems:
-                print("record-commit: the assembled message FAILS the "
-                      "no-attribution lint:", file=sys.stderr)
-                for problem in problems:
-                    print(f"  - {problem}", file=sys.stderr)
-                return 1
-            print("record-commit: would commit with message:\n---")
-            print(message, end="")
-            print("---\nrecord-commit: dry run, nothing committed")
-            return 0
+        try:
+            with discovery_lock(ROOT):
+                validate_discovery_locked(ROOT)
+                with tempfile.TemporaryDirectory() as tmp:
+                    index = Path(tmp) / "index"
+                    _prepare_temp_index(ROOT, _staging_env(index))
+                    staged = stage(ROOT, index_file=index)
+                    require_stage_allowlist(staged)
+                    require_immutable_transactions(staged)
+                    if not staged:
+                        print("record-commit: nothing to commit")
+                        return 0
+                    summary = summarize(ROOT, staged, index_file=index)
+                    message = build_message(summary)
+                    print(f"record-commit: would stage {len(staged)} path(s):")
+                    for status, path in staged:
+                        print(f"  {status} {path}")
+                    problems = lint_message(ROOT, message)
+                    if problems:
+                        print("record-commit: the assembled message FAILS the "
+                              "no-attribution lint:", file=sys.stderr)
+                        for problem in problems:
+                            print(f"  - {problem}", file=sys.stderr)
+                        return 1
+                    print("record-commit: would commit with message:\n---")
+                    print(message, end="")
+                    print("---\nrecord-commit: dry run, nothing committed")
+                    return 0
+        except DiscoveryLockBusy as exc:
+            print(f"record-commit: blocked, discovery is being updated "
+                  f"({exc}); the next tick retries", file=sys.stderr)
+            return 1
+        except Blocked as exc:
+            print(f"record-commit: blocked, {exc}", file=sys.stderr)
+            return 1
 
-    # --yes. Lock order is build, then archive. publish-scheduled holds the
-    # build lock while it audits; taking the archive lock first here would let
-    # the two processes wait on each other. Both acquisitions are non-blocking,
-    # so routine contention simply defers this hourly tick.
+    # --yes. The outer caller already owns the agent-run lock. Remaining lock
+    # order is build, discovery, then archive. All acquisitions are
+    # non-blocking, so routine contention defers this hourly tick.
     try:
         with build_lock():
-            with archive_lock("record-commit"):
-                staged = stage(ROOT)
-                if not staged:
-                    print("record-commit: nothing to commit")
-                    return 0
-                message = build_message(summarize(ROOT, staged))
-                problems = lint_message(ROOT, message)
-                if problems:
-                    # The staged changes stay staged: the next tick re-derives
-                    # them, and an operator looking at the tree sees what was
-                    # about to ship.
-                    print("record-commit: blocked, the assembled message fails "
-                          "the no-attribution lint:", file=sys.stderr)
-                    for problem in problems:
-                        print(f"  - {problem}", file=sys.stderr)
-                    return 1
-                short = commit_staged(ROOT, message)
+            with discovery_lock(ROOT):
+                validate_discovery_locked(ROOT)
+                with archive_lock("record-commit"):
+                    staged = stage(ROOT)
+                    require_stage_allowlist(staged)
+                    require_immutable_transactions(staged)
+                    if not staged:
+                        print("record-commit: nothing to commit")
+                        return 0
+                    message = build_message(summarize(ROOT, staged))
+                    problems = lint_message(ROOT, message)
+                    if problems:
+                        # The staged changes stay staged: the next tick
+                        # re-derives them, and an operator looking at the tree
+                        # sees what was about to ship.
+                        print("record-commit: blocked, the assembled message "
+                              "fails the no-attribution lint:", file=sys.stderr)
+                        for problem in problems:
+                            print(f"  - {problem}", file=sys.stderr)
+                        return 1
+                    short = commit_staged(ROOT, message)
     except BuildLockBusy as exc:
         print(f"record-commit: blocked, a build holds {exc}; "
               "the next tick retries", file=sys.stderr)
@@ -617,9 +837,40 @@ def main(argv: list[str] | None = None) -> int:
         print(f"record-commit: blocked, the archive writer lock is held "
               f"({exc}); the next tick retries", file=sys.stderr)
         return 1
+    except DiscoveryLockBusy as exc:
+        print(f"record-commit: blocked, discovery is being updated ({exc}); "
+              "the next tick retries", file=sys.stderr)
+        return 1
+    except Blocked as exc:
+        print(f"record-commit: blocked, {exc}", file=sys.stderr)
+        return 1
     print(f"record-commit: committed {short} — {message.splitlines()[0]}")
     push_committed(ROOT)
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true",
+                      help="report everything, commit nothing (the default)")
+    mode.add_argument("--yes", action="store_true",
+                      help="actually commit")
+    args = parser.parse_args(argv)
+    try:
+        # Global order is agent-run, build, discovery, archive. Site sync also
+        # owns agent-run before it builds, so this cannot cycle with it; an
+        # intake model may edit the registry while its candidate heads remain
+        # unlocked, and the committer simply defers until that guarded run ends.
+        with agent_run_lock(ROOT):
+            return _run_locked(not args.yes)
+    except AgentRunLockBusy as exc:
+        print(f"record-commit: blocked, an agent run holds {exc}; "
+              "the next tick retries", file=sys.stderr)
+        return 1
+    except Blocked as exc:
+        print(f"record-commit: blocked, {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

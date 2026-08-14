@@ -21,6 +21,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -50,20 +51,29 @@ fetch_post = '{"query": "{ item(id: 111111) { title text createdAt user { name }
 note = "An existing registration, for the delta rules to compare against."
 '''
 
+CANDIDATE_LINE = (
+    "- 2026-08-05 [A candidate thread]"
+    "(https://www.reddit.com/r/coldcard/comments/aaa111/a_candidate/) "
+    "by someone, 4 comments (r/coldcard)"
+)
+
 DISCOVERY = """\
 # Discovery intake
 
-## Pending
+The canonical discovery record is organised as immutable transactions with
+generated candidate files and working views.
 
-- 2026-08-05 [A candidate thread](https://www.reddit.com/r/coldcard/comments/aaa111/a_candidate/) by someone, 4 comments (r/coldcard)
+## Working views
 
-## Assessed
+- [Pending](discovery/views/pending/index.md): 1
+- [Deferred](discovery/views/deferred/index.md): 0
+- [Human review](discovery/views/human-review/index.md): 0
 
-- 2026-08-01 [An older one](https://stacker.news/items/111111) -> registered as stackernews-example-thread (20260801T000000Z)
+## Durable verdicts
 
-## Link review, held for a human decision
+- [Assessed](discovery/views/assessed/index.md): 1
 
-- 2026-08-02 [A third section](https://www.reddit.com/r/coldcard/comments/ccc333/third/) -> dismissed: already covered (20260802T000000Z)
+Total candidates: 2
 """
 
 NEW_REDDIT_BLOCK = '''
@@ -79,8 +89,6 @@ min_chars = 1500
 capture = "reddit-json"
 why = "A first-hand account of a drained device, with the timeline the poster kept and the transaction ids to follow."
 '''
-
-VERDICT = " -> registered as reddit-a-candidate (20260806T120000Z)"
 
 # What revision-reviews.toml already holds when a run starts: one settled
 # classification the append-only prefix check can watch being preserved.
@@ -160,8 +168,7 @@ class GuardCase(unittest.TestCase):
         else:
             self.packet_candidate_id = "reddit:aaa111"
             external_key = "reddit:submission:aaa111"
-            pending = next(line for line in DISCOVERY.splitlines()
-                           if line.startswith("- 2026-08-05"))
+            pending = CANDIDATE_LINE
         packet = {
             "schema_version": 1,
             "lane": "x" if self.role == "xintake" else "community",
@@ -184,20 +191,6 @@ class GuardCase(unittest.TestCase):
             row["source_id"] = source_id
         (self.run_dir / "intake-verdicts.jsonl").write_text(
             json.dumps(row) + "\n", encoding="utf-8")
-
-    def assess_candidate(self, verdict: str = VERDICT) -> None:
-        """Move the pending candidate to the end of Assessed, the way the
-        prompt tells the agent to: immediately before the next section
-        heading, not at the end of the file."""
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        pending = [line for line in text.splitlines()
-                   if line.startswith("- 2026-08-05")][0]
-        text = text.replace(pending + "\n", "")
-        marker = "\n## Link review"
-        head, tail = text.split(marker, 1)
-        self.write("DISCOVERY.md",
-                   head.rstrip("\n") + "\n\n" + pending + verdict + "\n"
-                   + marker + tail)
 
     def after(self) -> tuple[int, str]:
         from io import StringIO
@@ -317,90 +310,59 @@ class Exfiltration(GuardCase):
     def test_a_missing_env_is_reported_rather_than_skipped(self):
         (self.tmp / ".env").unlink()
         self.append("sources.toml", NEW_REDDIT_BLOCK)
-        self.assess_candidate()
         self.assertRejected("A gate running without its list is not a gate")
 
 
-class QueueIntegrity(GuardCase):
-    def test_rewriting_a_candidate_is_rejected(self):
-        text = (self.tmp / "DISCOVERY.md").read_text().replace(
-            "https://www.reddit.com/r/coldcard/comments/aaa111/a_candidate/",
-            "https://elsewhere.example.invalid/")
-        self.write("DISCOVERY.md", text)
-        self.assess_candidate()
-        self.assertRejected("edited the queue directly")
+class StructuredDiscoveryBoundary(GuardCase):
+    def test_editing_a_canonical_transaction_is_rejected(self):
+        self.write("discovery/transactions/2026-08/00000001-injected.json",
+                   "{}\n")
+        self.assertRejected("structured discovery validation failed")
 
-    def test_lines_already_settled_elsewhere_are_not_new_verdicts(self):
-        """DISCOVERY.md has a third section, and both sides must see it.
+    def test_editing_a_generated_candidate_is_rejected(self):
+        self.write("discovery/candidates/reddit/aaa111.json", "{}\n")
+        self.assertRejected("structured discovery validation failed")
 
-        Counting "Link review, held for a human decision" as settled in the
-        new file but not the old made every line already sitting there look
-        like a verdict invented during the run. It rejected a clean intake
-        with eleven false positives before this test existed.
+    def test_editing_generated_state_is_rejected(self):
+        self.write("discovery/state.json", "{}\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_editing_the_migration_bundle_is_rejected(self):
+        self.write("discovery/migration-v1/manifest.json", "{}\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_editing_a_discovery_schema_is_rejected(self):
+        self.write("discovery/schema/transaction-v1.schema.json", "{}\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_editing_a_generated_view_is_rejected(self):
+        self.write("discovery/views/pending/index.md", CANDIDATE_LINE + "\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_editing_the_store_readme_is_rejected(self):
+        self.write("discovery/README.md", "forged format\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_editing_the_generated_root_index_is_rejected(self):
+        self.append("DISCOVERY.md", "\nforged candidate\n")
+        self.assertRejected("structured discovery validation failed")
+
+    def test_a_valid_concurrent_discovery_change_is_accepted_and_noted(self):
+        """A neighbouring writer may advance an unrelated candidate.
+
+        The store validator owns the proof that the complete canonical and
+        generated tree is coherent. Candidate-head binding in the later
+        applier, not a global-head freeze in this guard, protects the selected
+        intake batch.
         """
-        self.assess_candidate()
-        self.assertRejected("edited the queue directly")
-
-    def test_a_candidate_that_simply_vanishes_is_rejected(self):
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        pending = [line for line in text.splitlines()
-                   if line.startswith("- 2026-08-05")][0]
-        self.write("DISCOVERY.md", text.replace(pending + "\n", ""))
-        self.assertRejected("edited the queue directly")
-
-    def test_deferring_a_pending_candidate_is_rejected(self):
-        """Deferral is the lanes' mechanism, not an exit the agent may take.
-
-        Deferred is a queue rather than a verdict, so moving a line into it
-        leaves the candidate unassessed with no reason recorded. If the guard
-        counted Deferred as settled, that would read as a clean disposal.
-        """
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        pending = [line for line in text.splitlines()
-                   if line.startswith("- 2026-08-05")][0]
-        moved = text.replace(pending + "\n", "")
-        self.write("DISCOVERY.md",
-                   moved + f"\n## Deferred\n\n{pending}\n")
-        self.assertRejected("edited the queue directly")
-
-    def test_a_lane_adding_a_deferred_candidate_is_accepted(self):
-        """A discovery lane runs on its own timer and may append to Deferred
-        while an agent run is in flight. That is not the agent's doing and
-        must not be read as an invented verdict."""
-        # The agent records its verdict into ## Assessed, which the prompt
-        # names explicitly; the lane's append lands after it.
-        self.assess_candidate()
-        self.append("DISCOVERY.md", (
-            "\n## Deferred\n\n"
-            "- 2026-08-06 [a quiet thread](https://www.reddit.com/r/Bitcoin/"
-            "comments/zzz999/a_quiet_thread/) by nobody, 1 comments "
-            "(r/Bitcoin) [topical]\n"))
-        self.assertRejected("edited the queue directly")
-
-    def test_a_verdict_in_a_later_section_is_rejected(self):
-        """A verdict's only destination is the end of ## Assessed, before
-        the next heading. Appended to "Link review" instead, it passed both
-        queue checks as settled: this is how 64 verdicts were misfiled over
-        5-6 Aug 2026 and found only by reading the queue by hand."""
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        pending = [line for line in text.splitlines()
-                   if line.startswith("- 2026-08-05")][0]
-        # The fixture's last section is Link review, so a verdict appended
-        # at the end of the file lands inside it.
-        moved = text.replace(pending + "\n", "")
-        self.write("DISCOVERY.md",
-                   moved.rstrip("\n") + f"\n{pending}{VERDICT}\n")
-        self.assertRejected("edited the queue directly")
-
-    def test_a_line_removed_from_a_later_section_is_rejected(self):
-        """The held sections are a human parking spot; a run that empties
-        one is out of its remit even when every verdict it wrote is clean."""
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        held = [line for line in text.splitlines()
-                if line.startswith("- 2026-08-02")][0]
-        self.write("DISCOVERY.md", text.replace(held + "\n", ""))
-        self.assess_candidate()
-        self.assertRejected("edited the queue directly")
+        self.write("discovery/transactions/2026-08/00000001-neighbour.json",
+                   "{}\n")
+        with patch.object(agent_guard, "structured_discovery_integrity",
+                          return_value=[]) as validate:
+            code, output = self.after()
+        self.assertEqual(0, code, output)
+        self.assertIn("structured discovery path(s) also changed", output)
+        validate.assert_called_once_with()
 
 
 class VerdictOutbox(GuardCase):
@@ -430,6 +392,29 @@ class PermissionBoundary(unittest.TestCase):
         self.assertNotIn("DISCOVERY.md", agent_files)
         self.assertIn('"$(mode_of DISCOVERY.md)" == "640"', script)
         self.assertIn("chmod 640 DISCOVERY.md", script)
+
+    def test_agent_permissions_protect_structured_discovery_and_lock(self):
+        script = (REAL_ROOT / "scripts/agent-permissions.sh").read_text()
+        self.assertIn("find discovery -type d -exec chmod 0755", script)
+        self.assertIn("find discovery -type f -exec chmod 0644", script)
+        self.assertIn('sudo chown -R "$OPERATOR_USER:$OPERATOR_GROUP" discovery',
+                      script)
+        self.assertIn('DISCOVERY_LOCK=".work/locks/discovery.lock"', script)
+        self.assertIn('chmod 0600 "$DISCOVERY_LOCK"', script)
+
+    def test_agent_cannot_replace_the_lock_namespace_from_writable_scratch(self):
+        script = (REAL_ROOT / "scripts/agent-permissions.sh").read_text()
+        self.assertIn('[[ "$path" == ".work" ]] && wanted_mode="3775"',
+                      script)
+        self.assertIn('sudo chmod 3775 "$path"', script)
+        self.assertIn('-path "$DISCOVERY_LOCK_DIR" -o', script)
+        self.assertIn('-path ".work/agent-guard"', script)
+        self.assertIn('-L "$DISCOVERY_LOCK_DIR"', script)
+        self.assertIn('-L "$DISCOVERY_LOCK"', script)
+        self.assertNotIn(
+            'chown -R "$OPERATOR_USER:$OPERATOR_GROUP" "$DISCOVERY_LOCK_DIR"',
+            script,
+        )
 
     def test_agent_permissions_make_registry_projection_read_only(self):
         script = (REAL_ROOT / "scripts/agent-permissions.sh").read_text()
@@ -510,11 +495,10 @@ class XIntakeCaptureRequests(GuardCase):
 class SharedFiles(GuardCase):
     """One tree, live timers, several writers.
 
-    sources.toml and DISCOVERY.md are written by the discovery scripts and by
-    ingest-x.py on their own schedules, so a change to them during a review
-    run says nothing about the review agent. Failing there fails honest runs,
-    and a gate that cries wolf gets switched off. The content rules carry the
-    weight instead, and they run whoever did the writing.
+    sources.toml and the structured discovery store are written by operator
+    drivers on their own schedules, so a change to them during a review run
+    says nothing about the review agent. The registry rules and structured
+    store validator still run whoever did the writing.
     """
     role = "review"
 
@@ -534,14 +518,19 @@ class SharedFiles(GuardCase):
             "cf-token-value-000000000000 A first-hand account"))
         self.assertRejected("contains the literal value of CLOUDFLARE_API_TOKEN")
 
-    def test_a_pruned_candidate_whose_thread_is_registered_is_not_a_loss(self):
-        """The discovery scripts drop a pending line once it is registered."""
-        self.append("sources.toml", NEW_REDDIT_BLOCK)
-        text = (self.tmp / "DISCOVERY.md").read_text()
-        pending = [line for line in text.splitlines()
-                   if line.startswith("- 2026-08-05")][0]
-        self.write("DISCOVERY.md", text.replace(pending + "\n", ""))
-        self.assertAccepted()
+    def test_a_valid_neighbour_discovery_transaction_is_accepted(self):
+        self.write("discovery/transactions/00000001-example.json", "{}\n")
+        with patch.object(agent_guard, "structured_discovery_integrity",
+                          return_value=[]) as validate:
+            self.assertAccepted()
+        validate.assert_called_once_with()
+
+    def test_an_invalid_neighbour_discovery_change_is_rejected(self):
+        self.write("discovery/candidates/reddit/aaa111.json", "{}\n")
+        with patch.object(
+                agent_guard, "structured_discovery_integrity",
+                return_value=["structured discovery validation failed: broken chain"]):
+            self.assertRejected("broken chain")
 
 
 class ReviewRole(GuardCase):

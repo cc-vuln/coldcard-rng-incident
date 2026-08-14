@@ -13,6 +13,7 @@ import discover_x  # noqa: E402
 import discovery_common  # noqa: E402
 import x_browser  # noqa: E402
 import discover_x_browser as dxb  # noqa: E402
+from discovery_store import DiscoveryStore  # noqa: E402
 
 FIXED_NOW = datetime(2026, 8, 8, 12, 0, 0, tzinfo=timezone.utc)
 
@@ -276,22 +277,28 @@ class CandidateShapeTests(unittest.TestCase):
     def test_update_intake_queues_the_line_in_pending(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            saved = (discovery_common.INTAKE, discovery_common.INTAKE_LOCK)
-            discovery_common.INTAKE = root / "DISCOVERY.md"
-            discovery_common.INTAKE_LOCK = (
-                root / ".work" / "agent-discovery-intake" / "intake.lock")
+            saved = (discovery_common.ROOT, discovery_common.WORK)
+            discovery_common.ROOT = root
+            discovery_common.WORK = root / ".work"
             try:
+                marker = root / "discovery/migration-v1/manifest.json"
+                marker.parent.mkdir(parents=True)
+                marker.write_text('{\n  "schema": 1\n}\n', encoding="utf-8")
                 post = dxb.normalize_post(raw_post())
                 candidate = dxb.candidate_for_intake(
                     post, "20260808T120000Z", source="watch:Researcher",
                     tier="watch")
                 discovery_common.update_intake([candidate], set())
-                text = discovery_common.INTAKE.read_text(encoding="utf-8")
+                stored = DiscoveryStore(root).load_candidate(
+                    "x:2084000000000001234")
             finally:
-                discovery_common.INTAKE, discovery_common.INTAKE_LOCK = saved
-        pending = text.split("## Pending", 1)[1].split("## Assessed", 1)[0]
+                discovery_common.ROOT, discovery_common.WORK = saved
+        self.assertEqual(stored["state"], "pending")
         self.assertIn(
-            "https://x.com/Researcher/status/2084000000000001234", pending)
+            "https://x.com/Researcher/status/2084000000000001234",
+            stored["observations"][-1]["display_line"],
+        )
+        self.assertNotIn("snippet", stored["observations"][-1])
 
 
 class WatchDecisionTests(unittest.TestCase):

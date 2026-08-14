@@ -9,7 +9,10 @@
 # Two steps, one quiet run: discover_x_browser.py reads the home timeline and
 # the watched [[x_watch]] profiles (driver-side only, opt-in
 # X_BROWSER_DISCOVERY_ENABLED), then agent-x-intake.sh assesses whatever X
-# candidates are pending in DISCOVERY.md. The discovery step carries "-" so a
+# candidates are pending in the structured discovery store. Observation and
+# verdict batches take the shared operator-only discovery lock and commit as
+# immutable transactions; candidate JSON, sharded views and root DISCOVERY.md
+# are regenerated projections. The discovery step carries "-" so a
 # session-health stop, a cooldown skip or a quiet run with nothing new does
 # not skip the intake. Keep the cadence at the timer's 12 hours; the account
 # behind the session is one the project would rather not lose, and the fixed

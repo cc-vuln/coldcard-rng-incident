@@ -55,8 +55,6 @@ import registry_store
 ROOT = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = ROOT
 SOURCES = ROOT / "sources.toml"
-INTAKE = ROOT / "DISCOVERY.md"
-ROTATED = ROOT / "discovery"
 
 # The community lanes' own id prefixes. A candidate most often duplicates
 # another thread, so those are listed first, but not exclusively: a link post
@@ -78,10 +76,16 @@ REFERENT_RE = re.compile(
 ALSO_RE = re.compile(r"\band\s+([a-z][a-z0-9]*(?:-[a-z0-9]+)+)")
 
 
-def assessed_lines() -> list[str]:
-    """Every verdict line, live queue and rotated files alike."""
+def assessed_lines(intake: Path, rotated: Path) -> list[str]:
+    """Read an explicitly named legacy fixture.
+
+    Production consumers switch to the structured discovery store once its
+    migration marker exists.  Keeping the Markdown reader parameterised makes
+    it useful to small historical fixtures without leaving an implicit live
+    fallback that could silently shadow a damaged store.
+    """
     lines = []
-    paths = [INTAKE] + sorted(ROTATED.glob("assessed-*.md"))
+    paths = [intake] + sorted(rotated.glob("assessed-*.md"))
     for path in paths:
         if not path.exists():
             continue
@@ -90,6 +94,60 @@ def assessed_lines() -> list[str]:
             continue
         lines += [l for l in body[1].splitlines() if l.startswith("- ")]
     return lines
+
+
+def verdict_facts(candidates: list[dict]) -> list[dict]:
+    """Extract the coverage-relevant facts from candidate projections."""
+    facts: list[dict] = []
+    for candidate in candidates:
+        verdict = candidate.get("verdict")
+        if not isinstance(verdict, dict):
+            raise ValueError(
+                f"assessed discovery candidate lacks verdict: "
+                f"{candidate.get('identity', '?')}")
+        kind, reason, at = (verdict.get("kind"), verdict.get("reason"),
+                            verdict.get("at"))
+        if kind not in {"registered", "dismissed", "already-registered"} \
+                or not isinstance(reason, str) or not reason.strip() \
+                or not isinstance(at, str) or not at:
+            raise ValueError(
+                f"invalid structured discovery verdict: "
+                f"{candidate.get('identity', '?')}")
+        facts.append({
+            "candidate_id": candidate["identity"],
+            "kind": kind,
+            "reason": reason,
+            "at": at,
+            **({"source_id": verdict["source_id"]}
+               if isinstance(verdict.get("source_id"), str) else {}),
+        })
+    return facts
+
+
+def structured_verdict_facts(root: Path, *,
+                             lock_held: bool = False) -> list[dict]:
+    """Return assessed verdict facts from a validated structured store.
+
+    The marker is an activation boundary, not a hint.  Once present, a broken
+    store must stop coverage generation rather than reset saturation counts by
+    falling back to rendered Markdown.
+    """
+    try:
+        import discovery_store
+    except ImportError as exc:  # pragma: no cover - deployment packaging guard
+        raise ValueError("structured discovery marker exists but "
+                         "discovery_store is unavailable") from exc
+
+    store = discovery_store.DiscoveryStore(root)
+    if not store.marker.is_file():
+        raise ValueError("structured discovery migration marker is missing")
+    try:
+        discovery_store.validate_store(root, lock_held=lock_held)
+    except TypeError as exc:
+        raise ValueError(
+            "discovery store does not support lock-held validation") from exc
+    return verdict_facts(store.list_candidates(
+        state="assessed", lock_held=lock_held))
 
 
 def absorbed_counts(lines: list[str], known: set[str]) -> Counter:
@@ -109,6 +167,33 @@ def absorbed_counts(lines: list[str], known: set[str]) -> Counter:
         found += ALSO_RE.findall(line)
         counts.update(name for name in found if name in known)
     return counts
+
+
+def absorbed_counts_from_facts(facts: list[dict], known: set[str]) -> Counter:
+    """Count duplicate referents from structured dismissal verdicts.
+
+    The reason remains prose because that is what the intake verdict records;
+    the structured fact tells us authoritatively which rows are dismissals, so
+    rendered line shape and legacy suffixes no longer participate.
+    """
+    counts: Counter = Counter()
+    for fact in facts:
+        if fact.get("kind") != "dismissed":
+            continue
+        reason = fact.get("reason")
+        if not isinstance(reason, str):
+            raise ValueError("structured dismissal verdict has no reason")
+        found = REFERENT_RE.findall(reason)
+        if found:
+            found += ALSO_RE.findall(reason)
+            counts.update(name for name in found if name in known)
+    return counts
+
+
+def structured_absorbed_counts(root: Path, known: set[str], *,
+                               lock_held: bool = False) -> Counter:
+    return absorbed_counts_from_facts(
+        structured_verdict_facts(root, lock_held=lock_held), known)
 
 
 def entries() -> list[dict]:
@@ -186,7 +271,11 @@ def main() -> int:
 
     rows = entries()
     known = {r["id"] for r in rows}
-    counts = absorbed_counts(assessed_lines(), known)
+    try:
+        counts = structured_absorbed_counts(ROOT, known)
+    except (OSError, TypeError, ValueError) as exc:
+        print(f"build-coverage-index: {exc}", file=sys.stderr)
+        return 1
     text = render(rows, counts, args.max_title)
 
     if args.out:

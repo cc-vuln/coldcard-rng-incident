@@ -23,8 +23,13 @@ the part that actually matters.
 One request per candidate, POLITE_DELAY apart, no crawling: the same volume
 discipline the discovery scripts keep.
 
+Input and output are JSON Lines. Each input object carries the candidate's
+stable id, event head and canonical URL separately from its display line. The
+hydrator never recovers machine identity from Markdown, and echoes those
+fields into its output so the packet builder can verify the handoff exactly.
+
 Usage:
-    hydrate_candidates.py --nonce <hex> [--max-chars N] < candidate-lines
+    hydrate_candidates.py --nonce <hex> [--max-chars N] < candidates.jsonl
 """
 from __future__ import annotations
 
@@ -35,6 +40,8 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+from discovery_store import url_identity
 
 ROOT = Path(__file__).resolve().parent.parent
 PY = str(ROOT / ".venv/bin/python")
@@ -65,7 +72,12 @@ PLATFORMS = (
 # reaches the browser at all.
 X_PLATFORM = ("x", re.compile(r"x\.com/[^/]+/status/(\d+)"), "x_browser.py")
 
-X_URL = re.compile(r"https://x\.com/[^/]+/status/\d+")
+HEAD_RE = re.compile(r"^[0-9a-f]{64}$")
+CANDIDATE_ID_RE = re.compile(
+    r"^[a-z0-9][a-z0-9._-]{0,127}:[a-z0-9][a-z0-9._-]{0,127}$")
+INPUT_FIELDS = frozenset({
+    "schema", "candidate_id", "candidate_head", "url", "queue_line",
+})
 
 # The browser lane's client. X hydration fails closed if it is unavailable;
 # the deprecated API lane and its bearer credential are never a fallback.
@@ -211,21 +223,69 @@ def fetch_x_browser(url: str, ident: str) -> tuple[bool, str]:
                   f"\n--- post text (verbatim) ---\n\n{info['text']}")
 
 
-def fetch_x(script: str, ident: str, line: str) -> tuple[bool, str]:
+def fetch_x(script: str, ident: str, url: str) -> tuple[bool, str]:
     """X hydration through the capture browser, with no credential fallback."""
-    url = X_URL.search(line)
-    if x_browser is not None and url:
-        return fetch_x_browser(url.group(0), ident)
+    if x_browser is not None:
+        return fetch_x_browser(url, ident)
     return False, "capture-browser X client unavailable; candidate stays pending"
 
 
-def classify(line: str, include_x: bool) -> tuple[str, str, str] | None:
-    platforms = (*PLATFORMS, X_PLATFORM) if include_x else PLATFORMS
-    for name, pattern, script in platforms:
-        match = pattern.search(line)
-        if match:
-            return name, match.group(1), script
-    return None
+def classify_url(url: str, include_x: bool) -> tuple[str, str, str] | None:
+    try:
+        platform, native_id = url_identity(url, strict=True)
+    except (TypeError, ValueError):
+        return None
+    readers = {name: script for name, _pattern, script in PLATFORMS}
+    if include_x:
+        readers[X_PLATFORM[0]] = X_PLATFORM[2]
+    script = readers.get(platform)
+    return (platform, native_id, script) if script else None
+
+
+def read_batch(stream, *, include_x: bool) -> list[dict]:
+    """Read and validate the bounded structured intake handoff."""
+    rows: list[dict] = []
+    seen: set[str] = set()
+    for number, raw in enumerate(stream, 1):
+        if not raw.strip():
+            continue
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"candidate JSONL line {number} is invalid: {exc}") from exc
+        if not isinstance(value, dict) or set(value) != INPUT_FIELDS \
+                or value.get("schema") != 1:
+            raise ValueError(f"candidate JSONL line {number} has unsupported fields")
+        candidate_id = value.get("candidate_id")
+        head = value.get("candidate_head")
+        url = value.get("url")
+        queue_line = value.get("queue_line")
+        if not isinstance(candidate_id, str) \
+                or not CANDIDATE_ID_RE.fullmatch(candidate_id):
+            raise ValueError(f"candidate JSONL line {number} has an invalid id")
+        if candidate_id in seen:
+            raise ValueError(f"candidate JSONL repeats id: {candidate_id}")
+        if not isinstance(head, str) or not HEAD_RE.fullmatch(head):
+            raise ValueError(f"candidate JSONL line {number} has an invalid head")
+        if not isinstance(url, str) or not 1 <= len(url) <= 8192 \
+                or "\x00" in url:
+            raise ValueError(f"candidate JSONL line {number} has an invalid URL")
+        if not isinstance(queue_line, str) or len(queue_line) > 16384 \
+                or "\x00" in queue_line:
+            raise ValueError(f"candidate JSONL line {number} has an invalid display line")
+        target = classify_url(url, include_x)
+        if target is None:
+            raise ValueError(
+                f"candidate JSONL line {number} has no URL for this intake lane")
+        platform, ident, _script = target
+        if candidate_id != f"{platform}:{ident}":
+            raise ValueError(
+                f"candidate JSONL line {number} id disagrees with canonical URL")
+        seen.add(candidate_id)
+        rows.append(value)
+    if not rows:
+        raise ValueError("candidate JSONL batch is empty")
+    return rows
 
 
 def fetch(script: str, ident: str) -> tuple[bool, str]:
@@ -271,47 +331,58 @@ def main() -> int:
     if args.include_x:
         args.delay = max(args.delay, X_DELAY)
 
-    lines = [line.rstrip("\n") for line in sys.stdin if line.strip()]
-    open_fence = f"<<<UNTRUSTED-{args.nonce}"
-    close_fence = f"UNTRUSTED-{args.nonce}>>>"
+    try:
+        candidates = read_batch(sys.stdin, include_x=args.include_x)
+    except ValueError as exc:
+        print(f"hydrate-candidates: {exc}", file=sys.stderr)
+        return 1
 
     fetched = 0
-    for index, line in enumerate(lines, 1):
-        print(f"### Candidate {index}")
-        print(f"Queue line: {neutralise(line, args.nonce)}")
-        target = classify(line, args.include_x)
+    for candidate in candidates:
+        url = candidate["url"]
+        target = classify_url(url, args.include_x)
+        # read_batch already established this; keep the assertion local so a
+        # future classifier change cannot silently route a different object.
         if target is None:
-            reason = ("an X permalink, assessed in its own lane"
-                      if X_PLATFORM[1].search(line)
-                      else "no recognised platform URL")
-            print(f"Body: not hydrated ({reason})")
-            print()
-            continue
+            raise AssertionError("validated candidate lost its platform")
         platform, ident, script = target
-        print(f"Platform: {platform} (id {ident})")
         if fetched:
             time.sleep(args.delay)
         if platform == "x":
-            ok, payload = fetch_x(script, ident, line)
+            ok, payload = fetch_x(script, ident, url)
         else:
             ok, payload = fetch(script, ident)
         fetched += 1
+        output = {
+            "schema": 1,
+            "candidate_id": candidate["candidate_id"],
+            "candidate_head": candidate["candidate_head"],
+            "url": url,
+            "queue_line": candidate["queue_line"],
+            "platform": platform,
+        }
         if not ok:
-            print(f"Body: fetch failed ({payload})")
-            print("Leave this candidate Pending and report the failure.")
-            print()
+            output.update({
+                "hydration_status": "failed",
+                "hydration_detail": payload,
+                "body": None,
+            })
+            print(json.dumps(output, ensure_ascii=False, sort_keys=True,
+                             separators=(",", ":")))
             continue
         body = neutralise(payload, args.nonce)
         truncated = len(body) > args.max_chars
         if truncated:
             body = body[:args.max_chars]
-        print(f"Body: hydrated, {'truncated' if truncated else 'complete'}")
-        print(open_fence)
-        print(body.rstrip())
-        print(close_fence)
-        print()
+        output.update({
+            "hydration_status": "truncated" if truncated else "complete",
+            "hydration_detail": None,
+            "body": body.rstrip(),
+        })
+        print(json.dumps(output, ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":")))
 
-    print(f"Hydrated {fetched} of {len(lines)} candidate(s) with one request "
+    print(f"Hydrated {fetched} of {len(candidates)} candidate(s) with one request "
           f"each.", file=sys.stderr)
     return 0
 

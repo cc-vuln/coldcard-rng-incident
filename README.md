@@ -82,6 +82,8 @@ scripts/capture-x.sh      manual X post capture via gallery-dl
 scripts/notify.sh         capture, alert on change or incomplete poll
 scripts/scheduled_runner.py
                           due-state runner for recurring known-URL capture
+scripts/discovery_store.py
+                          immutable candidate history, validation and views
 scripts/verify_mk3_vector.py
                           fixed synthetic RNG-to-xpub regression vector
 archive/
@@ -91,6 +93,12 @@ archive/
   runs/<TS>-p<PID>.json   structured result for every non-dry capture
   CHANGES.md              human-readable change log (created on first detected change)
   x/                      captured posts and media
+discovery/
+  transactions/           canonical immutable, hash-chained discovery batches
+  candidates/             generated one-candidate-per-file projections
+  views/                  generated paged intake and verdict indexes
+  migration-v1/           exact legacy queue and equivalence manifest
+DISCOVERY.md              small generated entry point to discovery views
 docs/
   README.md               document index and placement rules
   capture.md              capture methods, normalisers, failures, X and Wayback
@@ -132,6 +140,7 @@ just test-capture     # registry, normalisation, lock and X-capture regressions
 just test-vectors     # independently verify the fixed synthetic Mk3 path
 just audit            # capture contract and source-registry publication gate
 just registry-check   # prove shards exactly reconstruct the registry ledger
+just discovery-check  # prove discovery history and all projections agree
 just check-claims     # claim basis, scope, provenance links and page coverage
 just check-public-output
                       # generated public files contain no operational details
@@ -156,6 +165,8 @@ The detail behind these commands lives in three documents:
   the one-writer rule, notification delivery, Signal alerting and deployment
 - [docs/publication.md](docs/publication.md): what published builds show, the
   editorial claim-marker contract and the machine-readable outputs
+- [docs/DISCOVERY.md](docs/DISCOVERY.md): candidate discovery, immutable
+  history, bounded agent intake and manual operations
 
 ## Adding a source
 

@@ -5,8 +5,10 @@ This is the browser lane that replaced the deprecated official-API lane
 (scripts/discover_x.py) when the operator reversed the API-only policy on
 8 Aug 2026. It reads the home timeline and the watched [[x_watch]] profiles
 through the webbridge daemon, driver-side only, as the operator account, and
-queues new permalinks in DISCOVERY.md for the intake agent. A relevant post
-is captured later through ingest-x.py, after assessment.
+records new permalink observations in the structured discovery store for the
+intake agent. A saved run commits an immutable transaction under the shared
+discovery lock and regenerates per-candidate JSON and sharded working views. A
+relevant post is captured later through ingest-x.py, after assessment.
 
 Account-safety boundaries, carried over from the API lane:
 
@@ -62,9 +64,9 @@ from discovery_common import match_tier, update_intake  # noqa: E402
 
 WORK = ROOT / ".work"
 STATE = WORK / "x-browser-discovery.json"
-# Same candidate log the API lane wrote: one record per queued post, with the
-# short snippet kept here and only here. DISCOVERY.md lines stay text-free,
-# exactly as the API lane queued them.
+# Same diagnostic candidate log the API lane wrote: one record per admitted
+# post, with the short snippet kept here and only here. Generated discovery
+# presentation stays text-free, exactly as the API lane presented it.
 CANDIDATES = WORK / "x-candidates.jsonl"
 LOCK = WORK / "x-browser-discovery.lock"
 COOLDOWN = x_browser.COOLDOWN
@@ -289,7 +291,7 @@ def queue_decision(post: dict, watched: set[str]) -> str | None:
 
 
 def candidate_title(post: dict) -> str:
-    # Identical to the API lane's: the queue line stays text-free.
+    # Identical to the API lane's: generated presentation stays text-free.
     return (
         f"@{post['actor']} {post['relation']} "
         "(text available during approved intake)"
@@ -319,8 +321,8 @@ def candidate_for_intake(
         "label": f"X @{post['actor']}",
         "foundAt": found_at,
         "title": candidate_title(post),
-        # The snippet lives only in this JSONL record; the DISCOVERY.md line
-        # built from it carries no text, same posture as the API lane.
+        # The snippet lives only in this ignored JSONL record; the public
+        # observation and its generated Markdown carry no text.
         "snippet": post["snippet"],
         "source": source,
         "tier": tier,
@@ -358,7 +360,7 @@ def decide_watch(
             # An explicit history import must be able to reconsider the ids a
             # first-contact baseline put in the global seen set. Registered
             # posts still never re-enter intake, and update_intake performs a
-            # second URL-level deduplication against the queue.
+            # second URL-level deduplication against the structured store.
             if (not (queue_initial or baseline) and post["id"] in seen) or (
                 post["id"] in registered_ids
             ):
@@ -922,14 +924,16 @@ def main() -> int:
             if candidates:
                 append_candidates(candidates, CANDIDATES)
                 update_intake(candidates, registered_urls)
-            # The checkpoint advances only after the intake queue accepted
-            # the candidates, so a crash before this point safely re-queues.
+            # The checkpoint advances only after the immutable discovery
+            # transaction is durable and its views are refreshed, so a crash
+            # before this point safely replays the observations.
             seen.update(processed_ids)
             state["seen"] = sorted(seen, key=int)[-SEEN_KEEP:]
             atomic_json(STATE, state)
             if candidates:
-                print(f"appended {len(candidates)} candidate(s) to "
-                      f"{CANDIDATES.relative_to(ROOT)} and DISCOVERY.md")
+                print(f"recorded {len(candidates)} candidate(s) in "
+                      f"{CANDIDATES.relative_to(ROOT)} and the immutable "
+                      "discovery store; generated views refreshed")
         else:
             print("--no-state: nothing queued, no checkpoint advanced")
             for candidate in candidates:

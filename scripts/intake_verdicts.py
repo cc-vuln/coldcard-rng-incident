@@ -4,8 +4,8 @@
 The agent writes one JSON object per candidate to
 ``.work/intake-verdicts.jsonl``. The driver copies that file and the exact
 packet into the operator-owned guard run directory before validation. This
-module is shared by the guard and deterministic applier; it never writes the
-queue and has no dependency on a future structured discovery store.
+module is shared by the guard and deterministic applier; it validates the
+packet/outbox contract but never writes the discovery store itself.
 """
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ ACTIONS = frozenset({"retry", "registered", "dismissed", "already-registered"})
 TERMINAL_ACTIONS = ACTIONS - {"retry"}
 STAMP_RE = re.compile(r"^20[0-9]{6}T[0-9]{6}Z$")
 SOURCE_ID_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]*$")
+HEAD_RE = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_FIELDS = frozenset({
     "schema_version", "candidate_id", "action", "reason", "at",
 })
@@ -49,6 +50,16 @@ def load_packet(path: Path) -> dict[str, Any]:
         raise VerdictError("intake packet has no candidate records")
     if len(candidates) > 15:
         raise VerdictError("intake packet exceeds the 15-candidate run limit")
+    discovery = packet.get("discovery")
+    if discovery is None:
+        # Guard-only fixtures from before the cutover remain readable.  The
+        # deterministic applier separately requires a structured packet.
+        discovery_mode = "legacy-fixture"
+    elif not isinstance(discovery, dict) or discovery.get("mode") not in {
+            "structured", "legacy-fixture"}:
+        raise VerdictError("intake packet has an invalid discovery mode")
+    else:
+        discovery_mode = discovery["mode"]
     seen: set[str] = set()
     for position, candidate in enumerate(candidates, 1):
         if not isinstance(candidate, dict):
@@ -59,8 +70,21 @@ def load_packet(path: Path) -> dict[str, Any]:
             raise VerdictError(f"intake packet candidate {position} has an invalid id")
         if not isinstance(line, str) or not line.startswith("- "):
             raise VerdictError(f"intake packet candidate {ident} has no queue line")
+        head = candidate.get("candidate_head")
+        if discovery_mode == "structured" and (
+                not isinstance(head, str) or not HEAD_RE.fullmatch(head)):
+            raise VerdictError(
+                f"intake packet candidate {ident} has no valid candidate head")
         seen.add(ident)
     return packet
+
+
+def require_structured_packet(packet: dict[str, Any]) -> None:
+    discovery = packet.get("discovery")
+    if not isinstance(discovery, dict) \
+            or discovery.get("mode") != "structured":
+        raise VerdictError(
+            "intake applier requires a structured discovery packet")
 
 
 def load_outbox(path: Path) -> list[dict[str, Any]]:

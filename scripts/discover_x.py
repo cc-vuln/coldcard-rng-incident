@@ -8,9 +8,10 @@ registering xintake lane. This script remains as the fallback X hydration
 path for hydrate_candidates.py wherever the old credential is still present.
 
 This is discovery, not capture. It uses the official X API to read shallow
-public user timelines, keeps ID-only metadata in .work/, and queues new
-permalinks in DISCOVERY.md for the existing intake agent. A relevant post is
-captured later with ingest-x.py, after explicit operator-approved assessment.
+public user timelines, keeps ID-only metadata in .work/, and reconciles new
+permalinks into the immutable structured discovery store. Its generated
+candidate JSON and sharded views include a text-free presentation; a relevant
+post is captured later with ingest-x.py after guarded xintake assessment.
 
 Account-safety boundaries:
 
@@ -190,7 +191,8 @@ def load_state(path: Path = STATE) -> dict:
     return data
 
 
-def load_registry(path: Path = SOURCES) -> tuple[list[Watch], set[str], set[str]]:
+def load_registry(path: Path = SOURCES) \
+        -> tuple[list[Watch], set[str], dict[str, str]]:
     """Return active watches, registered status IDs and registered X URLs."""
     try:
         with path.open("rb") as fh:
@@ -253,17 +255,18 @@ def load_registry(path: Path = SOURCES) -> tuple[list[Watch], set[str], set[str]
         ))
 
     registered_ids: set[str] = set()
-    registered_urls: set[str] = set()
+    registered_urls: dict[str, str] = {}
     for post in cfg.get("x_post", []):
-        url = post.get("url", "")
-        if not isinstance(url, str):
+        url, source_id = post.get("url", ""), post.get("id")
+        if not isinstance(url, str) or not isinstance(source_id, str) \
+                or not source_id:
             continue
         match = STATUS_RE.search(url)
         if match:
             registered_ids.add(match.group(2))
-            registered_urls.add(
-                f"https://x.com/{match.group(1)}/status/{match.group(2)}"
-            )
+            registered_urls.setdefault(
+                f"https://x.com/{match.group(1)}/status/{match.group(2)}",
+                source_id)
     return [watch for watch in watches if watch.active], registered_ids, registered_urls
 
 
@@ -812,7 +815,7 @@ def discover(
     selected: list[Watch],
     state: dict,
     registered_ids: set[str],
-    registered_urls: set[str],
+    registered_urls: dict[str, str],
     *,
     queue_initial: bool,
     no_state: bool,

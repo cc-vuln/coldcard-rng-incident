@@ -46,7 +46,7 @@ why = "Retained configuration, not currently read."
         self.assertFalse(watches[0].include_replies)
         self.assertEqual(watches[0].max_posts, 12)
         self.assertEqual(ids, {"123"})
-        self.assertEqual(urls, {"https://x.com/SomeOne/status/123"})
+        self.assertEqual(urls, {"https://x.com/SomeOne/status/123": "known"})
 
     def test_registry_rejects_duplicate_handles_case_insensitively(self):
         with tempfile.TemporaryDirectory() as raw:

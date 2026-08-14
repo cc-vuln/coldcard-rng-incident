@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Invoke the X intake agent over pending X discovery candidates.
 #
-# X discovery queues permalinks in DISCOVERY.md, mixed in with the community
-# candidates. This script owns their assessment layer, separately from the
+# X discovery queues permalinks in the structured discovery store. This
+# script owns their assessment layer, separately from the
 # community lane so the two stay independently auditable: when pending X
 # entries exist it asks the registering xintake agent to judge each one,
 # register the ones that belong as [[x_post]] blocks, and record every
@@ -30,7 +30,7 @@
 #   1  agent run failed, or the run wrote outside its remit (entries stay
 #      pending; next tick retries)
 #
-# An unset selected agent is supported: candidates wait in DISCOVERY.md.
+# An unset selected agent is supported: candidates remain pending.
 
 set -Eeuo pipefail
 
@@ -57,26 +57,37 @@ if ! [[ "$MAX" =~ ^[1-9][0-9]*$ && "$BATCHES" =~ ^[1-9][0-9]*$ ]] || \
   exit 2
 fi
 
+if [[ ! -f "$ROOT/discovery/migration-v1/manifest.json" ]]; then
+  echo "agent-x-intake: structured discovery migration is not active" >&2
+  exit 1
+fi
+
 # Keep every agent prompt and guard decision independent. The outer process
-# holds no intake lock; each child acquires and releases it normally. Stop if
+# holds no discovery lock; each child acquires and releases it normally. Stop if
 # a successful child made no queue progress (no configured agent, hydration
 # could not supply evidence, or nothing remains) rather than spinning through
 # the requested batch count.
 if (( BATCHES > 1 )); then
   pending_x_count() {
-    awk '/^## Pending/{p=1; next} /^## Assessed/{p=0} p && /^- / && /https:\/\/x\.com\//{n++} END{print n+0}' \
-      "$ROOT/DISCOVERY.md" 2>/dev/null || printf '0\n'
+    .venv/bin/python scripts/discovery_store.py --root "$ROOT" count \
+      --state pending --lane x
   }
 
   for ((batch = 1; batch <= BATCHES; batch++)); do
-    before="$(pending_x_count)"
+    if ! before="$(pending_x_count)"; then
+      echo "agent-x-intake: cannot count the structured queue" >&2
+      exit 1
+    fi
     if (( before == 0 )); then
       echo "agent-x-intake: backlog drained after $((batch - 1)) batch(es)"
       exit 0
     fi
     echo "agent-x-intake: batch ${batch}/${BATCHES}; ${before} pending"
     "$0" --max "$MAX" --batches 1
-    after="$(pending_x_count)"
+    if ! after="$(pending_x_count)"; then
+      echo "agent-x-intake: cannot recount the structured queue" >&2
+      exit 1
+    fi
     if (( after >= before )); then
       echo "agent-x-intake: no queue progress; stopping bounded drain"
       exit 0
@@ -85,11 +96,10 @@ if (( BATCHES > 1 )); then
   exit 0
 fi
 
-INTAKE="$ROOT/DISCOVERY.md"
 STATE_DIR="$ROOT/.work/agent-x-intake"
 PROMPT_RENDERED="$STATE_DIR/prompt-rendered.md"
-CANDIDATE_LIST="$STATE_DIR/candidates.txt"
-HYDRATED="$STATE_DIR/hydrated.md"
+CANDIDATE_LIST="$STATE_DIR/candidates.jsonl"
+HYDRATED="$STATE_DIR/hydrated.jsonl"
 PACKET_JSON="$STATE_DIR/intake-packet.json"
 PACKET_MARKDOWN="$STATE_DIR/intake-packet.md"
 PROMPT_TEMPLATE="$ROOT/scripts/agent-x-intake-prompt.md"
@@ -97,40 +107,20 @@ ROLE=xintake
 
 mkdir -p "$STATE_DIR"
 
-# One agent at a time over DISCOVERY.md and sources.toml, shared with the
-# community lane: the two locks are the same file, so an X run and a
-# community run never hold the queue at once. A contender waits a minute,
-# then skips quietly; the next tick continues the work.
-mkdir -p "$ROOT/.work/agent-discovery-intake"
-
+# Each structured-store command takes the short discovery lock itself. The
+# batch carries candidate heads, so a concurrent update makes the guarded
+# apply fail atomically instead of holding this lock across browser hydration
+# and an agent run. agent_begin below separately serializes all agent roles.
 # Operator-dropped candidate URLs join the queue before anything counts it.
 # Runs before this driver takes the lock: the script takes it itself.
 .venv/bin/python scripts/queue_candidates.py || true
 
-exec 9>"$ROOT/.work/agent-discovery-intake/intake.lock"
-if ! flock -w 60 9; then
-  echo "agent-x-intake: another run holds the lock; skipping"
-  exit 0
+if ! ALL_PENDING_COUNT="$(.venv/bin/python scripts/discovery_store.py \
+    --root "$ROOT" count --state pending --lane x)"; then
+  echo "agent-x-intake: cannot count the structured queue" >&2
+  exit 1
 fi
-
-if [[ ! -f "$INTAKE" ]]; then
-  echo "agent-x-intake: no DISCOVERY.md; nothing to do"
-  exit 0
-fi
-
-# Pending entries are list lines between "## Pending" and "## Assessed",
-# capped at --max per run so a large backlog is assessed in bounded chunks.
-# This lane takes the X permalinks; everything else is the community lane's.
-mapfile -t RAW_PENDING < <(awk '/^## Pending/{p=1; next} /^## Assessed/{p=0} p && /^- /' "$INTAKE")
-ALL_PENDING=()
-for candidate in "${RAW_PENDING[@]}"; do
-  if [[ "$candidate" == *"https://x.com/"* ]]; then
-    ALL_PENDING+=("$candidate")
-  fi
-done
-PENDING=("${ALL_PENDING[@]:0:$MAX}")
-
-if [[ ${#ALL_PENDING[@]} -eq 0 ]]; then
+if (( ALL_PENDING_COUNT == 0 )); then
   echo "agent-x-intake: no pending X candidates; nothing to do"
   exit 0
 fi
@@ -145,22 +135,32 @@ sys.path.insert(0, 'scripts')
 import x_browser
 sys.exit(0 if x_browser.read_cooldown() is not None else 1)
 "; then
-  echo "agent-x-intake: X browser cooldown active; ${#ALL_PENDING[@]} candidate(s) wait in DISCOVERY.md"
+  echo "agent-x-intake: X browser cooldown active; ${ALL_PENDING_COUNT} candidate(s) remain pending"
   exit 0
 fi
 
 AGENT_BIN="${REVIEW_AGENT_BIN:-}"
 if [[ -z "$AGENT_BIN" ]]; then
-  echo "agent-x-intake: ${#ALL_PENDING[@]} pending X candidate(s), but REVIEW_AGENT_BIN is unset;"
-  echo "  candidates wait in DISCOVERY.md for human triage (see .env.example)"
+  echo "agent-x-intake: ${ALL_PENDING_COUNT} pending X candidate(s), but REVIEW_AGENT_BIN is unset;"
+  echo "  candidates remain pending for human triage (see .env.example)"
   exit 0
 fi
 
-echo "agent-x-intake: assessing ${#PENDING[@]} of ${#ALL_PENDING[@]} pending X candidate(s)"
+if ! .venv/bin/python scripts/discovery_store.py --root "$ROOT" list \
+    --state pending --lane x --format intake-json --limit "$MAX" \
+    > "$CANDIDATE_LIST"; then
+  echo "agent-x-intake: cannot list the structured queue" >&2
+  exit 1
+fi
+mapfile -t PENDING < "$CANDIDATE_LIST"
+if [[ ${#PENDING[@]} -eq 0 ]]; then
+  echo "agent-x-intake: structured queue count/list disagreed" >&2
+  exit 1
+fi
+
+echo "agent-x-intake: assessing ${#PENDING[@]} of ${ALL_PENDING_COUNT} pending X candidate(s)"
 
 agent_begin "$ROLE"
-
-printf -- '%s\n' "${PENDING[@]}" > "$CANDIDATE_LIST"
 
 # Read every post here, as the operator account, one navigation per
 # candidate. run-agent.sh builds the agent's environment from nothing rather
@@ -169,8 +169,8 @@ echo "agent-x-intake: hydrating ${#PENDING[@]} candidate body(ies)"
 .venv/bin/python scripts/hydrate_candidates.py --nonce "$AGENT_NONCE" \
   --include-x < "$CANDIDATE_LIST" > "$HYDRATED"
 
-# Build one bounded evidence packet. It joins each queue line to its hydrated
-# body, resolves exact registry duplicates mechanically, and includes every
+# Build one bounded evidence packet. It joins each structured candidate id,
+# head and URL to its hydrated body, resolves exact registry duplicates, and includes every
 # non-zero saturation row while counting the zero-history rows it omits.
 if ! .venv/bin/python scripts/build_intake_packet.py \
   --root "$ROOT" --lane x \
@@ -215,11 +215,11 @@ if [[ $rc -ne 0 ]]; then
   exit 1
 fi
 
-# The only DISCOVERY.md writer in an intake run is this deterministic applier.
-# The driver still holds intake.lock, so the packet's exact Pending lines
-# cannot race another queue writer between guard validation and replacement.
+# The applier reacquires discovery.lock, checks every packet event head and
+# commits the guarded verdict rows as one immutable transaction.
 if ! .venv/bin/python scripts/apply_intake_verdicts.py \
-  --run-dir "$AGENT_RUN_DIR"; then
+  --root "$ROOT" --run-dir "$AGENT_RUN_DIR" \
+  --operation-id "$AGENT_RUN_ID"; then
   echo "agent-x-intake: guarded verdicts could not be applied; no first" \
        "capture was made" >&2
   exit 1
@@ -231,6 +231,8 @@ agent_run_captures
 # admitted driver-side. vet_host.py exits 0 on every outcome short of usage,
 # and a vetting failure must never fail the intake run.
 .venv/bin/python scripts/vet_host.py --yes || true
+
+agent_mark_workflow_complete
 
 echo "agent-x-intake: run complete"
 exit 0

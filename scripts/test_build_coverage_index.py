@@ -87,21 +87,39 @@ class CoverageIndexTests(unittest.TestCase):
         (root / "discovery").mkdir()
         (root / "sources.toml").write_text(SOURCES, encoding="utf-8")
         (root / "DISCOVERY.md").write_text(INTAKE, encoding="utf-8")
-        self._saved = (bci.ROOT, bci.SOURCES, bci.INTAKE, bci.ROTATED)
+        self._saved = (bci.ROOT, bci.SOURCES)
         bci.ROOT = root
         bci.SOURCES = root / "sources.toml"
-        bci.INTAKE = root / "DISCOVERY.md"
-        bci.ROTATED = root / "discovery"
         self.root = root
 
     def tearDown(self):
-        bci.ROOT, bci.SOURCES, bci.INTAKE, bci.ROTATED = self._saved
+        bci.ROOT, bci.SOURCES = self._saved
         self.tmp.cleanup()
 
     def counts(self):
         rows = bci.entries()
-        return bci.absorbed_counts(bci.assessed_lines(),
-                                   {r["id"] for r in rows})
+        return bci.absorbed_counts(
+            bci.assessed_lines(self.root / "DISCOVERY.md",
+                               self.root / "discovery"),
+            {r["id"] for r in rows})
+
+    def test_structured_facts_do_not_depend_on_rendered_line_shape(self):
+        known = {"reddit-dice-seed-generation", "optech-416"}
+        facts = [
+            {"candidate_id": "reddit:a", "kind": "dismissed",
+             "reason": "duplicate of reddit-dice-seed-generation and optech-416",
+             "at": "20260805T000000Z"},
+            {"candidate_id": "reddit:b", "kind": "registered",
+             "reason": "new material", "at": "20260805T000001Z",
+             "source_id": "reddit-dice-seed-generation"},
+        ]
+        counts = bci.absorbed_counts_from_facts(facts, known)
+        self.assertEqual(1, counts["reddit-dice-seed-generation"])
+        self.assertEqual(1, counts["optech-416"])
+
+    def test_live_structured_reader_fails_closed_without_marker(self):
+        with self.assertRaisesRegex(ValueError, "migration marker is missing"):
+            bci.structured_verdict_facts(self.root)
 
     def test_every_registered_table_is_indexed(self):
         ids = {r["id"] for r in bci.entries()}

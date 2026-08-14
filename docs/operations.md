@@ -28,9 +28,9 @@ ad-hoc replacements for either; restart the unit instead.
   the new `dist` without a restart. The Astro dev server stays broken on the
   VM too; do not try it there
 
-Manual `just capture-one <id>` runs on this host (including the intake agent
-first-capturing its own registrations) use the same writer and lock as the
-schedule below. Never run non-dry captures anywhere else.
+Manual `just capture-one <id>` runs on this host (including driver-side first
+captures after a guarded intake registration) use the same writer and lock as
+the schedule below. Never run non-dry captures anywhere else.
 
 ## Scheduled capture
 
@@ -118,10 +118,28 @@ creates diffs continuously and a two-hourly review left an unreviewed
 window that stalled the publish gate), commit `:37`, publish `:50`, so each
 stage consumes the previous stage's output.
 
+Discovery has its own writer lock at `.work/locks/discovery.lock`, separate
+from the global agent-run lock, archive writer and `/tmp/cc-build.lock`. Code
+that needs more than one acquires them in the global order agent-run, build,
+discovery, archive. In particular, `record_commit.py` holds all four while it
+validates and stages a coherent tree; writers never acquire them in the
+reverse order. Intake holds the agent-run lock across its guarded registry
+work, but takes the discovery lock only briefly for its head-bound read and
+atomic verdict commit.
+
+The one-time structured-store cutover is stricter than ordinary writes. Pause
+and drain `discover-community.timer` and `discover-x.timer` before running
+`.venv/bin/python scripts/migrate_discovery.py --write`. The installer also
+refuses unless it
+can simultaneously hold the global agent-run lock, the pre-cutover intake
+lock and the structured discovery lock, so an already-running legacy writer
+cannot change the queue, rotated verdicts or registry during the snapshot and
+activation.
+
 | Timer | Cadence | What it runs |
 |---|---:|---|
 | `archive-review` | 30 minutes, :29 | `agent-review.sh`: mechanical noise classification, then the review agent over a bounded batch of unreviewed diffs |
-| `record-commit` | hourly, :37 | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist, its audit being `audit-core` (no review gate — classification is a publish concern). Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit-core`, a held build or writer lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
+| `record-commit` | hourly, :37 | `record_commit.py --yes`: commits guard-passed pipeline output from a fixed staging allowlist, its audit being `audit-core` (no review gate — classification is a publish concern). Blocks on `.no-publish`, a non-main `HEAD`, a red `just test` or `just audit-core`, a held build, discovery or archive lock, or an unresolved agent-guard run; a block exits 1, and `SuccessExitStatus=0 1` keeps a blocked tick from reading as a failed unit — the alert stream carries anything persistent |
 | `publish-scheduled` | 3 hours, :50 | `publish-scheduled.sh`: publishes committed work and pushes after each successful deploy. It skips on `.no-publish`, non-main `HEAD`, any uncommitted state, unreviewed diffs or the build lock; the pre-deploy exactness gate refuses a build unless its `/version.json`, current `HEAD` and tracked tree agree. Only a genuine publish failure fails the unit |
 | `alert-sweep` | 30 minutes | `alert.py sweep`: turns the repo's state files — failure streaks, stale host proposals, failing units, publish-skip streaks — into alerts on the operator-UI stream |
 | `corroborate-gone` | 6 hours | `corroborate_gone.py`: re-resolves `dns-unresolved` streaks through public DNS-over-HTTPS resolvers and sets `gone = true` only when the streak and the independent resolvers agree, recording the transcript in `gone_note` and alerting |
@@ -159,9 +177,10 @@ The agent never reaches the browser. As with the community lanes, the driver
 hydrates first and the agent receives one bounded packet: each candidate once,
 its mechanical native-id registry match, and only the registry rows with a
 non-zero historical saturation count. An unattended agent never reaches
-`evaluate`/`cdp` and never holds the bridge token. New permalinks land in
-`DISCOVERY.md` with a relation label, and ID-only candidate metadata stays
-under `.work/`, as before.
+`evaluate`/`cdp` and never holds the bridge token. New permalinks land in the
+immutable discovery store with a relation label; root `DISCOVERY.md` and the
+paged Pending views are generated projections. ID-only candidate metadata
+stays under `.work/`, as before.
 
 Session health is the lane's failure surface, and the classes stay distinct:
 a login wall, a challenge and a rate limit each fail the run closed and write
@@ -173,12 +192,14 @@ Promotion is automated (8 Aug 2026). The registering `xintake` guard role
 assesses queued X candidates under the same containment as the community
 intake. It submits one JSON verdict per packet candidate; the guard checks the
 complete outbox and its registry relationships, and a deterministic
-operator-side applier updates `DISCOVERY.md` while holding the queue lock. The
+operator-side applier verifies each candidate's event head and commits the
+complete verdict batch while holding `.work/locks/discovery.lock`. Generated
+views are refreshed from that transaction. The
 driver then captures each approved post with `just ingest-x`; the agent never
 reaches the browser itself. The read-only xtriage
 prompt and the `--include-x` admission flag are retired. What still never
-moves unattended: withheld sources, anything identifying a private individual,
-and discovery-queue material itself.
+moves through the agent is the browser session, a secret, or canonical
+discovery state; each crosses the run boundary only through driver-side code.
 
 Both intake drivers keep each prompt at 15 candidates, then may run up to
 eight independently rendered and guarded batches in one scheduled tick. A
@@ -239,8 +260,8 @@ NOSTR_DISCOVERY_ENABLED=true just discover-nostr
 ```
 
 It runs bounded NIP-50 keyword searches against `NOSTR_SEARCH_RELAYS` and
-queues njump permalinks in `DISCOVERY.md`, where the standard community
-intake agent assesses them. `NOSTR_DISCOVERY_ENABLED=false` is the default
+records njump permalinks as Pending discovery observations, which the standard
+community intake agent assesses. `NOSTR_DISCOVERY_ENABLED=false` is the default
 and the kill switch. There is no global nostr search: each relay answers
 from its own index. The default search set (all verified with a live query
 from this host, 6 Aug 2026, via the NIP-66 kind-30166 monitor events on
@@ -404,7 +425,7 @@ checks. Nothing was reverted and no first capture was made. The run directory
 under `.work/agent-guard/` holds the before-copies, so:
 
 ```bash
-git diff -- sources.toml DISCOVERY.md revision-reviews.toml site/src/pages
+git diff -- sources.toml DISCOVERY.md discovery/ revision-reviews.toml site/src/pages
 ```
 
 is the whole of what happened. Read it before deciding. A rejection is more

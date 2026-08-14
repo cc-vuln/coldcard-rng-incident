@@ -9,8 +9,10 @@
 # Three steps, one quiet run: Stacker News discovery (two feed requests),
 # Reddit discovery (two listing reads through the capture browser session),
 # BitcoinTalk discovery (two board index pages, direct), then the intake
-# agent assessing whatever is pending in DISCOVERY.md, and finally verdict
-# rotation aging old assessed entries out of the queue. The
+# agent assessing the bounded pending view from the structured discovery
+# store. Each discovery observation and intake batch is serialized through
+# the operator-only discovery lock; candidate files, views and DISCOVERY.md
+# are regenerated projections. The
 # discovery steps carry "-" so one platform being unreachable does not skip
 # the other or the intake. Nothing here writes to archive/ except the intake
 # agent's first captures via capture.py's own lock. Keep the cadence at the
@@ -29,10 +31,6 @@ ExecStart=-REPO/.venv/bin/python scripts/discover_stackernews.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_reddit.py
 ExecStart=-REPO/.venv/bin/python scripts/discover_bitcointalk.py
 ExecStart=REPO/scripts/agent-discovery-intake.sh --batches 8
-# Age old verdicts out of DISCOVERY.md once the intake agent is done with
-# the queue. Carries "-": a rotation hiccup must not fail the run, and the
-# worst case is the queue stays unrotated until the next tick.
-ExecStart=-REPO/.venv/bin/python scripts/rotate_discovery.py
 # NoNewPrivileges is not set: it would block the setuid transition the intake
 # driver uses to drop into the agent account. See
 # agent-hardening.conf.example, which this unit also needs installed.

@@ -1,0 +1,20 @@
+# registry-order: 1397
+
+[[source]]
+id = "stackernews-tracing-attacker-steps-praveen"
+title = "Tracing the Attacker's Steps Through 1,082 BTC Coldcard Drain - Praveen Perera"
+url = "https://stacker.news/items/1547780"
+published = "2026-08-14"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260821T134807Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1547780) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby links Praveen Perera's analysis of the 1,082 BTC Coldcard drain, focusing on 153 swept addresses that researchers have not been able to reconstruct seeds for. Perera describes a search effort covering 104 billion candidate seeds and 5.60 trillion address checks, and argues a missed derivation path is unlikely. Held as a dated technical follow-up on the attacker methodology and the remaining reconstruction gap. The claims and calculations are Perera's own and are not independently verified here.
+"""

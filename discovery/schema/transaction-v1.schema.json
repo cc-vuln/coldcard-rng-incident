@@ -1,0 +1,96 @@
+{
+  "$id": "transaction-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "at": {
+      "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+      "type": "string"
+    },
+    "events": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+            "type": "string"
+          },
+          "candidate": {
+            "maxLength": 257,
+            "pattern": "^[a-z0-9][a-z0-9._-]*:[a-z0-9][a-z0-9._-]*$",
+            "type": "string"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "observation",
+              "retry",
+              "state",
+              "verdict"
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "candidate",
+          "type",
+          "at",
+          "payload"
+        ],
+        "type": "object"
+      },
+      "maxItems": 2000,
+      "minItems": 1,
+      "type": "array"
+    },
+    "kind": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operation_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "previous": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      ]
+    },
+    "schema": {
+      "const": 1
+    },
+    "sequence": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "transaction_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "sequence",
+    "previous",
+    "at",
+    "kind",
+    "operation_id",
+    "events",
+    "transaction_id"
+  ],
+  "title": "Coldcard incident discovery transaction",
+  "type": "object"
+}

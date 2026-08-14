@@ -162,10 +162,11 @@ run and compares afterwards. It enforces:
 - no secret value from `.env`, no key shape, no operator needle from
   `site/tools/private-tokens.json`, in anything added
 - the registry rules below
-- intake agents cannot write `DISCOVERY.md`; their complete JSON verdict
-  outbox is checked against the protected packet and before/after registries,
-  including exact native-object relationships, before an operator-side
-  deterministic applier changes the queue
+- intake agents cannot write canonical or generated discovery files; their
+  complete JSON verdict outbox is checked against the protected packet and
+  before/after registries, including exact native-object relationships and
+  the candidate event head, before an operator-side deterministic applier
+  commits one immutable verdict transaction
 - that requested first captures name sources this run actually registered
 
 `scripts/check_registry.py` is the registry half, and it also runs standalone
@@ -296,16 +297,20 @@ had registered forty posts while it worked. That is the failure mode worth
 taking seriously, because a gate that cries wolf is a gate somebody switches
 off, and then none of this exists.
 
-So `sources.toml` and `DISCOVERY.md` are treated as shared for roles whose
-timers can overlap their legitimate writers. An out-of-remit change is
-reported and its content rules carry the weight: `check_registry.py` runs on
-the registry delta for every role, and the queue's line-integrity check runs
-for non-intake roles. Intake is stricter. Its driver holds the discovery lock,
-the agent account has no write bit on `DISCOVERY.md`, and any direct queue
-change still fails the guard; decisions cross back only through the validated
-outbox. A pending line that vanishes during another role is not a loss if its
-URL is now registered, because that is exactly what the discovery scripts do
-on their own timer.
+So `sources.toml`, root `DISCOVERY.md` and `discovery/` are treated as shared
+for roles whose timers can overlap their legitimate writers. An out-of-remit
+change is reported and its content rules carry the weight:
+`check_registry.py` runs on the registry delta for every role, while
+`validate_store()` replays the immutable discovery chain and compares every
+generated projection for non-intake roles. Intake is stricter. Its driver uses
+short discovery locks to take a head-bound snapshot and later apply the
+outbox; it holds no discovery lock during the deprivileged agent phase. The
+agent account cannot write either discovery path, and any direct discovery
+change still fails the guard. If another lane advances a selected candidate,
+the all-or-nothing applier rejects the stale head instead of overwriting it. A
+Pending candidate that becomes Assessed during another role is not a loss:
+the immutable transaction that settled it and the registration relationship
+remain visible.
 
 What this gives up is narrow. An out-of-remit review agent could register a
 thread that already satisfies every registry rule: allowlisted host, pinned

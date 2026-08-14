@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import builtins
 import subprocess
 import sys
 import tempfile
@@ -13,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import build_intake_packet as bip  # noqa: E402
+from discovery_test_fixture import install_store  # noqa: E402
 
 try:  # The packet adapter can ship before the structured discovery store.
     import discovery_store  # type: ignore  # noqa: E402
@@ -56,6 +56,9 @@ def hydrated(lines: list[str], bodies: list[str | None], *,
 
 
 REGISTRY = """\
+[meta]
+generated = "fixture"
+
 [[source]]
 id = "stacker-existing"
 title = "Existing Stacker News discussion"
@@ -223,67 +226,104 @@ class PacketContentTests(PacketFixture):
 class SaturationTests(PacketFixture):
     @unittest.skipIf(discovery_store is None,
                      "structured discovery adapter is not installed")
-    def test_valid_migration_marker_activates_structured_verdict_adapter(self) -> None:
-        line = ("- 2026-08-01 [structured](https://stacker.news/items/444) "
+    def test_structured_packet_binds_pending_head_and_verdict_facts(self) -> None:
+        assessed = ("- 2026-08-01 [structured](https://stacker.news/items/444) "
                 "-> dismissed: already represented by stacker-existing "
                 "(20260801T000000Z)")
-        store = discovery_store.DiscoveryStore(self.root)
-        candidate = store.record_observation({
-            "url": "https://stacker.news/items/444",
-            "legacy_line": line,
-            "legacy_candidate_line": line.split(" -> ", 1)[0],
-            "legacy_path": str(self.discovery),
-            "legacy_line_number": 5,
-        }, state="assessed", event_at="20260801T000000Z")
-        store.record_verdict(
-            candidate["identity"], "dismissed",
-            reason="already represented by stacker-existing",
-            at="20260801T000000Z", legacy_line=line)
-        manifest = {
+        pending = queue("https://stacker.news/items/999", "pending")
+        install_store(self.root, [
+            {"line": pending, "url": "https://stacker.news/items/999",
+             "at": "20260801T000000Z"},
+            {"line": assessed, "url": "https://stacker.news/items/444",
+             "at": "20260801T000000Z", "verdict": {
+                 "kind": "dismissed",
+                 "reason": "already represented by stacker-existing",
+             }},
+        ])
+        projected = discovery_store.DiscoveryStore(self.root).load_candidate(
+            "stackernews:999")
+        handoff = {
             "schema": 1,
-            "source_files": [{
-                "path": "DISCOVERY.md", "sha256": "0" * 64, "entries": 1,
-            }],
-            "legacy_entries": 1,
-            "candidate_records": 1,
-            "event_records": 2,
-            "legacy_lines_sha256": discovery_store.digest([line]),
-            "every_legacy_occurrence_preserved": True,
-            "missing_legacy_occurrences": [],
+            "candidate_id": projected["identity"],
+            "candidate_head": projected["head"],
+            "url": projected["url"],
+            "queue_line": pending,
         }
-        (self.root / "discovery" / "migration-manifest.json").write_text(
-            json.dumps(manifest), encoding="utf-8")
-        self.assertEqual([line], bip.load_assessed_lines(self.root))
+        self.candidates.write_text(json.dumps(handoff) + "\n", encoding="utf-8")
+        self.hydrated.write_text(json.dumps({
+            **handoff,
+            "platform": "stackernews",
+            "hydration_status": "complete",
+            "hydration_detail": None,
+            "body": "body",
+        }) + "\n", encoding="utf-8")
+
+        packet, _markdown = bip.build_packet(
+            root=self.root, lane="community",
+            candidates_path=self.candidates, hydrated_path=self.hydrated,
+            registry_path=self.registry)
+
+        self.assertEqual("structured", packet["discovery"]["mode"])
+        self.assertEqual(projected["head"],
+                         packet["candidates"][0]["candidate_head"])
+        counts = {row["id"]: row["absorbed"]
+                  for row in packet["coverage"]["rows"]}
+        self.assertEqual(1, counts["stacker-existing"])
+
+    def test_structured_identity_never_comes_from_display_markdown(self) -> None:
+        actual = "https://stacker.news/items/999"
+        display = queue(
+            actual,
+            "decoy https://stacker.news/items/111 is presentation only")
+        install_store(self.root, [{
+            "line": display, "url": actual, "at": "20260801T000000Z",
+        }])
+        projected = discovery_store.DiscoveryStore(self.root).load_candidate(
+            "stackernews:999")
+        handoff = {
+            "schema": 1,
+            "candidate_id": projected["identity"],
+            "candidate_head": projected["head"],
+            "url": actual,
+            "queue_line": display,
+        }
+        self.candidates.write_text(json.dumps(handoff) + "\n", encoding="utf-8")
+        self.hydrated.write_text(json.dumps({
+            **handoff,
+            "platform": "stackernews",
+            "hydration_status": "failed",
+            "hydration_detail": "fixture",
+            "body": None,
+        }) + "\n", encoding="utf-8")
+
+        packet, _ = bip.build_packet(
+            root=self.root, lane="community",
+            candidates_path=self.candidates, hydrated_path=self.hydrated,
+            registry_path=self.registry)
+
+        self.assertEqual("stackernews:999",
+                         packet["candidates"][0]["candidate_id"])
+        self.assertEqual(actual, packet["candidates"][0]["url"])
+        self.assertFalse(packet["candidates"][0]
+                         ["registry_exact_match"]["matched"])
 
     def test_invalid_migration_marker_fails_instead_of_resetting_history(self) -> None:
-        (self.root / "discovery" / "migration-manifest.json").write_text(
-            '{"schema":1}', encoding="utf-8")
+        marker = discovery_store.DiscoveryStore(self.root).marker
+        marker.parent.mkdir(parents=True)
+        marker.write_text('{"schema":1}', encoding="utf-8")
         with self.assertRaises(bip.PacketError):
-            bip.load_assessed_lines(self.root)
+            bip.load_structured_store(self.root, lock_held=False)
 
-    def test_unmigrated_discovery_store_module_does_not_shadow_legacy(self) -> None:
-        # The new module and the data migration can land in separate commits.
-        # Until the migration manifest exists, legacy DISCOVERY.md remains
-        # authoritative even if a partial candidates/ tree has appeared.
+    def test_partial_unmarked_store_fails_closed(self) -> None:
         (self.root / "discovery" / "candidates" / "reddit").mkdir(parents=True)
-        lines = bip.load_assessed_lines(self.root)
-        self.assertTrue(any("reddit-existing" in line for line in lines))
+        with self.assertRaisesRegex(bip.PacketError, "marker is missing"):
+            bip.load_structured_store(self.root, lock_held=False)
 
-    def test_no_discovery_module_or_marker_uses_legacy_ledger(self) -> None:
-        """The minimal packet slice has no hard dependency on reorganization."""
-        real_import = builtins.__import__
-
-        def without_discovery(name, *args, **kwargs):
-            if name == "discovery_store":
-                raise ImportError("fixture: structured discovery unavailable")
-            return real_import(name, *args, **kwargs)
-
-        old_import = builtins.__import__
-        try:
-            builtins.__import__ = without_discovery
-            lines = bip.load_assessed_lines(self.root)
-        finally:
-            builtins.__import__ = old_import
+    def test_legacy_ledger_requires_explicit_fixture_paths(self) -> None:
+        with self.assertRaisesRegex(bip.PacketError, "both explicit"):
+            bip.load_assessed_lines(self.root)
+        lines = bip.load_assessed_lines(
+            self.root, self.discovery, self.root / "discovery")
         self.assertTrue(any("reddit-existing" in line for line in lines))
 
     def test_only_complete_nonzero_rows_are_included(self) -> None:

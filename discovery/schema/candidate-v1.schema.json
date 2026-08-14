@@ -1,0 +1,434 @@
+{
+  "$id": "candidate-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "event_history": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+            "type": "string"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "expected_head": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "observation_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "ordinal": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resulting_state": {
+            "enum": [
+              "assessed",
+              "deferred",
+              "human-review",
+              "pending"
+            ]
+          },
+          "source_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "assessed",
+              "deferred",
+              "human-review",
+              "pending"
+            ]
+          },
+          "supersedes": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "observation",
+              "retry",
+              "state",
+              "verdict"
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "already-registered",
+              "dismissed",
+              "registered"
+            ]
+          }
+        },
+        "required": [
+          "ordinal",
+          "type",
+          "event_id",
+          "at",
+          "resulting_state"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "first_ordinal": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "first_recorded": {
+      "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+      "type": "string"
+    },
+    "head": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "identity": {
+      "maxLength": 257,
+      "pattern": "^[a-z0-9][a-z0-9._-]*:[a-z0-9][a-z0-9._-]*$",
+      "type": "string"
+    },
+    "last_ordinal": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "last_recorded": {
+      "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+      "type": "string"
+    },
+    "native_id": {
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "createdAt": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "display_line": {
+            "maxLength": 16384,
+            "type": "string"
+          },
+          "foundAt": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "legacy_candidate_line": {
+            "maxLength": 16384,
+            "type": "string"
+          },
+          "legacy_event_time_basis": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "legacy_line": {
+            "maxLength": 16384,
+            "type": "string"
+          },
+          "legacy_line_number": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "legacy_path": {
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "legacy_queue_rank": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "legacy_section": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "ncomments": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "observation_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "platform": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "priority": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "relation": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "relayCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sub": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "tier": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 4096,
+            "type": "string"
+          },
+          "url": {
+            "maxLength": 8192,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "url"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "platform": {
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "type": "string"
+    },
+    "priority": {
+      "type": "string"
+    },
+    "queue_rank": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "retry": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 16384,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "event_id",
+        "at"
+      ],
+      "type": "object"
+    },
+    "retry_history": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+            "type": "string"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "event_id",
+          "at"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": 1
+    },
+    "state": {
+      "enum": [
+        "assessed",
+        "deferred",
+        "human-review",
+        "pending"
+      ]
+    },
+    "state_reason": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 16384,
+          "minLength": 1,
+          "type": "string"
+        },
+        "supersedes": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "event_id",
+        "at"
+      ],
+      "type": "object"
+    },
+    "url": {
+      "maxLength": 8192,
+      "minLength": 1,
+      "type": "string"
+    },
+    "verdict": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "already-registered",
+            "dismissed",
+            "registered"
+          ]
+        },
+        "reason": {
+          "maxLength": 16384,
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$",
+          "type": "string"
+        },
+        "supersedes": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "reason",
+        "event_id",
+        "at"
+      ],
+      "type": "object"
+    },
+    "verdict_history": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "pattern": "^[0-9]{8}T[0-9]{6}Z$",
+            "type": "string"
+          },
+          "event_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "already-registered",
+              "dismissed",
+              "registered"
+            ]
+          },
+          "reason": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_id": {
+            "maxLength": 256,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$",
+            "type": "string"
+          },
+          "supersedes": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reason",
+          "event_id",
+          "at"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "identity",
+    "platform",
+    "native_id",
+    "url",
+    "state",
+    "head",
+    "first_recorded",
+    "last_recorded",
+    "first_ordinal",
+    "last_ordinal",
+    "observations",
+    "retry_history",
+    "verdict_history",
+    "event_history"
+  ],
+  "title": "Coldcard incident discovery candidate projection",
+  "type": "object"
+}

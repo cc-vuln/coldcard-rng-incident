@@ -96,9 +96,11 @@ agent_finish() {
       "$CAPTURE_REQUESTS" "$AGENT_RUN_DIR/capture-requests.txt" \
       --max-bytes 65536 || true
   fi
-  # Intake agents submit decisions as data. DISCOVERY.md remains unchanged
-  # until the operator-side guard has validated this protected copy against
-  # the exact packet, registry before-image and post-run registry.
+  # Intake agents submit decisions as data. Canonical discovery transactions
+  # and their generated views remain unchanged until the operator-side guard
+  # has validated this protected copy against the exact packet, registry
+  # before-image and post-run registry. The intake driver then applies the
+  # complete head-bound batch under a fresh, short discovery lock.
   if [[ "$role" == "intake" || "$role" == "xintake" ]]; then
     if [[ -e "$INTAKE_VERDICTS" || -L "$INTAKE_VERDICTS" ]]; then
       "$ROOT/.venv/bin/python" "$ROOT/scripts/secure_run_input.py" \
@@ -235,6 +237,16 @@ PY
       *)    echo "agent-run: $id first capture failed (exit $rc); the next poll will pick it up" >&2 ;;
     esac
   done < "$approved"
+}
+
+agent_mark_workflow_complete() {
+  # Guard approval is only the midpoint for registering roles. The registry
+  # edit is committable after the head-bound verdict transaction and all first
+  # capture attempts have run. record_commit.py requires this operator-owned
+  # marker for intake/xintake runs, so a stale packet, provider failure or
+  # interrupted driver cannot strand a registration in a committed state.
+  : > "$AGENT_RUN_DIR/workflow-complete"
+  chmod 600 "$AGENT_RUN_DIR/workflow-complete"
 }
 
 # Render a prompt template, substituting placeholders without letting the

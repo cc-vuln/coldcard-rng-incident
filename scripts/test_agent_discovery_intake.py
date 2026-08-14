@@ -1,13 +1,22 @@
 import os
 import json
+import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from discovery_test_fixture import install_store  # noqa: E402
+
+X_CANDIDATE = (
+    "- 2026-08-05 [candidate](https://x.com/researcher/status/123) "
+    "(X @researcher)"
+)
 
 
 def clean_env() -> dict:
@@ -24,7 +33,8 @@ def clean_env() -> dict:
 
 
 class LaneRoutingTests(unittest.TestCase):
-    def make_checkout(self, raw: str) -> Path:
+    def make_checkout(self, raw: str,
+                      pending: list[str] | None = None) -> Path:
         """A checkout complete enough for the drivers' containment to run.
 
         The drivers no longer just render a prompt and shell out. They record
@@ -60,12 +70,13 @@ class LaneRoutingTests(unittest.TestCase):
             'org = "reddit"\n',
             encoding="utf-8",
         )
-        (root / "DISCOVERY.md").write_text(
-            "# Discovery intake\n\n## Pending\n\n"
-            "- 2026-08-05 [candidate](https://x.com/researcher/status/123) "
-            "(X @researcher)\n\n## Assessed\n",
-            encoding="utf-8",
-        )
+        pending = [X_CANDIDATE] if pending is None else pending
+        install_store(root, [
+            {"line": line,
+             "url": re.search(r"\((https?://[^)]+)\)", line).group(1),
+             "at": f"20260805T{number:06d}Z"}
+            for number, line in enumerate(pending)
+        ])
         subprocess.run(["git", "init", "-q"], cwd=root, check=True)
         subprocess.run(["git", "add", "-A"], cwd=root, check=True)
         return root
@@ -91,15 +102,21 @@ class LaneRoutingTests(unittest.TestCase):
         """Replace network hydration with deterministic failed-body evidence."""
         (root / "scripts/hydrate_candidates.py").write_text(
             """#!/usr/bin/env python3
+import json
 import sys
 
-lines = [line.rstrip("\\n") for line in sys.stdin if line.strip()]
-for number, line in enumerate(lines, 1):
-    print(f"### Candidate {number}")
-    print(f"Queue line: {line}")
-    print("Platform: fixture (id fixture)")
-    print("Body: fetch failed (fixture fetch failed)")
-    print("Leave this candidate Pending and report the failure.\\n")
+for line in sys.stdin:
+    if not line.strip():
+        continue
+    candidate = json.loads(line)
+    platform = candidate["candidate_id"].split(":", 1)[0]
+    print(json.dumps({
+        **candidate,
+        "platform": platform,
+        "hydration_status": "failed",
+        "hydration_detail": "fixture fetch failed",
+        "body": None,
+    }, sort_keys=True))
 """, encoding="utf-8")
 
     def stub_verdict_agent(self, root: Path, candidate_id: str) -> None:
@@ -118,6 +135,52 @@ for number, line in enumerate(lines, 1):
             f"REVIEW_AGENT_BIN={agent}\nAGENT_SANDBOX=off\nAGENT_ALERTS=off\n",
             encoding="utf-8")
 
+    def stub_retry_agent(
+            self, root: Path, candidate_id: str, *, exit_code: int = 0,
+            concurrent_observation: dict | None = None) -> None:
+        """Write a complete retry outbox, optionally advancing discovery.
+
+        AGENT_SANDBOX=off is explicit in these throwaway checkouts, so the
+        optional store write stands in for an operator-side discovery lane
+        that runs while the provider process is active.
+        """
+        row = {
+            "schema_version": 1,
+            "candidate_id": candidate_id,
+            "action": "retry",
+            "reason": "fixture evidence unavailable",
+            "at": "20260814T120000Z",
+        }
+        agent = root / "retry-agent.py"
+        script = [
+            "#!/usr/bin/env python3",
+            "import sys",
+            "from pathlib import Path",
+            ("Path('.work/intake-verdicts.jsonl').write_text("
+             f"{(json.dumps(row, separators=(',', ':')) + chr(10))!r}, "
+             "encoding='utf-8')"),
+        ]
+        if concurrent_observation is not None:
+            script.extend([
+                "sys.path.insert(0, str(Path('scripts').resolve()))",
+                "from discovery_store import DiscoveryStore",
+                ("DiscoveryStore(Path('.')).record_observation("
+                 f"{concurrent_observation!r}, "
+                 "operation_id='fixture-concurrent-discovery')"),
+            ])
+        script.append(f"raise SystemExit({exit_code})")
+        agent.write_text("\n".join(script) + "\n", encoding="utf-8")
+        agent.chmod(0o755)
+        (root / ".env").write_text(
+            f"REVIEW_AGENT_BIN={agent}\nAGENT_SANDBOX=off\nAGENT_ALERTS=off\n",
+            encoding="utf-8")
+
+    def only_guard_run(self, root: Path) -> Path:
+        runs = [path for path in (root / ".work/agent-guard").iterdir()
+                if path.is_dir()]
+        self.assertEqual(1, len(runs), runs)
+        return runs[0]
+
     def test_community_driver_excludes_x_candidates(self):
         """X candidates are the X lane's, whatever else is pending."""
         with tempfile.TemporaryDirectory() as raw:
@@ -128,15 +191,12 @@ for number, line in enumerate(lines, 1):
 
     def test_community_driver_renders_one_scoped_packet(self):
         with tempfile.TemporaryDirectory() as raw:
-            root = self.make_checkout(raw)
-            self.stub_hydration(root)
             candidate = (
                 "- 2026-08-05 [community](https://stacker.news/items/999) "
                 "by author, 1 comments (Stacker News)"
             )
-            (root / "DISCOVERY.md").write_text(
-                "# Discovery intake\n\n## Pending\n\n" + candidate +
-                "\n\n## Assessed\n", encoding="utf-8")
+            root = self.make_checkout(raw, [candidate])
+            self.stub_hydration(root)
             result = self.run_intake(root)
             packet = json.loads((
                 root / ".work/agent-discovery-intake/intake-packet.json"
@@ -145,11 +205,16 @@ for number, line in enumerate(lines, 1):
                 root / ".work/agent-discovery-intake/prompt-rendered.md"
             ).read_text(encoding="utf-8")
 
+        safe_candidate = (
+            "- 2026-08-05 [community](<https://stacker.news/items/999>) "
+            "by author, 1 comments (Stacker News)"
+        )
         self.assertEqual(result.returncode, 1)
         self.assertEqual(packet["lane"], "community")
         self.assertEqual(packet["candidates"][0]["external_key"],
                          "stackernews:item:999")
-        self.assertEqual(prompt.count(candidate), 1)
+        self.assertEqual(packet["candidates"][0]["queue_line"], safe_candidate)
+        self.assertEqual(prompt.count(safe_candidate), 1)
         self.assertNotIn("{INTAKE_PACKET}", prompt)
 
     def test_include_x_flag_is_retired(self):
@@ -179,15 +244,11 @@ for number, line in enumerate(lines, 1):
 
     def test_x_driver_is_x_only_despite_community_backlog(self):
         with tempfile.TemporaryDirectory() as raw:
-            root = self.make_checkout(raw)
-            (root / "DISCOVERY.md").write_text(
-                "# Discovery intake\n\n## Pending\n\n"
+            community = (
                 "- 2026-08-05 [community](https://stacker.news/items/999) "
-                "by author, 1 comments (Stacker News)\n"
-                "- 2026-08-05 [candidate](https://x.com/researcher/status/123) "
-                "(X @researcher)\n\n## Assessed\n",
-                encoding="utf-8",
+                "by author, 1 comments (Stacker News)"
             )
+            root = self.make_checkout(raw, [community, X_CANDIDATE])
             result = self.run_x_intake(root, "--max", "1")
             prompt = (
                 root / ".work/agent-x-intake/prompt-rendered.md"
@@ -199,13 +260,11 @@ for number, line in enumerate(lines, 1):
 
     def test_x_driver_with_no_x_candidates_does_nothing(self):
         with tempfile.TemporaryDirectory() as raw:
-            root = self.make_checkout(raw)
-            (root / "DISCOVERY.md").write_text(
-                "# Discovery intake\n\n## Pending\n\n"
+            community = (
                 "- 2026-08-05 [community](https://stacker.news/items/999) "
-                "by author, 1 comments (Stacker News)\n\n## Assessed\n",
-                encoding="utf-8",
+                "by author, 1 comments (Stacker News)"
             )
+            root = self.make_checkout(raw, [community])
             result = self.run_x_intake(root)
 
         self.assertEqual(result.returncode, 0)
@@ -251,7 +310,7 @@ for number, line in enumerate(lines, 1):
         self.assertEqual(packet["candidates"][0]["external_key"],
                          "x:status:123")
         self.assertEqual(prompt.count(
-            "- 2026-08-05 [candidate](https://x.com/researcher/status/123) "
+            "- 2026-08-05 [candidate](<https://x.com/researcher/status/123>) "
             "(X @researcher)"), 1)
         self.assertEqual(len(retained), 1)
 
@@ -265,31 +324,47 @@ for number, line in enumerate(lines, 1):
             provider_failure = script.index("if [[ $rc -ne 0 ]]", refresh)
             apply = script.index("apply_intake_verdicts.py", provider_failure)
             captures = script.index("agent_run_captures", apply)
+            complete = script.index("agent_mark_workflow_complete", captures)
             self.assertLess(finish, accepted)
             self.assertLess(accepted, refresh)
             self.assertLess(refresh, provider_failure)
             self.assertLess(provider_failure, apply)
             self.assertLess(apply, captures)
+            self.assertLess(captures, complete)
+
+    def test_drivers_use_head_bound_snapshots_not_an_hour_long_lock(self):
+        for name, lane in (("agent-discovery-intake.sh", "community"),
+                           ("agent-x-intake.sh", "x")):
+            script = (ROOT / "scripts" / name).read_text(encoding="utf-8")
+            self.assertNotIn("awk '", script)
+            self.assertIn(f"--state pending --lane {lane}", script)
+            self.assertIn("--format intake-json --limit", script)
+            self.assertNotIn("--lock-held", script)
+            self.assertNotIn("discovery.lock\"", script)
+            self.assertLess(script.index("--format intake-json"),
+                            script.index('agent_begin "$ROLE"'))
 
     def test_community_driver_applies_guarded_outbox(self):
         with tempfile.TemporaryDirectory() as raw:
-            root = self.make_checkout(raw)
-            self.stub_hydration(root)
-            self.stub_verdict_agent(root, "stackernews:999")
             candidate = (
                 "- 2026-08-05 [community](https://stacker.news/items/999) "
                 "by author, 1 comments (Stacker News)"
             )
-            (root / "DISCOVERY.md").write_text(
-                "# Discovery intake\n\n## Pending\n\n" + candidate +
-                "\n\n## Assessed\n", encoding="utf-8")
+            root = self.make_checkout(raw, [candidate])
+            self.stub_hydration(root)
+            self.stub_verdict_agent(root, "stackernews:999")
             result = self.run_intake(root)
-            text = (root / "DISCOVERY.md").read_text(encoding="utf-8")
+            projected = json.loads((
+                root / "discovery/candidates/stackernews/999.json"
+            ).read_text(encoding="utf-8"))
+            workflow_complete = (
+                self.only_guard_run(root) / "workflow-complete").is_file()
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn(candidate + " -> dismissed: fixture dismissal ", text)
-        self.assertNotIn(candidate, text.split("## Pending", 1)[1]
-                         .split("## Assessed", 1)[0])
+        self.assertEqual("assessed", projected["state"])
+        self.assertEqual("dismissed", projected["verdict"]["kind"])
+        self.assertEqual("fixture dismissal", projected["verdict"]["reason"])
+        self.assertTrue(workflow_complete)
 
     def test_x_driver_applies_guarded_outbox(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -297,10 +372,108 @@ for number, line in enumerate(lines, 1):
             self.stub_hydration(root)
             self.stub_verdict_agent(root, "x:123")
             result = self.run_x_intake(root)
-            text = (root / "DISCOVERY.md").read_text(encoding="utf-8")
+            projected = json.loads((
+                root / "discovery/candidates/x/123.json"
+            ).read_text(encoding="utf-8"))
+            workflow_complete = (
+                self.only_guard_run(root) / "workflow-complete").is_file()
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("(X @researcher) -> dismissed: fixture dismissal ", text)
+        self.assertEqual("assessed", projected["state"])
+        self.assertEqual("dismissed", projected["verdict"]["kind"])
+        self.assertTrue(workflow_complete)
+
+    def test_provider_failure_after_guard_pass_has_no_workflow_marker(self):
+        candidate = (
+            "- 2026-08-05 [community](https://stacker.news/items/999) "
+            "by author, 1 comments (Stacker News)"
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw, [candidate])
+            self.stub_hydration(root)
+            self.stub_retry_agent(root, "stackernews:999", exit_code=1)
+            result = self.run_intake(root)
+            guard_run = self.only_guard_run(root)
+            projected = json.loads((
+                root / "discovery/candidates/stackernews/999.json"
+            ).read_text(encoding="utf-8"))
+
+            self.assertTrue((guard_run / "approved-captures.txt").is_file())
+            self.assertFalse((guard_run / "workflow-complete").exists())
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("agent run failed; entries stay pending", result.stderr)
+        self.assertEqual("pending", projected["state"])
+        self.assertNotIn("retry", projected)
+
+    def test_selected_head_change_after_guard_has_no_workflow_marker(self):
+        candidate = (
+            "- 2026-08-05 [community](https://stacker.news/items/999) "
+            "by author, 1 comments (Stacker News)"
+        )
+        changed = {
+            "url": "https://stacker.news/items/999",
+            "title": "concurrent selected-candidate update",
+            "foundAt": "20260814T010000Z",
+        }
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw, [candidate])
+            self.stub_hydration(root)
+            self.stub_retry_agent(
+                root, "stackernews:999", concurrent_observation=changed)
+            result = self.run_intake(root)
+            guard_run = self.only_guard_run(root)
+            projected = json.loads((
+                root / "discovery/candidates/stackernews/999.json"
+            ).read_text(encoding="utf-8"))
+
+            self.assertTrue((guard_run / "approved-captures.txt").is_file())
+            self.assertFalse((guard_run / "workflow-complete").exists())
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("packet candidate head changed", result.stderr)
+        self.assertEqual("pending", projected["state"])
+        self.assertNotIn("retry", projected)
+        self.assertEqual(
+            ["observation", "observation"],
+            [row["type"] for row in projected["event_history"]])
+
+    def test_unrelated_discovery_change_survives_guard_and_apply(self):
+        selected = (
+            "- 2026-08-05 [selected](https://stacker.news/items/999) "
+            "by author, 1 comments (Stacker News)"
+        )
+        neighbour = (
+            "- 2026-08-05 [neighbour](https://stacker.news/items/1000) "
+            "by author, 1 comments (Stacker News)"
+        )
+        changed = {
+            "url": "https://stacker.news/items/1000",
+            "title": "concurrent unrelated-candidate update",
+            "foundAt": "20260814T010000Z",
+        }
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_checkout(raw, [selected, neighbour])
+            self.stub_hydration(root)
+            self.stub_retry_agent(
+                root, "stackernews:999", concurrent_observation=changed)
+            result = self.run_intake(root, "--max", "1")
+            guard_run = self.only_guard_run(root)
+            selected_projection = json.loads((
+                root / "discovery/candidates/stackernews/999.json"
+            ).read_text(encoding="utf-8"))
+            neighbour_projection = json.loads((
+                root / "discovery/candidates/stackernews/1000.json"
+            ).read_text(encoding="utf-8"))
+            workflow_complete = (guard_run / "workflow-complete").is_file()
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("structured discovery path(s) also changed", result.stdout)
+        self.assertEqual(
+            "fixture evidence unavailable",
+            selected_projection["retry"]["reason"])
+        self.assertEqual(2, len(neighbour_projection["observations"]))
+        self.assertTrue(workflow_complete)
 
     def test_x_driver_without_an_agent_binary_waits(self):
         with tempfile.TemporaryDirectory() as raw:

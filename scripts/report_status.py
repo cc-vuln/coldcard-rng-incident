@@ -2,15 +2,17 @@
 """The operator-summary half of `just status`: what is waiting on a person.
 
 `capture.py status` says what is tracked and when each source last moved.
-This says what needs a decision: quarantined registrations, host proposals
-the intake agent declined for an unlisted host, sources on a failure streak,
-recorded first-capture failures, and detected differences the review gate has
-not classified yet.
+This says what needs a decision: structured discovery queues, quarantined
+registrations, host proposals the intake agent declined for an unlisted host,
+sources on a failure streak, recorded first-capture failures, and detected
+differences the review gate has not classified yet.
 
 Each section reads small files or reuses the tool that owns the rule
 (`capture.py diagnose --json` for streaks, `check_reviews.unreviewed` for the
 gate's count), so nothing here can drift from what the gates enforce. A
-missing file means nothing to report, never an error. Stdlib only.
+missing optional operator queue means nothing to report. The activated
+discovery store is different: a missing or invalid canonical record is shown
+as a failure and makes this command non-zero. Stdlib only.
 """
 from __future__ import annotations
 
@@ -29,6 +31,35 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Same tables quarantine_registry.py knows how to move.
 TABLES = ("source", "x_post", "nostr_post", "x_watch")
+
+
+def discovery_queue() -> bool:
+    """Report actionable discovery states after validating the whole store."""
+    print("== structured discovery ==")
+    try:
+        from discovery_store import DiscoveryStore, validate_store
+
+        store = DiscoveryStore(ROOT)
+        with store.locked():
+            validate_store(ROOT, lock_held=True)
+            candidates = store.list_candidates(lock_held=True)
+    except Exception as exc:
+        print(f"INVALID: {exc}\n")
+        return False
+
+    counts = Counter(str(row.get("state", "unknown")) for row in candidates)
+    pending_x = sum(1 for row in candidates
+                    if row.get("state") == "pending"
+                    and row.get("platform") == "x")
+    pending_community = counts.get("pending", 0) - pending_x
+    print(f"{len(candidates)} candidate(s); canonical chain and generated "
+          "projections validate:")
+    print(f"  pending:      {counts.get('pending', 0)} "
+          f"({pending_community} community, {pending_x} X)")
+    print(f"  deferred:     {counts.get('deferred', 0)}")
+    print(f"  human review: {counts.get('human-review', 0)}")
+    print(f"  assessed:     {counts.get('assessed', 0)}\n")
+    return True
 
 
 def host_of(url: str) -> str:
@@ -218,6 +249,7 @@ def unreviewed_diffs() -> None:
 
 
 def main() -> int:
+    discovery_ok = discovery_queue()
     quarantine()
     host_proposals()
     streaks()
@@ -225,7 +257,7 @@ def main() -> int:
     uncaptured()
     correction_proposals()
     unreviewed_diffs()
-    return 0
+    return 0 if discovery_ok else 1
 
 
 if __name__ == "__main__":

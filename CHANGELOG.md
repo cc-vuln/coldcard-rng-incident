@@ -20,6 +20,14 @@ published in the footer and at `/version.json`.
 
 ### Tooling
 
+- Replaced the complete 404KB discovery queue/history with an immutable,
+  hash-chained transaction store. The one-time migration retains the exact
+  legacy bytes and maps all 1,606 bullet occurrences, including duplicate
+  observations, retries and corrected verdicts, to 1,590 stable candidates.
+  Root `DISCOVERY.md`, one-candidate JSON records and 100-row Markdown pages
+  are now generated projections. Producers reconcile observations under one
+  protected lock; guarded intake commits one head-bound verdict batch; and
+  audit, commit and deposit gates independently replay and validate the store.
 - ingest-x.py captures X's newer quote and card layouts (the isolate step
   re-finds the focal article atomically; an embed branch keeps bare-quote
   posts capturable, with the sidecar stating when a quote comment is not

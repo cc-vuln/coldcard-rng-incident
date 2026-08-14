@@ -32,10 +32,13 @@ scripts/
   registry_store.py    layout-independent source-registry reader; uses shards
                         only while their manifest exactly matches sources.toml
   migrate_registry.py  build, refresh and verify the discoverable registry tree
-  discovery_common.py   keyword sieve, seen state and the DISCOVERY.md queue,
+  discovery_store.py    immutable discovery transactions, candidate projection,
+                        paged views, validation and the shared writer lock
+  migrate_discovery.py  one-time exact-byte/semantic import of the legacy queue
+  discovery_common.py   keyword sieve, seen state and structured observations,
                         shared by every discovery lane below
-  rotate_discovery.py   age old verdicts out of DISCOVERY.md into
-                        discovery/assessed-YYYY-MM.md, verbatim and locked
+  rotate_discovery.py   compatibility command: validate and refresh generated
+                        views; canonical history is no longer rotated
   discover_stackernews.py  find new incident threads on Stacker News (gentle)
   discover_reddit.py    find new incident threads on Reddit (via capture browser)
   discover_bitcointalk.py  find new incident threads on BitcoinTalk (direct)
@@ -49,7 +52,7 @@ scripts/
                         consecutive observations (driver-side, read-only)
   agent-x-intake.sh     X candidate intake: registers [[x_post]] blocks and
                         submits verdict data and requests driver-side first
-                        captures (role xintake); it never edits DISCOVERY.md
+                        captures (role xintake); it writes verdict data only
   agent-x-intake-prompt.md  the registering X intake prompt
   ingest_nostr.py       capture one nostr note and its replies via nak
   discover_nostr.py     find new incident notes via NIP-50 search (manual probation)
@@ -57,7 +60,7 @@ scripts/
   nostr_publish_profile.py  publish the kind-0 profile and kind-10002 relay list
   agent-discovery-intake.sh  community intake agent (registers community
                         threads and submits verdict data; X candidates go to
-                        agent-x-intake.sh; neither agent edits DISCOVERY.md)
+                        agent-x-intake.sh; neither agent writes discovery state)
   derive_funds_evidence.py  reproduce the pinned funds-accounting inputs
   verify_mk3_vector.py      check the fixed synthetic Mk3 test vector
   build_manifest.py   describe every held capture without reproducing any
@@ -73,9 +76,9 @@ scripts/
   record_commit.py    commit guard-passed pipeline output, deterministically
                       (record-commit.timer), and push it: a deploy is no longer
                       the only push path; --dry-run is the default
-  queue_candidates.py queue operator-dropped URLs (one per line in
-                      .work/operator-candidates.txt) into DISCOVERY.md's
-                      Pending; both intake drivers call it at the top of a run
+  queue_candidates.py reconcile operator-dropped URLs (one per line in
+                      .work/operator-candidates.txt) as priority Pending
+                      observations; both intake drivers call it first
   agent-maintenance.sh  run agent work with the capture timers paused
   agent-run-common.sh   the containment every agent driver shares
   run-agent.sh        run one agent deprivileged, with a built environment
@@ -108,8 +111,8 @@ scripts/
                         exact-match and non-zero saturation context for intake
   intake_verdicts.py    validate an intake verdict outbox against its protected
                         packet and the before/after source registries
-  apply_intake_verdicts.py  deterministic operator-side DISCOVERY.md rewrite
-                        after the guard approves the complete verdict outbox
+  apply_intake_verdicts.py  deterministic, head-bound transaction commit after
+                        the guard approves the complete verdict outbox
   secure_run_input.py  bounded, no-follow snapshot of agent outboxes and
                         capture requests into the protected guard run
   render_agent_prompt.py  join a trusted template to fenced untrusted evidence
@@ -127,7 +130,13 @@ docs/
   design/             future-facing technical designs
   research/           open research work packages
 discovery/
-  assessed-YYYY-MM.md  intake verdicts rotated out of DISCOVERY.md, verbatim
+  transactions/YYYY-MM/<sequence>-<hash>.json  canonical immutable event batches
+  candidates/<platform>/<native-id>.json        generated candidate projections
+  views/              generated paged Pending, Deferred and assessed indexes
+  migration-v1/       exact legacy bytes plus the equivalence manifest
+  schema/             public transaction and candidate schemas
+  state.json          generated inventory and canonical transaction head
+DISCOVERY.md          small generated entry point into the structured store
 quarantine/
   registry-YYYY-MM.toml  registrations moved out of sources.toml verbatim,
                       with the reason and the run. Never polled, never read
@@ -229,15 +238,18 @@ is one click away.
   public DNS over HTTPS and may set `gone = true` only when the failure streak
   and the independent resolvers agree, records the corroboration transcript in
   `gone_note`, and raises an alert. Anything short of agreement keeps polling.
-- `DISCOVERY.md` is the tracked intake queue for community-thread discovery.
-  Intake agents receive a bounded generated packet and write verdict JSONL
-  under `.work/`; they cannot write the queue. The guard validates every
-  candidate decision and its registry relationship, then the driver applies
-  terminal verdicts deterministically while holding the intake lock. A retry
-  remains Pending.
-  Verdicts older than a few weeks rotate to `discovery/assessed-YYYY-MM.md`
-  via `just rotate-discovery`; the rotated files are project records, not
-  captures, so they live beside the queue rather than under `archive/`.
+- Discovery history lives in immutable, hash-chained transaction files under
+  `discovery/transactions/`. Candidate JSON, paged Markdown views,
+  `discovery/state.json` and root `DISCOVERY.md` are deterministic projections:
+  reorganise or regenerate them, never treat them as a second record. The
+  one-time `migration-v1` bundle retains every byte of the former queue and
+  proves every legacy bullet's line number, order and structured meaning.
+  Intake agents receive only bounded packets and write verdict JSONL under
+  `.work/`; the guard binds each decision to a candidate id and event head,
+  then the driver commits the complete batch while holding
+  `.work/locks/discovery.lock`. Discovery decision revisions append a
+  superseding verdict event; nothing edits or rotates canonical history. Run
+  `just discovery-check` after manual inspection or presentation work.
 
 ## Working on the site
 
