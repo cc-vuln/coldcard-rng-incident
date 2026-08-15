@@ -16,6 +16,6 @@ Generated from immutable discovery transactions; do not edit.
 - 2026-08-10 [Crypto\.com Users Targeted by Phishing Campaign Abusing Company's Email Domain](<https://www.reddit.com/r/Bitcoin/comments/1vk8z95/cryptocom_users_targeted_by_phishing_campaign/>) by \_clickfix\_, 1 comments (r/Bitcoin) \[topical\] · [record/history](../../candidates/reddit/1vk8z95.json)
 - 2026-08-13 [don't trust: verify](<https://www.reddit.com/r/Bitcoin/comments/1vmwim7/dont_trust_verify/>) by psientist, 2 comments (r/Bitcoin) \[body\] · [record/history](../../candidates/reddit/1vmwim7.json)
 - 2026-08-14 [AI Supercharges Hackers: PPQ's $8,000 Lesson \[Clip\]](<https://www.reddit.com/r/Bitcoin/comments/1vo4ejy/ai_supercharges_hackers_ppqs_8000_lesson_clip/>) by Cryptoconomy, 0 comments (r/Bitcoin) [topical] · [record/history](../../candidates/reddit/1vo4ejy.json)
-- 2026-08-14 [If you are a Trezor customer, you can now get kidnapped, tortured and extorted in full transparency\. It’s re-insuring to use hardware wallets\.](<https://www.reddit.com/r/Bitcoin/comments/1vonld8/if_you_are_a_trezor_customer_you_can_now_get/>) by CapoDoFrango, 1 comments (r/Bitcoin) [topical] · [record/history](../../candidates/reddit/1vonld8.json)
+- 2026-08-15 [Security advice needed](<https://www.reddit.com/r/Bitcoin/comments/1vp04nn/security_advice_needed/>) by SatisfactionFinal287, 1 comments (r/Bitcoin) [body] · [record/history](../../candidates/reddit/1vp04nn.json)
 
 [Index](./index.md)

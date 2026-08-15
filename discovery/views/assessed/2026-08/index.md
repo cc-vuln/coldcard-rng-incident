@@ -9,7 +9,7 @@ Generated from immutable discovery transactions; do not edit.
 - nostr: 38 — pages [1](./nostr-001.md)
 - orange-surf: 1 — pages [1](./orange-surf-001.md)
 - pastebin-com: 2 — pages [1](./pastebin-com-001.md)
-- reddit: 497 — pages [1](./reddit-001.md), [2](./reddit-002.md), [3](./reddit-003.md), [4](./reddit-004.md), [5](./reddit-005.md)
+- reddit: 502 — pages [1](./reddit-001.md), [2](./reddit-002.md), [3](./reddit-003.md), [4](./reddit-004.md), [5](./reddit-005.md), [6](./reddit-006.md)
 - stackernews: 40 — pages [1](./stackernews-001.md)
 - www-citadel21-com: 1 — pages [1](./www-citadel21-com-001.md)
 - www-coindesk-com: 1 — pages [1](./www-coindesk-com-001.md)
