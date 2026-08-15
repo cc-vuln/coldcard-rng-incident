@@ -2538,3 +2538,33 @@
 ## 20260815T032309Z
 
 - bitkey-relationship-enrollment-report  +0 -1
+
+## 20260815T055339Z
+
+- coindesk-70m-no-device-touch  +23 -22
+- reddit-trezor-official-response  +10 -0
+- reddit-glacier-protocol-20-call  +28 -0
+- reddit-trezor-breach-coldcard-ptsd  +8 -0
+- reddit-coldcards-next-exploit  +40 -0
+- stackernews-losses-climb-112m-state-investigation  +6 -6
+- reddit-novak-deletes-bitcoinsecurity-guide  +16 -0
+- reddit-plot-thickens-coldcard-hack  +22 -19
+
+## 20260815T062300Z
+
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +31 -31
+- trustwallet-wasm-update  +0 -50
+- clay-attribution  +186 -0
+- bitcoindevs-explainer-thread  +9 -0
+- glxyresearch-2085748513015488758  +39 -0
+- trezor-2084975929948766645  +1 -1
+- afilini-2085269060028170742  +0 -44
+- grassfedbitcoin-2085463112048873485  +19 -0
+- oomahq-2085717166884618584  +129 -0
+- a_ferron-2085731252657696911  +20 -0
+
+## 20260815T072319Z
+
+- reddit-full-panic-drain-report  +2 -3
+- coldcard-hack-tracker  +0 -8

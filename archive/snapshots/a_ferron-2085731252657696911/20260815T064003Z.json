@@ -1,0 +1,110 @@
+{
+ "author": "a_ferron",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 4,
+  "posts_observed": 10,
+  "replies_observed": 7,
+  "reply_cap": 500,
+  "screenshots_taken": 1,
+  "scroll_rounds": 8
+ },
+ "gaps": [],
+ "posts": [
+  {
+   "author": "a_ferron",
+   "created": "2026-08-07T14:14:16Z",
+   "media": 0,
+   "name": "Antoine",
+   "role": "focal",
+   "status": "2085731252657696911",
+   "text": "Agree on the Coldcard silent criticisms. I choose to stay silent too : positivism/politeness, not harming their brand. I even found a vulnerability in one of their product 2 years ago, waited for them to do the fixing update. But it has never be done so far, so I haven't yet disclosed it. Yet another red flag when looking at the rearview mirror. I will publish that soon. It is about PIN exfiltration. In a way, stayed nicely silent hasn't helped/protected consumers, but only CC business. We all regret that.\n\nI disagree on the Secure Elements part. SEs are very important things to use, they offer a real protection on private data, like a vault. There is no such thing like virtual-SE. And without SE, you can not have secure boot nor genuine check, meaning you are not sure about the code running on the device. Why do you think that banks, governments and mobile network operators, all rely on SEs, if there could exist alternatives ? TINA, SEs are useful stuff in term of protecting your secret data.\nOfc having a SE doesn't mean you are fully safe, 100% security doesn't exist. It just offer decent protection to various attacks, that a standard chip can not handle."
+  },
+  {
+   "author": "a_ferron",
+   "created": "2026-08-07T14:14:16Z",
+   "media": 0,
+   "name": "Antoine",
+   "role": "self-thread",
+   "status": "2085731255274942910",
+   "text": "The wallet I like the most today is the \n@Keycard_\n Shell. An airgap device, with integrated smartcard SE reader that protects the seed. Plus you can easily change account/seed by just changing the smartcard inserted."
+  },
+  {
+   "author": "a_ferron",
+   "created": "2026-08-07T14:27:35Z",
+   "media": 0,
+   "name": "Antoine",
+   "role": "self-thread",
+   "status": "2085734605315854700",
+   "text": "A last word about the exfil protection. I see it as a complex mathematical toy that helps only to avoid very specific issues, which are rarely used by malicious actors. It adds more complexity than real security. As the author of this security mechanism wrote : \"that still wouldn't stop a malicious wallet from stealing from you because it can basically just do whatever it wants.\" And without a SE, you have no guarantee what your hw wallet is doing."
+  },
+  {
+   "author": "Enkitek",
+   "created": "2026-08-07T21:06:37Z",
+   "media": 0,
+   "name": "EnkiTek",
+   "role": "reply",
+   "status": "2085835023240888816",
+   "text": "What is  pIN exfiltration?"
+  },
+  {
+   "author": "a_ferron",
+   "created": "2026-08-07T21:34:49Z",
+   "media": 0,
+   "name": "Antoine",
+   "role": "reply",
+   "status": "2085842122599469507",
+   "text": "Wait for the publication of the issue. I will release the details soon. Basically it is possible to recover the user PIN from the in-flight encrypted data, in a Coinkite hardware product product."
+  },
+  {
+   "author": "BitcoinJiuJitsu",
+   "created": "2026-08-07T21:40:40Z",
+   "media": 0,
+   "name": "BitcoinJiuJitsu",
+   "role": "reply",
+   "status": "2085843593693163961",
+   "text": "The opposite of this."
+  },
+  {
+   "author": "Excellion",
+   "created": "2026-08-08T10:08:26Z",
+   "media": 0,
+   "name": "Samson Mow",
+   "role": "reply",
+   "status": "2086031775445164526",
+   "text": "\"Without SE, you can not have secure boot nor genuine check.\"\n\nThis is false.\n\nEvery Jade has a unique key pair created at manufacture time. The private key is burned into a non-exportable key slot in on-die flash, so it never leaves the chip and cannot be read out or copied, and Blockstream signs a certificate over the corresponding public key.\n\nTo check a device is genuine, you send it a random challenge. Jade signs that challenge with its private key and sends back three things: the public key, the signature over your challenge, and Blockstream's certificate for that public key.\n\nYour wallet software already knows the Blockstream manufacturer public key, so it can run two checks. First it verifies the certificate, which proves that this particular public key belongs to a device Blockstream actually made. Then it verifies the signature over the challenge, which proves the device in front of you really holds the matching private key rather than just replaying someone else's public key and certificate.\n\nBoth checks matter. The certificate alone proves nothing about who you are talking to, since certificates and public keys are public data and anyone could copy them. The signature alone proves nothing about provenance, since anyone can generate a key pair and sign things. Together they show that the device you are connected to right now holds a private key that Blockstream certified at manufacture. And because the challenge is fresh and random each time, an old captured response cannot be replayed to fake it."
+  },
+  {
+   "author": "domegabri",
+   "created": "2026-08-08T12:24:12Z",
+   "media": 0,
+   "name": "domenico",
+   "role": "reply",
+   "status": "2086065943445115193",
+   "text": "> And without SE, you can not have secure boot nor genuine check\n\nNot every chip has security features like secure boot and flash encryption but esp32 does."
+  },
+  {
+   "author": "a_ferron",
+   "created": "2026-08-08T14:41:40Z",
+   "media": 0,
+   "name": "Antoine",
+   "role": "reply",
+   "status": "2086100535078187398",
+   "text": "I think \n@BTChip\n disagrees, so do I."
+  },
+  {
+   "author": "digijunkyard",
+   "created": null,
+   "media": 0,
+   "name": "Digital Junkyard",
+   "role": "reply",
+   "status": "2087901443462431225",
+   "text": "FERRARI TIER DOMAIN SALE\n\n180 aged / brandable domains.\n \n$299 each. Last day before they're pulled.\n\nWhat's under the hood?\n\n\u2022 e-wills com - 2003 \u00b7 GD List $3,878\n\u2022 megabookstore com - 2005 \u00b7 GD List $4,144\n\u2022 yunzl com - LLLLL \u00b7 2012 \u00b7 GD List $4,072\n\u2022 racehorsesale com -"
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2085731252657696911",
+ "url": "https://x.com/a_ferron/status/2085731252657696911"
+}

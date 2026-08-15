@@ -243,7 +243,7 @@ import Answer from '../../components/Answer.astro';
     <Claim
       basis="unverified"
       scope="Whether any part of this proposal is adopted, and what a released firmware would do at seed generation"
-      source="No captured source states that #707 or its successor will be merged or shipped as of a 14 August 2026 recheck; firmware PR #713 remains open in the newest held capture (14 Aug 2026, 08:25 UTC) and no new release tag was published"
+      source="No captured source states that #707 or its successor will be merged or shipped as of a 15 August 2026 recheck; firmware PR #713 remains open in the newest held capture (14 Aug 2026, 23:42 UTC) and no new release tag was published"
       compact
     />
   </p>
@@ -254,8 +254,13 @@ import Answer from '../../components/Answer.astro';
     opened
     <a href="/record/sources/coldcard-firmware-pr-713/">firmware PR #713</a>,
     "Improve seed generation - mash timing with microsecond-resolution", stating
-    that it replaces #707. It carries seven commits and was open in the capture
-    held. What it changes about its predecessor is the mash path rather than the
+    that it replaces #707. It was opened with seven commits and was still open
+    in the capture held at 23:42 UTC on 14 August 2026, by which point it had
+    been force-pushed to commit 11d8130 with a five-commit series that revises
+    the mash-entropy implementation, adds a testing fixture and disables
+    MicroPython threads for the unix port. The conversation also gained
+    cross-references to PR #691 and #700 and an author self-review comment.
+    What it changes about its predecessor is the mash path rather than the
     entropy requirement: timing is hashed at microsecond resolution at the raw
     key edge, 128 presses are required, and one bit of entropy is credited per
     press, which the proposal attributes to Peter Todd's push-button generator
@@ -264,8 +269,8 @@ import Answer from '../../components/Answer.astro';
     was withdrawn.
     <Claim
       basis="verified"
-      scope="That firmware PR #707 was open at 15:45 UTC and closed at 19:22 UTC on 7 August 2026, and that PR #713, opened by the same author with seven commits, states that it replaces it"
-      source="Captured Coldcard/firmware pull-request pages #707 and #713, both 7 Aug 2026"
+      scope="That firmware PR #707 was open at 15:45 UTC and closed at 19:22 UTC on 7 August 2026, that PR #713 opened by the same author with seven commits states that it replaces #707, and that the newest held capture of PR #713 at 23:42 UTC on 14 August 2026 shows it force-pushed to commit 11d8130 as a five-commit series with the revised mash-entropy implementation, testing fixture, disabled MicroPython threads for the unix port, cross-references to PR #691 and #700 and an author self-review comment"
+      source="Captured Coldcard/firmware pull-request pages #707 and #713 on 7 Aug 2026, and Coldcard/firmware pull-request page #713 on 14 Aug 2026"
       href="/record/sources/coldcard-firmware-pr-713/"
       compact
     />
@@ -446,8 +451,8 @@ import Answer from '../../components/Answer.astro';
           />
           <Claim
             basis="verified"
-            scope="The stated purpose, detection method, review state and author-declared LLM assistance of Sparrow pull request #2047, as displayed in the single capture held"
-            source="Captured sparrowwallet/sparrow pull-request page, 7 Aug 2026"
+            scope="The stated purpose, detection method, review state, author-declared LLM assistance and follow-up comments about warning surfaces and a load-time acknowledgment/MOTD proposal of Sparrow pull request #2047, as displayed in the capture held at 04:42 UTC on 12 August 2026"
+            source="Captured sparrowwallet/sparrow pull-request page, 12 Aug 2026"
             href="/record/sources/sparrow-pr-2047/"
             compact
           />
@@ -478,7 +483,7 @@ import Answer from '../../components/Answer.astro';
           <tr>
             <td class="nw"><a href="/record/sources/sparrow-pr-2047/">Sparrow #2047</a></td>
             <td class="wide">Adds a warning row and a link to Coinkite's advisory wherever a COLDCARD is selected as a device, placed in the shared pane header so it covers import, airgapped keystore, USB and export flows at once. The author states that Sparrow does not generate the COLDCARD seed, so this is not a Sparrow flaw, and that detection is on the exact wallet model so that devices subclassing the COLDCARD importers do not trigger it. The description says the branch was drafted with an LLM coding tool and that the author could not run a local build, and asks a maintainer to verify.</td>
-            <td class="wide"><span class="status status--warn">Open</span> Opened 6 August 2026 by nrobi144 and approved by skwp the same day; open and unmerged in the single capture held, taken 7 August 2026. A second commit corrected the firmware and model details to match the advisory, and a reviewer asked whether existing wallets would also be warned.</td>
+            <td class="wide"><span class="status status--warn">Open</span> Opened 6 August 2026 by nrobi144 and approved by skwp the same day; open and unmerged in the capture held at 04:42 UTC on 12 August 2026. A second commit corrected the firmware and model details to match the advisory, a reviewer asked whether existing wallets would also be warned, and the discussion gained a follow-up comment clarifying which COLDCARD selection surfaces show the warning and another comment proposing a load-time acknowledgment or MOTD feature.</td>
           </tr>
         </tbody>
       </table>
