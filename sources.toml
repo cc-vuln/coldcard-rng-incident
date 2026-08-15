@@ -2020,6 +2020,21 @@ author's analysis until checked against source.
 """
 
 [[source]]
+id = "praveenperera-missing-153"
+title = "The Missing 153: what followed the Wave 1 reconstruction"
+url = "https://praveenperera.com/blog/coldcard-wave1-missing-153-search/"
+published = "2026-08-14"
+kind = "independent-analysis"
+tier = 1
+note = """
+Praveen Perera's follow-up to his Wave 1 key-reconstruction work: what he
+tried against the final 153 unreconstructed addresses, checked against the
+published Galaxy victim lists. First-person account of independent
+reproduction work, carrying the post's own warning that it is an
+investigation record rather than a wallet-recovery guide.
+"""
+
+[[source]]
 id = "btcpp-dettmer-commit-history"
 title = "Dettmer commit-history analysis of the entropy bug"
 url = "https://insider.btcpp.dev/p/when-randombytes-runs-but-doesnt"
@@ -14230,7 +14245,7 @@ org = "reddit"
 kind = "community-discussion"
 tier = 2
 watch_until = "20260819T012443Z"
-min_chars = 3000
+min_chars = 600
 capture = "reddit-json"
 why = """
 bje332013 relaying reports that the emergency firmware update is bricking
@@ -17820,4 +17835,91 @@ min_chars = 3000
 capture = "reddit-json"
 why = """
 EriksonThorsen compares the COLDCARD seed-generation vulnerability with the Trezor ShipMonk shipping-data breach to argue that cold storage's theoretical security advantage over hot wallets shrinks once ordinary user behaviour is taken into account. Held as a dated technical and sentiment thread on the human-factor limits of hardware-wallet security, alongside reddit-trezor-breach-coldcard-ptsd. The argument is the poster's own and is not independently verified here.
+"""
+
+[[source]]
+id = "reddit-returning-coldcard-device"
+title = "r/Bitcoin: returning the COLDCARD device and asking for a refund"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vounpq/returning_the_coldcard_device_back/"
+published = "2026-08-15"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T134532Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+shampatil says they did not lose funds but have lost trust in Coinkite after the COLDCARD fiasco and wants to return the device for a refund, warning scammers not to ask for the seed phrase. Held as a dated first-hand owner-confidence thread documenting the return and refund response to the incident. The claims and sentiment are the poster's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "glxy-attacks-ease-losses-climb"
+title = "COLDCARD ATTACKS EASE, BUT LOSSES CLIMB"
+url = "https://x.com/glxyresearch/status/2088252639767085417"
+author = "glxyresearch"
+org = "Galaxy Research"
+posted = "2026-08-14T13:13:21Z"
+why = """
+Galaxy Research updates its incident accounting to more than 1,778 BTC stolen, roughly $112 million, warns that attacks may still continue, and advises moving funds off COLDCARD devices. Held as a dated accounting update. The figures are Galaxy's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "coletu-mk3-mk4-sweep-summary"
+title = "Complete summary of honeypot sweep findings"
+url = "https://x.com/coletu/status/2087506473123217436"
+author = "coletu"
+posted = "2026-08-12T11:48:21Z"
+why = """
+ColeTU reports observed sweep timings for Mk3 seeds, random accounts, and one- to three-word passphrases, and notes that Mk4 seeds were not swept after six days. Held as a dated experimental finding from an external honeypot test. The timings are the author's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "intangiblecoins-bloomberg-coldcard-interview"
+title = "Bloomberg TV interview on the Coldcard exploit"
+url = "https://x.com/intangiblecoins/status/2087226789122732059"
+author = "intangiblecoins"
+posted = "2026-08-11T17:16:59Z"
+why = """
+Alex Thorn says he spoke to Bloomberg TV about the Coldcard exploit's blast radius, how victims are reacting, and what it means for Bitcoin culture and markets. Held as a dated media-appearance note. The interview content is not captured here.
+"""
+
+[[x_post]]
+id = "jamesob-cktripwire-theft-frontier"
+title = "cktripwire.com honeypot theft frontier update"
+url = "https://x.com/jamesob/status/2087683189489779164"
+author = "jamesob"
+posted = "2026-08-12T23:30:34Z"
+why = """
+James O'Beirne reports that attackers are working through cktripwire.com honeypots, places the theft frontier at 11 bits of added entropy, and notes that ColeTU's external honeypots have been swept and the first one-word passphrase UTXO is gone. Held as a dated technical update on the honeypot experiment. The claims are the author's own and are not independently verified here.
+"""
+
+[[x_post]]
+id = "bitcoinnewscom-attacker-sweep-methods"
+title = "Attacker had sophisticated intel but crude sweeping methods"
+url = "https://x.com/bitcoinnewscom/status/2088017286217257049"
+author = "bitcoinnewscom"
+org = "Bitcoin News"
+posted = "2026-08-13T21:38:09Z"
+why = """
+Bitcoin News summarizes Praveen Perera's research suggesting the attacker ranked vulnerable addresses by balance, swept them in batches, left UTXOs because of a default 200-record API limit, and left 75 BTC and 153 unreproduced addresses unexplained. Held as a dated technical finding. The claims are attributed to Perera and are not independently verified here.
+"""
+
+[[x_post]]
+id = "intangiblecoins-multisig-no-documented-theft"
+title = "No satoshi documented stolen from multisig"
+url = "https://x.com/intangiblecoins/status/2087991980177625257"
+author = "intangiblecoins"
+posted = "2026-08-13T19:57:35Z"
+why = """
+Alex Thorn argues that no satoshi has been documented as stolen from a multisig setup and urges non-technical users who want self-custody to look into collaborative multisig providers. Held as a dated self-custody and multisig argument. The claim is the author's own and is not independently verified here.
+"""
+
+[[x_post]]
+id = "kami-gawa-mk4-reseed-security"
+title = "Mk4 keys are not enumerable like Mk3 keys after reseed"
+url = "https://x.com/_kami_gawa/status/2087888037568995583"
+author = "_kami_gawa"
+posted = "2026-08-13T13:04:33Z"
+why = """
+@_kami_gawa reports that Mk4 keys are not enumerable like Mk3 keys because the reseed makes brute force practically impossible even when the resulting entropy is weak, and that correctly set up private keys remain effectively uncrackable. Held as a dated independent technical claim about Mk4 security. The claim is the author's own and are not independently verified here.
 """

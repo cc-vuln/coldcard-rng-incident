@@ -2568,3 +2568,36 @@
 
 - reddit-full-panic-drain-report  +2 -3
 - coldcard-hack-tracker  +0 -8
+
+## 20260815T122301Z
+
+- coindesk-70m-no-device-touch  +11 -12
+- reddit-steel-plates-wasted  +8 -0
+- reddit-coinkite-silence-unprofessional  +10 -0
+- reddit-coldcards-next-exploit  +12 -0
+- reddit-novak-deletes-bitcoinsecurity-guide  +8 -0
+- reddit-plot-thickens-coldcard-hack  +8 -0
+
+## 20260815T125301Z
+
+- ncfacanada-self-custody-commentary  +6 -6
+- newsbitcom-class-action-threat  +35 -35
+- clay-attribution  +111 -139
+- bitcoindevs-explainer-thread  +9 -9
+- glxyresearch-2085748513015488758  +11 -6
+- trezor-2084975929948766645  +9 -0
+- grassfedbitcoin-2085463112048873485  +8 -15
+- oomahq-2085717166884618584  +128 -107
+- a_ferron-2085731252657696911  +9 -20
+- kloaec-fork-scam-warning  +0 -36
+
+## 20260815T132301Z
+
+- coldcard-docs-faq  +8 -10
+- bitkey-relationship-enrollment-report  +1 -0
+- coldcard-hack-tracker  +8 -0
+
+## 20260815T142300Z
+
+- reddit-full-panic-drain-report  +0 -10
+- bitkey-relationship-enrollment-report  +0 -1

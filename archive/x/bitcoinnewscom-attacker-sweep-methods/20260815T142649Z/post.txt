@@ -1,0 +1,31 @@
+url:      https://x.com/bitcoinnewscom/status/2088017286217257049
+author:   Bitcoin News
+handle:   @BitcoinNewsCom
+posted:   2026-08-13T21:38:09.000Z (from the page's <time> element)
+captured: 20260815T142649Z via the capture browser (authenticated,
+          read-only. Element-only screenshot; no session chrome.
+media:    0 attached image(s)
+
+--- post text (verbatim) ---
+
+COLDCARD ATTACKER HAD SOPHISTICATED INTEL BUT CRUDE SWEEPING METHODS
+
+New research from 
+@PraveenPerera
+ suggests the attacker appears to have identified vulnerable addresses, ranked them by how much bitcoin they held, and then swept them in batches from largest to smallest.
+
+But the actual sweep software appears surprisingly crude.
+
+One address had 225 spendable UTXOs. The attacker took exactly the newest 200 and left the oldest 25 untouched, including one worth 0.16 BTC. 
+
+That exactly matches the default 200-record limit of a blockchain API investigated by the researcher, suggesting the attacker may have simply failed to load the next page.
+
+The software even spent a 294-sat UTXO that reportedly added roughly 2,040 sats to the transaction fee, meaning it cost substantially more to spend than it was worth.
+
+That supports the author’s theory that the tool was constructed by someone who understood account-balance systems  better than Bitcoin’s UTXO model.
+
+Despite apparently recovering the victims’ full seeds, the attacker left at least 75 BTC sitting at other addresses derived from those same seeds.
+
+And the biggest mystery remains 153 stolen addresses containing 132.95 BTC. 
+
+Researchers still cannot reproduce the seeds behind them, raising the possibility that the attacker had access to private device or candidate data that isn’t publicly available.

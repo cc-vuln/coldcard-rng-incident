@@ -1,0 +1,342 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- FOUC prevention: hide until theme is set (with noscript fallback) --><style>
+      html:not(.theme-ready) {
+        visibility: hidden;
+      }
+    </style><noscript><style>
+        html:not(.theme-ready) {
+          visibility: visible;
+        }
+      </style></noscript><script>
+      (function () {
+        var theme = localStorage.getItem("theme");
+        var prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        if (theme === "dark" || (!theme && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+        document.documentElement.classList.add("theme-ready");
+      })();
+    </script><title>The Missing 153: What I Tried After Reconstructing Coldcard Wave 1 | Praveen Perera</title><meta name="description" content="A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, and passphrases tested while searching for the 153 unresolved Wave 1 addresses"><link rel="canonical" href="https://praveenperera.com/blog/coldcard-wave1-missing-153-search/"><!-- Open Graph --><meta property="og:title" content="The Missing 153: What I Tried After Reconstructing Coldcard Wave 1 | Praveen Perera"><meta property="og:description" content="A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, and passphrases tested while searching for the 153 unresolved Wave 1 addresses"><meta property="og:url" content="https://praveenperera.com/blog/coldcard-wave1-missing-153-search/"><meta property="og:type" content="article"><meta property="og:image" content="https://praveenperera.com/images/posts/coldcard-missing153-og-dark.png"><meta property="og:image:width" content="2400"><meta property="og:image:height" content="1260"><meta property="og:image:alt" content="The missing 153, what I tried after reconstructing Coldcard Wave 1"><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="The Missing 153: What I Tried After Reconstructing Coldcard Wave 1 | Praveen Perera"><meta name="twitter:description" content="A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, and passphrases tested while searching for the 153 unresolved Wave 1 addresses"><meta name="twitter:image" content="https://praveenperera.com/images/posts/coldcard-missing153-og-dark.png"><meta name="twitter:image:alt" content="The missing 153, what I tried after reconstructing Coldcard Wave 1"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="manifest" href="/site.webmanifest"><meta name="apple-mobile-web-app-title" content="PraveenPerera"><meta name="application-name" content="PraveenPerera"><meta name="msapplication-TileColor" content="#3f83f8"><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)"><!-- RSS Feed --><link rel="alternate" type="application/rss+xml" title="Praveen Perera's Blog" href="/rss.xml"><!-- Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-67904702-1"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "UA-67904702-1");
+    </script><link rel="stylesheet" href="/_astro/Layout.CJxTc9Qw.css"></head><body class="text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-gray-900"><div class="min-h-screen bg-gray-50 dark:bg-gray-900"><nav x-data="{ open: false }" class="bg-white shadow-sm dark:bg-gray-800 dark:shadow-gray-900/50"><div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8"><div class="flex justify-between h-16"><div class="flex"><div class="flex items-center flex-shrink-0"><a href="/" aria-label="Logo link to home"><img src="/images/logo_mark_white.svg" alt="Logo" class="block h-8 w-auto lg:hidden dark:hidden"><img src="/images/logo_mark_dark.svg" alt="Logo" class="hidden h-8 w-auto dark:block dark:lg:hidden"></a><a href="/" aria-label="Logo link to home"><img src="/images/logo_white.svg" alt="Logo" class="hidden h-8 w-auto lg:block dark:lg:hidden"><img src="/images/logo_dark.svg" alt="Logo" class="hidden h-8 w-auto dark:lg:block"></a></div><div class="hidden sm:flex"><a href="/blog" class="inline-flex items-center px-1 pt-1 ml-8 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 transition duration-150 ease-in-out border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none">Blog</a></div></div><div class="hidden sm:flex sm:items-center"><!-- Desktop dark mode pill toggle --><label class="theme-toggle-pill" aria-label="Toggle dark mode"><input type="checkbox" id="theme-toggle"><span class="toggle-track"><svg class="sun-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"></path></svg><svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg><span class="toggle-thumb"></span></span></label></div><div class="flex items-center -mr-2 sm:hidden"><!-- Mobile dark mode pill toggle --><label class="theme-toggle-pill mr-2" aria-label="Toggle dark mode"><input type="checkbox" id="theme-toggle-mobile"><span class="toggle-track"><svg class="sun-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"></path></svg><svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg><span class="toggle-thumb"></span></span></label><button @click="open = !open" aria-label="Hamburger menu icon" class="inline-flex items-center justify-center p-2 text-gray-400 transition duration-150 ease-in-out rounded-md hover:text-gray-500 hover:bg-gray-50 focus:text-gray-500 focus:bg-gray-50 focus:outline-none dark:hover:bg-gray-700 dark:focus:bg-gray-700"><svg class="w-6 h-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path x-bind:class="{'hidden': open, 'inline-flex': !open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path><path x-bind:class="{'hidden': !open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div></div><div x-bind:class="{'block': open, 'hidden': !open}" class="hidden sm:hidden"><div class="pt-2 pb-3"><a href="/blog" class="block py-2 pl-3 pr-4 mt-1 text-base font-medium text-blue-700 dark:text-blue-400 transition duration-150 ease-in-out border-l-4 border-blue-500 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 focus:outline-none bg-blue-5 dark:hover:bg-gray-700 dark:focus:bg-gray-700">Blog</a></div></div></nav><main><div class="mx-auto max-w-7xl sm:px-6 lg:px-10"><div class="py-8">
+  <div class="w-full max-w-5xl mx-auto"><div class="overflow-hidden bg-white shadow sm:rounded-lg dark:bg-gray-800 dark:shadow-gray-900/50"><div class="px-4 py-5 sm:p-6"><div class="mb-4"><h1 class="text-2xl font-semibold text-gray-800 lg:text-3xl leading-12 dark:text-gray-100">The Missing 153: What I Tried After Reconstructing Coldcard Wave 1</h1></div><div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2"><div class="flex items-center"><svg fill="currentColor" viewBox="0 0 20 20" class="mr-0.5 -ml-0.5 w-3 h-3 text-gray-800 sm:w-4 sm:h-4 dark:text-gray-200"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" fill-rule="evenodd"></path></svg><p class="text-xs font-medium text-gray-600 sm:text-sm dark:text-gray-400"><a href="https://twitter.com/praveenperera" target="_blank" rel="noopener noreferrer">Praveen Perera</a></p></div><div class="flex items-center"><svg fill="currentColor" viewBox="0 0 20 20" class="mr-0.5 -ml-0.5 w-3 h-3 text-gray-800 sm:w-4 sm:h-4 dark:text-gray-200"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" fill-rule="evenodd"></path></svg><p class="text-xs font-medium text-gray-600 sm:text-sm dark:text-gray-400">August 14, 2026</p></div><div class="flex items-center"><svg fill="currentColor" viewBox="0 0 20 20" class="mr-0.5 -ml-0.5 w-3 h-3 text-gray-800 sm:w-4 sm:h-4 dark:text-gray-200"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" fill-rule="evenodd"></path></svg><p class="text-xs font-medium text-gray-600 sm:text-sm dark:text-gray-400">20 min read</p></div></div><div class="flex flex-wrap items-center justify-between gap-y-1 w-full"><div class="flex items-center"><svg fill="currentColor" viewBox="0 0 20 20" class="mr-0.5 -ml-0.5 w-3 h-3 text-blue-600 sm:w-4 sm:h-4 dark:text-blue-400"><path d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg><p class="text-xs font-medium text-blue-600 sm:text-sm dark:text-blue-400"><a href="/blog/tags/bitcoin">bitcoin</a>, <a href="/blog/tags/security">security</a>, <a href="/blog/tags/coldcard">coldcard</a>, <a href="/blog/tags/rng">rng</a>, <a href="/blog/tags/entropy">entropy</a>, <a href="/blog/tags/forensics">forensics</a></p></div><a href="https://github.com/praveenperera/blog-posts/edit/main/2026/08-14-coldcard-wave1-missing-153-search.md" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-500 hover:text-gray-700 sm:text-sm dark:text-gray-400 dark:hover:text-gray-300">Edit on GitHub</a></div><div class="mt-5"><article class="prose dark:prose-invert"><img src="../images/posts/coldcard-missing153-heading-dark.png" alt="The Missing 153, what I tried after reconstructing Coldcard Wave 1">
+<blockquote>
+<p><strong>Affected users:</strong> Updating firmware does not repair a seed that affected firmware already generated. Read the <a href="https://coldcard.com/docs/upgrade/#important-security-advisory">official COLDCARD advisory</a> and replace the affected seed before you use the wallet again. This post explains an investigation. It is not a wallet-recovery guide.</p>
+</blockquote>
+<p>Since I published <a href="/blog/coldcard-mk3-weak-rng-wave1/"><em>Inside Wave 1</em></a>, several researchers have asked what I have tried to recover the seeds behind the final 153 addresses. I should have included more of that work in the original post. I summarized the search with a few examples and aggregate numbers, but that summary left out many of the hypotheses, completed searches, and useful negative results.</p>
+<p>This post is a supplement to the original Wave 1 reconstruction. It records what I tested, what each search found, and why I stopped.</p>
+<p>I also want to clarify one line from the original post. My reference to a “private dataset” could have suggested a specific source, which I did not intend. I meant information that is not available in the public code or hardware schematics. Someone with an affected device, or experience with and access to the relevant STM32 chips, could collect it.</p>
+<p>I tested many PRNG paths and address derivations, but I may still have missed one. Most researchers working on this are focused on Bitcoin, so we may share a blind spot. I have also said that the attacker may have been more familiar with account-based systems such as Ethereum than with Bitcoin wallet software. That background may have led them to approach the problem differently.</p>
+<p>This is another reason for this post. By showing the paths I tested and where each search stopped, I hope someone will see a path, input, or assumption that I missed.</p>
+<p>The 153 missing addresses remain an important clue. I still do not know what they mean.</p>
+<p>None of these tests recovered a seed behind the 153. The repeated failures are hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.</p>
+<p>The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. A broader scan then checked 83,035 common passphrases against the same 1,014 mnemonics. It found 97 funded addresses, but none belonged to Wave 1. These results make common passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.</p>
+<h2 id="what-i-tried">What I tried</h2>
+<ul>
+<li><a href="#wider-bitcoin-derivation-paths">Wider Bitcoin wallet paths</a>: I searched higher indexes, change addresses, more accounts, and wrapped SegWit. The searches found affected wallets and reproduced known Wave 1 seeds, but found none of the 153.</li>
+<li><a href="#other-coldcard-setup-sequences">Other Coldcard setup sequences</a>: I tested settings saves, migration, login-keypad changes, countdowns, erased state, and nine other sequences. They found real affected wallets and known Wave 1 seeds, but none of the 153.</li>
+<li><a href="#added-dice-rolls">Added dice rolls</a>: One-roll and two-roll searches found historically funded seeds outside Wave 1. A wider partial search also found funded seeds, but no tested dice result belonged to Wave 1.</li>
+<li><a href="#larger-pad-ranges">Larger pad ranges</a>: I tested higher pad groups and samples from the full 32-bit range. The searches either found nothing or reproduced seeds I already knew. None found one of the 153.</li>
+<li><a href="#other-wallets-from-recovered-seeds">Other wallets from recovered seeds</a>: I checked wider BIP44, BIP49, and BIP84 paths, BIP85 children, the Coldcard duress path, Samourai paths, Wasabi use, and known weak passphrases. None produced one of the 153.</li>
+<li><a href="#why-passphrases-probably-do-not-explain-the-153">BIP39 and common passphrases</a>: I tested every lowercase English BIP39 word and a reviewed list of 83,035 common passphrases on all 1,014 recovered mnemonics. Both searches found funded addresses, but none matched any of the 153 unresolved Wave 1 addresses.</li>
+</ul>
+<p><a href="#what-remains-open">The remaining possibilities</a> are listed with the reasons I have not searched every combination and why most are now unlikely.</p>
+<h2 id="the-starting-point">The starting point</h2>
+<p>Wave 1 contains 1,195 traceable source addresses and 1,082.65318922 BTC. Reconstructed seeds explain 1,042 of those addresses and 949.70395260 BTC:</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/coldcard-wave1-coverage-dark.svg">
+  <img src="../images/posts/coldcard-wave1-coverage-light.svg" alt="Recovered and unresolved Wave 1 source addresses and bitcoin value by branch">
+</picture>
+<p>The remaining 153 sources hold 132.94923662 BTC. Holding 3 has most of that value: 67.13366772 BTC in 53 sources.</p>
+<p>Of these sources, 149 use native SegWit and four use wrapped SegWit. Their theft transactions do not look different from the rest of Wave 1. All 153 use the same one-source, one-output format and fee rule. The difference must come before transaction creation: the attacker’s seed search, device state, wallet paths, or choice of targets.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/coldcard-missing153-clue-dark.svg">
+  <img src="../images/posts/coldcard-missing153-clue-light.svg" alt="Six search families produce no new matches while the same 153 Wave 1 sources remain unresolved">
+</picture>
+<p><a href="/data/posts/coldcard-wave1-unresolved-153.csv">The public CSV</a> contains the 153 addresses, their script types, Wave 1 branches, sweep heights, input counts, and swept values. Here, “unresolved” means that none of the recovered seeds produced the source address on the paths I tested. The transactions and addresses themselves are not in doubt.</p>
+<h2 id="what-a-negative-result-means">What a negative result means</h2>
+<p>I used two types of search. One replayed the weak Coldcard RNG to look for unknown seeds. The other started from recovered seeds and checked related wallets, such as other accounts, BIP85 children, duress wallets, Samourai paths, and passphrase wallets.</p>
+<p>The first type can find a new seed, but only within the device states and wallet paths tested. The second cannot find a new root seed, but it shows what the attacker probably checked after finding one. This is why the passphrase result is useful.</p>
+<h2 id="wider-bitcoin-derivation-paths">Wider Bitcoin derivation paths</h2>
+<p>I tested whether the 153 were on common wallet paths but farther from the usual first address. These searches still found affected wallets outside Wave 1 and reproduced known Wave 1 seeds, so the search itself was working. None found one of the 153. A wrong account, branch, or index is now an unlikely general explanation.</p>
+<p>The main unknown-seed search models Coldcard 4.0.0+ with its membrane keypad, a zero RTC state, no added dice rolls, and the normal pad range. A keypad count is the number of keypad scan sessions before seed generation. It is usually, but not always, the same as the number of button presses. I completed these wallet paths:</p>
+<table>
+<thead>
+<tr>
+<th>Address type</th>
+<th>Branch</th>
+<th style="text-align: right">Accounts</th>
+<th style="text-align: right">Indexes</th>
+<th style="text-align: right">Keypad counts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BIP84</td>
+<td>Receive</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">0–25</td>
+<td style="text-align: right">1–100</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Receive</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">26–100</td>
+<td style="text-align: right">6–52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Receive</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">101–250</td>
+<td style="text-align: right">8–52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Change</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">0–100</td>
+<td style="text-align: right">6–52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Receive/change</td>
+<td style="text-align: right">1–4</td>
+<td style="text-align: right">0–20</td>
+<td style="text-align: right">6–52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Receive</td>
+<td style="text-align: right">1–4</td>
+<td style="text-align: right">21–60</td>
+<td style="text-align: right">6–52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Change</td>
+<td style="text-align: right">1–4</td>
+<td style="text-align: right">21–50</td>
+<td style="text-align: right">40–48 and 52</td>
+</tr>
+<tr>
+<td>BIP84</td>
+<td>Receive/change</td>
+<td style="text-align: right">2–25</td>
+<td style="text-align: right">0–20</td>
+<td style="text-align: right">8–24</td>
+</tr>
+<tr>
+<td>BIP49</td>
+<td>Receive/change</td>
+<td style="text-align: right">0–4</td>
+<td style="text-align: right">0–50</td>
+<td style="text-align: right">8–19</td>
+</tr>
+</tbody>
+</table>
+<p>I then ran four follow-up searches to fill gaps left by the earlier work:</p>
+<ul>
+<li>
+<p>Accounts 2–25, both receive and change, indexes 0–20: 100,270,080 possible seeds tested. The search found nine affected seeds and 56 funded addresses, but I already knew all nine seeds. None explained a new Wave 1 source.</p>
+</li>
+<li>
+<p>Account 0, receive indexes 26–100 and change indexes 0–100, for keypad counts six and seven: no funded address found.</p>
+</li>
+<li>
+<p>Accounts 1–4, receive and change through index 50, for the higher Wave 1 keypad counts: one seed I already knew, outside Wave 1. None of the 153.</p>
+</li>
+<li>
+<p>Accounts 1–4, receive indexes 21–60, for the remaining keypad counts from six through 52: 277,217,280 possible seeds tested. The search found four affected seeds I already knew and 28 funded addresses. One was an already-explained Wave 1 source. None was among the 153.</p>
+</li>
+</ul>
+<p>I also ran a smaller search of Samourai’s Bad Bank, Premix, Postmix, and Ricochet account numbers. It checked 17,694,720 possible seeds at native-SegWit receive indexes 0–2 for three common keypad counts. It found no historically funded address.</p>
+<p>A small extension of a standard account or index range is now an unlikely general answer. There is no single maximum index because the coverage also depends on the account and keypad count. The deepest account-zero search reached receive index 250 for keypad counts 8–52. The table gives the exact limits for every completed range.</p>
+<h2 id="other-coldcard-setup-sequences">Other Coldcard setup sequences</h2>
+<p>The main trace is not the only sequence of RNG calls that affected firmware could produce. Setup operations can consume weak random values before seed generation and move the generator to a different state.</p>
+<p>I tested specific sequences involving settings saves, migration, randomized login keypads, countdowns, erased state, and related setup actions. The settings-save and migration searches found three new affected seeds outside Wave 1 and reproduced seeds I already knew. They found none of the 153.</p>
+<p>I also tested nine other sequences across 53,084,160 possible seeds. They found eight affected seeds. Four were new and outside Wave 1. Two known Wave 1 seeds reproduced six already-explained source addresses. None matched an unresolved source.</p>
+<p>The alternative sequences produced real, historically funded wallets and reproduced known Wave 1 evidence. None crossed into the unresolved set. Substituting one of these tested sequences for the main sequence does not explain the gap.</p>
+<h2 id="added-dice-rolls">Added dice rolls</h2>
+<p>Here, added dice means a small number of rolls mixed into the normal device-generated seed path. It is different from the documented dice-only process, where enough rolls supply the seed entropy without the weak device RNG.</p>
+<p>One complete native-SegWit search tested one and two added rolls for keypad counts 8–50 on account-zero receive indexes 0–25. It found four historically funded seeds outside Wave 1: three with one added roll and one with two. It found no Wave 1 seed.</p>
+<p>A second search covered legacy and wrapped-SegWit addresses. It finished 677 of 765 planned batches for one to three added rolls and keypad counts 6–45. It checked 60,595,816,960 possible seeds and found two affected seeds with 29 historically funded addresses, but no Wave 1 source.</p>
+<p>The added-roll searches can find real affected wallets, but none of the tested results belongs to Wave 1. Three or more rolls, other wallet paths, other device sequences, and the 88 unfinished batches remain untested.</p>
+<h2 id="larger-pad-ranges">Larger pad ranges</h2>
+<p>The weak RNG used a 32-bit internal value called the pad. The search groups pad values into blocks of 65,536; the research logs call each group number a “high word.” Recovered wallets appear only in groups 15–75, and recovered Wave 1 wallets stop at 74. I tested higher groups and samples from the full pad range.</p>
+<p>The complete test of groups 90–99 covered native and wrapped-SegWit account-zero receive indexes 0–25 for keypad counts 8–52. It found nothing.</p>
+<p>The complete test of groups 100–255 checked 511,180,800 possible seeds on native-SegWit account-zero receive indexes 0–25 for keypad counts 6–55. It found nothing.</p>
+<p>A wider search sampled the full 32-bit pad range. It finished 368 of 3,200 planned batches and tested 24,696,061,952 possible seeds on native and wrapped-SegWit account-zero receive indexes 0–25. It found 35 affected seeds, all of which I already knew. Twenty-two of those seeds reproduced 52 already-explained Wave 1 sources. It found none of the 153.</p>
+<p>A separate, evenly spread sample covered 6.25% of the full pad range for each of keypad counts 12, 13, and 16. It tested 805,306,368 possible seeds on native-SegWit receive indexes 0–7 and found nothing.</p>
+<p>An earlier test checked all 4,294,967,296 pad values for a different device state with no earlier RNG call. It checked the first receive address on BIP44, BIP49, and BIP84 against 499 theft addresses and found no match. It did not model the later keypad sequence, so it does not rule out that model.</p>
+<p>Another researcher reported a wider search of all <code>2^32</code> pad values with no match to the 153. I do not yet have enough detail to reproduce it: the device sequence, keypad counts, RTC and dice states, wallet paths, and result files. I treat it as supporting evidence, but I do not include it in my totals.</p>
+<p>The pad searches make a simple “the UID or pad range was larger” explanation unlikely.</p>
+<h2 id="other-wallets-from-recovered-seeds">Other wallets from recovered seeds</h2>
+<p>Once I recovered a seed, I checked many more wallet paths than the path that first found it.</p>
+<p>For the recovered seeds, I checked BIP44, BIP49, and BIP84 accounts 0–25, both receive and change, through index 2,000. An older set of 949 seeds also covered BIP49 and BIP84 receive accounts 0–999 at indexes 0–20. Neither search produced one of the 153.</p>
+<p>I also tested:</p>
+<ul>
+<li>BIP85 child wallets on documented paths;</li>
+<li>the Coldcard Mk3 duress path;</li>
+<li>nine passphrases already observed on affected wallets;</li>
+<li>Samourai Bad Bank, Premix, Postmix, and Ricochet paths through index 2,000; and</li>
+<li>standard Wasabi use, which falls inside the tested BIP84 account-zero path.</li>
+</ul>
+<p>None produced one of the 153.</p>
+<h2 id="why-passphrases-probably-do-not-explain-the-153">Why passphrases probably do not explain the 153</h2>
+<p>Passphrases required a separate test because a BIP39 passphrase creates a different wallet from the same mnemonic. A correct root mnemonic with the wrong passphrase derives unrelated addresses.</p>
+<p>A private research corpus shared with me had already found weak passphrases on affected wallets. Those findings made passphrases a real hypothesis, but testing only the observed words could miss another simple passphrase.</p>
+<p>I tested every word in the 2,048-word English BIP39 list as a lowercase passphrase on all 1,014 recovered funded mnemonics. For each mnemonic and passphrase, I derived native and wrapped-SegWit account-zero receive indexes 0–26 and checked whether they held bitcoin at block 960182, just before Wave 1.</p>
+<p>The test performed 2,076,672 mnemonic-and-passphrase checks and 112,140,288 address checks. It found 74 historically funded native-SegWit addresses on six recovered mnemonics. Those addresses held 32.77836472 BTC before Wave 1.</p>
+<p>None of the 74 addresses was in the unresolved set. More important, Wave 1 had already taken empty-passphrase addresses from those same six root mnemonics. The passphrase addresses held bitcoin at the same time, but:</p>
+<ul>
+<li>none was a Wave 1 source;</li>
+<li>none was spent in the Wave 1 blocks 960183–960191;</li>
+<li>none paid a Wave 1 collector; and</li>
+<li>none appears in the later published Galaxy victim lists that I checked.</li>
+</ul>
+<p>All 74 addresses were emptied later. Their first post-snapshot spends occurred in these block groups:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right">First spend height</th>
+<th style="text-align: right">Addresses</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right">960350</td>
+<td style="text-align: right">12</td>
+<td>About 160 blocks after Wave 1 and next to the published Wave 2 window</td>
+</tr>
+<tr>
+<td style="text-align: right">960362–960381</td>
+<td style="text-align: right">23</td>
+<td>After Wave 1</td>
+</tr>
+<tr>
+<td style="text-align: right">960430</td>
+<td style="text-align: right">7</td>
+<td>After the published Wave 2 window</td>
+</tr>
+<tr>
+<td style="text-align: right">960450</td>
+<td style="text-align: right">11</td>
+<td>After the published Wave 2 window</td>
+</tr>
+<tr>
+<td style="text-align: right">960759</td>
+<td style="text-align: right">21</td>
+<td>After the published Wave 3 window</td>
+</tr>
+</tbody>
+</table>
+<p>Those later spends went to unlabeled addresses, not the known Wave 1 collectors or any Galaxy-labeled attacker or victim address. The timing proves that Wave 1 did not take these passphrase UTXOs. It does not prove that the same attacker took them later.</p>
+<p>If the attacker had tried one lowercase BIP39 word after recovering each mnemonic, these were the easiest passphrase wallets to find. Funded targets were there. Wave 1 took the empty-passphrase wallets and left the one-word passphrase wallets.</p>
+<p>That was strong evidence that Wave 1 used an empty passphrase and that passphrases do not explain the 153 as a group.</p>
+<p>I then expanded the recovered-mnemonic test from the BIP39 word list to a reviewed list of 83,035 common passphrases. The search checked all 84,197,490 mnemonic-and-passphrase pairs. For each pair, it derived BIP84 native-SegWit and BIP49 wrapped-SegWit account-zero receive indexes 0–26.</p>
+<p>The search found 97 funded addresses across 11 recovered seed groups and 12 entries in the passphrase list. None was one of the 1,195 Wave 1 addresses. The result does not assign the 97 addresses to a later campaign or identify who spent from them. That would require transaction history and independent campaign evidence.</p>
+<p>Together, these tests do not rule out every possible passphrase. The common-passphrase list is not an exhaustive search of two-word or three-word phrases, case variants, or arbitrary strings. I also did not test nonstandard paths or wallets whose root mnemonic remains unknown. Testing every variation would cost far more than the evidence justifies.</p>
+<p>I also started a much larger search that combined unknown Coldcard seeds with all 2,048 one-word passphrases. It had 4,140 planned batches. I stopped after 11 because checking 52 wallet paths made the search too expensive for the value of the result. Those 11 batches tested 1,476,395,008 seed-and-passphrase combinations and found no funded seed. I do not count the other 4,129 batches because they never ran.</p>
+<p>The recovered-seed checks tell us much more. Easy, funded passphrase wallets existed on seeds that Wave 1 had already reached, and Wave 1 did not take them. The much wider common-passphrase search also found funded wallets, but none from Wave 1.</p>
+<h2 id="the-address-list-was-not-the-problem">The address list was not the problem</h2>
+<p>For each possible seed, the search generated Bitcoin addresses and checked them against a snapshot of funded addresses from block 960182, immediately before Wave 1. The snapshot contains 23,221,718 native-SegWit addresses, 21,242,700 legacy addresses, and 6,238,520 wrapped-SegWit addresses.</p>
+<p>I checked that all 153 unresolved addresses were in the snapshot. If a tested seed had produced one of them on a tested path, the search would have reported a match.</p>
+<h2 id="what-remains-open">What remains open</h2>
+<p>These are not equally likely, and most do not have a natural endpoint.</p>
+<div id="open-searches-table"></div>
+<table>
+<thead>
+<tr>
+<th>What remains open</th>
+<th>Why it is not a leading explanation</th>
+<th>Why I have not searched all of it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Native-SegWit account 0 beyond receive index 250 or change index 100</td>
+<td>The highest recovered Wave 1 match is at receive index 234; the highest change match is at index 65. Extending the recovered seeds through index 999 found no later match, and the wider check through index 2,000 found none of the 153.</td>
+<td>Every added index must be checked across millions of possible seeds. I stopped after the searches went past the last indexes that had produced a Wave 1 match.</td>
+</tr>
+<tr>
+<td>Wider native-SegWit paths on other accounts</td>
+<td>Wider paths did find earlier Wave 1 seeds, but the later extensions kept reproducing known seeds or finding wallets outside Wave 1. They stopped adding addresses from the final 153.</td>
+<td>Each added account, index, and keypad count multiplies the work. The completed ranges are in the table above.</td>
+</tr>
+<tr>
+<td>Wrapped-SegWit accounts above 4, indexes above 50, or keypad counts outside 8–19</td>
+<td>Only four of the 153 sources use wrapped SegWit, so this cannot explain the other 149. The tested wrapped-SegWit extensions found no member of the final group.</td>
+<td>A wider search repeats the full seed search for each new path.</td>
+</tr>
+<tr>
+<td>More Coldcard setup sequences combined with wider wallet paths</td>
+<td>The tested settings, migration, login-keypad, countdown, erased-state, and nine other sequences found real affected wallets and reproduced known Wave 1 seeds. None found one of the 153.</td>
+<td>Each setup sequence needs a source-based model. Combining every plausible sequence with every path would create a very large search, including many device states that may never occur.</td>
+</tr>
+<tr>
+<td>More values from the full 32-bit pad range</td>
+<td>The completed higher ranges found nothing. A 24.7-billion-seed sample of the full range found only known seeds, and a separate 6.25% sample found nothing. Another researcher has also reported a wider zero result.</td>
+<td>Testing all <code>2^32</code> pad values again for every keypad count and wallet path would require hundreds of billions of additional seed checks.</td>
+</tr>
+<tr>
+<td>A nonzero real-time-clock state</td>
+<td>The firmware disables the relevant RTC and hardware-RNG paths, device evidence supports a zero RTC state, and no recovered Wave 1 seed requires a nonzero value.</td>
+<td>An arbitrary clock value adds another large input range with no evidence-based bound.</td>
+</tr>
+<tr>
+<td>Three or more added dice rolls or other entropy combinations</td>
+<td>Every recovered Wave 1 seed uses zero added rolls. The native-SegWit search found four historically funded seeds with one or two added rolls, all outside Wave 1. The finished part of the wider dice search also found funded seeds, but none in Wave 1.</td>
+<td>Each roll multiplies the possible inputs by six, before wallet paths and device states are added.</td>
+</tr>
+<tr>
+<td>Another affected firmware release or Coldcard device model</td>
+<td>The current model explains 1,042 Wave 1 sources across all three branches. Other tested device sequences found affected wallets but did not enter the unresolved set.</td>
+<td>Each one needs its own source review, device sequence, and seed generator before it can be searched. There is no specific alternative to test yet.</td>
+</tr>
+<tr>
+<td>Passphrases outside the tested lists, nonstandard paths, or an unknown root mnemonic</td>
+<td>The attacker left 74 easy, funded one-word passphrase addresses untouched while taking empty-passphrase wallets from the same seeds. A wider test of 83,035 common passphrases found 97 funded addresses, but none from Wave 1.</td>
+<td>An exhaustive two-word BIP39 search requires about 4.25 billion PBKDF2 checks. Three words require about 8.7 trillion, arbitrary strings have no limit, and unknown mnemonics add the full seed search.</td>
+</tr>
+<tr>
+<td>An imported seed or another seed-generation method</td>
+<td>A securely generated imported seed is not exposed by the Coldcard RNG flaw. This would require a second way for the attacker to learn the seeds, and I have no evidence of one.</td>
+<td>There is no finite search until another weak generator, leak, or source of seed data is identified.</td>
+</tr>
+<tr>
+<td>An input or search method that the reconstruction does not model</td>
+<td>This is the exception: I think it is now the leading possibility. The tested methods keep finding real affected wallets, but all stop at the same 153 before transaction creation.</td>
+<td>I cannot search it until I can identify the missing input or turn the method into a concrete candidate generator.</td>
+</tr>
+</tbody>
+</table>
+<p>The searches do not support Taproot, multisig, or a legacy-only explanation for the 153 because the sources themselves are 149 native-SegWit and four wrapped-SegWit single-key addresses. Multisig or Taproot activity elsewhere cannot directly produce these source scripts.</p>
+<h2 id="what-the-failures-suggest">What the failures suggest</h2>
+<p>The final 153 do not look like a random collection of paths that the search barely missed. Their missing rate changes sharply by Wave 1 branch: 4.80% in Original 500, 15.48% in Holding 2, and 25.98% in Holding 3. At the same time, all three groups use the same theft transaction builder.</p>
+<p>Each method can find real affected wallets. Wider paths and other Coldcard sequences found real seeds. Added-dice searches found real seeds. The full-pad sample reproduced known Wave 1 seeds. The one-word and common-passphrase searches found real funded wallets. Yet every method stopped at the same 153.</p>
+<p>This makes simple wallet-path, dice, passphrase, and pad-range explanations unlikely. I think the search still lacks an input, initial state, device sequence, or other method that the attacker used before creating the theft transactions.</p>
+<p>The 153 remain unresolved. I will update this post as I try more paths.</p>
+<h2 id="edit-history">Edit history</h2>
+<p><strong>August 14, 2026:</strong> I added the completed common-passphrase search. It checked 83,035 passphrases against all 1,014 recovered mnemonics and found 97 funded addresses. None was part of Wave 1.</p>
+</article></div><div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700"><script src="https://giscus.app/client.js" data-repo="praveenperera/blog-posts" data-repo-id="R_kgDOQp33xw" data-category="Comments" data-category-id="DIC_kwDOQp33x84Cz4bi" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="1" data-input-position="top" data-theme="light" data-lang="en" data-loading="lazy" crossorigin="anonymous" async></script><script>
+    // Set initial Giscus theme based on dark mode
+    (function () {
+      var isDark = document.documentElement.classList.contains("dark");
+      var script = document.querySelector('script[src*="giscus.app"]');
+      if (script && isDark) {
+        script.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script></div></div></div></div>
+
+  <script type="module">var e=document.querySelector(`article.prose`),t=e?Array.from(e.querySelectorAll(`h2[id], h3[id], h4[id]`)):[];if(t.length>0){let e=`article-position:${window.location.pathname}`,n,r=e=>e.getBoundingClientRect().top+window.scrollY,i=()=>{try{let t=window.sessionStorage.getItem(e);if(!t)return;let n=JSON.parse(t);return!(n.headingId===null||typeof n.headingId==`string`)||typeof n.offset!=`number`?void 0:{headingId:n.headingId,offset:n.offset}}catch{return}},a=t=>{let n={headingId:t?.id??null,offset:t?window.scrollY-r(t):window.scrollY};try{window.sessionStorage.setItem(e,JSON.stringify(n))}catch{}},o=()=>{n=void 0;let e=Math.min(160,Math.max(96,window.innerHeight*.2)),r;for(let n of t){if(n.getBoundingClientRect().top>e)break;r=n}a(r);let i=r?`#${r.id}`:``;if(window.location.hash===i)return;let o=new URL(window.location.href);o.hash=i,window.history.replaceState(window.history.state,``,o)},s=()=>{n===void 0&&(n=window.requestAnimationFrame(o))},c=performance.getEntriesByType(`navigation`)[0]?.type===`reload`?i():void 0,l=()=>{if(c){let e=c.headingId?document.getElementById(c.headingId):null,t=e?r(e):0;window.scrollTo(0,Math.max(0,t+c.offset))}window.addEventListener(`scroll`,s,{passive:!0}),window.addEventListener(`resize`,s),s()},u=()=>{window.requestAnimationFrame(()=>window.requestAnimationFrame(l))};document.readyState===`complete`?u():window.addEventListener(`load`,u,{once:!0})}</script></div></div></main></div><script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.0.1/dist/alpine.js" defer></script><link rel="stylesheet" href="https://rsms.me/inter/inter.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"><script type="module">function e(){let e=document.getElementById(`theme-toggle`),r=document.getElementById(`theme-toggle-mobile`);function i(t){e&&(e.checked=t),r&&(r.checked=t)}function a(e){document.documentElement.classList.toggle(`dark`,e),e===window.matchMedia(`(prefers-color-scheme: dark)`).matches?localStorage.removeItem(`theme`):localStorage.setItem(`theme`,e?`dark`:`light`),i(e),t(e),n(e)}function o(e){a(e.target.checked)}e&&e.addEventListener(`change`,o),r&&r.addEventListener(`change`,o);let s=document.documentElement.classList.contains(`dark`);i(s),t(s),window.matchMedia(`(prefers-color-scheme: dark)`).addEventListener(`change`,e=>{localStorage.getItem(`theme`)||a(e.matches)})}function t(e){document.querySelectorAll(`picture`).forEach(t=>{t.querySelectorAll(`source`).forEach(t=>{let n=t.getAttribute(`srcset`);n&&(e&&n.includes(`-light.`)?t.setAttribute(`srcset`,n.replace(`-light.`,`-dark.`)):!e&&n.includes(`-dark.`)&&t.setAttribute(`srcset`,n.replace(`-dark.`,`-light.`)))});let n=t.querySelector(`img`);if(n){let t=n.getAttribute(`src`);if(!t)return;e&&t.includes(`-light.`)?n.setAttribute(`src`,t.replace(`-light.`,`-dark.`)):!e&&t.includes(`-dark.`)&&n.setAttribute(`src`,t.replace(`-dark.`,`-light.`))}})}function n(e){let t=document.querySelector(`iframe.giscus-frame`);t&&t.contentWindow&&t.contentWindow.postMessage({giscus:{setConfig:{theme:e?`dark`:`light`}}},`https://giscus.app`)}document.addEventListener(`DOMContentLoaded`,e);</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"ce070e811c9243fc917c710009182ef9","r":1}' crossorigin="anonymous"></script>
+</body></html>

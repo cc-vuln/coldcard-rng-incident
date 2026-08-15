@@ -4,6 +4,19 @@ Sections are dated by the day the change shipped, UTC. There are no release
 numbers: the citable identifier is the commit each build was made from,
 published in the footer and at `/version.json`.
 
+## 2026-08-15
+
+### Closure
+
+- The project stopped collecting on 15 August 2026, covering the two weeks
+  after the incident broke on 30 July 2026. The landing page says so.
+  The final intake processed the last operator-supplied candidates (31 X
+  posts from screenshots, plus Praveen Perera's Wave 1 follow-up article,
+  registered as `praveenperera-missing-153`); the queue was empty at
+  closure. All automation on the capture host was disabled after the final
+  publish. The site stays online as published; nothing is added or
+  refreshed from this date.
+
 ## 2026-08-14
 
 ### Scope

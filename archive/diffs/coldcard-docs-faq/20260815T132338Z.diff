@@ -1,0 +1,27 @@
+--- coldcard-docs-faq@20260814T234032Z
++++ coldcard-docs-faq@20260815T132338Z
+@@ -372,16 +372,14 @@
+ TRNG (True Random Number Generator), inside the main chip. This is
+ a dedicated hardware subsystem that measures analog noise produced
+ by a special transistor.
+-The TRNG from the MCU would be sufficient, but we also maintain a
+-PRNG which is mixed (by XOR) into the TRNG output. That PRNG is
+-seeded once at boot up from the TRNG in each of SE1 and SE2. We
+-limit the of use the TRNG present in the secure elements because
+-the protocol involved is complex and slow.
+-The 256-bit number from the TRNG⊕PRNG is then "whitened" to remove
+-bias, by running it through SHA256. This means if your attacker was
+-somehow able to make the bits be 10% ones and 90% zeros (but still
+-random otherwise) it would not help them, because after SHA256 the
+-bit distribution will be 50/50 again.
++The MCU TRNG output is mixed (by XOR) with output from a PRNG. That
++PRNG is seeded once at boot from entropy obtained from SE1 and SE2.
++The secure-element entropy is used for seeding rather than for every
++request because the protocol is more complex and slower.
++The 256-bit mixed value is then conditioned with SHA-256 before it is
++used by the seed-generation workflow. Hash conditioning is not a
++substitute for sufficient source entropy; it produces a deterministic
++output from the input it receives.
+ During seed picking process, you have the option of "adding dice
+ rolls" to increase the entropy and/or mitigate any possible manipulation.
+ You can add as many rolls as you wish, and the entropy (about 2.5
