@@ -1,0 +1,20 @@
+# registry-order: 1400
+
+[[source]]
+id = "stackernews-rolling-dice-fresh-entropy"
+title = "Rolling Dice to Generate Fresh Entropy on Coldcard Devices"
+url = "https://stacker.news/items/1547505"
+published = "2026-08-13"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T014735Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1547505) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Nittany asks whether rolling dice to provide user entropy produces safe seeds on COLDCARD Mk4, Mk5 and Q devices in the wake of the ongoing incident. The thread documents an owner's effort to keep using an existing signer by supplying external entropy rather than trusting its RNG. Held as a dated mitigation question and community response to the vulnerability. The claims and assumptions are the poster's own and are not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""

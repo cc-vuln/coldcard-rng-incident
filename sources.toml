@@ -17727,3 +17727,97 @@ capture = "reddit-json"
 why = """
 chainglance_cm explains that the Trezor ShipMonk shipping-data breach exposed customer PII but did not compromise devices or keys, contextualizing it for readers still jumpy after the COLDCARD hack. Held as a dated community-sentiment thread comparing two consecutive hardware-wallet security headlines. The claims about the breach scope are the poster's own and are not independently verified here.
 """
+
+[[source]]
+id = "stackernews-rolling-dice-fresh-entropy"
+title = "Rolling Dice to Generate Fresh Entropy on Coldcard Devices"
+url = "https://stacker.news/items/1547505"
+published = "2026-08-13"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T014735Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1547505) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Nittany asks whether rolling dice to provide user entropy produces safe seeds on COLDCARD Mk4, Mk5 and Q devices in the wake of the ongoing incident. The thread documents an owner's effort to keep using an existing signer by supplying external entropy rather than trusting its RNG. Held as a dated mitigation question and community response to the vulnerability. The claims and assumptions are the poster's own and are not verified here. Captured through the site's public GraphQL API: the rendered pages crash the capture tab, and the API answers POST from this host. The query fixes the captured surface to the item's title, text and two levels of comments, each with author and absolute timestamp.
+"""
+
+[[source]]
+id = "reddit-coldcards-next-exploit"
+title = "r/Bitcoin: claim that destroying hardware stock points to a possible second exploit"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vn78qh/coldcards_next_exploit/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T014735Z"
+min_chars = 3000
+capture = "reddit-json"
+why = """
+Ok-Photograph-3585 argues that Coinkite's decision to destroy hardware stock instead of upgrading it suggests a possible hardware-level bug that could enable a second exploit, calling it a "degenerate bug" and asking for audit guidance. Held as a dated new claim and community speculation thread about the incident's scope. The hardware-bug hypothesis is the poster's speculation, not independently verified here.
+"""
+
+[[source]]
+id = "stackernews-losses-climb-112m-state-investigation"
+title = "Losses Climb to $112m: State of Coldcard Investigation - Alex Thorn"
+url = "https://stacker.news/items/1548121"
+published = "2026-08-14"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T015459Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1548121) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby relays Galaxy Research's 14 August update on the Coldcard investigation: 190 victim contacts, 1,778.84 BTC ($112.7m) stolen from more than 8,600 addresses, and a possible total of 2,417.35 BTC ($153m) if unconfirmed Wave 4 thefts are included. The thread also notes that most stolen funds have remained unmoved, some movement through Coinjoin and peelchains, elevated small-exchange inflows after the incident, and BlackRock lowering the IBIT in-kind creation minimum. Held as a dated update to Galaxy's loss accounting. The figures are Galaxy's and are not independently verified here.
+"""
+
+[[source]]
+id = "reddit-novak-deletes-bitcoinsecurity-guide"
+title = "r/Bitcoin: Rodolfo Novak deletes bitcoinsecurity.guide after claims of deceptive endorsement"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vohwh6/rodolfo_novak_coldcard_ceo_deletes_his/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T015459Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Fearless-Second-7230 reports that COLDCARD CEO Rodolfo Novak has deleted bitcoinsecurity.guide and alleges the site was a proxy that falsely claimed neutrality while recommending COLDCARD, potentially violating consumer-protection rules on misleading advertising. Held as a dated follow-up to reddit-novak-deceptive-marketing about undisclosed marketing ties and their removal. The allegations are the poster's own and are not independently verified here.
+"""
+
+[[source]]
+id = "reddit-plot-thickens-coldcard-hack"
+title = "r/Bitcoin: no researcher has reproduced a seed for 153 source addresses containing 132.95 BTC"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vobf3s/plot_thickens_with_coldcard_hack_no_researcher_i/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T015459Z"
+min_chars = 1500
+capture = "reddit-json"
+why = """
+Fiach_Dubh posts that, among the source addresses holding 132.95 BTC, no researcher they have spoken with has reproduced a seed, suggesting the reconstruction gap noted in stackernews-tracing-attacker-steps-praveen remains unresolved. Held as a dated community claim about the ongoing technical investigation into the drained addresses. The claim is the poster's own and is not independently verified here.
+"""
+
+[[source]]
+id = "reddit-cold-storage-human-factor"
+title = "r/Bitcoin: how much safer is cold storage once you factor in the person using it?"
+url = "https://www.reddit.com/r/Bitcoin/comments/1vo86t2/how_much_safer_is_cold_storage_really_once_you/"
+org = "reddit"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T015459Z"
+min_chars = 3000
+capture = "reddit-json"
+why = """
+EriksonThorsen compares the COLDCARD seed-generation vulnerability with the Trezor ShipMonk shipping-data breach to argue that cold storage's theoretical security advantage over hot wallets shrinks once ordinary user behaviour is taken into account. Held as a dated technical and sentiment thread on the human-factor limits of hardware-wallet security, alongside reddit-trezor-breach-coldcard-ptsd. The argument is the poster's own and is not independently verified here.
+"""

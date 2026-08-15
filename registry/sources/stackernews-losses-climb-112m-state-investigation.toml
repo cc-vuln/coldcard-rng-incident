@@ -1,0 +1,20 @@
+# registry-order: 1402
+
+[[source]]
+id = "stackernews-losses-climb-112m-state-investigation"
+title = "Losses Climb to $112m: State of Coldcard Investigation - Alex Thorn"
+url = "https://stacker.news/items/1548121"
+published = "2026-08-14"
+org = "Stacker News"
+kind = "community-discussion"
+tier = 2
+watch_until = "20260822T015459Z"
+min_chars = 400
+capture = "http"
+fetch_url = "https://stacker.news/api/graphql"
+fetch_post = '{"query": "{ item(id: 1548121) { title text createdAt user { name } comments { comments { text createdAt user { name } } } } }"}'
+json_pretty = true
+required_text = ['"title"']
+note = """
+Scoresby relays Galaxy Research's 14 August update on the Coldcard investigation: 190 victim contacts, 1,778.84 BTC ($112.7m) stolen from more than 8,600 addresses, and a possible total of 2,417.35 BTC ($153m) if unconfirmed Wave 4 thefts are included. The thread also notes that most stolen funds have remained unmoved, some movement through Coinjoin and peelchains, elevated small-exchange inflows after the incident, and BlackRock lowering the IBIT in-kind creation minimum. Held as a dated update to Galaxy's loss accounting. The figures are Galaxy's and are not independently verified here.
+"""

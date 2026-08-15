@@ -1,0 +1,112 @@
+post: 1vo86t2
+author: EriksonThorsen
+created_utc: 1786716249
+title: How much safer is cold storage really, once you factor in the person using it?
+body:
+Been chewing on this for two weeks and I want to hear where people actually land because I keep flip flopping.
+
+Quick recap in case you missed either one. Coldcard: a build error in firmware from March 2021 meant some devices generated seeds using a software PRNG instead of the chip's hardware RNG. Effective entropy dropped to around 40 bits on older models, which is brute forceable offline. Nobody got phished. Nobody's device was stolen. Nobody typed their words into a fake site. Something like 1,800 BTC gone from 5,000+ addresses, and updating the firmware doesn't fix a seed that was already generated weak.
+
+Then Trezor's fulfilment partner got breached. About 13,700 customers, and for most of them it was full name, email, phone number and home address. Credit where it's due, Trezor's own systems were never touched, and no keys were exposed, and their 90-day retention policy is the only reason it wasn't every buyer in company history. But think about what that list is. It's confirmed hardware wallet owners with the address the box was delivered to. Phishing by email, phone, and physical mail. Someone sends a letter on branded paper about an urgent recall or a mandatory firmware update, and I'd bet a decent number of people follow the instructions. Reports are already saying the data is being used to ask people for their 24 words.
+
+Ok, so here's the thing I want to argue about, and I want to say upfront I don't think there's a correct answer. I'm not saying cold wallets are unsafe. I'm not saying hot wallets are safe. I own hardware wallets, and I'm not getting rid of them.
+
+Conceptually, cold is obviously better. That's not in question. What I'm less sure about is how much of that advantage survives contact with a normal human being.
+
+Take bad products out of it. There's garbage on both sides, and there are wallets that used to be good and aren't anymore. Assume the person picked well either way.
+
+Good hot wallet, the chain is short. Most don't ask for any personal info. You install the app, generate the wallet, and after that, it's two questions. Is the seed handled properly, and is the phone clean. That's basically the whole thing.
+
+Good cold wallet, the logic after generation is identical. Seed safe, wallet safe. But now look at everything that has to go right before you even hold the device. Did you buy from the real site or a clone. A lot of manufacturers don't ship everywhere so now you're trusting a reseller, or a third-party seller on Amazon because that's your only option. Was the package tampered with. And to buy it you hand over name, email, phone, home address and payment method, and that data then gets handed to fulfilment and courier companies you never picked and can't audit. That's the exact link that failed at Trezor.
+
+That's a lot of companies holding a file that proves you own crypto. Half this space cares about privacy above almost everything else, and buying a hardware wallet is one of the least private purchases you can make. Once it leaks, it's also something a tax authority can cross-reference, which is a very different conversation for anyone whose declarations don't line up.
+
+And then there's the part nobody wants to bring up. Loads of people buy a hardware wallet, generate the seed offline exactly like the manual says, and then save the 12 or 24 words into their password manager. Bitwarden, Proton Pass, a local KeePass file, whatever. They think it's fine because it's encrypted. What they actually did was turn a cold seed into a hot seed, and the device is now a paperweight with a screen.
+
+I'm not laughing at anyone for that. Errors are the price of being your own bank. We have a long, very public list of people at the top of this industry who lost absurd amounts to small operational mistakes, so it's clearly not a beginner thing. It's a human thing. If you haven't made your mistake yet, give it time.
+
+Which gets me to the part I actually believe. People point at funds and custodians running cold storage as proof that cold is the answer. Sure, but those operations know how to handle a seed, they don't go connecting their savings wallet to random contracts, they keep firmware current, and there are people whose entire job is that. Retail buyer has none of that. So when the standard advice is "buy a hardware wallet, or you're doing it wrong," two things happen that, I think, are worse than the alternative.
+
+One, someone with a small stack gets intimidated by the whole ritual, decides self custody is above their level, and leaves the coins on an exchange. Which we all agree is the worst option available.
+
+Two, someone spends 250 bucks on a device to protect 50 bucks of crypto because they were made to feel irresponsible for not buying the "safe" option.
+
+So my position, and tell me where it's wrong: a hardware wallet is a tool that quietly assumes a level of knowledge and paranoia that most of this market doesn't have yet. For people who don't have it, a good hot wallet with a couple of boring habits, like a cheap dedicated phone that does nothing else, might be the better real-world outcome than a hardware wallet used badly.
+
+Anyway. If you're advising a friend with a few hundred dollars and no technical background, what do you actually tell them and why? And does the purchase and shipping surface bother anyone else, or do you think anonymous delivery and paying in crypto solves it? Also, curious whether the Coldcard bug changed how anyone thinks about "it's open source" as a security argument. Most of the people can't read that code, and even the people who can have no way of knowing how many other qualified eyes actually looked. Open-source means auditable, not audited. Or do you file this one as a fluke and move on?
+
+Not looking for a winner, I just think this sub gives better answers than "not your keys, buy a hardware wallet, done." Sorry for the wall of text.
+
+comment: p3nplp9
+parent: t3_1vo86t2
+author: Skinny_Human
+created_utc: 1786719067
+edited: false
+body:
+OP I think your post makes a good distinction between theoretical security and operational security, but I think it draws the boundary in the wrong place. A hardware wallet does not need to eliminate human error to be superior it just needs to remove important classes of failure, and keeping signing keys isolated from a general-purpose, networked operating system does exactly that. The fulfilment breach is serious, but it compromised privacy and increased social-engineering risk, not the cryptographic security of properly used wallets. Saying that, a dedicated phone is still a general purpose computer whose security ultimately depends on the OS, application sandbox, wallet implementation and the user never accidentally expanding its attack surface. The CC incident is the stronger criticism because it demonstrates something genuinely uncomfortable: “open source” describes auditability, not assurance. Reproducible builds, competent independent review, deterministic or independently verifiable entropy, mature implementations and a history of adversarial scrutiny matter far more than simply publishing source code. But there is also a false symmetry here between hardware-wallet complexity and hot-wallet simplicity because both require the user to protect the seed, recognise phishing and understand recovery, while the hardware wallet additionally gives you an isolated signing environment. Saving a hardware-wallet seed in Bitwarden doesn’t prove the hardware wallet was pointles it proves that violating the security model can nullify one of its principal benefits. So I wouldn’t tell someone with $300 that they are irresponsible for using a reputable hot wallet dude nor would I tell them to spend $250 protecting it. I’d tell them security should scale with the value at risk. For modest amounts, a reputable hot wallet with a properly protected backup can be entirely rational; as the amount becomes financially significant, the additional isolation of a well-designed hardware wallet becomes increasingly worthwhile. The relevant comparison isn’t “cold storage versus humans”; it’s which architecture leaves the fewest catastrophic failure modes after accounting for the particular human who has to operate it!!
+
+comment: p3ny0di
+parent: t3_1vo86t2
+author: crooks4hire
+created_utc: 1786721297
+edited: false
+body:
+Do you travel about the world with every ounce of fiat you have in your pocket? Why would you choose to do so with your btc?
+
+Hot wallets are for immediate spend cash. Values should be small because it’s a higher risk form of storage.
+
+Cold wallets are your savings account(s). Again, your entire net worth isn’t in a single savings account risking everything you have to a single breach. Diversify your cold storage. Use it as cold storage: infrequent, bulk transactions to top off your hot wallet for daily use.
+
+Anyone feeling encumbered by having to manage their own financial security is welcome to trust a HWW or exchange or a bank. That’s literally the service they provide: trust-based, third party financial management and security. You will be subject to the fragility and manipulation of those institutions.
+
+Bitcoin wasn’t designed to save anyone from anything. It’s a means to manage your own financial security free from manipulation by government or corporate entities.
+
+comment: p3nyf7g
+parent: t1_p3nplp9
+author: EriksonThorsen
+created_utc: 1786721406
+edited: false
+body:
+I agree with basically all you said, which is why I think we're closer than your comment suggests. Cold storage is undoubtedly the best form of self custody and the more secure architecture. I never argued otherwise.
+
+I'm not comparing cold storage versus humans. The question in the title was how much safer cold storage really is once you factor in the person using it. Experienced user, they'll actually get the security a hardware wallet is capable of giving them, and that's far above any hot wallet. Inexperienced user, which is most of the market, and the practical gap between the two narrows a lot, because the parts of the model that produce the advantage are exactly the parts they're most likely to break.
+
+Your last line is the same point I was making, just phrased better than I managed. Which architecture leaves the fewest catastrophic failure modes after accounting for the specific human operating it. And "security should scale with the value at risk" is the cleanest version of the thing I was fumbling toward with the 250 dollars for 50 dollars example. Stealing that one.
+
+comment: p3o1wwn
+parent: t3_1vo86t2
+author: riscten
+created_utc: 1786722331
+edited: false
+body:
+It's like eating at McDonald's vs cooking your own food, but there's no in-between. No fancy restaurant. No cook you can hire. 
+
+The moment you hire someone for custody (which is what the exchanges and ETFs do), you've eliminated one of the core value propositions of Bitcoin. You open the doors to hacks, losses, asset seizures and more. You're now vulnerable to the impenetrable shenanigans of bankers, which are only revealed when it's too late.
+
+IMHO, competency at self-custody is just non-negotiable. If you can't trust yourself to do it, just don't do Bitcoin.
+
+Asking for someone else to hold your Bitcoins is like buying a manual McLaren and then hiring someone else to drive it for you because you're worried about busting the transmission.
+
+comment: p3oj335
+parent: t3_1vo86t2
+author: logan-807128
+created_utc: 1786726794
+edited: false
+body:
+I think the main difference between hot and cold wallet is not internet is involved but that whether you need to use your laptop or phone to sign the transaction. A cold wallet can sign your transaction without divulging your private key/seed to your laptop whereas a hot wallet has to "generate" your private key on the laptop or phone to sign the transaction. 
+
+comment: p3oouy7
+parent: t3_1vo86t2
+author: JealousMatch1228
+created_utc: 1786728295
+edited: false
+body:
+You hit the nail on the head regarding **operational overhead**. The strongest cryptography in the world is useless if someone types their seed into a cloud notes app or gets targeted through a shipping database leak.
+
+For a friend starting out with a modest amount, pushing them toward a high-friction setup often backfires into leaving funds on centralized custodians.  
+A pragmatic middle ground is a tiered setup:
+
+1. **Active/Tier-2 Stack:** Use a well-audited non-custodial hot wallet (like **Bitget Wallet** or similar standalone clients) installed on a clean device. This eliminates physical delivery vectors, handles active transaction security/address screening, and keeps the user in self-custody without upfront hardware costs.
+2. **Cold/Deep Storage:** Kept purely for life-changing amounts where the user is willing to manage steel plates, offline air-gaps, and proper physical OPSEC.
+
+Until the UX of cold storage matches the realities of human psychology, software self-custody with disciplined habits will continue to protect casual users better than an expensive device used improperly.

@@ -149,7 +149,7 @@ Ordered by value, not effort.
 
 ### Current-state monitoring
 
-- **MONITOR: official technical follow-up.** Rechecked 14 August 2026.
+- **MONITOR: official technical follow-up.** Rechecked 15 August 2026.
   Coinkite's promised technical postmortem still has no publication date or
   detailed scope; the blog index captured 8 August 2026 and polled unchanged
   through 14 August 2026 lists no postmortem. No captured source announces a
@@ -164,7 +164,7 @@ Ordered by value, not effort.
   postmortem.
 
 - **MONITOR: filings, regulator statements and compensation decisions.**
-  Rechecked 14 August 2026. No public filing, regulator statement, insurer
+  Rechecked 15 August 2026. No public filing, regulator statement, insurer
   decision or compensation offer has been captured since the 7 August
   customer-data retention post, which remains the only public vendor
   acknowledgement of legal activity. The legal page's absence claim still holds
