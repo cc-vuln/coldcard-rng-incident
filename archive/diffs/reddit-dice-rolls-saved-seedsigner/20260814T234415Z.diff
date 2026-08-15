@@ -1,0 +1,18 @@
+--- reddit-dice-rolls-saved-seedsigner@20260812T044348Z
++++ reddit-dice-rolls-saved-seedsigner@20260814T234415Z
+@@ -701,4 +701,15 @@
+ body:
+ Cuz you’re spending money on something unnecessary? Nm, that is what bitcoin is.
+ 
++comment: p3qalhr
++parent: t1_p2cqynd
++author: Skinny_Human
++created_utc: 1786743794
++edited: false
++body:
++Hi OP. Your basic plan is sound, but I would change one thing. Do not reuse part of the old seed as your new passphrase. A BIP39 passphrase can technically be any string, and 6 to 10 genuinely random BIP39 words would contain substantial entropy, but taking them from a seed that has already existed on another signing device unnecessarily links two secrets. If that old seed is ever recovered, photographed, backed up badly or otherwise exposed, you have potentially handed the attacker the entire passphrase. Generate the new passphrase independently.  
++For SeedSigner, having to reload the seed is not really a weakness. Statelessness is one of its design goals. You can enter the words manually each time, but that gets tedious. SeedQR exists specifically to make reloading practical. The QR itself is not inherently less secure than 24 words written on paper because both represent the same secret. The important question is where and how you store it. If somebody obtains your SeedQR, treat that exactly as if they obtained your seed words. For a 24 word seed, 100 fair six sided dice rolls is plenty. SeedSigner itself uses 99 rolls for generating a 24 word mnemonic. Ideally verify the resulting mnemonic independently before putting meaningful funds behind it.  
++If it were mine, I would use a fresh seed generated from 99 or 100 dice rolls, an independently generated strong passphrase, a physical seed backup, a separate passphrase backup, and I would verify recovery before funding the wallet. Then wipe the signing device and keep the watch only wallet on the online machine. Multisig is not automatically more secure for an individual. It reduces some risks but introduces considerably more backup and operational complexity, so avoiding it when your threat model does not require it is perfectly reasonable.  
++The one thing I definitely would not do after an incident that has already made you question one secret is deliberately recycle part of that secret into the next wallet!!
++
+ more-stub: parent t1_p2x7o9i count <live-count>

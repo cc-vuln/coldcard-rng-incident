@@ -1,0 +1,128 @@
+post: 1vlbpxf
+author: Few_Tea_8183
+created_utc: 1786437295
+title: Randomness in Bitcoin and Other Wallets
+body:
+Has anyone already calculated the probability that a properly functioning wallet would randomly assign one of the affected Coldcard keys?
+
+comment: p300onr
+parent: t3_1vlbpxf
+author: Mission-Disaster-447
+created_utc: 1786437660
+edited: false
+body:
+Yes. Its very small. It would be like two people randomly picking the same atom in the visible universe.
+
+comment: p301uwp
+parent: t3_1vlbpxf
+author: EricJDMBAMD
+created_utc: 1786438259
+edited: false
+body:
+I think the MK3 Coldcards before the new firmware were giving users a seed phrase out of 4 billion. With the new firmware its about 2.8 x 10^77.  That's 6.5 x 10^67 times more possible seeds after the firmware update.
+
+comment: p30led2
+parent: t1_p300onr
+author: Few_Tea_8183
+created_utc: 1786447153
+edited: false
+body:
+thank you both for your information.
+
+comment: p316d1y
+parent: t3_1vlbpxf
+author: Charming-Designer944
+created_utc: 1786454157
+edited: false
+body:
+Approximately 1/(2^(128-40)) i think for 12 word seeds. But i have not counted the exact bits.
+
+comment: p326dcf
+parent: t1_p301uwp
+author: MillerBlade2
+created_utc: 1786463799
+edited: false
+body:
+How do you know that though?
+
+comment: p32cujo
+parent: t3_1vlbpxf
+author: logan-807128
+created_utc: 1786465448
+edited: false
+body:
+Entropy and the key space are different. Regardless whether you are using 12 seed words or 24 seed words, the key space is all 2^256. The limited entropy of the bug produced key space much less than 2^256 hence it's possible to enumerate them and the check whether each of the key enumerated has a corresponding address on the blockchain with utxo (fund). Without the bug, the key can be in anywhere in the key space, you can potentially enumerate for your whole lifestyle and never encounter any key in the entire key space produced by the bug. 
+
+In other words you don't need to worry effectively. 
+
+However there is always a nonzero (effectively zero doesn't mean zero) chance you could still get an address in the compromised key space. 
+
+Note it's also possible (once again effectively zero but nonzero) chance that you may generate an address not in the compromised key space but when you add a passphrase you landed on the compromised key space.
+
+
+comment: p33l4t0
+parent: t1_p326dcf
+author: EricJDMBAMD
+created_utc: 1786476642
+edited: false
+body:
+Somebody did check. I don't know how to check myself. But the dice roll seed phrase generator is working when I check against keystone and ian coleman bip 39 tool. That's proof enough for me that the seed generation from dice rolls works
+
+comment: p33qn1t
+parent: t1_p33l4t0
+author: MillerBlade2
+created_utc: 1786478075
+edited: false
+body:
+Sorry was that before the firmware update or after?
+
+comment: p33u4q3
+parent: t1_p33qn1t
+author: EricJDMBAMD
+created_utc: 1786478980
+edited: false
+body:
+The dice rolls seed phrase generation worked before and after the firmware update. Obviously the TRNG seed phrase generation didn't work before the firmware update. I don't know how to check it works after the firmware update but others have said that it fixed the problem and uses a TRNG instead of the software RNG that caused the exploit. 
+
+comment: p39oz2a
+parent: t3_1vlbpxf
+author: Linkamus
+created_utc: 1786551939
+edited: false
+body:
+It is in all practicality impossible 
+
+comment: p39qzla
+parent: t1_p300onr
+author: Linkamus
+created_utc: 1786552439
+edited: false
+body:
+Sort of. There are ~2^96 256 bit keys for every 160 bit Bitcoin address. So it's more appropriate to say for a collision to be found would be like 2 people choosing atoms from the moon at random, and at some point picking the same one.
+
+256 bits = comparable to atoms in observable universe.
+160 bits = comparable to atoms in Earth's moon
+
+Spoiler alert, with traditional computing we will never find a collision that corresponds with a specific 160bit bitcoin address. Practically impossible. So to answer the OPs question, it is practically impossible for a proper RNG function to create one of the hacked cold-card PRNG deterministic wallets. It is THEORETICALLY possible, but it will never happen.
+
+comment: p3mstg0
+parent: t1_p32cujo
+author: phoebeethical
+created_utc: 1786709621
+edited: false
+body:
+So a passphrase can convert a master password to the identical master password generated with a different set of words?  
+
+comment: p3ngkn5
+parent: t1_p3mstg0
+author: logan-807128
+created_utc: 1786716648
+edited: false
+body:
+I know what you mean although there is a technical difference in your wording, what you said is correct.
+
+Say you used the seed words "hello world blah ... ", it would create the private key 1747293... (a super big number). Once you add a passphrase, the private key would now become a completely different number say 4827282..., there exists another seed words "somewhere out there..." without passphrase that would generate the exact same private key 4827282...
+
+There is a reason why some people call the passphrase the 13th word (12 word seed) or 25th word (24 word seed) because in many ways that's more correct than thinking the passphrase as password for your seed words. 
+
+

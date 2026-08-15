@@ -1,0 +1,173 @@
+{
+ "author": "afilini",
+ "depth": {
+  "capped": false,
+  "dry_rounds": 4,
+  "posts_expanded": 1,
+  "posts_observed": 17,
+  "replies_observed": 11,
+  "reply_cap": 500,
+  "screenshots_taken": 3,
+  "scroll_rounds": 10
+ },
+ "gaps": [],
+ "posts": [
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:40Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "focal",
+   "status": "2085269060028170742",
+   "text": "Seeing lots of people say coinkite should have tested entropy better. I don\u2019t think they could\u2019ve done much there.\n\nWhat I think they could\u2019ve done was to build a proper emulator. That might have caught the issue "
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:41Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269063517839714",
+   "text": "The existing coldcard emulator runs micropython on Unix (Linux / macOS) systems. It\u2019s not emulating the hardware at all. For entropy, it just reads it from /dev/urandom"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:42Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269067099701267",
+   "text": "For Portal, which compared to the scale of coldcard is effectively a garage toy project, I took the time to fork QEMU and implement a few missing STM32 peripherals I needed"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:43Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269070350328032",
+   "text": "This was before AI, it was a pain in the ass but that allowed me to run the exact same binary on device and in the emulator. Not cycle perfect, but still same exact instructions"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:44Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269073793880517",
+   "text": "Why I think that could have caught the bug? The UID would have likely been fixed to some constant like 0xB00B5 (yeah engineers do that all the time) and while developing there\u2019s a good chance they might have started getting collisions and seeing the same mnemonic multiple times"
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T07:37:45Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "self-thread",
+   "status": "2085269077052764499",
+   "text": "I\u2019m not the first to point out the sloppy work (I consider the one-letter commit messages in libngu also sloppy work) and this just adds to that"
+  },
+  {
+   "author": "peterktodd",
+   "created": "2026-08-06T10:26:09Z",
+   "media": 0,
+   "name": "Peter Todd",
+   "role": "reply",
+   "status": "2085311458879971338",
+   "text": "No need to write an emulator. Just design a TRNG that you can actually test and independently verify on real hardware: \nhttps://\npetertodd.org/2014/push-butt\non-rng\n\u2026\n\nEverything else can be done deterministically."
+  },
+  {
+   "author": "bigshiny0",
+   "created": "2026-08-06T10:42:33Z",
+   "media": 0,
+   "name": "Shiny",
+   "role": "reply",
+   "status": "2085315585479483716",
+   "text": "Yes they could have. I took an afternoon after the new firmware was released to test the old and new firmware - specifically to test that the hardware rang was being used, by testing the firmware on a real device (I just added some debug functions that allowed me to query what the hardware was doing).took me a few hours to do.  No emulator needed."
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-06T10:47:48Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "reply",
+   "status": "2085316907658330372",
+   "text": "Yes but that is very specific instrumentation added for one single feature. And presumably you removed them after confirming it worked. An emulator allows ongoing checks as the codebase progresses"
+  },
+  {
+   "author": "portolan0f",
+   "created": "2026-08-06T11:00:45Z",
+   "media": 0,
+   "name": "V",
+   "role": "reply",
+   "status": "2085320165265211513",
+   "text": "Having a proper emulator would have been great but the issue could have been caught in several other ways. For starter better development flow, including PR reviews and generally more eyes on the code. They could have hired a security firm to do an audit or at least use an LLM."
+  },
+  {
+   "author": "FreedomIsntSafe",
+   "created": "2026-08-06T12:52:23Z",
+   "media": 0,
+   "name": "LazyNinja",
+   "role": "reply",
+   "status": "2085348260122677395",
+   "text": "1000%"
+  },
+  {
+   "author": "LucasBean91",
+   "created": "2026-08-07T00:56:02Z",
+   "media": 0,
+   "name": "Adiney BIP110 BLAKE2b",
+   "role": "reply",
+   "status": "2085530373337804976",
+   "text": "Thanks to coinkite, some people lost decades of hardwork money. Your defense is meaningless."
+  },
+  {
+   "author": "afilini",
+   "created": "2026-08-07T06:46:17Z",
+   "media": 0,
+   "name": "Alekos Filini",
+   "role": "reply",
+   "status": "2085618516112097433",
+   "text": "Does my tweet sound like I\u2019m defending them?"
+  },
+  {
+   "author": "lukechilds",
+   "created": "2026-08-14T11:43:47Z",
+   "media": 1,
+   "name": "Luke Childs",
+   "role": "reply",
+   "status": "2088230096306065429",
+   "text": "*slaps roof of trezor*\n\nThis bad boy can fit so many pre-signed transactions in it"
+  },
+  {
+   "author": "Rob1Ham",
+   "created": "2026-08-14T14:54:56Z",
+   "media": 0,
+   "name": "Rob Hamilton",
+   "role": "reply",
+   "status": "2088278202078699936",
+   "text": "I know I've spent the last 2 weeks crashing out about being restricted in accessing cyber programs from the American frontier AI labs.\n\nFor about a day now I've had access to \n@OpenAI\n's Daybreak Blue, and its the best model by far I've interacted with for security research."
+  },
+  {
+   "author": "intangiblecoins",
+   "created": "2026-08-14T16:43:54Z",
+   "media": 0,
+   "name": "Alex Thorn",
+   "role": "reply",
+   "status": "2088305623318298903",
+   "text": "an update on the coldcard investgiation, including top-line numbers, victim reports, location of some funds moving onchain\n\nand i give my high level thoughts on the impact of the event on bitcoin culture going forward"
+  },
+  {
+   "author": "stutxo",
+   "created": "2026-08-14T18:26:00Z",
+   "media": 2,
+   "name": "stu",
+   "role": "reply",
+   "status": "2088331320074314204",
+   "text": "come and take it (like actually pls)"
+  }
+ ],
+ "role_changes": [],
+ "schema": 1,
+ "thread": "2085269060028170742",
+ "url": "https://x.com/afilini/status/2085269060028170742"
+}

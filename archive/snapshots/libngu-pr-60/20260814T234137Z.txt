@@ -1,0 +1,303 @@
+Skip to content
+Navigation Menu
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub Copilot appDirect agents from issue to merge
+MCP RegistryIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+Code QualityEnforce quality at merge
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+switck
+/
+libngu
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+17
+Star
+7
+Code
+Issues
+2
+Pull requests
+2
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+fix: absorb full-width entropy in random.reseed() - #60
+#60
+Closed
+ballance wants to merge 2 commits into
+switck:masterswitck/libngu:masterfrom
+ballance:fix/reseed-full-width-entropyballance/libngu:fix/reseed-full-width-entropyCopy head branch name to clipboard
+ConversationCommits2 (2)ChecksFiles changed
+Closed
+fix: absorb full-width entropy in random.reseed()#60
+ballance wants to merge 2 commits into
+switck:masterswitck/libngu:masterfrom
+ballance:fix/reseed-full-width-entropyballance/libngu:fix/reseed-full-width-entropyCopy head branch name to clipboard
+Conversation
+ballance
+commented
+Aug 1, 2026
+Copy link
+Copy Markdown
+Summary
+random.reseed() previously assigned only yasmarang_pad from a 32-bit-truncated
+argument and never touched yasmarang_n / _d / _dat. After a reseed the entire
+generator was therefore a function of a single 32-bit word — a 2**32 state space —
+with the other state words left at their compile-time constants.
+Because my_random_bytes() / random_uint32() XOR the chip TRNG into every output,
+this is a defence-in-depth issue: when the on-chip TRNG is biased or otherwise
+untrustworthy, the reseeded Yasmarang state is the only independent entropy, so the
+reseed width is the effective security margin.
+Change
+reseed() now accepts a bytes-like object and absorbs every byte into all
+state words (sponge-style, with per-byte diffusion). A plain int is still
+accepted for backward compatibility, so existing callers and tests are unaffected.
+ngu_tests/test_random.py gains coverage for full-width (digest) seeding.
+Note: public RNG output is XOR-masked with the chip TRNG, so the reseeded stream is
+not directly observable from Python — the new test guards the interface (that a full
+digest is an accepted seed) rather than asserting stream contents.
+Context
+Reported publicly by Block's engineering team: "Predictable RNG fallback and 32-bit
+reseed in COLDCARD firmware." This PR addresses the reseed-width half; the COLDCARD
+firmware side (feeding the full SHA256d digest to reseed()) is a companion change.
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+👍
+1
+doc-hex reacted with thumbs up emoji
+All reactions
+👍
+1 reaction
+fix: absorb full-width entropy in random.reseed()
+…
+a512174
+reseed() assigned only yasmarang_pad from a 32-bit-truncated argument
+and never touched n/d/dat, so after reseeding the whole generator was a
+function of a single 32-bit word (a 2**32 state space). When the on-chip
+TRNG is biased or backdoored this reseed is the only independent entropy,
+so its width is the wallet's real security margin.
+Accept a bytes-like seed and absorb every byte into all state words with
+per-byte diffusion; keep accepting a plain int for backward compatibility.
+Extend test_random.py to exercise full-width (digest) seeding.
+Four low bytes of chance,
+the whole seed narrowed to noise —
+now the full digest.
+ballance
+mentioned this pull request
+Aug 1, 2026
+fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
+Coldcard/firmware#691
+Closed
+doc-hex
+commented
+Aug 1, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Contributor
+suggest raising ValueError if len==0
+needs comment that regardless of given bytes, max of 72 bits of entropy can be held by this PRNG
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+review: reject empty seed and document 72-bit state ceiling
+…
+6766258
+Address review feedback on switck#60:
+- reseed() now raises ValueError on a zero-length seed instead of
+silently performing a no-op reseed; test_random.py covers it.
+- Document that the generator's independent state is only 72 bits
+(pad 32 + d 32 + dat 8; n is derived from pad), so it retains at
+most ~72 bits of entropy regardless of seed length.
+An empty hand gives
+nothing; and the well holds but
+seventy-two bits.
+scgbckbone
+commented
+Aug 1, 2026
+•
+edited
+Loading
+Uh oh!
+There was an error while loading. Please reload this page.
+Copy link
+Copy Markdown
+Contributor
+idk, this only up it to ~70bits on reseed iiuic. Better than 32bits but still not enough. We should consider removing yasmarang completely. I'll have competing PR shortly...
+#61
+👀
+1
+ballance reacted with eyes emoji
+All reactions
+👀
+1 reaction
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+ballance
+commented
+Aug 1, 2026
+Copy link
+Copy Markdown
+Author
+Thanks — both addressed in 6766258: reseed() now raises ValueError on an empty seed (with a test in test_random.py), and the ~72-bit state ceiling (pad 32 + d 32 + dat 8; n is derived from pad) is documented in the function header.
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+ballance
+commented
+Aug 1, 2026
+Copy link
+Copy Markdown
+Author
+Closing in favor of this more comprehensive PR #61
+All reactions
+Sorry, something went wrong.
+Uh oh!
+There was an error while loading. Please reload this page.
+ballance
+closed this
+Aug 1, 2026
+This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+Learn more about bidirectional Unicode characters
+Show hidden characters
+Sign up for free
+to join this conversation on GitHub.
+Already have an account?
+Sign in to comment
+Reviewers
+No reviews
+Assignees
+No one assigned
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+Uh oh!
+There was an error while loading. Please reload this page.
+3 participants
+Add this suggestion to a batch that can be applied as a single commit.This suggestion is invalid because no changes were made to the code.Suggestions cannot be applied while the pull request is closed.Suggestions cannot be applied while viewing a subset of changes.Only one suggestion per line can be applied in a batch.Add this suggestion to a batch that can be applied as a single commit.Applying suggestions on deleted lines is not supported.You must change the existing code in this line in order to create a valid suggestion.Outdated suggestions cannot be applied.This suggestion has been applied or marked resolved.Suggestions cannot be applied from pending reviews.Suggestions cannot be applied on multi-line comments.Suggestions cannot be applied while the pull request is queued to merge.Suggestion cannot be applied right now. Please check back later.
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

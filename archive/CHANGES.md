@@ -2494,3 +2494,37 @@
 ## 20260814T142300Z
 
 - bitkey-relationship-enrollment-report  +1 -0
+
+## 20260814T233953Z
+
+- coinkite-backgrounder  +2 -0
+- coinkite-mk3-advisory  +2 -0
+- coldcard-docs-faq  +1 -1
+- bitkey-relationship-enrollment-report  +0 -1
+- coldcard-hack-tracker  +0 -7
+- libngu-pr-60  +1 -1
+- libngu-pr-61  +1 -1
+- coldcard-firmware-pr-691  +5 -2
+- coldcard-firmware-pr-707  +1 -1
+- coldcard-firmware-pr-713  +60 -32
+- coldcard-firmware-pr-713-patch  +27 -22
+- coindesk-70m-no-device-touch  +23 -23
+- reddit-dice-rolls-saved-seedsigner  +11 -0
+- reddit-bitcoin-not-broken-explainer  +8 -0
+- reddit-nvk-scammer-regulation-call  +2 -2
+- reddit-randomness-collision-question  +22 -0
+- reddit-coinkite-inventory-destruction-question  +12 -12
+- reddit-nvk-proxy-marketing-claim  +3 -0
+- stackernews-tracing-attacker-steps-praveen  (first capture)
+- reddit-glacier-protocol-20-call  (first capture)
+- reddit-trezor-breach-coldcard-ptsd  (first capture)
+- trezor-coldcard-not-affected  +2 -0
+- newsbitcom-who-lost-who-at-risk  +0 -11
+- ncfacanada-self-custody-commentary  +26 -26
+- newsbitcom-class-action-threat  +30 -30
+- reddit-forrest-video-coldcard  +41 -0
+- trustwallet-wasm-update  +50 -0
+- clay-attribution  +39 -0
+- trezor-2084975929948766645  +1 -1
+- afilini-2085269060028170742  +44 -0
+- kloaec-fork-scam-warning  +121 -1

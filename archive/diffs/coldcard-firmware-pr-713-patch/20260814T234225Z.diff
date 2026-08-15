@@ -1,0 +1,202 @@
+--- coldcard-firmware-pr-713-patch@20260813T192551Z
++++ coldcard-firmware-pr-713-patch@20260814T234225Z
+@@ -1,4 +1,4 @@
+-From f460ce3e6fc92772f7aada9709a53f6c0c805d88 Mon Sep 17 00:00:00 2001
++From 595a557728bef35af2cbaff76d43fbfcd73aa865 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Mon, 3 Aug 2026 19:07:13 +0200
+ Subject: [PATCH 1/8] Mix secure element entropy into seed generation
+@@ -7,7 +7,7 @@
+  shared/seed.py             | 12 +++++++++---
+  2 files changed, 11 insertions(+), 3 deletions(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index a1f1d1b1..82bb00f8 100644
++index f43480db..9d3bdd02 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -4,6 +4,8 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -15,7 +15,8 @@
+ +- Security Improvement: Master seed generation mixes entropy from both Secure
+ +  Elements with the STM32 TRNG (previously TRNG only).
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+- # Mk Specific Changes
++ - Bugfix: Prevent access to Seed Vault entries through Seed XOR restore in Delta Mode. Thanks to
++   Rety for reporting this.
+ diff --git a/shared/seed.py b/shared/seed.py
+ index e63feb84..4350cc0d 100644
+ --- a/shared/seed.py
+@@ -39,7 +40,7 @@
+ +    return ngu.hash.sha256d(seed + a + b)
+  async def make_new_wallet(nwords):
+      # Pick a new random seed.
+-From d16d47b42775b53394ae8282bbc00ac93d3beaa3 Mon Sep 17 00:00:00 2001
++From 8e55504f4ba396ab1fa0b3ef42820dde322c65df Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Tue, 4 Aug 2026 16:40:51 +0200
+ Subject: [PATCH 2/8] reseed with full 32 bytes of digest from SE1/SE2 entropy
+@@ -49,7 +50,7 @@
+  shared/mk4.py              | 3 ++-
+  2 files changed, 4 insertions(+), 1 deletion(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index 82bb00f8..d386adc7 100644
++index 9d3bdd02..20b964f3 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -6,6 +6,8 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -58,7 +59,8 @@
+ +- Security Improvement: RNG is seeded with the full 256-bit digest of entropy
+ +  from both Secure Elements (previously truncated to 32 bits).
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+- # Mk Specific Changes
++ - Bugfix: Prevent access to Seed Vault entries through Seed XOR restore in Delta Mode. Thanks to
++   Rety for reporting this.
+ diff --git a/shared/mk4.py b/shared/mk4.py
+ index 3a3e229d..3958d8f1 100644
+ --- a/shared/mk4.py
+@@ -71,7 +73,7 @@
+      n = ngu.hash.sha256d(a+b)
+ -    n, = ustruct.unpack('I', n[0:4])
+      ngu.random.reseed(n)
+-From 4f58482b4ab047377882fbd13c8011c09bf7ed43 Mon Sep 17 00:00:00 2001
++From 6611c466657733a52e5dff3253a03e7861f88a68 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Tue, 4 Aug 2026 18:44:33 +0200
+ Subject: [PATCH 3/8] Require external entropy for all new master seed wallets
+@@ -89,7 +91,7 @@
+  unix/variant/touch.py      |   6 +
+  10 files changed, 766 insertions(+), 54 deletions(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index d386adc7..0abe1d4c 100644
++index 20b964f3..cfe90424 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -8,6 +8,16 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -107,7 +109,8 @@
+ +      and key identity are mixed in, with a conservative one bit of entropy
+ +      credited per accepted press.
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+- # Mk Specific Changes
++ - Bugfix: Prevent access to Seed Vault entries through Seed XOR restore in Delta Mode. Thanks to
++   Rety for reporting this.
+ diff --git a/shared/keyboard.py b/shared/keyboard.py
+ index 9f254d71..83c362a1 100644
+ --- a/shared/keyboard.py
+@@ -757,7 +760,7 @@
+  def press_cancel(need_keypress, has_qwerty):
+      def doit(**kws):
+ diff --git a/testing/test_ux.py b/testing/test_ux.py
+-index f8b96977..d122302e 100644
++index aa644280..fe515aef 100644
+ --- a/testing/test_ux.py
+ +++ b/testing/test_ux.py
+ @@ -3,7 +3,7 @@
+@@ -1178,7 +1181,7 @@
+                  # Q1 simulator sends keynumbers, from shared/charcodes.py
+                  numpad.process_chg_state(new_presses)
+              else:
+-From d8f73c10ad928230541a6a7642fb1ca1e623824e Mon Sep 17 00:00:00 2001
++From 4aea283c2c9597187e2012076482e0ef1178ba34 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 11:43:52 +0200
+ Subject: [PATCH 4/8] Warn before dice-only seed generation
+@@ -1188,7 +1191,7 @@
+  testing/test_ux.py         |  6 ++++++
+  3 files changed, 19 insertions(+)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index 0abe1d4c..4ec72611 100644
++index cfe90424..862f84b3 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -18,6 +18,8 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -1198,7 +1201,8 @@
+ +- Enhancement: Dice-only seed generation now warns that no hardware randomness is
+ +  included and the final hash shown on-screen must be kept secret.
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+- # Mk Specific Changes
++ - Bugfix: Prevent access to Seed Vault entries through Seed XOR restore in Delta Mode. Thanks to
++   Rety for reporting this.
+ diff --git a/shared/seed.py b/shared/seed.py
+ index 3169004f..24b897c0 100644
+ --- a/shared/seed.py
+@@ -1224,7 +1228,7 @@
+      seed = b''
+      count = 0
+ diff --git a/testing/test_ux.py b/testing/test_ux.py
+-index d122302e..f346b167 100644
++index fe515aef..a03db716 100644
+ --- a/testing/test_ux.py
+ +++ b/testing/test_ux.py
+ @@ -229,6 +229,12 @@ def test_import_from_dice(count, nwords, goto_home, pick_menu_item, cap_story, n
+@@ -1238,7 +1242,7 @@
+ +    time.sleep(0.1)
+      gave = ''
+      for i in range(count):
+-From 62a502879c484e2d9d5b7ff7ed2ae1bbea30c464 Mon Sep 17 00:00:00 2001
++From 99ffd0ef1405abf4c824930e10caa6ab25fc5126 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 12:20:43 +0200
+ Subject: [PATCH 5/8] external entropy required for CCC key and temporary seeds
+@@ -1250,7 +1254,7 @@
+  testing/test_ephemeral.py  | 11 ++++++++---
+  5 files changed, 38 insertions(+), 16 deletions(-)
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index 4ec72611..0fcb6b62 100644
++index 862f84b3..6c085e9c 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -20,6 +20,8 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -1260,7 +1264,8 @@
+ +- Change: Generated Temporary Seeds and generated CCC key C now require extra
+ +  user supplied entropy.
+  - Bugfix: Detect RNG_SR_SEIS and RNG_SR_SECS, retry safely, and fail closed on persistent faults.
+- # Mk Specific Changes
++ - Bugfix: Prevent access to Seed Vault entries through Seed XOR restore in Delta Mode. Thanks to
++   Rety for reporting this.
+ diff --git a/shared/ccc.py b/shared/ccc.py
+ index c536944b..3c154380 100644
+ --- a/shared/ccc.py
+@@ -1360,7 +1365,7 @@
+  async def set_seed_extended_key(extended_key):
+      encoded, chain = xprv_to_encoded_secret(extended_key)
+ diff --git a/testing/test_ccc.py b/testing/test_ccc.py
+-index e3a88b74..623f5f12 100644
++index 91a09d3c..5de5f275 100644
+ --- a/testing/test_ccc.py
+ +++ b/testing/test_ccc.py
+ @@ -189,7 +189,7 @@ def doit():
+@@ -1433,7 +1438,7 @@
+      time.sleep(0.1)
+      need_keypress("6")  # skip quiz
+      press_select()
+-From 6a55baf02ead10b2c26ec7a4f399e25b8e701fdc Mon Sep 17 00:00:00 2001
++From dee50c3671a6e9d7c7567d9cbbdb1c90b47cb43f Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Wed, 5 Aug 2026 14:48:30 +0200
+ Subject: [PATCH 6/8] Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+@@ -1449,7 +1454,7 @@
+ -Subproject commit 537519a829259622ea6b0334fbafd6cae852852f
+ +Subproject commit 5d04106a16afea6c3aa7802366e1687e55331cf8
+ diff --git a/releases/Next-ChangeLog.md b/releases/Next-ChangeLog.md
+-index 0fcb6b62..28d48077 100644
++index 6c085e9c..56c15291 100644
+ --- a/releases/Next-ChangeLog.md
+ +++ b/releases/Next-ChangeLog.md
+ @@ -8,6 +8,8 @@ This lists the new changes that have not yet been published in a normal release.
+@@ -1461,7 +1466,7 @@
+  - Change: New master seeds now require extra user supplied entropy.
+      - Choose key mashing (based on [Peter Todd's Push-Button RNG](https://petertodd.org/2014/push-button-rng)),
+        physical dice rolls or physical coin flips.
+-From 11d813022ee482d1debcd64c0e8d96ada18cca9d Mon Sep 17 00:00:00 2001
++From ed64ec05550f9456c6356ca5470b54721254c10e Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Fri, 7 Aug 2026 09:57:58 +0200
+ Subject: [PATCH 7/8] exclude schnorr/musig from libngu to save flash space;
+@@ -1540,7 +1545,7 @@
+ +MICROPY_PY_THREAD = 0
+  # Subset of CPython termios module
+  MICROPY_PY_TERMIOS = 1
+-From c81f966aa61df985071933b5267803c2d49fa1e2 Mon Sep 17 00:00:00 2001
++From 0e766281ab27d8794509cb736f02624fd99d06e4 Mon Sep 17 00:00:00 2001
+ From: scgbckbone <scgbckbone@proton.me>
+ Date: Thu, 13 Aug 2026 11:45:48 +0200
+ Subject: [PATCH 8/8] review: code dedup - save flash space

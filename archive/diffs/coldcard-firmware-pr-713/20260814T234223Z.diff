@@ -1,0 +1,147 @@
+--- coldcard-firmware-pr-713@20260814T082549Z
++++ coldcard-firmware-pr-713@20260814T234223Z
+@@ -120,12 +120,12 @@
+ Insights
+ Improve seed generation - mash timing with microsecond-resolution - #713
+ #713
+-Open
++Closed
+ scgbckbone wants to merge 8 commits into
+ Coldcard:masterColdcard/firmware:masterfrom
+ scgbckbone:improve_seed_gen-mash-timingscgbckbone/firmware:improve_seed_gen-mash-timingCopy head branch name to clipboard
+ ConversationCommits8 (8)ChecksFiles changed
+-Open
++Closed
+ Improve seed generation - mash timing with microsecond-resolution#713
+ scgbckbone wants to merge 8 commits into
+ Coldcard:masterColdcard/firmware:masterfrom
+@@ -147,14 +147,7 @@
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+-All reactions
+-scgbckbone
+-added 2 commits
+-August 5, 2026 15:35
+-Mix secure element entropy into seed generation
+-f460ce3
+-reseed with full 32 bytes of digest from SE1/SE2 entropy sources
+-d16d47b
++<github-reactions>
+ scgbckbone
+ commented
+ Aug 7, 2026
+@@ -189,24 +182,7 @@
+ Aug 11, 2026
+ fix: feed full SE digest to PRNG reseed (drop 32-bit truncation)
+ #691
+-Draft
+-scgbckbone
+-added 5 commits
+-August 11, 2026 15:42
+-Require external entropy for all new master seed wallets - with new o…
+-…
+-4f58482
+-…ptions dice/coin/mash
+-Warn before dice-only seed generation
+-d8f73c1
+-external entropy required for CCC key and temporary seeds
+-62a5028
+-Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
+-6a55baf
+-exclude schnorr/musig from libngu to save flash space; add adition ma…
+-…
+-11d8130
+-…cro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
++Closed
+ scgbckbone
+ force-pushed
+ the
+@@ -249,7 +225,7 @@
+ Aug 11, 2026
+ rng: verify libngu bytes path reaches hardware driver
+ #700
+-Open
++Merged
+ doc-hex
+ commented
+ Aug 12, 2026
+@@ -267,7 +243,7 @@
+ but don't try to be precise about key-gaps, just add samples from the h/w counter in response to key edges events
+ for example, when in 'mosh mode', add samples to a list as edge event happen; pull that entropy out at higher level
+ then we wouldn't need to change the API so much => less bugs
+-All reactions
++<github-reactions>
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+@@ -311,8 +287,6 @@
+ Sorry, something went wrong.
+ Uh oh!
+ There was an error while loading. Please reload this page.
+-review: code dedup - save flash space
+-c81f966
+ scgbckbone
+ force-pushed
+ the
+@@ -323,6 +297,60 @@
+ c81f966
+ Compare
+ August 13, 2026 14:15
++scgbckbone
++added 8 commits
++August 14, 2026 11:02
++Mix secure element entropy into seed generation
++595a557
++reseed with full 32 bytes of digest from SE1/SE2 entropy sources
++8e55504
++Require external entropy for all new master seed wallets - with new o…
++…
++6611c46
++…ptions dice/coin/mash
++Warn before dice-only seed generation
++4aea283
++external entropy required for CCC key and temporary seeds
++99ffd0e
++Bump libngu: SHA-256 Hash-DRBG replaces Yasmarang
++dee50c3
++exclude schnorr/musig from libngu to save flash space; add adition ma…
++…
++ed64ec0
++…cro NGU_STM32_EXTERNAL_RNG_GET; disable threads for unix port
++review: code dedup - save flash space
++0e76628
++scgbckbone
++force-pushed
++the
++improve_seed_gen-mash-timing
++branch
++from
++c81f966 to
++0e76628
++Compare
++August 14, 2026 09:02
++scgbckbone
++mentioned this pull request
++Aug 14, 2026
++Improve seed generation
++#727
++Merged
++scgbckbone
++commented
++Aug 14, 2026
++Copy link
++Copy Markdown
++Collaborator
++Author
++superseded by #727
++All reactions
++Sorry, something went wrong.
++Uh oh!
++There was an error while loading. Please reload this page.
++scgbckbone
++closed this
++Aug 14, 2026
+ This file contains hidden or bidirectional Unicode text that may be interpreted or compiled differently than what appears below. To review, open the file in an editor that reveals hidden Unicode characters.
+ Learn more about bidirectional Unicode characters
+ Show hidden characters
