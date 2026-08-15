@@ -2528,3 +2528,9 @@
 - trezor-2084975929948766645  +1 -1
 - afilini-2085269060028170742  +44 -0
 - kloaec-fork-scam-warning  +121 -1
+
+## 20260815T012334Z
+
+- bitkey-relationship-enrollment-report  +1 -0
+- coldcard-hack-tracker  +17 -6
+- samsamskies-tracker-readme  +19 -18
